@@ -9,7 +9,7 @@ class Inst {
      * Manhunt 2 - entity_pc.inst pack/unpack
      */
 
-    public function unpack($data){
+    public function unpack($data, $game){
 
         $binary = new Binary( $data );
 
@@ -28,14 +28,14 @@ class Inst {
         $pos = 0;
         foreach ($sizes as $size) {
             $size = $size->toInt();
-            $records[] = $this->parseRecord( $content->substr($pos, $size) );
+            $records[] = $this->parseRecord( $content->substr($pos, $size), $game );
             $pos += $size;
         }
 
         return $records;
     }
 
-    public function pack( $records ){
+    public function pack( $records, $game ){
 
         $result = new Binary();
 
@@ -92,38 +92,43 @@ class Inst {
                 $entry->addHex( str_repeat('70', $entityClass->getMissedBytes() - 1 ) );
             }
 
-            /*
-             * Append parameters
-             */
-            foreach ($record['parameters'] as $parameter) {
+            if ($game == "mh2"){
 
-                $entry->addBinary(pack('L' , $parameter['parameterId']));
+                /*
+                 * Append parameters
+                 */
+                foreach ($record['parameters'] as $parameter) {
 
-                $type = new Binary($parameter['type']);
-                $type->addMissedBytes('00');
+                    $entry->addBinary(pack('L' , $parameter['parameterId']));
 
-                $entry->append($type);
+                    $type = new Binary($parameter['type']);
+                    $type->addMissedBytes('00');
 
-                switch ($parameter['type']) {
-                    case 'flo':
-                        $entry->addBinary(pack("f", $parameter['value']));
-                        break;
-                    case 'boo':
-                    case 'int':
-                        $entry->addBinary( pack("L", $parameter['value']) );
-                        break;
-                    case 'str':
+                    $entry->append($type);
 
-                        $value = new Binary($parameter['value']);
-                        $missedToFinal4Byte = $value->getMissedBytes() - 1;
+                    switch ($parameter['type']) {
+                        case 'flo':
+                            $entry->addBinary(pack("f", $parameter['value']));
+                            break;
+                        case 'boo':
+                        case 'int':
+                            $entry->addBinary( pack("L", $parameter['value']) );
+                            break;
+                        case 'str':
 
-                        $entry->append($value);
+                            $value = new Binary($parameter['value']);
+                            $missedToFinal4Byte = $value->getMissedBytes() - 1;
 
-                        $entry->addHex('00');
-                        $entry->addHex( str_repeat('70', $missedToFinal4Byte ) );
+                            $entry->append($value);
 
-                        break;
+                            $entry->addHex('00');
+                            $entry->addHex( str_repeat('70', $missedToFinal4Byte ) );
+
+                            break;
+                    }
                 }
+            }else{
+                $entry->addHex($record['parameters']);
             }
 
             $recordBin[] = $entry;
@@ -145,13 +150,13 @@ class Inst {
     }
 
 
-    public function parseRecord( Binary $record ){
+    public function parseRecord( Binary $record, $game ){
 
         /** @var Binary $remain */
         /** @var Binary $rotation */
 
         /**
-         * Find the Glg Record
+         * Find the  Record
          */
         $glgRecord = $record->substr(0, "\x00", $remain);
         $remain = $remain->skipBytes($glgRecord->getMissedBytes());
@@ -178,51 +183,55 @@ class Inst {
         $remain = $remain->skipBytes($entityClass->getMissedBytes());
 
 
-        /**
-         * Find parameters
-         */
-        $params = [];
-        do {
-
-            // always 4-byte long
-            $parameterId  = $remain->substr(0, 4, $remain);
-
-            if ($remain->length()){
+        if ($game == "mh2"){
+            /**
+             * Find parameters
+             */
+            $params = [];
+            do {
 
                 // always 4-byte long
-                $type = $remain->substr(0, 4, $remain);
+                $parameterId  = $remain->substr(0, 4, $remain);
+                if ($remain->length()){
 
-                // float, boolean, integer are always 4-byte long
-                // string need to be calculated
-                switch ($type->toString()) {
-                    case 'flo':
-                        $value = $remain->substr(0, 4, $remain)->toFloat();
-                        break;
-                    case 'boo':
-                        $value = $remain->substr(0, 4, $remain)->toBoolean();
-                        break;
-                    case 'int':
-                        $value = $remain->substr(0, 4, $remain)->toInt();
-                        break;
-                    case 'str':
+                    // always 4-byte long
+                    $type = $remain->substr(0, 4, $remain);
 
-                        $value = $remain->substr(0, "\x00", $remain);
-                        $remain = $remain->skipBytes($value->getMissedBytes());
-                        $value = $value->toString();
-                        break;
-                    default:
-                        var_dump($internalName);
-                        die("type unknown " . $type->toHex());
+                    // float, boolean, integer are always 4-byte long
+                    // string need to be calculated
+                    switch ($type->toString()) {
+                        case 'flo':
+                            $value = $remain->substr(0, 4, $remain)->toFloat();
+                            break;
+                        case 'boo':
+                            $value = $remain->substr(0, 4, $remain)->toBoolean();
+                            break;
+                        case 'int':
+                            $value = $remain->substr(0, 4, $remain)->toInt();
+                            break;
+                        case 'str':
+
+                            $value = $remain->substr(0, "\x00", $remain);
+                            $remain = $remain->skipBytes($value->getMissedBytes());
+                            $value = $value->toString();
+                            break;
+                        default:
+                            var_dump($internalName);
+                            die("type unknown " . $type->toHex());
+                    }
+
+                    $params[] = [
+                        'parameterId' => $parameterId->toInt(),
+                        'type' => $type->toString(),
+                        'value' => $value
+                    ];
                 }
 
-                $params[] = [
-                    'parameterId' => $parameterId->toInt(),
-                    'type' => $type->toString(),
-                    'value' => $value
-                ];
-            }
+            }while($remain->length());
 
-        }while($remain->length());
+        }else{
+            $params = $remain->toHex();
+        }
 
         return [
             'record' => $glgRecord->toBinary(),

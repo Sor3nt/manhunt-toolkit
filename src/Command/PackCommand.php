@@ -93,7 +93,7 @@ class PackCommand extends Command
 
             // Inst file
             }else if (
-                (strpos($content, "glgRecord") !== false) &&
+                (strpos($content, "record") !== false) &&
                 (strpos($content, "internalName") !== false) &&
                 (strpos($content, "entityClass") !== false)
             ){
@@ -103,7 +103,15 @@ class PackCommand extends Command
                 }
 
 
-                $this->packInst( $content, $saveTo);
+                $question = new ChoiceQuestion(
+                    'Please provide the game (defaults to mh1 and mh2)',
+                    array('mh1', 'mh2'),
+                    '0'
+                );
+
+                $game = strtolower($helper->ask($input, $output, $question));
+
+                $this->packInst( $content, $saveTo, $game);
 
             }else{
                 die("unable to detect file or unsupported");
@@ -188,8 +196,8 @@ class PackCommand extends Command
         file_put_contents($saveTo, $content);
 
     }
-    private function packInst($content, $saveTo){
-        $content = $this->inst->pack( \json_decode($content, true) );
+    private function packInst($content, $saveTo, $game){
+        $content = $this->inst->pack( \json_decode($content, true), $game );
         file_put_contents($saveTo, $content);
 
     }

@@ -118,7 +118,16 @@ class UnpackCommand extends Command
 
             $output->writeln("INST file detected");
 
-            $unpacked = $this->inst->unpack( $content );
+
+            $question = new ChoiceQuestion(
+                'Please provide the game (defaults to mh1 and mh2)',
+                array('mh1', 'mh2'),
+                '0'
+            );
+
+            $game = strtolower($helper->ask($input, $output, $question));
+
+            $unpacked = $this->inst->unpack( $content, $game );
 
             $outputTo = $folder . '/' . $filename . "." . $ext . ".json";
 
