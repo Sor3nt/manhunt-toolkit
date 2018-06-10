@@ -124,8 +124,6 @@ class Mls extends ZLib {
 
                 case 'SCPT':
                     /** @var Binary $data */
-                    /** @var Binary $unknown1 */
-                    /** @var Binary $unknown2 */
                     $scptParts = $data->split(72);
 
                     foreach ($scptParts as $index =>  $part) {
@@ -274,6 +272,8 @@ class Mls extends ZLib {
                     $entries = [];
                     do {
 
+                        $entry = [];
+
                         /**
                          * section 1 is 32 byte long
                          *
@@ -297,111 +297,137 @@ class Mls extends ZLib {
                         /** @var Binary $section2 */
 
                         $section1 = $code->substr(0, 32, $code);
+                        $section2 = $code->substr(0, $game == "mh1" ? 16 : 20, $code);
+
                         $name = $section1->substr(0, "\x00", $unknown1);
+                        $entry['name'] = $name->toString();
 
                         /** @var Binary $unknown1 */
                         $unknown1 = $unknown1->skipBytes(1);
 
-                        $section2 = $code->substr(0, $game == "mh1" ? 16 : 20, $code);
 
                         $section2 = $section2->split(4);
 
                         /** @var Binary[] $section2 */
 
-                        $definedAtOffset = $section2[0];
-                        $defaultSize = $section2[1];
-                        $type2 = $section2[2];
-                        $valueType = $section2[3];
-
-                        /**
-                         * note: occurrences exists only in MH2
-                         */
-                        $occurrences = [];
-
-                        if ($game == "mh2"){
-                            $occurrenceCount = $section2[4]->toInt();
-
-                            if ($occurrenceCount > 0){
-                                $occurrencesRaw = $code->substr(0, $occurrenceCount * 4, $code)->split(4);
-                                foreach ($occurrencesRaw as $occurrence) {
-                                    $occurrences[] = $occurrence->toInt();
-                                }
-                            }
+                        if ($section2[0]->toHex() == "ffffffff"){
+                            $entry['offset'] = false;
+                        }else{
+                            $entry['offset'] = $section2[0]->toInt();
                         }
 
-                        switch ($valueType->toBinary()){
+                        if ($section2[1]->toHex() == "ffffffff"){
+                            $entry['size'] = false;
+                        }else{
+                            $entry['size'] = $section2[1]->toInt();
+                        }
 
-                            case "\x00\x00\x00\x00";
+
+                        if ($game == "mh1"){
+                            $entry['valueType'] = $section2[2]->toHex();
+                            $entry['occurrenceCount'] = $section2[3]->toInt();
+
+                        }else{
+
+                            $entry['unknownType'] = $section2[2]->toHex();
+                            $entry['valueType'] = $section2[3]->toHex();
+                            $entry['occurrenceCount'] = $section2[4]->toInt();
+                        }
+
+
+
+                        switch ($entry['valueType']){
+
+
+                            case "00000000";
                                 $objectType = "integer";
                                 break;
 
-                            case "\x01\x00\x00\x00";
+                            case "01000000";
                                 $objectType = "level_var boolean";
                                 break;
 
-                            case "\x02\x00\x00\x00";
+                            case "02000000";
                                 $objectType = "game_var real";
                                 break;
 
-                            case "\x03\x00\x00\x00";
+                            case "03000000";
                                 $objectType = "boolean";
                                 break;
 
-                            case "\x05\x00\x00\x00";
+                            case "04000000";
+                                $objectType = "level_var integer";
+                                break;
+
+                            case "05000000";
                                 $objectType = "string";
                                 break;
 
-                            case "\x06\x00\x00\x00";
+                            case "06000000";
                                 $objectType = "vec3d";
                                 break;
 
-                            case "\x08\x00\x00\x00";
+                            case "07000000";
+                                $objectType = "game_var integer";
+                                break;
+
+
+                            case "0a000000";
+                                $objectType = "unknown 0a";
+                                break;
+
+
+                            case "feffffff";
+                                $objectType = "unknown fe";
+                                break;
+
+                            case "ffffffff";
+                                $objectType = "unknown ff";
+                                break;
+
+
+                            case "08000000";
                                 $objectType = "tLevelState";
                                 break;
 
                             default:
-                                var_dump($name->toString());
-                                throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType->toHex() ));
+                                var_dump($name->toBinary());
+                                throw new \Exception(sprintf('Unknown object type sequence: %s', $entry['valueType'] ));
                                 break;
 
                         }
 
+                        $entry['objectType'] = $objectType;
 
-                        if ($definedAtOffset->toBinary() == "\xff\xff\xff\xff"){
-                            $definedAtOffset = false;
-                        }else{
-                            $definedAtOffset = $definedAtOffset->toInt();
+
+                        $entry['occurrences'] = [];
+
+
+                        if ($entry['occurrenceCount'] > 0){
+                            $occurrencesRaw = $code->substr(0, $entry['occurrenceCount'] * 4, $code)->split(4);
+                            foreach ($occurrencesRaw as $occurrence) {
+                                $entry['occurrences'][] = $occurrence->toInt();
+                            }
                         }
 
-                        if ($defaultSize->toBinary() == "\xff\xff\xff\xff"){
-                            $defaultSize = false;
-                        }else{
-                            $defaultSize = $defaultSize->toInt();
-                        }
 
-                        $result = [
-                            'name' => $name->toString(),
-                            'offset' => $definedAtOffset,
-                            'valueSize' => $defaultSize,
-                            'valueType' => $objectType,
-                            'occurrence' => $occurrences,
-                            'type2' => $type2->toHex()
-
-                        ];
 
 
                         //these are the values inside the first 32-byte name section, appear right after the name -- looks like garbage
                         if ($unknown1->toString() != ""){
-                            $result['unknown'] = "";
+                            $entry['unknown'] = "";
 
                             $split = $unknown1->split(4);
                             foreach ($split as $item) {
-                                $result['unknown'] .= $item->toHex();
+                                $entry['unknown'] .= $item->toHex();
                             }
 
                         }
 
-                        $entries[] = $result;
+                        unset($entry['valueType']);
+                        unset($entry['occurrenceCount']);
+
+                        $entries[] = $entry;
 
 
                     }while($code->length());
@@ -439,7 +465,6 @@ class Mls extends ZLib {
             // add the name - section is 32-byte long
             $code .= hex2bin($this->pad(current(unpack("H*", $name)), 64 * 2));
 
-            // add unknown fields
             $code .= hex2bin($this->fromIntToHex($priority));
             $code .= hex2bin($this->fromIntToHex($position));
         }
@@ -683,18 +708,19 @@ class Mls extends ZLib {
                 }
 
                 // add size
-                if ($record['valueSize'] === false){
+                if ($record['size'] === false){
                     $stabCode .= "\xff\xff\xff\xff";
                 }else{
-                    $stabCode .= hex2bin($this->fromIntToHex( $record['valueSize']));
+                    $stabCode .= hex2bin($this->fromIntToHex( $record['size']));
                 }
 
 
-                // add type2 ( still unknown )
+                if (isset($record['unknownType'])){
+                    // add type2 ( still unknown )
+                    $stabCode .= hex2bin($record['unknownType']);
 
-                $stabCode .= hex2bin($record['type2']);
-
-                switch ($record['valueType']){
+                }
+                switch ($record['objectType']){
 
                     case 'integer':
                         $stabCode .= "\x00\x00\x00\x00";
@@ -708,28 +734,46 @@ class Mls extends ZLib {
                     case 'boolean':
                         $stabCode .= "\x03\x00\x00\x00";
                         break;
+                    case 'level_var integer':
+                        $stabCode .= "\x04\x00\x00\x00";
+                        break;
                     case 'string':
                         $stabCode .= "\x05\x00\x00\x00";
                         break;
                     case 'vec3d':
                         $stabCode .= "\x06\x00\x00\x00";
                         break;
+                    case 'game_var integer':
+                        $stabCode .= "\x07\x00\x00\x00";
+                        break;
                     case 'tLevelState':
                         $stabCode .= "\x08\x00\x00\x00";
                         break;
+                    case 'unknown 0a':
+                        $stabCode .= "\x0a\x00\x00\x00";
+                        break;
+                    case 'unknown fe':
+                        $stabCode .= "\xfe\xff\xff\xff";
+                        break;
+                    case 'unknown ff':
+                        $stabCode .= "\xff\xff\xff\xff";
+                        break;
                     default:
-                        throw new \Exception(sprintf('Unknown object type requested: %s', $record['valueType'] ));
+                        var_dump($record);
+                        exit;
+
+                        throw new \Exception(sprintf('Unknown object type requested: %s', strlen($record['valueType']) ));
                         break;
 
                 }
 
-                if (count($record['occurrence']) ){
+                if (count($record['occurrences']) ){
 
                     // add occurrence count
-                    $stabCode .= hex2bin($this->fromIntToHex( count($record['occurrence'])));
+                    $stabCode .= hex2bin($this->fromIntToHex( count($record['occurrences'])));
 
                     // add occurrence position
-                    foreach ($record['occurrence'] as $occurrence) {
+                    foreach ($record['occurrences'] as $occurrence) {
                         $stabCode .= hex2bin($this->fromIntToHex( $occurrence));
                     }
 

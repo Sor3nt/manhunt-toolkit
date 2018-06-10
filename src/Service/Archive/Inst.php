@@ -49,7 +49,7 @@ class Inst {
             /*
              * Append GlgRecord name
              */
-            $glgRecord = new Binary($record['glgRecord']);
+            $glgRecord = new Binary($record['record']);
 
             $entry->append( $glgRecord );
             $entry->addHex('00');
@@ -169,7 +169,6 @@ class Inst {
 
         $xyz = $position->substr(0, 12, $rotation);
         $xyz = unpack('g*' , $xyz->toBinary());
-
         $rotation = unpack('g*' , $rotation->toBinary());
 
         /**
@@ -177,6 +176,7 @@ class Inst {
          */
         $entityClass = $remain->substr(0, "\x00", $remain);
         $remain = $remain->skipBytes($entityClass->getMissedBytes());
+
 
         /**
          * Find parameters
@@ -211,7 +211,8 @@ class Inst {
                         $value = $value->toString();
                         break;
                     default:
-                        die("type unknown " . $type->toString());
+                        var_dump($internalName);
+                        die("type unknown " . $type->toHex());
                 }
 
                 $params[] = [
@@ -224,7 +225,7 @@ class Inst {
         }while($remain->length());
 
         return [
-            'glgRecord' => $glgRecord->toBinary(),
+            'record' => $glgRecord->toBinary(),
             'internalName' => $internalName->toBinary(),
             'entityClass' => $entityClass->toBinary(),
             'position' => $xyz,

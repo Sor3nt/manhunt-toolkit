@@ -63,79 +63,75 @@ class UnpackCommand extends Command
         $content = file_get_contents($file);
         $contentAsHex = bin2hex($content);
 
-        switch (substr($contentAsHex, 0, 8)){
+        // we found a zLib compressed file, extract them
+        if (substr($contentAsHex, 0, 8) === "5a32484d"){
+            $output->writeln("zLib compressed file detected");
+            $content = $this->mls->uncompress( $content );
+            $contentAsHex = bin2hex($content);
+        }
 
-            //Z2HM => zLib Compressed file
-            case '5a32484d':
+        // we found a MLS scipt
+        if (substr($contentAsHex, 0, 8) == "4d484c53") { // MHLS
+            $output->writeln("MHLS (MLS) file detected");
 
-                $output->writeln("zLib compressed file detected");
+            $question = new ChoiceQuestion(
+                'Please provide the game (defaults to mh1 and mh2)',
+                array('mh1', 'mh2'),
+                '0'
+            );
 
-                $uncompressed = $this->mls->uncompress( $content );
+            $game = strtolower($helper->ask($input, $output, $question));
 
-                $asHex = bin2hex($uncompressed);
-
-                $first4BytesOfUncompressed = substr($asHex, 0, 8);
-
-                // MHLS Script file
-                if ($first4BytesOfUncompressed == "4d484c53") { // MHLS
-                    $output->writeln("MHLS (MLS) file detected");
-
-                    $question = new ChoiceQuestion(
-                        'Please provide the game (defaults to mh1 and mh2)',
-                        array('mh1', 'mh2'),
-                        '0'
-                    );
-
-                    $game = strtolower($helper->ask($input, $output, $question));
-
-                    $outputTo = $folder . '/extracted/' . $filename . "." . $ext . "/";
-
-                    $mhls = $this->mls->unpack($uncompressed, $game, $output);
-
-                    $this->saveMHLS( $mhls,  $outputTo);
+            $outputTo = $folder . '/extracted/' . $filename . "." . $ext . "/";
 
 
-                // GLG file
-                }else {
+            file_put_contents(
+                $outputTo . 'ori.uncompressed',
+                $content
+            );
 
-                    $output->writeln("GLG file detected");
-                    $outputTo = $folder . '/' . $filename . "." . $ext . ".txt";
+            $mhls = $this->mls->unpack($content, $game, $output);
 
-                    file_put_contents(
-                        $outputTo,
-                        $uncompressed
-                    );
-                }
-
-                break;
-
-            default:
-
-                // quick detection for INST format
-                if (
-                    (substr($contentAsHex, 4, 4) == "0000") &&
-                    (substr($contentAsHex, 10, 6) == "000000")
-                ) {
-
-                    $output->writeln("INST file detected");
-
-                    $unpacked = $this->inst->unpack( $content );
-
-                    $outputTo = $folder . '/' . $filename . "." . $ext . ".json";
-
-                    file_put_contents(
-                        $outputTo,
-                        \json_encode($unpacked, JSON_PRETTY_PRINT)
-                    );
-
-                }else{
-                    die("unknown ");
-
-                }
-
-
+            $this->saveMHLS( $mhls,  $outputTo);
 
         }
+        // GLG Record
+        else if (
+            (strpos(strtolower($content), "record ") !== false) &&
+            (strpos(strtolower($content), "end") !== false)
+        ){
+
+            $output->writeln("GLG file detected");
+            $outputTo = $folder . '/' . $filename . "." . $ext . ".txt";
+
+            file_put_contents(
+                $outputTo,
+                $content
+            );
+        }
+
+        // INST format
+        else if (
+            (substr($contentAsHex, 4, 4) == "0000") &&
+            (substr($contentAsHex, 10, 6) == "000000")
+        ) {
+
+            $output->writeln("INST file detected");
+
+            $unpacked = $this->inst->unpack( $content );
+
+            $outputTo = $folder . '/' . $filename . "." . $ext . ".json";
+
+            file_put_contents(
+                $outputTo,
+                \json_encode($unpacked, JSON_PRETTY_PRINT)
+            );
+
+        }else{
+            die("unknown ");
+
+        }
+
 
         $output->writeln('done');
     }

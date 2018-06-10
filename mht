@@ -17,4 +17,8 @@ $application->add($command);
 $command = new \App\Command\UnpackCommand(new \App\Service\Archive\Mls(), new \App\Service\Archive\Glg(), new \App\Service\Archive\Inst());
 $application->add($command);
 
+$command = new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain());
+$application->add($command);
+
+
 $application->run();
