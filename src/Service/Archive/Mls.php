@@ -536,44 +536,56 @@ class Mls extends ZLib {
 
         if (isset($records['DATA'])){
 
-            $dataCode = $records['DATARAW'];
+            $stringArraySizes = 0;
 
-//
-//            $stringArraySizes = 0;
-//
-//            if (isset($records['STAB'])){
-//                $stab = \json_decode($records['STAB'], true);
-//
-//                foreach ($stab as $item) {
-//                    if ($item["valueSize"] === false) $item["valueSize"] = 4;
-//
-//                    $stringArraySizes += $item["valueSize"];
-//                }
-//
-//            }
-//
-//            $dataCode = "";
-//
-//            foreach (explode("\n", $records['DATA']) as $name) {
-//
-//                $name = current(unpack("H*", $name));
-//                $name .= "00";
-//                $nameLength = strlen($name);
-//
-//                // add NAME size (its always / max 16)
-//                $dataCode .= ($this->pad($name , $nameLength +  (8 - $nameLength % 8), false, 'da'));
-//
-//            }
-//
-//            $dataCode .= str_repeat('da', $stringArraySizes);
-//
-//            $dataCodeLength = (strlen($dataCode) / 2) + 2;
-//            $dataCode = $this->pad($dataCode, ($dataCodeLength * 2) +  ($dataCodeLength % 4), false, 'da');
+            if (isset($records['STAB'])){
+                $stab = \json_decode($records['STAB'], true);
+
+                foreach ($stab as $item) {
+                    if ($item["size"] !== false){
+                        $stringArraySizes += $item["size"];
+                    }else{
+                        if (isset($item['occurrences']) && count($item['occurrences']) > 0) {
+                            // i am not sure about this part, we missed bytes, this solves it...
+                            $stringArraySizes += 2 * count($item['occurrences']);
+                        }else {
+                            $stringArraySizes += 4;
+                        }
+                    }
+                }
+            }
+
+            $dataCode = "";
+
+            foreach (explode("\n", $records['DATA']) as $name) {
+
+                $name = current(unpack("H*", $name));
+                $name .= "00";
+                $nameLength = strlen($name);
+
+                // add NAME size (its always / max 16)
+                $dataCodeTmp = $this->pad($name);
+                $dataCode .= ($this->pad($dataCodeTmp , $nameLength +  (8 - $nameLength % 8), false, 'da'));
+            }
+
+            $dataCode .= str_repeat('da', $stringArraySizes);
+
+            $dataCodeLength = strlen($dataCode) ;
+
+            $dataCode = $this->pad($dataCode, $dataCodeLength +  (8 - $dataCodeLength % 8), false, 'da');
+
+            if (substr($dataCode, -8) == "dadadada"){
+                $dataCode = substr($dataCode, 0, -8);
+            }
+
 
             /**
-             * NOTE: i dont know why but we produce to many spacings, but its not critical
+             * NOTE: it did not match 100% but the recompiled data works fine
              */
 
+//            $dataCode = $records['DATARAW'];
+//
+//
             // DATA Header
             $scriptCode = "\x44\x41\x54\x41";
 
@@ -837,7 +849,7 @@ class Mls extends ZLib {
             /**
              * When we pack multiple scripts, always add again the MHSC header
              */
-            if (count($scripts) > 1){
+//            if (count($scripts) > 1){
                 // MHSC header
                 $header = "\x4D\x48\x53\x43";
 
@@ -846,9 +858,9 @@ class Mls extends ZLib {
 
                 $mls .= $header . $scriptCode;
 
-            }else{
-                $mls .= $scriptCode;
-            }
+//            }else{
+//                $mls .= $scriptCode;
+//            }
 
             !is_null($progressBar) && $progressBar->advance();
 
