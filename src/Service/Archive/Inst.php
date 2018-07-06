@@ -67,9 +67,15 @@ class Inst {
             /*
              * Append XYZ coordinates
              */
-            $entry->addBinary(pack('g*' , $record['position'][1]));
-            $entry->addBinary(pack('g*' , $record['position'][2]));
-            $entry->addBinary(pack('g*' , $record['position'][3]));
+
+            if ($game == "mh2"){
+                $record['position']['y'] = $record['position']['y'] * -1;
+                $record['position']['z'] = $record['position']['z'] * -1;
+            }
+
+            $entry->addBinary(pack('g*' , $record['position']['x']));
+            $entry->addBinary(pack('g*' , $record['position']['y']));
+            $entry->addBinary(pack('g*' , $record['position']['z']));
 
             /*
              * Append rotation
@@ -172,8 +178,16 @@ class Inst {
          */
         $position = $remain->substr(0, 28, $remain);
 
-        $xyz = $position->substr(0, 12, $rotation);
-        $xyz = unpack('g*' , $xyz->toBinary());
+        $x = $position->substr(0, 4, $position);
+        $y = $position->substr(0, 4, $position);
+        $z = $position->substr(0, 4, $rotation);
+//        $xyz = $position->substr(0, 12, $rotation);
+        $x = current(unpack('g*' , $x->toBinary()));
+        $y = current(unpack('g*' , $y->toBinary()));
+        $z = current(unpack('g*' , $z->toBinary()));
+
+
+
         $rotation = unpack('g*' , $rotation->toBinary());
 
         /**
@@ -237,7 +251,11 @@ class Inst {
             'record' => $glgRecord->toBinary(),
             'internalName' => $internalName->toBinary(),
             'entityClass' => $entityClass->toBinary(),
-            'position' => $xyz,
+            'position' => [
+                'x' => $x,
+                'y' => $game == 'mh2' ? $y * -1 : $y,
+                'z' => $game == 'mh2' ? $z * -1 : $z,
+            ],
             'rotation' => $rotation,
             'parameters' => $params
         ];
