@@ -154,7 +154,7 @@ class Mls extends ZLib {
                     $unpacked['NAME'] = $data->substr(0, "\x00", $data)->toString();
 
                     // contains garbage
-                    $unpacked['NAME_remain'] = $data->toHex();
+//                    $unpacked['NAME_remain'] = $data->toHex();
 
                     !is_null($output) && $output->writeln(sprintf("<comment>%s</comment>", $unpacked['NAME']));
 
@@ -484,8 +484,9 @@ class Mls extends ZLib {
 
     private function buildNAME( $records ){
 
-        $name = current(unpack("H*", $records['NAME']));
-        $name .= $records['NAMEREMAIN'];
+        $data = current(unpack("H*", $records['NAME']));
+        $length = strlen($data);
+        $name = $this->pad($data, $length + (4 - $length % 4 ));
 
         // NAME Header
         $section = "\x4E\x41\x4D\x45";
@@ -498,6 +499,13 @@ class Mls extends ZLib {
     }
 
     private function buildENTT( $records ){
+
+        if (!isset($records['ENTT'])){
+
+            // i dont know why, even the code did not use any entites we still need one...
+            $records['ENTT'] = 'player(player),0';
+//            $records['ENTT'] = 'a01_escape_asylum,2';
+        }
 
         list($name, $offset) = explode(",", $records['ENTT']);
 
