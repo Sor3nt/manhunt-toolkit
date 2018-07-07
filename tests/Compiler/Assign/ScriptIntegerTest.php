@@ -1,0 +1,74 @@
+<?php
+namespace App\Tests\Command;
+
+use App\Service\Archive\Glg;
+use App\Service\Archive\Mls;
+use App\Service\Compiler\Compiler;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
+class ScriptIntegerTest extends KernelTestCase
+{
+
+    public function test()
+    {
+
+        $script = "
+            scriptmain LevelScript;
+
+            script OnCreate;
+                var
+                    animLength : integer;
+                begin
+            		animLength := GetAnimationLength('ASY_NURSE_ATTACK4A');
+                end;
+
+            end.
+        ";
+
+        $expected = [
+            // script start
+            '10000000',
+            '0a000000',
+            '11000000',
+            '0a000000',
+            '09000000',
+
+            '21000000', // Prepare string read (DATA table)
+            '04000000', // Prepare string read (DATA table)
+            '01000000', // Prepare string read (DATA table)
+            '04000000', // offset
+
+            '12000000', // parameter (Read String var)
+            '02000000', // parameter (Read String var)
+            '13000000', // ASY_NURSE_ATTACK4A + 1
+            '10000000', // parameter (Read String var)
+            '01000000', // parameter (Read String var)
+
+            '10000000', // string pointer move
+            '02000000', // string pointer move
+
+            '49030000', // getanimationlength Call
+
+            '15000000',
+            '04000000',
+            '00000000',
+            '01000000',
+
+            // script end
+            '11000000',
+            '09000000',
+            '0a000000',
+            '0f000000',
+            '0a000000',
+            '3b000000',
+            '00000000'
+        ];
+
+        $compiler = new Compiler();
+        list($sectionCode, $sectionDATA) = $compiler->parse($script);
+//var_dump($sectionCode);
+//exit;
+        $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
+    }
+
+}

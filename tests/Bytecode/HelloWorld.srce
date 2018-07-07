@@ -1,0 +1,12 @@
+scriptmain LevelScript;
+
+script OnCreate;
+
+    begin
+
+        DisplayGameText('TEST1');
+
+    end;
+
+end.
+

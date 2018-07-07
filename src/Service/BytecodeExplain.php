@@ -1,59 +1,13 @@
 <?php
 namespace App\Service;
 
+use App\Bytecode\Helper;
+use App\Service\Compiler\FunctionMap\Manhunt2;
+
 class BytecodeExplain {
 
 
     private $mapping = [
-
-
-        'functions' => [
-
-            /**
-             * Any functions use always the same address
-             */
-
-            "AICutsceneEntityEnable"            => "\xa9\x02\x00\x00",
-
-            "cutsceneend"                       => "\x49\x01\x00\x00",
-            "ClearLevelGoal"                    => "\x42\x02\x00\x00",
-            "CutsceneStart"                     => "\x48\x01\x00\x00",
-            "CutsceneRegisterSkipScript"        => "\x20\x03\x00\x00",
-
-            "DisplayGameText"                   => "\x04\x01\x00\x00",
-
-            "FrisbeeSpeechPlay"                 => "\x66\x03\x00\x00",
-
-            'GetEntityName'                     => "\x86\x00\x00\x00",
-            "GetDoorState"                      => "\x96\x00\x00\x00",
-            "GetEntity"                         => "\x77\x00\x00\x00",
-
-            "HUDToggleFlashFlags"               => "\xb2\x02\x00\x00",
-
-            "IsWhiteNoiseDisplaying"            => "\xe7\x02\x00\x00",
-
-            "KillGameText"                      => "\x08\x01\x00\x00",
-            "KillScript"                        => "\xe5\x00\x00\x00",
-
-            "RunScript"                         => "\xe4\x00\x00\x00",
-
-            "SetDoorState"                      => "\x97\x00\x00\x00",
-            "SetSwitchState"                    => "\x95\x00\x00\x00",
-            "SetCurrentLOD"                     => "\x2d\x01\x00\x00",
-            "SetShowHudInCutscene"              => "\x86\x03\x00\x00",
-            "SetVector"                         => "\x84\x01\x00\x00",
-            "SetCameraPosition"                 => "\x92\x01\x00\x00",
-            "SetCameraView"                     => "\x8f\x01\x00\x00",
-            "SetZoomLerp"                       => "\xb5\x02\x00\x00",
-            "SetLevelGoal"                      => "\x41\x02\x00\x00",
-            "SetSlideDoorSpeed"                 => "\xae\x01\x00\x00",
-            "sleep"                             => "\x6a\x00\x00\x00",
-
-            "ToggleHudFlag"                     => "\x7f\x02\x00\x00",
-
-            "WriteDebug"                        => "\x74\x00\x00\x00"
-
-        ],
 
         'parameters' => [
 
@@ -70,7 +24,7 @@ class BytecodeExplain {
                     "\x10\x00\x00\x00" ,
                     "\x01\x00\x00\x00"
                 ],
-                'desc' => 'parameter (1)'
+                'desc' => 'parameter (read simple type (int/float...))'
             ],
 
             'variante_2' => [
@@ -83,7 +37,7 @@ class BytecodeExplain {
                     "\x01\x00\x00\x00"
                 ],
 
-                'desc' => 'parameter (2)'
+                'desc' => 'parameter (Read String var)'
             ],
 
             'variante_3' => [
@@ -97,7 +51,7 @@ class BytecodeExplain {
                     "\x04\x00\x00\x00"
                 ],
 
-                'desc' => 'parameter (3)'
+                'desc' => 'parameter (read string array? assign?)'
             ],
 
             'variante_4' => [
@@ -111,8 +65,37 @@ class BytecodeExplain {
                     "\x04\x00\x00\x00"
                 ],
 
-                'desc' => 'parameter (4)'
+                'desc' => 'parameter (access script var)'
             ],
+
+            'variante_5' => [
+
+                'start' => [
+                    "\x12\x00\x00\x00",
+                    "\x01\x00\x00\x00"
+                ],
+                'end' => [
+                    "\x1a\x00\x00\x00" ,
+                    "\x01\x00\x00\x00"
+                ],
+
+                'desc' => 'parameter (access level_var)'
+            ],
+
+            'variante_6' => [
+
+                'start' => [
+                    "\x12\x00\x00\x00",
+                    "\x01\x00\x00\x00"
+                ],
+                'end' => [
+                    "\x0f\x00\x00\x00" ,
+                    "\x04\x00\x00\x00"
+                ],
+
+                'desc' => 'parameter (temp)'
+            ],
+
         ],
 
 
@@ -145,24 +128,34 @@ class BytecodeExplain {
         ],
 
 
-        'return_str' => [
+        'set_str_offset_1' => [
             'hex' => [
                 "\x21\x00\x00\x00",
                 "\x04\x00\x00\x00",
                 "\x01\x00\x00\x00"
             ],
 
-            'desc' => 'assign string to'
+            'desc' => 'Prepare string read (DATA table)'
         ],
 
-        'return_str_arr' => [
+        'set_str_offset_2' => [
             'hex' => [
                 "\x21\x00\x00\x00",
                 "\x04\x00\x00\x00",
                 "\x04\x00\x00\x00"
             ],
 
-            'desc' => 'assign string array to'
+            'desc' => 'Prepare string read (header)'
+        ],
+
+        'set_str_offset_3' => [
+            'hex' => [
+                "\x22\x00\x00\x00",
+                "\x04\x00\x00\x00",
+                "\x01\x00\x00\x00"
+            ],
+
+            'desc' => 'Prepare string read (3)'
         ],
 
         'inverse_number' => [
@@ -176,6 +169,17 @@ class BytecodeExplain {
             ],
 
             'desc' => 'turn prev number into negative'
+        ],
+
+        'reserve_bytes' => [
+
+            'hex' => [
+                "\x34\x00\x00\x00",
+                "\x09\x00\x00\x00",
+            ],
+
+            'desc' => 'reserve bytes'
+
         ],
 
         'if_statement_1' => [
@@ -219,11 +223,14 @@ class BytecodeExplain {
 
         $this->mapIfStatement1( $lines, $result);
         $this->mapiÍnverseNumber( $lines, $result);
-        $this->mapReturnStr( $lines, $result);
-        $this->mapReturnStrArray( $lines, $result);
+        $this->mapStringOffset( $lines, $result);
+        $this->mapStringOffset2( $lines, $result);
+        $this->mapReserveBytes( $lines, $result);
+//        $this->mapStringOffset3( $lines, $result);
         $this->mapScriptStarts( $lines, $result);
         $this->mapScriptEnd( $lines, $result);
 
+        $this->mapLevelVarsBoolean( $lines, $result);
         $this->mapFunctionCalls( $lines, $result);
         $this->mapParameterCalls( $lines, $result);
 
@@ -363,23 +370,62 @@ class BytecodeExplain {
     }
 
 
-    private function mapReturnStr(array $lines, &$result ){
+    private function mapStringOffset(array $lines, &$result ){
         /** @var Binary[] $lines */
 
         foreach ($lines as $lineIndex => $line) {
 
             if (
-                $line->toBinary() == $this->mapping['return_str']['hex'][0] &&
-                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['return_str']['hex'][1] &&
-                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['return_str']['hex'][2]
+                $line->toBinary() == $this->mapping['set_str_offset_1']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['set_str_offset_1']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['set_str_offset_1']['hex'][2]
             ){
 
                 for($i = 0; $i <= 2; $i++){
                     $result[$lineIndex + $i] = [
                         $lines[ $lineIndex + $i]->toHex(),
-                        $this->mapping['return_str']['desc']
+                        $this->mapping['set_str_offset_1']['desc']
                     ];
                 }
+
+
+
+
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    'Offset in byte'
+                ];
+            }
+
+        }
+
+    }
+
+    private function mapStringOffset2(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['set_str_offset_2']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['set_str_offset_2']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['set_str_offset_2']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['set_str_offset_2']['desc']
+                    ];
+
+                }
+
+
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    'Offset in byte'
+                ];
+
 
             }
 
@@ -387,29 +433,39 @@ class BytecodeExplain {
 
     }
 
-    private function mapReturnStrArray(array $lines, &$result ){
+    private function mapStringOffset3(array $lines, &$result ){
         /** @var Binary[] $lines */
 
         foreach ($lines as $lineIndex => $line) {
 
             if (
-                $line->toBinary() == $this->mapping['return_str_arr']['hex'][0] &&
-                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['return_str_arr']['hex'][1] &&
-                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['return_str_arr']['hex'][2]
+                $line->toBinary() == $this->mapping['set_str_offset_3']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['set_str_offset_3']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['set_str_offset_3']['hex'][2]
             ){
 
                 for($i = 0; $i <= 2; $i++){
                     $result[$lineIndex + $i] = [
                         $lines[ $lineIndex + $i]->toHex(),
-                        $this->mapping['return_str_arr']['desc']
+                        $this->mapping['set_str_offset_3']['desc']
                     ];
 
                 }
 
 
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    'Offset in byte'
+                ];
+
+                $result[$lineIndex + 4] = [
+                    $lines[ $lineIndex + 4]->toHex(),
+                    'Move str pointer'
+                ];
+
                 $result[$lineIndex + 5] = [
                     $lines[ $lineIndex + 5]->toHex(),
-                    'assign value to'
+                    'Move str pointer'
                 ];
 
 
@@ -440,11 +496,6 @@ class BytecodeExplain {
                     ];
 
                 }
-
-                $result[$lineIndex + 5] = [
-                    $lines[ $lineIndex + 5]->toHex(),
-                    'assign value to'
-                ];
 
 
             }
@@ -483,10 +534,39 @@ class BytecodeExplain {
 
     }
 
+
+    private function mapReserveBytes(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['reserve_bytes']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['reserve_bytes']['hex'][1]
+            ){
+
+                for($i = 0; $i <= 1; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['reserve_bytes']['desc']
+                    ];
+
+                }
+
+                $result[$lineIndex + 2] = [
+                    $lines[ $lineIndex + 2]->toHex(),
+                    'Offset in byte'
+                ];
+            }
+
+        }
+
+    }
+
     private function mapParameterCalls(array $lines, &$result ){
         /** @var Binary[] $lines */
 
-        foreach ($this->mapping['parameters'] as $paramVariante){
+        foreach ($this->mapping['parameters'] as $paramName => $paramVariante){
 
             foreach ($lines as $lineIndex => $line) {
 
@@ -550,11 +630,11 @@ class BytecodeExplain {
 
                         $result[$lineIndex + 5] = [
                             $lines[ $lineIndex + 5]->toHex(),
-                            'string pointer move'
+                            'nested string return result'
                         ];
                         $result[$lineIndex + 6] = [
                             $lines[ $lineIndex + 6]->toHex(),
-                            'string pointer move'
+                            'nested string return result'
                         ];
 
                     }
@@ -568,18 +648,89 @@ class BytecodeExplain {
     }
 
 
-    private function mapFunctionCalls(array $lines, &$result ){
-        /** @var Binary[] $lines */
+    private function mapLevelVarsBoolean(array $lines, &$result ){
+        foreach (Manhunt2::$levelVarBoolean as $levelVarName => $levelVarOffset){
 
-        foreach ($this->mapping['functions'] as $functionName => $functionBinary){
+            $levelVarOffset = $levelVarOffset['offset'];
 
             foreach ($lines as $lineIndex => $line) {
 
-                if ($line->toBinary() == $functionBinary){
+                if ($line->toBinary() == hex2bin($levelVarOffset)){
+
                     $result[$lineIndex] = [
                         $line->toHex(),
-                        $functionName . ' Call'
+                        'LevelVar ' . $levelVarName
                     ];
+                }
+            }
+        }
+
+    }
+
+    private function mapFunctionCalls(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach (Manhunt2::$functions as $functionName => $functionBinary){
+
+            if (is_array($functionBinary)){
+                $functionBinary = $functionBinary['offset'];
+            }
+
+            foreach ($lines as $lineIndex => $line) {
+
+                if ($line->toBinary() == hex2bin($functionBinary)){
+
+
+
+                    if (
+                    !(
+                        ($lines[ $lineIndex - 1]->toHex() == "01000000") &&
+                        ($lines[ $lineIndex - 2]->toHex() == "04000000") &&
+                        ($lines[ $lineIndex - 3]->toHex() == "21000000")
+                    )
+                    ){
+
+                        if (
+                        ($lines[ $lineIndex - 1]->toHex() == "04000000") &&
+                        ($lines[ $lineIndex - 2]->toHex() == "16000000")
+                        ){
+                            continue;
+                        }
+
+
+                        $result[$lineIndex] = [
+                            $line->toHex(),
+                            $functionName . ' Call'
+                        ];
+
+                        if ($result[$lineIndex][0] == '73000000'){
+                            $lineIndex++;
+
+                            $result[$lineIndex] = [
+                                $line->toHex(),
+                                'WriteDebug flush Call'
+                            ];
+                        }
+
+
+                        if (
+                            ($lines[ $lineIndex + 1]->toHex() == "10000000") &&
+                            ($lines[ $lineIndex + 2]->toHex() == "01000000")
+                        ){
+                            $result[$lineIndex + 1] = [
+                                $lines[ $lineIndex + 1]->toHex(),
+                                'nested call return result'
+                            ];
+
+                            $result[$lineIndex + 2] = [
+                                $lines[ $lineIndex + 2]->toHex(),
+                                'nested call return result'
+                            ];
+
+
+                        }
+                    }
+
                 }
 
             }

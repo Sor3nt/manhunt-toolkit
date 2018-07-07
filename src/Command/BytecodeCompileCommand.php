@@ -2,8 +2,10 @@
 
 namespace App\Command;
 
+use App\Bytecode\Mls\Sequence;
 use App\Service\Bytecode;
 use App\Service\BytecodeExplain;
+use App\Service\Compiler\Compiler;
 use App\Service\Inst;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -41,6 +43,7 @@ class BytecodeCompileCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
+
         $file = $input->getArgument('file');
         $game = $input->getArgument('game');
         $ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -49,28 +52,37 @@ class BytecodeCompileCommand extends Command
         if ($game !== "mh1" && $game !== "mh2") throw new \Exception('Please provide the target game mh1 or mh2');
 
         $output->write(sprintf('Compile %s ... ', basename($file)));
-        list($bytecode, $strings) = $this->bytecode->process( file_get_contents($file), $game );
 
-        foreach ($bytecode as &$line) {
-            $line = bin2hex($line);
-        }
+        /** @var Sequence[] $bytecode */
+
+        $compiler = new Compiler();
+        list($sectionCode, $sectionDATA) = $compiler->parse(file_get_contents($file));
 
         $target = str_replace('.srce', '', $file);
 
         file_put_contents(
             $target . '.code',
-            implode("\n", $bytecode)
+            implode("\n", $sectionCode)
+        );
+
+
+        file_put_contents(
+            $target . '.scpt',
+            'oncreate,0,0'
+//            'oncreate,0,' . (count($sectionCode) * 4)
         );
 
         file_put_contents(
             $target . '.data',
-            implode("\n", $strings)
+            implode("\n", $sectionDATA)
         );
 
+
         file_put_contents(
-            $target . '.line',
-            implode("\n", $strings)
+            $target . '.smem',
+            '68596'
         );
+
 
         $output->writeln('done');
     }
