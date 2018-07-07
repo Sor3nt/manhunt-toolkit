@@ -167,18 +167,7 @@ class PackCommand extends Command
          * Translate the files into Byte
          */
 
-
-
-
-        $mlsFile = $this->mls->pack($scripts, $game, true, $output);
-//
-//        if (md5($mlsFile) === "f1d97faa5d5000e279df3bed3e932b63") {
-//            echo "hash is same :)";
-//            exit;
-//        }else{
-//            echo "ahhh hash missmatch";
-//            exit;
-//        }
+        $mlsFile = $this->mls->pack($scripts, $game, false, $output);
 
         /**
          * compress the file and store it
