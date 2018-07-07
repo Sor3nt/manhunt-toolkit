@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\Archive\Fsb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
@@ -24,12 +25,16 @@ class UnpackCommand extends Command
     /** @var Inst  */
     private $inst;
 
+    /** @var Fsb  */
+    private $fsb;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Fsb $fsb)
     {
         $this->mls = $mls;
         $this->glg = $glg;
         $this->inst = $inst;
+        $this->fsb = $fsb;
 
         parent::__construct();
     }
@@ -42,6 +47,7 @@ class UnpackCommand extends Command
             ->setAliases(['unpack'])
             ->setDescription('Unpack a GLG, INST or MLS file')
             ->addArgument('file', InputArgument::REQUIRED, 'This file will be extracted')
+            ->addOption('only-unzip', null, null, 'Will only unzip the file')
 
             ->setHelp('This command allows you to create a user...')
         ;
@@ -68,6 +74,18 @@ class UnpackCommand extends Command
             $output->writeln("zLib compressed file detected");
             $content = $this->mls->uncompress( $content );
             $contentAsHex = bin2hex($content);
+        }
+
+
+        if ($input->getOption('only-unzip')){
+            $outputTo = $folder . '/' . $filename . "." . $ext . ".unzipped";
+
+            file_put_contents(
+                $outputTo,
+                $content
+            );
+
+            exit;
         }
 
         // we found a MLS scipt
@@ -110,6 +128,13 @@ class UnpackCommand extends Command
             );
         }
 
+        // FSB format
+        else if (
+            (substr($contentAsHex, 0, 6) == "465342")) {  // FSB
+
+            $this->fsb->unpack( $content );
+
+        }
         // INST format
         else if (
             (substr($contentAsHex, 4, 4) == "0000") &&
@@ -167,7 +192,9 @@ class UnpackCommand extends Command
             }, $mhsc['SCPT']);
 
             file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.scpt' , implode("\n", $result));
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.dmem' , $mhsc['DMEM']);
+            if (isset($mhsc['DMEM'])){
+                file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.dmem' , $mhsc['DMEM']);
+            }
             file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.smem' , $mhsc['SMEM']);
             file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.entt' , $mhsc['ENTT']['name'] . ',' . $mhsc['ENTT']['offset']);
 
