@@ -80,10 +80,10 @@ class Inst {
             /*
              * Append rotation
              */
-            $entry->addBinary(pack('g*' , $record['rotation'][1]));
-            $entry->addBinary(pack('g*' , $record['rotation'][2]));
-            $entry->addBinary(pack('g*' , $record['rotation'][3]));
-            $entry->addBinary(pack('g*' , $record['rotation'][4]));
+            $entry->addBinary(pack('g*' , $record['rotation']['x']));
+            $entry->addBinary(pack('g*' , $record['rotation']['y']));
+            $entry->addBinary(pack('g*' , $record['rotation']['z']));
+            $entry->addBinary(pack('g*' , $record['rotation']['w']));
 
             /*
              * Append entity class
@@ -105,7 +105,7 @@ class Inst {
                  */
                 foreach ($record['parameters'] as $parameter) {
 
-                    $entry->addBinary(pack('L' , $parameter['parameterId']));
+                    $entry->addHex($parameter['parameterId']);
 
                     $type = new Binary($parameter['type']);
                     $type->addMissedBytes('00');
@@ -181,14 +181,21 @@ class Inst {
         $x = $position->substr(0, 4, $position);
         $y = $position->substr(0, 4, $position);
         $z = $position->substr(0, 4, $rotation);
-//        $xyz = $position->substr(0, 12, $rotation);
+
         $x = current(unpack('g*' , $x->toBinary()));
         $y = current(unpack('g*' , $y->toBinary()));
         $z = current(unpack('g*' , $z->toBinary()));
 
 
+        $rotationX = $rotation->substr(0, 4, $rotation);
+        $rotationY = $rotation->substr(0, 4, $rotation);
+        $rotationZ = $rotation->substr(0, 4, $rotation);
+        $rotationW = $rotation->substr(0, 4);
 
-        $rotation = unpack('g*' , $rotation->toBinary());
+        $rotationX = current(unpack('g*' , $rotationX->toBinary()));
+        $rotationY = current(unpack('g*' , $rotationY->toBinary()));
+        $rotationZ = current(unpack('g*' , $rotationZ->toBinary()));
+        $rotationW = current(unpack('g*' , $rotationW->toBinary()));
 
         /**
          * Find the entity class
@@ -235,7 +242,7 @@ class Inst {
                     }
 
                     $params[] = [
-                        'parameterId' => $parameterId->toInt(),
+                        'parameterId' => $parameterId->toHex(),
                         'type' => $type->toString(),
                         'value' => $value
                     ];
@@ -256,7 +263,12 @@ class Inst {
                 'y' => $game == 'mh2' ? $y * -1 : $y,
                 'z' => $game == 'mh2' ? $z * -1 : $z,
             ],
-            'rotation' => $rotation,
+            'rotation' => [
+                'x' => $rotationX,
+                'y' => $rotationY,
+                'z' => $rotationZ,
+                'w' => $rotationW,
+            ],
             'parameters' => $params
         ];
     }
