@@ -5,9 +5,9 @@ class T_DO {
 
     static public function match( $input, $current ){
 
-        $chars = strtolower(substr($input, $current, 2));
+        $chars = strtolower(substr($input, $current - 1, 4));
 
-        if ($chars == "do"){
+        if ($chars == " do "){
             $lastChar = substr($chars, 2, 1);
             if ($lastChar == " " || $lastChar == ""){
 

@@ -73,7 +73,8 @@ class NestedTwoStringIntegerParamTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-
+//var_dump($sectionCode);
+//exit;
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

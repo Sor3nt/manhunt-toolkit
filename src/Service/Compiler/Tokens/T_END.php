@@ -17,7 +17,7 @@ class T_END {
                     'value' => "end;"
                 ];
 
-            }else if ($lastChar == ""){
+            }else if ($lastChar == " "){
                 return [
                     'type' => 'T_END_ELSE',
                     'value' => "end"

@@ -62,7 +62,7 @@ class IfShortBooleanFalseTest extends KernelTestCase
             '01000000', //If statement
             '00000000', //If statement
             '3f000000', //store value
-            '5c000000', //unknown
+            'd4000000', //unknown
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)

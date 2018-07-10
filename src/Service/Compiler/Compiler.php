@@ -306,7 +306,7 @@ class Compiler {
             $sectionCode[] = $line->hex;
         }
 
-//        $sectionDATA = $this->generateDATA( $scriptTokens );
+        //        $sectionDATA = $this->generateDATA( $scriptTokens );
 
         return [$sectionCode, []];
 

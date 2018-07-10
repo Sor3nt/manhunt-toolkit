@@ -6,9 +6,18 @@ class Manhunt2 {
 
     public static $constants = [
 
-        'AISCRIPT_GRAPHLINK_ALLOW_NOTHING'  => "00000000",
-        'AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING' => "03000000",
-
+        'AISCRIPT_GRAPHLINK_ALLOW_NOTHING'  => [
+            'offset' => "00000000"
+        ],
+        'AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING' => [
+            "offset" => "03000000"
+        ],
+        'DOOR_CLOSED' => [
+            "offset" => "02000000"
+        ],
+        'CT_G_FIRST_AID' => [
+            "offset" => "09000000"
+        ],
     ];
 
     public static $levelVarBoolean = [
@@ -427,6 +436,28 @@ class Manhunt2 {
              * none
              */
             'params'    =>  [  ],
+            'desc'      =>  ''
+        ],
+
+        "playerfullbodyanimdone" => [
+            'name'      =>  'PlayerFullBodyAnimDone',
+            'offset'    =>  '96020000',
+            /**
+             * Parameters
+             * none
+             */
+            'params'    =>  [ ],
+            'desc'      =>  ''
+        ],
+
+        "enableuserinput" => [
+            'name'      =>  'EnableUserInput',
+            'offset'    =>  'f5000000',
+            /**
+             * Parameters
+             * none
+             */
+            'params'    =>  [ ],
             'desc'      =>  ''
         ],
 
@@ -989,6 +1020,94 @@ class Manhunt2 {
              */
             'params'    =>  [ 'Player' ],
             'return'    =>  'Integer',
+            'desc'      =>  ''
+        ],
+
+        "spawnmovingentity" => [
+            'name'      =>  'SpawnMovingEntity',
+            'offset'    =>  '7a000000',
+            /**
+             * Parameters
+             * 1: string Entity Name ?
+             * 2: vec3d
+             * 4: string script name ?
+             */
+            'params'    =>  [ 'String', 'Vec3d', 'String' ],
+            'return'    =>  '',
+            'desc'      =>  ''
+        ],
+
+        "isolayerinsafezone" => [
+            'name'      =>  'IsPlayerInSafeZone',
+            'offset'    =>  '89020000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "isplayerrunning" => [
+            'name'      =>  'IsPlayerRunning',
+            'offset'    =>  'ee020000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "isplayersprinting" => [
+            'name'      =>  'IsPlayerSprinting',
+            'offset'    =>  'ef020000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "getpedorientation" => [
+            'name'      =>  'GetPedOrientation',
+            'offset'    =>  '8d030000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+
+        "getlastitempickedup" => [
+            'name'      =>  'GetLastItemPickedUp',
+            'offset'    =>  'c9010000',
+            /**
+             * Parameters
+             * 1: player
+             */
+            'params'    =>  [ "Player" ],
+            'return'    =>  'Item',
+            'desc'      =>  ''
+        ],
+
+        "attachtoentity" => [
+            'name'      =>  'AttachToEntity',
+            'offset'    =>  '93000000',
+            /**
+             * Parameters
+             * 1: this
+             * 2: result of GetEntity
+             */
+            'params'    =>  [ "This", "Entity" ],
+            'return'    =>  'Void',
             'desc'      =>  ''
         ],
 

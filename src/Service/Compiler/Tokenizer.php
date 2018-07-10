@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler;
 
+use App\Service\Compiler\Tokens\T_AND;
 use App\Service\Compiler\Tokens\T_ASSIGN;
 use App\Service\Compiler\Tokens\T_BEGIN;
 use App\Service\Compiler\Tokens\T_BRACKET_CLOSE;
@@ -12,7 +13,7 @@ use App\Service\Compiler\Tokens\T_DEFINE_SECTION_VAR;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_TYPE;
 use App\Service\Compiler\Tokens\T_DO;
 use App\Service\Compiler\Tokens\T_END;
-use App\Service\Compiler\Tokens\T_ENTITY;
+use App\Service\Compiler\Tokens\T_ELSE;
 use App\Service\Compiler\Tokens\T_FALSE;
 use App\Service\Compiler\Tokens\T_FLOAT;
 use App\Service\Compiler\Tokens\T_FUNCTION;
@@ -24,8 +25,10 @@ use App\Service\Compiler\Tokens\T_IS_NOT_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_SMALLER;
 use App\Service\Compiler\Tokens\T_LEVEL_VAR;
 use App\Service\Compiler\Tokens\T_LINEEND;
+use App\Service\Compiler\Tokens\T_NIL;
 use App\Service\Compiler\Tokens\T_NOT;
 use App\Service\Compiler\Tokens\T_NULL;
+use App\Service\Compiler\Tokens\T_OR;
 use App\Service\Compiler\Tokens\T_PROCEDURE;
 use App\Service\Compiler\Tokens\T_PROCEDURE_NAME;
 use App\Service\Compiler\Tokens\T_SCRIPT;
@@ -66,7 +69,6 @@ class Tokenizer {
         T_SCRIPTMAIN_NAME::class,
 
         T_SCRIPTMAIN::class,
-//        T_ENTITY::class,
         T_DEFINE::class,
         T_PROCEDURE::class,
         T_SCRIPT::class,
@@ -83,6 +85,10 @@ class Tokenizer {
 
 
         T_IF::class,
+        T_OR::class,
+        T_AND::class,
+        T_NIL::class,
+        T_ELSE::class,
         T_WHILE::class,
         T_THEN::class,
         T_BEGIN::class,

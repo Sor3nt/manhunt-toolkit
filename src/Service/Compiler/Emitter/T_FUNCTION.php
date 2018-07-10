@@ -83,12 +83,18 @@ class T_FUNCTION {
                             'value' => $param['value']
                         ] );
 
+                    }else if (isset(Manhunt2::$constants[ $param['value'] ])) {
+                        $mapped = Manhunt2::$constants[$param['value']];
+                        $mapped['section'] = "constant";
+
                     }else if (isset(Manhunt2::$levelVarBoolean[ $param['value'] ])) {
                         $mapped = Manhunt2::$levelVarBoolean[$param['value']];
+
                     }else if (isset($data['variables'][$param['value']])){
                         $mapped = $data['variables'][$param['value']];
+
                     }else{
-                        throw new \Exception(sprintf("unable to find variable offset for %s", $param['value']));
+                        throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $param['value']));
                     }
 
                     // initialize string

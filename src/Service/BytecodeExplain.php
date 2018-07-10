@@ -93,12 +93,47 @@ class BytecodeExplain {
                     "\x04\x00\x00\x00"
                 ],
 
-                'desc' => 'parameter (temp)'
+                'desc' => 'parameter (temp int)'
             ],
+
+            'variante_7' => [
+
+                'start' => [
+                    "\x12\x00\x00\x00",
+                    "\x01\x00\x00\x00"
+                ],
+                'end' => [
+                    "\x0f\x00\x00\x00" ,
+                    "\x02\x00\x00\x00"
+                ],
+
+                'desc' => 'parameter (function return (bool?))'
+            ],
+
 
         ],
 
 
+
+        'statement_not' => [
+            'hex' => [
+                "\x29\x00\x00\x00" ,
+                "\x01\x00\x00\x00" ,
+                "\x01\x00\x00\x00" ,
+            ],
+
+            'desc' => 'NOT'
+        ],
+
+        'read_from_script_var' => [
+            'hex' => [
+                "\x13\x00\x00\x00" ,
+                "\x01\x00\x00\x00" ,
+                "\x04\x00\x00\x00" ,
+            ],
+
+            'desc' => 'read from script var'
+        ],
 
         'script_init' => [
             'hex' => [
@@ -110,6 +145,25 @@ class BytecodeExplain {
             ],
 
             'desc' => 'Script start block'
+        ],
+
+        'nested_return' => [
+            'hex' => [
+                "\x10\x00\x00\x00" ,
+                "\x01\x00\x00\x00" ,
+            ],
+
+            'desc' => 'nested call return result'
+        ],
+
+        'read_header_var' => [
+            'hex' => [
+                "\x14\x00\x00\x00" ,
+                "\x01\x00\x00\x00" ,
+                "\x04\x00\x00\x00" ,
+            ],
+
+            'desc' => 'Read VAR from header'
         ],
 
 
@@ -184,13 +238,6 @@ class BytecodeExplain {
 
         'if_statement_1' => [
             'hex' => [
-                "\x10\x00\x00\x00",
-                "\x01\x00\x00\x00",
-                "\x12\x00\x00\x00",
-                "\x01\x00\x00\x00",
-                "",
-                "\x0f\x00\x00\x00",
-                "\x04\x00\x00\x00",
                 "\x23\x00\x00\x00",
                 "\x04\x00\x00\x00",
                 "\x01\x00\x00\x00",
@@ -203,13 +250,47 @@ class BytecodeExplain {
                 "\x01\x00\x00\x00",
                 "\x01\x00\x00\x00",
 
+            ],
+
+            'desc' => 'statement (core)'
+        ],
+
+        'if_statement_2' => [
+            'hex' => [
                 "\x24\x00\x00\x00",
                 "\x01\x00\x00\x00",
                 "\x00\x00\x00\x00",
+            ],
+
+            'desc' => 'statement (core 2)'
+        ],
+
+        'statement_line_offset' => [
+            'hex' => [
                 "\x3f\x00\x00\x00"
             ],
 
-            'desc' => 'If statement'
+            'desc' => 'statement (line offset)'
+        ],
+
+        'statement_and' => [
+            'hex' => [
+                "\x33\x00\x00\x00",
+                "\x01\x00\x00\x00",
+                "\x01\x00\x00\x00"
+            ],
+
+            'desc' => 'statement (unknown)'
+        ],
+
+        'statement_or' => [
+            'hex' => [
+                "\x27\x00\x00\x00",
+                "\x01\x00\x00\x00",
+                "\x04\x00\x00\x00"
+            ],
+
+            'desc' => 'statement (unknown hmm)'
         ]
 
     ];
@@ -229,10 +310,18 @@ class BytecodeExplain {
 //        $this->mapStringOffset3( $lines, $result);
         $this->mapScriptStarts( $lines, $result);
         $this->mapScriptEnd( $lines, $result);
+        $this->mapStatementNot( $lines, $result);
 
         $this->mapLevelVarsBoolean( $lines, $result);
         $this->mapFunctionCalls( $lines, $result);
         $this->mapParameterCalls( $lines, $result);
+        $this->mapReadHeaderVar( $lines, $result);
+        $this->mapNestedReturn( $lines, $result);
+        $this->mapStatementLineOffset( $lines, $result);
+        $this->mapStatementAnd( $lines, $result);
+        $this->mapStatementOr( $lines, $result);
+        $this->mapIfStatement2( $lines, $result);
+        $this->mapReadFromScriptVar( $lines, $result);
 
         $fillCount = count($result);
         $this->mapUnknown( $lines, $result);
@@ -260,80 +349,83 @@ class BytecodeExplain {
                 isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['if_statement_1']['hex'][1] &&
                 isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['if_statement_1']['hex'][2] &&
                 isset($lines[ $lineIndex + 3]) && $lines[ $lineIndex + 3]->toBinary() == $this->mapping['if_statement_1']['hex'][3] &&
-
+                isset($lines[ $lineIndex + 4]) && $lines[ $lineIndex + 4]->toBinary() == $this->mapping['if_statement_1']['hex'][4] &&
                 isset($lines[ $lineIndex + 5]) && $lines[ $lineIndex + 5]->toBinary() == $this->mapping['if_statement_1']['hex'][5] &&
-                isset($lines[ $lineIndex + 6]) && $lines[ $lineIndex + 6]->toBinary() == $this->mapping['if_statement_1']['hex'][6] &&
-                isset($lines[ $lineIndex + 7]) && $lines[ $lineIndex + 7]->toBinary() == $this->mapping['if_statement_1']['hex'][7] &&
+
                 isset($lines[ $lineIndex + 8]) && $lines[ $lineIndex + 8]->toBinary() == $this->mapping['if_statement_1']['hex'][8] &&
                 isset($lines[ $lineIndex + 9]) && $lines[ $lineIndex + 9]->toBinary() == $this->mapping['if_statement_1']['hex'][9] &&
-                isset($lines[ $lineIndex + 10]) && $lines[ $lineIndex + 10]->toBinary() == $this->mapping['if_statement_1']['hex'][10] &&
-                isset($lines[ $lineIndex + 11]) && $lines[ $lineIndex + 11]->toBinary() == $this->mapping['if_statement_1']['hex'][11] &&
-                isset($lines[ $lineIndex + 12]) && $lines[ $lineIndex + 12]->toBinary() == $this->mapping['if_statement_1']['hex'][12] &&
-
-
-                isset($lines[ $lineIndex + 15]) && $lines[ $lineIndex + 15]->toBinary() == $this->mapping['if_statement_1']['hex'][15] &&
-                isset($lines[ $lineIndex + 16]) && $lines[ $lineIndex + 16]->toBinary() == $this->mapping['if_statement_1']['hex'][16] &&
-                isset($lines[ $lineIndex + 17]) && $lines[ $lineIndex + 17]->toBinary() == $this->mapping['if_statement_1']['hex'][17] &&
-
-                isset($lines[ $lineIndex + 18]) && $lines[ $lineIndex + 18]->toBinary() == $this->mapping['if_statement_1']['hex'][18] &&
-                isset($lines[ $lineIndex + 19]) && $lines[ $lineIndex + 19]->toBinary() == $this->mapping['if_statement_1']['hex'][19] &&
-                isset($lines[ $lineIndex + 20]) && $lines[ $lineIndex + 20]->toBinary() == $this->mapping['if_statement_1']['hex'][20]
+                isset($lines[ $lineIndex + 10]) && $lines[ $lineIndex + 10]->toBinary() == $this->mapping['if_statement_1']['hex'][10]
 
             ){
 
-                for($i = 0; $i <= 3; $i++){
+                for($i = 0; $i <= 5; $i++){
                     $result[$lineIndex + $i] = [
                         $lines[ $lineIndex + $i]->toHex(),
                         $this->mapping['if_statement_1']['desc']
                     ];
                 }
 
-                $result[$lineIndex + 4] = [
-                    $lines[ $lineIndex + 4]->toHex(),
-                    $this->mapping['if_statement_1']['desc'] . "(unknown)"
-                ];
 
-
-                for($i = 5; $i <= 12; $i++){
-                    $result[$lineIndex + $i] = [
-                        $lines[ $lineIndex + $i]->toHex(),
-                        $this->mapping['if_statement_1']['desc']
-                    ];
-                }
-
-                $operation = $lines[ $lineIndex + 13]->toHex();
-
-                $operationText = "unknown operator";
-
-                if ($operation == "40000000") {
+                $operationText = "unknwon";
+                if ($lines[ $lineIndex + 6]->toHex() == "40000000") {
                     $operationText = "un-equal";
-                }else if ($operation == "3f000000"){
+                }else if ($lines[ $lineIndex + 6]->toHex() == "3f000000"){
                     $operationText = "equal";
+                }else if ($lines[ $lineIndex + 6]->toHex() == "3d000000"){
+                    $operationText = "lower";
                 }
 
-                $result[$lineIndex + 13] = [
-                    $operation,
-                    $operationText
+                $result[$lineIndex + 6] = [
+                    $lines[ $lineIndex + 6]->toHex(),
+                    $this->mapping['if_statement_1']['desc'] . "(operator " . $operationText . ")"
                 ];
 
-
-                $result[$lineIndex + 14] = [
-                    $lines[ $lineIndex + 14]->toHex(),
-                    $this->mapping['if_statement_1']['desc'] . "(unknown)"
+                $result[$lineIndex + 7] = [
+                    $lines[ $lineIndex + 7]->toHex(),
+                    $this->mapping['if_statement_1']['desc'] . "( Offset )"
                 ];
 
-                for($i = 15; $i <= 20; $i++){
-                    $result[$lineIndex + $i] = [
-                        $lines[ $lineIndex + $i]->toHex(),
-                        $this->mapping['if_statement_1']['desc']
-                    ];
-                }
-
-                $result[$lineIndex + 21] = [
-                    $lines[ $lineIndex + 21]->toHex(),
-                    'store value'
-                ];
-
+//
+//
+//                $operation = $lines[ $lineIndex + 13]->toHex();
+//
+//                $operationText = "unknown operator";
+//
+//                if ($operation == "40000000") {
+//                    $operationText = "un-equal";
+//                }else if ($operation == "3f000000"){
+//                    $operationText = "equal";
+//                }
+//
+//                $result[$lineIndex + 13] = [
+//                    $operation,
+//                    $operationText
+//                ];
+//
+//
+//                $result[$lineIndex + 14] = [
+//                    $lines[ $lineIndex + 14]->toHex(),
+//                    $this->mapping['if_statement_1']['desc'] . " Start Offset"
+//                ];
+//
+//                for($i = 15; $i <= 20; $i++){
+//                    $result[$lineIndex + $i] = [
+//                        $lines[ $lineIndex + $i]->toHex(),
+//                        $this->mapping['if_statement_1']['desc']
+//                    ];
+//                }
+//
+//                $result[$lineIndex + 21] = [
+//                    $lines[ $lineIndex + 21]->toHex(),
+//                    'if statement'
+//                ];
+//
+//
+//                $result[$lineIndex + 22] = [
+//                    $lines[ $lineIndex + 22]->toHex(),
+//                    'If statement Length Offset'
+//                ];
+//
 
 
             }
@@ -369,6 +461,114 @@ class BytecodeExplain {
 
     }
 
+    private function mapStatementAnd(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['statement_and']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['statement_and']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['statement_and']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['statement_and']['desc']
+                    ];
+
+                }
+
+            }
+
+        }
+
+    }
+
+    private function mapStatementOr(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['statement_or']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['statement_or']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['statement_or']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['statement_or']['desc']
+                    ];
+
+                }
+
+            }
+
+        }
+
+    }
+
+    private function mapIfStatement2(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['if_statement_2']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['if_statement_2']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['if_statement_2']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['if_statement_2']['desc']
+                    ];
+
+                }
+
+            }
+
+        }
+
+    }
+
+    private function mapReadFromScriptVar(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['read_from_script_var']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['read_from_script_var']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['read_from_script_var']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['read_from_script_var']['desc']
+                    ];
+
+                }
+
+
+
+
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    'Offset'
+                ];
+
+            }
+
+        }
+
+    }
+
 
     private function mapStringOffset(array $lines, &$result ){
         /** @var Binary[] $lines */
@@ -393,6 +593,30 @@ class BytecodeExplain {
 
                 $result[$lineIndex + 3] = [
                     $lines[ $lineIndex + 3]->toHex(),
+                    'Offset in byte'
+                ];
+            }
+
+        }
+
+    }
+
+    private function mapStatementLineOffset(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['statement_line_offset']['hex'][0]
+            ){
+
+                $result[$lineIndex] = [
+                    $lines[ $lineIndex]->toHex(),
+                    $this->mapping['statement_line_offset']['desc']
+                ];
+
+                $result[$lineIndex + 1] = [
+                    $lines[ $lineIndex + 1]->toHex(),
                     'Offset in byte'
                 ];
             }
@@ -534,6 +758,31 @@ class BytecodeExplain {
 
     }
 
+    private function mapStatementNot(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['statement_not']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['statement_not']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['statement_not']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['statement_not']['desc']
+                    ];
+
+                }
+
+            }
+
+        }
+
+    }
+
 
     private function mapReserveBytes(array $lines, &$result ){
         /** @var Binary[] $lines */
@@ -557,6 +806,59 @@ class BytecodeExplain {
                     $lines[ $lineIndex + 2]->toHex(),
                     'Offset in byte'
                 ];
+            }
+
+        }
+
+    }
+
+
+    private function mapReadHeaderVar(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['read_header_var']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['read_header_var']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['read_header_var']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['read_header_var']['desc']
+                    ];
+
+                }
+
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    'Offset'
+                ];
+            }
+
+        }
+
+    }
+    private function mapNestedReturn(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['nested_return']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['nested_return']['hex'][1]
+            ){
+
+                for($i = 0; $i <= 1; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['nested_return']['desc']
+                    ];
+
+                }
+
             }
 
         }
@@ -590,25 +892,27 @@ class BytecodeExplain {
                         $paramVariante['desc']
                     ];
 
-                    $valueHex = $lines[ $lineIndex + 2]->toHex();
+//                    $valueHex = $lines[ $lineIndex + 2]->toHex();
 
-                    $value = "value";
-                    if ($valueHex == "49000000") $value = "Reference to THIS";
-                    if ($valueHex == "00000000") $value = "Bool false / int 0";
-                    if ($valueHex == "01000000") $value = "Bool true / int 1";
+//                    $value = "value";
+//                    if ($valueHex == "49000000") $value = "Reference to THIS";
+//                    if ($valueHex == "00000000") $value = "Bool false / int 0";
+//                    if ($valueHex == "01000000") $value = "Bool true / int 1";
+//
+//                    if (
+//                        isset($result[$lineIndex + 5]) && $lines[ $lineIndex + 5]->toBinary() == "\x10\x00\x00\x00" &&
+//                        isset($result[$lineIndex + 6]) && $lines[ $lineIndex + 6]->toBinary() == "\x02\x00\x00\x00"
+//                    ){
+//                        $value = "Reference to a string";
+//
+//                    }
 
-                    if (
-                        isset($result[$lineIndex + 5]) && $lines[ $lineIndex + 5]->toBinary() == "\x10\x00\x00\x00" &&
-                        isset($result[$lineIndex + 6]) && $lines[ $lineIndex + 6]->toBinary() == "\x02\x00\x00\x00"
-                    ){
-                        $value = "Reference to a string";
 
-                    }
-
+                    $value = $lines[ $lineIndex + 2]->toInt();
 
                     $result[$lineIndex + 2] = [
                         $lines[ $lineIndex + 2]->toHex(),
-                        $value
+                        'value ' . $value
                     ];
 
 
@@ -661,6 +965,14 @@ class BytecodeExplain {
                         $line->toHex(),
                         'LevelVar ' . $levelVarName
                     ];
+
+                    if ($lines[ $lineIndex - 1]->toHex() == "1b000000"){
+                        $result[$lineIndex - 1] = [
+                            $lines[ $lineIndex - 1]->toHex(),
+                            'read LevelVar '
+                        ];
+
+                    }
                 }
             }
         }
@@ -673,6 +985,7 @@ class BytecodeExplain {
         foreach (Manhunt2::$functions as $functionName => $functionBinary){
 
             if (is_array($functionBinary)){
+                if(isset($functionBinary['name'])) $functionName = $functionBinary['name'];
                 $functionBinary = $functionBinary['offset'];
             }
 

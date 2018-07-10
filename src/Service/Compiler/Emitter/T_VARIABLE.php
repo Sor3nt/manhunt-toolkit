@@ -11,6 +11,7 @@ class T_VARIABLE {
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
         $code = [];
 
+
         if (isset(Manhunt2::$functions[ strtolower($node['value']) ])) {
 
             // mismatch, some function has no params and looks loke variables
@@ -22,6 +23,8 @@ class T_VARIABLE {
 
         }else if (isset(Manhunt2::$levelVarBoolean[ $node['value'] ])) {
             $mapped = Manhunt2::$levelVarBoolean[$node['value']];
+        }else if (isset(Manhunt2::$constants[ $node['value'] ])) {
+            $mapped = Manhunt2::$constants[$node['value']];
 
         }else if (isset($data['variables'][$node['value']])){
             $mapped = $data['variables'][$node['value']];

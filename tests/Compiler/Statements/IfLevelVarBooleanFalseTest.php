@@ -68,7 +68,7 @@ class IfLevelVarBooleanFalseTest extends KernelTestCase
 
 
             '3f000000', //store value
-            '1c000000', //end offset
+            '94000000', //end offset
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
             '01000000', //Bool true / int 1
