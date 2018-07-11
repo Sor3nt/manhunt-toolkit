@@ -288,12 +288,20 @@ echo "Next Token is : " . $token['type'] . "\n";
         $current++;
         $section = "condition";
 
+        $shortIf = false;
+
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
             if ($token['type'] == Token::T_THEN) {
                 $section = "isTrue";
-                $current++; //skip T_BEGIN (single line noch verbauen)
+
+                if ($tokens[$current + 1]['type'] == Token::T_BEGIN){
+                    $current++; //skip T_BEGIN
+                }else{
+                    $shortIf = true;
+                }
+
 
             // we have another If-statement
             }else if ($token['type'] == Token::T_END_ELSE) {
@@ -338,9 +346,9 @@ echo "Next Token is : " . $token['type'] . "\n";
             $current++;
         }
 
-
-
-
+        if ($shortIf){
+            $node['cases'][] = $case;
+        }
 
         return [$current + 1, $node];
     }
