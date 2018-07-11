@@ -12,22 +12,27 @@ class DummyTest extends KernelTestCase
     public function test()
     {
 
+
+
+
+
+
         $script = "
                     if stealthOneLooper = TRUE then
                     begin
                         stealthOneLooper := 1;
                     end
-                    else if stealthOneLooper = TRUE then
+                    else if (stealthOneLooper = TRUE)  then
                     begin
                         stealthOneLooper := 2;
                     end
                     else
                     begin
                         stealthOneLooper := 3;
-                        
+
                     end;
         ";
-
+//
 
 
         $compiler = new Compiler();

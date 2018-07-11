@@ -104,7 +104,38 @@ echo "Next Token is : " . $token['type'] . "\n";
                 return $this->parseBracketOpen($tokens, $current);
 
             case Token::T_IF:
-                return $this->parseIfStatement($tokens, $current);
+                list($current, $nodes) = $this->parseIfStatement($tokens, $current);
+
+
+                foreach ($nodes['cases'] as &$case) {
+
+                    //wrap if statements always in brackets
+                    if (
+                        count($case['condition']) &&
+                        $case['condition'][0]['type'] !== Token::T_BRACKET_OPEN
+                    ){
+
+                        array_unshift($case['condition'], [
+                            'type' => Token::T_BRACKET_OPEN,
+                            'value' => "(",
+                        ]);
+
+                        array_push($case['condition'], [
+                            'type' => Token::T_BRACKET_CLOSE,
+                            'value' => ")",
+                        ]);
+                    }
+
+                    /**
+                     * convert the flat resultset into a tree
+                     */
+                    list($innerCurrent, $conditionTree)= $this->parseToken($case['condition'], 0);
+                    list($innerCurrent, $isTrueTree)= $this->parseToken($case['isTrue'], 0);
+                    $case['condition'] = $conditionTree;
+                    $case['isTrue'] = $isTrueTree;
+                }
+
+                return [$current, $nodes];
 
             case Token::T_DEFINE_SECTION_VAR:
                 return $this->parseDefineVarRecursive($tokens, $current);
@@ -242,11 +273,6 @@ echo "Next Token is : " . $token['type'] . "\n";
 
         $token = $tokens[$current];
 
-        // the else statment (without if)
-        if ($token['type'] == Token::T_BEGIN){
-           return $this->parseIfLastElse($tokens, $current);
-        }
-
         $node = [
             'type' => $token['type'],
             'value' => $token['value'],
@@ -261,6 +287,7 @@ echo "Next Token is : " . $token['type'] . "\n";
 
         $current++;
         $section = "condition";
+
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
@@ -272,8 +299,28 @@ echo "Next Token is : " . $token['type'] . "\n";
             }else if ($token['type'] == Token::T_END_ELSE) {
 
                 $node['cases'][] = $case;
-                list($current, $innerIf) = $this->parseIfStatement($tokens, $current + 2);
-                $node['cases'][] = $innerIf;
+
+
+                if ($tokens[$current + 2]['type'] == Token::T_IF) {
+                    list($current, $innerIf) = $this->parseIfStatement(
+                        $tokens, $current + 2
+                    );
+
+                    foreach ($innerIf['cases'] as $case) {
+                        $node['cases'][] = $case;
+
+                    }
+
+                // the else statment (without if)
+                }else{
+
+                    list($current, $innerIf) =  $this->parseIfLastElse(
+                        $tokens, $current + 3
+                    );
+
+                    $node['cases'][] = $innerIf;
+                }
+
 
                 break;
 
@@ -292,17 +339,7 @@ echo "Next Token is : " . $token['type'] . "\n";
         }
 
 
-//
-//        //wrap if statements always in brackets
-//        if ($node['condition'][0]['type'] !== Token::T_BRACKET_OPEN){
-//            $node['condition'] = [
-//                [
-//                    'type' => Token::T_BRACKET_OPEN,
-//                    'value' => "(",
-//                    'params' => $node['condition']
-//                ]
-//            ];
-//        }
+
 
 
         return [$current + 1, $node];
@@ -489,7 +526,6 @@ echo "Next Token is : " . $token['type'] . "\n";
         ];
 
         if (count($tokens) == $current + 1) return [$current, $node];
-
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
@@ -509,8 +545,7 @@ echo "Next Token is : " . $token['type'] . "\n";
             }
         }
 
-        var_dump($node);
-        exit;
+
 
         throw new \Exception('Parser: parseBracketOpen unable to handle');
     }
