@@ -273,14 +273,14 @@ class BytecodeExplain {
             'desc' => 'statement (line offset)'
         ],
 
-        'statement_and' => [
+        'statement_compare' => [
             'hex' => [
                 "\x33\x00\x00\x00",
                 "\x01\x00\x00\x00",
                 "\x01\x00\x00\x00"
             ],
 
-            'desc' => 'statement (unknown)'
+            'desc' => 'statement (compare mode INT/FLOAT)'
         ],
 
         'statement_or' => [
@@ -290,7 +290,17 @@ class BytecodeExplain {
                 "\x04\x00\x00\x00"
             ],
 
-            'desc' => 'statement (unknown hmm)'
+            'desc' => 'statement (OR operator)'
+        ],
+
+        'statement_and' => [
+            'hex' => [
+                "\x25\x00\x00\x00",
+                "\x01\x00\x00\x00",
+                "\x04\x00\x00\x00"
+            ],
+
+            'desc' => 'statement (AND operator)'
         ]
 
     ];
@@ -318,8 +328,9 @@ class BytecodeExplain {
         $this->mapReadHeaderVar( $lines, $result);
         $this->mapNestedReturn( $lines, $result);
         $this->mapStatementLineOffset( $lines, $result);
-        $this->mapStatementAnd( $lines, $result);
+        $this->mapStatementCompare( $lines, $result);
         $this->mapStatementOr( $lines, $result);
+        $this->mapStatementAnd( $lines, $result);
         $this->mapIfStatement2( $lines, $result);
         $this->mapReadFromScriptVar( $lines, $result);
 
@@ -461,21 +472,21 @@ class BytecodeExplain {
 
     }
 
-    private function mapStatementAnd(array $lines, &$result ){
+    private function mapStatementCompare(array $lines, &$result ){
         /** @var Binary[] $lines */
 
         foreach ($lines as $lineIndex => $line) {
 
             if (
-                $line->toBinary() == $this->mapping['statement_and']['hex'][0] &&
-                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['statement_and']['hex'][1] &&
-                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['statement_and']['hex'][2]
+                $line->toBinary() == $this->mapping['statement_compare']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['statement_compare']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['statement_compare']['hex'][2]
             ){
 
                 for($i = 0; $i <= 2; $i++){
                     $result[$lineIndex + $i] = [
                         $lines[ $lineIndex + $i]->toHex(),
-                        $this->mapping['statement_and']['desc']
+                        $this->mapping['statement_compare']['desc']
                     ];
 
                 }
@@ -501,6 +512,30 @@ class BytecodeExplain {
                     $result[$lineIndex + $i] = [
                         $lines[ $lineIndex + $i]->toHex(),
                         $this->mapping['statement_or']['desc']
+                    ];
+
+                }
+
+            }
+
+        }
+
+    }
+    private function mapStatementAnd(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['statement_and']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['statement_and']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['statement_and']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['statement_and']['desc']
                     ];
 
                 }
