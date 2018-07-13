@@ -109,6 +109,7 @@ echo "Next Token is : " . $token['type'] . "\n";
 
                 foreach ($nodes['cases'] as &$case) {
 
+
                     //wrap if statements always in brackets
                     if (
                         count($case['condition']) &&
@@ -116,23 +117,63 @@ echo "Next Token is : " . $token['type'] . "\n";
                     ){
 
                         array_unshift($case['condition'], [
-                            'type' => Token::T_BRACKET_OPEN,
-                            'value' => "(",
+                            'type' => Token::T_BRACKET_OPEN
                         ]);
 
                         array_push($case['condition'], [
-                            'type' => Token::T_BRACKET_CLOSE,
-                            'value' => ")",
+                            'type' => Token::T_BRACKET_CLOSE
                         ]);
                     }
 
-                    /**
-                     * convert the flat resultset into a tree
-                     */
-                    list($innerCurrent, $conditionTree)= $this->parseToken($case['condition'], 0);
-                    list($innerCurrent, $isTrueTree)= $this->parseToken($case['isTrue'], 0);
-                    $case['condition'] = $conditionTree;
-                    $case['isTrue'] = $isTrueTree;
+
+                    $parsedConditions = [];
+                    $innerCurrent = 0;
+                    $innerTokens = $case['condition'];
+
+                    while($innerCurrent < count($innerTokens)){
+                        list($innerCurrent, $tree)= $this->parseToken($innerTokens,$innerCurrent);
+
+                        if ($tree['type'] == Token::T_AND ||
+                            $tree['type'] == Token::T_OR){
+
+                        }else{
+
+                            //wrap if statements always in brackets
+                            if (
+                                count($case['condition']) &&
+                                $case['condition'][0]['type'] !== Token::T_BRACKET_OPEN
+                            ){
+
+                                array_unshift($case['condition'], [
+                                    'type' => Token::T_BRACKET_OPEN
+                                ]);
+
+                                array_push($case['condition'], [
+                                    'type' => Token::T_BRACKET_CLOSE
+                                ]);
+                            }
+
+                        }
+
+                        $parsedConditions[] = $tree;
+
+
+                    }
+
+                    $case['condition'] = $parsedConditions;
+
+                    $parsedIsTrue = [];
+                    $innerCurrent = 0;
+                    $innerTokens = $case['isTrue'];
+                    while($innerCurrent < count($innerTokens)){
+                        list($innerCurrent, $tree)= $this->parseToken($innerTokens, $innerCurrent);
+                        if ($tree) $parsedIsTrue[] = $tree;
+
+                    }
+
+                    $case['isTrue'] = $parsedIsTrue;
+
+
                 }
 
                 return [$current, $nodes];
@@ -212,7 +253,30 @@ echo "Next Token is : " . $token['type'] . "\n";
 
             $nextToken = $tokens[$current + 1];
 
-            if ($nextToken['type'] == Token::T_ASSIGN){
+            if ($nextToken['type'] == Token::T_IS_EQUAL ||
+                $nextToken['type'] == Token::T_IS_NOT_EQUAL ||
+                $nextToken['type'] == Token::T_IS_GREATER ||
+                $nextToken['type'] == Token::T_IS_SMALLER
+            ) {
+
+                $node = [
+                    'type' => $nextToken['type'],
+                    'value' => $token['value'],
+                    'body' => [
+                        $token,
+                        $nextToken,
+                        $tokens[$current + 2]
+                    ],
+                ];
+
+                $current = $current + 3;
+
+                return [
+                    $current, $node
+                ];
+
+
+            }else if ($nextToken['type'] == Token::T_ASSIGN){
 
                 $node = [
                     'type' => $nextToken['type'],
@@ -237,7 +301,7 @@ echo "Next Token is : " . $token['type'] . "\n";
                     }
                 }
 
-                throw new \Exception('Parser: parseVariable not handeld correct');
+                throw new \Exception('Parser: T_ASSIGN parseVariable not handeld correct');
             }
         }
 
@@ -523,7 +587,6 @@ echo "Next Token is : " . $token['type'] . "\n";
     private function parseBracketOpen($tokens, $current){
 
         $token = $tokens[$current];
-
         $current++;
 
         $node = [
