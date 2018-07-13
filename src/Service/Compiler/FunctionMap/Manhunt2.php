@@ -9,15 +9,31 @@ class Manhunt2 {
         'AISCRIPT_GRAPHLINK_ALLOW_NOTHING'  => [
             'offset' => "00000000"
         ],
+        
         'AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING' => [
             "offset" => "03000000"
         ],
+
+        'DOOR_OPENING' => [
+            "offset" => "01000000"
+        ],
+
         'DOOR_CLOSED' => [
             "offset" => "02000000"
         ],
+
+        'DOOR_CLOSING' => [
+            "offset" => "03000000"
+        ],
+
         'CT_G_FIRST_AID' => [
             "offset" => "09000000"
         ],
+
+        'CT_SYRINGE' => [
+            "offset" => "71000000"
+        ],
+
     ];
 
     public static $levelVarBoolean = [
@@ -62,6 +78,14 @@ class Manhunt2 {
 
         'stealthOneHeard'                     => [
             'offset' => "bc170000"
+        ],
+
+        'SpecialStart'                     => [
+            'offset' => "c00f0000"
+        ],
+
+        'lLevelState'                     => [
+            'offset' => "980f0000"
         ],
 
     ];
@@ -1107,6 +1131,58 @@ class Manhunt2 {
              * 2: result of GetEntity
              */
             'params'    =>  [ "This", "Entity" ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "isnameditemininventory" => [
+            'name'      =>  'IsNamedItemInInventory',
+            'offset'    =>  '30010000',
+            /**
+             * Parameters
+             * 1: Player
+             * 2: Integer
+             */
+            'params'    =>  [ "Player", "Integer" ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "helisetlight" => [
+            'name'      =>  'HeliSetLight',
+            'offset'    =>  '31030000',
+            /**
+             * Parameters
+             * 1: This
+             * 2: Boolean
+             */
+            'params'    =>  [ "This", "Boolean" ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "helisetmovespeed" => [
+            'name'      =>  'HeliSetMoveSpeed',
+            'offset'    =>  '3a030000',
+            /**
+             * Parameters
+             * 1: This
+             * 2: Float
+             */
+            'params'    =>  [ "This", "Float" ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "insidetrigger" => [
+            'name'      =>  'InsideTrigger',
+            'offset'    =>  'a5000000',
+            /**
+             * Parameters
+             * 1: Entity
+             * 2: Player
+             */
+            'params'    =>  [ "Entity", "Player" ],
             'return'    =>  'Void',
             'desc'      =>  ''
         ],
