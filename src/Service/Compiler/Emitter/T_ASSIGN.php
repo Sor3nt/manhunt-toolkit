@@ -12,7 +12,7 @@ class T_ASSIGN {
         $code = [];
 
         if (!isset($data['variables'][$node['value']])){
-            throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $data['value']));
+            throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
         }
 
         $mapped = $data['variables'][$node['value']];

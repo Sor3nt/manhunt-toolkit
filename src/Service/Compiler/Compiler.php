@@ -289,8 +289,6 @@ class Compiler {
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens, $types);
 
-
-
         // parse the token list to a ast
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);

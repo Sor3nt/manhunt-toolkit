@@ -172,18 +172,14 @@ class Tokenizer {
         return $tokens;
     }
 
-    /*
-     */
+
     public function fixHeaderBracketMismatches( $tokens, $types){
 
         $result = [];
         $found = false;
 
         $currentToken = false;
-//        while($current < count($tokens)){
         foreach ($tokens as $index => $token) {
-
-
 
             if ($token['type'] == Token::T_DEFINE_SECTION_ENTITY) {
                 $found = true;
