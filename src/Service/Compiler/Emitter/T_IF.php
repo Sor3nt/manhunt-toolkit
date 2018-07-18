@@ -8,7 +8,7 @@ use App\Service\Compiler\Token;
 class T_IF {
 
 
-    static public function handleBracketOpen($params, $fullNode, \Closure $getLine, \Closure $emitter){
+    static public function handleBracketOpen($params, $fullNode, $parentOperator, \Closure $getLine, \Closure $emitter){
 
 
         $code = [];
@@ -19,7 +19,7 @@ class T_IF {
             $node = $params[$current];
 
             if ($node['type'] == Token::T_BRACKET_OPEN){
-                $result = self::handleBracketOpen($node['params'], $node, $getLine, $emitter);
+                $result = self::handleBracketOpen($node['params'], $node, $fullNode['operator'],  $getLine, $emitter);
                 foreach ($result as $item) {
                     $code[] = $item;
                 }
@@ -30,7 +30,7 @@ class T_IF {
                     $code[] = $item;
                 }
 
-                // the condition has a operastor
+
                 if ($fullNode['operator'] != false){
                     $code[] = $getLine('0f000000');
                     $code[] = $getLine('04000000');
@@ -39,6 +39,24 @@ class T_IF {
                     $code[] = $getLine('01000000');
                     $code[] = $getLine('04000000');
                 }
+
+
+                if (
+                    isset($fullNode['last']) &&
+                    $fullNode['last'] == true &&
+                    $parentOperator !== false
+                ){
+
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+                    if ($parentOperator == Token::T_OR) $code[] = $getLine('27000000');
+                    if ($parentOperator == Token::T_AND) $code[] = $getLine('25000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                    // the condition has a operastor
+                }
+
 
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');
@@ -66,7 +84,7 @@ class T_IF {
                 foreach ($case['condition'] as $condition) {
 
                     if ($condition['type'] == Token::T_BRACKET_OPEN){
-                        $result =  self::handleBracketOpen($condition['params'], $condition, $getLine, $emitter);
+                        $result =  self::handleBracketOpen($condition['params'], $condition, false, $getLine, $emitter);
                         foreach ($result as $item) {
                             $code[] = $item;
                         }
