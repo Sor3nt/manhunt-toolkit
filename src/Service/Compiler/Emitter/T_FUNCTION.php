@@ -78,41 +78,49 @@ class T_FUNCTION {
                     if (isset(Manhunt2::$functions[ strtolower($param['value']) ])) {
                         // mismatch, some function has no params and looks loke variables
                         // just redirect to the function handler
-                        return $emitter( [
+
+                        $result = $emitter( [
                             'type' => Token::T_FUNCTION,
                             'value' => $param['value']
                         ] );
 
-                    }else if (isset(Manhunt2::$constants[ $param['value'] ])) {
-                        $mapped = Manhunt2::$constants[$param['value']];
-                        $mapped['section'] = "constant";
-
-                    }else if (isset(Manhunt2::$levelVarBoolean[ $param['value'] ])) {
-                        $mapped = Manhunt2::$levelVarBoolean[$param['value']];
-
-                    }else if (isset($data['variables'][$param['value']])){
-                        $mapped = $data['variables'][$param['value']];
+                        foreach ($result as $item) {
+                            $code[] = $item;
+                        }
 
                     }else{
-                        throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $param['value']));
+
+                        if (isset(Manhunt2::$constants[ $param['value'] ])) {
+                            $mapped = Manhunt2::$constants[$param['value']];
+                            $mapped['section'] = "constant";
+
+                        }else if (isset(Manhunt2::$levelVarBoolean[ $param['value'] ])) {
+                            $mapped = Manhunt2::$levelVarBoolean[$param['value']];
+
+                        }else if (isset($data['variables'][$param['value']])){
+                            $mapped = $data['variables'][$param['value']];
+
+                        }else{
+                            throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $param['value']));
+                        }
+
+                        // initialize string
+                        if ($mapped['section'] == "script"){
+                            $code[] = $getLine('22000000');
+                        }else{
+                            $code[] = $getLine('21000000');
+                        }
+
+                        $code[] = $getLine('04000000');
+                        $code[] = $getLine('01000000');
+
+                        // define the offset
+                        $code[] = $getLine($mapped['offset']);
+
                     }
-
-                    // initialize string
-                    if ($mapped['section'] == "script"){
-                        $code[] = $getLine('22000000');
-                    }else{
-                        $code[] = $getLine('21000000');
-                    }
-
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('01000000');
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
 
                     $code[] = $getLine('10000000');
                     $code[] = $getLine('01000000');
-
 
                 }else if ($param['type'] == Token::T_FUNCTION){
                     $resultCode = $emitter( $param );
@@ -153,7 +161,6 @@ class T_FUNCTION {
         if (!isset(Manhunt2::$functions[ strtolower($node['value']) ])){
             throw new \Exception(sprintf('Unknown function %s', $node['value']));
         }
-
 
         $code[] = $getLine( Manhunt2::$functions[ strtolower($node['value']) ]['offset'] );
 
