@@ -212,10 +212,10 @@ class IfAndTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-        foreach ($sectionCode as $item) {
-        echo $item . "\n";
-
-        }
+//        foreach ($sectionCode as $item) {
+//        echo $item . "\n";
+//
+//        }
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

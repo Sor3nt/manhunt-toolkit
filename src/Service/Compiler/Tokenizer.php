@@ -87,6 +87,7 @@ class Tokenizer {
         T_IF::class,
         T_OR::class,
         T_AND::class,
+        T_NOT::class,
         T_NIL::class,
         T_ELSE::class,
         T_WHILE::class,
@@ -106,7 +107,6 @@ class Tokenizer {
         T_IS_EQUAL::class,
         T_IS_GREATER::class,
         T_IS_SMALLER::class,
-        T_NOT::class,
 
 
         T_FUNCTION::class,

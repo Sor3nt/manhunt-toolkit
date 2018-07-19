@@ -91,6 +91,7 @@ echo "Next Token is : " . $token['type'] . "\n";
             case Token::T_FLOAT:
             case Token::T_TYPE_VAR:
             case Token::T_SELF:
+            case Token::T_NOT:
                 return [
                     $current + 1, $tokens[$current]
                 ];
@@ -134,6 +135,8 @@ echo "Next Token is : " . $token['type'] . "\n";
 
                     while($innerCurrent < count($innerTokens)){
                         list($innerCurrent, $tree)= $this->parseToken($innerTokens,$innerCurrent);
+
+//                        file_put_contents('a.txt', print_r($tree, true), FILE_APPEND);
 
                         $tree = [$tree];
                         $this->remapCondition( $tree );
@@ -218,40 +221,111 @@ echo "Next Token is : " . $token['type'] . "\n";
 
         foreach ($tokens as $current => $token) {
 
-            if (isset($tokens[ $current ]['params'])) {
+            // this can happend because of the unset calls
+            if (!isset($tokens[ $current ])) continue;
+
+
+            if ($tokens[ $current ]['type'] == Token::T_BRACKET_OPEN) {
                 $this->remapCondition( $tokens[ $current ]['params']);
+                continue;
             }
 
-            if (isset($tokens[ $current + 1])){
 
-                $nextToken = $tokens[ $current + 1];
+            $isNot = false;
+            if ($tokens[ $current ]['type'] == Token::T_NOT) {
+                $isNot = true;
+                unset($tokens[ $current ]);
 
-                if ($nextToken['type'] == Token::T_IS_EQUAL ||
-                    $nextToken['type'] == Token::T_IS_NOT_EQUAL ||
-                    $nextToken['type'] == Token::T_IS_GREATER ||
-                    $nextToken['type'] == Token::T_IS_SMALLER
-                ) {
-
-                    $node = [
-                        'type' => Token::T_CONDITION,
-                        'body' => [
-                            $token,
-                            $nextToken,
-                            $tokens[$current + 2]
-                        ],
-                    ];
-
-
-                    $tokens[ $current] = $node;
-                    unset($tokens[ $current + 1]);
-                    unset($tokens[ $current + 2]);
-
-                }
+                $tokens = array_values($tokens);
             }
+
+            if (count($tokens) == 3){
+
+                list($leftHand, $operator, $rightHand) = $tokens;
+
+                $node = [
+                    'type' => Token::T_CONDITION,
+                    'isNot' => $isNot,
+                    'body' => [
+                        $leftHand,
+                        $operator,
+                        $rightHand
+                    ],
+                ];
+
+
+                $tokens[ $current] = $node;
+                unset($tokens[ $current + 1]);
+                unset($tokens[ $current + 2]);
+
+
+            }else if (count($tokens) == 1){
+
+                list($leftHand) = $tokens;
+
+                $node = [
+                    'type' => Token::T_CONDITION,
+                    'isNot' => $isNot,
+                    'body' => [
+                        $leftHand
+                    ],
+                ];
+
+
+                $tokens[ $current] = $node;
+            }else{
+
+                die("EHH");
+            }
+
 
         }
     }
 
+//    private function remapCondition( &$tokens ){
+//
+//        foreach ($tokens as $current => $token) {
+//
+//            if (!isset($tokens[ $current ])) continue;
+//
+//
+//            if ($tokens[ $current ]['type'] == Token::T_BRACKET_OPEN) {
+//                $this->remapCondition( $tokens[ $current ]['params']);
+//                continue;
+//            }
+//
+//            if (count($tokens) == 3){
+//
+//
+//                $nextToken = $tokens[ $current + 1];
+//
+//                if ($nextToken['type'] == Token::T_IS_EQUAL ||
+//                    $nextToken['type'] == Token::T_IS_NOT_EQUAL ||
+//                    $nextToken['type'] == Token::T_IS_GREATER ||
+//                    $nextToken['type'] == Token::T_IS_SMALLER
+//                ) {
+//
+//                    $node = [
+//                        'type' => Token::T_CONDITION,
+//                        'body' => [
+//                            $token,
+//                            $nextToken,
+//                            $tokens[$current + 2]
+//                        ],
+//                    ];
+//
+//
+//                    $tokens[ $current] = $node;
+//                    unset($tokens[ $current + 1]);
+//                    unset($tokens[ $current + 2]);
+//
+//                }
+//            }
+//
+//
+//        }
+//    }
+//
 
     private function extendConditionInformation( &$tokens ){
 
@@ -276,7 +350,7 @@ echo "Next Token is : " . $token['type'] . "\n";
 
         $node = [
             'type' => $token['type'],
-            'value' => $token['value'],
+            'value' => isset($token['value']) ? $token['value'] : false,
             'body' => [],
         ];
 

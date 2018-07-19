@@ -1047,6 +1047,21 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
+        "aitriggersoundknownlocationnoradar" => [
+            'name'      =>  'AITriggerSoundKnownLocationNoRadar',
+            'offset'    =>  'b8020000',
+            /**
+             * Parameters
+             * 1: String
+             * - LURE_HIGH
+             * 2: Player
+             * - GetPlayer
+             */
+            'params'    =>  [ 'String', 'Player' ],
+            'return'    =>  'Integer',
+            'desc'      =>  ''
+        ],
+
         "spawnmovingentity" => [
             'name'      =>  'SpawnMovingEntity',
             'offset'    =>  '7a000000',
@@ -1106,6 +1121,18 @@ class Manhunt2 {
              */
             'params'    =>  [ ],
             'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "isgametextdisplaying" => [
+            'name'      =>  'IsGameTextDisplaying',
+            'offset'    =>  '07010000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Boolean',
             'desc'      =>  ''
         ],
 
@@ -1183,6 +1210,30 @@ class Manhunt2 {
              * 2: Player
              */
             'params'    =>  [ "Entity", "Player" ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "isplayerpositionknown" => [
+            'name'      =>  'IsPlayerPositionKnown',
+            'offset'    =>  '6e030000',
+            /**
+             * Parameters
+             *
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "isplayerwalking" => [
+            'name'      =>  'IsPlayerWalking',
+            'offset'    =>  'ed020000',
+            /**
+             * Parameters
+             *
+             */
+            'params'    =>  [ ],
             'return'    =>  'Void',
             'desc'      =>  ''
         ],

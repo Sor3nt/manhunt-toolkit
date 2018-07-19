@@ -12,61 +12,77 @@ class T_CONDITION {
 
         $code = [];
 
-        list($variable, $operation, $value) = $node['body'];
+        if (count($node['body']) == 3) {
+            if ($node['isNot']){
+                throw new \Exception('T_CONDITION: isNot is true in big statement, handler incomplete...');
+            }
+
+            list($variable, $operation, $value) = $node['body'];
 
 
-        $result = self::parseValue($variable, $getLine, $emitter, $data);
-        foreach ($result as $item) {
-            $code[] = $item;
+            $result = self::parseValue($variable, $getLine, $emitter, $data);
+            foreach ($result as $item) {
+                $code[] = $item;
+            }
+
+            //nested call return result
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
+
+            $result = self::parseValue($value, $getLine, $emitter, $data);
+            foreach ($result as $item) {
+                $code[] = $item;
+            }
+
+
+            // statement core
+            $code[] = $getLine('23000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('12000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('01000000');
+
+
+            switch ($operation['type']){
+                case Token::T_IS_EQUAL:
+                    $code[] = $getLine('3f000000');
+                    break;
+                case Token::T_IS_NOT_EQUAL:
+                    $code[] = $getLine('40000000');
+                    break;
+                case Token::T_IS_SMALLER:
+                    $code[] = $getLine('3d000000');
+                    break;
+                default:
+                    throw new \Exception(sprintf('T_IF Unknown operator %s', $operation['type']));
+                    break;
+            }
+
+
+            $lastLine = end($code)->lineNumber + 4;
+
+            // line offset for the IF start (or so)
+            $code[] = $getLine( Helper::fromIntToHex($lastLine) );
+
+            $code[] = $getLine('33000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('01000000');
+        }else if (count($node['body']) == 1){
+
+            $result = self::parseValue(current($node['body']), $getLine, $emitter, $data);
+            foreach ($result as $item) {
+                $code[] = $item;
+            }
+
+            if ($node['isNot']){
+                $code[] = $getLine('29000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('01000000');
+            }
+
         }
 
-        //nested call return result
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('01000000');
-
-        $result = self::parseValue($value, $getLine, $emitter, $data);
-        foreach ($result as $item) {
-            $code[] = $item;
-        }
-
-
-        // statement core
-        $code[] = $getLine('23000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('12000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('01000000');
-
-
-        switch ($operation['type']){
-            case Token::T_IS_EQUAL:
-                $code[] = $getLine('3f000000');
-                break;
-            case Token::T_IS_NOT_EQUAL:
-                $code[] = $getLine('40000000');
-                break;
-            case Token::T_IS_SMALLER:
-                $code[] = $getLine('3d000000');
-                break;
-            default:
-                throw new \Exception(sprintf('T_IF Unknown operator %s', $operation['type']));
-                break;
-        }
-
-
-        $lastLine = end($code)->lineNumber + 4;
-
-        // line offset for the IF start (or so)
-        $code[] = $getLine( Helper::fromIntToHex($lastLine) );
-
-
-
-        //todo: das gibt es nur wenn ein if komplett ist
-        // sprich bla = true anstatt nur bla
-        $code[] = $getLine('33000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('01000000');
 
         return $code;
     }
