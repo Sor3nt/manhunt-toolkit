@@ -14,7 +14,7 @@ class T_CONDITION {
 
         if (count($node['body']) == 3) {
             if ($node['isNot']){
-                throw new \Exception('T_CONDITION: isNot is true in big statement, handler incomplete...');
+                throw new \Exception('T_CONDITION: The expression NOT can not be combined with an operator!');
             }
 
             list($variable, $operation, $value) = $node['body'];
@@ -55,7 +55,7 @@ class T_CONDITION {
                     $code[] = $getLine('3d000000');
                     break;
                 default:
-                    throw new \Exception(sprintf('T_IF Unknown operator %s', $operation['type']));
+                    throw new \Exception(sprintf('T_CONDITION: Unknown operator %s', $operation['type']));
                     break;
             }
 
