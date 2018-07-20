@@ -262,7 +262,7 @@ class BytecodeExplain {
                 "\x00\x00\x00\x00",
             ],
 
-            'desc' => 'statement (core 2)'
+            'desc' => 'statement (end sequence)'
         ],
 
         'statement_line_offset' => [
@@ -270,7 +270,16 @@ class BytecodeExplain {
                 "\x3f\x00\x00\x00"
             ],
 
-            'desc' => 'statement (line offset)'
+            'desc' => 'statement (init start offset)'
+        ],
+
+
+        'statement_repeat_offset' => [
+            'hex' => [
+                "\x3c\x00\x00\x00"
+            ],
+
+            'desc' => 'statement (init statement start offset)'
         ],
 
         'statement_compare' => [
@@ -651,8 +660,27 @@ class BytecodeExplain {
                 ];
 
                 $result[$lineIndex + 1] = [
-                    $lines[ $lineIndex + 1]->toHex(),
-                    'Offset in byte'
+                    $lines[ $lineIndex + 1]->toInt() / 4,
+                    'Offset (line number)'
+                ];
+            }
+
+        }
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['statement_repeat_offset']['hex'][0]
+            ){
+
+                $result[$lineIndex] = [
+                    $lines[ $lineIndex]->toHex(),
+                    $this->mapping['statement_repeat_offset']['desc']
+                ];
+
+                $result[$lineIndex + 1] = [
+                    $lines[ $lineIndex + 1]->toInt() / 4,
+                    'Offset (line number)'
                 ];
             }
 
