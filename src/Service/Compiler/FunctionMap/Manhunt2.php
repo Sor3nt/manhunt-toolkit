@@ -1238,6 +1238,18 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
+        "isexecutioninprogress" => [
+            'name'      =>  'IsExecutionInProgress',
+            'offset'    =>  '51020000',
+            /**
+             * Parameters
+             *
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
     ];
 
 
