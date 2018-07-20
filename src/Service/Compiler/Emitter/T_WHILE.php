@@ -11,43 +11,22 @@ class T_WHILE {
 
         $code = [];
 
-        if (count($node['condition']) == 1 && $node['condition'][0]['type'] == Token::T_TRUE){
 
+        $resultCode = T_IF::map($node, $getLine,$emitter, $data );
 
-            $code[] = $getLine('24000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('00000000');
-            $code[] = $getLine('3f000000');
+        $firstLine = current($resultCode);
 
-            // create a dummy placeholder to keep the line numbers correct
-            $offsetPlaceholder = $getLine('');
-
-
-            $appendCode = [];
-            foreach ($node['body'] as $node) {
-                $resultCode = $emitter( $node );
-                foreach ($resultCode as $line) {
-                    $appendCode[] = $line;
-                }
-
-            }
-
-
-            //length offset of the IF statement
-            $offsetPlaceholder->hex = Helper::fromIntToHex(($offsetPlaceholder->getLine() + count($appendCode)) * 4);
-            $code[] = $getLine($offsetPlaceholder);
-
-            foreach ($appendCode as $line) {
-                $code[] = $line;
-            }
-
-            return $code;
-        }else{
-
-            die("this kind of while is not implemented");
+        foreach ($resultCode as $line) {
+            $code[] = $line;
         }
 
+        //this is like a "goto" function, 3c == goto => line offset
+        //move pointer back to while start
+        $code[] = $getLine('3c000000');
+        $code[] = $getLine(Helper::fromIntToHex($firstLine->lineNumber * 4));
 
+
+        return $code;
 
     }
 

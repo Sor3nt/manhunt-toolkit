@@ -108,7 +108,8 @@ echo "Next Token is : " . $token['type'] . "\n";
                 return $this->parseBracketOpen($tokens, $current);
 
             case Token::T_IF:
-                list($current, $nodes) = $this->parseIfStatement($tokens, $current);
+            case Token::T_WHILE:
+                list($current, $nodes) = $this->parseIfStatement($tokens, $current, $token['type'] == Token::T_WHILE);
 
                 foreach ($nodes['cases'] as &$case) {
 
@@ -443,7 +444,7 @@ echo "Next Token is : " . $token['type'] . "\n";
 
     }
 
-    private function parseIfStatement( $tokens, $current ){
+    private function parseIfStatement( $tokens, $current, $isWhile ){
 
         $token = $tokens[$current];
 
@@ -482,9 +483,9 @@ echo "Next Token is : " . $token['type'] . "\n";
                 $node['cases'][] = $case;
 
 
-                if ($tokens[$current + 2]['type'] == Token::T_IF) {
+                if ($tokens[$current + 2]['type'] == Token::T_IF || $tokens[$current + 2]['type'] == Token::T_WHILE) {
                     list($current, $innerIf) = $this->parseIfStatement(
-                        $tokens, $current + 2
+                        $tokens, $current + 2, $tokens[$current + 2]['type'] == Token::T_WHILE
                     );
 
                     foreach ($innerIf['cases'] as $case) {
