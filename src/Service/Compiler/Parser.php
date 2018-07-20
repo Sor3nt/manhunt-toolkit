@@ -1,20 +1,12 @@
 <?php
 namespace App\Service\Compiler;
 
-
-use PHPUnit\Framework\Exception;
-use Symfony\Component\HttpKernel\EventListener\ValidateRequestListener;
-
 class Parser {
     /**
      * @param $tokens
      * @return array
      */
     public function toAST( $tokens ){
-
-        echo "################\n";
-        echo "Parse Tokens\n";
-
 
         $current = 0;
         $ast = [
@@ -42,7 +34,6 @@ class Parser {
 
         $token = $tokens[$current];
 
-echo "Next Token is : " . $token['type'] . "\n";
         switch ($token['type']){
 
             /**********************************
@@ -58,14 +49,13 @@ echo "Next Token is : " . $token['type'] . "\n";
             case Token::T_BEGIN :
             case Token::T_SCRIPTMAIN:
             case Token::T_SCRIPTMAIN_NAME:
-            case Token::T_SCRIPT_NAME:
             case Token::T_PROCEDURE_NAME:
             case Token::T_OR:
             case Token::T_AND:
             case Token::T_END:
             case Token::T_END_CODE:
-//            case Token::T_BRACKET_CLOSE :
                  //just go to the next position
+                echo "skip...";
                 return $this->parseToken($tokens, $current + 1);
 
 
@@ -84,8 +74,6 @@ echo "Next Token is : " . $token['type'] . "\n";
             case Token::T_IS_GREATER :
             case Token::T_FALSE :
             case Token::T_PROCEDURE_END:
-//            case Token::T_END:
-//            case Token::T_END_CODE:
             case Token::T_STRING:
             case Token::T_INT:
             case Token::T_FLOAT:
@@ -109,10 +97,10 @@ echo "Next Token is : " . $token['type'] . "\n";
 
             case Token::T_IF:
             case Token::T_WHILE:
-                list($current, $nodes) = $this->parseIfStatement($tokens, $current, $token['type'] == Token::T_WHILE);
+                list($current, $nodes) = $this->parseIfStatement($tokens, $current);
 
+                // Todo: wrap code into a function
                 foreach ($nodes['cases'] as &$case) {
-
 
                     //wrap if statements always in brackets
                     if (
@@ -129,7 +117,6 @@ echo "Next Token is : " . $token['type'] . "\n";
                         ]);
                     }
 
-
                     $parsedConditions = [];
                     $innerCurrent = 0;
                     $innerTokens = $case['condition'];
@@ -137,29 +124,13 @@ echo "Next Token is : " . $token['type'] . "\n";
                     while($innerCurrent < count($innerTokens)){
                         list($innerCurrent, $tree)= $this->parseToken($innerTokens,$innerCurrent);
 
-//                        file_put_contents('a.txt', print_r($tree, true), FILE_APPEND);
-
                         $tree = [$tree];
                         $this->remapCondition( $tree );
                         $this->extendConditionInformation( $tree );
 
-
                         $parsedConditions[] = current($tree);
-
                     }
 
-//
-//                    var_dump($parsedConditions);
-//                    exit;
-
-                    //remeber, we added an extra array... just revert it
-//                    $parsedConditions = current($parsedConditions);
-//var_dump($parsedConditions);
-//                    exit;
-//                    // it can only exists one condition in one statement
-//                    if (count($parsedConditions) > 1){
-//                        throw new Exception('it can only exists one condition in one statement');
-//                    }
                     $case['condition'] = $parsedConditions;
 
                     $parsedIsTrue = [];
@@ -173,8 +144,6 @@ echo "Next Token is : " . $token['type'] . "\n";
                     }
 
                     $case['isTrue'] = $parsedIsTrue;
-
-
                 }
 
                 return [$current, $nodes];
@@ -190,12 +159,16 @@ echo "Next Token is : " . $token['type'] . "\n";
 
             case Token::T_FUNCTION :
                 return $this->parseFunction($tokens, $current);
-                /**
+
+            /**
              * A variable can be used or assigned
              * Return T_ASSIGN when its a define otherwise just the token
              */
             case Token::T_VARIABLE :
                 return $this->parseVariable($tokens, $current);
+
+            case Token::T_SCRIPT :
+                return $this->parseScript($tokens, $current);
 
 
             /**********************************
@@ -212,11 +185,55 @@ echo "Next Token is : " . $token['type'] . "\n";
 
     }
 
+    public function parseScript($tokens, $current){
+        $token = $tokens[$current];
+
+        $node = [
+            'type' => $token['type'],
+            'value' => isset($token['value']) ? $token['value'] : false,
+            'body' => [],
+        ];
+
+        $current++;
+
+        while ($current < count($tokens)) {
+
+            switch ($tokens[$current]['type']){
+
+                case Token::T_SCRIPT_NAME:
+                case Token::T_LINEEND:
+                case Token::T_BEGIN:
+                    $current++;
+                    continue;
+                    break;
+
+                case Token::T_END:
+                    return [
+                        $current, $node
+                    ];
+                default:
+
+                    list($current, $token) = $this->parseToken($tokens, $current);
+
+                    if ($token !== false){
+                        $node['body'][] = $token;
+                    }
+                    break;
+            }
+
+        }
+
+        throw new \Exception('Parser: parseScript not handeld correct');
+    }
+
     /**
      * remap / regroup statements
      *
      * input : T_VARIABLE T_IS_EQUAL T_INT
      * output : T_IS_EQUAL[T_VARIABLE] = T_INT
+     *
+     * @param $tokens
+     * @throws \Exception
      */
     private function remapCondition( &$tokens ){
 
@@ -225,12 +242,10 @@ echo "Next Token is : " . $token['type'] . "\n";
             // this can happend because of the unset calls
             if (!isset($tokens[ $current ])) continue;
 
-
             if ($tokens[ $current ]['type'] == Token::T_BRACKET_OPEN) {
                 $this->remapCondition( $tokens[ $current ]['params']);
                 continue;
             }
-
 
             $isNot = false;
             if ($tokens[ $current ]['type'] == Token::T_NOT) {
@@ -254,7 +269,6 @@ echo "Next Token is : " . $token['type'] . "\n";
                     ],
                 ];
 
-
                 $tokens[ $current] = $node;
                 unset($tokens[ $current + 1]);
                 unset($tokens[ $current + 2]);
@@ -276,57 +290,11 @@ echo "Next Token is : " . $token['type'] . "\n";
                 $tokens[ $current] = $node;
             }else{
 
-                die("EHH");
+                throw new \Exception('Parser: remapCondition not handeld correct');
             }
-
-
         }
     }
 
-//    private function remapCondition( &$tokens ){
-//
-//        foreach ($tokens as $current => $token) {
-//
-//            if (!isset($tokens[ $current ])) continue;
-//
-//
-//            if ($tokens[ $current ]['type'] == Token::T_BRACKET_OPEN) {
-//                $this->remapCondition( $tokens[ $current ]['params']);
-//                continue;
-//            }
-//
-//            if (count($tokens) == 3){
-//
-//
-//                $nextToken = $tokens[ $current + 1];
-//
-//                if ($nextToken['type'] == Token::T_IS_EQUAL ||
-//                    $nextToken['type'] == Token::T_IS_NOT_EQUAL ||
-//                    $nextToken['type'] == Token::T_IS_GREATER ||
-//                    $nextToken['type'] == Token::T_IS_SMALLER
-//                ) {
-//
-//                    $node = [
-//                        'type' => Token::T_CONDITION,
-//                        'body' => [
-//                            $token,
-//                            $nextToken,
-//                            $tokens[$current + 2]
-//                        ],
-//                    ];
-//
-//
-//                    $tokens[ $current] = $node;
-//                    unset($tokens[ $current + 1]);
-//                    unset($tokens[ $current + 2]);
-//
-//                }
-//            }
-//
-//
-//        }
-//    }
-//
 
     private function extendConditionInformation( &$tokens ){
 
@@ -366,17 +334,16 @@ echo "Next Token is : " . $token['type'] . "\n";
             }
         }
 
-
         return [
             $current, $node
         ];
     }
 
-
     /**
      * @param $tokens
      * @param $current
      * @return array
+     * @throws \Exception
      */
     private function parseVariable($tokens, $current ){
 
@@ -437,14 +404,12 @@ echo "Next Token is : " . $token['type'] . "\n";
             }
 
             $current++;
-
         }
 
         throw new \Exception('Parser: parseIfLastElse not handeld correct');
-
     }
 
-    private function parseIfStatement( $tokens, $current, $isWhile ){
+    private function parseIfStatement( $tokens, $current ){
 
         $token = $tokens[$current];
 
@@ -463,18 +428,14 @@ echo "Next Token is : " . $token['type'] . "\n";
         $current++;
         $section = "condition";
 
-        $shortIf = false;
-
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
-            if ($token['type'] == Token::T_THEN) {
+            if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO) {
                 $section = "isTrue";
 
                 if ($tokens[$current + 1]['type'] == Token::T_BEGIN){
                     $current++; //skip T_BEGIN
-                }else{
-                    $shortIf = true;
                 }
 
             // we have another If-statement
@@ -482,15 +443,13 @@ echo "Next Token is : " . $token['type'] . "\n";
 
                 $node['cases'][] = $case;
 
-
                 if ($tokens[$current + 2]['type'] == Token::T_IF || $tokens[$current + 2]['type'] == Token::T_WHILE) {
                     list($current, $innerIf) = $this->parseIfStatement(
-                        $tokens, $current + 2, $tokens[$current + 2]['type'] == Token::T_WHILE
+                        $tokens, $current + 2
                     );
 
                     foreach ($innerIf['cases'] as $case) {
                         $node['cases'][] = $case;
-
                     }
 
                 // the else statment (without if)
@@ -510,14 +469,11 @@ echo "Next Token is : " . $token['type'] . "\n";
                 $node['cases'][] = $case;
                 break;
             }else {
-
                 $case[ $section ][] = $token;
-
             }
 
             $current++;
         }
-
 
         return [$current, $node];
     }
@@ -547,8 +503,6 @@ echo "Next Token is : " . $token['type'] . "\n";
                 return [$current, $node];
 
             }else{
-
-//                list($current, $param) = $this->parseToken($tokens, $current);
 
                 if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
                     $node['body'][] = $token;
@@ -585,13 +539,11 @@ echo "Next Token is : " . $token['type'] . "\n";
                 return [$current, $node];
 
             }else{
-
-//                list($current, $param) = $this->parseToken($tokens, $current);
-
                 if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
                     $node['body'][] = $token;
                 }
             }
+
             $current++;
         }
 
@@ -613,14 +565,12 @@ echo "Next Token is : " . $token['type'] . "\n";
 
             $token = $tokens[$current];
 
-
             if (
                 $token['type'] == Token::T_IS_EQUAL ||
                 $token['type'] == Token::T_BRACKET_OPEN
             ){
                 $current++;
                 continue;
-
             }
 
             if (
@@ -643,6 +593,7 @@ echo "Next Token is : " . $token['type'] . "\n";
      * @param $tokens
      * @param $current
      * @return array
+     * @throws \Exception
      */
     private function parseFunction($tokens, $current){
 
@@ -682,7 +633,6 @@ echo "Next Token is : " . $token['type'] . "\n";
                 }
 
                 $node['params'][] = $param;
-
             }
         }
 
@@ -693,13 +643,11 @@ echo "Next Token is : " . $token['type'] . "\n";
 
         $token = $tokens[$current];
 
-
         $operator = false;
         if (isset($tokens[$current - 1])){
             if ($tokens[$current - 1]['type'] == Token::T_AND) $operator = Token::T_AND;
             if ($tokens[$current - 1]['type'] == Token::T_OR) $operator = Token::T_OR;
         }
-
 
         $current++;
 
@@ -738,5 +686,4 @@ echo "Next Token is : " . $token['type'] . "\n";
 
         throw new \Exception('Parser: parseBracketOpen unable to handle');
     }
-
 }
