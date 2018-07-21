@@ -30,7 +30,7 @@ class ProcedureEndTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            // script end
+            // procedure end
             '11000000',
             '09000000',
             '0a000000',
