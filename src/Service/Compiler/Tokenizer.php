@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler;
 
+use App\Service\Compiler\Tokens\T_ADDITION;
 use App\Service\Compiler\Tokens\T_AND;
 use App\Service\Compiler\Tokens\T_ASSIGN;
 use App\Service\Compiler\Tokens\T_BEGIN;
@@ -41,6 +42,7 @@ use App\Service\Compiler\Tokens\T_SEPERATOR;
 use App\Service\Compiler\Tokens\T_SQUARE_BRACKET_CLOSE;
 use App\Service\Compiler\Tokens\T_SQUARE_BRACKET_OPEN;
 use App\Service\Compiler\Tokens\T_STRING;
+use App\Service\Compiler\Tokens\T_SUBSTRACTION;
 use App\Service\Compiler\Tokens\T_THEN;
 use App\Service\Compiler\Tokens\T_TRUE;
 use App\Service\Compiler\Tokens\T_VARIABLE;
@@ -63,6 +65,8 @@ class Tokenizer {
 
         T_FORWARD::class,
         T_LINEEND::class,
+        T_ADDITION::class,
+        T_SUBSTRACTION::class,
         T_LEVEL_VAR::class,
         T_DEFINE_TYPE::class,
         T_DEFINE_SECTION_TYPE::class,

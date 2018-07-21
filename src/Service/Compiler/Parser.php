@@ -32,8 +32,6 @@ class Parser {
 
     private function handleForward( $ast ){
 
-        $orderList = [];
-
         foreach ($ast['body'] as &$token) {
             if ($token['type'] == Token::T_FORWARD){
 
@@ -46,14 +44,11 @@ class Parser {
 
                         $token = $tokenInner;
 
-
                         unset($ast['body'][$index]);
 
                         $ast['body'] = array_values($ast['body']);
                     }
-
                 }
-
             }
         }
 
@@ -111,6 +106,8 @@ class Parser {
             case Token::T_SELF:
             case Token::T_NOT:
             case Token::T_FORWARD:
+            case Token::T_ADDITION:
+            case Token::T_SUBSTRACTION:
                 return [
                     $current + 1, $tokens[$current]
                 ];
