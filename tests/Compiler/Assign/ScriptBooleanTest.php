@@ -39,7 +39,7 @@ class ScriptBooleanTest extends KernelTestCase
             '15000000', // parameter (Read String var)
             '04000000', // parameter (Read String var)
 
-            '10000000',
+            '00000000',
             '01000000',
 
 
