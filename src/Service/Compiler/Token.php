@@ -42,6 +42,8 @@ use App\Service\Compiler\Tokens\T_WHITESPACE;
 
     const T_DEFINE_SECTION_ENTITY       = 'T_DEFINE_SECTION_ENTITY';
     const T_PROCEDURE                   = 'T_PROCEDURE';
+    const T_PROCEDURE_DEFINE            = 'T_PROCEDURE_DEFINE';
+    const T_FORWARD                     = 'T_FORWARD';
     const T_PROCEDURE_NAME              = 'T_PROCEDURE_NAME';
     const T_PROCEDURE_END               = 'T_PROCEDURE_END';
     const T_DEFINE_SECTION_VAR          = 'T_DEFINE_SECTION_VAR';

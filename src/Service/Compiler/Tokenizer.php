@@ -16,6 +16,7 @@ use App\Service\Compiler\Tokens\T_END;
 use App\Service\Compiler\Tokens\T_ELSE;
 use App\Service\Compiler\Tokens\T_FALSE;
 use App\Service\Compiler\Tokens\T_FLOAT;
+use App\Service\Compiler\Tokens\T_FORWARD;
 use App\Service\Compiler\Tokens\T_FUNCTION;
 use App\Service\Compiler\Tokens\T_IF;
 use App\Service\Compiler\Tokens\T_INT;
@@ -60,6 +61,7 @@ class Tokenizer {
 //        T_HEADER_DEFINE::class,
         T_WHITESPACE::class,
 
+        T_FORWARD::class,
         T_LINEEND::class,
         T_LEVEL_VAR::class,
         T_DEFINE_TYPE::class,

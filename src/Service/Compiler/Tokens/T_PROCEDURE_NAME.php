@@ -13,7 +13,7 @@ class T_PROCEDURE_NAME {
             while($current < strlen($input)) {
                 $char = substr($input, $current, 1);
 
-                if ($char === ";"){
+                if ($char === ";" || $char === "("){
                     return [
                         'type' => 'T_PROCEDURE_NAME',
                         'value' => $value

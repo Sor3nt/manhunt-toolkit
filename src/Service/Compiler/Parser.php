@@ -25,6 +25,38 @@ class Parser {
             }
         }
 
+        $ast = $this->handleForward($ast);
+
+        return $ast;
+    }
+
+    private function handleForward( $ast ){
+
+        $orderList = [];
+
+        foreach ($ast['body'] as &$token) {
+            if ($token['type'] == Token::T_FORWARD){
+
+                foreach ($ast['body'] as $index => $tokenInner) {
+                    if (
+                        isset($token['section']) &&
+                        $tokenInner['type'] == $token['section'] &&
+                        $tokenInner['value'] == $token['to']
+                    ){
+
+                        $token = $tokenInner;
+
+
+                        unset($ast['body'][$index]);
+
+                        $ast['body'] = array_values($ast['body']);
+                    }
+
+                }
+
+            }
+        }
+
         return $ast;
     }
 
@@ -49,13 +81,12 @@ class Parser {
             case Token::T_BEGIN :
             case Token::T_SCRIPTMAIN:
             case Token::T_SCRIPTMAIN_NAME:
-            case Token::T_PROCEDURE_NAME:
             case Token::T_OR:
             case Token::T_AND:
             case Token::T_END:
+            case Token::T_PROCEDURE_END:
             case Token::T_END_CODE:
                  //just go to the next position
-                echo "skip...";
                 return $this->parseToken($tokens, $current + 1);
 
 
@@ -73,13 +104,13 @@ class Parser {
             case Token::T_IS_SMALLER :
             case Token::T_IS_GREATER :
             case Token::T_FALSE :
-            case Token::T_PROCEDURE_END:
             case Token::T_STRING:
             case Token::T_INT:
             case Token::T_FLOAT:
             case Token::T_TYPE_VAR:
             case Token::T_SELF:
             case Token::T_NOT:
+            case Token::T_FORWARD:
                 return [
                     $current + 1, $tokens[$current]
                 ];
@@ -91,6 +122,10 @@ class Parser {
              *
              *
              *********************************/
+
+            case Token::T_PROCEDURE:
+                return $this->parseProcedure($tokens, $current);
+
 
             case Token::T_BRACKET_OPEN :
                 return $this->parseBracketOpen($tokens, $current);
@@ -185,12 +220,95 @@ class Parser {
 
     }
 
+    public function parseProcedure($tokens, $current){
+
+        $starCurrent = $current;
+
+        $isForward = true;
+
+        while ($current < count($tokens)) {
+            $token = $tokens[$current];
+
+            if ($token['type'] == Token::T_BEGIN){
+                $isForward = false;
+                break;
+            }
+
+            if ($token['type'] == Token::T_FORWARD){
+                $isForward = true;
+                break;
+            }
+
+            $current++;
+
+        }
+
+        $current = $starCurrent;
+
+        /**
+         * we have a forward define section
+         */
+        if ($isForward == true){
+
+            $current++;
+
+            $node = [
+                'type' => Token::T_FORWARD,
+                'to' => $tokens[$current]['value'],
+                'section' => Token::T_PROCEDURE,
+                'params' => [],
+            ];
+
+            $current++;
+
+            if ($tokens[$current]['type'] == Token::T_BRACKET_OPEN){
+
+                $current++;
+
+                while ($current < count($tokens)) {
+
+                    if ($tokens[$current]['type'] == Token::T_BRACKET_CLOSE){
+                        $current++;
+                        break;
+                    }else{
+                        $node['params'][] = $tokens[$current];
+                    }
+
+                    $current++;
+                }
+            }
+
+            if ($tokens[$current]['type'] !== Token::T_LINEEND){
+                throw new \Exception('Parser: parseForward T_LINEEND expected');
+            }
+
+            $current++;
+
+            if (strtolower($tokens[$current]['value']) != "forward"){
+                throw new \Exception('Parser: parseForward FORWARD expected');
+            }
+
+            $current++;
+
+        /**
+         * we have a procedure define section
+         */
+        }else{
+            return $this->parseScript($tokens, $current);
+        }
+
+        return [
+            $current, $node
+        ];
+
+    }
+
     public function parseScript($tokens, $current){
         $token = $tokens[$current];
 
         $node = [
             'type' => $token['type'],
-            'value' => isset($token['value']) ? $token['value'] : false,
+            'value' => false,
             'body' => [],
         ];
 
@@ -200,13 +318,20 @@ class Parser {
 
             switch ($tokens[$current]['type']){
 
+                case Token::T_PROCEDURE_NAME:
                 case Token::T_SCRIPT_NAME:
+                    $node['value'] = $tokens[$current]['value'];
+                    $current++;
+                    continue;
+                    break;
+
                 case Token::T_LINEEND:
                 case Token::T_BEGIN:
                     $current++;
                     continue;
                     break;
 
+                case Token::T_PROCEDURE_END:
                 case Token::T_END:
                     return [
                         $current, $node
