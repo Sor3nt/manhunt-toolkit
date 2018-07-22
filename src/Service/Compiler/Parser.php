@@ -183,6 +183,9 @@ class Parser {
             case Token::T_DEFINE_SECTION_VAR:
                 return $this->parseDefineVarRecursive($tokens, $current);
 
+            case Token::T_DEFINE_SECTION_CONST:
+                return $this->parseDefineConstRecursive($tokens, $current);
+
             case Token::T_DEFINE_SECTION_ENTITY:
                 return $this->parseDefineEntityRecursive($tokens, $current);
 
@@ -636,6 +639,70 @@ class Parser {
         return [++$current, $node];
     }
 
+    private function parseDefineConstRecursive( $tokens, $current ){
+
+        $token = $tokens[$current];
+        $current++;
+
+        $node = [
+            'type' => $token['type'],
+            'value' => $token['value'],
+            'body' => []
+        ];
+
+        while ($current < count($tokens)) {
+
+            $token = $tokens[$current];
+
+            if (
+                $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
+                $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                $token['type'] == Token::T_PROCEDURE ||
+                $token['type'] == Token::T_SCRIPT ||
+                $token['type'] == Token::T_BEGIN
+            ){
+
+//                $node['body'] = $this->remapConstMapping($node['body']);
+
+                return [$current, $node];
+
+            }else{
+
+                if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
+                    $node['body'][] = $token;
+                }
+            }
+            $current++;
+        }
+
+        return [++$current, $node];
+    }
+//
+//    private function remapConstMapping($tokens){
+//
+//        $current = 0 ;
+//
+//        $result = [];
+//        while($current < count($tokens)){
+//
+//            $token = $tokens[ $current ];
+//
+//            if ($token['type'] == Token::T_IS_EQUAL){
+//                $prevToken = $tokens[ $current - 1];
+//                $nextToken = $tokens[ $current + 1];
+//
+//                $result[] = [
+//                    'target' => $prevToken['value'],
+//                    'value' => $nextToken['value']
+//                ];
+//            }
+//
+//            $current++;
+//        }
+//
+//        return $result;
+//    }
+
     private function parseDefineEntityRecursive( $tokens, $current ){
 
         $token = $tokens[$current];
@@ -654,6 +721,7 @@ class Parser {
             if (
                 $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
                 $token['type'] == Token::T_DEFINE_SECTION_VAR ||
+                $token['type'] == Token::T_DEFINE_SECTION_CONST ||
                 $token['type'] == Token::T_PROCEDURE ||
                 $token['type'] == Token::T_SCRIPT ||
                 $token['type'] == Token::T_BEGIN

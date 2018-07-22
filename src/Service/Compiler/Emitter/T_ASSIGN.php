@@ -89,6 +89,19 @@ class T_ASSIGN {
 
                 $code[] = $getLine('04000000');
                 $code[] = $getLine('01000000');
+
+            }else if (
+                $mapped['section'] == "script" &&
+                $mapped['type'] == "integer"
+            ) {
+
+                $code[] = $getLine('13000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('04000000');
+
+                // define the offset
+                $code[] = $getLine($mapped['offset']);
+
             }else{
                 var_dump($mapped);
                 throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
@@ -175,6 +188,19 @@ class T_ASSIGN {
                 $code[] = $getLine($mapped['offset']);
 
                 $code[] = $getLine('04000000');
+
+            }else if (
+                $mapped['section'] == "script" &&
+                $mapped['type'] == "integer"
+            ) {
+
+                $code[] = $getLine('15000000');
+                $code[] = $getLine('04000000');
+
+                // define the offset
+                $code[] = $getLine($mapped['offset']);
+
+                $code[] = $getLine('01000000');
 
             }else if (
                 $mapped['section'] == "header" &&

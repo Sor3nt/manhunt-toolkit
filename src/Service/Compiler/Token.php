@@ -46,6 +46,7 @@ use App\Service\Compiler\Tokens\T_WHITESPACE;
     const T_FORWARD                     = 'T_FORWARD';
     const T_ADDITION                    = 'T_ADDITION';
     const T_SUBSTRACTION                = 'T_SUBSTRACTION';
+    const T_DEFINE_SECTION_CONST        = 'T_DEFINE_SECTION_CONST';
     const T_PROCEDURE_NAME              = 'T_PROCEDURE_NAME';
     const T_PROCEDURE_END               = 'T_PROCEDURE_END';
     const T_DEFINE_SECTION_VAR          = 'T_DEFINE_SECTION_VAR';

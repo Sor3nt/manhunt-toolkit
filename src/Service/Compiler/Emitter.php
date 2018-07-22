@@ -13,11 +13,13 @@ class Emitter extends Helper {
     private $strings;
 
     private $types;
+    private $const;
 
     private $emitters = [
         'T_DEFINE_SECTION_ENTITY' => Emitter\T_DEFINE_SECTION_ENTITY::class,
         'T_DEFINE_SECTION_VAR' => Emitter\T_DEFINE_SECTION_VAR::class,
         'T_DEFINE_SECTION_TYPE' => Emitter\T_DEFINE_SECTION_TYPE::class,
+        'T_DEFINE_SECTION_CONST' => Emitter\T_DEFINE_SECTION_CONST::class,
         'T_DEFINE_TYPE' => Emitter\T_DEFINE_TYPE::class,
         'T_FALSE' => Emitter\T_FALSE::class,
         'T_TRUE' => Emitter\T_TRUE::class,
@@ -41,11 +43,12 @@ class Emitter extends Helper {
         'T_END_CODE' => Emitter\T_END_CODE::class,
     ];
 
-    public function __construct( $variables, $strings, $types )
+    public function __construct( $variables, $strings, $types, $const )
     {
         $this->variables = $variables;
         $this->strings = $strings;
         $this->types = $types;
+        $this->const = $const;
 
         $this->lines = new Lines();
     }
@@ -74,6 +77,7 @@ class Emitter extends Helper {
                 'strings' => $this->strings,
                 'types' => $this->types,
                 'variables' => $this->variables,
+                'const' => $this->const,
                 'customData' => $customData
             ]
         );

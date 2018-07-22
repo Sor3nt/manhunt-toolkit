@@ -88,6 +88,9 @@ class T_FUNCTION {
                             $code[] = $item;
                         }
 
+                        $code[] = $getLine('10000000');
+                        $code[] = $getLine('01000000');
+
                     }else{
 
                         if (isset(Manhunt2::$constants[ $param['value'] ])) {
@@ -100,6 +103,9 @@ class T_FUNCTION {
                         }else if (isset($data['variables'][$param['value']])){
                             $mapped = $data['variables'][$param['value']];
 
+                        }else if (isset($data['const'][$param['value']])){
+                            $mapped = $data['const'][$param['value']];
+                            $mapped['section'] = "script constant";
                         }else{
                             throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $param['value']));
                         }
@@ -117,10 +123,25 @@ class T_FUNCTION {
                         // define the offset
                         $code[] = $getLine($mapped['offset']);
 
+                        if ($mapped['section'] == "script constant"){
+                            $code[] = $getLine('12000000');
+                            $code[] = $getLine('02000000');
+                            $code[] = $getLine(Helper::fromIntToHex( $mapped['length'] + 1));
+
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('01000000');
+
+                            //move string pointer ?
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('02000000');
+                        }else{
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('01000000');
+
+                        }
+
                     }
 
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
 
                 }else if ($param['type'] == Token::T_FUNCTION){
                     $resultCode = $emitter( $param );

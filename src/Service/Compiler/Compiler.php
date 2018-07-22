@@ -15,6 +15,7 @@ class Compiler {
         $source = preg_replace("/\s+/", ' ', $source);
 
         // remove comments / unused code
+        // todo: multi line comments not supported
         $source = preg_replace("/\{(.*?)\}/", "", $source);
 
         // replace line ends with new lines
@@ -106,6 +107,59 @@ class Compiler {
         return $vars;
     }
 
+    private function getConstants($tokens, &$smemOffset){
+
+        $current = 0;
+
+        $vars = [];
+        $currentSection = false;
+
+        while ($current < count($tokens)) {
+
+            $token = $tokens[ $current ];
+
+            // we need to know the current section for the defined vars
+            if ($token['type'] == Token::T_DEFINE_SECTION_CONST){
+                $currentSection = 'const';
+                $current++;
+                continue;
+            }
+
+            if ($currentSection == "const"){
+
+                if ($token['type'] == Token::T_SCRIPT){
+                    break;
+                }else{
+
+
+                    $variable = $token['value'];
+                    $variableValue = $tokens[$current + 2]['value'];
+                    $variableValue = str_replace('"', '', $variableValue);
+
+                    $vars[$variable] = [
+                        'offset' => Helper::fromIntToHex($smemOffset),
+                        'length' => strlen($variableValue)
+                    ];
+
+                    $length = strlen($variableValue);
+
+                    if ($length % 4 == 0){
+                        $smemOffset += $length;
+                    }else{
+                        $smemOffset += $length + (4 - $length % 4);
+                    };
+
+                    $current = $current + 3;
+                }
+            }
+
+            $current++;
+        }
+
+        return $vars;
+    }
+
+
     private function getStrings($tokens, &$smemOffset){
         $strings = [];
 
@@ -116,6 +170,7 @@ class Compiler {
             if ($token['type'] == Token::T_SCRIPT) $currentScript++;
 
             if ($token['type'] != Token::T_STRING) continue;
+            if ($currentScript == 0) continue;
 
             $value = str_replace('"', '', $token['value']);
 
@@ -159,6 +214,7 @@ class Compiler {
             }else if (
                 $token['type'] == Token::T_DEFINE_SECTION_VAR ||
                 $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                $token['type'] == Token::T_DEFINE_SECTION_CONST ||
                 $token['type'] == Token::T_SCRIPT
             ){
                 return $types;
@@ -220,6 +276,7 @@ class Compiler {
             }else if (
                 $token['type'] == Token::T_DEFINE_SECTION_VAR ||
                 $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
+                $token['type'] == Token::T_DEFINE_SECTION_CONST ||
                 $token['type'] == Token::T_SCRIPT
             ){
                 return $types;
@@ -283,6 +340,8 @@ class Compiler {
 
         $types = $this->getTypes($tokens);
         $entity = $this->getEntitity($tokens);
+
+        $const = $this->getConstants($tokens, $smemOffset);
         $strings = $this->getStrings($tokens, $smemOffset);
 
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
@@ -296,7 +355,7 @@ class Compiler {
         var_dump($tokens);
         var_dump($ast);
 
-        $emitter = new Emitter( $variables, $strings, $types );
+        $emitter = new Emitter( $variables, $strings, $types, $const );
         $code = $emitter->emitter($ast);
         $sectionCode = [];
         foreach ($code as $line) {
