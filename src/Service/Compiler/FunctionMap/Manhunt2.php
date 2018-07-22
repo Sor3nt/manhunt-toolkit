@@ -616,16 +616,16 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
-        "setpedorientation" => [
-            'name'      =>  'SetPedOrientation',
+        "radarcreateblip" => [
+            'name'      =>  'RadarCreateBlip',
             'offset'    =>  '4d000000',
             /**
              * Parameters
-             * 1: result of GetEntity
+             * 1: GetEntityPosition
              * 2: integer
-             * - 55
+             * - 10
              */
-            'params'    =>  [ 'Entity', 'Integer' ],
+            'params'    =>  [ 'EntityPosition', 'Integer' ],
             'desc'      =>  ''
         ],
 
