@@ -415,7 +415,6 @@ class Parser {
 
                 $tokens[ $current] = $node;
             }else{
-
                 throw new \Exception('Parser: remapCondition not handeld correct');
             }
         }
@@ -559,10 +558,12 @@ var_dump("hmmM", $tokens);
 
         $shortStatement = true;
 
+        $innerCount = 0;
+
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
-            if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO) {
+            if ($innerCount == 0 && ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO)) {
                 $section = "isTrue";
 
                 if ($tokens[$current + 1]['type'] == Token::T_BEGIN){
@@ -602,10 +603,20 @@ var_dump("hmmM", $tokens);
                 return [$current + 1, $node];
 
             }else if ($token['type'] == Token::T_END) {
-                $node['cases'][] = $case;
-                $current++;
-                break;
+
+                if ($innerCount == 0){
+                    $node['cases'][] = $case;
+                    $current++;
+                    break;
+                }else{
+                    $case[ $section ][] = $token;
+                    $innerCount--;
+                }
             }else {
+                if ($token['type'] == Token::T_IF){
+                    $innerCount++;
+                }
+//                var_dump($token);
                 $case[ $section ][] = $token;
             }
 
@@ -637,8 +648,6 @@ var_dump("hmmM", $tokens);
                 $token['type'] == Token::T_SCRIPT ||
                 $token['type'] == Token::T_BEGIN
             ){
-//                var_dump($node);
-//                exit;
                 return [$current, $node];
 
             }else{

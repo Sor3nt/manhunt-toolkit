@@ -8,6 +8,11 @@ class Lines {
 
     private $lineCount = 1;
 
+    public function __construct( $lineCount = 1)
+    {
+        $this->lineCount = $lineCount;
+    }
+
     public function get( $hex, $calculateLineNumber = true, $forceNewIndex = false ){
 
         if ($forceNewIndex){

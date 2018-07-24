@@ -44,14 +44,14 @@ class Emitter extends Helper {
         'T_END_CODE' => Emitter\T_END_CODE::class,
     ];
 
-    public function __construct( $variables, $strings, $types, $const )
+    public function __construct( $variables, $strings, $types, $const, $lineCount = 1 )
     {
         $this->variables = $variables;
         $this->strings = $strings;
         $this->types = $types;
         $this->const = $const;
 
-        $this->lines = new Lines();
+        $this->lines = new Lines($lineCount);
     }
 
     public function emitter( $node, $calculateLineNumber = true, $customData = [] ){

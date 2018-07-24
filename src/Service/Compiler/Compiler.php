@@ -191,10 +191,58 @@ class Compiler {
 
 
     private function getStrings($tokens, &$smemOffset){
+
+
+        $strings = [];
+        foreach ($tokens as $token) {
+
+            if (isset($token['params'])) {
+                $innerStrings = $this->getStrings($token['params'], $smemOffset);
+                foreach ($innerStrings as $index => $innerString) {
+                    if (!isset($strings[$index])) $strings[$index] = $innerString;
+                }
+            }else if (isset($token['body'])){
+                $innerStrings = $this->getStrings($token['body'], $smemOffset);
+                foreach ($innerStrings as $index => $innerString) {
+                    if (!isset($strings[$index])) $strings[$index] = $innerString;
+                }
+            }else if (isset($token['cases'])){
+                foreach ($token['cases'] as $case) {
+                    $innerStrings = $this->getStrings($case['condition'], $smemOffset);
+                    foreach ($innerStrings as $index => $innerString) {
+                        if (!isset($strings[$index])) $strings[$index] = $innerString;
+                    }
+
+                    $innerStrings = $this->getStrings($case['isTrue'], $smemOffset);
+                    foreach ($innerStrings as $index => $innerString) {
+                        if (!isset($strings[$index])) $strings[$index] = $innerString;
+                    }
+                }
+            }else{
+
+                if ($token['type'] == Token::T_STRING){
+
+                    $value = str_replace('"', '', $token['value']);
+
+                    $strings[$value] = [
+                        'offset' => Helper::fromIntToHex($smemOffset),
+                        'length' => strlen($value)
+                    ];
+
+                    $length = strlen($value) + 1;
+                    $smemOffset += $length + (4 - $length % 4);
+                }
+            }
+        }
+
+        return $strings;
+    }
+
+    private function getStrings_old($tokens, &$smemOffset){
         $strings = [];
 
         $currentScript = 0;
-
+//var_dump($tokens);
         foreach ($tokens as $token) {
             // we need to know the current section for the defined vars
             if ($token['type'] == Token::T_SCRIPT) $currentScript++;
@@ -367,7 +415,6 @@ class Compiler {
         );
 
 
-
         $smemOffset = 0;
 
         // cleanup the source code
@@ -384,7 +431,7 @@ class Compiler {
         $entity = $this->getEntitity($tokens);
 
         $const = $this->getConstants($tokens, $smemOffset);
-        $strings = $this->getStrings($tokens, $smemOffset);
+//        $strings = $this->getStrings($tokens, $smemOffset);
 
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
@@ -396,33 +443,61 @@ class Compiler {
 
         $this->fixWriteDebug($ast['body']);
 
-        var_dump($tokens);
-        var_dump($ast);
+//        var_dump($tokens);
+//        var_dump($ast);
 
-        /**
-         * Translate Token AST to Bytecode
-         */
-        $emitter = new Emitter( $variables, $strings, $types, $const );
-        $code = $emitter->emitter($ast);
+
+
+        $header = [];
+        $currentSection = "header";
+
         $sectionCode = [];
-
-        /**
-         * Validate the Line numbers
-         * take sure the generated numbers match the calculated one
-         */
         $start = 1;
-        foreach ($code as $line) {
 
-            if ($line->lineNumber !== $start){
-                var_dump( $line, $start);
-                throw new \Exception('Calulated line number did not match with the generated one');
+        $lineCount = 1;
+
+        foreach ($ast["body"] as $token) {
+
+            if (
+                $token['type'] == Token::T_SCRIPT ||
+                $token['type'] == Token::T_PROCEDURE ||
+                $token['type'] == Token::T_FUNCTION
+            ){
+                $currentSection = "script";
+
+                $strings = $this->getStrings($token['body'], $smemOffset);
+
+                /**
+                 * Translate Token AST to Bytecode
+                 */
+                $emitter = new Emitter( $variables, $strings, $types, $const, $lineCount );
+
+                $code = $emitter->emitter([
+                    'type' => "root",
+                    'body' => [
+                        $token
+                    ]
+                ]);
+
+                foreach ($code as $line) {
+
+                    if ($line->lineNumber !== $start){
+                        var_dump( $line, $start);
+                        throw new \Exception('Calulated line number did not match with the generated one');
+                    }
+
+                    $start++;
+                    $sectionCode[] = $line->hex;
+                }
+
+                if (isset($line)) $lineCount = $line->lineNumber + 1;
+
+            }else if ($currentSection == "header"){
+                $header[] = $token;
+            }else{
+                throw new \Exception(sprintf('Compiler: parse unknown type for emitter %s', $token['type']));
             }
-
-            $start++;
-            $sectionCode[] = $line->hex;
         }
-
-//        $sectionDATA = $this->generateDATA( $scriptTokens );
 
         return [$sectionCode, []];
 
