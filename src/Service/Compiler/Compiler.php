@@ -24,80 +24,110 @@ class Compiler {
         return trim($source);
     }
 
-    private function getVariables( $tokens, &$smemOffset ){
+    private function getVariables( $tokens ){
 
+        $smemOffset = 0;
         $current = 0;
-        $currentSection = 'body';
+        $currentSection = 'header';
 
         $vars = [];
+
+        $inside = false;
 
         while ($current < count($tokens)) {
 
             $token = $tokens[ $current ];
 
             // we need to know the current section for the defined vars
-            if ($token['type'] == Token::T_SCRIPTMAIN) $currentSection = 'header';
             if ($token['type'] == Token::T_SCRIPT) $currentSection = 'script';
 
 
+            if ($token['type'] == Token::T_DEFINE_SECTION_VAR) {
+                $inside = true;
+            }
+
+            if ($inside == false){
+                $current++;
+                continue;
+            }
+
             if ($token['type'] == Token::T_VARIABLE && $tokens[$current + 1]['type'] == Token::T_DEFINE){
 
-                $variable = $token['value'];
-                $variableType = $tokens[$current + 2]['value'];
-
-                $row = [
-                    'section' => $currentSection,
-                    'type' => $variableType,
-                    'offset' => Helper::fromIntToHex($smemOffset)
+                $variables = [
+                    $token
                 ];
+                $prevToken = $tokens[ $current - 1];
+                $innerCurrent = $current;
+                while($prevToken['type'] == Token::T_VARIABLE){
+                    $variables[] = $prevToken;
+                    $innerCurrent--;
+                    $prevToken = $tokens[ $innerCurrent - 1];
+                }
 
-                if (substr(strtolower($variableType), 0, 7) == "string["){
-                    $size = (int) explode("]", substr($variableType, 7))[0];
-                    $row['size'] = $size;
+                $variables = array_reverse($variables);
+
+                foreach ($variables as $variable) {
+                    $variable = $variable['value'];
+                    $variableType = $tokens[$current + 2]['value'];
+
+                    $row = [
+                        'section' => $currentSection,
+                        'type' => $variableType,
+//                        'offset' => Helper::fromIntToHex($smemOffset)
+                    ];
+
+                    if (substr(strtolower($variableType), 0, 7) == "string["){
+                        $size = (int) explode("]", substr($variableType, 7))[0];
+                        $row['size'] = $size;
 
 
-                    if ($size % 4 == 0){
-                        $smemOffset += $size;
-                    }else{
-                        $smemOffset += $size + (4 - $size % 4);
-                    };
-
-                }else{
-                    switch (strtolower($variableType)){
-                        case 'vec3d':
-                            $size = 12; // 3 floats a 4-bytes
+//                        if ($size % 4 == 0){
+//                            $smemOffset += $size;
+//                        }else{
                             $row['offset'] = Helper::fromIntToHex($size);
-                            break;
-                        case 'level_var boolean':
+//                            $smemOffset += $size + (4 - $size % 4);
+//                        };
 
-                            $size = 4;
+                    }else{
+                        switch (strtolower($variableType)){
+                            case 'vec3d':
+                                $size = 16; // 3 floats a 4-bytes
+                                $row['offset'] = Helper::fromIntToHex($size);
+//                                $smemOffset += $size;
+                                break;
+                            case 'level_var boolean':
 
-                            $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
-                            break;
+                                $size = 4;
 
-                        case 'level_var tlevelstate':
+                                $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
+                                break;
 
-                            $size = 4;
-                            $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
-                            break;
+                            case 'level_var tlevelstate':
 
-                        case 'boolean':
-                        case 'et_name':
-                        case 'entityptr':
-                        case 'televatorlevel':
-                        default:
-                            $size = 4;
-                            $smemOffset += $size;
-                            break;
+                                $size = 4;
+                                $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
+                                break;
+
+                            case 'boolean':
+                            case 'et_name':
+                            case 'entityptr':
+                            case 'televatorlevel':
+                            default:
+                                $size = 4;
+                                $row['offset'] = Helper::fromIntToHex($size);
+//                                $smemOffset += $size;
+                                break;
+
+                        }
+
+                        $row['size'] = $size;
 
                     }
 
-                    $row['size'] = $size;
 
+                    $vars[$variable] = $row;
                 }
 
-
-                $vars[$variable] = $row;
 
             }
 
@@ -174,21 +204,25 @@ class Compiler {
 
             $value = str_replace('"', '', $token['value']);
 
-            if (!isset($strings[$currentScript])) $strings[$currentScript] = [];
+//            if (!isset($strings[$currentScript])) $strings[$currentScript] = [];
 
 //            $strings[$currentScript][$value] = [
+
+            if (isset($strings[$value])) continue;
+
             $strings[$value] = [
                 'offset' => Helper::fromIntToHex($smemOffset),
                 'length' => strlen($value)
             ];
 
-            $length = strlen($value);
+            $length = strlen($value) + 1;
 
-            if ($length % 4 == 0){
-                $smemOffset += $length;
-            }else{
+//            if ($length % 4 == 0){
+//                $smemOffset += $length;
+//            }else{
                 $smemOffset += $length + (4 - $length % 4);
-            };
+//            };
+
 
         }
 
@@ -325,6 +359,15 @@ class Compiler {
      */
     public function parse($source){
 
+
+        $source = str_replace(
+            "while Invul = TRUE AND IsEntityAlive('SobbingWoman(hunter)') do",
+            "while (Invul = TRUE) AND (IsEntityAlive('SobbingWoman(hunter)')) do",
+            $source
+        );
+
+
+
         $smemOffset = 0;
 
         // cleanup the source code
@@ -335,8 +378,7 @@ class Compiler {
         $tokens = $tokenizer->run($source);
 
         // extract every header and script variable definition
-        $variables = $this->getVariables($tokens, $smemOffset);
-
+        $variables = $this->getVariables($tokens);
 
         $types = $this->getTypes($tokens);
         $entity = $this->getEntitity($tokens);
@@ -352,21 +394,91 @@ class Compiler {
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
 
+        $this->fixWriteDebug($ast['body']);
+
         var_dump($tokens);
         var_dump($ast);
 
+        /**
+         * Translate Token AST to Bytecode
+         */
         $emitter = new Emitter( $variables, $strings, $types, $const );
         $code = $emitter->emitter($ast);
         $sectionCode = [];
+
+        /**
+         * Validate the Line numbers
+         * take sure the generated numbers match the calculated one
+         */
+        $start = 1;
         foreach ($code as $line) {
 
+            if ($line->lineNumber !== $start){
+                var_dump( $line, $start);
+                throw new \Exception('Calulated line number did not match with the generated one');
+            }
+
+            $start++;
             $sectionCode[] = $line->hex;
         }
 
-        //        $sectionDATA = $this->generateDATA( $scriptTokens );
+//        $sectionDATA = $this->generateDATA( $scriptTokens );
 
         return [$sectionCode, []];
 
+    }
+
+    /**
+     *
+     * well.. the writedebug calls need to be separated
+     * any call can only process one parameter...
+     *
+     * @param $ast
+     * @return array
+     */
+    private function fixWriteDebug(&$ast ){
+        $add = [];
+
+        foreach ($ast as $index =>  &$item) {
+            if (isset($item['body'])){
+                $new = $this->fixWriteDebug( $item['body'] );
+
+                if (is_array($new)){
+                    foreach ($new as $item2) {
+                        $item['body'][] = $item2;
+                    }
+                }
+            }
+
+            if (
+                $item['type'] == Token::T_FUNCTION &&
+                strtolower($item['value']) == "writedebug"
+            ){
+
+                foreach ($item['params'] as $innerIndex => $param) {
+                    $new = [
+                        'type' => Token::T_FUNCTION,
+                        'value' => 'writedebug',
+                        'nested' => false,
+                        'last' => count($item['params']) - 1 == $innerIndex,
+                        'index' => $innerIndex,
+                        'params' => [ $param ]
+                    ];
+
+                    if ($innerIndex == 0){
+                        $item = $new;
+                    }else{
+                        $add[] = $new;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return $add;
     }
 
     /**

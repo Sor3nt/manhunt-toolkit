@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\Compiler;
+namespace App\Tests\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ScriptVec3dTest extends KernelTestCase
+class SingleStringParamTest extends KernelTestCase
 {
 
     public function test()
@@ -16,10 +16,9 @@ class ScriptVec3dTest extends KernelTestCase
             scriptmain LevelScript;
 
             script OnCreate;
-                var
-                    pos : Vec3D;
+
                 begin
-            		SetVector(pos);
+                    writedebug('test')
                 end;
 
             end.
@@ -33,18 +32,22 @@ class ScriptVec3dTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '10000000',
+            '21000000', // init string
+            '04000000', // init string
+            '01000000', // init string
+            '00000000', // string offset (pointer)
 
-            '22000000',
-            '04000000',
-            '01000000',
-            '10000000',
+            '12000000', // init parameter
+            '02000000', // init parameter
+            '05000000', // value int 5 (test + 1)
+            '10000000', // assign
+            '01000000', // assign
 
-            '10000000',
-            '01000000',
-            '84010000', // SetVector
+            '10000000', // move pointer
+            '02000000', // move pointer
+
+            '73000000', // writedebug call (hidden call)
+            '74000000', // writedebug call
 
             // script end
             '11000000',

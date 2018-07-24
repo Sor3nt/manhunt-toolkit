@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -35,10 +35,16 @@ class IfBooleanFalseTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+
+
+            '34000000',
+            '09000000',
+            '04000000',
+
             '14000000', //Read VAR from header
             '01000000', //Read VAR from header
             '04000000', //Read VAR from header
-            '00000000', //Offset
+            '04000000', //Offset
 
             '10000000', //nested call return result
             '01000000', //nested call return result
@@ -57,7 +63,7 @@ class IfBooleanFalseTest extends KernelTestCase
             '01000000', //statement (core)
 
             '3f000000', //statement (line offset)
-            '1a000000', //Offset in byte
+            '78000000', //Offset in byte
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -67,12 +73,12 @@ class IfBooleanFalseTest extends KernelTestCase
             '01000000', //statement (core 2)
             '00000000', //statement (core 2)
             '3f000000', //statement (line offset)
-            'd4000000', //Offset in byte
+            'e8000000', //Offset in byte
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '04000000', //Offset in byte
+            '00000000', //Offset in byte
 
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
@@ -112,6 +118,18 @@ class IfBooleanFalseTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Block;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -42,6 +42,17 @@ class ProcedureEndTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }

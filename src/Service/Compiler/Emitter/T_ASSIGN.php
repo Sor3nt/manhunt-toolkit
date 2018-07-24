@@ -13,107 +13,110 @@ class T_ASSIGN {
         list($leftHand, $operator, $rightHand) = $node;
 
 
-        if ($leftHand['type'] == Token::T_VARIABLE){
+        if ($leftHand !== false){
 
-            if (isset(Manhunt2::$functions[ strtolower($leftHand['value']) ])) {
-                // mismatch, some function has no params and looks loke variables
-                // just redirect to the function handler
-                return $emitter( [
-                    'type' => Token::T_FUNCTION,
-                    'value' => $leftHand['value']
-                ] );
+            if ($leftHand['type'] == Token::T_VARIABLE){
 
-            }else if (isset(Manhunt2::$constants[ $leftHand['value'] ])) {
-                $mapped = Manhunt2::$constants[$leftHand['value']];
-                $mapped['section'] = "constant";
-            }else if (isset(Manhunt2::$levelVarBoolean[ $leftHand['value'] ])) {
-                $mapped = Manhunt2::$levelVarBoolean[$leftHand['value']];
-                $mapped['section'] = "level_var";
+                if (isset(Manhunt2::$functions[ strtolower($leftHand['value']) ])) {
+                    // mismatch, some function has no params and looks loke variables
+                    // just redirect to the function handler
+                    return $emitter( [
+                        'type' => Token::T_FUNCTION,
+                        'value' => $leftHand['value']
+                    ] );
 
-            }else if (isset($data['variables'][$leftHand['value']])){
-                $mapped = $data['variables'][$leftHand['value']];
+                }else if (isset(Manhunt2::$constants[ $leftHand['value'] ])) {
+                    $mapped = Manhunt2::$constants[$leftHand['value']];
+                    $mapped['section'] = "constant";
+                }else if (isset(Manhunt2::$levelVarBoolean[ $leftHand['value'] ])) {
+                    $mapped = Manhunt2::$levelVarBoolean[$leftHand['value']];
+                    $mapped['section'] = "level_var";
 
+                }else if (isset($data['variables'][$leftHand['value']])){
+                    $mapped = $data['variables'][$leftHand['value']];
+
+                }else{
+                    throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $leftHand['value']));
+                }
+
+                // initialize string
+                if ($mapped['section'] == "constant") {
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+
+                    // define the offset
+                    $code[] = $getLine($mapped['offset']);
+
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+
+                }else if ($mapped['section'] == "header" && $mapped['type'] == "boolean") {
+
+                    $code[] = $getLine('14000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                    // define the offset
+                    $code[] = $getLine($mapped['offset']);
+                }else if (
+                    $mapped['section'] == "header" &&
+                    $mapped['type'] == "level_var integer"
+                ) {
+
+                    $code[] = $getLine('1b000000');
+
+                    // define the offset
+                    $code[] = $getLine($mapped['offset']);
+
+                    $code[] = $getLine('04000000');
+                    $code[] = $getLine('01000000');
+
+                }else if (
+                    $mapped['section'] == "header" &&
+                    $mapped['type'] == "integer"
+                ) {
+
+                    $code[] = $getLine('13000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                    // define the offset
+                    $code[] = $getLine($mapped['offset']);
+
+                }else if ($mapped['section'] == "level_var") {
+                    $code[] = $getLine('1b000000');
+
+                    // define the offset
+                    $code[] = $getLine($mapped['offset']);
+
+                    $code[] = $getLine('04000000');
+                    $code[] = $getLine('01000000');
+
+                }else if (
+                    $mapped['section'] == "script" &&
+                    $mapped['type'] == "integer"
+                ) {
+
+                    $code[] = $getLine('13000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                    // define the offset
+                    $code[] = $getLine($mapped['offset']);
+
+                }else{
+                    var_dump($mapped);
+                    throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
+
+                }
+
+
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
             }else{
-                throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $leftHand['value']));
-            }
-
-            // initialize string
-            if ($mapped['section'] == "constant") {
-                $code[] = $getLine('12000000');
-                $code[] = $getLine('01000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('04000000');
-
-            }else if ($mapped['section'] == "header" && $mapped['type'] == "boolean") {
-
-                $code[] = $getLine('14000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-            }else if (
-                $mapped['section'] == "header" &&
-                $mapped['type'] == "level_var integer"
-            ) {
-
-                $code[] = $getLine('1b000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('01000000');
-
-            }else if (
-                $mapped['section'] == "header" &&
-                $mapped['type'] == "integer"
-            ) {
-
-                $code[] = $getLine('13000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-            }else if ($mapped['section'] == "level_var") {
-                $code[] = $getLine('1b000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('01000000');
-
-            }else if (
-                $mapped['section'] == "script" &&
-                $mapped['type'] == "integer"
-            ) {
-
-                $code[] = $getLine('13000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-            }else{
-                var_dump($mapped);
-                throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
+                throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown leftHand: %s', $leftHand['type']));
 
             }
-
-
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
-        }else{
-            throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown leftHand: %s', $leftHand['type']));
-
         }
 
 
@@ -169,7 +172,6 @@ class T_ASSIGN {
 
         $mapped = $data['variables'][$node['value']];
 
-
         if (count($node['body']) == 3) {
             $resultCode = self::handleSimpleMath($node['body'], $getLine, $emitter, $data);
             foreach ($resultCode as $line) {
@@ -177,6 +179,7 @@ class T_ASSIGN {
             }
 
             if (
+
                 $mapped['section'] == "header" &&
                 $mapped['type'] == "level_var integer"
             ) {
@@ -192,7 +195,7 @@ class T_ASSIGN {
             }else if (
                 $mapped['section'] == "script" &&
                 $mapped['type'] == "integer"
-            ) {
+            ){
 
                 $code[] = $getLine('15000000');
                 $code[] = $getLine('04000000');
@@ -202,9 +205,12 @@ class T_ASSIGN {
 
                 $code[] = $getLine('01000000');
 
+
             }else if (
+
                 $mapped['section'] == "header" &&
                 $mapped['type'] == "integer"
+
             ) {
 
                 $code[] = $getLine('11000000');

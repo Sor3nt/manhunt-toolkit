@@ -15,9 +15,14 @@ class T_FUNCTION {
 
 
         if (isset($node['params']) && count($node['params'])){
+            $skipNext = false;
 
-            foreach ($node['params'] as $param) {
+            foreach ($node['params'] as $index => $param) {
 
+                if ($skipNext){
+                    $skipNext = false;
+                    continue;
+                }
 
                 /**
                  * Define for INT, FLOAT and STRING a construct and destruct sequence
@@ -55,7 +60,13 @@ class T_FUNCTION {
                         throw new \Exception(sprintf('String %s is not in the map !', $value));
                     }
 
-                    $code[] = $getLine($data['strings'][$value]['offset']);
+
+                    // when this is false, we are in precalc mode so we dont want to fetch the real value
+                    if ($data['calculateLineNumber']){
+                        $code[] = $getLine($data['strings'][$value]['offset']);
+                    }else{
+                        $code[] = $getLine("12345678");
+                    }
 
 
                     $code[] = $getLine('12000000');
@@ -121,6 +132,7 @@ class T_FUNCTION {
                         $code[] = $getLine('01000000');
 
                         // define the offset
+
                         $code[] = $getLine($mapped['offset']);
 
                         if ($mapped['section'] == "script constant"){
@@ -141,6 +153,23 @@ class T_FUNCTION {
                         }
 
                     }
+
+
+                }else if ($param['type'] == Token::T_ADDITION){
+                    $result = T_ASSIGN::handleSimpleMath([
+                        false,
+                        $param,
+                        $node['params'][$index + 1]
+                    ], $getLine, $emitter, $data);
+
+                    foreach ($result as $item) {
+                        $code[] = $item;
+                    }
+
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+
+                    $skipNext = true;
 
 
                 }else if ($param['type'] == Token::T_FUNCTION){
@@ -185,9 +214,28 @@ class T_FUNCTION {
 
         $code[] = $getLine( Manhunt2::$functions[ strtolower($node['value']) ]['offset'] );
 
+        // the setpedorientation call has a secret additional call
+        if (
+            strtolower($node['value']) == 'setpedorientation'
+        ){
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
+
+            $code[] = $getLine('b0020000');
+
+        }
+
         // the writedebug call has a secret additional call, maybe a flush command ?
-        if (strtolower($node['value']) == 'writedebug'){
-            $code[] = $getLine('74000000');
+        if (
+            strtolower($node['value']) == 'writedebug' //&&
+//            $node['last'] == true
+        ){
+//            if ($node['index'] == 0){
+//                $code[] = $getLine('73000000');
+//            }else{
+                $code[] = $getLine('74000000');
+
+//            }
         }
 
         /**

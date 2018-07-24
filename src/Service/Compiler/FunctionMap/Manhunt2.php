@@ -285,6 +285,9 @@ class Manhunt2 {
         "writedebug"                        => [
             'offset' => "73000000"
         ],
+        "writedebugflush"                   => [
+            'offset' => "74000000"
+        ],
         "setqtmbaseprobability"             => [
             'offset' => "ac030000"
         ] ,
@@ -616,8 +619,8 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
-        "radarcreateblip" => [
-            'name'      =>  'RadarCreateBlip',
+        "setpedorientation" => [
+            'name'      =>  'SetPedOrientation',
             'offset'    =>  '4d000000',
             /**
              * Parameters
@@ -1247,6 +1250,102 @@ class Manhunt2 {
              */
             'params'    =>  [ ],
             'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "cutscenecamerastart" => [
+            'name'      =>  'CutSceneCameraStart',
+            'offset'    =>  '5e030000',
+            /**
+             * Parameters
+             *
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+
+        "playscriptaudiostreamauto" => [
+            'name'      =>  'PlayScriptAudioStreamAuto',
+            'offset'    =>  '6a030000',
+            /**
+             * Parameters
+             * 1: String
+             * - WACKO3
+             * 2: Integer
+             */
+            'params'    =>  [ 'String', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "aientityplayanim" => [
+            'name'      =>  'AiEntityPlayAnim',
+            'offset'    =>  'b3010000',
+            /**
+             * Parameters
+             * 1: Entity
+             * 2: string
+             * - ASY_MELEE_INTRO_CAMERA
+             * 3: boolean
+             */
+            'params'    =>  [ 'Entity', 'String', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "setstreamlipsyncspeaker" => [
+            'name'      =>  'SetStreamLipsyncSpeaker',
+            'offset'    =>  'cf030000',
+            /**
+             * Parameters
+             * 1: Player
+             * 2: Boolean
+             */
+            'params'    =>  [ 'Player', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "aientityplayanimlooped" => [
+            'name'      =>  'AIEntityPlayAnimLooped',
+            'offset'    =>  'b4010000',
+            /**
+             * Parameters
+             * 1: String
+             * - SobbingWoman(hunter)
+             * 2: String
+             * - BRO_FIXVENT_IDLE_3
+             * 3: Float
+             */
+            'params'    =>  [ 'String', 'String', 'Float' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "endscriptaudiostream" => [
+            'name'      =>  'EndScriptAudioStream',
+            'offset'    =>  'ce020000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "ishunterknockeddown" => [
+            'name'      =>  'IsHunterKnockedDown',
+            'offset'    =>  'cb030000',
+            /**
+             * Parameters
+             * 1: String
+             * - SobbingWoman(hunter)
+             */
+            'params'    =>  [ 'String' ],
+            'return'    =>  'Boolean',
             'desc'      =>  ''
         ],
 

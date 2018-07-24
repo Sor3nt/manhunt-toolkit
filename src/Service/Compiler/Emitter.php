@@ -14,6 +14,7 @@ class Emitter extends Helper {
 
     private $types;
     private $const;
+    private $stringHandler;
 
     private $emitters = [
         'T_DEFINE_SECTION_ENTITY' => Emitter\T_DEFINE_SECTION_ENTITY::class,
@@ -65,8 +66,8 @@ class Emitter extends Helper {
         return (new $this->emitters[ $node['type'] ]())->map(
             $node,
 
-            function( $hex ) use ($calculateLineNumber){
-                return $this->lines->get($hex, $calculateLineNumber);
+            function( $hex, $forceNewIndex = false ) use ($calculateLineNumber){
+                return $this->lines->get($hex, $calculateLineNumber, $forceNewIndex);
             },
 
             function($token, $calculateLineNumber = true, $customData = []) {
@@ -74,6 +75,7 @@ class Emitter extends Helper {
             },
 
             [
+                'calculateLineNumber' => $calculateLineNumber,
                 'strings' => $this->strings,
                 'types' => $this->types,
                 'variables' => $this->variables,

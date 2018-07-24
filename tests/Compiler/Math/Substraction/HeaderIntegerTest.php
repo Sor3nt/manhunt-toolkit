@@ -1,31 +1,34 @@
 <?php
-namespace App\Tests\Compiler;
+namespace App\Tests\Math\Substraction;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ScriptVec3dTest extends KernelTestCase
+class HeaderIntegerTest extends KernelTestCase
 {
 
-    public function test()
+
+    public function testHeaderVar()
     {
 
         $script = "
             scriptmain LevelScript;
 
-            script OnCreate;
-                var
-                    pos : Vec3D;
-                begin
-            		SetVector(pos);
-                end;
+            var
+                animLength : integer;
 
+            script OnCreate;
+                begin
+                    animLength := animLength - 1500;
+                end;
             end.
+
         ";
 
         $expected = [
+
             // script start
             '10000000',
             '0a000000',
@@ -33,18 +36,34 @@ class ScriptVec3dTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+
             '34000000',
             '09000000',
-            '10000000',
-
-            '22000000',
             '04000000',
-            '01000000',
-            '10000000',
 
-            '10000000',
-            '01000000',
-            '84010000', // SetVector
+            '13000000', //read from script var
+            '01000000', //read from script var
+            '04000000', //read from script var
+            '04000000', //Offset
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+            '12000000', //parameter (temp int)
+            '01000000', //parameter (temp int)
+            'dc050000', //value 1500
+            '0f000000', //parameter (temp int)
+            '04000000', //parameter (temp int)
+
+            '33000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
+
+            '11000000', //unknown
+            '01000000', //unknown
+            '04000000', //unknown
+            '15000000', //unknown
+            '04000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
 
             // script end
             '11000000',
@@ -53,7 +72,8 @@ class ScriptVec3dTest extends KernelTestCase
             '0f000000',
             '0a000000',
             '3b000000',
-            '00000000'
+            '00000000',
+
         ];
 
         $compiler = new Compiler();
@@ -72,5 +92,6 @@ class ScriptVec3dTest extends KernelTestCase
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
+
 
 }

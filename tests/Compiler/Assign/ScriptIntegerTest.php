@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Compiler;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -33,10 +33,14 @@ class ScriptIntegerTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+            '34000000',
+            '09000000',
+            '04000000',
+
             '21000000', // Prepare string read (DATA table)
             '04000000', // Prepare string read (DATA table)
             '01000000', // Prepare string read (DATA table)
-            '04000000', // offset
+            '00000000', // offset
 
             '12000000', // parameter (Read String var)
             '02000000', // parameter (Read String var)
@@ -51,7 +55,7 @@ class ScriptIntegerTest extends KernelTestCase
 
             '15000000',
             '04000000',
-            '00000000',
+            '04000000',
             '01000000',
 
             // script end
@@ -66,8 +70,18 @@ class ScriptIntegerTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-//var_dump($sectionCode);
-//exit;
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

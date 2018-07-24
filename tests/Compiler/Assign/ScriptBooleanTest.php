@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Compiler;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -33,13 +33,17 @@ class ScriptBooleanTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+            '34000000',
+            '09000000',
+            '04000000',
+
             '12000000', // parameter
             '01000000', // parameter
             '00000000', // false
+
             '15000000', // parameter (Read String var)
             '04000000', // parameter (Read String var)
-
-            '00000000',
+            '04000000',
             '01000000',
 
 
@@ -55,8 +59,18 @@ class ScriptBooleanTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-//var_dump($sectionCode);
-//exit;
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

@@ -6,7 +6,7 @@ use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ScriptVec3dTest extends KernelTestCase
+class HeaderMultiTest extends KernelTestCase
 {
 
     public function test()
@@ -15,11 +15,14 @@ class ScriptVec3dTest extends KernelTestCase
         $script = "
             scriptmain LevelScript;
 
+            VAR
+                alreadyDone, alreadyDone2 : boolean;
+
             script OnCreate;
-                var
-                    pos : Vec3D;
+
                 begin
-            		SetVector(pos);
+                    alreadyDone := FALSE;
+                    alreadyDone2 := FALSE;
                 end;
 
             end.
@@ -35,16 +38,23 @@ class ScriptVec3dTest extends KernelTestCase
 
             '34000000',
             '09000000',
-            '10000000',
+            '08000000',
 
-            '22000000',
-            '04000000',
-            '01000000',
-            '10000000',
+            '12000000', // init parameter
+            '01000000', // init parameter
+            '00000000', // value int 0
+            '16000000', // assign to script var
+            '04000000', // assign to script var
+            '04000000', // save into alreadyDone
+            '01000000', // assign
 
-            '10000000',
-            '01000000',
-            '84010000', // SetVector
+            '12000000', // init parameter
+            '01000000', // init parameter
+            '00000000', // value int 0
+            '16000000', // assign to script var
+            '04000000', // assign to script var
+            '04000000', // save into alreadyDone 2
+            '01000000', // assign
 
             // script end
             '11000000',

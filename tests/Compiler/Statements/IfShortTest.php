@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -36,7 +36,7 @@ class IfShortTest extends KernelTestCase
             '01000000', //statement (core 2)
             '00000000', //statement (core 2)
             '3f000000', //statement (line offset)
-            '3c000000', //Offset in byte
+            '44000000', //Offset in byte
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             'dc050000', //value 1500
@@ -56,9 +56,18 @@ class IfShortTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-        foreach ($sectionCode as $item) {
-            echo $item . "\n";
-}
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

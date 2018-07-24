@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\Statements;
+namespace App\Tests\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class IfShortNotTest extends KernelTestCase
+class WriteDebugTest extends KernelTestCase
 {
 //
     public function test() {
@@ -17,7 +17,7 @@ class IfShortNotTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    If NOT IsPlayerWalking then sleep(1500);
+                    writeDebug('test', 'test2');
                 end;
 
             end.
@@ -31,23 +31,34 @@ class IfShortNotTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            'ed020000', //IsPlayerWalking call
-
-            '29000000',
-            '01000000', // NOT
-            '01000000',
-
-            '24000000', //statement (core 2)
-            '01000000', //statement (core 2)
-            '00000000', //statement (core 2)
-            '3f000000', //statement (line offset)
-            '50000000', //Offset in byte
-            '12000000', //parameter (read simple type (int/float...))
-            '01000000', //parameter (read simple type (int/float...))
-            'dc050000', //value 1500
+            '21000000', //Prepare string read (DATA table)
+            '04000000', //Prepare string read (DATA table)
+            '01000000', //Prepare string read (DATA table)
+            '00000000', //Offset in byte
+            '12000000', //parameter (Read String var)
+            '02000000', //parameter (Read String var)
+            '05000000', //value 5
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '6a000000', //sleep Call
+            '10000000', //nested string return result
+            '02000000', //nested string return result
+            '73000000', //writedebug Call
+            '74000000', //writedebug Call
+
+            '21000000', //Prepare string read (DATA table)
+            '04000000', //Prepare string read (DATA table)
+            '01000000', //Prepare string read (DATA table)
+            '08000000', //Offset in byte
+            '12000000', //parameter (Read String var)
+            '02000000', //parameter (Read String var)
+
+            '06000000', //value 5
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+            '10000000', //nested string return result
+            '02000000', //nested string return result
+            '73000000', //writedebug Call
+            '74000000', //WriteDebug flush Call
 
             // script end
             '11000000',

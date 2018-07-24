@@ -54,16 +54,25 @@ class T_CONDITION {
                 case Token::T_IS_SMALLER:
                     $code[] = $getLine('3d000000');
                     break;
+                case Token::T_IS_GREATER:
+                    $code[] = $getLine('42000000');
+                    break;
                 default:
                     throw new \Exception(sprintf('T_CONDITION: Unknown operator %s', $operation['type']));
                     break;
             }
 
-
             $lastLine = end($code)->lineNumber + 4;
 
             // line offset for the IF start (or so)
-            $code[] = $getLine( Helper::fromIntToHex($lastLine) );
+            $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
+
+//            if (Helper::fromIntToHex($lastLine) == "63040000"){
+//                var_dump($code);
+//                exit;
+//
+//            }
+
 
             $code[] = $getLine('33000000');
             $code[] = $getLine('01000000');
@@ -155,7 +164,6 @@ class T_CONDITION {
                 throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $node['value']));
             }
 
-
             // initialize string
             if ($mapped['section'] == "constant") {
                 $code[] = $getLine('12000000');
@@ -167,7 +175,10 @@ class T_CONDITION {
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('04000000');
 
-            }else if ($mapped['section'] == "header" && $mapped['type'] == "boolean") {
+            }else if (
+            ($mapped['section'] == "header" && $mapped['type'] == "boolean") ||
+            ($mapped['section'] == "body" && $mapped['type'] == "boolean")
+            ) {
 
                 $code[] = $getLine('14000000');
                 $code[] = $getLine('01000000');

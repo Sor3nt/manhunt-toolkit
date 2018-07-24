@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Compiler;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -61,9 +61,18 @@ class HeaderConstantTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-        foreach ($sectionCode as $item) {
-            echo $item . "\n";
-}
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

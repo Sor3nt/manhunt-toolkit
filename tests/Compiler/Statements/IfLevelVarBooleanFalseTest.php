@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -37,6 +37,10 @@ class IfLevelVarBooleanFalseTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+            '34000000',
+            '09000000',
+            '04000000',
+
             '1b000000', //unknown
             'b0170000', //LevelVar stealthOneLooper
             '04000000', //unknown
@@ -58,7 +62,7 @@ class IfLevelVarBooleanFalseTest extends KernelTestCase
             '01000000', //If statement
             '3f000000', //equal
 
-            '1a000000', //If statement( current start offset)
+            '78000000', //If statement( current start offset)
             '33000000', //If statement
             '01000000', //If statement
             '01000000', //If statement
@@ -68,7 +72,7 @@ class IfLevelVarBooleanFalseTest extends KernelTestCase
 
 
             '3f000000', //store value
-            '94000000', //end offset
+            'a8000000', //end offset
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
             '01000000', //Bool true / int 1
@@ -90,6 +94,17 @@ class IfLevelVarBooleanFalseTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }

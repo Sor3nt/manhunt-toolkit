@@ -149,6 +149,7 @@ class Tokenizer {
         return $tokens;
     }
 
+
     /*
      * the assignet value are sometimes a const, string, int or function call
      * the tokenizer can not handle this while parsing

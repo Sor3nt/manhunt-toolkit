@@ -152,7 +152,6 @@ class Parser {
                     $parsedConditions = [];
                     $innerCurrent = 0;
                     $innerTokens = $case['condition'];
-
                     while($innerCurrent < count($innerTokens)){
                         list($innerCurrent, $tree)= $this->parseToken($innerTokens,$innerCurrent);
 
@@ -168,6 +167,7 @@ class Parser {
                     $parsedIsTrue = [];
                     $innerCurrent = 0;
                     $innerTokens = $case['isTrue'];
+
                     while($innerCurrent < count($innerTokens)){
                         list($innerCurrent, $tree)= $this->parseToken($innerTokens, $innerCurrent);
 
@@ -219,6 +219,7 @@ class Parser {
         }
 
     }
+
 
     public function parseProcedure($tokens, $current){
 
@@ -485,10 +486,9 @@ class Parser {
                     'value' => $token['value'],
                     'body' => [],
                 ];
-
+var_dump("hmmM", $tokens);
                 $current++;
                 $current++;
-
                 while ($current < count($tokens)) {
                     $token = $tokens[$current];
 
@@ -503,7 +503,11 @@ class Parser {
                     }
                 }
 
-                throw new \Exception('Parser: T_ASSIGN parseVariable not handeld correct');
+                return [
+                    $current, $node
+                ];
+
+
             }
         }
 
@@ -553,6 +557,8 @@ class Parser {
         $current++;
         $section = "condition";
 
+        $shortStatement = true;
+
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
@@ -561,6 +567,7 @@ class Parser {
 
                 if ($tokens[$current + 1]['type'] == Token::T_BEGIN){
                     $current++; //skip T_BEGIN
+                    $shortStatement = false;
                 }
 
             // we have another If-statement
@@ -590,8 +597,13 @@ class Parser {
                 $current++;
                 break;
 
+            }else if ($token['type'] == Token::T_LINEEND && $shortStatement) {
+                $node['cases'][] = $case;
+                return [$current + 1, $node];
+
             }else if ($token['type'] == Token::T_END) {
                 $node['cases'][] = $case;
+                $current++;
                 break;
             }else {
                 $case[ $section ][] = $token;
@@ -625,6 +637,8 @@ class Parser {
                 $token['type'] == Token::T_SCRIPT ||
                 $token['type'] == Token::T_BEGIN
             ){
+//                var_dump($node);
+//                exit;
                 return [$current, $node];
 
             }else{

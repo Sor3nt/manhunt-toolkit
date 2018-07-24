@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class NestedTwoStringIntegerParamTest extends KernelTestCase
+class SingleFloatParamTest extends KernelTestCase
 {
 
     public function test()
@@ -18,7 +18,7 @@ class NestedTwoStringIntegerParamTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    writedebug(writedebug('test'), 1)
+                    writedebug(1.2);
                 end;
 
             end.
@@ -32,31 +32,11 @@ class NestedTwoStringIntegerParamTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '21000000', // init string
-            '04000000', // init string
-            '01000000', // init string
-            '00000000', // string offset (pointer)
-
-            '12000000', // init parameter
-            '02000000', // init parameter
-            '05000000', // value int 5 (test +1)
-            '10000000', // assign
-            '01000000', // assign
-
-            '10000000', // move pointer
-            '02000000', // move pointer
-
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
-
-            '10000000', // nested call return
-            '01000000', // nested call return
-
             '12000000', // init parameter
             '01000000', // init parameter
-            '01000000', // value int 1
+            '9a99993f', // value float 1.2
             '10000000', // assign
-            '01000000', // assign
+            '01000000',
 
             '73000000', // writedebug call (hidden call)
             '74000000', // writedebug call
@@ -73,8 +53,18 @@ class NestedTwoStringIntegerParamTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-//var_dump($sectionCode);
-//exit;
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

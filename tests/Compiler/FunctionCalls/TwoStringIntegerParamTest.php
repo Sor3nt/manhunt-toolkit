@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -18,7 +18,7 @@ class TwoStringIntegerParamTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    writedebug('test', 1)
+                    moveentity('test', 1)
                 end;
 
             end.
@@ -52,8 +52,7 @@ class TwoStringIntegerParamTest extends KernelTestCase
             '10000000', // assign
             '01000000',
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '7d000000', // writedebug call
 
             // script end
             '11000000',
@@ -67,6 +66,17 @@ class TwoStringIntegerParamTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }

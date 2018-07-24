@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class NestedSingleStringParamTest extends KernelTestCase
+class NestedTwoStringIntegerParamTest extends KernelTestCase
 {
 
     public function test()
@@ -18,7 +18,7 @@ class NestedSingleStringParamTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    writedebug(writedebug('test'))
+                    moveentity(moveentity('test'), 1)
                 end;
 
             end.
@@ -46,14 +46,18 @@ class NestedSingleStringParamTest extends KernelTestCase
             '10000000', // move pointer
             '02000000', // move pointer
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '7d000000', // moveentity
 
             '10000000', // nested call return
             '01000000', // nested call return
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '12000000', // init parameter
+            '01000000', // init parameter
+            '01000000', // value int 1
+            '10000000', // assign
+            '01000000', // assign
+
+            '7d000000', // moveentity
 
             // script end
             '11000000',
@@ -64,8 +68,20 @@ class NestedSingleStringParamTest extends KernelTestCase
             '3b000000',
             '00000000'
         ];
+
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }

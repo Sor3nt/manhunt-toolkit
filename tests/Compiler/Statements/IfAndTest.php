@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Command;
+namespace App\Tests\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -37,10 +37,16 @@ class IfAndTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+
+
+            '34000000',
+            '09000000',
+            '04000000',
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '18000000', //Offset in byte
+            '00000000', //Offset in byte
 
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
@@ -76,7 +82,7 @@ class IfAndTest extends KernelTestCase
 
             '40000000', //statement (core)(operator un-equal)
 
-            '25000000', //statement (core)( Offset )
+            'a4000000', //statement (core)( Offset )
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -89,7 +95,7 @@ class IfAndTest extends KernelTestCase
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
 
-            '18000000', //Offset in byte
+            '00000000', //Offset in byte
 
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
@@ -123,7 +129,7 @@ class IfAndTest extends KernelTestCase
 
             '40000000', //statement (core)(operator un-equal)
 
-            '48000000', //statement (core)( Offset )
+            '30010000', //statement (core)( Offset )
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -143,7 +149,7 @@ class IfAndTest extends KernelTestCase
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
 
-            '18000000', //Offset in byte
+            '00000000', //Offset in byte
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
             '0b000000', //value 11
@@ -172,7 +178,7 @@ class IfAndTest extends KernelTestCase
             '01000000', //statement (core)
 
             '40000000', //statement (core)(operator un-equal)
-            '70000000', //statement (core)( Offset )
+            'd0010000', //statement (core)( Offset )
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -189,7 +195,7 @@ class IfAndTest extends KernelTestCase
             '00000000', //statement (core 2)
             '3f000000', //statement (line offset)
 
-            '00020000', //Offset in byte
+            '14020000', //Offset in byte
 
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
@@ -212,10 +218,18 @@ class IfAndTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-//        foreach ($sectionCode as $item) {
-//        echo $item . "\n";
-//
-//        }
+
+        if ($sectionCode != $expected){
+            foreach ($sectionCode as $index => $item) {
+                if ($expected[$index] == $item){
+                    echo ($index + 1) . '->' . $item . "\n";
+                }else{
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                }
+            }
+            exit;
+        }
+
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
 

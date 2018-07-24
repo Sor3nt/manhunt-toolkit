@@ -68,7 +68,7 @@ class T_IF {
         return $code;
     }
 
-    static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+    static public function map( $node, \Closure $getLine, \Closure $emitter, $data, $isWhile = false ){
 
         $code = [];
 
@@ -108,8 +108,11 @@ class T_IF {
                 $code[] = $getLine('3f000000');
             }
 
-            //pre generaste the bytecode (only for calculation)
+            //pre generate the bytecode (only for calculation)
             $isTrue = [];
+
+            $lastNumber = end($code)->lineNumber;
+
 
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry, false);
@@ -120,9 +123,15 @@ class T_IF {
 
             // calculate the length
             $lastLine = end($code)->lineNumber;
-            $endOffset = ($lastLine + count($isTrue)) * 4;
-            $code[] = $getLine( Helper::fromIntToHex($endOffset) ); // line offset for the IF end
+            $endOffset = (($lastLine + count($isTrue)) + 1) * 4;
 
+            if ($isWhile) $endOffset = $endOffset + 8;
+
+            // line offset for the IF end
+            // note: we force the line to a new lineNumber since the emitter mess up the index by calculate the offset... todo
+            $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
+
+//wenn in isTrue nur ein eintrag ist, muss das gesonders behandelt werden
             // create the bytecode
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry);
@@ -130,6 +139,8 @@ class T_IF {
                     $code[] = $singleLine;
                 }
             }
+
+
         }
 
         return $code;

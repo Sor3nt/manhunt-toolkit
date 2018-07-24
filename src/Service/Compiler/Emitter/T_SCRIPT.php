@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\Bytecode\Helper;
+
 class T_SCRIPT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
@@ -17,6 +19,20 @@ class T_SCRIPT {
         $code[] = $getLine('11000000');
         $code[] = $getLine('0a000000');
         $code[] = $getLine('09000000');
+
+        $sum = 0;
+        foreach ($data['variables'] as $variable) {
+            $sum += $variable['size'];
+        }
+
+
+        if ($sum > 0){
+
+            $code[] = $getLine('34000000');
+            $code[] = $getLine('09000000');
+            $code[] = $getLine(Helper::fromIntToHex($sum));
+
+        }
 
         foreach ($node['body'] as $node) {
             $resultCode = $emitter( $node );
