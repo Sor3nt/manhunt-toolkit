@@ -414,6 +414,25 @@ class Parser {
 
 
                 $tokens[ $current] = $node;
+            }else if (count($tokens) == 4){
+
+                list($leftHand, $operator, $rightHand, $addon) = $tokens;
+
+                $node = [
+                    'type' => Token::T_CONDITION,
+                    'isNot' => $isNot,
+                    'body' => [
+                        $leftHand,
+                        $operator,
+                        $rightHand,
+                        $addon
+                    ],
+                ];
+
+                $tokens[ $current] = $node;
+                unset($tokens[ $current + 1]);
+                unset($tokens[ $current + 2]);
+                unset($tokens[ $current + 3]);
             }else{
                 throw new \Exception('Parser: remapCondition not handeld correct');
             }

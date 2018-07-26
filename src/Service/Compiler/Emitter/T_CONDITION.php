@@ -34,7 +34,6 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
-
             // statement core
             $code[] = $getLine('23000000');
             $code[] = $getLine('04000000');
@@ -90,6 +89,86 @@ class T_CONDITION {
                 $code[] = $getLine('01000000');
             }
 
+        }else if (count($node['body']) == 4){
+
+            list($variable, $operation, $value, $addon) = $node['body'];
+
+
+            $result = self::parseValue($variable, $getLine, $emitter, $data);
+            foreach ($result as $item) {
+                $code[] = $item;
+            }
+
+            //nested call return result
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
+
+            $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
+            foreach ($result as $item) {
+                $code[] = $item;
+            }
+
+            $result = self::parseValue($addon, $getLine, $emitter, $data);
+            foreach ($result as $item) {
+                $code[] = $item;
+            }
+
+
+
+            //add AND statement
+            //TODO: OR verbauen
+            $code[] = $getLine('0f000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('25000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('0f000000');
+            $code[] = $getLine('04000000');
+
+
+
+            // statement core
+            $code[] = $getLine('23000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('12000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('01000000');
+
+
+            switch ($operation['type']){
+                case Token::T_IS_EQUAL:
+                    $code[] = $getLine('3f000000');
+                    break;
+                case Token::T_IS_NOT_EQUAL:
+                    $code[] = $getLine('40000000');
+                    break;
+                case Token::T_IS_SMALLER:
+                    $code[] = $getLine('3d000000');
+                    break;
+                case Token::T_IS_GREATER:
+                    $code[] = $getLine('42000000');
+                    break;
+                default:
+                    throw new \Exception(sprintf('T_CONDITION: Unknown operator %s', $operation['type']));
+                    break;
+            }
+
+            $lastLine = end($code)->lineNumber + 4;
+
+            // line offset for the IF start (or so)
+            $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
+
+//            if (Helper::fromIntToHex($lastLine) == "63040000"){
+//                var_dump($code);
+//                exit;
+//
+//            }
+
+
+            $code[] = $getLine('33000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('01000000');
         }
 
 
