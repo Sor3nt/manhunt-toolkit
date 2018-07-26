@@ -573,76 +573,84 @@ var_dump("hmmM", $tokens);
         ];
 
         $current++;
-        $section = "condition";
 
         $shortStatement = true;
 
-        $innerCount = 0;
-
+        /**
+         * parse the condition
+         */
         while ($current < count($tokens)) {
-
             $token = $tokens[$current];
-            if ($innerCount == 0 && ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO)) {
-                $section = "isTrue";
 
-                if ($tokens[$current + 1]['type'] == Token::T_BEGIN){
-                    $current++; //skip T_BEGIN
-                    $shortStatement = false;
-                }
-
-            // we have another If-statement
-            }else if ($token['type'] == Token::T_END_ELSE) {
-
-                $node['cases'][] = $case;
-
-                if ($tokens[$current + 2]['type'] == Token::T_IF || $tokens[$current + 2]['type'] == Token::T_WHILE) {
-                    list($current, $innerIf) = $this->parseIfStatement(
-                        $tokens, $current + 2
-                    );
-
-                    foreach ($innerIf['cases'] as $case) {
-                        $node['cases'][] = $case;
-                    }
-
-                // the else statment (without if)
-                }else{
-
-                    list($current, $innerIf) =  $this->parseIfLastElse(
-                        $tokens, $current + 3
-                    );
-
-                    $node['cases'][] = $innerIf;
-                }
-
+            if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO) {
                 $current++;
-                break;
 
-            }else if ($token['type'] == Token::T_LINEEND && $shortStatement) {
-                $node['cases'][] = $case;
-                return [$current + 1, $node];
-
-            }else if ($token['type'] == Token::T_END) {
-
-                if ($innerCount == 0){
-                    $node['cases'][] = $case;
+                if ($tokens[$current]['type'] == Token::T_BEGIN) {
+                    $shortStatement = false;
                     $current++;
-                    break;
-                }else{
-                    $case[ $section ][] = $token;
-                    $innerCount--;
                 }
-            }else {
-                if ($token['type'] == Token::T_IF){
-                    $innerCount++;
-                }
-//                var_dump($token);
-                $case[ $section ][] = $token;
+
+                break;
+            }else{
+                $case['condition'][] = $token;
             }
 
             $current++;
         }
 
-        return [$current, $node];
+        /**
+         * parse SHORT true code
+         */
+        if ($shortStatement){
+            while ($current < count($tokens)) {
+                $token = $tokens[$current];
+
+                if ($token['type'] == Token::T_LINEEND) {
+                    $node['cases'][] = $case;
+                    return [$current + 1, $node];
+                }
+
+                $case['isTrue'][] = $token;
+
+                $current++;
+            }
+
+        /**
+         * parse regular true code
+         */
+        }else{
+
+            $deep = 0;
+
+            while ($current < count($tokens)) {
+                $token = $tokens[$current];
+
+
+                if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO) {
+
+                    if ($tokens[$current + 1]['type'] == Token::T_BEGIN) {
+                        $deep++;
+                    }
+
+                }else if ($token['type'] == Token::T_END) {
+
+                    if ($deep == 0){
+                        $node['cases'][] = $case;
+                        return [$current + 1, $node];
+                    }
+
+                    $deep--;
+                }
+
+                $case['isTrue'][] = $token;
+
+                $current++;
+            }
+
+        }
+
+
+        throw new \Exception('Parser: parseIfStatement unable to handle');
     }
 
     private function parseDefineVarRecursive( $tokens, $current ){
