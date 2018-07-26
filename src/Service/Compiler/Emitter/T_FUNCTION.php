@@ -132,7 +132,7 @@ class T_FUNCTION {
                         $code[] = $getLine('01000000');
 
                         // define the offset
-
+var_dump("MAP TEST", $mapped, $param['value'], "\n\n");
                         $code[] = $getLine($mapped['offset']);
 
                         if ($mapped['section'] == "script constant"){

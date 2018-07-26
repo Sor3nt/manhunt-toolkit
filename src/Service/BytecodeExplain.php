@@ -392,7 +392,9 @@ class BytecodeExplain {
                 }else if ($lines[ $lineIndex + 6]->toHex() == "3f000000"){
                     $operationText = "equal";
                 }else if ($lines[ $lineIndex + 6]->toHex() == "3d000000"){
-                    $operationText = "lower";
+                    $operationText = "smaller";
+                }else if ($lines[ $lineIndex + 6]->toHex() == "42000000"){
+                    $operationText = "greater";
                 }
 
                 $result[$lineIndex + 6] = [
@@ -660,8 +662,8 @@ class BytecodeExplain {
                 ];
 
                 $result[$lineIndex + 1] = [
-                    $lines[ $lineIndex + 1]->toInt() / 4,
-                    'Offset (line number)'
+                    $lines[ $lineIndex + 1]->toHex(),
+                    sprintf('Offset (line number %s)', $lines[ $lineIndex + 1]->toInt() / 4)
                 ];
             }
 
@@ -679,8 +681,8 @@ class BytecodeExplain {
                 ];
 
                 $result[$lineIndex + 1] = [
-                    $lines[ $lineIndex + 1]->toInt() / 4,
-                    'Offset (line number)'
+                    $lines[ $lineIndex + 1]->toHex(),
+                    sprintf('Offset (line number %s)', $lines[ $lineIndex + 1]->toInt() / 4)
                 ];
             }
 
@@ -1078,33 +1080,33 @@ class BytecodeExplain {
                             $line->toHex(),
                             $functionName . ' Call'
                         ];
+//
+//                        if ($result[$lineIndex][0] == '73000000'){
+//                            $lineIndex++;
+//
+//                            $result[$lineIndex] = [
+//                                $result[$lineIndex + 1][0],
+//                                'WriteDebug flush Call'
+//                            ];
+//                        }
 
-                        if ($result[$lineIndex][0] == '73000000'){
-                            $lineIndex++;
-
-                            $result[$lineIndex] = [
-                                $line->toHex(),
-                                'WriteDebug flush Call'
-                            ];
-                        }
-
-
-                        if (
-                            ($lines[ $lineIndex + 1]->toHex() == "10000000") &&
-                            ($lines[ $lineIndex + 2]->toHex() == "01000000")
-                        ){
-                            $result[$lineIndex + 1] = [
-                                $lines[ $lineIndex + 1]->toHex(),
-                                'nested call return result'
-                            ];
-
-                            $result[$lineIndex + 2] = [
-                                $lines[ $lineIndex + 2]->toHex(),
-                                'nested call return result'
-                            ];
-
-
-                        }
+//
+//                        if (
+//                            ($lines[ $lineIndex + 1]->toHex() == "10000000") &&
+//                            ($lines[ $lineIndex + 2]->toHex() == "01000000")
+//                        ){
+//                            $result[$lineIndex + 1] = [
+//                                $lines[ $lineIndex + 1]->toHex(),
+//                                'nested call return result'
+//                            ];
+//
+//                            $result[$lineIndex + 2] = [
+//                                $lines[ $lineIndex + 2]->toHex(),
+//                                'nested call return result'
+//                            ];
+//
+//
+//                        }
                     }
 
                 }

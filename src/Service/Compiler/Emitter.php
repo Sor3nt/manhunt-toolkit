@@ -46,6 +46,7 @@ class Emitter extends Helper {
 
     public function __construct( $variables, $strings, $types, $const, $lineCount = 1 )
     {
+
         $this->variables = $variables;
         $this->strings = $strings;
         $this->types = $types;

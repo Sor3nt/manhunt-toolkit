@@ -24,9 +24,8 @@ class Compiler {
         return trim($source);
     }
 
-    private function getVariables( $tokens ){
+    private function getHeaderVariables( $tokens ){
 
-        $smemOffset = 0;
         $current = 0;
         $currentSection = 'header';
 
@@ -39,7 +38,7 @@ class Compiler {
             $token = $tokens[ $current ];
 
             // we need to know the current section for the defined vars
-            if ($token['type'] == Token::T_SCRIPT) $currentSection = 'script';
+            if ($token['type'] == Token::T_SCRIPT) return $vars;
 
 
             if ($token['type'] == Token::T_DEFINE_SECTION_VAR) {
@@ -68,6 +67,12 @@ class Compiler {
 
                 foreach ($variables as $variable) {
                     $variable = $variable['value'];
+//
+                    if (!$this->isVariableInUse($tokens, $variable)){
+                        continue;
+                    }
+
+
                     $variableType = $tokens[$current + 2]['value'];
 
                     $row = [
@@ -91,7 +96,7 @@ class Compiler {
                     }else{
                         switch (strtolower($variableType)){
                             case 'vec3d':
-                                $size = 16; // 3 floats a 4-bytes
+                                $size = 12; // 3 floats a 4-bytes
                                 $row['offset'] = Helper::fromIntToHex($size);
 //                                $smemOffset += $size;
                                 break;
@@ -124,7 +129,6 @@ class Compiler {
 
                     }
 
-
                     $vars[$variable] = $row;
                 }
 
@@ -135,6 +139,25 @@ class Compiler {
         }
 
         return $vars;
+    }
+
+    private function isVariableInUse($tokens, $var, $start = false){
+
+        $result = $this->recursiveSearch($tokens, [
+            Token::T_VARIABLE,
+            Token::T_ASSIGN
+        ]);
+
+        foreach ($result as $token) {
+
+            echo "compare " . $token['value'] . " == " . $var . "\n";
+            if ($token['value'] == $var){
+                return true;
+            }
+        }
+
+        return false;
+
     }
 
     private function getConstants($tokens, &$smemOffset){
@@ -193,85 +216,34 @@ class Compiler {
     private function getStrings($tokens, &$smemOffset){
 
 
-        $strings = [];
-        foreach ($tokens as $token) {
+        $response =  $this->recursiveSearch($tokens, [Token::T_STRING]);
 
-            if (isset($token['params'])) {
-                $innerStrings = $this->getStrings($token['params'], $smemOffset);
-                foreach ($innerStrings as $index => $innerString) {
-                    if (!isset($strings[$index])) $strings[$index] = $innerString;
-                }
-            }else if (isset($token['body'])){
-                $innerStrings = $this->getStrings($token['body'], $smemOffset);
-                foreach ($innerStrings as $index => $innerString) {
-                    if (!isset($strings[$index])) $strings[$index] = $innerString;
-                }
-            }else if (isset($token['cases'])){
-                foreach ($token['cases'] as $case) {
-                    $innerStrings = $this->getStrings($case['condition'], $smemOffset);
-                    foreach ($innerStrings as $index => $innerString) {
-                        if (!isset($strings[$index])) $strings[$index] = $innerString;
-                    }
+        $result = [];
 
-                    $innerStrings = $this->getStrings($case['isTrue'], $smemOffset);
-                    foreach ($innerStrings as $index => $innerString) {
-                        if (!isset($strings[$index])) $strings[$index] = $innerString;
-                    }
-                }
-            }else{
+        foreach ($response as $item) {
 
-                if ($token['type'] == Token::T_STRING){
+            $value = str_replace('"', '', $item['value']);
 
-                    $value = str_replace('"', '', $token['value']);
-
-                    $strings[$value] = [
-                        'offset' => Helper::fromIntToHex($smemOffset),
-                        'length' => strlen($value)
-                    ];
-
-                    $length = strlen($value) + 1;
-                    $smemOffset += $length + (4 - $length % 4);
-                }
-            }
+            $result[$value] = $value;
         }
 
-        return $strings;
-    }
 
-    private function getStrings_old($tokens, &$smemOffset){
-        $strings = [];
+        $strings = array_unique($result);
+        foreach ($strings as &$string) {
 
-        $currentScript = 0;
-//var_dump($tokens);
-        foreach ($tokens as $token) {
-            // we need to know the current section for the defined vars
-            if ($token['type'] == Token::T_SCRIPT) $currentScript++;
+            $length = strlen($string) + 1;
 
-            if ($token['type'] != Token::T_STRING) continue;
-            if ($currentScript == 0) continue;
-
-            $value = str_replace('"', '', $token['value']);
-
-//            if (!isset($strings[$currentScript])) $strings[$currentScript] = [];
-
-//            $strings[$currentScript][$value] = [
-
-            if (isset($strings[$value])) continue;
-
-            $strings[$value] = [
+            $string = [
                 'offset' => Helper::fromIntToHex($smemOffset),
-                'length' => strlen($value)
+                'length' => strlen($string)
             ];
 
-            $length = strlen($value) + 1;
-
-//            if ($length % 4 == 0){
-//                $smemOffset += $length;
-//            }else{
-                $smemOffset += $length + (4 - $length % 4);
-//            };
+            if (4 - $length % 4 != 0){
+                $length += 4 - $length % 4;
+            }
 
 
+            $smemOffset += $length;
         }
 
         return $strings;
@@ -407,12 +379,12 @@ class Compiler {
      */
     public function parse($source){
 
-
-        $source = str_replace(
-            "while Invul = TRUE AND IsEntityAlive('SobbingWoman(hunter)') do",
-            "while (Invul = TRUE) AND (IsEntityAlive('SobbingWoman(hunter)')) do",
-            $source
-        );
+//
+//        $source = str_replace(
+//            "while Invul = TRUE AND IsEntityAlive('SobbingWoman(hunter)') do",
+//            "while (Invul = TRUE) AND (IsEntityAlive('SobbingWoman(hunter)')) do",
+//            $source
+//        );
 
 
         $smemOffset = 0;
@@ -425,13 +397,15 @@ class Compiler {
         $tokens = $tokenizer->run($source);
 
         // extract every header and script variable definition
-        $variables = $this->getVariables($tokens);
+        $headerVariables = $this->getHeaderVariables($tokens);
 
         $types = $this->getTypes($tokens);
         $entity = $this->getEntitity($tokens);
 
         $const = $this->getConstants($tokens, $smemOffset);
 //        $strings = $this->getStrings($tokens, $smemOffset);
+
+
 
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
@@ -444,7 +418,7 @@ class Compiler {
         $this->fixWriteDebug($ast['body']);
 
 //        var_dump($tokens);
-//        var_dump($ast);
+        var_dump($ast);
 
 
 
@@ -455,8 +429,24 @@ class Compiler {
         $start = 1;
 
         $lineCount = 1;
+        $smemOffset = 0;
 
-        foreach ($ast["body"] as $token) {
+
+        $strings4Scripts = [];
+
+        foreach ($ast["body"] as $index => $token) {
+
+            if (
+                $token['type'] == Token::T_SCRIPT ||
+                $token['type'] == Token::T_PROCEDURE ||
+                $token['type'] == Token::T_FUNCTION
+            ){
+                $strings4Scripts[$index] = $this->getStrings($token['body'], $smemOffset);
+
+            }
+        }
+
+        foreach ($ast["body"] as $index => $token) {
 
             if (
                 $token['type'] == Token::T_SCRIPT ||
@@ -465,12 +455,53 @@ class Compiler {
             ){
                 $currentSection = "script";
 
-                $strings = $this->getStrings($token['body'], $smemOffset);
+                /**
+                 * Calculate string offsets
+                 */
+//                $strings = $this->getStrings($token['body'], $smemOffset);
+
+                $scriptVar = $this->getScriptVar($token['body'], $smemOffset2);
+
+                $smemOffset2 = 0;
+
+                $scriptBlock = $this->recursiveSearch($token['body'], [  ], [ Token::T_DEFINE_SECTION_VAR]);
+//                var_dump($scriptBlock);exit;
+                $scriptVarFinal = [];
+                foreach ($scriptVar as $name => $item) {
+                    if (!isset($item['offset'])){
+//                        if ($this->isVariableInUse($scriptBlock, $name)){
+
+//
+//                            if (4 - $item['size'] % 4 != 0){
+//                                $item['size'] += 4 - $item['size'] % 4;
+//                            }
+
+
+                            $smemOffset2 += $item['size'];
+                            $item['offset'] = Helper::fromIntToHex($smemOffset2);
+                            $scriptVarFinal[$name ] = $item;
+//                        }
+
+                    }
+                }
+//var_dump($smemOffset, $smemOffset2);
+//                exit;
+                foreach ($headerVariables as $name => $item) {
+
+                    if ($this->isVariableInUse($token['body'], $name)){
+
+                        $item['offset'] = Helper::fromIntToHex($smemOffset);
+                        $smemOffset += $item['size'];
+
+                        $scriptVarFinal[$name ] = $item;
+                    }
+                }
+
 
                 /**
                  * Translate Token AST to Bytecode
                  */
-                $emitter = new Emitter( $variables, $strings, $types, $const, $lineCount );
+                $emitter = new Emitter(  $scriptVarFinal, $strings4Scripts[$index], $types, $const, $lineCount );
 
                 $code = $emitter->emitter([
                     'type' => "root",
@@ -500,6 +531,186 @@ class Compiler {
         }
 
         return [$sectionCode, []];
+
+    }
+
+    public function recursiveSearch($tokens, $searchType, $ignoreTypes = []){
+
+
+        $result = [];
+        foreach ($tokens as $token) {
+
+            if (count($searchType) == 0 || in_array($token['type'],$searchType)){
+                if (in_array($token['type'],$ignoreTypes)){
+                    continue;
+                }else{
+
+                    $result[] = $token;
+                }
+            }
+
+
+            if (isset($token['params'])) {
+                $response =  $this->recursiveSearch($token['params'], $searchType, $ignoreTypes);
+                foreach ($response as $item) {
+                    $result[] = $item;
+                }
+            }else if (isset($token['body'])){
+                $response =   $this->recursiveSearch($token['body'], $searchType, $ignoreTypes);
+                foreach ($response as $item) {
+                    $result[] = $item;
+                }
+            }else if (isset($token['cases'])){
+                foreach ($token['cases'] as $case) {
+                    $response = $this->recursiveSearch($case['condition'], $searchType, $ignoreTypes);
+                    foreach ($response as $item) {
+                        $result[] = $item;
+                    }
+
+                    $response = $this->recursiveSearch($case['isTrue'], $searchType, $ignoreTypes);
+                    foreach ($response as $item) {
+                        $result[] = $item;
+                    }
+                }
+            }
+
+
+        }
+
+        return $result;
+
+    }
+
+    private function getScriptVar( $tokens , &$smemOffset){
+
+        $otherTokens = [];
+        $varSection = [];
+        foreach ($tokens as $token) {
+            if ($token['type'] == Token::T_DEFINE_SECTION_VAR) {
+                $varSection = $token['body'];
+//                break;
+            }else{
+                $otherTokens[] = $token;
+            }
+        }
+
+        $tokens = $varSection;
+
+        $current = 0;
+
+        $vars = [];
+
+//        $smemOffset = 0;
+
+        while ($current < count($tokens)) {
+
+            $token = $tokens[ $current ];
+
+            if ($token['type'] == Token::T_VARIABLE && $tokens[$current + 1]['type'] == Token::T_DEFINE_TYPE){
+
+                $variables = [
+                    $token
+                ];
+
+                if (isset($tokens[ $current - 1])){
+
+                    $prevToken = $tokens[ $current - 1];
+                    $innerCurrent = $current;
+                    while($prevToken['type'] == Token::T_VARIABLE){
+                        $variables[] = $prevToken;
+                        $innerCurrent--;
+                        $prevToken = $tokens[ $innerCurrent - 1];
+                    }
+                }
+
+                $variables = array_reverse($variables);
+                foreach ($variables as $variable) {
+                    $variable = $variable['value'];
+
+//                    if (!$this->isVariableInUse($otherTokens, $variable)){
+//                        continue;
+//                    }
+
+
+                    $current = $current + 1;
+
+                    $variableType = $tokens[$current]['value'];
+
+                    $row = [
+                        'section' => 'script',
+                        'type' => $variableType,
+//                        'offset' => Helper::fromIntToHex($smemOffset)
+                    ];
+
+                    if (substr(strtolower($variableType), 0, 7) == "string["){
+                        $size = (int) explode("]", substr($variableType, 7))[0];
+                        $row['size'] = $size;
+
+
+//                        if ($size % 4 == 0){
+//                            $smemOffset += $size;
+//                        }else{
+//                        $row['offset'] = Helper::fromIntToHex($size);
+//                            $smemOffset += $size + (4 - $size % 4);
+//                        };
+
+                    }else{
+                        switch (strtolower($variableType)){
+                            case 'vec3d':
+                                $size = 12; // 3 floats a 4-bytes
+//                                $row['offset'] = Helper::fromIntToHex($size);
+//                                $smemOffset += $size;
+                                break;
+                            case 'level_var boolean':
+
+                                $size = 4;
+
+                                $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
+                                break;
+
+                            case 'level_var tlevelstate':
+
+                                $size = 4;
+                                $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
+                                break;
+
+                            case 'boolean':
+                            case 'et_name':
+                            case 'entityptr':
+                            case 'televatorlevel':
+                            default:
+                                $size = 4;
+//                                $row['offset'] = Helper::fromIntToHex($size);
+//                                $smemOffset += $size;
+                                break;
+
+                        }
+
+                        $row['size'] = $size;
+
+                    }
+
+                    if (!isset($row['offset'])){
+
+
+//                        if (4 - $size % 4 != 0){
+//                            $size += 4 - $size % 4;
+//                        }
+
+//                        $smemOffset += $size;
+//                        $row['offset'] = Helper::fromIntToHex($smemOffset);
+                    }
+
+                    $vars[$variable] = $row;
+                }
+
+
+            }
+
+            $current++;
+        }
+
+        return $vars;
 
     }
 

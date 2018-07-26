@@ -22,12 +22,15 @@ class T_SCRIPT {
 
         $sum = 0;
         foreach ($data['variables'] as $variable) {
-            $sum += $variable['size'];
+
+            if ($variable['section'] == "script"){
+                $sum += $variable['size'];
+
+            }
         }
 
 
         if ($sum > 0){
-
             $code[] = $getLine('34000000');
             $code[] = $getLine('09000000');
             $code[] = $getLine(Helper::fromIntToHex($sum));

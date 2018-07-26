@@ -29,7 +29,7 @@ class T_CONDITION {
             $code[] = $getLine('10000000');
             $code[] = $getLine('01000000');
 
-            $result = self::parseValue($value, $getLine, $emitter, $data);
+            $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
             foreach ($result as $item) {
                 $code[] = $item;
             }
@@ -128,14 +128,55 @@ class T_CONDITION {
             $code[] = $getLine('12000000');
             $code[] = $getLine('01000000');
 
+
             $resultCode = $emitter( $node );
 
             foreach ($resultCode as $line) {
                 $code[] = $line;
             }
 
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
+            if (isset($data['conditionVariable']) && $data['conditionVariable']['type'] == Token::T_VARIABLE){
+
+
+                if (isset(Manhunt2::$functions[ strtolower($data['conditionVariable']['value']) ])) {
+                    // mismatch, some function has no params and looks loke variables
+                    // just redirect to the function handler
+                    return $emitter( [
+                        'type' => Token::T_FUNCTION,
+                        'value' => $data['conditionVariable']['value']
+                    ] );
+
+                }else if (isset(Manhunt2::$constants[ $data['conditionVariable']['value'] ])) {
+                    $mapped = Manhunt2::$constants[$data['conditionVariable']['value']];
+                    $mapped['section'] = "constant";
+
+                }else if (isset(Manhunt2::$levelVarBoolean[ $data['conditionVariable']['value'] ])) {
+                    $mapped = Manhunt2::$levelVarBoolean[$data['conditionVariable']['value']];
+                    $mapped['section'] = "level_var";
+
+                }else if (isset($data['variables'][$data['conditionVariable']['value']])){
+                    $mapped = $data['variables'][$data['conditionVariable']['value']];
+
+                }else{
+                    throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $data['conditionVariable']['value']));
+                }
+
+                if ($mapped['section'] == "header"){
+
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+
+                }else{
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+
+                }
+
+            }else{
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('04000000');
+
+            }
 
             return $code;
 
