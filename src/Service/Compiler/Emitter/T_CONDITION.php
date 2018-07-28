@@ -124,254 +124,27 @@ class T_CONDITION {
             $node['type'] == Token::T_SELF
         ) {
 
+            $status = Evaluate::processNumeric(
+                $node,
+                $code,
+                $data,
+                $getLine,
+                $emitter
+            );
 
-            Evaluate::initializeParameterInteger($code, $getLine);
-
-            $resultCode = $emitter( $node );
-
-            foreach ($resultCode as $line) {
-                $code[] = $line;
-            }
-
-            if (isset($data['conditionVariable']) && $data['conditionVariable']['type'] == Token::T_VARIABLE){
-
-
-                if (isset(Manhunt2::$functions[ strtolower($data['conditionVariable']['value']) ])) {
-                    // mismatch, some function has no params and looks loke variables
-                    // just redirect to the function handler
-                    return $emitter( [
-                        'type' => Token::T_FUNCTION,
-                        'value' => $data['conditionVariable']['value']
-                    ] );
-
-                }else if (isset(Manhunt2::$constants[ $data['conditionVariable']['value'] ])) {
-                    $mapped = Manhunt2::$constants[$data['conditionVariable']['value']];
-                    $mapped['section'] = "constant";
-
-                }else if (isset(Manhunt2::$levelVarBoolean[ $data['conditionVariable']['value'] ])) {
-                    $mapped = Manhunt2::$levelVarBoolean[$data['conditionVariable']['value']];
-                    $mapped['section'] = "level_var";
-
-                }else if (isset($data['variables'][$data['conditionVariable']['value']])){
-                    $mapped = $data['variables'][$data['conditionVariable']['value']];
-
-                }else{
-
-                    // we have a object notation here
-                    if (strpos($data['conditionVariable']['value'], '.') !== false){
-                        list($originalObject, $attribute) = explode('.', $data['conditionVariable']['value']);
-                        $originalMap = $data['variables'][$originalObject];
-
-                        if ($originalMap['type'] == "vec3d"){
-
-                            $mapped = [
-                                'section' => $originalMap['section'],
-                                'type' => 'object',
-                                'object' => $originalMap,
-                                'size' => 4
-                            ];
-
-                            switch ($attribute){
-                                case 'x':
-                                    break;
-                                case 'y':
-                                    $mapped['offset'] = '04000000';
-                                    break;
-                                case 'z':
-                                    $mapped['offset'] = '08000000';
-                                    break;
-                            }
-
-                        }else{
-                            throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unknown object type %s", $originalMap['type']));
-                        }
-                    }else{
-
-                        throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $data['conditionVariable']['value']));
-                    }
-                }
-
-                if (
-                    $mapped['section'] == "header" &&
-
-                    //todo kann sein das des nicht stimmt...
-                    $mapped['type'] == "integer"
-                ) {
-
-                    Evaluate::returnResult($code, $getLine);
-                }else if (
-
-                    $mapped['section'] == "header" &&
-                    $mapped['type'] == "boolean"
-                ){
-
-                    //while vs if ...
-
-                    if ($data['customData']['isWhile']){
-                        $code[] = $getLine('10000000');
-                        $code[] = $getLine('01000000');
-
-                    }else{
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('04000000');
-                    }
-
-                }else{
-                    $code[] = $getLine('0f000000');
-                    $code[] = $getLine('04000000');
-
-                }
-
-            }else{
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('04000000');
-
-            }
+            if ($status === false) return $code;
 
             return $code;
 
         }else if ($node['type'] == Token::T_VARIABLE){
 
-            if (isset(Manhunt2::$functions[ strtolower($node['value']) ])) {
-                // mismatch, some function has no params and looks loke variables
-                // just redirect to the function handler
-                return $emitter( [
-                    'type' => Token::T_FUNCTION,
-                    'value' => $node['value']
-                ] );
-
-            }else if (isset(Manhunt2::$constants[ $node['value'] ])) {
-                $mapped = Manhunt2::$constants[$node['value']];
-                $mapped['section'] = "constant";
-
-            }else if (isset(Manhunt2::$levelVarBoolean[ $node['value'] ])) {
-                $mapped = Manhunt2::$levelVarBoolean[$node['value']];
-                $mapped['section'] = "level_var";
-
-            }else if (isset($data['variables'][$node['value']])){
-
-                $mapped = $data['variables'][$node['value']];
-
-
-            }else{
-
-                // we have a object notation here
-                if (strpos($node['value'], '.') !== false){
-                    list($originalObject, $attribute) = explode('.', $node['value']);
-                    $originalMap = $data['variables'][$originalObject];
-
-                    if ($originalMap['type'] == "vec3d"){
-
-                        $mapped = [
-                            'section' => $originalMap['section'],
-                            'type' => 'object',
-                            'object' => $originalMap,
-                            'size' => 4
-                        ];
-
-                        switch ($attribute){
-                            case 'x':
-                                break;
-                            case 'y':
-                                $mapped['offset'] = '04000000';
-                                break;
-                            case 'z':
-                                $mapped['offset'] = '08000000';
-                                break;
-                        }
-
-                    }else{
-                        throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unknown object type %s", $originalMap['type']));
-                    }
-                }else{
-                    throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unable to find variable offset for %s", $node['value']));
-
-                }
-
-            }
-
-            // initialize string
-            if ($mapped['section'] == "constant") {
-                Evaluate::initializeParameterInteger($code, $getLine);
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                Evaluate::returnConstantResult($code, $getLine);
-
-            }else if (
-                $mapped['section'] == "header" && $mapped['type'] == "boolean"
-            ) {
-                Evaluate::initializeReadHeaderBoolean($code, $getLine);
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-
-            }else if (
-                $mapped['section'] == "body" && $mapped['type'] == "boolean"
-            ){
-
-                Evaluate::initializeReadHeaderBoolean($code, $getLine);
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-            }else if (
-                $mapped['section'] == "script" &&
-                isset($mapped['type']) && $mapped['type'] == "object"
-            ) {
-
-                // i dont know, object read init ?!
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('44000000');
-
-
-                // read from script var
-                Evaluate::initializeReadScriptString($code, $getLine);
-                $code[] = $getLine($mapped['object']['offset']);
-
-                //nested call return result
-                Evaluate::returnResult($code, $getLine);
-
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('32000000');
-                $code[] = $getLine('01000000');
-
-                $code[] = $getLine($mapped['offset']);
-
-                //nested call return result
-                Evaluate::returnResult($code, $getLine);
-
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('02000000');
-                $code[] = $getLine('18000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('02000000');
-
-                Evaluate::returnResult($code, $getLine);
-
-
-
-
-            }else if ($mapped['section'] == "level_var") {
-                Evaluate::initializeReadLevelVar($code, $getLine);
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                Evaluate::returnLevelVarResult($code, $getLine);
-            }else{
-                var_dump($mapped);
-
-                throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => handling incomplete for %s", $mapped['section']));
-
-            }
+            Evaluate::processVariable(
+                $node,
+                $code,
+                $data,
+                $getLine,
+                $emitter
+            );
 
             return $code;
 

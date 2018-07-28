@@ -3,6 +3,7 @@ namespace App\Service\Compiler\Emitter;
 
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 
 class T_IF {
@@ -32,12 +33,7 @@ class T_IF {
 
 
                 if ($fullNode['operator'] != false){
-                    $code[] = $getLine('0f000000');
-                    $code[] = $getLine('04000000');
-                    if ($fullNode['operator'] == Token::T_OR) $code[] = $getLine('27000000');
-                    if ($fullNode['operator'] == Token::T_AND) $code[] = $getLine('25000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
+                    Evaluate::setStatementOperator($fullNode, $code, $getLine);
                 }
 
 
@@ -46,20 +42,12 @@ class T_IF {
                     $fullNode['last'] == true &&
                     $parentOperator !== false
                 ){
-
-                    $code[] = $getLine('0f000000');
-                    $code[] = $getLine('04000000');
-                    if ($parentOperator == Token::T_OR) $code[] = $getLine('27000000');
-                    if ($parentOperator == Token::T_AND) $code[] = $getLine('25000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
-
-                    // the condition has a operastor
+                    Evaluate::setStatementOperator(['operator' => $parentOperator], $code, $getLine);
                 }
 
 
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
+                Evaluate::returnResult($code, $getLine);
+
             }
 
             $current++;
@@ -89,8 +77,7 @@ class T_IF {
                             $code[] = $item;
                         }
                     }else{
-                        die("ehhh hmmm");
-
+                        throw new \Exception('T_IF: Brackets order not valid');
                     }
                 }
 

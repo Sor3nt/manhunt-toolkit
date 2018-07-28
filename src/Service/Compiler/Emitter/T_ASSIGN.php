@@ -1,9 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-use App\Bytecode\Helper;
 use App\Service\Compiler\Evaluate;
-use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\Token;
 
 class T_ASSIGN {
@@ -13,99 +11,28 @@ class T_ASSIGN {
         $code = [];
         list($leftHand, $operator, $rightHand) = $node;
 
-
         if ($leftHand !== false){
 
             if ($leftHand['type'] == Token::T_VARIABLE){
 
-                if (isset(Manhunt2::$functions[ strtolower($leftHand['value']) ])) {
-                    // mismatch, some function has no params and looks loke variables
-                    // just redirect to the function handler
-                    return $emitter( [
-                        'type' => Token::T_FUNCTION,
-                        'value' => $leftHand['value']
-                    ] );
+                $mapped = Evaluate::processVariable(
+                    $leftHand,
+                    $code,
+                    $data,
+                    $getLine,
+                    $emitter
+                );
 
-                }else if (isset(Manhunt2::$constants[ $leftHand['value'] ])) {
-                    $mapped = Manhunt2::$constants[$leftHand['value']];
-                    $mapped['section'] = "constant";
-                }else if (isset(Manhunt2::$levelVarBoolean[ $leftHand['value'] ])) {
-                    $mapped = Manhunt2::$levelVarBoolean[$leftHand['value']];
-                    $mapped['section'] = "level_var";
-
-                }else if (isset($data['variables'][$leftHand['value']])){
-                    $mapped = $data['variables'][$leftHand['value']];
-
-                }else{
-                    throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $leftHand['value']));
-                }
-
-                // initialize string
-                if ($mapped['section'] == "constant") {
-                    Evaluate::initializeParameterInteger($code, $getLine);
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
-
-                    Evaluate::returnConstantResult($code, $getLine);
-
-                }else if (
-                    $mapped['section'] == "header" &&
-                    $mapped['type'] == "boolean"
-                ) {
-
-                    Evaluate::initializeReadHeaderBoolean($code, $getLine);
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
-
-                }else if (
-                    $mapped['section'] == "header" &&
-                    $mapped['type'] == "integer"
-                ) {
-
-                    Evaluate::initializeReadHeaderIntefer($code, $getLine);
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
-
-                }else if (
-                    $mapped['section'] == "level_var" ||
-                    $mapped['type'] == "level_var integer"
-                ) {
-                    Evaluate::initializeReadLevelVar($code, $getLine);
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
-
-                    Evaluate::returnLevelVarResult($code, $getLine);
-
-                }else if (
-                    $mapped['section'] == "script" &&
-                    $mapped['type'] == "integer"
-                ) {
-
-                    Evaluate::initializeReadHeaderIntefer($code, $getLine);
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
-
-                }else{
-                    var_dump($mapped);
-                    throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
-                }
+                if ($mapped === false) return $code;
 
                 Evaluate::returnResult($code, $getLine);
             }else{
                 throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown leftHand: %s', $leftHand['type']));
-
             }
         }
 
 
-        if (
-            $rightHand['type'] == Token::T_INT
-        ){
+        if ($rightHand['type'] == Token::T_INT){
 
             Evaluate::initializeParameterInteger($code, $getLine);
 
@@ -120,15 +47,10 @@ class T_ASSIGN {
             throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown rightHand: %s', $rightHand['type']));
         }
 
-
         if ($operator['type'] == Token::T_ADDITION) {
-
             Evaluate::setStatementAddition($code, $getLine);
-
         }else if ($operator['type'] == Token::T_SUBSTRACTION){
-
             Evaluate::setStatementSubstraction($code, $getLine);
-
         }else{
             throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
 
@@ -238,7 +160,7 @@ class T_ASSIGN {
 
 
 
-            //alreadyDone := FALSE;
+                //alreadyDone := FALSE;
             }else if ($mapped['type'] == "boolean"){
 
                 if (
@@ -263,7 +185,7 @@ class T_ASSIGN {
                     throw new \Exception(sprintf('T_ASSIGN: Unknown type for boolean assignment: %s  '), $node['body'][0]['type']);
                 }
 
-            //stealthTwoHeard := TRUE;
+                //stealthTwoHeard := TRUE;
             }else if ($mapped['type'] == "level_var tLevelState"){
 
                 if (isset($data['types'][$node['value']])){
