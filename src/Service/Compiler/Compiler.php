@@ -84,6 +84,7 @@ class Compiler {
                     if (substr(strtolower($variableType), 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
+                        $row['type'] = 'stringArray';
 
 
 //                        if ($size % 4 == 0){
@@ -484,8 +485,7 @@ class Compiler {
 
                     }
                 }
-//var_dump($smemOffset, $smemOffset2);
-//                exit;
+
                 foreach ($headerVariables as $name => $item) {
 
                     if ($this->isVariableInUse($token['body'], $name)){
@@ -496,6 +496,37 @@ class Compiler {
                         $scriptVarFinal[$name ] = $item;
                     }
                 }
+
+
+                /**
+                 *
+                 * Search for Vec3D vars, this are actual objects
+                 * contains x, y and z
+                 */
+//                $addXYZ = [];
+//                foreach ($scriptVarFinal as $varIndex => $item) {
+//                    if ($item['type'] == "vec3d"){
+//                        $addXYZ[$varIndex] = $item;
+//                    }
+//                }
+//
+//                foreach ($addXYZ as $varIndex => $item) {
+//                    $base = [
+//                        'section' => $item['section'],
+//                        'type' => 'vec3dMain',
+//                        'offset' => $item['offset'],
+//                        'size' => 4
+//                    ];
+//                    $scriptVarFinal[$varIndex . '.x' ] = $base;
+//
+//                    $base['type'] = "vec3dChild";
+//
+//                    $base['offset'] = "04000000";
+//                    $scriptVarFinal[$varIndex . '.y' ] = $base;
+//
+//                    $base['offset'] = "08000000";
+//                    $scriptVarFinal[$varIndex . '.z' ] = $base;
+//                }
 
 
                 /**
@@ -746,7 +777,7 @@ class Compiler {
                         'type' => Token::T_FUNCTION,
                         'value' => 'writedebug',
                         'nested' => false,
-                        'last' => count($item['params']) - 1 == $innerIndex,
+                        'last' => count($item['params'])  == $innerIndex + 1,
                         'index' => $innerIndex,
                         'params' => [ $param ]
                     ];

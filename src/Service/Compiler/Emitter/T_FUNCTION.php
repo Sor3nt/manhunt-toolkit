@@ -13,7 +13,6 @@ class T_FUNCTION {
 
         $code = [ ];
 
-
         if (isset($node['params']) && count($node['params'])){
             $skipNext = false;
 
@@ -118,21 +117,77 @@ class T_FUNCTION {
                             $mapped = $data['const'][$param['value']];
                             $mapped['section'] = "script constant";
                         }else{
-                            throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $param['value']));
+
+
+
+                            // we have a object notation here
+                            if (strpos($param['value'], '.') !== false){
+                                list($originalObject, $attribute) = explode('.', $param['value']);
+                                $originalMap = $data['variables'][$originalObject];
+
+                                if ($originalMap['type'] == "vec3d"){
+
+                                    $mapped = [
+                                        'section' => $originalMap['section'],
+                                        'type' => 'object',
+                                        'object' => $originalMap,
+                                        'size' => 4
+                                    ];
+
+                                    switch ($attribute){
+                                        case 'x':
+                                            break;
+                                        case 'y':
+                                            $mapped['offset'] = '04000000';
+                                            break;
+                                        case 'z':
+                                            $mapped['offset'] = '08000000';
+                                            break;
+                                    }
+
+                                }else{
+                                    throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unknown object type %s", $originalMap['type']));
+                                }
+                            }else{
+                                $tmp = $getLine('dummy');
+                                throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s (Line %s)", $param['value'], $tmp->lineNumber));
+
+                            }
+
                         }
+
 
                         // initialize string
-                        if ($mapped['section'] == "script"){
+                        if ($mapped['section'] == "script") {
                             $code[] = $getLine('22000000');
-                        }else{
+                            $code[] = $getLine('04000000');
+                            $code[] = $getLine('01000000');
+                        }else if ($mapped['section'] == "constant"){
+                            $code[] = $getLine('12000000');
+                            $code[] = $getLine('01000000');
+//                        }else if (
+//                            $mapped['section'] == "header" &&
+//                            $mapped['type'] == "stringArray"
+//                        ){
+//                            $code[] = $getLine('12000000');
+//                            $code[] = $getLine('01000000');
+                        }else if (
+                            $mapped['section'] == "header"
+                        ){
                             $code[] = $getLine('21000000');
+                            $code[] = $getLine('04000000');
+                            $code[] = $getLine('01000000');
+
+                        }else{
+//                            $code[] = $getLine('21000000');
+//                            $code[] = $getLine('04000000');
+//                            $code[] = $getLine('01000000');
+
+                            throw new \Exception(sprintf('Unknown section %s', $mapped['section']));
                         }
 
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine('01000000');
-
                         // define the offset
-var_dump("MAP TEST", $mapped, $param['value'], "\n\n");
+
                         $code[] = $getLine($mapped['offset']);
 
                         if ($mapped['section'] == "script constant"){
@@ -146,9 +201,33 @@ var_dump("MAP TEST", $mapped, $param['value'], "\n\n");
                             //move string pointer ?
                             $code[] = $getLine('10000000');
                             $code[] = $getLine('02000000');
-                        }else{
+                        }else if ($mapped['section'] == "constant"){
                             $code[] = $getLine('10000000');
                             $code[] = $getLine('01000000');
+
+                        }else if ($mapped['section'] == "script"){
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('01000000');
+
+                        }else if (
+                            $mapped['section'] == "header" &&
+                            $mapped['type'] == "stringArray"
+                        ){
+                            $code[] = $getLine('12000000');
+                            $code[] = $getLine('02000000');
+
+                            $code[] = $getLine(Helper::fromIntToHex( $mapped['size']));
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('01000000');
+
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('02000000');
+
+
+
+                        }else{
+                                var_dump($mapped);
+                            throw new \Exception(sprintf('Unknown section %s', $mapped['section']));
 
                         }
 
@@ -228,14 +307,19 @@ var_dump("MAP TEST", $mapped, $param['value'], "\n\n");
         // the writedebug call has a secret additional call, maybe a flush command ?
         if (
             strtolower($node['value']) == 'writedebug' //&&
-//            $node['last'] == true
         ){
-//            if ($node['index'] == 0){
-//                $code[] = $getLine('73000000');
-//            }else{
+
+            if (isset($node['last'])){
+
+                if ($node['last'] === true && $node['index'] == 0) {
+                    $code[] = $getLine('74000000');
+                }
+
+
+            }else{
                 $code[] = $getLine('74000000');
 
-//            }
+            }
         }
 
         /**

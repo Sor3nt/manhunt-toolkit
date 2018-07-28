@@ -237,7 +237,39 @@ class T_CONDITION {
                     $mapped = $data['variables'][$data['conditionVariable']['value']];
 
                 }else{
-                    throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $data['conditionVariable']['value']));
+
+                    // we have a object notation here
+                    if (strpos($data['conditionVariable']['value'], '.') !== false){
+                        list($originalObject, $attribute) = explode('.', $data['conditionVariable']['value']);
+                        $originalMap = $data['variables'][$originalObject];
+
+                        if ($originalMap['type'] == "vec3d"){
+
+                            $mapped = [
+                                'section' => $originalMap['section'],
+                                'type' => 'object',
+                                'object' => $originalMap,
+                                'size' => 4
+                            ];
+
+                            switch ($attribute){
+                                case 'x':
+                                    break;
+                                case 'y':
+                                    $mapped['offset'] = '04000000';
+                                    break;
+                                case 'z':
+                                    $mapped['offset'] = '08000000';
+                                    break;
+                            }
+
+                        }else{
+                            throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unknown object type %s", $originalMap['type']));
+                        }
+                    }else{
+
+                        throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $data['conditionVariable']['value']));
+                    }
                 }
 
                 if ($mapped['section'] == "header"){
@@ -278,10 +310,45 @@ class T_CONDITION {
                 $mapped['section'] = "level_var";
 
             }else if (isset($data['variables'][$node['value']])){
+
                 $mapped = $data['variables'][$node['value']];
 
+
             }else{
-                throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s", $node['value']));
+
+                // we have a object notation here
+                if (strpos($node['value'], '.') !== false){
+                    list($originalObject, $attribute) = explode('.', $node['value']);
+                    $originalMap = $data['variables'][$originalObject];
+
+                    if ($originalMap['type'] == "vec3d"){
+
+                        $mapped = [
+                            'section' => $originalMap['section'],
+                            'type' => 'object',
+                            'object' => $originalMap,
+                            'size' => 4
+                        ];
+
+                        switch ($attribute){
+                            case 'x':
+                                break;
+                            case 'y':
+                                $mapped['offset'] = '04000000';
+                                break;
+                            case 'z':
+                                $mapped['offset'] = '08000000';
+                                break;
+                        }
+
+                    }else{
+                        throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unknown object type %s", $originalMap['type']));
+                    }
+                }else{
+                    throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => unable to find variable offset for %s", $node['value']));
+
+                }
+
             }
 
             // initialize string
@@ -307,6 +374,54 @@ class T_CONDITION {
                 // define the offset
                 $code[] = $getLine($mapped['offset']);
 
+            }else if (
+                $mapped['section'] == "script" &&
+                isset($mapped['type']) && $mapped['type'] == "object"
+            ) {
+
+                // i dont know, object read init ?!
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('04000000');
+                $code[] = $getLine('44000000');
+
+
+                // read from script var
+                $code[] = $getLine('22000000');
+                $code[] = $getLine('04000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine($mapped['object']['offset']);
+
+                //nested call return result
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('32000000');
+                $code[] = $getLine('01000000');
+
+                $code[] = $getLine($mapped['offset']);
+
+                //nested call return result
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('02000000');
+                $code[] = $getLine('18000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('04000000');
+                $code[] = $getLine('02000000');
+
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+
+
+
             }else if ($mapped['section'] == "level_var") {
                 $code[] = $getLine('1b000000');
 
@@ -316,7 +431,9 @@ class T_CONDITION {
                 $code[] = $getLine('04000000');
                 $code[] = $getLine('01000000');
             }else{
-                throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
+                var_dump($mapped);
+
+                throw new \Exception(sprintf("T_CONDITION: T_FUNCTION => handling incomplete for %s", $mapped['section']));
 
             }
 

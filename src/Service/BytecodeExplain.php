@@ -310,6 +310,18 @@ class BytecodeExplain {
             ],
 
             'desc' => 'statement (AND operator)'
+        ],
+
+        'assign_script_var' => [
+            'hex' => [
+                "\x12\x00\x00\x00",
+                "\x03\x00\x00\x00",
+
+                "\x0f\x00\x00\x00",
+                "\x01\x00\x00\x00",
+            ],
+
+            'desc' => 'assign (to script var)'
         ]
 
     ];
@@ -342,6 +354,7 @@ class BytecodeExplain {
         $this->mapStatementAnd( $lines, $result);
         $this->mapIfStatement2( $lines, $result);
         $this->mapReadFromScriptVar( $lines, $result);
+        $this->mapAssign( $lines, $result);
 
         $fillCount = count($result);
         $this->mapUnknown( $lines, $result);
@@ -476,6 +489,51 @@ class BytecodeExplain {
                     ];
 
                 }
+
+            }
+
+        }
+
+    }
+
+    private function mapAssign(array $lines, &$result ){
+        /** @var Binary[] $lines */
+
+
+        foreach ($lines as $lineIndex => $line) {
+
+            if (
+                $line->toBinary() == $this->mapping['assign_script_var']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['assign_script_var']['hex'][1] &&
+                isset($lines[ $lineIndex + 3]) && $lines[ $lineIndex + 3]->toBinary() == $this->mapping['assign_script_var']['hex'][2] &&
+                isset($lines[ $lineIndex + 4]) && $lines[ $lineIndex + 4]->toBinary() == $this->mapping['assign_script_var']['hex'][3]
+            ){
+
+
+                $result[$lineIndex] = [
+                    $lines[ $lineIndex]->toHex(),
+                    $this->mapping['assign_script_var']['desc']
+                ];
+
+                $result[$lineIndex + 1] = [
+                    $lines[ $lineIndex + 1]->toHex(),
+                    $this->mapping['assign_script_var']['desc']
+                ];
+
+                $result[$lineIndex + 2] = [
+                    $lines[ $lineIndex + 2]->toHex(),
+                    'value'
+                ];
+
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    $this->mapping['assign_script_var']['desc']
+                ];
+
+                $result[$lineIndex + 4] = [
+                    $lines[ $lineIndex + 4]->toHex(),
+                    $this->mapping['assign_script_var']['desc']
+                ];
 
             }
 

@@ -14,6 +14,26 @@ class Manhunt2 {
             "offset" => "03000000"
         ],
 
+        'AISCRIPT_IDLE_PATROL' => [
+            "offset" => "01000000"
+        ],
+
+        'AISCRIPT_HIGHPRIORITY' => [
+            "offset" => "01000000"
+        ],
+
+        'MOVER_STOPPED' => [
+            "offset" => "00000000"
+        ],
+
+        'MOVER_FORWARD' => [
+            "offset" => "01000000"
+        ],
+
+        'AISCRIPT_RUNMOVESPEED' => [
+            "offset" => "01000000"
+        ],
+
         'DOOR_OPENING' => [
             "offset" => "01000000"
         ],
@@ -40,6 +60,9 @@ class Manhunt2 {
 
         'cellTwoOpen'                     => [
             'offset' => "74170000"
+        ],
+        'lButtonTutRemoved'                     => [
+            'offset' => "64170000"
         ],
         'stealthTwoHeard'                 => [
             'offset' => "c0170000"
@@ -123,6 +146,10 @@ class Manhunt2 {
 
         "frisbeespeechplay"                 => [
             'offset' => "66030000"
+        ],
+
+        "frisbeespeechisfinished"                 => [
+            'offset' => "69030000"
         ],
 
         'getentityname'                     => [
@@ -725,17 +752,6 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
-        "sethunterhidehealth" => [
-            'name'      =>  'SetHunterHideHealth',
-            'offset'    =>  'ee010000',
-            /**
-             * Parameters
-             * 1: string
-             * 2: state int
-             */
-            'params'    =>  [ 'String', 'Integer'],
-            'desc'      =>  ''
-        ],
 
         "setpeddonotdecay" => [
             'name'      =>  'SetPedDoNotDecay',
@@ -1037,16 +1053,16 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
-        "getdamage" => [
-            'name'      =>  'GetDamage',
-            'offset'    =>  '84000000',
+        "setdamage" => [
+            'name'      =>  'SetDamage',
+            'offset'    =>  '2f010000',
             /**
              * Parameters
-             * 1: Player?
-             * - GetPlayer
+             * 1: this
+             * 2: Integer
              */
-            'params'    =>  [ 'Player' ],
-            'return'    =>  'Integer',
+            'params'    =>  [ 'This', 'Integer' ],
+            'return'    =>  'Void',
             'desc'      =>  ''
         ],
 
@@ -1253,6 +1269,12 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
+        "isscriptaudiostreamcompleted" => [
+            'name'      =>  'IsScriptAudioStreamCompleted',
+            'offset'    =>  'cf020000'
+
+        ],
+
         "cutscenecamerastart" => [
             'name'      =>  'CutSceneCameraStart',
             'offset'    =>  '5e030000',
@@ -1349,6 +1371,52 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
+        "aisetentitystayonpath" => [
+            'name'      =>  'AISetEntityStayOnPath',
+            'offset'    =>  '4e020000',
+            /**
+             * Parameters
+             * 1: String
+             * 2: Boolean
+             */
+            'params'    =>  [ 'String', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "setpedhurtotherpeds" => [
+            'name'      =>  'SetPedHurtOtherPeds',
+            'offset'    =>  '1e030000',
+            /**
+             * Parameters
+             * 1: String
+             * 2: Boolean
+             */
+            'params'    =>  [ 'String', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "getdamage" => [
+            'name'      =>  'GetDamage',
+            'offset'    =>  '84000000',
+            /**
+             * Parameters
+             * 1: Player
+             */
+            'params'    =>  [ 'Player' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "aisethunteridlepatrol" => [
+            'name'      =>  'AISetHunterIdlePatrol',
+            'offset'    =>  'a3010000',
+
+            'params'    =>  [ 'String', 'Constant', 'Constant', 'Integer', 'Integer', 'String' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
     ];
 
 

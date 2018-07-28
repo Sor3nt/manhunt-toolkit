@@ -49,6 +49,10 @@ class Helper{
         return self::pad($codeLenght);
 
     }
+    static function fromHexToInt( $hex ){
+        return (int) current(unpack("L", hex2bin($hex)));
+
+    }
 
     static function fromFloatToHex( $value ){
 

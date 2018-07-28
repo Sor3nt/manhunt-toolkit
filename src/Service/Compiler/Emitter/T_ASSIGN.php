@@ -50,7 +50,10 @@ class T_ASSIGN {
                     $code[] = $getLine('0f000000');
                     $code[] = $getLine('04000000');
 
-                }else if ($mapped['section'] == "header" && $mapped['type'] == "boolean") {
+                }else if (
+                    $mapped['section'] == "header" &&
+                    $mapped['type'] == "boolean"
+                ) {
 
                     $code[] = $getLine('14000000');
                     $code[] = $getLine('01000000');
@@ -361,6 +364,33 @@ class T_ASSIGN {
 
                 }
 
+            }else if (
+                $mapped['type'] == "vec3d" &&
+                $mapped['section'] == "script"
+            ){
+
+                $code[] = $getLine('12000000');
+                $code[] = $getLine('03000000');
+
+                $code[] = $getLine($mapped['offset']);
+
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('01000000');
+
+            }else if (
+                $mapped['section'] == "header" &&
+                $mapped['type'] == "stringArray"
+            ){
+
+                $code[] = $getLine('12000000');
+                $code[] = $getLine('01000000');
+var_dump($mapped);
+                $code[] = $getLine($mapped['offset']);
+
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+
             //stealthTwoHeard := TRUE;
             }else if (
                 $mapped['type'] == "level_var boolean" ||
@@ -401,6 +431,7 @@ class T_ASSIGN {
 
 
             }else{
+                var_dump($mapped);
 
                 throw new \Exception(sprintf('T_ASSIGN: Type %s not implemented  ', $mapped['type']));
             }

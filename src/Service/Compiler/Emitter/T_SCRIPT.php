@@ -20,10 +20,19 @@ class T_SCRIPT {
         $code[] = $getLine('0a000000');
         $code[] = $getLine('09000000');
 
+        /**
+         * generate the needed bytes for the script
+         */
         $sum = 0;
         foreach ($data['variables'] as $variable) {
 
-            if ($variable['section'] == "script"){
+            if (
+                $variable['section'] == "script" &&
+                (
+                    $variable['type'] != 'vec3dMain' &&
+                    $variable['type'] != 'vec3dChild'
+                )
+            ){
                 $sum += $variable['size'];
 
             }
