@@ -17,7 +17,7 @@ class WithoutParamTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    writedebug;
+                    displaygametext;
                 end;
 
             end.
@@ -31,8 +31,7 @@ class WithoutParamTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '04010000', // displaygametext call
 
             // script end
             '11000000',

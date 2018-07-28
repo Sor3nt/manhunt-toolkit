@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\Token;
 
@@ -41,68 +42,50 @@ class T_ASSIGN {
 
                 // initialize string
                 if ($mapped['section'] == "constant") {
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::initializeParameterInteger($code, $getLine);
 
                     // define the offset
                     $code[] = $getLine($mapped['offset']);
 
-                    $code[] = $getLine('0f000000');
-                    $code[] = $getLine('04000000');
+                    Evaluate::returnConstantResult($code, $getLine);
 
                 }else if (
                     $mapped['section'] == "header" &&
                     $mapped['type'] == "boolean"
                 ) {
 
-                    $code[] = $getLine('14000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
+                    Evaluate::initializeReadHeaderBoolean($code, $getLine);
 
                     // define the offset
                     $code[] = $getLine($mapped['offset']);
-                }else if (
-                    $mapped['section'] == "header" &&
-                    $mapped['type'] == "level_var integer"
-                ) {
-
-                    $code[] = $getLine('1b000000');
-
-                    // define the offset
-                    $code[] = $getLine($mapped['offset']);
-
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('01000000');
 
                 }else if (
                     $mapped['section'] == "header" &&
                     $mapped['type'] == "integer"
                 ) {
 
-                    $code[] = $getLine('13000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
+                    Evaluate::initializeReadHeaderIntefer($code, $getLine);
 
                     // define the offset
                     $code[] = $getLine($mapped['offset']);
 
-                }else if ($mapped['section'] == "level_var") {
-                    $code[] = $getLine('1b000000');
+                }else if (
+                    $mapped['section'] == "level_var" ||
+                    $mapped['type'] == "level_var integer"
+                ) {
+                    Evaluate::initializeReadLevelVar($code, $getLine);
 
                     // define the offset
                     $code[] = $getLine($mapped['offset']);
 
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::returnLevelVarResult($code, $getLine);
 
                 }else if (
                     $mapped['section'] == "script" &&
                     $mapped['type'] == "integer"
                 ) {
 
-                    $code[] = $getLine('13000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
+                    Evaluate::initializeReadHeaderIntefer($code, $getLine);
 
                     // define the offset
                     $code[] = $getLine($mapped['offset']);
@@ -110,12 +93,9 @@ class T_ASSIGN {
                 }else{
                     var_dump($mapped);
                     throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
-
                 }
 
-
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
+                Evaluate::returnResult($code, $getLine);
             }else{
                 throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown leftHand: %s', $leftHand['type']));
 
@@ -127,17 +107,14 @@ class T_ASSIGN {
             $rightHand['type'] == Token::T_INT
         ){
 
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('01000000');
+            Evaluate::initializeParameterInteger($code, $getLine);
 
             $resultCode = $emitter($rightHand);
             foreach ($resultCode as $line) {
                 $code[] = $line;
             }
 
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
-
+            Evaluate::returnConstantResult($code, $getLine);
 
         }else{
             throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown rightHand: %s', $rightHand['type']));
@@ -146,15 +123,11 @@ class T_ASSIGN {
 
         if ($operator['type'] == Token::T_ADDITION) {
 
-            $code[] = $getLine('31000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('04000000');
+            Evaluate::setStatementAddition($code, $getLine);
 
         }else if ($operator['type'] == Token::T_SUBSTRACTION){
 
-            $code[] = $getLine('33000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
+            Evaluate::setStatementSubstraction($code, $getLine);
 
         }else{
             throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
@@ -181,66 +154,49 @@ class T_ASSIGN {
                 $code[] = $line;
             }
 
-            if (
+            switch ($mapped['section']){
 
-                $mapped['section'] == "header" &&
-                $mapped['type'] == "level_var integer"
-            ) {
+                case 'header':
 
-                $code[] = $getLine('1a000000');
-                $code[] = $getLine('01000000');
+                    switch ($mapped['type']){
+                        case 'level_var integer':
+                            Evaluate::assignToLevelVar($mapped['offset'], $code, $getLine);
+                            break;
 
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
+                        case 'integer':
+                            Evaluate::assignToHeaderInteger($mapped['offset'], $code, $getLine);
+                            break;
+                        default:
+                            throw new \Exception(sprintf("Header assignment for %s is not implemented", $mapped['type']));
+                    }
 
-                $code[] = $getLine('04000000');
+                    break;
 
-            }else if (
-                $mapped['section'] == "script" &&
-                $mapped['type'] == "integer"
-            ){
+                case 'script':
+                    switch ($mapped['type']){
+                        case 'integer':
+                            Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
+                            break;
+                        default:
+                            throw new \Exception(sprintf("Script assignment for %s is not implemented", $mapped['type']));
+                    }
 
-                $code[] = $getLine('15000000');
-                $code[] = $getLine('04000000');
+                    break;
 
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                $code[] = $getLine('01000000');
-
-
-            }else if (
-
-                $mapped['section'] == "header" &&
-                $mapped['type'] == "integer"
-
-            ) {
-
-                $code[] = $getLine('11000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('15000000');
-                $code[] = $getLine('04000000');
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                $code[] = $getLine('01000000');
-
-
-            }else{
-                throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
+                default:
+                    throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
 
             }
 
         }else{
 
-
-
             // me : string[30]
-            if (substr(strtolower($mapped['type']), 0, 7) == "string[") {
+            if ($mapped['type'] == "stringArray") {
 
-                if (count($node['body']) == 1 && $node['body'][0]['type'] == Token::T_FUNCTION) {
+                if (
+                    count($node['body']) == 1 &&
+                    $node['body'][0]['type'] == Token::T_FUNCTION
+                ) {
 
                     //evaluate the function call
                     $resultCode = $emitter($node['body'][0]);
@@ -248,24 +204,7 @@ class T_ASSIGN {
                         $code[] = $line;
                     }
 
-                    $code[] = $getLine('21000000');
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('04000000');
-
-                    $code[] = $getLine($mapped['offset']);
-
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('03000000');
-
-
-                    $code[] = $getLine(Helper::fromIntToHex($mapped['size']));
-
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('03000000');
-                    $code[] = $getLine('48000000');
-
+                    Evaluate::assignToUnknownStringArray($mapped, $code, $getLine);
 
                     return $code;
 
@@ -273,7 +212,7 @@ class T_ASSIGN {
                     throw new \Exception(sprintf('T_ASSIGN: Unknown type for string array assignment: %s  '), $node['body'][0]['type']);
                 }
 
-            //animLength := GetAnimationLength('ASY_NURSE_ATTACK4A');
+                //animLength := GetAnimationLength('ASY_NURSE_ATTACK4A');
             }else if ($mapped['type'] == "integer"){
                 if (
                     count($node['body']) == 1 &&
@@ -287,14 +226,11 @@ class T_ASSIGN {
                     }
 
                     if ($mapped['section'] == "script") {
-                        $code[] = $getLine('15000000');
+                        Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
                     }else{
-                        $code[] = $getLine('16000000');
+                        // todo: checken was das hier genau war
+                        Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
                     }
-
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine($mapped['offset']);
-                    $code[] = $getLine('01000000');
 
                 } else {
                     throw new \Exception(sprintf('T_ASSIGN: Unknown type for integer assignment: %s  '), $node['body'][0]['type']);
@@ -302,20 +238,13 @@ class T_ASSIGN {
 
 
 
-                    //alreadyDone := FALSE;
+            //alreadyDone := FALSE;
             }else if ($mapped['type'] == "boolean"){
 
-
                 if (
-                    count($node['body']) == 1 &&
-                    (
-                        $node['body'][0]['type'] == Token::T_INT ||
-                        $node['body'][0]['type'] == Token::T_FALSE ||
-                        $node['body'][0]['type'] == Token::T_TRUE
-                    )
+                    count($node['body']) == 1
                 ) {
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::initializeParameterInteger($code, $getLine);
 
                     //evaluate the boolean
                     $resultCode = $emitter($node['body'][0]);
@@ -323,24 +252,18 @@ class T_ASSIGN {
                         $code[] = $line;
                     }
 
-                    if ($mapped['section'] == "script"){
-
-                        $code[] = $getLine('15000000'); // read from script header
+                    if ($mapped['section'] == "script") {
+                        Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
                     }else{
-                        $code[] = $getLine('16000000'); // read from global header
+                        // todo: checken was das hier genau war
+                        Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
                     }
-
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine($mapped['offset']);
-                    $code[] = $getLine('01000000');
 
                 } else {
                     throw new \Exception(sprintf('T_ASSIGN: Unknown type for boolean assignment: %s  '), $node['body'][0]['type']);
                 }
 
-
-
-    //        //stealthTwoHeard := TRUE;
+            //stealthTwoHeard := TRUE;
             }else if ($mapped['type'] == "level_var tLevelState"){
 
                 if (isset($data['types'][$node['value']])){
@@ -348,17 +271,11 @@ class T_ASSIGN {
                     $variableType = $data['types'][$node['value']];
                     $type = $variableType[$node['body'][0]['value']];
 
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::initializeParameterInteger($code, $getLine);
 
                     $code[] = $getLine($type['offset']);
 
-                    $code[] = $getLine('1a000000');
-                    $code[] = $getLine('01000000');
-
-                    $code[] = $getLine($mapped['offset']);
-
-                    $code[] = $getLine('04000000');
+                    Evaluate::assignToLevelVar($mapped['offset'], $code, $getLine);
                 }else{
                     throw new \Exception(sprintf('T_ASSIGN: level_var tLevelState type not found: %s  '), $node['value']);
 
@@ -369,29 +286,16 @@ class T_ASSIGN {
                 $mapped['section'] == "script"
             ){
 
-                $code[] = $getLine('12000000');
-                $code[] = $getLine('03000000');
-
-                $code[] = $getLine($mapped['offset']);
-
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('01000000');
+                Evaluate::assignToScriptObject($mapped['offset'], $code, $getLine);
 
             }else if (
                 $mapped['section'] == "header" &&
                 $mapped['type'] == "stringArray"
             ){
 
-                $code[] = $getLine('12000000');
-                $code[] = $getLine('01000000');
-var_dump($mapped);
-                $code[] = $getLine($mapped['offset']);
+                Evaluate::assignToHeaderStringArray($mapped['offset'], $code, $getLine);
 
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
-
-
-            //stealthTwoHeard := TRUE;
+                //stealthTwoHeard := TRUE;
             }else if (
                 $mapped['type'] == "level_var boolean" ||
                 $mapped['type'] == "level_var integer"
@@ -407,8 +311,7 @@ var_dump($mapped);
                     )
                 ) {
 
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::initializeParameterInteger($code, $getLine);
 
                     //evaluate the integer
                     $resultCode = $emitter($node['body'][0]);
@@ -416,23 +319,14 @@ var_dump($mapped);
                         $code[] = $line;
                     }
 
-                    $code[] = $getLine('1a000000');
-                    $code[] = $getLine('01000000');
-
-                    $code[] = $getLine($mapped['offset']);
-
-                    $code[] = $getLine('04000000');
-
+                    Evaluate::assignToLevelVar($mapped['offset'],  $code, $getLine);
 
                 } else {
                     throw new \Exception(sprintf('T_ASSIGN: Unknown type for level_var boolean assignment: %s  '), $node['body'][0]['type']);
-
                 }
-
 
             }else{
                 var_dump($mapped);
-
                 throw new \Exception(sprintf('T_ASSIGN: Type %s not implemented  ', $mapped['type']));
             }
         }

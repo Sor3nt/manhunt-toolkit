@@ -772,12 +772,14 @@ class Compiler {
                 strtolower($item['value']) == "writedebug"
             ){
 
+                $count = count($item['params']);
                 foreach ($item['params'] as $innerIndex => $param) {
+
                     $new = [
                         'type' => Token::T_FUNCTION,
                         'value' => 'writedebug',
                         'nested' => false,
-                        'last' => count($item['params'])  == $innerIndex + 1,
+                        'last' => $count  == $innerIndex + 1,
                         'index' => $innerIndex,
                         'params' => [ $param ]
                     ];

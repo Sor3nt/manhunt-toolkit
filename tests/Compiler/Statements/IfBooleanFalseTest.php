@@ -36,15 +36,10 @@ class IfBooleanFalseTest extends KernelTestCase
             '09000000',
 
 
-
-            '34000000',
-            '09000000',
-            '04000000',
-
             '14000000', //Read VAR from header
             '01000000', //Read VAR from header
             '04000000', //Read VAR from header
-            '04000000', //Offset
+            '28000000', //Offset
 
             '10000000', //nested call return result
             '01000000', //nested call return result
@@ -63,7 +58,7 @@ class IfBooleanFalseTest extends KernelTestCase
             '01000000', //statement (core)
 
             '3f000000', //statement (line offset)
-            '78000000', //Offset in byte
+            '6c000000', //Offset in byte
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -73,7 +68,7 @@ class IfBooleanFalseTest extends KernelTestCase
             '01000000', //statement (core 2)
             '00000000', //statement (core 2)
             '3f000000', //statement (line offset)
-            'e8000000', //Offset in byte
+            'dc000000', //Offset in byte
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)

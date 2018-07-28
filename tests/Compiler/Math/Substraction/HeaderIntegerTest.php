@@ -36,15 +36,10 @@ class HeaderIntegerTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-
-            '34000000',
-            '09000000',
-            '04000000',
-
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var
-            '04000000', //Offset
+            '00000000', //Offset
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //parameter (temp int)
@@ -62,7 +57,7 @@ class HeaderIntegerTest extends KernelTestCase
             '04000000', //unknown
             '15000000', //unknown
             '04000000', //unknown
-            '04000000', //unknown
+            '00000000', //unknown
             '01000000', //unknown
 
             // script end

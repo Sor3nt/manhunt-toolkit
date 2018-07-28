@@ -3,6 +3,7 @@ namespace App\Service\Compiler\Emitter;
 
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\Token;
 
@@ -25,57 +26,23 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
-            //nested call return result
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+            Evaluate::returnResult($code, $getLine);
 
             $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
-            // statement core
-            $code[] = $getLine('23000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('01000000');
-
-
-            switch ($operation['type']){
-                case Token::T_IS_EQUAL:
-                    $code[] = $getLine('3f000000');
-                    break;
-                case Token::T_IS_NOT_EQUAL:
-                    $code[] = $getLine('40000000');
-                    break;
-                case Token::T_IS_SMALLER:
-                    $code[] = $getLine('3d000000');
-                    break;
-                case Token::T_IS_GREATER:
-                    $code[] = $getLine('42000000');
-                    break;
-                default:
-                    throw new \Exception(sprintf('T_CONDITION: Unknown operator %s', $operation['type']));
-                    break;
-            }
+            Evaluate::initializeStatement($code, $getLine);
+            Evaluate::statementOperator($operation, $code, $getLine);
 
             $lastLine = end($code)->lineNumber + 4;
 
             // line offset for the IF start (or so)
             $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
 
-//            if (Helper::fromIntToHex($lastLine) == "63040000"){
-//                var_dump($code);
-//                exit;
-//
-//            }
+            Evaluate::setStatementFullCondition($code, $getLine);
 
-
-            $code[] = $getLine('33000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('01000000');
         }else if (count($node['body']) == 1){
 
             $result = self::parseValue(current($node['body']), $getLine, $emitter, $data);
@@ -84,9 +51,7 @@ class T_CONDITION {
             }
 
             if ($node['isNot']){
-                $code[] = $getLine('29000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('01000000');
+                Evaluate::setStatementNot($code, $getLine);
             }
 
         }else if (count($node['body']) == 4){
@@ -99,9 +64,7 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
-            //nested call return result
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+            Evaluate::returnResult($code, $getLine);
 
             $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
             foreach ($result as $item) {
@@ -113,62 +76,19 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
-
-
-            //add AND statement
             //TODO: OR verbauen
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('25000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
+            Evaluate::setStatementAnd($code, $getLine);
 
-
-
-            // statement core
-            $code[] = $getLine('23000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('01000000');
-
-
-            switch ($operation['type']){
-                case Token::T_IS_EQUAL:
-                    $code[] = $getLine('3f000000');
-                    break;
-                case Token::T_IS_NOT_EQUAL:
-                    $code[] = $getLine('40000000');
-                    break;
-                case Token::T_IS_SMALLER:
-                    $code[] = $getLine('3d000000');
-                    break;
-                case Token::T_IS_GREATER:
-                    $code[] = $getLine('42000000');
-                    break;
-                default:
-                    throw new \Exception(sprintf('T_CONDITION: Unknown operator %s', $operation['type']));
-                    break;
-            }
+            Evaluate::initializeStatement($code, $getLine);
+            Evaluate::statementOperator($operation, $code, $getLine);
 
             $lastLine = end($code)->lineNumber + 4;
 
             // line offset for the IF start (or so)
             $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
 
-//            if (Helper::fromIntToHex($lastLine) == "63040000"){
-//                var_dump($code);
-//                exit;
-//
-//            }
+            Evaluate::setStatementFullCondition($code, $getLine);
 
-
-            $code[] = $getLine('33000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('01000000');
         }
 
 
@@ -182,6 +102,7 @@ class T_CONDITION {
 
         $code = [];
 
+
         if ($node['type'] == Token::T_FUNCTION){
 
             $result = $emitter($node);
@@ -190,7 +111,6 @@ class T_CONDITION {
             }
 
             return $code;
-
 
         /**
          * Define for INT, FLOAT and STRING a construct and destruct sequence
@@ -204,9 +124,8 @@ class T_CONDITION {
             $node['type'] == Token::T_SELF
         ) {
 
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('01000000');
 
+            Evaluate::initializeParameterInteger($code, $getLine);
 
             $resultCode = $emitter( $node );
 
@@ -272,10 +191,30 @@ class T_CONDITION {
                     }
                 }
 
-                if ($mapped['section'] == "header"){
+                if (
+                    $mapped['section'] == "header" &&
 
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
+                    //todo kann sein das des nicht stimmt...
+                    $mapped['type'] == "integer"
+                ) {
+
+                    Evaluate::returnResult($code, $getLine);
+                }else if (
+
+                    $mapped['section'] == "header" &&
+                    $mapped['type'] == "boolean"
+                ){
+
+                    //while vs if ...
+
+                    if ($data['customData']['isWhile']){
+                        $code[] = $getLine('10000000');
+                        $code[] = $getLine('01000000');
+
+                    }else{
+                        $code[] = $getLine('0f000000');
+                        $code[] = $getLine('04000000');
+                    }
 
                 }else{
                     $code[] = $getLine('0f000000');
@@ -353,23 +292,27 @@ class T_CONDITION {
 
             // initialize string
             if ($mapped['section'] == "constant") {
-                $code[] = $getLine('12000000');
-                $code[] = $getLine('01000000');
+                Evaluate::initializeParameterInteger($code, $getLine);
 
                 // define the offset
                 $code[] = $getLine($mapped['offset']);
 
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('04000000');
+                Evaluate::returnConstantResult($code, $getLine);
 
             }else if (
-            ($mapped['section'] == "header" && $mapped['type'] == "boolean") ||
-            ($mapped['section'] == "body" && $mapped['type'] == "boolean")
+                $mapped['section'] == "header" && $mapped['type'] == "boolean"
             ) {
+                Evaluate::initializeReadHeaderBoolean($code, $getLine);
 
-                $code[] = $getLine('14000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
+                // define the offset
+                $code[] = $getLine($mapped['offset']);
+
+
+            }else if (
+                $mapped['section'] == "body" && $mapped['type'] == "boolean"
+            ){
+
+                Evaluate::initializeReadHeaderBoolean($code, $getLine);
 
                 // define the offset
                 $code[] = $getLine($mapped['offset']);
@@ -388,14 +331,11 @@ class T_CONDITION {
 
 
                 // read from script var
-                $code[] = $getLine('22000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('01000000');
+                Evaluate::initializeReadScriptString($code, $getLine);
                 $code[] = $getLine($mapped['object']['offset']);
 
                 //nested call return result
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
+                Evaluate::returnResult($code, $getLine);
 
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('01000000');
@@ -405,9 +345,7 @@ class T_CONDITION {
                 $code[] = $getLine($mapped['offset']);
 
                 //nested call return result
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
-
+                Evaluate::returnResult($code, $getLine);
 
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('02000000');
@@ -416,20 +354,18 @@ class T_CONDITION {
                 $code[] = $getLine('04000000');
                 $code[] = $getLine('02000000');
 
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
+                Evaluate::returnResult($code, $getLine);
 
 
 
 
             }else if ($mapped['section'] == "level_var") {
-                $code[] = $getLine('1b000000');
+                Evaluate::initializeReadLevelVar($code, $getLine);
 
                 // define the offset
                 $code[] = $getLine($mapped['offset']);
 
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('01000000');
+                Evaluate::returnLevelVarResult($code, $getLine);
             }else{
                 var_dump($mapped);
 

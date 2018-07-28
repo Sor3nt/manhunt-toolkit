@@ -43,7 +43,6 @@ class WriteDebugTest extends KernelTestCase
             '10000000', //nested string return result
             '02000000', //nested string return result
             '73000000', //writedebug Call
-            '74000000', //writedebug Call
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)

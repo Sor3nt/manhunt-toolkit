@@ -35,14 +35,8 @@ class LevelVarIntergerTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-
-            '34000000',
-            '09000000',
-            '04000000',
-
-
             '1b000000', //unknown
-            '04000000', //unknown
+            '00000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
             '10000000', //nested call return result
@@ -57,7 +51,7 @@ class LevelVarIntergerTest extends KernelTestCase
             '01000000', //unknown
             '1a000000', //unknown
             '01000000', //unknown
-            '04000000', //unknown
+            '00000000', //unknown
             '04000000', //unknown
 
             // script end

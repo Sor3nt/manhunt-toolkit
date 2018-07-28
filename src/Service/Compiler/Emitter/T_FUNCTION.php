@@ -3,6 +3,7 @@ namespace App\Service\Compiler\Emitter;
 
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\Token;
 
@@ -34,8 +35,7 @@ class T_FUNCTION {
                     $param['type'] == Token::T_SELF
                 ) {
 
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::initializeParameterInteger($code, $getLine);
 
                     $resultCode = $emitter( $param );
 
@@ -43,46 +43,22 @@ class T_FUNCTION {
                         $code[] = $line;
                     }
 
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::returnResult($code, $getLine);
 
                 }else if ($param['type'] == Token::T_STRING){
 
-                    // initialize string
-                    $code[] = $getLine('21000000');
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('01000000');
-                    // we have quotes around the string, come from the tokenizer
-                    $value = substr($param['value'], 1, -1);
-
-                    if (!isset($data['strings'][$value])){
-                        throw new \Exception(sprintf('String %s is not in the map !', $value));
-                    }
-
-
-                    // when this is false, we are in precalc mode so we dont want to fetch the real value
-                    if ($data['calculateLineNumber']){
-                        $code[] = $getLine($data['strings'][$value]['offset']);
-                    }else{
-                        $code[] = $getLine("12345678");
-                    }
-
-
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('02000000');
+                    Evaluate::initializeReadHeaderString($code, $getLine);
+                    Evaluate::processString($param, $code, $getLine, $data);
+                    Evaluate::initializeParameterString($code, $getLine);
 
                     $resultCode = $emitter( $param );
-
                     foreach ($resultCode as $line) {
                         $code[] = $line;
                     }
 
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::returnResult($code, $getLine);
+                    Evaluate::returnStringResult($code, $getLine);
 
-                    //move string pointer ?
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('02000000');
                 }else if ($param['type'] == Token::T_VARIABLE){
 
                     if (isset(Manhunt2::$functions[ strtolower($param['value']) ])) {
@@ -98,8 +74,7 @@ class T_FUNCTION {
                             $code[] = $item;
                         }
 
-                        $code[] = $getLine('10000000');
-                        $code[] = $getLine('01000000');
+                        Evaluate::returnResult($code, $getLine);
 
                     }else{
 
@@ -153,36 +128,23 @@ class T_FUNCTION {
                                 throw new \Exception(sprintf("T_FUNCTION: unable to find variable offset for %s (Line %s)", $param['value'], $tmp->lineNumber));
 
                             }
-
                         }
-
 
                         // initialize string
                         if ($mapped['section'] == "script") {
-                            $code[] = $getLine('22000000');
-                            $code[] = $getLine('04000000');
-                            $code[] = $getLine('01000000');
+                            Evaluate::initializeReadScriptString($code, $getLine);
                         }else if ($mapped['section'] == "constant"){
-                            $code[] = $getLine('12000000');
-                            $code[] = $getLine('01000000');
-//                        }else if (
-//                            $mapped['section'] == "header" &&
-//                            $mapped['type'] == "stringArray"
-//                        ){
-//                            $code[] = $getLine('12000000');
-//                            $code[] = $getLine('01000000');
+                            Evaluate::initializeParameterInteger($code, $getLine);
+
+                            //todo: hmm missmatch irgendwo...
+                        }else if ($mapped['section'] == "script constant"){
+                            Evaluate::initializeReadHeaderString($code, $getLine);
                         }else if (
                             $mapped['section'] == "header"
                         ){
-                            $code[] = $getLine('21000000');
-                            $code[] = $getLine('04000000');
-                            $code[] = $getLine('01000000');
-
+                            Evaluate::initializeReadHeaderString($code, $getLine);
                         }else{
-//                            $code[] = $getLine('21000000');
-//                            $code[] = $getLine('04000000');
-//                            $code[] = $getLine('01000000');
-
+                                var_dump($mapped);
                             throw new \Exception(sprintf('Unknown section %s', $mapped['section']));
                         }
 
@@ -191,39 +153,37 @@ class T_FUNCTION {
                         $code[] = $getLine($mapped['offset']);
 
                         if ($mapped['section'] == "script constant"){
-                            $code[] = $getLine('12000000');
-                            $code[] = $getLine('02000000');
+
+                            Evaluate::initializeParameterString($code, $getLine);
+
                             $code[] = $getLine(Helper::fromIntToHex( $mapped['length'] + 1));
 
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('01000000');
+                            Evaluate::returnResult($code, $getLine);
+                            Evaluate::returnStringResult($code, $getLine);
 
-                            //move string pointer ?
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('02000000');
                         }else if ($mapped['section'] == "constant"){
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('01000000');
+                            Evaluate::returnResult($code, $getLine);
 
                         }else if ($mapped['section'] == "script"){
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('01000000');
+                            Evaluate::returnResult($code, $getLine);
 
                         }else if (
                             $mapped['section'] == "header" &&
                             $mapped['type'] == "stringArray"
                         ){
-                            $code[] = $getLine('12000000');
-                            $code[] = $getLine('02000000');
+                            Evaluate::initializeParameterString($code, $getLine);
 
                             $code[] = $getLine(Helper::fromIntToHex( $mapped['size']));
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('01000000');
 
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('02000000');
+                            Evaluate::returnResult($code, $getLine);
+                            Evaluate::returnStringResult($code, $getLine);
 
+                        }else if (
+                            $mapped['section'] == "header" &&
+                            $mapped['type'] == "Vec3D"
+                        ){
 
+                            Evaluate::returnResult($code, $getLine);
 
                         }else{
                                 var_dump($mapped);
@@ -245,8 +205,7 @@ class T_FUNCTION {
                         $code[] = $item;
                     }
 
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
+                    Evaluate::returnResult($code, $getLine);
 
                     $skipNext = true;
 
@@ -272,13 +231,7 @@ class T_FUNCTION {
                     $param['value'] < 0
                 ) {
 
-                    $code[] = $getLine('4f000000');
-                    $code[] = $getLine('32000000');
-                    $code[] = $getLine('09000000');
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
-
+                    Evaluate::negateLastValue($code, $getLine);
                 }
 
             }
@@ -291,14 +244,15 @@ class T_FUNCTION {
             throw new \Exception(sprintf('Unknown function %s', $node['value']));
         }
 
+
         $code[] = $getLine( Manhunt2::$functions[ strtolower($node['value']) ]['offset'] );
 
         // the setpedorientation call has a secret additional call
         if (
             strtolower($node['value']) == 'setpedorientation'
         ){
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+
+            Evaluate::returnResult($code, $getLine);
 
             $code[] = $getLine('b0020000');
 
@@ -309,16 +263,8 @@ class T_FUNCTION {
             strtolower($node['value']) == 'writedebug' //&&
         ){
 
-            if (isset($node['last'])){
-
-                if ($node['last'] === true && $node['index'] == 0) {
-                    $code[] = $getLine('74000000');
-                }
-
-
-            }else{
+            if (!isset($node['last']) || $node['last'] === true) {
                 $code[] = $getLine('74000000');
-
             }
         }
 
@@ -327,8 +273,7 @@ class T_FUNCTION {
          */
 
         if (isset($node['nested']) && $node['nested'] === true){
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+            Evaluate::returnResult($code, $getLine);
         }
 
         return $code;

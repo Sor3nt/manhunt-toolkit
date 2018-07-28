@@ -35,9 +35,6 @@ class HeaderStringArrayTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '1e000000',
 
             '12000000',
             '01000000',
@@ -50,7 +47,7 @@ class HeaderStringArrayTest extends KernelTestCase
             '21000000',
             '04000000',
             '04000000',
-            '1e000000',
+            '00000000',
 
             '12000000',
             '03000000',

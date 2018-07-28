@@ -42,10 +42,6 @@ class IfNestedTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '04000000',
-
 
             '8a000000', //GetPlayer Call
             '10000000', //nested call return result
@@ -65,7 +61,7 @@ class IfNestedTest extends KernelTestCase
             '01000000', //statement (core)
             '01000000', //statement (core)
             '3d000000', //statement (core)(operator lower)
-            '78000000', //statement (core)( Offset )
+            '6c000000', //statement (core)( Offset )
             '33000000', //statement (unknown)
             '01000000', //statement (unknown)
             '01000000', //statement (unknown)
@@ -97,7 +93,7 @@ class IfNestedTest extends KernelTestCase
             '01000000', //statement (core)
             '01000000', //statement (core)
             '40000000', //statement (core)(operator un-equal)
-            'f8000000', //statement (core)( Offset )
+            'ec000000', //statement (core)( Offset )
             '33000000', //statement (unknown)
             '01000000', //statement (unknown)
             '01000000', //statement (unknown)
@@ -129,7 +125,7 @@ class IfNestedTest extends KernelTestCase
             '01000000', //statement (core)
             '01000000', //statement (core)
             '40000000', //statement (core)(operator un-equal)
-            '78010000', //statement (core)( Offset )
+            '6c010000', //statement (core)( Offset )
             '33000000', //statement (unknown)
             '01000000', //statement (unknown)
             '01000000', //statement (unknown)
@@ -166,7 +162,7 @@ class IfNestedTest extends KernelTestCase
             '01000000', //statement (core)
             '01000000', //statement (core)
             '40000000', //statement (core)(operator un-equal)
-            '0c020000', //statement (core)( Offset )
+            '00020000', //statement (core)( Offset )
             '33000000', //statement (unknown)
             '01000000', //statement (unknown)
             '01000000', //statement (unknown)
@@ -186,14 +182,14 @@ class IfNestedTest extends KernelTestCase
             '00000000', //statement (core 2)
 
             '3f000000', //statement (line offset)
-            '64020000', //Offset in byte
+            '58020000', //Offset in byte
 
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
             '01000000', //Bool true / int 1
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
-            'b0170000', //unknown
+            '3c000000', //unknown
             '04000000', //
 
 

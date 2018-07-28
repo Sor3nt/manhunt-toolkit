@@ -38,11 +38,6 @@ class IfAndTest extends KernelTestCase
             '09000000',
 
 
-
-            '34000000',
-            '09000000',
-            '04000000',
-
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -82,7 +77,7 @@ class IfAndTest extends KernelTestCase
 
             '40000000', //statement (core)(operator un-equal)
 
-            'a4000000', //statement (core)( Offset )
+            '98000000', //statement (core)( Offset )
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -129,7 +124,7 @@ class IfAndTest extends KernelTestCase
 
             '40000000', //statement (core)(operator un-equal)
 
-            '30010000', //statement (core)( Offset )
+            '24010000', //statement (core)( Offset )
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -178,7 +173,7 @@ class IfAndTest extends KernelTestCase
             '01000000', //statement (core)
 
             '40000000', //statement (core)(operator un-equal)
-            'd0010000', //statement (core)( Offset )
+            'c4010000', //statement (core)( Offset )
 
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
@@ -195,14 +190,14 @@ class IfAndTest extends KernelTestCase
             '00000000', //statement (core 2)
             '3f000000', //statement (line offset)
 
-            '14020000', //Offset in byte
+            '08020000', //Offset in byte
 
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
             '01000000', //Bool true / int 1
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
-            'b0170000', //unknown
+            '0c000000', //offset
             '04000000', //
             
             

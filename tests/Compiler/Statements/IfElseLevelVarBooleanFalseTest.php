@@ -43,10 +43,6 @@ class IfElseLevelVarBooleanFalseTest extends KernelTestCase
             '09000000',
 
 
-            '34000000',
-            '09000000',
-            '04000000',
-
             '1b000000', //unknown
             'b0170000', //LevelVar stealthOneLooper
             '04000000', //unknown
@@ -68,7 +64,7 @@ class IfElseLevelVarBooleanFalseTest extends KernelTestCase
             '01000000', //If statement
             '3f000000', //equal
 
-            '78000000', //If statement( current start offset)
+            '6c000000', //If statement( current start offset)
             '33000000', //If statement
             '01000000', //If statement
             '01000000', //If statement
@@ -77,18 +73,18 @@ class IfElseLevelVarBooleanFalseTest extends KernelTestCase
             '00000000', //If statement
 
             '3f000000', //store value
-            'a8000000', //end offset
+            '9c000000', //end offset
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
             '01000000', //Bool true / int 1
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
 
-            'b0170000', //unknown
+            '00000000', //unknown
             '04000000', //
 
             '3c000000', // else
-            'cc000000', //end offset
+            'c0000000', //end offset
 
             '12000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
@@ -96,7 +92,7 @@ class IfElseLevelVarBooleanFalseTest extends KernelTestCase
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
 
-            'b0170000', //unknown
+            '00000000', //unknown
             '04000000', //
 
             // script end

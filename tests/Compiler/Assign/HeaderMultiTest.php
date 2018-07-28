@@ -36,16 +36,12 @@ class HeaderMultiTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '08000000',
-
             '12000000', // init parameter
             '01000000', // init parameter
             '00000000', // value int 0
             '16000000', // assign to script var
             '04000000', // assign to script var
-            '04000000', // save into alreadyDone
+            '00000000', // save into alreadyDone
             '01000000', // assign
 
             '12000000', // init parameter

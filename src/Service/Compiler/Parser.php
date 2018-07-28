@@ -632,6 +632,33 @@ var_dump("hmmM", $tokens);
                         $deep++;
                     }
 
+                    // we have another If-statement
+                }else if ($token['type'] == Token::T_END_ELSE) {
+                    $node['cases'][] = $case;
+
+
+                    if ($tokens[$current + 2]['type'] == Token::T_IF || $tokens[$current + 2]['type'] == Token::T_WHILE) {
+                        list($current, $innerIf) = $this->parseIfStatement(
+                            $tokens, $current + 2
+                        );
+
+                        foreach ($innerIf['cases'] as $case) {
+                            $node['cases'][] = $case;
+                        }
+
+                        // the else statment (without if)
+                    }else{
+
+                        list($current, $innerIf) =  $this->parseIfLastElse(
+                            $tokens, $current + 3
+                        );
+
+                        $node['cases'][] = $innerIf;
+                    }
+                    return [$current + 1, $node];
+
+                    break;
+
                 }else if ($token['type'] == Token::T_END) {
 
                     if ($deep == 0){

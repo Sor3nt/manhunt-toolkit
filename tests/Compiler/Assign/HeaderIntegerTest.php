@@ -34,10 +34,6 @@ class HeaderIntegerTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '04000000',
-
             '21000000', // Prepare string read (DATA table)
             '04000000', // Prepare string read (DATA table)
             '01000000', // Prepare string read (DATA table)
@@ -56,7 +52,7 @@ class HeaderIntegerTest extends KernelTestCase
 
             '16000000',
             '04000000',
-            '04000000',
+            '14000000',
             '01000000',
 
             // script end

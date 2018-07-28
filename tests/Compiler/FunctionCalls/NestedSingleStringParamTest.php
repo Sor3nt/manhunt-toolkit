@@ -18,7 +18,7 @@ class NestedSingleStringParamTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    writedebug(writedebug('test'))
+                    displaygametext(displaygametext('test'))
                 end;
 
             end.
@@ -46,14 +46,12 @@ class NestedSingleStringParamTest extends KernelTestCase
             '10000000', // move pointer
             '02000000', // move pointer
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '04010000', // displaygametext call (hidden call)
 
             '10000000', // nested call return
             '01000000', // nested call return
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '04010000', // displaygametext call
 
             // script end
             '11000000',

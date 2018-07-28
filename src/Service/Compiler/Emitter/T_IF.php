@@ -8,7 +8,7 @@ use App\Service\Compiler\Token;
 class T_IF {
 
 
-    static public function handleBracketOpen($params, $fullNode, $parentOperator, \Closure $getLine, \Closure $emitter){
+    static public function handleBracketOpen($params, $fullNode, $parentOperator, \Closure $getLine, \Closure $emitter, $isWhile){
 
 
         $code = [];
@@ -19,13 +19,13 @@ class T_IF {
             $node = $params[$current];
 
             if ($node['type'] == Token::T_BRACKET_OPEN){
-                $result = self::handleBracketOpen($node['params'], $node, $fullNode['operator'],  $getLine, $emitter);
+                $result = self::handleBracketOpen($node['params'], $node, $fullNode['operator'],  $getLine, $emitter, $isWhile);
                 foreach ($result as $item) {
                     $code[] = $item;
                 }
 
             }else{
-                $result = $emitter($node, true, []);
+                $result = $emitter($node, true, [ 'isWhile' => $isWhile ]);
                 foreach ($result as $item) {
                     $code[] = $item;
                 }
@@ -84,7 +84,7 @@ class T_IF {
                 foreach ($case['condition'] as $condition) {
 
                     if ($condition['type'] == Token::T_BRACKET_OPEN){
-                        $result =  self::handleBracketOpen($condition['params'], $condition, false, $getLine, $emitter);
+                        $result =  self::handleBracketOpen($condition['params'], $condition, false, $getLine, $emitter, $isWhile);
                         foreach ($result as $item) {
                             $code[] = $item;
                         }
@@ -115,7 +115,7 @@ class T_IF {
 
 
             foreach ($case['isTrue'] as $entry) {
-                $codes = $emitter($entry, false);
+                $codes = $emitter($entry, false, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {
                     $isTrue[] = $singleLine;
                 }
@@ -134,7 +134,7 @@ class T_IF {
 //wenn in isTrue nur ein eintrag ist, muss das gesonders behandelt werden
             // create the bytecode
             foreach ($case['isTrue'] as $entry) {
-                $codes = $emitter($entry);
+                $codes = $emitter($entry, true, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {
                     $code[] = $singleLine;
                 }

@@ -38,9 +38,6 @@ class HeaderLevelVarTLevelStateTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '04000000',
 
             '12000000', // init parameter
             '01000000', // init parameter
@@ -48,7 +45,7 @@ class HeaderLevelVarTLevelStateTest extends KernelTestCase
 
             '1a000000', // assign to level_var
             '01000000', // assign to level_var
-            '24170000', // LevelVar lLevelState
+            '00000000', // LevelVar lLevelState
             '04000000', // assign
 
             // script end
