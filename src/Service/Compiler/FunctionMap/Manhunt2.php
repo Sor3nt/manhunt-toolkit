@@ -91,7 +91,7 @@ class Manhunt2 {
         'lElevatorLevel'                  => [
             'offset' => "30170000"
         ],
-        'tLevelState'                     => [
+        'lLevelState'                     => [
             'offset' => "24170000"
         ],
 
@@ -107,7 +107,7 @@ class Manhunt2 {
             'offset' => "c00f0000"
         ],
 
-        'lLevelState'                     => [
+        'tLevelState'                     => [
             'offset' => "980f0000"
         ],
 
@@ -1023,6 +1023,18 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
+        "scripthogprocessorstart" => [
+            'name'      =>  'ScriptHogProcessorStart',
+            'offset'    =>  '15020000',
+            /**
+             * Parameters
+             * - none
+             */
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
         "enableaction" => [
             'name'      =>  'EnableAction',
             'offset'    =>  '62030000',
@@ -1435,6 +1447,15 @@ class Manhunt2 {
             'offset'    =>  'a3010000',
 
             'params'    =>  [ 'String', 'Constant', 'Constant', 'Integer', 'Integer', 'String' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "deactivatesavepoint" => [
+            'name'      =>  'DeactivateSavePoint',
+            'offset'    =>  '12030000',
+
+            'params'    =>  [ 'EntityPtr' ],
             'return'    =>  'Void',
             'desc'      =>  ''
         ],

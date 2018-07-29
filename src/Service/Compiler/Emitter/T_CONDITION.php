@@ -26,12 +26,29 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
-            Evaluate::returnResult($code, $getLine);
+            /**
+             * HACK / WORKAROUND
+             * we receive already a return code so we can not add ours
+             * why ? recursion is a bitch ...
+             *
+             * function call vs assign vll?
+             */
+            if (
+                ($code[ count($code) - 2]->hex == "10000000") &&
+                ($code[ count($code) - 1]->hex == "01000000")
+            ){
+
+            }else{
+                Evaluate::returnResult($code, $getLine);
+            }
+
 
             $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
             foreach ($result as $item) {
                 $code[] = $item;
             }
+
+
 
             Evaluate::initializeStatement($code, $getLine);
             Evaluate::statementOperator($operation, $code, $getLine);

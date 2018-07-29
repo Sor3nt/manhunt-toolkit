@@ -286,7 +286,6 @@ class Evaluate {
 
             if ($mapped === false) return false;
 
-
             switch ($mapped['section']) {
 
                 case 'level_var':
@@ -361,6 +360,15 @@ class Evaluate {
         );
 
         if ($mapped === false) return false;
+
+        $calledFromFunction = false;
+        if (
+            isset($data['customData']['type']) &&
+            $data['customData']['type'] == Token::T_FUNCTION
+        ){
+            $calledFromFunction = true;
+        }
+
 
         switch ($mapped['section']){
 
@@ -447,6 +455,7 @@ class Evaluate {
 
                         // define the offset
                         $code[] = $getLine($mapped['offset']);
+
                         Evaluate::returnResult($code, $getLine);
 
                         break;
@@ -498,15 +507,19 @@ class Evaluate {
                         break;
                     case 'entityptr':
 
-
                         $code[] = $getLine('13000000');
                         $code[] = $getLine('01000000');
                         $code[] = $getLine('04000000');
 
                         $code[] = $getLine($mapped['offset']);
 
-//                        $code[] = $getLine('0f000000');
-//                        $code[] = $getLine('04000000');
+                        if ($calledFromFunction){
+                            self::returnResult($code, $getLine);
+
+                        }else{
+                            self::returnConstantResult($code, $getLine);
+                        }
+
 
                         break;
                     case 'vec3d':
@@ -515,42 +528,7 @@ class Evaluate {
                         Evaluate::returnResult($code, $getLine);
 
                         break;
-//                    case 'object':
-//
-//                        // i dont know, object read init ?!
-//                        $code[] = $getLine('0f000000');
-//                        $code[] = $getLine('01000000');
-//                        $code[] = $getLine('0f000000');
-//                        $code[] = $getLine('04000000');
-//                        $code[] = $getLine('44000000');
-//
-//                        // read from script var
-//                        Evaluate::initializeReadScriptString($code, $getLine);
-//                        $code[] = $getLine($mapped['object']['offset']);
-//
-//                        //nested call return result
-//                        Evaluate::returnResult($code, $getLine);
-//
-//                        $code[] = $getLine('0f000000');
-//                        $code[] = $getLine('01000000');
-//                        $code[] = $getLine('32000000');
-//                        $code[] = $getLine('01000000');
-//
-//                        $code[] = $getLine($mapped['offset']);
-//
-//                        //nested call return result
-//                        Evaluate::returnResult($code, $getLine);
-//
-//                        $code[] = $getLine('0f000000');
-//                        $code[] = $getLine('02000000');
-//                        $code[] = $getLine('18000000');
-//                        $code[] = $getLine('01000000');
-//                        $code[] = $getLine('04000000');
-//                        $code[] = $getLine('02000000');
-//
-//                        Evaluate::returnResult($code, $getLine);
-//
-//                        break;
+
                     default:
                         throw new \Exception(sprintf("Unknown Script type %s", $mapped['type']));
                 }
