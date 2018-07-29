@@ -118,7 +118,7 @@ class T_IF {
             // note: we force the line to a new lineNumber since the emitter mess up the index by calculate the offset... todo
             $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
 
-//wenn in isTrue nur ein eintrag ist, muss das gesonders behandelt werden
+            //wenn in isTrue nur ein eintrag ist, muss das gesonders behandelt werden
             // create the bytecode
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry, true, [ 'isWhile' => $isWhile ]);

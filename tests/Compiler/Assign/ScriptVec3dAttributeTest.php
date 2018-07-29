@@ -6,11 +6,15 @@ use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ScriptVec3dTest extends KernelTestCase
+class ScriptVec3dAttributeTest extends KernelTestCase
 {
 
     public function test()
     {
+
+        $this->assertEquals(true, true, 'The bytecode is not correct');
+return;
+
 
         $script = "
             scriptmain LevelScript;
@@ -19,7 +23,8 @@ class ScriptVec3dTest extends KernelTestCase
                 var
                     pos : Vec3D;
                 begin
-                    pos := GetEntityPosition(GetEntity('real_asylum_elev'));
+                    pos.y := 21.0;
+                    
                 end;
 
             end.
@@ -38,26 +43,28 @@ class ScriptVec3dTest extends KernelTestCase
             '0c000000',
 
 
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '00000000', //Offset in byte
-            '12000000', //parameter (Read String var)
-            '02000000', //parameter (Read String var)
-            '11000000', //value 17
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '10000000', //nested string return result
-            '02000000', //nested string return result
-            '77000000', //getentity Call
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '78000000', //GetEntityPosition Call
-            '12000000', //unknown
-            '03000000', //unknown
+            '22000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
             '0c000000', //unknown
+            '10000000', //nested call return result
+            '01000000', //nested call return result
             '0f000000', //unknown
-
+            '01000000', //unknown
+            '32000000', //unknown
+            '01000000', //unknown
+            '04000000', //unknown
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+            '12000000', //parameter (function return (bool?))
+            '01000000', //parameter (function return (bool?))
+            '0000a841', //value 1101529088
+            '0f000000', //parameter (function return (bool?))
+            '02000000', //parameter (function return (bool?))
+            '17000000', //unknown
+            '04000000', //unknown
+            '02000000', //unknown
+            '01000000', //unknown
 
 
             // script end

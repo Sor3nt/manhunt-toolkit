@@ -11,6 +11,108 @@ class Evaluate {
      * process commands
      *
      */
+//    static public function processAssign( $node, &$code, \Closure $getLine,\Closure $emitter, $data ){
+//
+//        $code = [];
+//
+//        if (!isset($data['variables'][$node['value']])){
+//            throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
+//        }
+//
+//        $mapped = $data['variables'][$node['value']];
+//
+//
+//        switch (count($node['body'])){
+//            // something like val := val + 1
+//            case 3:
+//
+//                $resultCode = self::handleSimpleMath($node['body'], $getLine, $emitter, $data);
+//                foreach ($resultCode as $line) {
+//                    $code[] = $line;
+//                }
+//
+//                break;
+//
+//
+//            case 1:
+//            break;
+//
+//            default:
+//                throw new \Exception(sprintf('Unable to handle Assignment'));
+//
+//                break;
+//        }
+//
+//
+//        switch ($mapped['section']){
+//
+//            case 'header':
+//
+//                switch ($mapped['type']){
+//                    case 'level_var integer':
+//                        self::assignToLevelVar($mapped['offset'], $code, $getLine);
+//                        break;
+//
+//                    case 'integer':
+//                        self::assignToHeaderInteger($mapped['offset'], $code, $getLine);
+//                        break;
+//                    case 'stringArray':
+//
+//                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
+//
+//                            //evaluate the function call
+//                            $resultCode = $emitter($node['body'][0]);
+//                            foreach ($resultCode as $line) {
+//                                $code[] = $line;
+//                            }
+//
+//                            self::assignToUnknownStringArray($mapped, $code, $getLine);
+//
+//                            return $code;
+//
+//                        } else {
+//                            throw new \Exception(sprintf('T_ASSIGN: Unknown type for string array assignment: %s  '), $node['body'][0]['type']);
+//                        }
+//
+//                        break;
+//                    default:
+//                        throw new \Exception(sprintf("Header assignment for %s is not implemented", $mapped['type']));
+//                }
+//
+//                break;
+//
+//            case 'script':
+//                switch ($mapped['type']){
+//                    case 'boolean':
+//                        Evaluate::initializeParameterInteger($code, $getLine);
+//
+//                        //evaluate the boolean
+//                        $resultCode = $emitter($node['body'][0]);
+//                        foreach ($resultCode as $line) {
+//                            $code[] = $line;
+//                        }
+//
+//                        Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
+//
+//                        break;
+//
+//                    case 'integer':
+//                        self::assignToScriptInteger($mapped['offset'], $code, $getLine);
+//                        break;
+//                    default:
+//                        throw new \Exception(sprintf("Script assignment for %s is not implemented", $mapped['type']));
+//                }
+//
+//                break;
+//
+//            default:
+//                throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
+//
+//        }
+//
+//    }
+
+
     static public function processString( $node, &$code, \Closure $getLine, $data ){
 
         // we have quotes around the string, come from the tokenizer
@@ -28,51 +130,291 @@ class Evaluate {
         }
     }
 
+    static public function processNumeric( $node, &$code, $data, \Closure $getLine, \Closure $emitter ){
+
+        self::initializeParameterInteger($code, $getLine);
+
+        $resultCode = $emitter( $node );
+        foreach ($resultCode as $line) {
+            $code[] = $line;
+        }
+
+        if (isset($data['conditionVariable']) && $data['conditionVariable']['type'] == Token::T_VARIABLE) {
+
+            $mapped = self::getVariableMap(
+                $data['conditionVariable']['value'],
+                $code,
+                $data,
+                $getLine,
+                $emitter
+            );
+
+            if ($mapped === false) return false;
+
+            switch ($mapped['section']) {
+
+                case 'level_var':
+                    self::returnConstantResult($code, $getLine);
+                    break;
+
+                case 'header':
+
+                    switch ($mapped['type']) {
+
+                        case 'boolean':
+
+                            //while vs if ...
+
+                            if ($data['customData']['isWhile']) {
+                                Evaluate::returnResult($code, $getLine);
+
+                            } else {
+                                Evaluate::returnConstantResult($code, $getLine);
+                            }
+
+                            break;
+                        case 'integer':
+                            Evaluate::returnResult($code, $getLine);
+                            break;
+                        default:
+                            throw new \Exception(sprintf("handling incomplete for type %s", $mapped['type']));
+                    }
+
+                    break;
+
+                default:
+                    throw new \Exception(sprintf("handling incomplete for section %s", $mapped['section']));
+            }
+        }else if (isset($data['conditionVariable']) && $data['conditionVariable']['type'] == Token::T_FUNCTION){
+            Evaluate::returnConstantResult($code, $getLine);
+
+        }else if (isset($data['conditionVariable'])){
+            throw new \Exception(sprintf("handling incomplete for conditionVariable %s", $data['conditionVariable']['type']));
+        }else{
+            Evaluate::returnResult($code, $getLine);
+
+//            var_dump($node);
+//            exit;
+//            throw new \Exception(sprintf("processNumeric handling incomplete "));
+
+        }
+
+        return true;
+    }
+
+    static public function processVariable( $node, &$code, $data, \Closure $getLine, \Closure $emitter ){
+
+        $mapped = self::getVariableMap(
+            $node['value'],
+            $code,
+            $data,
+            $getLine,
+            $emitter
+        );
+
+        if ($mapped === false) return false;
+
+        switch ($mapped['section']){
+
+            //todo: das sollte es nicht geben, gehört zur header section
+            case 'level_var':
+                Evaluate::initializeReadLevelVar($code, $getLine);
+
+                // define the offset
+                $code[] = $getLine($mapped['offset']);
+
+                Evaluate::returnLevelVarResult($code, $getLine);
+
+                break;
+            case 'constant':
+                self::initializeParameterInteger($code, $getLine);
+
+                // define the offset
+                $code[] = $getLine($mapped['offset']);
+
+                //use as function parameter
+                if (isset($data['customData']['type']) && $data['customData']['type'] == Token::T_FUNCTION){
+                    self::returnResult($code, $getLine);
+                }else{
+                    self::returnConstantResult($code, $getLine);
+
+                }
+
+                break;
+
+            case 'script constant':
+                Evaluate::initializeReadHeaderString($code, $getLine);
+                $code[] = $getLine($mapped['offset']);
+
+                Evaluate::initializeParameterString($code, $getLine);
+
+                $code[] = $getLine(Helper::fromIntToHex( $mapped['length'] + 1));
+
+                Evaluate::returnResult($code, $getLine);
+                Evaluate::returnStringResult($code, $getLine);
+                break;
+
+            case 'header':
+
+                switch (strtolower($mapped['type'])){
+
+
+                    case 'level_var integer':
+                        self::initializeReadLevelVar($code, $getLine);
+
+                        // define the offset
+                        $code[] = $getLine($mapped['offset']);
+
+                        self::returnLevelVarResult($code, $getLine);
+                        self::returnResult($code, $getLine);
+                        break;
+
+                    case 'integer':
+                        self::initializeReadHeaderInteger($code, $getLine);
+                        $code[] = $getLine($mapped['offset']);
+                        self::returnResult($code, $getLine);
+                        break;
+                    case 'boolean':
+                        self::initializeReadHeaderBoolean($code, $getLine);
+                        $code[] = $getLine($mapped['offset']);
+                        //todo: hmm er braucht das return jedoch wird das von wo anders bereits gefüllt
+//                        self::returnResult($code, $getLine);
+                        break;
+                    case 'vec3d':
+                        Evaluate::initializeReadHeaderString($code, $getLine);
+                        $code[] = $getLine($mapped['offset']);
+                        Evaluate::returnResult($code, $getLine);
+                        break;
+                    default:
+                        throw new \Exception(sprintf("Unknown header type %s", $mapped['type']));
+                }
+
+                break;
+
+            case 'script':
+
+                switch (strtolower($mapped['type'])){
+                    case 'integer':
+                        self::initializeReadHeaderInteger($code, $getLine);
+
+                        // define the offset
+                        $code[] = $getLine($mapped['offset']);
+                        Evaluate::returnResult($code, $getLine);
+
+                        break;
+
+                    case 'boolean':
+                        throw new \Exception("You can not assign a boolena variable to a function!");
+                        break;
+
+                    case 'vec3d':
+                        Evaluate::initializeReadScriptString($code, $getLine);
+                        $code[] = $getLine($mapped['offset']);
+                        Evaluate::returnResult($code, $getLine);
+
+                        break;
+                    case 'object':
+
+                        // i dont know, object read init ?!
+                        $code[] = $getLine('0f000000');
+                        $code[] = $getLine('01000000');
+                        $code[] = $getLine('0f000000');
+                        $code[] = $getLine('04000000');
+                        $code[] = $getLine('44000000');
+
+                        // read from script var
+                        Evaluate::initializeReadScriptString($code, $getLine);
+                        $code[] = $getLine($mapped['object']['offset']);
+
+                        //nested call return result
+                        Evaluate::returnResult($code, $getLine);
+
+                        $code[] = $getLine('0f000000');
+                        $code[] = $getLine('01000000');
+                        $code[] = $getLine('32000000');
+                        $code[] = $getLine('01000000');
+
+                        $code[] = $getLine($mapped['offset']);
+
+                        //nested call return result
+                        Evaluate::returnResult($code, $getLine);
+
+                        $code[] = $getLine('0f000000');
+                        $code[] = $getLine('02000000');
+                        $code[] = $getLine('18000000');
+                        $code[] = $getLine('01000000');
+                        $code[] = $getLine('04000000');
+                        $code[] = $getLine('02000000');
+
+                        Evaluate::returnResult($code, $getLine);
+
+                        break;
+                    default:
+                        throw new \Exception(sprintf("Unknown Script type %s", $mapped['type']));
+                }
+
+                break;
+
+            default:
+                throw new \Exception(sprintf("Unknown section type %s", $mapped['section']));
+        }
+
+
+        return true;
+    }
+
 
     /**
      * Initialize commands
      *
      */
-
     static public function initializeParameterInteger( &$code, \Closure $getLine ){
+
         $code[] = $getLine('12000000');
         $code[] = $getLine('01000000');
     }
 
     static public function initializeParameterString( &$code, \Closure $getLine ){
+
         $code[] = $getLine('12000000');
         $code[] = $getLine('02000000');
     }
 
     static public function initializeReadHeaderString( &$code, \Closure $getLine ){
+
         $code[] = $getLine('21000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
     }
 
     static public function initializeReadHeaderStringArray( &$code, \Closure $getLine ){
+
         $code[] = $getLine('21000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('04000000');
     }
 
     static public function initializeReadHeaderBoolean( &$code, \Closure $getLine ){
+
         $code[] = $getLine('14000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine('04000000');
     }
 
-    static public function initializeReadHeaderIntefer( &$code, \Closure $getLine ){
+    static public function initializeReadHeaderInteger( &$code, \Closure $getLine ){
+
         $code[] = $getLine('13000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine('04000000');
     }
 
     static public function initializeReadLevelVar( &$code, \Closure $getLine ){
+
         $code[] = $getLine('1b000000');
     }
 
     static public function initializeReadScriptString( &$code, \Closure $getLine ){
+
         $code[] = $getLine('22000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
@@ -90,11 +432,15 @@ class Evaluate {
 
 
 
-
-
     /**
      * Return commands
      */
+
+    //todo: das stimmt ggf nicht, das wird auch als init verwendet...
+    static public function returnStringArrayResult( &$code, \Closure $getLine ){
+        $code[] = $getLine('12000000');
+        $code[] = $getLine('03000000');
+    }
 
     static public function returnResult( &$code, \Closure $getLine ){
         $code[] = $getLine('10000000');
@@ -119,12 +465,6 @@ class Evaluate {
     static public function returnLevelVarResult( &$code, \Closure $getLine ){
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
-    }
-
-    //todo: das stimmt ggf nicht, das wird auch als init verwendet...
-    static public function returnStringArrayResult( &$code, \Closure $getLine ){
-        $code[] = $getLine('12000000');
-        $code[] = $getLine('03000000');
     }
 
 
@@ -181,13 +521,11 @@ class Evaluate {
         $code[] = $getLine('04000000');
     }
 
-
     static public function setStatementSubstraction( &$code, \Closure $getLine ){
         $code[] = $getLine('33000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
     }
-
 
     static public function setStatementOperator($node, &$code, \Closure $getLine ){
         self::returnConstantResult($code, $getLine);
@@ -212,8 +550,6 @@ class Evaluate {
     /**
      * assign functions
      */
-
-
     static public function assignToHeaderStringArray($offset, &$code, \Closure $getLine ){
         Evaluate::initializeParameterInteger($code, $getLine);
 
@@ -223,6 +559,7 @@ class Evaluate {
     }
 
     static public function assignToScriptObject($offset, &$code, \Closure $getLine ){
+
         self::returnStringArrayResult( $code, $getLine);
 
         $code[] = $getLine($offset);
@@ -231,6 +568,7 @@ class Evaluate {
     }
 
     static public function assignToLevelVar($offset, &$code, \Closure $getLine ){
+
         $code[] = $getLine('1a000000');
         $code[] = $getLine('01000000');
 
@@ -240,6 +578,7 @@ class Evaluate {
     }
 
     static public function assignToScriptInteger($offset, &$code, \Closure $getLine ){
+
         $code[] = $getLine('15000000');
         $code[] = $getLine('04000000');
 
@@ -249,6 +588,7 @@ class Evaluate {
     }
 
     static public function assignToUnknownInteger($offset, &$code, \Closure $getLine ){
+
         $code[] = $getLine('16000000');
         $code[] = $getLine('04000000');
 
@@ -258,9 +598,11 @@ class Evaluate {
     }
 
     static public function assignToHeaderInteger($offset, &$code, \Closure $getLine ){
+
         $code[] = $getLine('11000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine('04000000');
+
         $code[] = $getLine('15000000');
         $code[] = $getLine('04000000');
 
@@ -271,7 +613,19 @@ class Evaluate {
 
     }
 
+    static public function assignToScriptVec3d($offset, &$code, \Closure $getLine ){
+
+        $code[] = $getLine('12000000');
+        $code[] = $getLine('03000000');
+        // define the offset
+        $code[] = $getLine($offset);
+
+        $code[] = $getLine('0f000000');
+
+    }
+
     static public function assignToUnknownStringArray($mapped, &$code, \Closure $getLine ){
+
         Evaluate::initializeReadHeaderStringArray($code, $getLine);
 
         $code[] = $getLine($mapped['offset']);
@@ -294,202 +648,9 @@ class Evaluate {
     /**
      * Other functions
      */
-
-
-    static public function processNumeric( $node, &$code, $data, \Closure $getLine, \Closure $emitter ){
-
-        self::initializeParameterInteger($code, $getLine);
-
-        $resultCode = $emitter( $node );
-        foreach ($resultCode as $line) {
-            $code[] = $line;
-        }
-
-        if (isset($data['conditionVariable']) && $data['conditionVariable']['type'] == Token::T_VARIABLE){
-
-            $mapped = self::getVariableMap(
-                $data['conditionVariable']['value'],
-                $code,
-                $data,
-                $getLine,
-                $emitter
-            );
-
-            if ($mapped === false) return false;
-
-            switch ($mapped['section']) {
-
-                case 'level_var':
-                    self::returnConstantResult($code, $getLine);
-                    break;
-
-                case 'header':
-
-                    switch ($mapped['type']) {
-
-                        case 'boolean':
-
-                            //while vs if ...
-
-                            if ($data['customData']['isWhile']){
-                                Evaluate::returnResult($code, $getLine);
-
-                            }else{
-                                Evaluate::returnConstantResult($code, $getLine);
-                            }
-
-                            break;
-                        case 'integer':
-                            Evaluate::returnResult($code, $getLine);
-                            break;
-                        default:
-                            throw new \Exception(sprintf("handling incomplete for type %s", $mapped['type']));
-                    }
-
-                    break;
-
-                default:
-                    throw new \Exception(sprintf("handling incomplete for section %s", $mapped['section']));
-            }
-
-        }else{
-            // we have here a integer/boolean/float/this value
-            Evaluate::returnConstantResult($code, $getLine);
-        }
-
-        return true;
-    }
-
-
-    static public function processVariable( $node, &$code, $data, \Closure $getLine, \Closure $emitter ){
-
-        $mapped = self::getVariableMap(
-            $node['value'],
-            $code,
-            $data,
-            $getLine,
-            $emitter
-        );
-
-        if ($mapped === false) return false;
-
-        switch ($mapped['section']){
-
-            //todo: das sollte es nicht geben, gehört zur header section
-            case 'level_var':
-                Evaluate::initializeReadLevelVar($code, $getLine);
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                Evaluate::returnLevelVarResult($code, $getLine);
-
-                break;
-            case 'constant':
-                self::initializeParameterInteger($code, $getLine);
-
-                // define the offset
-                $code[] = $getLine($mapped['offset']);
-
-                self::returnConstantResult($code, $getLine);
-                break;
-
-            case 'header':
-
-                switch ($mapped['type']){
-
-
-                    case 'level_var integer':
-                        self::initializeReadLevelVar($code, $getLine);
-
-                        // define the offset
-                        $code[] = $getLine($mapped['offset']);
-
-                        self::returnLevelVarResult($code, $getLine);
-                        break;
-
-                    case 'integer':
-                        self::initializeReadHeaderIntefer($code, $getLine);
-
-                        // define the offset
-                        $code[] = $getLine($mapped['offset']);
-                        break;
-                    case 'boolean':
-                        self::initializeReadHeaderBoolean($code, $getLine);
-
-                        // define the offset
-                        $code[] = $getLine($mapped['offset']);
-                        break;
-                    default:
-                        throw new \Exception(sprintf("Unknown header type %s", $mapped['type']));
-                }
-
-                break;
-
-            case 'script':
-
-                switch ($mapped['type']){
-                    case 'integer':
-                        self::initializeReadHeaderIntefer($code, $getLine);
-
-                        // define the offset
-                        $code[] = $getLine($mapped['offset']);
-
-                        break;
-                    case 'object':
-
-                        // i dont know, object read init ?!
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('01000000');
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine('44000000');
-
-                        // read from script var
-                        Evaluate::initializeReadScriptString($code, $getLine);
-                        $code[] = $getLine($mapped['object']['offset']);
-
-                        //nested call return result
-                        Evaluate::returnResult($code, $getLine);
-
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('01000000');
-                        $code[] = $getLine('32000000');
-                        $code[] = $getLine('01000000');
-
-                        $code[] = $getLine($mapped['offset']);
-
-                        //nested call return result
-                        Evaluate::returnResult($code, $getLine);
-
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('02000000');
-                        $code[] = $getLine('18000000');
-                        $code[] = $getLine('01000000');
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine('02000000');
-
-                        Evaluate::returnResult($code, $getLine);
-
-                        break;
-                    default:
-                        throw new \Exception(sprintf("Unknown Script type %s", $mapped['type']));
-                }
-
-                break;
-
-            default:
-                throw new \Exception(sprintf("Unknown section type %s", $mapped['section']));
-        }
-
-
-        return true;
-    }
-
     static public function getVariableMap( $value, &$code, $data, \Closure $getLine, \Closure $emitter ){
 
         if (isset(Manhunt2::$functions[ strtolower($value) ])) {
-
 
             // mismatch, some function has no params and looks loke variables
             // just redirect to the function handler
@@ -501,6 +662,8 @@ class Evaluate {
             foreach ($result as $item) {
                 $code[] = $item;
             }
+//            Evaluate::returnResult($code, $getLine);
+
 
             return false;
         }else if (isset(Manhunt2::$constants[ $value ])) {
@@ -511,6 +674,10 @@ class Evaluate {
             $mapped = Manhunt2::$levelVarBoolean[ $value ];
             $mapped['section'] = "level_var";
 
+        }else if (isset($data['const'][ $value ])){
+            $mapped = $data['const'][ $value ];
+            $mapped['section'] = "script constant";
+
         }else if (isset($data['variables'][ $value ])){
             $mapped = $data['variables'][ $value ];
 
@@ -518,22 +685,28 @@ class Evaluate {
 
             // we have a object notation here
             if (strpos($value, '.') !== false){
-                $mapped = self::getObjectToAttributeSplit($data);
+                if (isset($data['conditionVariable'])){
+                    $mapped = self::getObjectToAttributeSplit($data);
+                }else{
+                    throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
+
+                }
             }else{
-                throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $data['conditionVariable']['value']));
+                throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
+
             }
+
+
         }
 
         return $mapped;
-
     }
-
 
     static public function getObjectToAttributeSplit( $data ){
         list($originalObject, $attribute) = explode('.', $data['conditionVariable']['value']);
         $originalMap = $data['variables'][$originalObject];
 
-        if ($originalMap['type'] == "vec3d"){
+        if (strtolower($originalMap['type']) == "vec3d"){
 
             $mapped = [
                 'section' => $originalMap['section'],
@@ -570,5 +743,56 @@ class Evaluate {
     }
 
 
+    static public function handleSimpleMath( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+        $code = [];
+        list($leftHand, $operator, $rightHand) = $node;
+
+        if ($leftHand !== false){
+            if ($leftHand['type'] == Token::T_VARIABLE){
+
+                $mapped = Evaluate::processVariable(
+                    $leftHand,
+                    $code,
+                    $data,
+                    $getLine,
+                    $emitter
+                );
+
+                if ($mapped === false) return $code;
+
+//                Evaluate::returnResult($code, $getLine);
+            }else{
+                throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown leftHand: %s', $leftHand['type']));
+            }
+        }
+
+
+        if ($rightHand['type'] == Token::T_INT || $rightHand['type'] == Token::T_FLOAT){
+
+            Evaluate::initializeParameterInteger($code, $getLine);
+
+            $resultCode = $emitter($rightHand);
+            foreach ($resultCode as $line) {
+                $code[] = $line;
+            }
+
+            Evaluate::returnConstantResult($code, $getLine);
+
+        }else{
+            throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown rightHand: %s', $rightHand['type']));
+        }
+
+        if ($operator['type'] == Token::T_ADDITION) {
+            Evaluate::setStatementAddition($code, $getLine);
+        }else if ($operator['type'] == Token::T_SUBSTRACTION){
+            Evaluate::setStatementSubstraction($code, $getLine);
+        }else{
+            throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
+
+        }
+
+
+        return $code;
+    }
 }

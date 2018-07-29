@@ -1,25 +1,27 @@
 <?php
-namespace App\Tests\Compiler;
+namespace App\Tests\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ScriptVec3dTest extends KernelTestCase
+class ScriptParamIntegerTest extends KernelTestCase
 {
 
     public function test()
     {
 
+
         $script = "
             scriptmain LevelScript;
 
             script OnCreate;
-                var
-                    pos : Vec3D;
+                VAR
+                    animLength : integer;
+                    
                 begin
-                    pos := GetEntityPosition(GetEntity('real_asylum_elev'));
+                	sleep(animLength);
                 end;
 
             end.
@@ -35,30 +37,15 @@ class ScriptVec3dTest extends KernelTestCase
 
             '34000000',
             '09000000',
-            '0c000000',
+            '04000000',
 
-
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '00000000', //Offset in byte
-            '12000000', //parameter (Read String var)
-            '02000000', //parameter (Read String var)
-            '11000000', //value 17
+            '13000000', //read from script var
+            '01000000', //read from script var
+            '04000000', //read from script var
+            '04000000', //Offset
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '10000000', //nested string return result
-            '02000000', //nested string return result
-            '77000000', //getentity Call
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '78000000', //GetEntityPosition Call
-            '12000000', //unknown
-            '03000000', //unknown
-            '0c000000', //unknown
-            '0f000000', //unknown
-
-
+            '6a000000', //sleep Call
 
             // script end
             '11000000',
@@ -69,7 +56,6 @@ class ScriptVec3dTest extends KernelTestCase
             '3b000000',
             '00000000'
         ];
-
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
 

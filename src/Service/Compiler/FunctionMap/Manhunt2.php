@@ -621,6 +621,27 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
+        "aidefinegoalgotonode" => [
+            'name'      =>  'AIDefineGoalGotoNode',
+            'offset'    =>  '6f010000',
+            /**
+             * Parameters
+             * 1: string
+             * - goalHideTwo
+             * 2: stringArray
+             * - ref to me (me[30])
+             * 3: state
+             * - AISCRIPT_HIGHPRIORITY => 1
+             * 4: string
+             * - HIDERTWO
+             * 5: state
+             * - AISCRIPT_RUNMOVESPEED => 0
+             * 6: state boolean
+             */
+            'params'    =>  [ 'String', 'String', 'Integer', 'String', 'Integer', 'Boolean' ],
+            'desc'      =>  ''
+        ],
+
         "setpedlockonable" => [
             'name'      =>  'SetPedLockonable',
             'offset'    =>  '97020000',

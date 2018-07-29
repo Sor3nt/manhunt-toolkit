@@ -6,72 +6,23 @@ use App\Service\Compiler\Token;
 
 class T_ASSIGN {
 
-    static public function handleSimpleMath( $node, \Closure $getLine, \Closure $emitter, $data ){
-
-        $code = [];
-        list($leftHand, $operator, $rightHand) = $node;
-
-        if ($leftHand !== false){
-
-            if ($leftHand['type'] == Token::T_VARIABLE){
-
-                $mapped = Evaluate::processVariable(
-                    $leftHand,
-                    $code,
-                    $data,
-                    $getLine,
-                    $emitter
-                );
-
-                if ($mapped === false) return $code;
-
-                Evaluate::returnResult($code, $getLine);
-            }else{
-                throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown leftHand: %s', $leftHand['type']));
-            }
-        }
-
-
-        if ($rightHand['type'] == Token::T_INT){
-
-            Evaluate::initializeParameterInteger($code, $getLine);
-
-            $resultCode = $emitter($rightHand);
-            foreach ($resultCode as $line) {
-                $code[] = $line;
-            }
-
-            Evaluate::returnConstantResult($code, $getLine);
-
-        }else{
-            throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath unknown rightHand: %s', $rightHand['type']));
-        }
-
-        if ($operator['type'] == Token::T_ADDITION) {
-            Evaluate::setStatementAddition($code, $getLine);
-        }else if ($operator['type'] == Token::T_SUBSTRACTION){
-            Evaluate::setStatementSubstraction($code, $getLine);
-        }else{
-            throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
-
-        }
-
-
-        return $code;
-    }
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         $code = [];
 
+//        $mapped = Evaluate::getVariableMap($node['value'], $code, $data, $getLine, $emitter);
+//
         if (!isset($data['variables'][$node['value']])){
             throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
         }
-
+//
         $mapped = $data['variables'][$node['value']];
-
+//var_dump($mapped);
+//exit;
+        // something like val := val + 1
         if (count($node['body']) == 3) {
-            $resultCode = self::handleSimpleMath($node['body'], $getLine, $emitter, $data);
+            $resultCode = Evaluate::handleSimpleMath($node['body'], $getLine, $emitter, $data);
             foreach ($resultCode as $line) {
                 $code[] = $line;
             }
@@ -86,6 +37,7 @@ class T_ASSIGN {
                             break;
 
                         case 'integer':
+
                             Evaluate::assignToHeaderInteger($mapped['offset'], $code, $getLine);
                             break;
                         default:
@@ -97,6 +49,10 @@ class T_ASSIGN {
                 case 'script':
                     switch ($mapped['type']){
                         case 'integer':
+//                            $code[] = $getLine('11000000');
+//                            $code[] = $getLine('01000000');
+//                            $code[] = $getLine('04000000');
+
                             Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
                             break;
                         default:
@@ -135,6 +91,21 @@ class T_ASSIGN {
                 }
 
                 //animLength := GetAnimationLength('ASY_NURSE_ATTACK4A');
+            }else if (
+                $mapped['section'] == "script" &&
+                strtolower($mapped['type']) == "vec3d"
+            ){
+
+
+                //evaluate the function call
+                $resultCode = $emitter($node['body'][0]);
+                foreach ($resultCode as $line) {
+                    $code[] = $line;
+                }
+
+                Evaluate::assignToScriptVec3d($mapped['offset'], $code, $getLine);
+
+
             }else if ($mapped['type'] == "integer"){
                 if (
                     count($node['body']) == 1 &&
@@ -149,9 +120,13 @@ class T_ASSIGN {
 
                     if ($mapped['section'] == "script") {
                         Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
+                    }else if ($mapped['section'] == "header" && $mapped['type'] == "integer") {
+
+                        Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
                     }else{
                         // todo: checken was das hier genau war
-                        Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
+                        var_dump($node, $mapped);
+                        exit;
                     }
 
                 } else {
@@ -177,6 +152,7 @@ class T_ASSIGN {
                     if ($mapped['section'] == "script") {
                         Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
                     }else{
+
                         // todo: checken was das hier genau war
                         Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
                     }
@@ -202,13 +178,6 @@ class T_ASSIGN {
                     throw new \Exception(sprintf('T_ASSIGN: level_var tLevelState type not found: %s  '), $node['value']);
 
                 }
-
-            }else if (
-                $mapped['type'] == "vec3d" &&
-                $mapped['section'] == "script"
-            ){
-
-                Evaluate::assignToScriptObject($mapped['offset'], $code, $getLine);
 
             }else if (
                 $mapped['section'] == "header" &&

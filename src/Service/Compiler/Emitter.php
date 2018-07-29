@@ -14,14 +14,8 @@ class Emitter extends Helper {
 
     private $types;
     private $const;
-    private $stringHandler;
 
     private $emitters = [
-        'T_DEFINE_SECTION_ENTITY' => Emitter\T_DEFINE_SECTION_ENTITY::class,
-        'T_DEFINE_SECTION_VAR' => Emitter\T_DEFINE_SECTION_VAR::class,
-        'T_DEFINE_SECTION_TYPE' => Emitter\T_DEFINE_SECTION_TYPE::class,
-        'T_DEFINE_SECTION_CONST' => Emitter\T_DEFINE_SECTION_CONST::class,
-        'T_DEFINE_TYPE' => Emitter\T_DEFINE_TYPE::class,
         'T_FALSE' => Emitter\T_FALSE::class,
         'T_TRUE' => Emitter\T_TRUE::class,
         'T_NIL' => Emitter\T_NIL::class,
@@ -38,10 +32,7 @@ class Emitter extends Helper {
         'T_STRING' => Emitter\T_STRING::class,
         'T_FUNCTION' => Emitter\T_FUNCTION::class,
         'T_VARIABLE' => Emitter\T_VARIABLE::class,
-        'T_END' => Emitter\T_END::class,
         'T_CONDITION' => Emitter\T_CONDITION::class,
-        'T_PROCEDURE_END' => Emitter\T_PROCEDURE_END::class,
-        'T_END_CODE' => Emitter\T_END_CODE::class,
     ];
 
     public function __construct( $variables, $strings, $types, $const, $lineCount = 1 )
@@ -61,7 +52,8 @@ class Emitter extends Helper {
         if($node['type'] == "root") return $this->emitRoot($node);
 
         if (!isset($this->emitters[ $node['type'] ])) {
-            throw new \Exception(sprintf('Emitter not found for type %s', $node['type']));
+            echo sprintf("Emitter not found for type %s\n", $node['type']);
+            return [];
         }
 
         return (new $this->emitters[ $node['type'] ]())->map(
