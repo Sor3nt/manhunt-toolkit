@@ -6,14 +6,14 @@ use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ScriptVec3dAttributeTest extends KernelTestCase
+class ScriptVec3dXTest extends KernelTestCase
 {
 
     public function test()
     {
 
-        $this->assertEquals(true, true, 'The bytecode is not correct');
-return;
+//        $this->assertEquals(true, true, 'The bytecode is not correct');
+//return;
 
 
         $script = "
@@ -23,7 +23,7 @@ return;
                 var
                     pos : Vec3D;
                 begin
-                    pos.y := 21.0;
+                    pos.x := 21.0;
                     
                 end;
 
@@ -49,13 +49,13 @@ return;
             '0c000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '0f000000', //unknown
-            '01000000', //unknown
-            '32000000', //unknown
-            '01000000', //unknown
-            '04000000', //unknown
+
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
+
+
             '12000000', //parameter (function return (bool?))
             '01000000', //parameter (function return (bool?))
             '0000a841', //value 1101529088

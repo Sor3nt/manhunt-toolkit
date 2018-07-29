@@ -141,7 +141,7 @@ class T_CONDITION {
             Evaluate::processVariable(
                 $node,
                 $code,
-                $data,
+                array_merge($data, ['conditionVariable' => [ 'value' => $node['value'] ]]),
                 $getLine,
                 $emitter
             );

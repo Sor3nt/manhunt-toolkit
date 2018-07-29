@@ -1,22 +1,30 @@
 <?php
-namespace App\Tests\Statements;
+namespace App\Tests\Compiler;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class WhileShortTest extends KernelTestCase
+class ScriptVec3dZTest extends KernelTestCase
 {
-//
-    public function test() {
+
+    public function test()
+    {
+
+//        $this->assertEquals(true, true, 'The bytecode is not correct');
+//return;
+
+
         $script = "
             scriptmain LevelScript;
 
             script OnCreate;
-
+                var
+                    pos : Vec3D;
                 begin
-                    while IsPlayerWalking do sleep(1500);
+                    pos.z := 21.0;
+                    
                 end;
 
             end.
@@ -29,22 +37,41 @@ class WhileShortTest extends KernelTestCase
             '11000000',
             '0a000000',
             '09000000',
-    
-            'ed020000', //IsPlayerWalking call
-            '24000000', //statement (core 2)
-            '01000000', //statement (core 2)
-            '00000000', //statement (core 2)
-            '3f000000', //statement (line offset)
-            '4c000000', //Offset in byte
-            '12000000', //parameter (read simple type (int/float...))
-            '01000000', //parameter (read simple type (int/float...))
-            'dc050000', //value 1500
+
+            '34000000',
+            '09000000',
+            '0c000000',
+
+
+            '22000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
+            '0c000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '6a000000', //sleep Call
 
-            '3c000000', //line offset
-            '14000000', //unknown
+            '0f000000', //unknown
+            '01000000', //unknown
+
+            '32000000', //unknown
+            '01000000', //unknown
+            '08000000', //unknown
+
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
+
+
+            '12000000', //parameter (function return (bool?))
+            '01000000', //parameter (function return (bool?))
+            '0000a841', //value 1101529088
+            '0f000000', //parameter (function return (bool?))
+            '02000000', //parameter (function return (bool?))
+            '17000000', //unknown
+            '04000000', //unknown
+            '02000000', //unknown
+            '01000000', //unknown
+
 
             // script end
             '11000000',
@@ -72,6 +99,5 @@ class WhileShortTest extends KernelTestCase
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
-
 
 }
