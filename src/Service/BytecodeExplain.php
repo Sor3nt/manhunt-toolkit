@@ -338,7 +338,7 @@ class BytecodeExplain {
         $this->mapStringOffset( $lines, $result);
         $this->mapStringOffset2( $lines, $result);
         $this->mapReserveBytes( $lines, $result);
-//        $this->mapStringOffset3( $lines, $result);
+        $this->mapStringOffset3( $lines, $result);
         $this->mapScriptStarts( $lines, $result);
         $this->mapScriptEnd( $lines, $result);
         $this->mapStatementNot( $lines, $result);

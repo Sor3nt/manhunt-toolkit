@@ -175,6 +175,7 @@ class Evaluate {
 
                         break;
 
+                    # so far known only vec3d childs (x,y,z) are object
                     case 'object':
                         Evaluate::initializeReadScriptString($code, $getLine);
                         $code[] = $getLine($mapped['object']['offset']);
@@ -466,43 +467,63 @@ class Evaluate {
 
                     case 'object':
 
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine('44000000');
-                        $code[] = $getLine('22000000');
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine('01000000');
-
-                        $code[] = $getLine($mapped['object']['offset']);
-
-
-                        Evaluate::returnResult($code, $getLine);
-
-                        if (isset($mapped['offset'])){
-
-                            //hmm ? doppelte bedeutung ?
-                            Evaluate::returnObjectResult($code, $getLine);
-
-                            $code[] = $getLine('32000000');
-                            $code[] = $getLine('01000000');
+                        if ($mapped['offset'] == $mapped['object']['offset']){
+                            self::initializeReadScriptString($code, $getLine);
 
                             $code[] = $getLine($mapped['offset']);
+
+                            self::returnResult($code, $getLine);
+
+                            $code[] = $getLine('0f000000');
+                            $code[] = $getLine('02000000');
+                            $code[] = $getLine('18000000');
+                            $code[] = $getLine('01000000');
+                            $code[] = $getLine('04000000');
+                            $code[] = $getLine('02000000');
+                        }else{
+                            $code[] = $getLine('0f000000');
+                            $code[] = $getLine('04000000');
+                            $code[] = $getLine('44000000');
+                            $code[] = $getLine('22000000');
+                            $code[] = $getLine('04000000');
+                            $code[] = $getLine('01000000');
+
+                            $code[] = $getLine($mapped['object']['offset']);
+
+                            Evaluate::returnResult($code, $getLine);
+
+                            if (isset($mapped['offset'])){
+
+                                //hmm ? doppelte bedeutung ?
+                                Evaluate::returnObjectResult($code, $getLine);
+
+                                $code[] = $getLine('32000000');
+                                $code[] = $getLine('01000000');
+
+                                $code[] = $getLine($mapped['offset']);
+
+
+
+                                Evaluate::returnResult($code, $getLine);
+
+
+                                $code[] = $getLine('0f000000');
+                                $code[] = $getLine('02000000');
+                                $code[] = $getLine('18000000');
+                                $code[] = $getLine('01000000');
+
+                                $code[] = $getLine($mapped['offset']);
+
+                                $code[] = $getLine('02000000');
+
+                                Evaluate::returnResult($code, $getLine);
+                            }
                         }
 
 
-                        Evaluate::returnResult($code, $getLine);
+//                        Evaluate::initializeParameterInteger($code, $getLine);
 
 
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('02000000');
-                        $code[] = $getLine('18000000');
-                        $code[] = $getLine('01000000');
-
-                        $code[] = $getLine($mapped['offset']);
-
-                        $code[] = $getLine('02000000');
-
-                        Evaluate::returnResult($code, $getLine);
 
                         break;
                     case 'entityptr':
@@ -601,7 +622,7 @@ class Evaluate {
     }
 
 
-    static public function initializeStatement( &$code, \Closure $getLine ){
+    static public function initializeStatementInteger( &$code, \Closure $getLine ){
         $code[] = $getLine('23000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
@@ -609,6 +630,14 @@ class Evaluate {
         $code[] = $getLine('01000000');
         $code[] = $getLine('01000000');
     }
+
+
+    static public function initializeStatementFloat( &$code, \Closure $getLine ){
+        $code[] = $getLine('4e000000');
+        $code[] = $getLine('12000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('01000000');
+        }
 
 
 
@@ -894,6 +923,7 @@ class Evaluate {
 
             switch ($attribute){
                 case 'x':
+                    $mapped['offset'] = $originalMap['offset'];
                     break;
                 case 'y':
                     $mapped['offset'] = '04000000';

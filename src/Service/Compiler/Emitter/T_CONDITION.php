@@ -41,17 +41,38 @@ class T_CONDITION {
             }else{
                 Evaluate::returnResult($code, $getLine);
             }
-
+//
+//            $code[] = $getLine('DEBUG');
 
             $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
+            if ($variable['type'] == Token::T_FLOAT || $value['type'] == Token::T_FLOAT){
+                Evaluate::initializeStatementFloat($code, $getLine);
 
+            }else if (
+                $variable['type'] == Token::T_FUNCTION   || $value['type'] == Token::T_FUNCTION   ||
+                $variable['type'] == Token::T_VARIABLE   || $value['type'] == Token::T_VARIABLE   ||
 
-            Evaluate::initializeStatement($code, $getLine);
+                $variable['type'] == Token::T_INT   || $value['type'] == Token::T_INT   ||
+                $variable['type'] == Token::T_FLOAT || $value['type'] == Token::T_FLOAT ||
+                $variable['type'] == Token::T_TRUE  || $value['type'] == Token::T_TRUE  ||
+                $variable['type'] == Token::T_FALSE || $value['type'] == Token::T_FALSE ||
+                $variable['type'] == Token::T_NIL   || $value['type'] == Token::T_NIL
+            ) {
+
+                Evaluate::initializeStatementInteger($code, $getLine);
+
+            }else{
+                throw new \Exception(sprintf('T_CONDITION: Unknown type comparision %s / %s', $variable['type'], $value['type']));
+
+            }
+
             Evaluate::statementOperator($operation, $code, $getLine);
+
+
 
             $lastLine = end($code)->lineNumber + 4;
 
@@ -96,7 +117,7 @@ class T_CONDITION {
             //TODO: OR verbauen
             Evaluate::setStatementAnd($code, $getLine);
 
-            Evaluate::initializeStatement($code, $getLine);
+            Evaluate::initializeStatementInteger($code, $getLine);
             Evaluate::statementOperator($operation, $code, $getLine);
 
             $lastLine = end($code)->lineNumber + 4;

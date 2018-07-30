@@ -1459,6 +1459,24 @@ class Manhunt2 {
             'return'    =>  'Void',
             'desc'      =>  ''
         ],
+
+        "calcdistancetoentity" => [
+            'name'      =>  'CalcDistanceToEntity',
+            'offset'    =>  '1a030000',
+
+            'params'    =>  [ 'EntityPtr' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "getplayerposition" => [
+            'name'      =>  'GetPlayerPosition',
+            'offset'    =>  '8b000000',
+
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
     ];
 
 
