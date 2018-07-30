@@ -31,7 +31,7 @@ class Manhunt2 {
         ],
 
         'AISCRIPT_RUNMOVESPEED' => [
-            "offset" => "01000000"
+            "offset" => "00000000"
         ],
 
         'DOOR_OPENING' => [

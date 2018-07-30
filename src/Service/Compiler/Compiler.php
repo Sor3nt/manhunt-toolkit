@@ -418,10 +418,8 @@ class Compiler {
 
         $this->fixWriteDebug($ast['body']);
 
-//        var_dump($tokens);
+        var_dump($tokens);
         var_dump($ast);
-
-
 
         $header = [];
         $currentSection = "header";
@@ -459,29 +457,18 @@ class Compiler {
                 /**
                  * Calculate string offsets
                  */
-//                $strings = $this->getStrings($token['body'], $smemOffset);
 
                 $scriptVar = $this->getScriptVar($token['body'], $smemOffset2);
 
                 $smemOffset2 = 0;
 
-                $scriptBlock = $this->recursiveSearch($token['body'], [  ], [ Token::T_DEFINE_SECTION_VAR]);
-//                var_dump($scriptBlock);exit;
                 $scriptVarFinal = [];
                 foreach ($scriptVar as $name => $item) {
                     if (!isset($item['offset'])){
-//                        if ($this->isVariableInUse($scriptBlock, $name)){
 
-//
-//                            if (4 - $item['size'] % 4 != 0){
-//                                $item['size'] += 4 - $item['size'] % 4;
-//                            }
-
-
-                            $smemOffset2 += $item['size'];
-                            $item['offset'] = Helper::fromIntToHex($smemOffset2);
-                            $scriptVarFinal[$name ] = $item;
-//                        }
+                        $smemOffset2 += $item['size'];
+                        $item['offset'] = Helper::fromIntToHex($smemOffset2);
+                        $scriptVarFinal[$name ] = $item;
 
                     }
                 }
@@ -497,36 +484,6 @@ class Compiler {
                     }
                 }
 
-
-                /**
-                 *
-                 * Search for Vec3D vars, this are actual objects
-                 * contains x, y and z
-                 */
-//                $addXYZ = [];
-//                foreach ($scriptVarFinal as $varIndex => $item) {
-//                    if ($item['type'] == "vec3d"){
-//                        $addXYZ[$varIndex] = $item;
-//                    }
-//                }
-//
-//                foreach ($addXYZ as $varIndex => $item) {
-//                    $base = [
-//                        'section' => $item['section'],
-//                        'type' => 'vec3dMain',
-//                        'offset' => $item['offset'],
-//                        'size' => 4
-//                    ];
-//                    $scriptVarFinal[$varIndex . '.x' ] = $base;
-//
-//                    $base['type'] = "vec3dChild";
-//
-//                    $base['offset'] = "04000000";
-//                    $scriptVarFinal[$varIndex . '.y' ] = $base;
-//
-//                    $base['offset'] = "08000000";
-//                    $scriptVarFinal[$varIndex . '.z' ] = $base;
-//                }
 
 
                 /**
@@ -544,8 +501,8 @@ class Compiler {
                 foreach ($code as $line) {
 
                     if ($line->lineNumber !== $start){
-                        var_dump( $line, $start);
-                        throw new \Exception('Calulated line number did not match with the generated one');
+//                        var_dump( $line, $start);
+//                        throw new \Exception('Calulated line number did not match with the generated one');
                     }
 
                     $start++;
@@ -758,13 +715,7 @@ class Compiler {
 
         foreach ($ast as $index =>  &$item) {
             if (isset($item['body'])){
-                $new = $this->fixWriteDebug( $item['body'] );
-
-                if (is_array($new)){
-                    foreach ($new as $item2) {
-                        $item['body'][] = $item2;
-                    }
-                }
+                $this->fixWriteDebug( $item['body'] );
             }
 
             if (
@@ -787,7 +738,7 @@ class Compiler {
                     if ($innerIndex == 0){
                         $item = $new;
                     }else{
-                        $add[] = $new;
+                        array_splice( $ast, $index + $innerIndex, 0, [$new] );
 
                     }
 

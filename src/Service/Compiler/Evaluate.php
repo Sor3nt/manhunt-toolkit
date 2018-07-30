@@ -54,7 +54,6 @@ class Evaluate {
                 break;
         }
 
-
         /**
          * handle the target variable
          */
@@ -177,11 +176,12 @@ class Evaluate {
 
                     # so far known only vec3d childs (x,y,z) are object
                     case 'object':
+
                         Evaluate::initializeReadScriptString($code, $getLine);
                         $code[] = $getLine($mapped['object']['offset']);
                         Evaluate::returnResult($code, $getLine);
 
-                        if (isset($mapped['offset'])){
+                        if ($mapped['offset'] != $mapped['object']['offset']){
 
                             //hmm ? doppelte bedeutung ?
                             Evaluate::returnObjectResult($code, $getLine);
@@ -436,6 +436,16 @@ class Evaluate {
                         $code[] = $getLine($mapped['offset']);
                         //todo: hmm er braucht das return jedoch wird das von wo anders bereits gefüllt
 //                        self::returnResult($code, $getLine);
+                        break;
+                    case 'stringarray':
+                        Evaluate::initializeReadHeaderString($code, $getLine);
+                        $code[] = $getLine($mapped['offset']);
+
+                        self::initializeParameterString($code, $getLine);
+                        $code[] = $getLine(Helper::fromIntToHex($mapped['size']));
+                        Evaluate::returnResult($code, $getLine);
+                        Evaluate::returnStringResult($code, $getLine);
+
                         break;
                     case 'vec3d':
                         Evaluate::initializeReadHeaderString($code, $getLine);

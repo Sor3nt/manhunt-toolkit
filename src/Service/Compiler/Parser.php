@@ -504,7 +504,7 @@ class Parser {
                     'value' => $token['value'],
                     'body' => [],
                 ];
-var_dump("hmmM", $tokens);
+
                 $current++;
                 $current++;
                 while ($current < count($tokens)) {
