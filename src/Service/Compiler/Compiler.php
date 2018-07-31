@@ -77,14 +77,14 @@ class Compiler {
 
                     $row = [
                         'section' => $currentSection,
-                        'type' => $variableType,
+                        'type' => strtolower($variableType),
 //                        'offset' => Helper::fromIntToHex($smemOffset)
                     ];
 
                     if (substr(strtolower($variableType), 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
-                        $row['type'] = 'stringArray';
+                        $row['type'] = 'stringarray';
 
 
 //                        if ($size % 4 == 0){
@@ -95,7 +95,7 @@ class Compiler {
 //                        };
 
                     }else{
-                        switch (strtolower($variableType)){
+                        switch ($variableType){
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
                                 $row['offset'] = Helper::fromIntToHex($size);
@@ -299,6 +299,7 @@ class Compiler {
 
                     $types[ $currentTypeSection ][ $token['value'] ] = [
                         'type' => 'level_var tLevelState',
+                        'section' => "header",
                         'offset' => Helper::fromIntToHex($offset)
                     ];
 

@@ -18,6 +18,7 @@ class T_CONDITION {
                 break;
             case Token::T_INT:
             case Token::T_TRUE:
+            case Token::T_FALSE:
             case Token::T_NIL:
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('04000000');
@@ -41,6 +42,10 @@ class T_CONDITION {
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
 
+                                break;
+                            case 'boolean':
+                                // has only a return code (0x10 and 0x01)
+                                // will assigned anyway
                                 break;
                             case 'level_var boolean':
 

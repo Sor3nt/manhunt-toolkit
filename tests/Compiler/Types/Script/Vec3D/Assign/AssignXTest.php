@@ -42,9 +42,9 @@ class AssignXTest extends KernelTestCase
             '04000000', //unknown
             '01000000', //unknown
             '0c000000', //unknown
+
             '10000000', //nested call return result
             '01000000', //nested call return result
-
 
             '10000000', //nested call return result
             '01000000', //nested call return result
@@ -54,9 +54,9 @@ class AssignXTest extends KernelTestCase
             '12000000', //parameter (function return (bool?))
             '01000000', //parameter (function return (bool?))
             '0000a841', //value 1101529088
-            '0f000000', //parameter (function return (bool?))
-            '02000000', //parameter (function return (bool?))
 
+            '0f000000', //parameter (function r#eturn (bool?))
+            '02000000', //parameter (function return (bool?))
             '17000000', //unknown
             '04000000', //unknown
             '02000000', //unknown

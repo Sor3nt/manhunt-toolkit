@@ -11,7 +11,8 @@ class T_VARIABLE {
 
     static public function getMapping( $node, \Closure $emitter = null , $data ){
         $value = $node['value'];
-
+//var_dump($node);
+//exit;
         if (isset(Manhunt2::$constants[ $value ])) {
             $mapped = Manhunt2::$constants[ $value ];
             $mapped['section'] = "header";
@@ -45,7 +46,6 @@ class T_VARIABLE {
 
             $variableType = $data['types'][$node['target']];
             $mapped = $variableType[$value];
-
         }else{
 
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
@@ -63,7 +63,6 @@ class T_VARIABLE {
         $typeHandler .= "T_";
         $typeHandler .= strtoupper($mapped['section']);
         $typeHandler .= "_" . strtoupper($mapped['type']);
-
         $typeHandler = str_replace(' ', '_', $typeHandler);
 
         if (class_exists($typeHandler)){

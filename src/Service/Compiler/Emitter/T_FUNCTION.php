@@ -39,6 +39,29 @@ class T_FUNCTION {
                 );
 
                 switch ($mappedTo['section']) {
+                    case 'header':
+
+
+                        switch ($mappedTo['type']) {
+                            case 'stringarray':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('02000000');
+
+                                break;
+                            case 'vec3d':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                break;
+                            default:
+                                throw new \Exception($mappedTo['type'] . " Not implemented!");
+                                break;
+                        }
+
+
+                        break;
                     case 'script':
 
 

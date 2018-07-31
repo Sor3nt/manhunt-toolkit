@@ -46,9 +46,12 @@ class AdditionTest extends KernelTestCase
             'dc050000', //value 1500
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
+
             '31000000', //unknown
             '01000000', //unknown
             '04000000', //unknown
+
+
             '11000000', //unknown
             '01000000', //unknown
             '04000000', //unknown
