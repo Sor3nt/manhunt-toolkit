@@ -42,21 +42,27 @@ class AssignTest extends KernelTestCase
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
             '00000000', //Offset in byte
+
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
             '11000000', //value 17
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '10000000', //nested string return result
             '02000000', //nested string return result
+
             '77000000', //getentity Call
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '78000000', //GetEntityPosition Call
+
             '12000000', //unknown
             '03000000', //unknown
             '0c000000', //unknown
-            '0f000000', //unknown
 
 
 

@@ -25,6 +25,11 @@ class T_IF {
                     $code[] = $item;
                 }
 
+                if($current + 1 != count($params)){
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+                }
+
             }else{
                 $result = $emitter($node, true, [ 'isWhile' => $isWhile ]);
                 foreach ($result as $item) {
@@ -46,7 +51,6 @@ class T_IF {
                 }
 
 
-                Evaluate::returnResult($code, $getLine);
 
             }
 
@@ -69,30 +73,28 @@ class T_IF {
                 }
 
             }else{
-                foreach ($case['condition'] as $condition) {
+                foreach ($case['condition'] as $conditionIndex => $condition) {
 
                     if ($condition['type'] == Token::T_BRACKET_OPEN){
                         $result =  self::handleBracketOpen($condition['params'], $condition, false, $getLine, $emitter, $isWhile);
                         foreach ($result as $item) {
                             $code[] = $item;
                         }
+
+                        if($conditionIndex + 1 != count($case['condition'])){
+                            Evaluate::returnResult($code, $getLine);
+
+                        }
                     }else{
                         throw new \Exception('T_IF: Brackets order not valid');
                     }
                 }
 
-                // the last block has no nested return call, overwrite it
-                $nestedReturnCall2 = array_pop($code);
-                $nestedReturnCall1 = array_pop($code);
-
-                $nestedReturnCall1->hex = '24000000';
-                $nestedReturnCall2->hex = '01000000';
-
-                $code[] = $nestedReturnCall1;
-                $code[] = $nestedReturnCall2;
-
+                $code[] = $getLine('24000000');
+                $code[] = $getLine('01000000');
                 $code[] = $getLine('00000000');
                 $code[] = $getLine('3f000000');
+
             }
 
             //pre generate the bytecode (only for calculation)
@@ -115,11 +117,8 @@ class T_IF {
             if ($isWhile) $endOffset = $endOffset + 8;
 
             // line offset for the IF end
-            // note: we force the line to a new lineNumber since the emitter mess up the index by calculate the offset... todo
             $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
 
-            //wenn in isTrue nur ein eintrag ist, muss das gesonders behandelt werden
-            // create the bytecode
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry, true, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {

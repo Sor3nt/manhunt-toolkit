@@ -12,7 +12,13 @@ class T_INT {
 
         if ($value < 0) $value = $value * -1;
 
-        return [ $getLine(Helper::fromIntToHex( $value ))];
+        return [
+
+            $getLine('12000000'),
+            $getLine('01000000'),
+
+            $getLine(Helper::fromIntToHex( $value ))
+        ];
     }
 
 }

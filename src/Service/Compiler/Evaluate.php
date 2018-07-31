@@ -6,12 +6,15 @@ use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class Evaluate {
 
-
     /**
      * process commands
      *
      */
     static public function processAssign( $node, &$code, \Closure $getLine,\Closure $emitter, $data ){
+        EvaluateAssign::process($node, $code, $getLine, $emitter, $data);
+        return;
+        var_dump($code);
+        exit;
 
         $code = [];
 
@@ -177,7 +180,7 @@ class Evaluate {
                     # so far known only vec3d childs (x,y,z) are object
                     case 'object':
 
-                        Evaluate::initializeReadScriptString($code, $getLine);
+                        Evaluate::initializeReadScriptVec3d($code, $getLine);
                         $code[] = $getLine($mapped['object']['offset']);
                         Evaluate::returnResult($code, $getLine);
 
@@ -478,7 +481,7 @@ class Evaluate {
                     case 'object':
 
                         if ($mapped['offset'] == $mapped['object']['offset']){
-                            self::initializeReadScriptString($code, $getLine);
+                            self::initializeReadScriptVec3d($code, $getLine);
 
                             $code[] = $getLine($mapped['offset']);
 
@@ -554,7 +557,7 @@ class Evaluate {
 
                         break;
                     case 'vec3d':
-                        Evaluate::initializeReadScriptString($code, $getLine);
+                        Evaluate::initializeReadScriptVec3d($code, $getLine);
                         $code[] = $getLine($mapped['offset']);
                         Evaluate::returnResult($code, $getLine);
 
@@ -624,7 +627,7 @@ class Evaluate {
         $code[] = $getLine('1b000000');
     }
 
-    static public function initializeReadScriptString( &$code, \Closure $getLine ){
+    static public function initializeReadScriptVec3d( &$code, \Closure $getLine ){
 
         $code[] = $getLine('22000000');
         $code[] = $getLine('04000000');
@@ -849,6 +852,7 @@ class Evaluate {
         Evaluate::returnStringArrayResult($code, $getLine);
 
 
+
         $code[] = $getLine(Helper::fromIntToHex($mapped['size']));
 
         $code[] = $getLine('10000000');
@@ -865,7 +869,7 @@ class Evaluate {
      * Other functions
      */
     static public function getVariableMap( $value, &$code, $data, \Closure $getLine, \Closure $emitter ){
-
+die("old");
         if (isset(Manhunt2::$functions[ strtolower($value) ])) {
 
             // mismatch, some function has no params and looks loke variables
@@ -897,16 +901,27 @@ class Evaluate {
         }else if (isset($data['variables'][ $value ])){
             $mapped = $data['variables'][ $value ];
 
+        }else if (isset($data['types'][ $value ])){
+            $mapped = $data['types'][ $value ];
+
+            $variableType = $data['types'][$value ];
+
+            var_dump("EHH");
+            exit;
+//            $type = $variableType[$node['body'][0]['value']];
+
+
         }else{
 
             // we have a object notation here
-            if (strpos($value, '.') !== false){
-                if (isset($data['conditionVariable'])){
+            if (strpos($value, '.') !== false) {
+                if (isset($data['conditionVariable'])) {
                     $mapped = self::getObjectToAttributeSplit($data);
-                }else{
+                } else {
                     throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
 
                 }
+
             }else{
                 throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
 

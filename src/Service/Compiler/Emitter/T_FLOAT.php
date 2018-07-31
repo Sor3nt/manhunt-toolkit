@@ -12,7 +12,12 @@ class T_FLOAT {
 
         if ($value < 0) $value = $value * -1;
 
-        return [ $getLine(Helper::fromFloatToHex( $value )) ];
+        return [
+            $getLine('12000000'),
+            $getLine('01000000'),
+
+            $getLine(Helper::fromFloatToHex( $value ))
+        ];
     }
 
 }

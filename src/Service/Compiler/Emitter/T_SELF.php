@@ -8,7 +8,12 @@ use App\Service\Compiler\Token;
 class T_SELF {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-        return [ $getLine("49000000") ];
+        return [
+            $getLine('12000000'),
+            $getLine('01000000'),
+
+            $getLine("49000000")
+        ];
     }
 
 }

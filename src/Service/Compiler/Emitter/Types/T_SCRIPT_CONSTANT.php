@@ -1,35 +1,34 @@
 <?php
-namespace App\Service\Compiler\Emitter;
+namespace App\Service\Compiler\Emitter\Types;
 
 
 use App\Bytecode\Helper;
 
-class T_STRING {
+class T_SCRIPT_CONSTANT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        // we have quotes around the string, come from the tokenizer
-        $value = substr($node['value'], 1, -1);
 
         if ($data['calculateLineNumber']){
-            $offset = $data['strings'][$value]['offset'];
+            $mapped = $data['const'][$node['value']];
         }else{
-            $offset = "12345678";
+            $mapped = [
+                'offset' => '12345678',
+                'length' => 11
+            ];
         }
-
 
         return [
             $getLine('21000000'),
             $getLine('04000000'),
             $getLine('01000000'),
 
-            $getLine($offset),
+            $getLine($mapped['offset']),
 
             $getLine('12000000'),
             $getLine('02000000'),
 
-
-            $getLine(Helper::fromIntToHex( strlen($value) + 1 ))
+            $getLine(Helper::fromIntToHex( $mapped['length'] + 1 ))
         ];
     }
 

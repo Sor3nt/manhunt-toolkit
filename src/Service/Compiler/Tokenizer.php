@@ -169,8 +169,9 @@ class Tokenizer {
                 if (isset($types[$prevToken['value']])){
 
                     $tokens[ $current + 1] = [
-                        'type' => Token::T_TYPE_VAR,
-                        'value' => $nextToken['value']
+                        'type' => Token::T_VARIABLE,
+                        'value' => $nextToken['value'],
+                        'target' => $prevToken['value']
                     ];
                 }
             }

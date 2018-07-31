@@ -37,6 +37,7 @@ class AssignFalseTest extends KernelTestCase
             '12000000', // init parameter
             '01000000', // init parameter
             '00000000', // value int 0
+
             '16000000', // assign to script var
             '04000000', // assign to script var
             '00000000', // save into alreadyDone

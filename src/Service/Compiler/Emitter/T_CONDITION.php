@@ -9,6 +9,67 @@ use App\Service\Compiler\Token;
 
 class T_CONDITION {
 
+
+    static public function finalize( $node, $data, &$code, \Closure $getLine ){
+
+        switch ($node['type']){
+
+            case Token::T_FUNCTION:
+                break;
+            case Token::T_INT:
+            case Token::T_TRUE:
+            case Token::T_NIL:
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('04000000');
+
+                break;
+
+            case Token::T_VARIABLE:
+                $mappedTo = T_VARIABLE::getMapping(
+                    $node,
+                    null,
+                    $data
+                );
+
+                switch ($mappedTo['section']) {
+
+                    case 'header':
+
+                        switch ($mappedTo['type']) {
+
+                            case 'constant':
+                                $code[] = $getLine('0f000000');
+                                $code[] = $getLine('04000000');
+
+                                break;
+                            case 'level_var boolean':
+
+                                $code[] = $getLine('04000000');
+                                $code[] = $getLine('01000000');
+
+                                break;
+
+                            default:
+                                throw new \Exception($mappedTo['type'] . " Not implemented!");
+                                break;
+                        }
+                    break;
+
+                    default:
+                        throw new \Exception($mappedTo['section'] . " Not implemented!");
+                        break;
+                }
+
+                break;
+            default:
+                throw new \Exception($node['type'] . " Not implemented!");
+                break;
+
+
+        }
+
+    }
+
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         $code = [];
@@ -20,59 +81,32 @@ class T_CONDITION {
 
             list($variable, $operation, $value) = $node['body'];
 
-
-            $result = self::parseValue($variable, $getLine, $emitter, $data);
+            $result = $emitter($variable);
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
-            /**
-             * HACK / WORKAROUND
-             * we receive already a return code so we can not add ours
-             * why ? recursion is a bitch ...
-             *
-             * function call vs assign vll?
-             */
-            if (
-                ($code[ count($code) - 2]->hex == "10000000") &&
-                ($code[ count($code) - 1]->hex == "01000000")
-            ){
+            self::finalize( $variable, $data, $code, $getLine );
 
-            }else{
-                Evaluate::returnResult($code, $getLine);
-            }
-//
-//            $code[] = $getLine('DEBUG');
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
 
-            $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
+            $result = $emitter($value, true, [ 'conditionVariable' => $variable] );
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
-            if ($variable['type'] == Token::T_FLOAT || $value['type'] == Token::T_FLOAT){
-                Evaluate::initializeStatementFloat($code, $getLine);
+            self::finalize( $value, $data, $code, $getLine );
 
-            }else if (
-                $variable['type'] == Token::T_FUNCTION   || $value['type'] == Token::T_FUNCTION   ||
-                $variable['type'] == Token::T_VARIABLE   || $value['type'] == Token::T_VARIABLE   ||
 
-                $variable['type'] == Token::T_INT   || $value['type'] == Token::T_INT   ||
-                $variable['type'] == Token::T_FLOAT || $value['type'] == Token::T_FLOAT ||
-                $variable['type'] == Token::T_TRUE  || $value['type'] == Token::T_TRUE  ||
-                $variable['type'] == Token::T_FALSE || $value['type'] == Token::T_FALSE ||
-                $variable['type'] == Token::T_NIL   || $value['type'] == Token::T_NIL
-            ) {
-
-                Evaluate::initializeStatementInteger($code, $getLine);
-
-            }else{
-                throw new \Exception(sprintf('T_CONDITION: Unknown type comparision %s / %s', $variable['type'], $value['type']));
-
-            }
+            $code[] = $getLine('23000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('12000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('01000000');
 
             Evaluate::statementOperator($operation, $code, $getLine);
-
-
 
             $lastLine = end($code)->lineNumber + 4;
 
@@ -81,12 +115,15 @@ class T_CONDITION {
 
             Evaluate::setStatementFullCondition($code, $getLine);
 
+
         }else if (count($node['body']) == 1){
 
-            $result = self::parseValue(current($node['body']), $getLine, $emitter, $data);
+
+            $result = $emitter($node['body'][0]);
             foreach ($result as $item) {
                 $code[] = $item;
             }
+
 
             if ($node['isNot']){
                 Evaluate::setStatementNot($code, $getLine);

@@ -1,26 +1,25 @@
 <?php
-namespace App\Tests\CompilerByType\Header\LevelVarBoolean\Assign;
+namespace App\Tests\CompilerByType\Header\Vec3D\FunctionCalls;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignTrueTest extends KernelTestCase
+class CallTest extends KernelTestCase
 {
-//
-    public function test() {
+
+    public function test()
+    {
 
         $script = "
             scriptmain LevelScript;
-
             var
-                stealthOneLooper : level_var boolean;
+                pos : Vec3D;
 
             script OnCreate;
-
                 begin
-                    stealthOneLooper := TRUE;
+            		SetVector(pos);
                 end;
 
             end.
@@ -34,14 +33,14 @@ class AssignTrueTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '12000000', //parameter (access level_var)
-            '01000000', //parameter (access level_var)
-            '01000000', //Bool true / int 1
+            '21000000',
+            '04000000',
+            '01000000',
+            '00000000',
 
-            '1a000000', //parameter (access level_var)
-            '01000000', //parameter (access level_var)
-            '00000000', //unknown
-            '04000000', //
+            '10000000',
+            '01000000',
+            '84010000', // SetVector
 
             // script end
             '11000000',
@@ -69,6 +68,5 @@ class AssignTrueTest extends KernelTestCase
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
-
 
 }

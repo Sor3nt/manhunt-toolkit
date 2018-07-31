@@ -45,6 +45,7 @@ class IfElseTest extends KernelTestCase
 
             '1b000000', //unknown
             'b0170000', //LevelVar stealthOneLooper
+
             '04000000', //unknown
             '01000000', //unknown
             '10000000', //If statement
@@ -55,10 +56,10 @@ class IfElseTest extends KernelTestCase
             '01000000', //Bool true / int 1
             '0f000000', //parameter (temp)
             '04000000', //parameter (temp)
+
             '23000000', //If statement
             '04000000', //If statement
             '01000000', //If statement
-
             '12000000', //If statement
             '01000000', //If statement
             '01000000', //If statement

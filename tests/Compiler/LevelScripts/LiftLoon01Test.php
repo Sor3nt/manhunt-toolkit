@@ -25,7 +25,7 @@ var
     me : string[30];
     lButtonTutRemoved :  level_var boolean;
 
-16
+
 script Init;
 VAR
 	pos : vec3d;                
@@ -35,12 +35,6 @@ begin
 
     WriteDebug(me, ' : Init');
 
-    { Initialize AI }
-	{AIAddHunterToLeaderSubpack('leader(leader)', 'subMeleeTut', me);}
-	
-	
-	{AISetHunterIdleActionMinMax(me, AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 1, 2);}
-	
 	AIDefineGoalGotoNodeIdle('goalAmbush', me, AISCRIPT_HIGHPRIORITY, 'AMBUSHNODE', AISCRIPT_RUNMOVESPEED, TRUE);
 
 	SetPedLockonable(GetEntity('LiftLoonie01(hunter)'), FALSE);
@@ -49,7 +43,6 @@ begin
 	AiMakeEntityBlind(me, 0);
 	AIAddHunterToLeaderSubpack('leader2(leader)', 'subBeast1', me);
 
-	{while GetMoverState(GetEntity('real_asylum_elev')) <> MOVER_STOPPED do sleep(10);}
 	while lButtonTutRemoved <> TRUE do sleep(10);
 	
 	pos := GetEntityPosition(GetEntity('real_asylum_elev'));
@@ -66,11 +59,8 @@ begin
 	SetPedOrientation(GetEntity('LiftLoonie01(hunter)'), 55);
 	
 	SetVector(pos, -27.644, 24.09, 34.947);
-{	MoveEntity(GetEntity('DeadLiftGuy(hunter)'), pos, 1); 	
-	SetPedOrientation(GetEntity('DeadLiftGuy(hunter)'), 150);}
 	
 	AiEntityPlayAnim('LiftLoonie01(hunter)', 'ASY_NURSE_ATTACK4A');
-	{AiEntityPlayAnim('DeadLiftGuy(hunter)', 'ASY_NURSE_ATTACK4V');}
 	EntityIgnoreCollisions(GetEntity('DeadLiftGuy(hunter)'),TRUE);
 	EntityPlayAnim(GetEntity('DeadLiftGuy(hunter)'), 'ASY_NURSE_ATTACK4V', FALSE);
 	
@@ -82,22 +72,10 @@ begin
 	animLength := animLength - 1500;
 	sleep(animLength);
 	
-	{RUNS OFF}
-	{KillEntityWithoutAnim(GetEntity('DeadLiftGuy(hunter)'));}
-	{AIEntityCancelAnim('DeadLiftGuy(hunter)', 'ASY_NURSE_ATTACK4V');}
 	AIAddGoalForSubpack('leader2(leader)', 'subBeast1', 'goalAmbush'); 
 	AISetIdleHomeNode(me, 'AMBUSHNODE');
 	
-
-	{ Don't show this hunter on radar }
 	AISetHunterOnRadar(me, FALSE);
-
-	{AIEntityPlayAnimLooped(me, 'BAT_IDLELOOP_IDLE_ANIM', 0.0);}
-
-	{AISetHunterIdleAction(me, AISCRIPT_IDLE_SPEECH, AISCRIPT_HIGHPRIORITY);}
-
-    { This hunter may not be pushed away }
-	{LockPed(me, TRUE);}
 end;
 
 script SkipMe;
@@ -114,16 +92,6 @@ script OnDeath;
 begin
 	
 	while IsExecutionInProgress do sleep(10);
-	{PlayScriptAudioStreamFromEntityAux('DANR1', 100, GetPlayer, 50);}
-	{if NOT IsPlayerPositionKnown then
-	begin
-		DisableUserInput;
-		sleep(400);
-		PlayerPlayFullBodyAnim('ASY_REACTKILL_3');
-		sleep(3500);
-		PlayerFullBodyAnimDone;
-		EnableUserInput;
-	end;}
 	
 	RemoveThisScript;
 end;
@@ -175,6 +143,7 @@ end.
             '10000000', //nested string return result
             '02000000', //nested string return result
             '73000000', //writedebug Call
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -188,6 +157,7 @@ end.
             '02000000', //nested string return result
             '73000000', //writedebug Call
             '74000000', //writedebugflush Call
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -226,11 +196,13 @@ end.
             '01000000', //nested call return result
             '10000000', //nested string return result
             '02000000', //nested string return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '00000000', //value 0
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '01000000', //value 1
@@ -325,6 +297,9 @@ end.
             '10000000', //nested string return result
             '02000000', //nested string return result
             '52010000', //AIAddHunterToLeaderSubpack Call
+
+
+//while lButtonTutRemoved <> TRUE do sleep(10);
             '1b000000', //unknown
             '64170000', //unknown
             '04000000', //unknown
@@ -360,6 +335,8 @@ end.
             '6a000000', //sleep Call
             '3c000000', //statement (init statement start offset)
             'f0020000', //Offset (line number 188)
+
+
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
@@ -384,6 +361,7 @@ end.
             '12000000', //unknown
             '03000000', //unknown
             '0c000000', //unknown
+
             '0f000000', //unknown
             '01000000', //unknown
             '0f000000', //unknown
@@ -435,6 +413,8 @@ end.
             '0c000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
+
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -453,6 +433,7 @@ end.
             '12000000', //unknown
             '03000000', //unknown
             '0c000000', //unknown
+
             '0f000000', //unknown
             '01000000', //unknown
             '0f000000', //unknown
@@ -703,10 +684,12 @@ end.
             '10000000', //nested string return result
             '02000000', //nested string return result
             '49030000', //GetAnimationLength Call
+
             '15000000', //unknown
             '04000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var

@@ -192,6 +192,17 @@ class BytecodeExplain {
             'desc' => 'Prepare string read (DATA table)'
         ],
 
+
+        'set_str_offset_1_a' => [
+            'hex' => [
+                "\x22\x00\x00\x00",
+                "\x04\x00\x00\x00",
+                "\x01\x00\x00\x00"
+            ],
+
+            'desc' => 'Prepare vec3d read'
+        ],
+
         'set_str_offset_2' => [
             'hex' => [
                 "\x21\x00\x00\x00",
@@ -694,6 +705,25 @@ class BytecodeExplain {
 
 
 
+
+                $result[$lineIndex + 3] = [
+                    $lines[ $lineIndex + 3]->toHex(),
+                    'Offset in byte'
+                ];
+            }
+
+            if (
+                $line->toBinary() == $this->mapping['set_str_offset_1_a']['hex'][0] &&
+                isset($lines[ $lineIndex + 1]) && $lines[ $lineIndex + 1]->toBinary() == $this->mapping['set_str_offset_1_a']['hex'][1] &&
+                isset($lines[ $lineIndex + 2]) && $lines[ $lineIndex + 2]->toBinary() == $this->mapping['set_str_offset_1_a']['hex'][2]
+            ){
+
+                for($i = 0; $i <= 2; $i++){
+                    $result[$lineIndex + $i] = [
+                        $lines[ $lineIndex + $i]->toHex(),
+                        $this->mapping['set_str_offset_1_a']['desc']
+                    ];
+                }
 
                 $result[$lineIndex + 3] = [
                     $lines[ $lineIndex + 3]->toHex(),

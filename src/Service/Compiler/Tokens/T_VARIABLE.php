@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\FunctionMap\Manhunt2;
+
 class T_VARIABLE {
 
     static public function match( $input, $current ){
@@ -20,10 +22,20 @@ class T_VARIABLE {
 
                 if ($value !== ""){
 
-                    return [
-                        'type' => 'T_VARIABLE',
-                        'value' => $value
-                    ];
+                    if (isset(Manhunt2::$functions[ strtolower($value) ])) {
+                        return [
+                            'type' => 'T_FUNCTION',
+                            'value' => $value
+                        ];
+
+                    }else{
+                        return [
+                            'type' => 'T_VARIABLE',
+                            'value' => $value
+                        ];
+
+                    }
+
                 }else{
                     return false;
                 }

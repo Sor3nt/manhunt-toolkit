@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\CompilerByType\Header\StringArray\Assign;
+namespace App\Tests\Compiler;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignTest extends KernelTestCase
+class HeaderStringArrayTest extends KernelTestCase
 {
 
     public function test()

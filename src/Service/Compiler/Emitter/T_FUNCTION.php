@@ -9,6 +9,75 @@ use App\Service\Compiler\Token;
 
 class T_FUNCTION {
 
+
+
+    static public function finalize( $node, $data, &$code, \Closure $getLine ){
+
+        switch ($node['type']){
+            case Token::T_FUNCTION:
+                break;
+            case Token::T_FLOAT:
+            case Token::T_INT:
+            case Token::T_SELF:
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+                break;
+            case Token::T_STRING:
+
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('02000000');
+                break;
+
+            case Token::T_VARIABLE:
+                $mappedTo = T_VARIABLE::getMapping(
+                    $node,
+                    null,
+                    $data
+                );
+
+                switch ($mappedTo['section']) {
+                    case 'script':
+
+
+                        switch ($mappedTo['type']) {
+                            case 'integer':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                break;
+                            case 'constant':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('02000000');
+
+                                break;
+                            default:
+                                throw new \Exception($mappedTo['type'] . " Not implemented!");
+                                break;
+                        }
+
+
+
+                        break;
+                    default:
+                        throw new \Exception($mappedTo['section'] . " Not implemented!");
+                        break;
+                }
+
+                break;
+            default:
+                throw new \Exception($node['type'] . " Not implemented!");
+                break;
+
+
+        }
+
+    }
+
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
 
@@ -19,92 +88,112 @@ class T_FUNCTION {
 
             foreach ($node['params'] as $index => $param) {
 
-                if ($skipNext){
-                    $skipNext = false;
-                    continue;
+                $resultCode = $emitter( $param );
+                foreach ($resultCode as $line) {
+                    $code[] = $line;
                 }
 
-                /**
-                 * Define for INT, FLOAT and STRING a construct and destruct sequence
-                 */
-                if (
-                    $param['type'] == Token::T_INT ||
-                    $param['type'] == Token::T_FLOAT ||
-                    $param['type'] == Token::T_TRUE ||
-                    $param['type'] == Token::T_FALSE ||
-                    $param['type'] == Token::T_SELF
-                ) {
-
-                    Evaluate::processNumeric($param, $code, $data, $getLine, $emitter);
-
-                }else if ($param['type'] == Token::T_STRING){
-
-                    Evaluate::initializeReadHeaderString($code, $getLine);
-                    Evaluate::processString($param, $code, $getLine, $data);
-                    Evaluate::initializeParameterString($code, $getLine);
-
-                    $resultCode = $emitter( $param );
-                    foreach ($resultCode as $line) {
-                        $code[] = $line;
-                    }
-
-                    Evaluate::returnResult($code, $getLine);
-                    Evaluate::returnStringResult($code, $getLine);
-
-                }else if ($param['type'] == Token::T_VARIABLE){
-
-                    $mapped = Evaluate::processVariable(
-                        $param,
-                        $code,
-                        array_merge($data, ['customData' => $node ]),
-                        $getLine,
-                        $emitter
-                    );
-
-                    if ($mapped == false) {
-                        Evaluate::returnResult($code, $getLine);
-                    }
+                self::finalize($param, $data, $code, $getLine);
+//
+//                switch ($param['type']){
+//                    case Token::T_SELF:
+//
+//                        break;
+//
+//                }
 
 
-                }else if ($param['type'] == Token::T_ADDITION){
-                    $result = Evaluate::handleSimpleMath([
-                        false,
-                        $param,
-                        $node['params'][$index + 1]
-                    ], $getLine, $emitter, $data);
 
-                    foreach ($result as $item) {
-                        $code[] = $item;
-                    }
+//                var_dump($param);
+//                exit;
 
-                    Evaluate::returnResult($code, $getLine);
-
-                    $skipNext = true;
-
-
-                }else if ($param['type'] == Token::T_FUNCTION){
-                    $resultCode = $emitter( $param );
-
-                    foreach ($resultCode as $line) {
-                        $code[] = $line;
-                    }
-
-                }else{
-                    throw new \Exception(sprintf('Unknown type %s', $param['type']));
-                }
-
-
-                /**
-                 * When the input value is a negative float or int
-                 * we assign the positive value and negate them with this sequence
-                 */
-                if (
-                    ($param['type'] == Token::T_INT || $param['type'] == Token::T_FLOAT) &&
-                    $param['value'] < 0
-                ) {
-
-                    Evaluate::negateLastValue($code, $getLine);
-                }
+//                if ($skipNext){
+//                    $skipNext = false;
+//                    continue;
+//                }
+//
+//                /**
+//                 * Define for INT, FLOAT and STRING a construct and destruct sequence
+//                 */
+//                if (
+//                    $param['type'] == Token::T_INT ||
+//                    $param['type'] == Token::T_FLOAT ||
+//                    $param['type'] == Token::T_TRUE ||
+//                    $param['type'] == Token::T_FALSE ||
+//                    $param['type'] == Token::T_SELF
+//                ) {
+//
+//                    Evaluate::processNumeric($param, $code, $data, $getLine, $emitter);
+//
+//                }else if ($param['type'] == Token::T_STRING){
+//
+//                    Evaluate::initializeReadHeaderString($code, $getLine);
+//
+//                    Evaluate::processString($param, $code, $getLine, $data);
+//                    Evaluate::initializeParameterString($code, $getLine);
+//
+//                    $resultCode = $emitter( $param );
+//                    foreach ($resultCode as $line) {
+//                        $code[] = $line;
+//                    }
+//
+//                    Evaluate::returnResult($code, $getLine);
+//                    Evaluate::returnStringResult($code, $getLine);
+//
+//                }else if ($param['type'] == Token::T_VARIABLE){
+//
+//                    $mapped = Evaluate::processVariable(
+//                        $param,
+//                        $code,
+//                        array_merge($data, ['customData' => $node ]),
+//                        $getLine,
+//                        $emitter
+//                    );
+//
+//                    if ($mapped == false) {
+//                        Evaluate::returnResult($code, $getLine);
+//                    }
+//
+//
+//                }else if ($param['type'] == Token::T_ADDITION){
+//                    $result = Evaluate::handleSimpleMath([
+//                        false,
+//                        $param,
+//                        $node['params'][$index + 1]
+//                    ], $getLine, $emitter, $data);
+//
+//                    foreach ($result as $item) {
+//                        $code[] = $item;
+//                    }
+//
+//                    Evaluate::returnResult($code, $getLine);
+//
+//                    $skipNext = true;
+//
+//
+//                }else if ($param['type'] == Token::T_FUNCTION){
+//                    $resultCode = $emitter( $param );
+//
+//                    foreach ($resultCode as $line) {
+//                        $code[] = $line;
+//                    }
+//
+//                }else{
+//                    throw new \Exception(sprintf('Unknown type %s', $param['type']));
+//                }
+//
+//
+//                /**
+//                 * When the input value is a negative float or int
+//                 * we assign the positive value and negate them with this sequence
+//                 */
+//                if (
+//                    ($param['type'] == Token::T_INT || $param['type'] == Token::T_FLOAT) &&
+//                    $param['value'] < 0
+//                ) {
+//
+//                    Evaluate::negateLastValue($code, $getLine);
+//                }
 
             }
         }

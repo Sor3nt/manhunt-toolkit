@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\CompilerByType\Header\Vec3D\Assign;
+namespace App\Tests\CompilerByType\Header\StringArray\FunctionCall;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignTest extends KernelTestCase
+class CallTest extends KernelTestCase
 {
 
     public function test()
@@ -14,15 +14,17 @@ class AssignTest extends KernelTestCase
 
         $script = "
             scriptmain LevelScript;
-            var
-                pos : Vec3D;
-
+            
+            VAR
+                me : string[30];
+            
             script OnCreate;
+            
                 begin
-            		SetVector(pos);
+                	AiMakeEntityDeaf(me, 0);
                 end;
-
-            end.
+            
+            end.        
         ";
 
         $expected = [
@@ -33,14 +35,28 @@ class AssignTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '21000000',
-            '04000000',
-            '01000000',
-            '00000000',
 
-            '10000000',
-            '01000000',
-            '84010000', // SetVector
+            '21000000', //Prepare string read (DATA table)
+            '04000000', //Prepare string read (DATA table)
+            '01000000', //Prepare string read (DATA table)
+            '00000000', //Offset in byte
+
+            '12000000', //parameter (Read String var)
+            '02000000', //parameter (Read String var)
+            '1e000000', //value 30
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
+            '10000000', //nested string return result
+            '02000000', //nested string return result
+
+            '12000000', //parameter (read simple type (int/float...))
+            '01000000', //parameter (read simple type (int/float...))
+            '00000000', //value 0
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
+            '72010000', //AIMakeEntityDeaf Call
 
             // script end
             '11000000',
@@ -51,6 +67,7 @@ class AssignTest extends KernelTestCase
             '3b000000',
             '00000000'
         ];
+
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);

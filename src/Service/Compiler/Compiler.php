@@ -298,6 +298,7 @@ class Compiler {
                 }else if ($currentTypeSection && $token['type'] == Token::T_VARIABLE){
 
                     $types[ $currentTypeSection ][ $token['value'] ] = [
+                        'type' => 'level_var tLevelState',
                         'offset' => Helper::fromIntToHex($offset)
                     ];
 
