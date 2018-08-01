@@ -81,6 +81,7 @@ class T_IF {
                             $code[] = $item;
                         }
 
+
                         if($conditionIndex + 1 != count($case['condition'])){
                             Evaluate::returnResult($code, $getLine);
 
@@ -120,7 +121,6 @@ class T_IF {
             $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
 
             foreach ($case['isTrue'] as $entry) {
-                var_dump($entry);
                 $codes = $emitter($entry, true, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {
                     $code[] = $singleLine;

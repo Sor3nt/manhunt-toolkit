@@ -18,18 +18,25 @@ class T_CONDITION {
             case Token::T_FUNCTION:
                 break;
             case Token::T_INT:
-            case Token::T_TRUE:
-            case Token::T_FALSE:
+            case Token::T_NIL:
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('04000000');
 
-                break;
 
-            case Token::T_NIL:
-//                $code[] = $getLine('0f000000');
-//                $code[] = $getLine('04000000');
-//
                 break;
+            case Token::T_TRUE:
+            case Token::T_FALSE:
+
+                if ($data['customData']['isWhile'] == true){
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+
+                }else if ($data['customData']['isWhile'] == false){
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+
+                }
+            break;
 
             case Token::T_FLOAT:
                 $code[] = $getLine('10000000');
@@ -123,7 +130,18 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
-            $mappedTo = self::finalize( $variable, $data, $code, $getLine );
+//            $mappedTo = self::finalize( $variable, $data, $code, $getLine );
+
+            $mappedTo = [];
+            if ($variable['type'] == Token::T_VARIABLE){
+                $mappedTo = T_VARIABLE::getMapping(
+                    $variable,
+                    null,
+                    $data
+                );
+
+            }
+
 
             $code[] = $getLine('10000000');
             $code[] = $getLine('01000000');

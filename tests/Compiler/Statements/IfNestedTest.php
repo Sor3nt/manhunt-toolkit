@@ -84,6 +84,7 @@ class IfNestedTest extends KernelTestCase
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
             '00000000', //value 0
+
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
             '23000000', //statement (core)

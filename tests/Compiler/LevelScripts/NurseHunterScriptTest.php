@@ -169,6 +169,8 @@ end.
             '10000000', //nested string return result
             '02000000', //nested string return result
             '52010000', //AIAddHunterToLeaderSubpack Call
+
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -194,16 +196,19 @@ end.
             '01000000', //value 1
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             'd0070000', //value 2000
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '88130000', //value 5000
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -211,6 +216,7 @@ end.
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
             '0a000000', //value 10
+
             '10000000', //nested call return result
             '01000000', //nested call return result
             '10000000', //nested string return result

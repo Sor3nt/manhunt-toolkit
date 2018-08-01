@@ -14,11 +14,14 @@ class T_FUNCTION {
     static public function finalize( $node, $data, &$code, \Closure $getLine ){
 
         switch ($node['type']){
+            case Token::T_ADDITION:
             case Token::T_FUNCTION:
                 break;
             case Token::T_FLOAT:
             case Token::T_INT:
             case Token::T_SELF:
+            case Token::T_FALSE:
+            case Token::T_TRUE:
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');
                 break;
@@ -43,6 +46,10 @@ class T_FUNCTION {
 
 
                         switch ($mappedTo['type']) {
+                            case 'constant';
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                break;
                             case 'stringarray':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -70,19 +77,7 @@ class T_FUNCTION {
                             case 'entityptr':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
-//
-//                                $code[] = $getLine('16000000');
-//                                $code[] = $getLine('04000000');
-//                                $code[] = $getLine('00000000');
-//                                $code[] = $getLine('01000000');
-//
-//                                $code[] = $getLine('13000000');
-//                                $code[] = $getLine('01000000');
-//                                $code[] = $getLine('04000000');
-//                                $code[] = $getLine($mappedTo['offset']);
-//
-//                                $code[] = $getLine('10000000');
-//                                $code[] = $getLine('01000000');
+
                                 break;
                             case 'vec3d':
                                 $code[] = $getLine('10000000');
@@ -133,12 +128,53 @@ class T_FUNCTION {
 
             foreach ($node['params'] as $index => $param) {
 
-                $resultCode = $emitter( $param );
-                foreach ($resultCode as $line) {
-                    $code[] = $line;
+                if ($skipNext){
+                    $skipNext = false;
+                    continue;
                 }
 
+                if ($param['type'] == Token::T_ADDITION){
+                    $mathValue = $node['params'][$index + 1];
+
+                    $resultCode = $emitter( $mathValue );
+                    foreach ($resultCode as $line) {
+                        $code[] = $line;
+                    }
+
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+
+
+                    $code[] = $getLine('31000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+
+                    $skipNext = true;
+                }else{
+                    $resultCode = $emitter( $param );
+                    foreach ($resultCode as $line) {
+                        $code[] = $line;
+                    }
+
+                }
+
+
                 self::finalize($param, $data, $code, $getLine);
+
+                /**
+                 * When the input value is a negative float or int
+                 * we assign the positive value and negate them with this sequence
+                 */
+                if (
+                    ($param['type'] == Token::T_INT || $param['type'] == Token::T_FLOAT) &&
+                    $param['value'] < 0
+                ) {
+
+                    Evaluate::negateLastValue($code, $getLine);
+                }
 //
 //                switch ($param['type']){
 //                    case Token::T_SELF:

@@ -22,6 +22,8 @@ class T_HEADER_LEVEL_VAR_BOOLEAN {
         return [
             $getLine('1b000000'),
             $getLine($mapped['offset']),
+            $getLine('04000000'),
+            $getLine('01000000'),
         ];
     }
 
