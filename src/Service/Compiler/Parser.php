@@ -45,7 +45,6 @@ class Parser {
                         $token = $tokenInner;
 
                         unset($ast['body'][$index]);
-
                         $ast['body'] = array_values($ast['body']);
                     }
                 }
@@ -442,7 +441,6 @@ class Parser {
 
     private function extendConditionInformation( &$tokens ){
 
-
         foreach ($tokens as $current => &$token) {
 
             if (isset($tokens[ $current ]['params'])) {
@@ -524,8 +522,6 @@ class Parser {
                 return [
                     $current, $node
                 ];
-
-
             }
         }
 
@@ -676,7 +672,6 @@ class Parser {
 
         }
 
-
         throw new \Exception('Parser: parseIfStatement unable to handle');
     }
 
@@ -710,6 +705,7 @@ class Parser {
                     $node['body'][] = $token;
                 }
             }
+
             $current++;
         }
 
@@ -739,8 +735,6 @@ class Parser {
                 $token['type'] == Token::T_BEGIN
             ){
 
-//                $node['body'] = $this->remapConstMapping($node['body']);
-
                 return [$current, $node];
 
             }else{
@@ -754,31 +748,6 @@ class Parser {
 
         return [++$current, $node];
     }
-//
-//    private function remapConstMapping($tokens){
-//
-//        $current = 0 ;
-//
-//        $result = [];
-//        while($current < count($tokens)){
-//
-//            $token = $tokens[ $current ];
-//
-//            if ($token['type'] == Token::T_IS_EQUAL){
-//                $prevToken = $tokens[ $current - 1];
-//                $nextToken = $tokens[ $current + 1];
-//
-//                $result[] = [
-//                    'target' => $prevToken['value'],
-//                    'value' => $nextToken['value']
-//                ];
-//            }
-//
-//            $current++;
-//        }
-//
-//        return $result;
-//    }
 
     private function parseDefineEntityRecursive( $tokens, $current ){
 

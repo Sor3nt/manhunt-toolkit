@@ -15,7 +15,6 @@ class Line {
     }
 
     public function __toString(){
-
         return $this->hex;
     }
 
@@ -31,6 +30,5 @@ class Line {
     public function getOffset(){
         return $this->lineNumber * 4;
     }
-
 
 }

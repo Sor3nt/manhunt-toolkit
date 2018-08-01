@@ -67,7 +67,7 @@ class Compiler {
 
                 foreach ($variables as $variable) {
                     $variable = $variable['value'];
-//
+
                     if (!$this->isVariableInUse($tokens, $variable)){
                         continue;
                     }
@@ -77,29 +77,20 @@ class Compiler {
 
                     $row = [
                         'section' => $currentSection,
-                        'type' => $variableType,
-//                        'offset' => Helper::fromIntToHex($smemOffset)
+                        'type' => $variableType
                     ];
 
                     if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
                         $row['type'] = 'stringarray';
-
-
-//                        if ($size % 4 == 0){
-//                            $smemOffset += $size;
-//                        }else{
-                            $row['offset'] = Helper::fromIntToHex($size);
-//                            $smemOffset += $size + (4 - $size % 4);
-//                        };
+                        $row['offset'] = Helper::fromIntToHex($size);
 
                     }else{
                         switch ($variableType){
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
                                 $row['offset'] = Helper::fromIntToHex($size);
-//                                $smemOffset += $size;
                                 break;
                             case 'level_var boolean':
 
@@ -121,19 +112,15 @@ class Compiler {
                             default:
                                 $size = 4;
                                 $row['offset'] = Helper::fromIntToHex($size);
-//                                $smemOffset += $size;
                                 break;
 
                         }
 
                         $row['size'] = $size;
-
                     }
 
                     $vars[$variable] = $row;
                 }
-
-
             }
 
             $current++;
@@ -158,7 +145,6 @@ class Compiler {
         }
 
         return false;
-
     }
 
     private function getConstants($tokens, &$smemOffset){
@@ -184,8 +170,6 @@ class Compiler {
                 if ($token['type'] == Token::T_SCRIPT){
                     break;
                 }else{
-
-
                     $variable = $token['value'];
                     $variableValue = $tokens[$current + 2]['value'];
                     $variableValue = str_replace('"', '', $variableValue);
@@ -216,7 +200,6 @@ class Compiler {
 
     private function getStrings($tokens, &$smemOffset){
 
-
         $response =  $this->recursiveSearch($tokens, [Token::T_STRING]);
 
         $result = [];
@@ -227,7 +210,6 @@ class Compiler {
 
             $result[$value] = $value;
         }
-
 
         $strings = array_unique($result);
         foreach ($strings as &$string) {
@@ -305,7 +287,6 @@ class Compiler {
 
                     $offset++;
                 }
-
             }
 
             $current++;
@@ -367,7 +348,6 @@ class Compiler {
 
                     $offset++;
                 }
-
             }
 
             $current++;
@@ -376,19 +356,7 @@ class Compiler {
         return $types;
     }
 
-    /**
-     * @param $source
-     * @return array
-     */
     public function parse($source){
-
-//
-//        $source = str_replace(
-//            "while Invul = TRUE AND IsEntityAlive('SobbingWoman(hunter)') do",
-//            "while (Invul = TRUE) AND (IsEntityAlive('SobbingWoman(hunter)')) do",
-//            $source
-//        );
-
 
         $smemOffset = 0;
 
@@ -403,12 +371,8 @@ class Compiler {
         $headerVariables = $this->getHeaderVariables($tokens);
 
         $types = $this->getTypes($tokens);
-        $entity = $this->getEntitity($tokens);
 
         $const = $this->getConstants($tokens, $smemOffset);
-//        $strings = $this->getStrings($tokens, $smemOffset);
-
-
 
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
@@ -420,9 +384,6 @@ class Compiler {
 
         $this->fixWriteDebug($ast['body']);
 
-        var_dump($tokens);
-        var_dump($ast);
-
         $header = [];
         $currentSection = "header";
 
@@ -431,7 +392,6 @@ class Compiler {
 
         $lineCount = 1;
         $smemOffset = 0;
-
 
         $strings4Scripts = [];
 
@@ -459,7 +419,6 @@ class Compiler {
                 /**
                  * Calculate string offsets
                  */
-
                 $scriptVar = $this->getScriptVar($token['body'], $smemOffset2);
 
                 $smemOffset2 = 0;
@@ -485,8 +444,6 @@ class Compiler {
                         $scriptVarFinal[$name ] = $item;
                     }
                 }
-
-
 
                 /**
                  * Translate Token AST to Bytecode
@@ -578,19 +535,14 @@ class Compiler {
         foreach ($tokens as $token) {
             if ($token['type'] == Token::T_DEFINE_SECTION_VAR) {
                 $varSection = $token['body'];
-//                break;
             }else{
                 $otherTokens[] = $token;
             }
         }
 
         $tokens = $varSection;
-
         $current = 0;
-
         $vars = [];
-
-//        $smemOffset = 0;
 
         while ($current < count($tokens)) {
 
@@ -617,39 +569,23 @@ class Compiler {
                 foreach ($variables as $variable) {
                     $variable = $variable['value'];
 
-//                    if (!$this->isVariableInUse($otherTokens, $variable)){
-//                        continue;
-//                    }
-
-
                     $current = $current + 1;
 
                     $variableType = strtolower($tokens[$current]['value']);
 
                     $row = [
                         'section' => 'script',
-                        'type' => $variableType,
-//                        'offset' => Helper::fromIntToHex($smemOffset)
+                        'type' => $variableType
                     ];
 
                     if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
 
-
-//                        if ($size % 4 == 0){
-//                            $smemOffset += $size;
-//                        }else{
-//                        $row['offset'] = Helper::fromIntToHex($size);
-//                            $smemOffset += $size + (4 - $size % 4);
-//                        };
-
                     }else{
                         switch ($variableType){
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
-//                                $row['offset'] = Helper::fromIntToHex($size);
-//                                $smemOffset += $size;
                                 break;
                             case 'level_var boolean':
 
@@ -670,8 +606,6 @@ class Compiler {
                             case 'televatorlevel':
                             default:
                                 $size = 4;
-//                                $row['offset'] = Helper::fromIntToHex($size);
-//                                $smemOffset += $size;
                                 break;
 
                         }
@@ -680,28 +614,14 @@ class Compiler {
 
                     }
 
-                    if (!isset($row['offset'])){
-
-
-//                        if (4 - $size % 4 != 0){
-//                            $size += 4 - $size % 4;
-//                        }
-
-//                        $smemOffset += $size;
-//                        $row['offset'] = Helper::fromIntToHex($smemOffset);
-                    }
-
                     $vars[$variable] = $row;
                 }
-
-
             }
 
             $current++;
         }
 
         return $vars;
-
     }
 
     /**
@@ -743,11 +663,8 @@ class Compiler {
                         array_splice( $ast, $index + $innerIndex, 0, [$new] );
 
                     }
-
                 }
-
             }
-
         }
 
         return $add;

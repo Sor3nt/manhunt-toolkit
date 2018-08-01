@@ -11,8 +11,7 @@ class T_VARIABLE {
 
     static public function getMapping( $node, \Closure $emitter = null , $data ){
         $value = $node['value'];
-//var_dump($node);
-//exit;
+
         if (isset(Manhunt2::$constants[ $value ])) {
             $mapped = Manhunt2::$constants[ $value ];
             $mapped['section'] = "header";
@@ -33,12 +32,7 @@ class T_VARIABLE {
 
         }else if (strpos($value, '.') !== false){
 
-//            if (isset($data['customData']['conditionVariable'])) {
-                $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
-//            } else {
-//                throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
-//
-//            }
+            $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
 
         }else if (
             isset($node['target']) &&
@@ -54,7 +48,6 @@ class T_VARIABLE {
 
         return $mapped;
     }
-
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
@@ -73,22 +66,6 @@ class T_VARIABLE {
         }
 
         return $code;
-
-
     }
-
-//
-//    static public function initialize( $type, &$code, \Closure $getLine ){
-//
-//        if (
-//            $type == 'level_var tLevelState'
-//        ) {
-//            $code[] = $getLine('12000000');
-//            $code[] = $getLine('01000000');
-//        }else{
-//            throw new \Exception("Not implemented!");
-//        }
-//
-//    }
 
 }

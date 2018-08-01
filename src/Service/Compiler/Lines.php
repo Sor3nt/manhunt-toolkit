@@ -8,8 +8,7 @@ class Lines {
 
     private $lineCount = 1;
 
-    public function __construct( $lineCount = 1)
-    {
+    public function __construct( $lineCount = 1){
         $this->lineCount = $lineCount;
     }
 
@@ -24,9 +23,7 @@ class Lines {
             $this->lineCount++;
 
         }else{
-
             $line = new Line( $hex, 0);
-
         }
 
         return $line;

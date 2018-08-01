@@ -226,8 +226,6 @@ class Tokenizer {
      * @throws \Exception
      */
     public function run($source) {
-        echo "################\n";
-        echo "Tokenizer Start\n";
 
         $lines = explode("\n", $source);
 
@@ -238,10 +236,7 @@ class Tokenizer {
 
             $line = trim($line);
 
-            echo "\nProcess ". $line . "\n";
-
             $offset = 0;
-
 
             while($offset < strlen($line)) {
                 $result = $this->match($line, $offset);
@@ -253,10 +248,7 @@ class Tokenizer {
                 if (
                     $result['type'] !== Token::T_WHITESPACE &&
                     $result['type'] !== Token::T_SEPERATOR
-//                    $result['type'] !== Token::T_LINEEND
                 ){
-                    echo $result['type'] .  "\t\t\t" . $result['value'] .  "\n" ;
-
                     $tokens[] = $result;
                 }
 
