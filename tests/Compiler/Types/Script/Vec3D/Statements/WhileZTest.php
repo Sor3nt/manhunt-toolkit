@@ -53,18 +53,13 @@ class WhileZTest extends KernelTestCase
             '0c000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
-
             '0f000000', //unknown
             '01000000', //unknown
-
             '32000000', //unknown
             '01000000', //unknown
-
             '08000000', //unknown
-
             '10000000', //nested call return result
             '01000000', //nested call return result
-
             '0f000000', //unknown
             '02000000', //unknown
             '18000000', //unknown

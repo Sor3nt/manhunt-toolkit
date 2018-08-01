@@ -45,25 +45,25 @@ class WhileYTest extends KernelTestCase
 
             '0f000000', //unknown
             '04000000', //unknown
+
             '44000000', //unknown
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
             '0c000000', //unknown
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
+
 
             '0f000000', //unknown
             '01000000', //unknown
-
             '32000000', //unknown
             '01000000', //unknown
-
             '04000000', //unknown
-
             '10000000', //nested call return result
             '01000000', //nested call return result
-
             '0f000000', //unknown
             '02000000', //unknown
             '18000000', //unknown
@@ -72,6 +72,8 @@ class WhileYTest extends KernelTestCase
             '02000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
+
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '0000a041', //value 1101004800

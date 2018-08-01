@@ -32,12 +32,13 @@ class T_VARIABLE {
             $mapped = $data['variables'][ $value ];
 
         }else if (strpos($value, '.') !== false){
-            if (isset($data['conditionVariable'])) {
-                $mapped = Evaluate::getObjectToAttributeSplit($data);
-            } else {
-                throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
 
-            }
+//            if (isset($data['customData']['conditionVariable'])) {
+                $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
+//            } else {
+//                throw new \Exception(sprintf("T_FUNCTION: (numeric) unable to find variable offset for %s", $value));
+//
+//            }
 
         }else if (
             isset($node['target']) &&

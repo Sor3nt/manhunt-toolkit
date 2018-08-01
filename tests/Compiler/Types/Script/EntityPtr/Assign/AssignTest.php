@@ -1,60 +1,66 @@
 <?php
-namespace App\Tests\CompilerByType\Script\LevelVarInteger\Math;
+namespace App\Tests\CompilerByType\Script\EntityPtr\Assign;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AdditionTest extends KernelTestCase
+class AssignTest extends KernelTestCase
 {
 
-    public function testLevelVar()
+    public function test()
     {
 
         $script = "
             scriptmain LevelScript;
 
-            VAR
-                stealthTutSpotted : level_var integer;
-
             script OnCreate;
+                var
+                    TV : EntityPtr;
                 begin
-                    stealthTutSpotted := stealthTutSpotted + 1;
+                    TV := GetEntity('tv_setCage_noise');
                 end;
-            end.
 
+            end.
         ";
 
         $expected = [
-
-            // procedure start
+            // script start
             '10000000',
             '0a000000',
             '11000000',
             '0a000000',
             '09000000',
 
+            '34000000',
+            '09000000',
+            '04000000',
 
-            '1b000000', //unknown
-            '00000000', //unknown
-            '04000000', //unknown
-            '01000000', //unknown
+
+            '21000000', //Prepare string read (DATA table)
+            '04000000', //Prepare string read (DATA table)
+            '01000000', //Prepare string read (DATA table)
+            '00000000', //Offset in byte
+
+            '12000000', //parameter (Read String var)
+            '02000000', //parameter (Read String var)
+            '11000000', //value 17
+
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '12000000', //parameter (temp int)
-            '01000000', //parameter (temp int)
-            '01000000', //value 1
-            '0f000000', //parameter (temp int)
-            '04000000', //parameter (temp int)
 
-            '31000000', //unknown
-            '01000000', //unknown
+            '10000000', //nested string return result
+            '02000000', //nested string return result
+
+            '77000000', //getentity Call
+
+            '15000000', //unknown
             '04000000', //unknown
-            '1a000000', //unknown
+            '04000000', //offset
             '01000000', //unknown
-            '00000000', //unknown
-            '04000000', //unknown
+
+
 
             // script end
             '11000000',
@@ -63,8 +69,7 @@ class AdditionTest extends KernelTestCase
             '0f000000',
             '0a000000',
             '3b000000',
-            '00000000',
-
+            '00000000'
         ];
 
         $compiler = new Compiler();
@@ -83,6 +88,5 @@ class AdditionTest extends KernelTestCase
 
         $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
     }
-
 
 }

@@ -73,15 +73,15 @@ class Compiler {
                     }
 
 
-                    $variableType = $tokens[$current + 2]['value'];
+                    $variableType = strtolower($tokens[$current + 2]['value']);
 
                     $row = [
                         'section' => $currentSection,
-                        'type' => strtolower($variableType),
+                        'type' => $variableType,
 //                        'offset' => Helper::fromIntToHex($smemOffset)
                     ];
 
-                    if (substr(strtolower($variableType), 0, 7) == "string["){
+                    if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
                         $row['type'] = 'stringarray';
@@ -624,7 +624,7 @@ class Compiler {
 
                     $current = $current + 1;
 
-                    $variableType = $tokens[$current]['value'];
+                    $variableType = strtolower($tokens[$current]['value']);
 
                     $row = [
                         'section' => 'script',
@@ -632,7 +632,7 @@ class Compiler {
 //                        'offset' => Helper::fromIntToHex($smemOffset)
                     ];
 
-                    if (substr(strtolower($variableType), 0, 7) == "string["){
+                    if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
 
@@ -645,7 +645,7 @@ class Compiler {
 //                        };
 
                     }else{
-                        switch (strtolower($variableType)){
+                        switch ($variableType){
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
 //                                $row['offset'] = Helper::fromIntToHex($size);

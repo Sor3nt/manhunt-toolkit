@@ -48,6 +48,7 @@ class IfNullTest extends KernelTestCase
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '00000000', //value 0
+
             '10000000', //nested call return result
             '01000000', //nested call return result
 
@@ -83,10 +84,12 @@ class IfNullTest extends KernelTestCase
             '04000000', //parameter (access script var)
             '00000000', //unknown
             '01000000', //unknown
+
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var
             '04000000', //Offset
+
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12030000', //unknown

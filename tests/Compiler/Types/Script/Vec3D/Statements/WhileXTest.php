@@ -53,8 +53,6 @@ class WhileXTest extends KernelTestCase
             '10000000', //nested call return result
             '01000000', //nested call return result
 
-
-
             '0f000000', //unknown
             '02000000', //unknown
             '18000000', //unknown
@@ -64,11 +62,13 @@ class WhileXTest extends KernelTestCase
             '10000000', //nested call return result
             '01000000', //nested call return result
 
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '0000a041', //value 1101004800
             '10000000', //nested call return result
             '01000000', //nested call return result
+
 
             '4e000000', //unknown
             '12000000', //unknown

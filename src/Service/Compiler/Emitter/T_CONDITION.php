@@ -11,6 +11,7 @@ class T_CONDITION {
 
 
     static public function finalize( $node, $data, &$code, \Closure $getLine ){
+        $mappedTo = [];
 
         switch ($node['type']){
 
@@ -19,9 +20,20 @@ class T_CONDITION {
             case Token::T_INT:
             case Token::T_TRUE:
             case Token::T_FALSE:
-            case Token::T_NIL:
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('04000000');
+
+                break;
+
+            case Token::T_NIL:
+//                $code[] = $getLine('0f000000');
+//                $code[] = $getLine('04000000');
+//
+                break;
+
+            case Token::T_FLOAT:
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
 
                 break;
 
@@ -34,6 +46,26 @@ class T_CONDITION {
 
                 switch ($mappedTo['section']) {
 
+                    case 'script':
+
+                        switch ($mappedTo['type']) {
+
+                            case 'entityptr':
+                                $code[] = $getLine('0f000000');
+                                $code[] = $getLine('04000000');
+                                break;
+
+                            case 'object':
+//                                $code[] = $getLine('0f000000');
+//                                $code[] = $getLine('02000000');
+
+                                break;
+
+                            default:
+                                throw new \Exception($mappedTo['type'] . " Not implemented!");
+                                break;
+                        }
+                        break;
                     case 'header':
 
                         switch ($mappedTo['type']) {
@@ -58,7 +90,7 @@ class T_CONDITION {
                                 throw new \Exception($mappedTo['type'] . " Not implemented!");
                                 break;
                         }
-                    break;
+                        break;
 
                     default:
                         throw new \Exception($mappedTo['section'] . " Not implemented!");
@@ -73,6 +105,7 @@ class T_CONDITION {
 
         }
 
+        return $mappedTo;
     }
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
@@ -85,13 +118,12 @@ class T_CONDITION {
             }
 
             list($variable, $operation, $value) = $node['body'];
-
-            $result = $emitter($variable);
+            $result = $emitter($variable, true, [ 'conditionVariable' => $variable] );
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
-            self::finalize( $variable, $data, $code, $getLine );
+            $mappedTo = self::finalize( $variable, $data, $code, $getLine );
 
             $code[] = $getLine('10000000');
             $code[] = $getLine('01000000');
@@ -101,17 +133,29 @@ class T_CONDITION {
                 $code[] = $item;
             }
 
+
             self::finalize( $value, $data, $code, $getLine );
 
+            // not sure about this part
+            if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                $code[] = $getLine('4e000000');
+                $code[] = $getLine('12000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('01000000');
+            }else{
+                $code[] = $getLine('23000000');
+                $code[] = $getLine('04000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('12000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('01000000');
 
-            $code[] = $getLine('23000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('01000000');
+
+            }
+
 
             Evaluate::statementOperator($operation, $code, $getLine);
+
 
             $lastLine = end($code)->lineNumber + 4;
 
@@ -136,38 +180,97 @@ class T_CONDITION {
 
         }else if (count($node['body']) == 4){
 
+
+
+            if ($node['isNot']){
+                throw new \Exception('T_CONDITION: The expression NOT can not be combined with an operator!');
+            }
+
             list($variable, $operation, $value, $addon) = $node['body'];
-
-
-            $result = self::parseValue($variable, $getLine, $emitter, $data);
+            $result = $emitter($variable, true, [ 'conditionVariable' => $variable] );
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
-            Evaluate::returnResult($code, $getLine);
+            $mappedTo = self::finalize( $variable, $data, $code, $getLine );
 
-            $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
+
+            $result = $emitter($value, true, [ 'conditionVariable' => $variable] );
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
-            $result = self::parseValue($addon, $getLine, $emitter, $data);
+            self::finalize( $value, $data, $code, $getLine );
+
+            // not sure about this part
+            if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                $code[] = $getLine('4e000000');
+                $code[] = $getLine('12000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('01000000');
+            }
+
+            $result = $emitter($addon, true, [ 'conditionVariable' => $variable] );
             foreach ($result as $item) {
                 $code[] = $item;
             }
 
             //TODO: OR verbauen
             Evaluate::setStatementAnd($code, $getLine);
-
             Evaluate::initializeStatementInteger($code, $getLine);
             Evaluate::statementOperator($operation, $code, $getLine);
+
 
             $lastLine = end($code)->lineNumber + 4;
 
             // line offset for the IF start (or so)
             $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
 
+
             Evaluate::setStatementFullCondition($code, $getLine);
+
+
+//
+//
+//
+//
+//
+//
+//
+//            list($variable, $operation, $value, $addon) = $node['body'];
+//
+//
+//            $result = self::parseValue($variable, $getLine, $emitter, $data);
+//            foreach ($result as $item) {
+//                $code[] = $item;
+//            }
+//
+//            Evaluate::returnResult($code, $getLine);
+//
+//            $result = self::parseValue($value, $getLine, $emitter, array_merge($data, [ 'conditionVariable' => $variable]));
+//            foreach ($result as $item) {
+//                $code[] = $item;
+//            }
+//
+//            $result = self::parseValue($addon, $getLine, $emitter, $data);
+//            foreach ($result as $item) {
+//                $code[] = $item;
+//            }
+//
+//            //TODO: OR verbauen
+//            Evaluate::setStatementAnd($code, $getLine);
+//
+//            Evaluate::initializeStatementInteger($code, $getLine);
+//            Evaluate::statementOperator($operation, $code, $getLine);
+//
+//            $lastLine = end($code)->lineNumber + 4;
+//
+//            // line offset for the IF start (or so)
+//            $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
+//
+//            Evaluate::setStatementFullCondition($code, $getLine);
 
         }
 
@@ -192,9 +295,9 @@ class T_CONDITION {
 
             return $code;
 
-        /**
-         * Define for INT, FLOAT and STRING a construct and destruct sequence
-         */
+            /**
+             * Define for INT, FLOAT and STRING a construct and destruct sequence
+             */
         }else if (
             $node['type'] == Token::T_INT ||
             $node['type'] == Token::T_FLOAT ||
@@ -217,7 +320,6 @@ class T_CONDITION {
             return $code;
 
         }else if ($node['type'] == Token::T_VARIABLE){
-
             Evaluate::processVariable(
                 $node,
                 $code,

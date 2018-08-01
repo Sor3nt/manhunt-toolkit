@@ -66,6 +66,28 @@ class T_FUNCTION {
 
 
                         switch ($mappedTo['type']) {
+
+                            case 'entityptr':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+//
+//                                $code[] = $getLine('16000000');
+//                                $code[] = $getLine('04000000');
+//                                $code[] = $getLine('00000000');
+//                                $code[] = $getLine('01000000');
+//
+//                                $code[] = $getLine('13000000');
+//                                $code[] = $getLine('01000000');
+//                                $code[] = $getLine('04000000');
+//                                $code[] = $getLine($mappedTo['offset']);
+//
+//                                $code[] = $getLine('10000000');
+//                                $code[] = $getLine('01000000');
+                                break;
+                            case 'vec3d':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                break;
                             case 'integer':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');

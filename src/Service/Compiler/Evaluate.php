@@ -12,242 +12,242 @@ class Evaluate {
      */
     static public function processAssign( $node, &$code, \Closure $getLine,\Closure $emitter, $data ){
         EvaluateAssign::process($node, $code, $getLine, $emitter, $data);
-        return;
-        var_dump($code);
-        exit;
-
-        $code = [];
-
-        /**
-         * when the variable is not found, check if its an object
-         */
-        if (!isset($data['variables'][$node['value']])){
-
-            if (strpos($node['value'], '.') !== false){
-
-                $mapped = Evaluate::getObjectToAttributeSplit(array_merge($data, [
-                    'conditionVariable' => [ 'value' => $node['value'] ]
-                ]));
-            }else{
-                throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
-            }
-        }else{
-            $mapped = $data['variables'][$node['value']];
-        }
-
-
-        switch (count($node['body'])){
-            // something like val := val + 1
-            case 3:
-
-                $resultCode = self::handleSimpleMath($node['body'], $getLine, $emitter, $data);
-                foreach ($resultCode as $line) {
-                    $code[] = $line;
-                }
-
-                break;
-
-
-            case 1:
-            break;
-
-            default:
-                throw new \Exception(sprintf('Unable to handle Assignment'));
-
-                break;
-        }
-
-        /**
-         * handle the target variable
-         */
-        switch ($mapped['section']){
-
-            case 'header':
-
-                switch (strtolower($mapped['type'])){
-                    case 'boolean':
-
-                        Evaluate::initializeParameterInteger($code, $getLine);
-
-                        //evaluate the boolean
-                        $resultCode = $emitter($node['body'][0]);
-                        foreach ($resultCode as $line) {
-                            $code[] = $line;
-                        }
-
-                        Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
-
-                        break;
-                    case 'level_var tlevelstate':
-                        if (isset($data['types'][$node['value']])){
-
-                            $variableType = $data['types'][$node['value']];
-                            $type = $variableType[$node['body'][0]['value']];
-
-                            Evaluate::initializeParameterInteger($code, $getLine);
-
-                            $code[] = $getLine($type['offset']);
-
-                            Evaluate::assignToLevelVar($mapped['offset'], $code, $getLine);
-                        }else{
-                            throw new \Exception(sprintf('T_ASSIGN: level_var tLevelState type not found: %s  '), $node['value']);
-
-                        }
-
-                        break;
-                    case 'level_var boolean':
-
-                        self::initializeParameterInteger($code, $getLine);
-
-                        //evaluate the integer
-                        $resultCode = $emitter($node['body'][0]);
-                        foreach ($resultCode as $line) {
-                            $code[] = $line;
-                        }
-
-                        self::assignToLevelVar($mapped['offset'],  $code, $getLine);
-
-                        break;
-
-                    case 'level_var integer':
-                        self::assignToLevelVar($mapped['offset'], $code, $getLine);
-                        break;
-
-                    case 'integer':
-                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
-
-                            $resultCode = $emitter($node['body'][0]);
-                            foreach ($resultCode as $line) {
-                                $code[] = $line;
-                            }
-
-                            self::assignToUnknownInteger($mapped['offset'], $code, $getLine);
-
-                        }else {
-                            self::assignToHeaderInteger($mapped['offset'], $code, $getLine);
-                        }
-                        break;
-                    case 'stringarray':
-
-                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
-
-                            //evaluate the function call
-                            $resultCode = $emitter($node['body'][0]);
-                            foreach ($resultCode as $line) {
-                                $code[] = $line;
-                            }
-
-                            self::assignToUnknownStringArray($mapped, $code, $getLine);
-
-                            return $code;
-
-                        } else {
-                            self::assignToHeaderStringArray($mapped['offset'], $code, $getLine);
-                        }
-
-                        break;
-                    default:
-                        throw new \Exception(sprintf("Header assignment for %s is not implemented", $mapped['type']));
-                }
-
-                break;
-
-            case 'script':
-                switch (strtolower($mapped['type'])){
-                    case 'boolean':
-
-                        Evaluate::initializeParameterInteger($code, $getLine);
-
-                        //evaluate the boolean
-                        $resultCode = $emitter($node['body'][0]);
-                        foreach ($resultCode as $line) {
-                            $code[] = $line;
-                        }
-
-                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
-
-                            Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
-
-                        }else{
-
-                            Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
-
-                        }
-
-
-                        break;
-
-                    # so far known only vec3d childs (x,y,z) are object
-                    case 'object':
-
-                        Evaluate::initializeReadScriptVec3d($code, $getLine);
-                        $code[] = $getLine($mapped['object']['offset']);
-                        Evaluate::returnResult($code, $getLine);
-
-                        if ($mapped['offset'] != $mapped['object']['offset']){
-
-                            //hmm ? doppelte bedeutung ?
-                            Evaluate::returnObjectResult($code, $getLine);
-
-
-
-                            $code[] = $getLine('32000000');
-                            $code[] = $getLine('01000000');
-
-                            $code[] = $getLine($mapped['offset']);
-                        }
-
-                        Evaluate::returnResult($code, $getLine);
-                        Evaluate::initializeParameterInteger($code, $getLine);
-
-                        //evaluate the integer
-                        $resultCode = $emitter($node['body'][0]);
-                        foreach ($resultCode as $line) {
-                            $code[] = $line;
-                        }
-
-                        Evaluate::returnObjectAttributeResult($code, $getLine);
-
-                        $code[] = $getLine('17000000');
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine('02000000');
-                        $code[] = $getLine('01000000');
-
-                        break;
-                    case 'vec3d':
-
-                        //evaluate the function call
-                        $resultCode = $emitter($node['body'][0]);
-                        foreach ($resultCode as $line) {
-                            $code[] = $line;
-                        }
-
-                        Evaluate::assignToScriptVec3d($mapped['offset'], $code, $getLine);
-                        break;
-                    case 'integer':
-                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
-                            $resultCode = $emitter($node['body'][0]);
-                            foreach ($resultCode as $line) {
-                                $code[] = $line;
-                            }
-
-                            Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
-
-                        }else{
-
-                            self::assignToScriptInteger($mapped['offset'], $code, $getLine);
-                        }
-                        break;
-                    default:
-                        throw new \Exception(sprintf("Script assignment for %s is not implemented", $mapped['type']));
-                }
-
-                break;
-
-            default:
-                throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
-
-        }
+//        return;
+//        var_dump($code);
+//        exit;
+//
+//        $code = [];
+//
+//        /**
+//         * when the variable is not found, check if its an object
+//         */
+//        if (!isset($data['variables'][$node['value']])){
+//
+//            if (strpos($node['value'], '.') !== false){
+//
+//                $mapped = Evaluate::getObjectToAttributeSplit(array_merge($data, [
+//                    'conditionVariable' => [ 'value' => $node['value'] ]
+//                ]));
+//            }else{
+//                throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
+//            }
+//        }else{
+//            $mapped = $data['variables'][$node['value']];
+//        }
+//
+//
+//        switch (count($node['body'])){
+//            // something like val := val + 1
+//            case 3:
+//
+//                $resultCode = self::handleSimpleMath($node['body'], $getLine, $emitter, $data);
+//                foreach ($resultCode as $line) {
+//                    $code[] = $line;
+//                }
+//
+//                break;
+//
+//
+//            case 1:
+//            break;
+//
+//            default:
+//                throw new \Exception(sprintf('Unable to handle Assignment'));
+//
+//                break;
+//        }
+//
+//        /**
+//         * handle the target variable
+//         */
+//        switch ($mapped['section']){
+//
+//            case 'header':
+//
+//                switch (strtolower($mapped['type'])){
+//                    case 'boolean':
+//
+//                        Evaluate::initializeParameterInteger($code, $getLine);
+//
+//                        //evaluate the boolean
+//                        $resultCode = $emitter($node['body'][0]);
+//                        foreach ($resultCode as $line) {
+//                            $code[] = $line;
+//                        }
+//
+//                        Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
+//
+//                        break;
+//                    case 'level_var tlevelstate':
+//                        if (isset($data['types'][$node['value']])){
+//
+//                            $variableType = $data['types'][$node['value']];
+//                            $type = $variableType[$node['body'][0]['value']];
+//
+//                            Evaluate::initializeParameterInteger($code, $getLine);
+//
+//                            $code[] = $getLine($type['offset']);
+//
+//                            Evaluate::assignToLevelVar($mapped['offset'], $code, $getLine);
+//                        }else{
+//                            throw new \Exception(sprintf('T_ASSIGN: level_var tLevelState type not found: %s  '), $node['value']);
+//
+//                        }
+//
+//                        break;
+//                    case 'level_var boolean':
+//
+//                        self::initializeParameterInteger($code, $getLine);
+//
+//                        //evaluate the integer
+//                        $resultCode = $emitter($node['body'][0]);
+//                        foreach ($resultCode as $line) {
+//                            $code[] = $line;
+//                        }
+//
+//                        self::assignToLevelVar($mapped['offset'],  $code, $getLine);
+//
+//                        break;
+//
+//                    case 'level_var integer':
+//                        self::assignToLevelVar($mapped['offset'], $code, $getLine);
+//                        break;
+//
+//                    case 'integer':
+//                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
+//
+//                            $resultCode = $emitter($node['body'][0]);
+//                            foreach ($resultCode as $line) {
+//                                $code[] = $line;
+//                            }
+//
+//                            self::assignToUnknownInteger($mapped['offset'], $code, $getLine);
+//
+//                        }else {
+//                            self::assignToHeaderInteger($mapped['offset'], $code, $getLine);
+//                        }
+//                        break;
+//                    case 'stringarray':
+//
+//                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
+//
+//                            //evaluate the function call
+//                            $resultCode = $emitter($node['body'][0]);
+//                            foreach ($resultCode as $line) {
+//                                $code[] = $line;
+//                            }
+//
+//                            self::assignToUnknownStringArray($mapped, $code, $getLine);
+//
+//                            return $code;
+//
+//                        } else {
+//                            self::assignToHeaderStringArray($mapped['offset'], $code, $getLine);
+//                        }
+//
+//                        break;
+//                    default:
+//                        throw new \Exception(sprintf("Header assignment for %s is not implemented", $mapped['type']));
+//                }
+//
+//                break;
+//
+//            case 'script':
+//                switch (strtolower($mapped['type'])){
+//                    case 'boolean':
+//
+//                        Evaluate::initializeParameterInteger($code, $getLine);
+//
+//                        //evaluate the boolean
+//                        $resultCode = $emitter($node['body'][0]);
+//                        foreach ($resultCode as $line) {
+//                            $code[] = $line;
+//                        }
+//
+//                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
+//
+//                            Evaluate::assignToUnknownInteger($mapped['offset'], $code, $getLine);
+//
+//                        }else{
+//
+//                            Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
+//
+//                        }
+//
+//
+//                        break;
+//
+//                    # so far known only vec3d childs (x,y,z) are object
+//                    case 'object':
+//
+//                        Evaluate::initializeReadScriptVec3d($code, $getLine);
+//                        $code[] = $getLine($mapped['object']['offset']);
+//                        Evaluate::returnResult($code, $getLine);
+//
+//                        if ($mapped['offset'] != $mapped['object']['offset']){
+//
+//                            //hmm ? doppelte bedeutung ?
+//                            Evaluate::returnObjectResult($code, $getLine);
+//
+//
+//
+//                            $code[] = $getLine('32000000');
+//                            $code[] = $getLine('01000000');
+//
+//                            $code[] = $getLine($mapped['offset']);
+//                        }
+//
+//                        Evaluate::returnResult($code, $getLine);
+//                        Evaluate::initializeParameterInteger($code, $getLine);
+//
+//                        //evaluate the integer
+//                        $resultCode = $emitter($node['body'][0]);
+//                        foreach ($resultCode as $line) {
+//                            $code[] = $line;
+//                        }
+//
+//                        Evaluate::returnObjectAttributeResult($code, $getLine);
+//
+//                        $code[] = $getLine('17000000');
+//                        $code[] = $getLine('04000000');
+//                        $code[] = $getLine('02000000');
+//                        $code[] = $getLine('01000000');
+//
+//                        break;
+//                    case 'vec3d':
+//
+//                        //evaluate the function call
+//                        $resultCode = $emitter($node['body'][0]);
+//                        foreach ($resultCode as $line) {
+//                            $code[] = $line;
+//                        }
+//
+//                        Evaluate::assignToScriptVec3d($mapped['offset'], $code, $getLine);
+//                        break;
+//                    case 'integer':
+//                        if ($node['body'][0]['type'] == Token::T_FUNCTION) {
+//                            $resultCode = $emitter($node['body'][0]);
+//                            foreach ($resultCode as $line) {
+//                                $code[] = $line;
+//                            }
+//
+//                            Evaluate::assignToScriptInteger($mapped['offset'], $code, $getLine);
+//
+//                        }else{
+//
+//                            self::assignToScriptInteger($mapped['offset'], $code, $getLine);
+//                        }
+//                        break;
+//                    default:
+//                        throw new \Exception(sprintf("Script assignment for %s is not implemented", $mapped['type']));
+//                }
+//
+//                break;
+//
+//            default:
+//                throw new \Exception(sprintf("T_FUNCTION: section unknown %s", $mapped['section']));
+//
+//        }
 
     }
 
@@ -934,8 +934,8 @@ die("old");
         return $mapped;
     }
 
-    static public function getObjectToAttributeSplit( $data ){
-        list($originalObject, $attribute) = explode('.', $data['conditionVariable']['value']);
+    static public function getObjectToAttributeSplit( $value, $data ){
+        list($originalObject, $attribute) = explode('.', $value);
         $originalMap = $data['variables'][$originalObject];
 
         if (strtolower($originalMap['type']) == "vec3d"){

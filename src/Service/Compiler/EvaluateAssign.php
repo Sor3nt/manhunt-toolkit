@@ -18,9 +18,7 @@ class EvaluateAssign {
 
                 $isObject = true;
 
-                $mapped = Evaluate::getObjectToAttributeSplit(array_merge($data, [
-                    'conditionVariable' => [ 'value' => $node['value'] ]
-                ]));
+                $mapped = Evaluate::getObjectToAttributeSplit($node['value'], $data);
             }else{
                 throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
             }
@@ -55,6 +53,7 @@ class EvaluateAssign {
             $code[] = $getLine('01000000');
 
         }
+
         /**
          * Evaluate the node
          */
@@ -97,7 +96,6 @@ class EvaluateAssign {
          * mutli params are always math operators and need other return codes
          */
         if (isset($node['body'][1]) == false){
-
             switch ($mapped['section']) {
 
                 case 'header':
@@ -125,6 +123,10 @@ class EvaluateAssign {
                     break;
                 case 'script':
                     switch (strtolower($mapped['type'])) {
+                        case 'entityptr':
+                            self::toScriptEntityPtr( $mapped['offset'], $code, $getLine);
+
+                            break;
                         case 'integer':
                         case 'boolean':
                             self::toScriptNumeric( $mapped['offset'], $code, $getLine);
@@ -157,6 +159,12 @@ class EvaluateAssign {
 
                     switch ($mapped['type']) {
 
+                        case 'level_var integer':
+                            $code[] = $getLine('1a000000');
+                            $code[] = $getLine('01000000');
+                            $code[] = $getLine($mapped['offset']);
+                            $code[] = $getLine('04000000');
+                            break;
                         case 'integer':
 
                             $code[] = $getLine('11000000');
@@ -180,6 +188,14 @@ class EvaluateAssign {
                     break;
                 case 'script':
                     switch ($mapped['type']) {
+
+                        case 'integer':
+                            $code[] = $getLine('15000000');
+                            $code[] = $getLine('04000000');
+                            $code[] = $getLine($mapped['offset']);
+                            $code[] = $getLine('01000000');
+
+                            break;
                         default:
                             var_dump($mapped);
                             throw new \Exception("Not implemented!");
@@ -195,6 +211,14 @@ class EvaluateAssign {
 
         }
 
+    }
+
+
+    static public function toScriptEntityPtr( $offset, &$code, \Closure $getLine){
+        $code[] = $getLine('15000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine( $offset );
+        $code[] = $getLine('01000000');
     }
 
 
