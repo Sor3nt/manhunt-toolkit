@@ -42,6 +42,13 @@ class CallAssignTest extends KernelTestCase
             '0c000000', //Offset in byte
 
 
+            '22000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
+            '0c000000', //unknown
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -60,6 +67,13 @@ class CallAssignTest extends KernelTestCase
             '12000000', //unknown
             '03000000', //unknown
             '0c000000', //unknown
+
+
+            '0f000000', //unknown
+            '01000000', //unknown
+            '0f000000', //unknown
+            '04000000', //unknown
+            '44000000', //unknown
 
             // script end
             '11000000',

@@ -38,6 +38,15 @@ class AssignTest extends KernelTestCase
             '0c000000',
 
 
+
+            '22000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
+            '0c000000', //unknown
+
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -64,6 +73,12 @@ class AssignTest extends KernelTestCase
             '03000000', //unknown
             '0c000000', //unknown
 
+
+            '0f000000',
+            '01000000',
+            '0f000000',
+            '04000000',
+            '44000000',
 
 
             // script end

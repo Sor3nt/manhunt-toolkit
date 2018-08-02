@@ -26,9 +26,19 @@ class EvaluateAssign {
             $mapped = $data['variables'][$node['value']];
         }
 
+
         $leftHand = $node['body'][0];
 
-        if($isObject){
+        if ($mapped['type'] == "vec3d"){
+            $code[] = $getLine('22000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine($mapped['offset']);
+
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
+
+        }else if($isObject){
             $code[] = $getLine('22000000');
             $code[] = $getLine('04000000');
             $code[] = $getLine('01000000');
@@ -95,16 +105,19 @@ class EvaluateAssign {
          * wee need here to difference between sindlge param or multi param
          * mutli params are always math operators and need other return codes
          */
+
         if (isset($node['body'][1]) == false){
             switch ($mapped['section']) {
 
                 case 'header':
 
                     switch (strtolower($mapped['type'])) {
-                        case 'integer':
                         case 'boolean':
-                            self::toHeaderNumeric( $mapped['offset'], $code, $getLine);
+                        case 'integer':
+                            self::toHeaderBoolean( $mapped['offset'], $code, $getLine);
                             break;
+//                            self::toHeaderInteger( $mapped['offset'], $code, $getLine);
+//                            break;
 
                         case 'level_var boolean':
                             self::toHeaderLevelVarBoolean( $mapped['offset'], $code, $getLine);
@@ -190,10 +203,12 @@ class EvaluateAssign {
                     switch ($mapped['type']) {
 
                         case 'integer':
-                            $code[] = $getLine('15000000');
-                            $code[] = $getLine('04000000');
-                            $code[] = $getLine($mapped['offset']);
-                            $code[] = $getLine('01000000');
+
+                            self::toHeaderInteger($mapped['offset'], $code, $getLine);
+//                            $code[] = $getLine('15000000');
+//                            $code[] = $getLine('04000000');
+//                            $code[] = $getLine($mapped['offset']);
+//                            $code[] = $getLine('01000000');
 
                             break;
                         default:
@@ -229,16 +244,27 @@ class EvaluateAssign {
         $code[] = $getLine('04000000');
         $code[] = $getLine('02000000');
         $code[] = $getLine('01000000');
+
+
+
     }
 
     static public function toScriptVec3D( $offset, &$code, \Closure $getLine){
         $code[] = $getLine('12000000');
         $code[] = $getLine('03000000');
         $code[] = $getLine( $offset );
+//
+        $code[] = $getLine('0f000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('0f000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine('44000000');
+
     }
 
 
     static public function toScriptNumeric( $offset, &$code, \Closure $getLine){
+
 
         $code[] = $getLine('15000000');
         $code[] = $getLine('04000000');
@@ -255,12 +281,27 @@ class EvaluateAssign {
         $code[] = $getLine('04000000');
     }
 
-    static public function toHeaderNumeric( $offset, &$code, \Closure $getLine){
+    static public function toHeaderBoolean( $offset, &$code, \Closure $getLine){
 
         $code[] = $getLine('16000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine( $offset );
         $code[] = $getLine('01000000');
+    }
+
+
+    static public function toHeaderInteger( $offset, &$code, \Closure $getLine){
+
+        $code[] = $getLine('11000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('04000000');
+
+
+        $code[] = $getLine('15000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine( $offset );
+        $code[] = $getLine('01000000');
+
     }
 
 

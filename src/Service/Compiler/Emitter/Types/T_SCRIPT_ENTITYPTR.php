@@ -22,8 +22,8 @@ class T_SCRIPT_ENTITYPTR {
             $getLine('13000000'),
             $getLine('01000000'),
             $getLine('04000000'),
-
             $getLine($mapped['offset']),
+
         ];
     }
 

@@ -51,12 +51,20 @@ class SubstractionTest extends KernelTestCase
             '01000000', //value 1
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
+
             '33000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
-            '15000000', //unknown
+
+
+            '11000000',
+            '01000000',
+            '04000000',
+
+            '15000000', //offset
+
             '04000000', //unknown
-            '04000000', //unknown
+            '04000000', //offset
             '01000000', //unknown
 
             // script end

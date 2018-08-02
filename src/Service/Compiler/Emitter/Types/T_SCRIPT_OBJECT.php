@@ -39,10 +39,15 @@ class T_SCRIPT_OBJECT {
             $code[] = $getLine('02000000');
         }else{
 
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
+//            $code[] = $getLine('0f000000');
+//            $code[] = $getLine('04000000');
+//
+//            $code[] = $getLine('0f000000');
+//            $code[] = $getLine('04000000');
+//
+//            $code[] = $getLine('44000000');
 
-            $code[] = $getLine('44000000');
+
             $code[] = $getLine('22000000');
             $code[] = $getLine('04000000');
             $code[] = $getLine('01000000');

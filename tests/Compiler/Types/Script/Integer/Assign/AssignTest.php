@@ -16,10 +16,11 @@ class AssignTest extends KernelTestCase
             scriptmain LevelScript;
 
             script OnCreate;
-                var
-                    animLength : integer;
+                VAR
+                    animLength : integer;       
                 begin
-            		animLength := GetAnimationLength('ASY_NURSE_ATTACK4A');
+                    
+                   	animLength := animLength - 1500;
                 end;
 
             end.
@@ -33,30 +34,38 @@ class AssignTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '34000000',
-            '09000000',
-            '04000000',
 
-            '21000000', // Prepare string read (DATA table)
-            '04000000', // Prepare string read (DATA table)
-            '01000000', // Prepare string read (DATA table)
-            '00000000', // offset
+            '34000000', //reserve bytes
+            '09000000', //reserve bytes
+            '04000000', //Offset in byte
 
-            '12000000', // parameter (Read String var)
-            '02000000', // parameter (Read String var)
-            '13000000', // ASY_NURSE_ATTACK4A + 1
-            '10000000', // parameter (Read String var)
-            '01000000', // parameter (Read String var)
 
-            '10000000', // string pointer move
-            '02000000', // string pointer move
 
-            '49030000', // getanimationlength Call
+            '13000000', //read from script var
+            '01000000', //read from script var
+            '04000000', //read from script var
+            '04000000', //Offset
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+            '12000000', //parameter (temp int)
+            '01000000', //parameter (temp int)
+            'dc050000', //value 1500
+            '0f000000', //parameter (temp int)
+            '04000000', //parameter (temp int)
 
-            '15000000',
-            '04000000',
-            '04000000',
-            '01000000',
+            '33000000', //sub
+            '04000000', //sub
+            '01000000', //sub
+
+            '11000000', //unknown
+            '01000000', //unknown
+            '04000000', //unknown
+
+            '15000000', //unknown
+            '04000000', //unknown
+            '04000000', //offset
+            '01000000', //nested call return result
+
 
             // script end
             '11000000',
@@ -67,6 +76,7 @@ class AssignTest extends KernelTestCase
             '3b000000',
             '00000000'
         ];
+
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);

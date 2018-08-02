@@ -18,8 +18,8 @@ class T_SCRIPT_INTEGER {
         return [
             $getLine('13000000'),
             $getLine('01000000'),
-            $getLine($offset),
             $getLine('04000000'),
+            $getLine($offset),
 
 
         ];

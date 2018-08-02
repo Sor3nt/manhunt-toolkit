@@ -12,7 +12,8 @@ class LiftLoon01Test extends KernelTestCase
 
     public function test()
     {
-
+//        $this->assertEquals(true, true, 'The bytecode is not correct');
+//return;
         $script = "
 
 scriptmain LiftLoon01;
@@ -342,6 +343,7 @@ end.
             '0c000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -366,14 +368,20 @@ end.
             '0f000000', //unknown
             '04000000', //unknown
             '44000000', //unknown
+
+
+
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
             '0c000000', //unknown
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '0f000000', //unknown
             '01000000', //unknown
+
             '32000000', //unknown
             '01000000', //unknown
             '04000000', //unknown
@@ -406,6 +414,7 @@ end.
             '00000000', //statement (end sequence)
             '3f000000', //statement (init start offset)
             '24050000', //Offset (line number 329)
+
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
@@ -438,6 +447,8 @@ end.
             '0f000000', //unknown
             '04000000', //unknown
             '44000000', //unknown
+
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '0a000000', //value 10
@@ -686,30 +697,38 @@ end.
 
             '15000000', //unknown
             '04000000', //unknown
-            '10000000', //nested call return result
-            '01000000', //nested call return result
+            '10000000', //offset
+            '01000000', //
 
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var
             '10000000', //Offset
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
             'dc050000', //value 1500
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
-            '33000000', //unknown
-            '04000000', //unknown
-            '01000000', //unknown
-            '11000000', //unknown
+
+            '33000000', //sub
+            '04000000', //sub
+            '01000000', //sub
+
+            '11000000', //offset
+
+
             '01000000', //unknown
             '04000000', //unknown
             '15000000', //unknown
             '04000000', //unknown
             '10000000', //nested call return result
             '01000000', //nested call return result
+
+
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var
