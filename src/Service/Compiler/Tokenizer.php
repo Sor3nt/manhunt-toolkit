@@ -60,8 +60,6 @@ class Tokenizer {
          */
 
         T_STRING::class,
-
-//        T_HEADER_DEFINE::class,
         T_WHITESPACE::class,
 
         T_FORWARD::class,
@@ -84,13 +82,11 @@ class Tokenizer {
         T_PROCEDURE_NAME::class,
         T_SELF::class,
 
-
         T_SQUARE_BRACKET_OPEN::class,
         T_SQUARE_BRACKET_CLOSE::class,
         T_BRACKET_OPEN::class,
         T_BRACKET_CLOSE::class,
         T_SEPERATOR::class,
-
 
         T_IF::class,
         T_OR::class,
@@ -118,9 +114,7 @@ class Tokenizer {
 
 
         T_FUNCTION::class,
-        T_VARIABLE::class,
-
-
+        T_VARIABLE::class
     ];
 
 

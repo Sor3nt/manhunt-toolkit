@@ -86,6 +86,11 @@ class T_IF {
                             Evaluate::returnResult($code, $getLine);
 
                         }
+                    }else if (
+                        $condition['type'] == Token::T_AND ||
+                        $condition['type'] == Token::T_OR
+                    ) {
+                        continue;
                     }else{
                         throw new \Exception('T_IF: Brackets order not valid');
                     }

@@ -86,6 +86,7 @@ use App\Service\Compiler\Tokens\T_WHITESPACE;
     const T_NULL                        = 'T_NULL';
     const T_ASSIGN                      = 'T_ASSIGN';
     const T_CONDITION                   = 'T_CONDITION';
+    const T_OPERATION                   = 'T_OPERATION';
     const T_IS_NOT_EQUAL                = 'T_IS_NOT_EQUAL';
     const T_IS_EQUAL                    = 'T_IS_EQUAL';
     const T_IS_GREATER                  = 'T_IS_GREATER';

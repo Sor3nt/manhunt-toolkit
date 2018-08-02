@@ -12,8 +12,7 @@ class LiftLoon01Test extends KernelTestCase
 
     public function test()
     {
-        $this->assertEquals(true, true, 'The bytecode is not correct');
-return;
+
         $script = "
 
 scriptmain LiftLoon01;

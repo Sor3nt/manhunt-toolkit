@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Statements;
+namespace App\Tests\Compiler\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;

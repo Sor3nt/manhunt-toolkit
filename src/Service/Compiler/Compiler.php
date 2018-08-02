@@ -382,6 +382,8 @@ class Compiler {
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
 
+        var_dump($ast);
+
         $this->fixWriteDebug($ast['body']);
 
         $header = [];
@@ -486,6 +488,8 @@ class Compiler {
 
         $result = [];
         foreach ($tokens as $token) {
+
+//            if (!isset($token['type'])) continue;
 
             if (count($searchType) == 0 || in_array($token['type'],$searchType)){
                 if (in_array($token['type'],$ignoreTypes)){

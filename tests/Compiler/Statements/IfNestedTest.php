@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Statements;
+namespace App\Tests\Compiler\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -33,6 +33,29 @@ class IfNestedTest extends KernelTestCase
 
             end.
         ";
+//
+//        $script = "
+//            scriptmain LevelScript;
+//
+//            var
+//                stealthOneLooper : level_var boolean;
+//
+//            script OnCreate;
+//
+//                begin
+//                  	if
+//                  	    (GetDamage(GetPlayer) < 125)
+//                  	    AND
+//                  	    (
+//                  	        (GetEntity('G_First_Aid_(CT)13') <> NIL) OR
+//                  	        (GetEntity('G_First_Aid_(CT)14') <> NIL) OR
+//                  	        (GetEntity('G_First_Aid_(CT)15') <> NIL)
+//                  	    ) then
+//                    stealthOneLooper := TRUE;
+//                end;
+//
+//            end.
+//        ";
 
         $expected = [
             // script start
