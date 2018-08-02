@@ -186,7 +186,6 @@ class Parser {
                     $case['isTrue'] = $parsedIsTrue;
                 }
 
-
                 return [$current, $nodes];
 
             case Token::T_DEFINE_SECTION_VAR:
@@ -1107,10 +1106,13 @@ class Parser {
             if ($token['type'] === Token::T_BRACKET_CLOSE) {
 
                 return [$current + 1 , $node];
-//            }else if ($token['type'] === Token::T_AND || $token['type'] === Token::T_OR) {
-//
-//                $current++;
-//                continue;
+            }else if (
+                ($token['type'] === Token::T_AND || $token['type'] === Token::T_OR) &&
+                $tokens[$current - 1]['type'] == Token::T_BRACKET_CLOSE
+            ) {
+
+                    $current++;
+                    continue;
             }else{
 
                 list($current, $param) = $this->parseToken($tokens, $current);
