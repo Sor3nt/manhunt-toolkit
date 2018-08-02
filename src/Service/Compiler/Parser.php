@@ -129,6 +129,7 @@ class Parser {
             case Token::T_IF:
             case Token::T_WHILE:
                 list($current, $nodes) = $this->parseIfStatement($tokens, $current);
+
                 // Todo: wrap code into a function
                 foreach ($nodes['cases'] as &$case) {
 
@@ -1106,10 +1107,10 @@ class Parser {
             if ($token['type'] === Token::T_BRACKET_CLOSE) {
 
                 return [$current + 1 , $node];
-            }else if ($token['type'] === Token::T_AND || $token['type'] === Token::T_OR) {
-
-                $current++;
-                continue;
+//            }else if ($token['type'] === Token::T_AND || $token['type'] === Token::T_OR) {
+//
+//                $current++;
+//                continue;
             }else{
 
                 list($current, $param) = $this->parseToken($tokens, $current);

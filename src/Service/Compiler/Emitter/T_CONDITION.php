@@ -112,8 +112,7 @@ class T_CONDITION {
         $code = [];
 
 //        if (count($node['body']) >= 3) {
-//var_dump($node);
-//exit;
+
             $current = 0;
             $bodyCount = count($node['body']);
             $operator = false;
@@ -146,6 +145,7 @@ class T_CONDITION {
                         }
 
                         if ($index + 1 == count($token['params'])){
+
                             $code[] = $getLine('0f000000');
                             $code[] = $getLine('04000000');
 
