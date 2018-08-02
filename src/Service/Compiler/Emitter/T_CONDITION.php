@@ -111,219 +111,106 @@ class T_CONDITION {
 
         $code = [];
 
-//        if (count($node['body']) >= 3) {
+        $token = $node['body'][0];
 
-            $current = 0;
-            $bodyCount = count($node['body']);
-            $operator = false;
-            while($current < $bodyCount){
-                $token = $node['body'][$current];
+        if ($token['type'] == Token::T_OPERATION){
 
-                $isNot = false;
-                $isAnd = false;
-                if ($token['type'] == Token::T_NOT) {
-                    $isNot = true;
-                    unset($node['body'][$current]);
-                    $current++;
+            if (count($token['params']) == 1){
+
+                $result = $emitter($token['params'][0]);
+                foreach ($result as $item) {
+                    $code[] = $item;
                 }
 
-                if ($token['type'] == Token::T_AND) {
-                    $isAnd = true;
-                    unset($node['body'][$current]);
-                    $current++;
+                if ($node['isNot']){
+                    Evaluate::setStatementNot($code, $getLine);
                 }
 
-                $token = $node['body'][$current];
+            }else{
 
-                if ($token['type'] == Token::T_OPERATION){
-                    $operator = $token['operator'];
-                    foreach ($token['params'] as $index => $operation) {
+                $operator = $token['operator'];
 
-                        $result = $emitter($operation);
-                        foreach ($result as $item) {
-                            $code[] = $item;
-                        }
+                $mapped = false;
+                foreach ($token['params'] as $index => $operation) {
 
-                        if ($index + 1 == count($token['params'])){
+                    if ($operation['type'] == Token::T_VARIABLE){
+                        $mappedTo = T_VARIABLE::getMapping(
+                            $operation,
+                            null,
+                            $data
+                        );
+                    }
 
-                            $code[] = $getLine('0f000000');
-                            $code[] = $getLine('04000000');
+                    $result = $emitter($operation);
+                    foreach ($result as $item) {
+                        $code[] = $item;
+                    }
 
-                        }else{
+                    if ($index + 1 == count($token['params'])){
+
+                        if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
                             $code[] = $getLine('10000000');
                             $code[] = $getLine('01000000');
 
+                        }else{
+                            $code[] = $getLine('0f000000');
+                            $code[] = $getLine('04000000');
+
                         }
 
-                    }
 
-                    if ($token['operation']['type'] == Token::T_AND) {
-
-                        $code[] = $getLine('25000000');
+                    }else{
+                        $code[] = $getLine('10000000');
                         $code[] = $getLine('01000000');
-                        $code[] = $getLine('04000000');
 
-                        $code[] = $getLine('0f000000');
-                        $code[] = $getLine('04000000');
-                    }else if ($token['operation']['type'] == Token::T_OR){
-                        throw new \Exception(" Or implementation missed");
                     }
-
-
-                    if ($isNot){
-                        Evaluate::setStatementNot($code, $getLine);
-                        $isNot = false;
-                    }
-
-                    break;
-                }else{
-                    var_dump($token);
-                    exit;
-
                 }
 
-                $current++;
+                if ($token['operation']['type'] == Token::T_AND) {
+
+                    $code[] = $getLine('25000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+                }else if ($token['operation']['type'] == Token::T_OR){
+                    throw new \Exception(" Or implementation missed");
+                }
+
+                if ($node['isNot']){
+                    Evaluate::setStatementNot($code, $getLine);
+                }
+
+                // not sure about this part
+                if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                    $code[] = $getLine('4e000000');
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('01000000');
+                }else{
+                    $code[] = $getLine('23000000');
+                    $code[] = $getLine('04000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('01000000');
+                }
+
+
+                if ($operator){
+
+                    Evaluate::statementOperator($operator, $code, $getLine);
+
+                    $lastLine = end($code)->lineNumber + 4;
+
+                    // line offset for the IF start (or so)
+                    $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
+
+                    Evaluate::setStatementFullCondition($code, $getLine);
+                }
             }
-
-//
-//            if ($variable['type'] == Token::T_VARIABLE){
-//                $mappedTo = T_VARIABLE::getMapping(
-//                    $variable,
-//                    null,
-//                    $data
-//                );
-//
-//            }
-//
-//            $result = $emitter($variable);
-//            foreach ($result as $item) {
-//                $code[] = $item;
-//            }
-//
-//            $mappedTo = self::finalize( $variable, $data, $code, $getLine );
-//
-//
-//            $result = $emitter($value);
-//            foreach ($result as $item) {
-//                $code[] = $item;
-//            }
-//
-//
-//            $code[] = $getLine('10000000');
-//            $code[] = $getLine('01000000');
-//
-//
-//            if (
-//               // ($variable['type'] == Token::T_VARIABLE) ||
-//                ($variable['type'] != Token::T_FUNCTION)
-//            ){
-//                self::finalize( $variable, $data, $code, $getLine );
-//            }else{
-//                self::finalize( $value, $data, $code, $getLine );
-//
-//            }
-
-
-            // not sure about this part
-//            if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
-//                $code[] = $getLine('4e000000');
-//                $code[] = $getLine('12000000');
-//                $code[] = $getLine('01000000');
-//                $code[] = $getLine('01000000');
-//            }else{
-                $code[] = $getLine('23000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('12000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('01000000');
-
-
-//            }
-
-
-        if ($operator){
-
-            Evaluate::statementOperator($operator, $code, $getLine);
-
-
-
-            $lastLine = end($code)->lineNumber + 4;
-
-            // line offset for the IF start (or so)
-            $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
-
-            Evaluate::setStatementFullCondition($code, $getLine);
         }
-
-//
-//        }else if (count($node['body']) == 1){
-//
-//
-//            $result = $emitter($node['body'][0]);
-//            foreach ($result as $item) {
-//                $code[] = $item;
-//            }
-//
-//
-//            if ($node['isNot']){
-//                Evaluate::setStatementNot($code, $getLine);
-//            }
-//
-//        }
-
-//        else if (count($node['body']) == 4){
-//
-//
-//
-//            if ($node['isNot']){
-//                throw new \Exception('T_CONDITION: The expression NOT can not be combined with an operator!');
-//            }
-//
-//            list($variable, $operation, $value, $addon) = $node['body'];
-//            $result = $emitter($variable );
-//            foreach ($result as $item) {
-//                $code[] = $item;
-//            }
-//
-//            $mappedTo = self::finalize( $variable, $data, $code, $getLine );
-//
-//            $code[] = $getLine('10000000');
-//            $code[] = $getLine('01000000');
-//
-//            $result = $emitter($value);
-//            foreach ($result as $item) {
-//                $code[] = $item;
-//            }
-//
-//            self::finalize( $value, $data, $code, $getLine );
-//
-//            // not sure about this part
-//            if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
-//                $code[] = $getLine('4e000000');
-//                $code[] = $getLine('12000000');
-//                $code[] = $getLine('01000000');
-//                $code[] = $getLine('01000000');
-//            }
-//
-//            $result = $emitter($addon);
-//            foreach ($result as $item) {
-//                $code[] = $item;
-//            }
-//
-//            //TODO: OR verbauen
-//            Evaluate::setStatementAnd($code, $getLine);
-//            Evaluate::initializeStatementInteger($code, $getLine);
-//            Evaluate::statementOperator($operation, $code, $getLine);
-//
-//            $lastLine = end($code)->lineNumber + 4;
-//
-//            // line offset for the IF start (or so)
-//            $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
-//
-//            Evaluate::setStatementFullCondition($code, $getLine);
-//        }
-
 
         return $code;
     }
