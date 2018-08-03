@@ -116,6 +116,19 @@ class T_FUNCTION {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+        try {
+            T_VARIABLE::getMapping($node, null, $data);
+            return $emitter([
+                'type' => Token::T_VARIABLE,
+                'value' => $node['value']
+            ]);
+        }catch(\Exception $e){
+
+            var_dump($e->getMessage());
+            var_dump($e->getFile());
+            var_dump($e->getLine());
+//            exit;
+        }
 
         $code = [ ];
 

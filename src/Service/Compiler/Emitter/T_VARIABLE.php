@@ -10,6 +10,7 @@ use App\Service\Compiler\Token;
 class T_VARIABLE {
 
     static public function getMapping( $node, \Closure $emitter = null , $data ){
+
         $value = $node['value'];
 
         if (isset(Manhunt2::$constants[ $value ])) {
@@ -34,14 +35,25 @@ class T_VARIABLE {
 
             $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
 
-        }else if (
-            isset($node['target']) &&
-            isset($data['types'][ $node['target'] ])
-        ){
-
-            $variableType = $data['types'][$node['target']];
-            $mapped = $variableType[$value];
         }else{
+
+
+            /**
+             *
+             * well this is not a good way, i just search the key...
+             * it should be ok because the name of the type can not be a variable name
+             * or function name....
+             *
+             */
+            foreach ($data['types'] as $type) {
+                foreach ($type as $name => $map) {
+
+                    if ($name == strtolower($value)){
+
+                        return $map;
+                    }
+                }
+            }
 
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
@@ -62,7 +74,16 @@ class T_VARIABLE {
         if (class_exists($typeHandler)){
             $code = $typeHandler::map($node, $getLine, $emitter, $data);
         }else{
-            throw new \Exception($typeHandler . " Not implemented!");
+
+
+            if (isset($data['types'][$mapped['type']])){
+
+                $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\T_HEADER_TYPES";
+                $code = $typeHandler::map($node, $getLine, $emitter, $data);
+
+            }else{
+                throw new \Exception($typeHandler . " Not implemented!");
+            }
         }
 
         return $code;

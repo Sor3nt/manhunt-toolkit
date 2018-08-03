@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Emitter\T_VARIABLE;
+
 class T_FUNCTION {
 
     static public function match( $input, $current, $tokens ){
@@ -20,7 +22,6 @@ class T_FUNCTION {
             }else{
 
                 if ($char == ";" || $char == "("){
-
                     return [
                         'type' => 'T_FUNCTION',
                         'value' => $value

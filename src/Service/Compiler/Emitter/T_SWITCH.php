@@ -26,7 +26,7 @@ class T_SWITCH {
 
             $code[] = $getLine('24000000');
             $code[] = $getLine('01000000');
-            $code[] = $getLine( self::toIndex($case['index']) );
+            $code[] = $getLine( self::toIndex($case['index'], $data, $node['switch']) );
 
             $code[] = $getLine('3f000000');
             $code[] = $getLine(Helper::fromIntToHex( $calc['cases'][$index] ));
@@ -83,9 +83,26 @@ class T_SWITCH {
         return $calc;
     }
 
-    static public function toIndex($node){
-        switch ($node['type']){
+    static public function toIndex($node, $data, $switchVar){
 
+        switch ($node['type']){
+            case Token::T_VARIABLE:
+
+                $mapping = T_VARIABLE::getMapping($switchVar, null, $data);
+//var_dump($mapping);
+//exit;
+                if (isset($data['types'][ $mapping['type'] ])){
+
+                    $mapping = $data['types'][ $mapping['type'] ];
+                    $mapping = $mapping[ strtolower($node['value']) ];
+
+                }else{
+                    $mapping = T_VARIABLE::getMapping($node, null, $data);
+                }
+
+                return $mapping['offset'];
+
+                break;
             case Token::T_INT:
                 return Helper::fromIntToHex($node['value']);
                 break;

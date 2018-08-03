@@ -95,9 +95,9 @@ class Manhunt2 {
         'lElevatorLevel'                  => [
             'offset' => "30170000"
         ],
-        'lLevelState'                     => [
-            'offset' => "24170000"
-        ],
+//        'lLevelState'                     => [
+//            'offset' => "24170000"
+//        ],
 
         'stealthOneLooper'                     => [
             'offset' => "b0170000"

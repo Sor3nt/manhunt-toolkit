@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\CompilerByType\Header\tLevelStaten\Assign;
+namespace App\Tests\CompilerByType\Header\LevelVarType\Assign;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;

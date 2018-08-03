@@ -4,18 +4,22 @@ namespace App\Service\Compiler\Emitter\Types;
 
 use App\Service\Compiler\FunctionMap\Manhunt2;
 
-class T_HEADER_LEVEL_VAR_TLEVELSTATE {
+class T_HEADER_TYPE {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-        $variableType = $data['types'][$node['target']];
 
-        if ($data['calculateLineNumber']){
-            $mapped = $variableType[$node['value']];
-        }else{
-            $mapped = [
-                'offset' => '12345678'
-            ];
+        $mapped = false;
+
+        foreach ($data['types'] as $type) {
+            foreach ($type as $name => $map) {
+
+                if ($name == strtolower($node['value'])){
+
+                    $mapped = $map;
+                }
+            }
         }
+
 
         return [
             $getLine('12000000'),

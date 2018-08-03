@@ -38,7 +38,9 @@ class Compiler {
             $token = $tokens[ $current ];
 
             // we need to know the current section for the defined vars
-            if ($token['type'] == Token::T_SCRIPT) return $vars;
+            if ($token['type'] == Token::T_SCRIPT){
+                return $vars;
+            }
 
 
             if ($token['type'] == Token::T_DEFINE_SECTION_VAR) {
@@ -272,15 +274,15 @@ class Compiler {
                     $beforeToken = $tokens[ $current - 1 ];
 
                     $offset = 0;
-                    $currentTypeSection = $beforeToken['value'];
+                    $currentTypeSection = strtolower($beforeToken['value']);
 
                     $types[ $currentTypeSection ]  = [];
 
 
                 }else if ($currentTypeSection && $token['type'] == Token::T_VARIABLE){
 
-                    $types[ $currentTypeSection ][ $token['value'] ] = [
-                        'type' => 'level_var tLevelState',
+                    $types[ $currentTypeSection ][ strtolower($token['value']) ] = [
+                        'type' => 'type',
                         'section' => "header",
                         'offset' => Helper::fromIntToHex($offset)
                     ];
@@ -514,6 +516,15 @@ class Compiler {
                     $result[] = $item;
                 }
             }else if (isset($token['cases'])){
+
+                if (isset($token['switch'])){
+                    $response =   $this->recursiveSearch([$token['switch']], $searchType, $ignoreTypes);
+                    foreach ($response as $item) {
+                        $result[] = $item;
+                    }
+
+                }
+
                 foreach ($token['cases'] as $case) {
 
                     if (!isset($case['condition'])){

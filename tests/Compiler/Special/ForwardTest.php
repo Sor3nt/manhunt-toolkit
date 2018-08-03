@@ -28,9 +28,9 @@ class ForwardTest extends KernelTestCase
                 
             
             procedure InitAI;
-            begin
-                    alreadyDone := TRUE;
-            end;
+                begin
+                        alreadyDone := TRUE;
+                end;
 
             end.
             
