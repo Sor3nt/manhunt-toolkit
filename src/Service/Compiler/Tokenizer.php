@@ -130,7 +130,10 @@ class Tokenizer {
 
             $token = $tokens[ $current ];
 
-            if ($token['type'] == Token::T_PROCEDURE){
+            if (
+                $token['type'] == Token::T_PROCEDURE &&
+                $tokens[ $current + 3 ]['type']  != Token::T_FORWARD
+            ){
                 $found = true;
             }elseif ($found && $token['type'] == Token::T_END){
                 $found = false;
