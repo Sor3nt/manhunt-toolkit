@@ -8,8 +8,9 @@ class T_SELF {
         $chars = strtolower(substr($input, $current, 4));
 
         if ($chars == "this"){
-            $lastChar = substr($chars, 4, 1);
-            if ($lastChar == " " || $lastChar == ")" || $lastChar == ""){
+            $lastChar = substr($input, $current + 4, 1);
+
+            if ($lastChar == " " || $lastChar == "," || $lastChar == ")" || $lastChar == ""){
 
                 return [
                     'type' => 'T_SELF',
