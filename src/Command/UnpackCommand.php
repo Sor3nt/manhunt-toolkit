@@ -177,7 +177,6 @@ class UnpackCommand extends Command
         foreach ($mhls as $index => $mhsc) {
 
             file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.code', implode("\n", $mhsc['CODE']));
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.nameremain', $mhsc['NAME_remain']);
 
             if (isset($mhsc['DATA'])){
                 file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.data' , implode("\n", $mhsc['DATA']));
