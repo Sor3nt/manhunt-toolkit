@@ -9,7 +9,11 @@ class Manhunt2 {
         'AISCRIPT_GRAPHLINK_ALLOW_NOTHING'  => [
             'offset' => "00000000"
         ],
-        
+
+        'HID_ALL_PLAYER_ITEMS'  => [
+            'offset' => "2c010000"
+        ],
+
         'AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING' => [
             "offset" => "03000000"
         ],
@@ -1474,6 +1478,32 @@ class Manhunt2 {
             'offset'    =>  '8b000000',
 
             'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "aitriggersound" => [
+            'name'      =>  'AITriggerSound',
+            'offset'    =>  '5d010000',
+
+            'params'    =>  [ 'String', 'This' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "aiplaycommunication" => [
+            'name'      =>  'AIPlayCommunication',
+            'offset'    =>  'fe010000',
+
+            'params'    =>  [ 'String', 'This' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "setambientaudiotrack" => [
+            'name'      =>  'SetAmbientAudioTrack',
+            'offset'    =>  '75030000',
+
+            'params'    =>  [ 'String', 'This' ],
             'return'    =>  'Void',
             'desc'      =>  ''
         ],

@@ -378,6 +378,8 @@ class Compiler {
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens, $types);
 
+
+        var_dump($tokens);
         // parse the token list to a ast
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
@@ -513,15 +515,26 @@ class Compiler {
                 }
             }else if (isset($token['cases'])){
                 foreach ($token['cases'] as $case) {
-                    $response = $this->recursiveSearch($case['condition'], $searchType, $ignoreTypes);
-                    foreach ($response as $item) {
-                        $result[] = $item;
+
+                    if (!isset($case['condition'])){
+                        $response = $this->recursiveSearch($case, $searchType, $ignoreTypes);
+                        foreach ($response as $item) {
+                            $result[] = $item;
+                        }
                     }
 
-                    $response = $this->recursiveSearch($case['isTrue'], $searchType, $ignoreTypes);
-                    foreach ($response as $item) {
-                        $result[] = $item;
+                    if (isset($case['condition'])){
+                        $response = $this->recursiveSearch($case['condition'], $searchType, $ignoreTypes);
+                        foreach ($response as $item) {
+                            $result[] = $item;
+                        }
+
+                        $response = $this->recursiveSearch($case['isTrue'], $searchType, $ignoreTypes);
+                        foreach ($response as $item) {
+                            $result[] = $item;
+                        }
                     }
+
                 }
             }
 

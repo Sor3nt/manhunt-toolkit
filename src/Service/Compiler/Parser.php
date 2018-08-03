@@ -75,7 +75,10 @@ class Parser {
             case Token::T_BEGIN :
             case Token::T_SCRIPTMAIN:
             case Token::T_SCRIPTMAIN_NAME:
-            case Token::T_END:
+            case Token::T_IF_END:
+            case Token::T_WHILE_END:
+            case Token::T_CASE_END:
+            case Token::T_SCRIPT_END:
             case Token::T_PROCEDURE_END:
             case Token::T_END_CODE:
                  //just go to the next position
@@ -213,6 +216,9 @@ class Parser {
             case Token::T_SCRIPT :
                 return $this->parseScript($tokens, $current);
 
+            case Token::T_CASE :
+                return $this->parseSwitchCase($tokens, $current);
+
 
             /**********************************
              *
@@ -228,6 +234,77 @@ class Parser {
 
     }
 
+
+    public function parseSwitchCase($tokens, $current){
+
+
+        //skip T_CASE
+        $current++;
+
+        $switchBy = $tokens[$current];
+
+        //skip swicth var
+        $current++;
+
+        //skip T_OF
+        $current++;
+
+        $switch = [
+            'type' => Token::T_SWITCH,
+            'switch' => $switchBy,
+            'cases' => []
+        ];
+
+        while ($current < count($tokens)) {
+            if ($tokens[$current]['type'] == Token::T_SWITCH_END){
+                return [
+                    $current + 1, $switch
+                ];
+
+            }
+            $case = [
+                'index' => $tokens[$current],
+                'body' => []
+            ];
+
+
+            $current++;
+            //skip T_DEFINE
+            $current++;
+
+            $shortCase = true;
+            if ($tokens[$current]['type'] == Token::T_BEGIN){
+                $current++;
+                $shortCase = false;
+            }
+
+
+            while ($current < count($tokens)) {
+                if (
+                    (
+                        $shortCase &&
+                        $tokens[$current]['type'] == Token::T_LINEEND
+                    ) || (
+                        $shortCase == false &&
+                        $tokens[$current]['type'] == Token::T_CASE_END
+                    )
+                ) {
+
+                    $current++;
+                    list($otherCUrrent, $node) = $this->parseToken($case['body'], 0);
+                    $case['body'] = $node;
+                    $switch['cases'][] = $case;
+                    break;
+                }else{
+                    $case['body'][] = $tokens[$current];
+                }
+
+                $current++;
+            }
+        }
+
+        throw new \Exception('Parser: parseSwitchCase not handeld correct');
+    }
 
     public function parseProcedure($tokens, $current){
 
@@ -341,7 +418,7 @@ class Parser {
                     break;
 
                 case Token::T_PROCEDURE_END:
-                case Token::T_END:
+                case Token::T_SCRIPT_END:
                     return [
                         $current, $node
                     ];
@@ -485,7 +562,7 @@ class Parser {
 
                 if ($opertation == false){
 
-                    var_dump("JIER", $innerTokens);
+                    var_dump("operator not found", $innerTokens);
                     exit;
                 }
                 $innerTokens = array_values($innerTokens);
@@ -669,7 +746,7 @@ class Parser {
                 while ($current < count($tokens)) {
                     $token = $tokens[$current];
 
-                    if ($token['type'] == Token::T_LINEEND || $token['type'] == Token::T_END){
+                    if ($token['type'] == Token::T_LINEEND){
                         return [
                             $current, $node
                         ];
@@ -701,7 +778,7 @@ class Parser {
         while ($current < count($tokens)) {
             $token = $tokens[$current];
 
-            if ($token['type'] == Token::T_END) {
+            if ($token['type'] == Token::T_IF_END) {
                 return [$current, $case] ;
             }else {
                 $case[ 'isTrue' ][] = $token;
@@ -824,7 +901,6 @@ class Parser {
             while ($current < count($tokens)) {
                 $token = $tokens[$current];
 
-
                 if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO) {
 
                     if ($tokens[$current + 1]['type'] == Token::T_BEGIN) {
@@ -858,7 +934,10 @@ class Parser {
 
                     break;
 
-                }else if ($token['type'] == Token::T_END) {
+                }else if (
+                    $token['type'] == Token::T_IF_END ||
+                    $token['type'] == Token::T_WHILE_END
+                ) {
 
                     if ($deep == 0){
                         $node['cases'][] = $case;

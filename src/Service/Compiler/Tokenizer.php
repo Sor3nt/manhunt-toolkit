@@ -7,6 +7,7 @@ use App\Service\Compiler\Tokens\T_ASSIGN;
 use App\Service\Compiler\Tokens\T_BEGIN;
 use App\Service\Compiler\Tokens\T_BRACKET_CLOSE;
 use App\Service\Compiler\Tokens\T_BRACKET_OPEN;
+use App\Service\Compiler\Tokens\T_CASE;
 use App\Service\Compiler\Tokens\T_DEFINE;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_CONST;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_ENTITY;
@@ -31,6 +32,7 @@ use App\Service\Compiler\Tokens\T_LINEEND;
 use App\Service\Compiler\Tokens\T_NIL;
 use App\Service\Compiler\Tokens\T_NOT;
 use App\Service\Compiler\Tokens\T_NULL;
+use App\Service\Compiler\Tokens\T_OF;
 use App\Service\Compiler\Tokens\T_OR;
 use App\Service\Compiler\Tokens\T_PROCEDURE;
 use App\Service\Compiler\Tokens\T_PROCEDURE_NAME;
@@ -62,6 +64,8 @@ class Tokenizer {
         T_STRING::class,
         T_WHITESPACE::class,
 
+        T_CASE::class,
+        T_OF::class,
         T_FORWARD::class,
         T_LINEEND::class,
         T_ADDITION::class,
@@ -135,7 +139,7 @@ class Tokenizer {
                 $tokens[ $current + 3 ]['type']  != Token::T_FORWARD
             ){
                 $found = true;
-            }elseif ($found && $token['type'] == Token::T_END){
+            }elseif ($found && $token['type'] == Token::T_SCRIPT_END){
                 $found = false;
                 $tokens[ $current ]['type'] = Token::T_PROCEDURE_END;
             }
@@ -236,7 +240,7 @@ class Tokenizer {
             $offset = 0;
 
             while($offset < strlen($line)) {
-                $result = $this->match($line, $offset);
+                $result = $this->match($line, $offset, $tokens);
 
                 if($result === false) {
                     throw new \Exception("Unable to parse line " . ($line+1) . ".");
@@ -262,11 +266,11 @@ class Tokenizer {
      * @return mixed
      * @throws \Exception
      */
-    private function match($line, $offset) {
+    private function match($line, $offset, $tokens) {
         $string = substr($line, $offset);
 
         foreach ($this->tokens as $token) {
-            $parsed = $token::match($line, $offset);
+            $parsed = $token::match($line, $offset, $tokens);
 
             if ($parsed) return $parsed;
         }

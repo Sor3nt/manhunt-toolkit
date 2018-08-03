@@ -3,7 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 class T_HEADER_DEFINE {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
 
         $line = substr($input, $current);

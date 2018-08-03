@@ -3,7 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 class T_LINEEND {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
         $chars = substr($input, $current, 1);
 

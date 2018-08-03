@@ -1,9 +1,11 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Bytecode\Helper;
+
 class T_END {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
 
         $chars = strtolower(substr($input, $current, 3));
@@ -13,7 +15,8 @@ class T_END {
 
             if ($lastChar == ";"){
                 return [
-                    'type' => 'T_END',
+                    'type' => Helper::findOpenContainerByEnd($tokens),
+//                    'type' => 'T_END',
                     'value' => "end;"
                 ];
 

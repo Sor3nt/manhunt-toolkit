@@ -5,7 +5,7 @@ use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class T_VARIABLE {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
         $line = substr($input, $current);
 

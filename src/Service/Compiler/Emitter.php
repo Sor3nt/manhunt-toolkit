@@ -33,6 +33,7 @@ class Emitter extends Helper {
         'T_FUNCTION' => Emitter\T_FUNCTION::class,
         'T_VARIABLE' => Emitter\T_VARIABLE::class,
         'T_CONDITION' => Emitter\T_CONDITION::class,
+        'T_SWITCH' => Emitter\T_SWITCH::class,
     ];
 
     public function __construct( $variables, $strings, $types, $const, $lineCount = 1 )

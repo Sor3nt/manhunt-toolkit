@@ -3,7 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 class T_DEFINE_SECTION_ENTITY {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
         $char = strtolower(substr($input, $current, 7));
 

@@ -3,7 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 class T_SCRIPTMAIN_NAME {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
         $beforeChar = strtolower(trim(substr($input, $current - 11, 10)));
 

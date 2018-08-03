@@ -3,7 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 class T_STRING {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
         $firstChar = substr($input, $current, 1);
         $line = substr($input, $current + 1);

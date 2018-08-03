@@ -3,7 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 class T_BEGIN {
 
-    static public function match( $input, $current ){
+    static public function match( $input, $current, $tokens ){
 
         $chars = strtolower(substr($input, $current, 5));
 

@@ -1,16 +1,16 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
-class T_NOT {
+class T_OF {
 
     static public function match( $input, $current, $tokens ){
 
-        $char = strtolower(substr($input, $current, 4));
+        $chars = strtolower(substr($input, $current - 1, 4));
 
-        if ($char == "not " || $char == "not("){
+        if ($chars == " of "){
             return [
-                'type' => 'T_NOT',
-                'value' => "NOT"
+                'type' => 'T_OF',
+                'value' => "of"
             ];
         }
 

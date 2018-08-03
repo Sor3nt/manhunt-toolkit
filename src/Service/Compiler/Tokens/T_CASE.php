@@ -1,16 +1,16 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
-class T_NOT {
+class T_CASE {
 
     static public function match( $input, $current, $tokens ){
 
-        $char = strtolower(substr($input, $current, 4));
+        $chars = strtolower(substr($input, $current - 1, 6));
 
-        if ($char == "not " || $char == "not("){
+        if ($chars == " case "){
             return [
-                'type' => 'T_NOT',
-                'value' => "NOT"
+                'type' => 'T_CASE',
+                'value' => "case"
             ];
         }
 
