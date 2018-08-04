@@ -21,6 +21,7 @@ class SwitchTest extends KernelTestCase
                 
             script OnCreate;
                 begin
+
                     case LevelState of
                         0: AIPlayCommunication(me,'ShoutForHelp','ScriptedAudio');
                         1: AIPlayCommunication(me,'ShoutForAssistance','ScriptedAudio');

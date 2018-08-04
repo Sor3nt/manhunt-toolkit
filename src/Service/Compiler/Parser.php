@@ -110,6 +110,8 @@ class Parser {
             case Token::T_SUBSTRACTION:
             case Token::T_OR:
             case Token::T_AND:
+//            case Token::T_CASE:
+            case Token::T_OF:
                 return [
                     $current + 1, $tokens[$current]
                 ];
@@ -424,7 +426,10 @@ class Parser {
                     ];
                 default:
 
+                    var_dump("input", $tokens[$current]);
                     list($current, $token) = $this->parseToken($tokens, $current);
+
+                    var_dump("output", $token);
 
                     if ($token !== false){
                         $node['body'][] = $token;
@@ -1127,7 +1132,7 @@ class Parser {
         ];
 
         if (count($tokens) == $current + 1) return [$current, $node];
-
+        if (!isset($tokens[$current])) return [$current, $node];
         $token = $tokens[$current];
 
         if ($token['type'] != Token::T_BRACKET_OPEN){

@@ -38,7 +38,22 @@ class Compiler {
             $token = $tokens[ $current ];
 
             // we need to know the current section for the defined vars
-            if ($token['type'] == Token::T_SCRIPT){
+            if (
+                $inside &&
+                (
+                    $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
+                    $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                    $token['type'] == Token::T_DEFINE_SECTION_CONST ||
+                    $token['type'] == Token::T_SCRIPT
+                )
+
+            ){
+
+                return $vars;
+            }
+
+
+            if ($token['type'] == Token::T_SCRIPT) {
                 return $vars;
             }
 
@@ -264,10 +279,12 @@ class Compiler {
                 $inside = true;
 
             }else if (
-                $token['type'] == Token::T_DEFINE_SECTION_VAR ||
-                $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
-                $token['type'] == Token::T_DEFINE_SECTION_CONST ||
-                $token['type'] == Token::T_SCRIPT
+                $inside && (
+                    $token['type'] == Token::T_DEFINE_SECTION_VAR ||
+                    $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                    $token['type'] == Token::T_DEFINE_SECTION_CONST ||
+                    $token['type'] == Token::T_SCRIPT
+                )
             ){
                 return $types;
 
