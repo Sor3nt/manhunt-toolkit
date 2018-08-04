@@ -23,15 +23,12 @@ class T_SCRIPT {
         /**
          * generate the needed bytes for the script
          */
+
         $sum = 0;
         foreach ($data['variables'] as $variable) {
 
             if (
-                $variable['section'] == "script" &&
-                (
-                    $variable['type'] != 'vec3dMain' &&
-                    $variable['type'] != 'vec3dChild'
-                )
+                $variable['section'] == "script"
             ){
                 $sum += $variable['size'];
 

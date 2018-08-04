@@ -24,7 +24,7 @@ class Compiler {
         return trim($source);
     }
 
-    private function getHeaderVariables( $tokens ){
+    private function getHeaderVariables( $tokens, $types ){
 
         $current = 0;
         $currentSection = 'header';
@@ -77,43 +77,56 @@ class Compiler {
 
                     $variableType = strtolower($tokens[$current + 2]['value']);
 
-                    $row = [
-                        'section' => $currentSection,
-                        'type' => $variableType
-                    ];
+//                    $typeTest = str_replace('level_var ', '', $variableType);
+
+                    if (isset($types[ $variableType ] )){
+
+                        $row = [
+                            'section' => $currentSection,
+                            'type' => $variableType,
+                            'abstract' => 'state'
+                        ];
+                    }else{
+                        $row = [
+                            'section' => $currentSection,
+                            'type' => $variableType
+                        ];
+
+                    }
+
 
                     if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
                         $row['type'] = 'stringarray';
-                        $row['offset'] = Helper::fromIntToHex($size);
+//                        $row['offset'] = Helper::fromIntToHex($size);
 
                     }else{
                         switch ($variableType){
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
-                                $row['offset'] = Helper::fromIntToHex($size);
+//                                $row['offset'] = Helper::fromIntToHex($size);
                                 break;
-                            case 'level_var boolean':
-
-                                $size = 4;
-
-                                $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
-                                break;
-
-                            case 'level_var tlevelstate':
-
-                                $size = 4;
-                                $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
-                                break;
-
-                            case 'boolean':
-                            case 'et_name':
-                            case 'entityptr':
-                            case 'televatorlevel':
+//                            case 'level_var boolean':
+//
+//                                $size = 4;
+//
+//                                $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
+//                                break;
+//
+//                            case 'level_var tlevelstate':
+//
+//                                $size = 4;
+//                                $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
+//                                break;
+//
+//                            case 'boolean':
+//                            case 'et_name':
+//                            case 'entityptr':
+//                            case 'televatorlevel':
                             default:
                                 $size = 4;
-                                $row['offset'] = Helper::fromIntToHex($size);
+//                                $row['offset'] = Helper::fromIntToHex($size);
                                 break;
 
                         }
@@ -140,7 +153,6 @@ class Compiler {
 
         foreach ($result as $token) {
 
-            echo "compare " . $token['value'] . " == " . $var . "\n";
             if ($token['value'] == $var){
                 return true;
             }
@@ -282,7 +294,7 @@ class Compiler {
                 }else if ($currentTypeSection && $token['type'] == Token::T_VARIABLE){
 
                     $types[ $currentTypeSection ][ strtolower($token['value']) ] = [
-                        'type' => 'type',
+                        'type' => 'level_var tLevelState',
                         'section' => "header",
                         'offset' => Helper::fromIntToHex($offset)
                     ];
@@ -369,10 +381,10 @@ class Compiler {
         $tokenizer = new Tokenizer();
         $tokens = $tokenizer->run($source);
 
-        // extract every header and script variable definition
-        $headerVariables = $this->getHeaderVariables($tokens);
-
         $types = $this->getTypes($tokens);
+        // extract every header and script variable definition
+        $headerVariables = $this->getHeaderVariables($tokens, $types);
+
 
         $const = $this->getConstants($tokens, $smemOffset);
 
@@ -381,7 +393,6 @@ class Compiler {
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens, $types);
 
 
-        var_dump($tokens);
         // parse the token list to a ast
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
@@ -444,8 +455,11 @@ class Compiler {
 
                     if ($this->isVariableInUse($token['body'], $name)){
 
-                        $item['offset'] = Helper::fromIntToHex($smemOffset);
-                        $smemOffset += $item['size'];
+//                        if (!isset($item['offset'])){
+                            $item['offset'] = Helper::fromIntToHex($smemOffset);
+                            $smemOffset += $item['size'];
+//                        }
+
 
                         $scriptVarFinal[$name ] = $item;
                     }
@@ -582,29 +596,35 @@ class Compiler {
                     $token
                 ];
 
+                $oriPos = $current;
                 if (isset($tokens[ $current - 1])){
 
                     $prevToken = $tokens[ $current - 1];
-                    $innerCurrent = $current;
                     while($prevToken['type'] == Token::T_VARIABLE){
                         $variables[] = $prevToken;
-                        $innerCurrent--;
-                        $prevToken = $tokens[ $innerCurrent - 1];
+                        $current--;
+                        if (!isset($tokens[ $current - 1])) break;
+                        $prevToken = $tokens[ $current - 1];
                     }
                 }
 
                 $variables = array_reverse($variables);
+
+                $current = $oriPos;
+                $current = $current + 1;
+
+                $variableType = strtolower($tokens[$current]['value']);
+
+
                 foreach ($variables as $variable) {
                     $variable = $variable['value'];
 
-                    $current = $current + 1;
-
-                    $variableType = strtolower($tokens[$current]['value']);
 
                     $row = [
                         'section' => 'script',
                         'type' => $variableType
                     ];
+
 
                     if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];

@@ -87,10 +87,9 @@ class T_SWITCH {
 
         switch ($node['type']){
             case Token::T_VARIABLE:
+//                var_dump($switchVar);
 
                 $mapping = T_VARIABLE::getMapping($switchVar, null, $data);
-//var_dump($mapping);
-//exit;
                 if (isset($data['types'][ $mapping['type'] ])){
 
                     $mapping = $data['types'][ $mapping['type'] ];

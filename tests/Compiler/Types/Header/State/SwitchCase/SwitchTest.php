@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\CompilerByType\Header\Type\SwitchCase;
+namespace App\Tests\CompilerByType\Header\State\SwitchCase;
 
 
 use App\Service\Compiler\Compiler;

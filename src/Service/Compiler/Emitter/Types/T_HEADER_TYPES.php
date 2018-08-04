@@ -6,7 +6,7 @@ class T_HEADER_TYPES {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-
+die("J");
         $mapped = $data['variables'][$node['value']];
 
         return [

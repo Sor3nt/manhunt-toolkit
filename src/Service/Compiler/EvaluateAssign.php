@@ -29,6 +29,20 @@ class EvaluateAssign {
 
         $leftHand = $node['body'][0];
 
+        //HACK
+
+        //when we have a type usage, we have no variable entry
+        //so the compiler think its a function...
+        if ($leftHand['type'] == Token::T_FUNCTION ){
+            $stateVar = str_replace('level_var ', '',$mapped['type']);
+
+            if (isset($data['types'][$stateVar])){
+                $leftHand['target'] = $stateVar;
+                $leftHand['type'] = Token::T_VARIABLE;
+            }
+        }
+
+
         if ($mapped['type'] == "vec3d"){
             $code[] = $getLine('22000000');
             $code[] = $getLine('04000000');
@@ -105,7 +119,6 @@ class EvaluateAssign {
          * wee need here to difference between sindlge param or multi param
          * mutli params are always math operators and need other return codes
          */
-
         if (isset($node['body'][1]) == false){
             switch ($mapped['section']) {
 

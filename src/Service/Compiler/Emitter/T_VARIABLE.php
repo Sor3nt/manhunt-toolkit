@@ -12,8 +12,10 @@ class T_VARIABLE {
     static public function getMapping( $node, \Closure $emitter = null , $data ){
 
         $value = $node['value'];
+        if (isset($data['variables'][ $value ])){
+            $mapped = $data['variables'][ $value ];
 
-        if (isset(Manhunt2::$constants[ $value ])) {
+        }else if (isset(Manhunt2::$constants[ $value ])) {
             $mapped = Manhunt2::$constants[ $value ];
             $mapped['section'] = "header";
             $mapped['type'] = "constant";
@@ -23,37 +25,55 @@ class T_VARIABLE {
             $mapped['section'] = "header";
             $mapped['type'] = "level_var boolean";
 
+        }else if (isset(Manhunt2::$levelVarState[ $value ])) {
+            $mapped = Manhunt2::$levelVarState[ $value ];
+            $mapped['section'] = "header";
+            $mapped['type'] = "level_var state";
+
         }else if (isset($data['const'][ $value ])){
             $mapped = $data['const'][ $value ];
             $mapped['section'] = "script";
             $mapped['type'] = "constant";
 
-        }else if (isset($data['variables'][ $value ])){
-            $mapped = $data['variables'][ $value ];
 
         }else if (strpos($value, '.') !== false){
 
             $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
 
+        }else if (
+            isset($node['target']) &&
+            isset($data['types'][ $node['target'] ])
+        ){
+
+            $variableType = $data['types'][$node['target']];
+            $mapped = $variableType[ strtolower($value) ];
         }else{
+//var_dump($data, $node);
+//exit;
+                if (isset($data['types'][ $node['value'] ])){
+                    $mapped = $data['types'][ $node['value'] ];
 
+                    var_dump("Hhhiiiier", $mapped);
+                    exit;
 
-            /**
-             *
-             * well this is not a good way, i just search the key...
-             * it should be ok because the name of the type can not be a variable name
-             * or function name....
-             *
-             */
-            foreach ($data['types'] as $type) {
-                foreach ($type as $name => $map) {
-
-                    if ($name == strtolower($value)){
-
-                        return $map;
-                    }
                 }
-            }
+//
+//            /**
+//             *
+//             * well this is not a good way, i just search the key...
+//             * it should be ok because the name of the type can not be a variable name
+//             * or function name....
+//             *
+//             */
+//            foreach ($data['types'] as $type) {
+//                foreach ($type as $name => $map) {
+//
+//                    if ($name == strtolower($value)){
+//
+//                        return $map;
+//                    }
+//                }
+//            }
 
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
@@ -68,22 +88,29 @@ class T_VARIABLE {
         $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\";
         $typeHandler .= "T_";
         $typeHandler .= strtoupper($mapped['section']);
-        $typeHandler .= "_" . strtoupper($mapped['type']);
+
+        if (isset($mapped['abstract'])){
+            $typeHandler .= "_" . strtoupper($mapped['abstract']);
+
+        }else{
+            $typeHandler .= "_" . strtoupper($mapped['type']);
+        }
+
         $typeHandler = str_replace(' ', '_', $typeHandler);
 
         if (class_exists($typeHandler)){
             $code = $typeHandler::map($node, $getLine, $emitter, $data);
         }else{
 
-
-            if (isset($data['types'][$mapped['type']])){
-
-                $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\T_HEADER_TYPES";
-                $code = $typeHandler::map($node, $getLine, $emitter, $data);
-
-            }else{
+//
+//            if (isset($data['types'][$mapped['type']])){
+//
+//                $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\T_HEADER_TYPES";
+//                $code = $typeHandler::map($node, $getLine, $emitter, $data);
+//
+//            }else{
                 throw new \Exception($typeHandler . " Not implemented!");
-            }
+//            }
         }
 
         return $code;

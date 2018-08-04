@@ -1,52 +1,46 @@
 <?php
-namespace App\Tests\CompilerByType\Header\LevelVarType\Assign;
+namespace App\Tests\Compiler\Special;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignTest extends KernelTestCase
+class MultiParamAssignTest extends KernelTestCase
 {
 
     public function test()
     {
 
-        $script = "
-            scriptmain LevelScript;
 
-            type
-                tLevelState = ( StartOfLevel, PickedUpSyringe, InOffice, LuredHunter, KilledHunter, BeforeElevator, LeftElevator, BeforeBeasts, SpottedByCamera, TurnedOnTV, InCarPark, EndOfLevel );
+        $script = "
+       
+            scriptmain LevelScript;
             
-            VAR
-                tLevelState : level_var tLevelState;
-            
-            script OnCreate;
-            
+                script OnCreate;
+                var
+                    pos, pos2 : Vec3D;
+                
                 begin
-                    tLevelState := LeftElevator; 
-                end;
             
-            end.        
+                end;
+            end.
         ";
 
         $expected = [
-            // script start
+
+
+            // procedure start
             '10000000',
             '0a000000',
             '11000000',
             '0a000000',
             '09000000',
 
+            '34000000',
+            '09000000',
+            '18000000',
 
-            '12000000', // init parameter
-            '01000000', // init parameter
-            '06000000', // LeftElevator == 6
-
-            '1a000000', // assign to level_var
-            '01000000', // assign to level_var
-            '00000000', // LevelVar lLevelState
-            '04000000', // assign
 
             // script end
             '11000000',
@@ -58,9 +52,9 @@ class AssignTest extends KernelTestCase
             '00000000'
         ];
 
-
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
+
 
         if ($sectionCode != $expected){
             foreach ($sectionCode as $index => $item) {
