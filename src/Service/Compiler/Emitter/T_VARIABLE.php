@@ -14,7 +14,6 @@ class T_VARIABLE {
         $value = $node['value'];
         if (isset($data['variables'][ $value ])){
             $mapped = $data['variables'][ $value ];
-
         }else if (isset(Manhunt2::$constants[ $value ])) {
             $mapped = Manhunt2::$constants[ $value ];
             $mapped['section'] = "header";
@@ -28,7 +27,7 @@ class T_VARIABLE {
         }else if (isset(Manhunt2::$levelVarState[ $value ])) {
             $mapped = Manhunt2::$levelVarState[ $value ];
             $mapped['section'] = "header";
-            $mapped['type'] = "level_var state";
+            $mapped['type'] = "level_var tLevelState";
 
         }else if (isset($data['const'][ $value ])){
             $mapped = $data['const'][ $value ];
@@ -48,35 +47,11 @@ class T_VARIABLE {
             $variableType = $data['types'][$node['target']];
             $mapped = $variableType[ strtolower($value) ];
         }else{
-//var_dump($data, $node);
-//exit;
-                if (isset($data['types'][ $node['value'] ])){
-                    $mapped = $data['types'][ $node['value'] ];
 
-                    var_dump("Hhhiiiier", $mapped);
-                    exit;
-
-                }
-//
-//            /**
-//             *
-//             * well this is not a good way, i just search the key...
-//             * it should be ok because the name of the type can not be a variable name
-//             * or function name....
-//             *
-//             */
-//            foreach ($data['types'] as $type) {
-//                foreach ($type as $name => $map) {
-//
-//                    if ($name == strtolower($value)){
-//
-//                        return $map;
-//                    }
-//                }
-//            }
 
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
+
 
         return $mapped;
     }

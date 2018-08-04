@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\Compiler;
+namespace App\Tests\CompilerByType\Header\LevelVarState\Assign;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class DummyTest extends KernelTestCase
+class Assign2Test extends KernelTestCase
 {
 
     public function test()

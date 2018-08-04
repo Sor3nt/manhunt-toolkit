@@ -61,7 +61,7 @@ class Manhunt2 {
     ];
 
     public static $levelVarState = [
-        'lLevelState'                     => [
+        'tLevelState'                     => [
             'offset' => "24170000"
         ],
 
@@ -115,9 +115,9 @@ class Manhunt2 {
             'offset' => "c00f0000"
         ],
 
-        'tLevelState'                     => [
-            'offset' => "980f0000"
-        ],
+//        'tLevelState'                     => [
+//            'offset' => "980f0000"
+//        ],
 
     ];
 

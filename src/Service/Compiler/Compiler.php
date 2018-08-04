@@ -114,11 +114,12 @@ class Compiler {
 //                                $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
 //                                break;
 //
-//                            case 'level_var tlevelstate':
-//
-//                                $size = 4;
-//                                $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
-//                                break;
+                            case 'tlevelstate':
+                            case 'level_var tlevelstate':
+
+                                $size = 4;
+                                $row['offset'] = Manhunt2::$levelVarState["tLevelState"]['offset'];
+                                break;
 //
 //                            case 'boolean':
 //                            case 'et_name':
@@ -455,10 +456,10 @@ class Compiler {
 
                     if ($this->isVariableInUse($token['body'], $name)){
 
-//                        if (!isset($item['offset'])){
+                        if (!isset($item['offset'])){
                             $item['offset'] = Helper::fromIntToHex($smemOffset);
-                            $smemOffset += $item['size'];
-//                        }
+                        }
+                        $smemOffset += $item['size'];
 
 
                         $scriptVarFinal[$name ] = $item;

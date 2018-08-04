@@ -2,6 +2,7 @@
 namespace App\Service\Compiler;
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\Emitter\T_VARIABLE;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class EvaluateAssign {
@@ -11,21 +12,10 @@ class EvaluateAssign {
          * when the variable is not found, check if its an object
          */
 
-        $isObject = false;
-        if (!isset($data['variables'][$node['value']])){
-
-            if (strpos($node['value'], '.') !== false){
-
-                $isObject = true;
-
-                $mapped = Evaluate::getObjectToAttributeSplit($node['value'], $data);
-            }else{
-                throw new \Exception(sprintf('T_ASSIGN: unable to detect variable: %s', $node['value']));
-            }
-        }else{
-            $mapped = $data['variables'][$node['value']];
-        }
-
+        $mapped = T_VARIABLE::getMapping($node, null, $data);
+//var_dump($mapped);
+//exit;
+        $isObject = $mapped['type'] == "object";
 
         $leftHand = $node['body'][0];
 
@@ -41,7 +31,6 @@ class EvaluateAssign {
                 $leftHand['type'] = Token::T_VARIABLE;
             }
         }
-
 
         if ($mapped['type'] == "vec3d"){
             $code[] = $getLine('22000000');
@@ -120,63 +109,72 @@ class EvaluateAssign {
          * mutli params are always math operators and need other return codes
          */
         if (isset($node['body'][1]) == false){
-            switch ($mapped['section']) {
 
-                case 'header':
+            if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
+                self::toTLevelState( $mapped['offset'], $code, $getLine);
 
-                    switch (strtolower($mapped['type'])) {
-                        case 'boolean':
-                        case 'integer':
-                            self::toHeaderBoolean( $mapped['offset'], $code, $getLine);
-                            break;
+
+            }else{
+
+                switch ($mapped['section']) {
+
+                    case 'header':
+
+                        switch (strtolower($mapped['type'])) {
+                            case 'boolean':
+                            case 'integer':
+                                self::toHeaderBoolean( $mapped['offset'], $code, $getLine);
+                                break;
 //                            self::toHeaderInteger( $mapped['offset'], $code, $getLine);
 //                            break;
 
-                        case 'level_var boolean':
-                            self::toHeaderLevelVarBoolean( $mapped['offset'], $code, $getLine);
-                            break;
-                        case 'level_var tlevelstate':
-                            self::toHeaderTLevelState( $mapped['offset'], $code, $getLine);
-                            break;
-                        case 'stringarray':
-                            self::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
-                            break;
-                        default:
-                            var_dump($mapped);
-                            throw new \Exception("Not implemented!");
-                    }
+                            case 'level_var boolean':
+                                self::toHeaderLevelVarBoolean( $mapped['offset'], $code, $getLine);
+                                break;
+                            case 'level_var tlevelstate':
+                                self::toHeaderTLevelState( $mapped['offset'], $code, $getLine);
+                                break;
+                            case 'stringarray':
+                                self::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
+                                break;
+                            default:
+                                var_dump($mapped);
+                                throw new \Exception("Not implemented!");
+                        }
 
-                    break;
-                case 'script':
-                    switch (strtolower($mapped['type'])) {
-                        case 'entityptr':
-                            self::toScriptEntityPtr( $mapped['offset'], $code, $getLine);
+                        break;
+                    case 'script':
+                        switch (strtolower($mapped['type'])) {
+                            case 'entityptr':
+                                self::toScriptEntityPtr( $mapped['offset'], $code, $getLine);
 
-                            break;
-                        case 'integer':
-                        case 'boolean':
-                            self::toScriptNumeric( $mapped['offset'], $code, $getLine);
-                            break;
+                                break;
+                            case 'integer':
+                            case 'boolean':
+                                self::toScriptNumeric( $mapped['offset'], $code, $getLine);
+                                break;
 
-                        case 'vec3d':
-                            self::toScriptVec3D( $mapped['offset'], $code, $getLine);
-                            break;
+                            case 'vec3d':
+                                self::toScriptVec3D( $mapped['offset'], $code, $getLine);
+                                break;
 
-                        case 'object':
-                            self::toObject( $code, $getLine);
-                            break;
-                        default:
-                            var_dump($mapped);
-                            throw new \Exception("Not implemented!");
+                            case 'object':
+                                self::toObject( $code, $getLine);
+                                break;
+                            default:
+                                var_dump($mapped);
+                                throw new \Exception("Not implemented!");
 
-                    }
-                    break;
-                default:
-                    var_dump($mapped);
-                    throw new \Exception("Not implemented!");
-                    break;
+                        }
+                        break;
+                    default:
+                        var_dump($mapped);
+                        throw new \Exception("Not implemented!");
+                        break;
 
+                }
             }
+
         }else{
 
             switch ($mapped['section']) {
@@ -292,6 +290,15 @@ class EvaluateAssign {
         $code[] = $getLine('01000000');
         $code[] = $getLine( $offset );
         $code[] = $getLine('04000000');
+    }
+
+
+    static public function toTLevelState( $offset, &$code, \Closure $getLine){
+
+        $code[] = $getLine('16000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine( $offset );
+        $code[] = $getLine('01000000');
     }
 
     static public function toHeaderBoolean( $offset, &$code, \Closure $getLine){

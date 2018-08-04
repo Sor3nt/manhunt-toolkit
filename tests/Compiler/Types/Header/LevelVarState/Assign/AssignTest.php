@@ -45,7 +45,7 @@ class AssignTest extends KernelTestCase
 
             '1a000000', // assign to level_var
             '01000000', // assign to level_var
-            '00000000', // LevelVar lLevelState
+            '24170000', // LevelVar lLevelState
             '04000000', // assign
 
             // script end
