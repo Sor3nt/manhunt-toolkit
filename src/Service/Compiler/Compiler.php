@@ -416,7 +416,7 @@ class Compiler {
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
 
-        var_dump($ast);
+//        var_dump($ast);
 
         $this->fixWriteDebug($ast['body']);
 
@@ -526,7 +526,7 @@ class Compiler {
         $result = [];
         foreach ($tokens as $token) {
 
-//            if (!isset($token['type'])) continue;
+
 
             if (count($searchType) == 0 || in_array($token['type'],$searchType)){
                 if (in_array($token['type'],$ignoreTypes)){
@@ -561,7 +561,8 @@ class Compiler {
                 foreach ($token['cases'] as $case) {
 
                     if (!isset($case['condition'])){
-                        $response = $this->recursiveSearch($case, $searchType, $ignoreTypes);
+
+                        $response = $this->recursiveSearch($case['body'], $searchType, $ignoreTypes);
                         foreach ($response as $item) {
                             $result[] = $item;
                         }

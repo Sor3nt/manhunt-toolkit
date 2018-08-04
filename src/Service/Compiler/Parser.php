@@ -239,7 +239,6 @@ class Parser {
 
     public function parseSwitchCase($tokens, $current){
 
-
         //skip T_CASE
         $current++;
 
@@ -293,9 +292,29 @@ class Parser {
                 ) {
 
                     $current++;
-                    list($otherCUrrent, $node) = $this->parseToken($case['body'], 0);
-                    $case['body'] = $node;
+
+
+                    $innerCurrent = 0;
+                    $innerTokens = $case['body'];
+
+                    $case['body'] = [];
+                    while($innerCurrent < count($innerTokens)){
+
+                        list($innerCurrent, $node) = $this->parseToken($innerTokens, $innerCurrent);
+
+                        if ($node !== false){
+                            $case['body'][] = $node;
+
+                        }
+                    }
+
                     $switch['cases'][] = $case;
+
+
+//
+//                    list($innerCurrent, $node) = $this->parseToken($case['body'], 0);
+//                    $case['body'] = $node;
+//                    $switch['cases'][] = $case;
                     break;
                 }else{
                     $case['body'][] = $tokens[$current];
@@ -426,10 +445,7 @@ class Parser {
                     ];
                 default:
 
-                    var_dump("input", $tokens[$current]);
                     list($current, $token) = $this->parseToken($tokens, $current);
-
-                    var_dump("output", $token);
 
                     if ($token !== false){
                         $node['body'][] = $token;

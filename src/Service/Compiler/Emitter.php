@@ -49,7 +49,6 @@ class Emitter extends Helper {
 
     public function emitter( $node, $calculateLineNumber = true, $customData = [] ){
 
-
         if($node['type'] == "root") return $this->emitRoot($node);
 
         if (!isset($this->emitters[ $node['type'] ])) {
