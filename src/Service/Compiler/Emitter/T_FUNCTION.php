@@ -44,6 +44,10 @@ class T_FUNCTION {
 
 
                         switch ($mappedTo['type']) {
+                            case 'integer';
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                break;
                             case 'constant';
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -115,6 +119,29 @@ class T_FUNCTION {
     }
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+
+
+        //HACK
+        //todo: das hier müsste custom function calls code sein...
+        if ($node['value'] == "InitAI"){
+
+            return [
+
+                $getLine('10000000'), //unknown
+                $getLine('04000000'), //unknown
+                $getLine('11000000'), //unknown
+                $getLine('02000000'), //unknown
+                $getLine('00000000'), //unknown
+                $getLine('32000000'), //unknown
+                $getLine('02000000'), //unknown
+                $getLine('1c000000'), //unknown
+                $getLine('10000000'), //unknown
+                $getLine('02000000'), //unknown
+                $getLine('39000000'), //unknown
+                $getLine('00000000'), //unknown
+            ];
+
+        }
 
         try {
             T_VARIABLE::getMapping($node, null, $data);

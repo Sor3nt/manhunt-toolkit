@@ -44,6 +44,7 @@ class Compiler {
                     $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
                     $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
                     $token['type'] == Token::T_DEFINE_SECTION_CONST ||
+                    $token['type'] == Token::T_PROCEDURE ||
                     $token['type'] == Token::T_SCRIPT
                 )
 
@@ -53,7 +54,7 @@ class Compiler {
             }
 
 
-            if ($token['type'] == Token::T_SCRIPT) {
+            if ($token['type'] == Token::T_SCRIPT || $token['type'] == Token::T_PROCEDURE) {
                 return $vars;
             }
 
@@ -496,11 +497,11 @@ class Compiler {
                 ]);
 
                 foreach ($code as $line) {
-
                     if ($line->lineNumber !== $start){
 //                        var_dump( $line, $start);
 //                        throw new \Exception('Calulated line number did not match with the generated one');
                     }
+
 
                     $start++;
                     $sectionCode[] = $line->hex;

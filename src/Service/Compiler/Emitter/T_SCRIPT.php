@@ -35,7 +35,6 @@ class T_SCRIPT {
             }
         }
 
-
         if ($sum > 0){
             $code[] = $getLine('34000000');
             $code[] = $getLine('09000000');

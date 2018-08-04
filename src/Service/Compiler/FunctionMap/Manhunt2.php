@@ -6,6 +6,23 @@ class Manhunt2 {
 
     public static $constants = [
 
+        'DIFFICULTY_NORMAL'  => [
+            'offset' => "01000000"
+        ],
+
+        'MAP_COLOR_BLUE'  => [
+            'offset' => "06000000"
+        ],
+
+        'COMBATTYPEID_OPEN_MELEE'  => [
+            'offset' => "03000000"
+        ],
+
+
+        'COMBATTYPEID_COVER'  => [
+            'offset' => "02000000"
+        ],
+
         'AISCRIPT_GRAPHLINK_ALLOW_NOTHING'  => [
             'offset' => "00000000"
         ],
@@ -35,6 +52,10 @@ class Manhunt2 {
         ],
 
         'AISCRIPT_RUNMOVESPEED' => [
+            "offset" => "00000000"
+        ],
+
+        'DOOR_OPEN' => [
             "offset" => "00000000"
         ],
 
@@ -1503,6 +1524,7 @@ class Manhunt2 {
             'return'    =>  'Void',
             'desc'      =>  ''
         ],
+
         "setambientaudiotrack" => [
             'name'      =>  'SetAmbientAudioTrack',
             'offset'    =>  '75030000',
@@ -1511,6 +1533,40 @@ class Manhunt2 {
             'return'    =>  'Void',
             'desc'      =>  ''
         ],
+        "iscutsceneinprogress" => [
+            'name'      =>  'IsCutSceneInProgress',
+            'offset'    =>  'f5020000',
+
+            'params'    =>  [  ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "setlevelcompleted" => [
+            'name'      =>  'SetLevelCompleted',
+            'offset'    =>  '04020000',
+
+            'params'    =>  [  ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "thislevelbeencompletedalready" => [
+            'name'      =>  'ThisLevelBeenCompletedAlready',
+            'offset'    =>  'ThisLevelBeenCompletedAlready',
+
+            'params'    =>  [  ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+//
+//        "radarpositionsetentity" => [
+//            'name'      =>  'RadarPositionSetEntity',
+//            'offset'    =>  'e0020000',
+//
+//            'params'    =>  [  ],
+//            'return'    =>  'Void',
+//            'desc'      =>  ''
+//        ],
     ];
 
 
