@@ -17,6 +17,7 @@ class T_SWITCH {
             $code[] = $item;
         }
 
+
         $forceLineNumber = end($code)->lineNumber + 1;
 
         $calc = self::calculate( end($code)->lineNumber, $node, $emitter);

@@ -1322,6 +1322,7 @@ end.
 '00000000', //statement (end sequence)
 '3f000000', //statement (init start offset)
 '601b0000', //Offset (line number 1752)
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
@@ -1360,6 +1361,9 @@ end.
 '00000000', //statement (end sequence)
 '3f000000', //statement (init start offset)
 '601b0000', //Offset (line number 1752)
+
+
+
 '12000000', //parameter (read simple type (int/float...))
 '01000000', //parameter (read simple type (int/float...))
 '13000000', //value 19
@@ -1938,6 +1942,8 @@ end.
 '83010000', //AISetIdleHomeNode Call
 '3c000000', //statement (init statement start offset)
 'e41a0000', //Offset (line number 1721)
+
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)

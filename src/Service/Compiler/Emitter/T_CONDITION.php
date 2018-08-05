@@ -18,6 +18,7 @@ class T_CONDITION {
 
         if ($token['type'] == Token::T_OPERATION){
 
+
             if (count($token['params']) == 1){
 
                 $result = $emitter($token['params'][0]);
@@ -25,7 +26,7 @@ class T_CONDITION {
                     $code[] = $item;
                 }
 
-                if ($node['isNot']){
+                if ($node['isNot'] || $node['isOuterNot']){
                     Evaluate::setStatementNot($code, $getLine);
                 }
 

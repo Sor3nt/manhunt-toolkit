@@ -26,6 +26,10 @@ class Manhunt2 {
 
     public static $constants = [
 
+        'MAP_COLOR_LOCATION'  => [
+            'offset' => "14000000"
+        ],
+
         'MAP_COLOR_HUNTER_IDLE'  => [
             'offset' => "08000000"
         ],
@@ -157,7 +161,7 @@ class Manhunt2 {
         ],
 
         'MonitorDead'                     => [
-            'offset' => "MonitorDead"
+            'offset' => "e4080000"
         ],
 
         'DannySeen'                     => [
@@ -1802,6 +1806,27 @@ class Manhunt2 {
         'playscriptaudiostreamfromposauto'  => [
             'name'      =>  'PlayScriptAudioStreamFromPosAuto',
             'offset' => "6c030000"
+        ],
+
+        'airemovehunterfromleadersubpack'  => [
+            'name'      =>  'AIRemoveHunterFromLeaderSubpack',
+            'offset' => "53010000"
+        ],
+
+        'setplayercontrollable'  => [
+            'name'      =>  'SetPlayerControllable',
+            'offset' => "91020000"
+        ],
+
+        'setplayergotonode'  => [
+            'name'      =>  'SetPlayerGoToNode',
+            'offset' => "93020000"
+        ],
+
+
+        'aientitygohomeifidle'  => [
+            'name'      =>  'AIEntityGoHomeIfIdle',
+            'offset' => "18020000"
         ],
 
 //

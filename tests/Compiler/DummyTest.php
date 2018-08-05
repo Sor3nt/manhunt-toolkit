@@ -19,20 +19,17 @@ class DummyTest extends KernelTestCase
             
                             
                 scriptmain LevelScript;
-                
-var	self : string[32];
+           
+    
+                    script OnCreate;
+                    begin
+                    
+			if not (InsideTrigger(getentity('tInHouseCheck'), getplayer)) then
+ begin
 
-                script OnCreate;
+                        end;
 
-                
-                begin
-
-            
-		if not(self = 'hJumpAttack(hunter)') then begin
-			SetHunterMute(this, true);
-        end;
-
-                end;
+                    end;
 
                 end.
         ";
@@ -47,41 +44,7 @@ var	self : string[32];
             '0a000000',
             '09000000',
 
-
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '18000000', //Offset in byte
-            '12000000', //parameter (Read String var)
-            '02000000', //parameter (Read String var)
-            '20000000', //value 32
-
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-
-            '10000000', //nested string return result
-            '02000000', //nested string return result
-
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '00000000', //Offset in byte
-            '12000000', //parameter (Read String var)
-            '02000000', //parameter (Read String var)
-            '14000000', //value 20
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '10000000', //nested string return result
-            '02000000', //nested string return result
-            '49000000', //unknown
-            '12000000', //unknown
-            '01000000', //unknown
-            '01000000', //unknown
-            '3f000000', //statement (init start offset)
-            'd8000000', //Offset (line number 54)
-            '33000000', //statement (compare mode INT/FLOAT)
-            '01000000', //statement (compare mode INT/FLOAT)
-            '01000000', //statement (compare mode INT/FLOAT)
+            'cf020000', //IsScriptAudioStreamCompleted Call
             '29000000', //NOT
             '01000000', //NOT
             '01000000', //NOT
@@ -89,19 +52,15 @@ var	self : string[32];
             '01000000', //statement (end sequence)
             '00000000', //statement (end sequence)
             '3f000000', //statement (init start offset)
-            'ec030000', //Offset (line number 251)
+            '380c0000', //Offset (line number 782)
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
-            '49000000', //value 73
+            '0a000000', //value 10
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '12000000', //parameter (read simple type (int/float...))
-            '01000000', //parameter (read simple type (int/float...))
-            '01000000', //value 1
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '76030000', //SetHunterMute Call
-
+            '6a000000', //sleep Call
+            '3c000000', //statement (init statement start offset)
+            'f40b0000', //Offset (line number 765)
 
             // script end
             '11000000',

@@ -143,7 +143,13 @@ class Parser {
 
 
                         $doWrap = false;
-                        if ($firstNode['type'] != Token::T_NOT){
+                        if (
+                            !(
+                                $firstNode['type'] == Token::T_NOT &&
+                                $case['condition'][1]['type'] == Token::T_BRACKET_OPEN
+                            )
+
+                        ){
 
                             if (
                                 $firstNode['type'] == Token::T_BRACKET_OPEN &&
@@ -175,7 +181,6 @@ class Parser {
                             ]);
                         }
                     }
-
 
                     $parsedConditions = [];
                     $innerCurrent = 0;
@@ -276,8 +281,10 @@ class Parser {
 
         $switchBy = $tokens[$current];
 
+        list($current, $switchBy) = $this->parseToken($tokens, $current);
+
         //skip swicth var
-        $current++;
+//        $current++;
 
         //skip T_OF
         $current++;
@@ -290,6 +297,7 @@ class Parser {
 
         while ($current < count($tokens)) {
             if ($tokens[$current]['type'] == Token::T_SWITCH_END){
+
                 return [
                     $current + 1, $switch
                 ];
@@ -542,6 +550,7 @@ class Parser {
                 $this->remapCondition( $tokens[ $current ]['params'], $isOuterNot);
                 continue;
             }
+
 
             $isNot = false;
             if ($tokens[ $current ]['type'] == Token::T_NOT) {
@@ -963,7 +972,8 @@ class Parser {
                     }
 
                     // we have another If-statement
-                }else if ($token['type'] == Token::T_END_ELSE) {
+                }else if ($deep == 0 && $token['type'] == Token::T_END_ELSE) {
+
                     $node['cases'][] = $case;
 
 

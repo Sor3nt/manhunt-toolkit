@@ -81,6 +81,7 @@ class EvaluateAssign {
             $rightHand = $node['body'][2];
             $operator = $node['body'][1];
 
+
             $code[] = $getLine('10000000');
             $code[] = $getLine('01000000');
 
@@ -89,17 +90,30 @@ class EvaluateAssign {
                 $code[] = $line;
             }
 
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
+            if ($rightHand['type'] == Token::T_INT) {
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('04000000');
 
-            if ($operator['type'] == Token::T_ADDITION) {
-                Evaluate::setStatementAddition($code, $getLine);
-            }else if ($operator['type'] == Token::T_SUBSTRACTION){
-                Evaluate::setStatementSubstraction($code, $getLine);
-            }else{
-                throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
+                if ($operator['type'] == Token::T_ADDITION) {
+                    Evaluate::setStatementAddition($code, $getLine);
+                }else if ($operator['type'] == Token::T_SUBSTRACTION){
+                    Evaluate::setStatementSubstraction($code, $getLine);
+                }else{
+                    throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
+
+                }
+            }else if ($rightHand['type'] == Token::T_FLOAT){
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+                if ($operator['type'] == Token::T_ADDITION) {
+                    $code[] = $getLine('50000000');
+                }else{
+                    throw new \Exception('Float substration not implemented');
+                }
 
             }
+
         }
 
         /*
@@ -215,6 +229,10 @@ class EvaluateAssign {
                     break;
                 case 'script':
                     switch ($mapped['type']) {
+                        case 'object':
+                            //ka stimmt das ?
+                            self::toObject( $code, $getLine);
+                            break;
 
                         case 'integer':
 
@@ -252,6 +270,7 @@ class EvaluateAssign {
 
 
     static public function toObject( &$code, \Closure $getLine){
+
         $code[] = $getLine('0f000000');
         $code[] = $getLine('02000000');
         $code[] = $getLine('17000000');

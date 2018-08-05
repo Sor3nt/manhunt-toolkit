@@ -901,6 +901,7 @@ end.
 '10000000', //nested call return result
 '01000000', //nested call return result
 'a0020000', //DestroyEntity Call
+
 'cf020000', //IsScriptAudioStreamCompleted Call
 '29000000', //NOT
 '01000000', //NOT
@@ -918,6 +919,8 @@ end.
 '6a000000', //sleep Call
 '3c000000', //statement (init statement start offset)
 'f40b0000', //Offset (line number 765)
+
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
