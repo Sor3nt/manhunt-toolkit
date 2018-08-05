@@ -16,13 +16,27 @@ class T_FUNCTION {
             case Token::T_FUNCTION:
                 break;
             case Token::T_FLOAT:
-            case Token::T_INT:
             case Token::T_SELF:
             case Token::T_FALSE:
             case Token::T_TRUE:
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');
                 break;
+
+            case Token::T_INT:
+
+                if ($node['value'] >= 0){
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+                }else{
+                    $code[] = $getLine('2a000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+                }
+
+                break;
+
             case Token::T_STRING:
 
                 $code[] = $getLine('10000000');
@@ -151,14 +165,25 @@ class T_FUNCTION {
             ]);
         }catch(\Exception $e){
 
-            var_dump($e->getMessage());
-            var_dump($e->getFile());
-            var_dump($e->getLine());
-//            exit;
+            if (strpos($e->getMessage(), 'unable to find variable') == false){
+
+                var_dump($e->getMessage());
+                var_dump($e->getFile());
+                var_dump($e->getLine());
+                exit;
+
+            }
         }
 
-        $code = [ ];
 
+        $forceFloatOrder = [];
+        if (isset( Manhunt2::$functionForceFloar[strtolower($node['value'])] )){
+            $forceFloatOrder = Manhunt2::$functionForceFloar[strtolower($node['value'])];
+
+        }
+
+
+        $code = [ ];
         if (isset($node['params']) && count($node['params'])){
             $skipNext = false;
 
@@ -201,15 +226,36 @@ class T_FUNCTION {
                 self::finalize($param, $data, $code, $getLine);
 
                 /**
-                 * When the input value is a negative float or int
+                 * When the input value is a negative float
                  * we assign the positive value and negate them with this sequence
                  */
                 if (
-                    ($param['type'] == Token::T_INT || $param['type'] == Token::T_FLOAT) &&
+                    ( $param['type'] == Token::T_FLOAT) &&
                     $param['value'] < 0
                 ) {
 
-                    Evaluate::negateLastValue($code, $getLine);
+                    $code[] = $getLine('4f000000');
+                    $code[] = $getLine('32000000');
+                    $code[] = $getLine('09000000');
+                    $code[] = $getLine('04000000');
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+//
+                }
+
+                if (
+                    count($forceFloatOrder) > 0 &&
+                    $param['type'] == Token::T_INT
+                ) {
+
+                    if (count($forceFloatOrder)){
+                        if ($forceFloatOrder[$index] === true){
+                            $code[] = $getLine('4d000000');
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('01000000');
+
+                        }
+                    }
                 }
             }
         }
@@ -224,16 +270,7 @@ class T_FUNCTION {
 
         $code[] = $getLine( Manhunt2::$functions[ strtolower($node['value']) ]['offset'] );
 
-        // the setpedorientation call has a secret additional call
-        if (
-            strtolower($node['value']) == 'setpedorientation'
-        ){
 
-            Evaluate::returnResult($code, $getLine);
-
-            $code[] = $getLine('b0020000');
-
-        }
 
         // the writedebug call has a secret additional call, maybe a flush command ?
         if (
