@@ -138,20 +138,43 @@ class Parser {
                 // Todo: wrap code into a function
                 foreach ($nodes['cases'] as &$case) {
 
-                    //wrap if statements always in brackets
-                    if (
-                        count($case['condition']) &&
-                        $case['condition'][0]['type'] !== Token::T_BRACKET_OPEN
-                    ){
 
-                        array_unshift($case['condition'], [
-                            'type' => Token::T_BRACKET_OPEN
-                        ]);
+                    if (count($case['condition'])){
+                        $firstNode = $case['condition'][0];
+                        $lastNode = end($case['condition']);
 
-                        array_push($case['condition'], [
-                            'type' => Token::T_BRACKET_CLOSE
-                        ]);
+
+                        $doWrap = false;
+                        if (
+                            $firstNode['type'] == Token::T_BRACKET_OPEN &&
+                            $lastNode['type'] !== Token::T_BRACKET_CLOSE
+                        ) {
+                            $doWrap = true;
+                        }else if (
+                            $firstNode['type'] !== Token::T_BRACKET_OPEN &&
+                            $lastNode['type'] !== Token::T_BRACKET_CLOSE
+                        ){
+                            $doWrap = true;
+                        }else if (
+                            $firstNode['type'] !== Token::T_BRACKET_OPEN &&
+                            $lastNode['type'] == Token::T_BRACKET_CLOSE
+                        ){
+                            $doWrap = true;
+                        }
+
+                        //wrap if statements always in brackets
+                        if ($doWrap){
+
+                            array_unshift($case['condition'], [
+                                'type' => Token::T_BRACKET_OPEN
+                            ]);
+
+                            array_push($case['condition'], [
+                                'type' => Token::T_BRACKET_CLOSE
+                            ]);
+                        }
                     }
+
 
                     $parsedConditions = [];
                     $innerCurrent = 0;
@@ -904,6 +927,7 @@ class Parser {
 
                 if ($token['type'] == Token::T_LINEEND) {
                     $node['cases'][] = $case;
+
                     return [$current + 1, $node];
                 }
 
@@ -951,6 +975,7 @@ class Parser {
 
                         $node['cases'][] = $innerIf;
                     }
+
                     return [$current + 1, $node];
 
                     break;
@@ -962,6 +987,7 @@ class Parser {
 
                     if ($deep == 0){
                         $node['cases'][] = $case;
+
                         return [$current + 1, $node];
                     }
 
