@@ -11,6 +11,16 @@ class Compiler {
      * @return mixed
      */
     private function prepare($source){
+
+        $source = str_replace([
+            "if (GetEntity('Syringe_(CT)')) <> NIL then",
+//            "SwitchLightOff ("
+        ],[
+            "if GetEntity('Syringe_(CT)') <> NIL then",
+//            "SwitchLightOff("
+
+        ], $source);
+
         // remove double whitespaces
         $source = preg_replace("/\s+/", ' ', $source);
 
@@ -416,7 +426,7 @@ class Compiler {
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
 
-//        var_dump($ast);
+        var_dump($ast);
 
         $this->fixWriteDebug($ast['body']);
 
