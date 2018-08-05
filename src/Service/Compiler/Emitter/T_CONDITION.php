@@ -51,6 +51,19 @@ class T_CONDITION {
 
 //                    if (isset($mappedTo)){
 
+
+                    if (
+                        isset($mappedTo['type']) &&
+                        (
+                            $mappedTo['type'] == "stringarray"
+                        )
+                    ){
+                        $code[] = $getLine('10000000');
+                        $code[] = $getLine('01000000');
+
+                        $code[] = $getLine('10000000');
+                        $code[] = $getLine('02000000');
+                    }else{
                         if ($index + 1 == count($token['params'])){
 
                             if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
@@ -68,13 +81,9 @@ class T_CONDITION {
                             $code[] = $getLine('10000000');
                             $code[] = $getLine('01000000');
 
-//                            if ($mappedTo['type'] == "stringarray"){
-//
-//                                $code[] = $getLine('10000000');
-//                                $code[] = $getLine('02000000');
-//                            }
-
                         }
+
+                    }
 //                    }
 
                 }
@@ -96,7 +105,13 @@ class T_CONDITION {
                 }
 
                 // not sure about this part
-                if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                if (isset($mappedTo['type']) && $mappedTo['type'] == "stringarray") {
+                    $code[] = $getLine('49000000');
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('01000000');
+
+                }else if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
                     $code[] = $getLine('4e000000');
                     $code[] = $getLine('12000000');
                     $code[] = $getLine('01000000');
@@ -122,6 +137,13 @@ class T_CONDITION {
 
                     Evaluate::setStatementFullCondition($code, $getLine);
                 }
+
+
+                if (isset($node['isOuterNot']) && $node['isOuterNot']){
+                    Evaluate::setStatementNot($code, $getLine);
+                }
+
+
             }
         }
 

@@ -183,11 +183,11 @@ class Parser {
 
                     while($innerCurrent < count($innerTokens)){
 
-//                        $isNot = false;
-//                        if($innerTokens[$innerCurrent]['type'] == Token::T_NOT){
-//                            $isNot = true;
-//                            $innerCurrent++;
-//                        }
+                        $isNot = false;
+                        if($innerTokens[$innerCurrent]['type'] == Token::T_NOT){
+                            $isNot = true;
+                            $innerCurrent++;
+                        }
 
                         list($innerCurrent, $tree)= $this->parseToken($innerTokens,$innerCurrent);
 
@@ -200,7 +200,7 @@ class Parser {
 
 
                         $tree = [$tree];
-                        $this->remapCondition( $tree );
+                        $this->remapCondition( $tree, $isNot );
                         $this->extendConditionInformation( $tree );
 
                         $parsedConditions[] = current($tree);
@@ -530,7 +530,7 @@ class Parser {
      * @param $tokens
      * @throws \Exception
      */
-    private function remapCondition( &$tokens ){
+    private function remapCondition( &$tokens, $isOuterNot = false ){
 
         foreach ($tokens as $current => $token) {
 
@@ -539,7 +539,7 @@ class Parser {
 
 
             if ($tokens[ $current ]['type'] == Token::T_BRACKET_OPEN) {
-                $this->remapCondition( $tokens[ $current ]['params']);
+                $this->remapCondition( $tokens[ $current ]['params'], $isOuterNot);
                 continue;
             }
 
@@ -557,6 +557,7 @@ class Parser {
             $node = [
                 'type' => Token::T_CONDITION,
                 'isNot' => $isNot,
+                'isOuterNot' => $isOuterNot,
                 'body' => [],
             ];
 
@@ -1217,12 +1218,12 @@ class Parser {
 
         $token = $tokens[$current];
 
-//        $isNot = false;
+        $isNot = false;
         $operator = false;
         if (isset($tokens[$current - 1])){
             if ($tokens[$current - 1]['type'] == Token::T_AND) $operator = Token::T_AND;
             if ($tokens[$current - 1]['type'] == Token::T_OR) $operator = Token::T_OR;
-//            if ($tokens[$current - 1]['type'] == Token::T_NOT) $isNot = true;
+            if ($tokens[$current - 1]['type'] == Token::T_NOT) $isNot = true;
         }
 
         $current++;
@@ -1231,7 +1232,7 @@ class Parser {
             'type' => $token['type'],
             'nested' => isset($token['nested']) ? $token['nested'] : false,
             'operator' => $operator,
-//            'isNot' => $isNot,
+            'isNot' => $isNot,
             'params' => []
         ];
 
