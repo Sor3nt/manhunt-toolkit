@@ -48,6 +48,10 @@ class T_VARIABLE {
             $mapped = $variableType[ strtolower($value) ];
         }else{
 
+//            if (strpos(strtolower($value), 'level_var ') !== false){
+//                throw new \Exception(sprintf("T_VARIABLE: unable to find levelVar offset for %s", $value));
+//
+//            }
 
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }

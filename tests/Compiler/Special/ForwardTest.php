@@ -78,7 +78,7 @@ class ForwardTest extends KernelTestCase
             '00000000', // value int 0
             '16000000', // assign to script var
             '04000000', // assign to script var
-            '04000000', // save into alreadyDone
+            '00000000', // save into alreadyDone
             '01000000', // assign
 
 
@@ -183,7 +183,7 @@ class ForwardTest extends KernelTestCase
             '00000000', // value int 1
             '16000000', // assign to script var
             '04000000', // assign to script var
-            '04000000', // save into alreadyDone
+            '00000000', // save into alreadyDone
             '01000000', // assign
 
             // procedure end
@@ -208,7 +208,7 @@ class ForwardTest extends KernelTestCase
             '00000000', // value int 0
             '16000000', // assign to script var
             '04000000', // assign to script var
-            '08000000', // save into alreadyDone
+            '00000000', // save into alreadyDone
             '01000000', // assign
 
 

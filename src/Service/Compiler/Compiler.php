@@ -14,10 +14,10 @@ class Compiler {
 
         $source = str_replace([
             "if (GetEntity('Syringe_(CT)')) <> NIL then",
-//            "SwitchLightOff ("
+//            "not("
         ],[
             "if GetEntity('Syringe_(CT)') <> NIL then",
-//            "SwitchLightOff("
+//            "(not "
 
         ], $source);
 
@@ -123,9 +123,52 @@ class Compiler {
 
                     if (substr($variableType, 0, 7) == "string["){
                         $size = (int) explode("]", substr($variableType, 7))[0];
-                        $row['size'] = $size;
                         $row['type'] = 'stringarray';
-//                        $row['offset'] = Helper::fromIntToHex($size);
+                        $row['size'] = $size;
+
+                        //                        $row['offset'] = Helper::fromIntToHex($size);
+                    }else if (substr($variableType, 0, 10) == "level_var "){
+
+                        switch ($variableType){
+                            case 'level_var integer':
+
+                                $size = 4;
+
+                                if (!isset(Manhunt2::$levelVarInteger[$token['value']])){
+                                    throw new \Exception('Compiler: level var integer, var not found ' . $token['value']);
+
+                                }
+
+                                $row['force_offset'] = Manhunt2::$levelVarInteger[$token['value']]['offset'];
+                                break;
+
+                            case 'level_var boolean':
+
+                                $size = 4;
+
+                                if (!isset(Manhunt2::$levelVarBoolean[$token['value']])){
+                                    throw new \Exception('Compiler: level var boolean, var not found ' . $token['value']);
+
+                                }
+
+                                $row['force_offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
+                                break;
+
+                            case 'level_var tlevelstate':
+
+                                $size = 4;
+
+
+                                $row['force_offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
+                                break;
+
+                            default:
+                                throw new \Exception('Compiler: unkown level var ' . $variableType);
+                                break;
+
+                        }
+
+                        $row['size'] = $size;
 
                     }else{
                         switch ($variableType){
@@ -256,18 +299,22 @@ class Compiler {
         foreach ($strings as &$string) {
 
             $length = strlen($string) + 1;
-
             $string = [
                 'offset' => Helper::fromIntToHex($smemOffset),
                 'length' => strlen($string)
             ];
 
+
             if (4 - $length % 4 != 0){
                 $length += 4 - $length % 4;
             }
-
+//
+//            if ($length % 4 !== 0){
+//                $length += $length % 4;
+//            }
 
             $smemOffset += $length;
+
         }
 
         return $strings;
@@ -426,6 +473,7 @@ class Compiler {
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
 
+
         var_dump($ast);
 
         $this->fixWriteDebug($ast['body']);
@@ -448,10 +496,13 @@ class Compiler {
                 $token['type'] == Token::T_PROCEDURE ||
                 $token['type'] == Token::T_FUNCTION
             ){
-                $strings4Scripts[$index] = $this->getStrings($token['body'], $smemOffset);
+
+//                $token['body'][$index]['stringIndex'] = $index;
+                $strings4Scripts[$token['value']] = $this->getStrings($token['body'], $smemOffset);
 
             }
         }
+        $ast = $parser->handleForward($ast);
 
         foreach ($ast["body"] as $index => $token) {
 
@@ -461,6 +512,7 @@ class Compiler {
                 $token['type'] == Token::T_FUNCTION
             ){
                 $currentSection = "script";
+                $scriptName = $token['value'];
 
                 /**
                  * Calculate string offsets
@@ -483,21 +535,41 @@ class Compiler {
                 foreach ($headerVariables as $name => $item) {
 
                     if ($this->isVariableInUse($token['body'], $name)){
+                        var_dump(Helper::fromIntToHex($smemOffset));
+
+
 
                         if (!isset($item['offset'])){
+                            var_dump("to", $name);
                             $item['offset'] = Helper::fromIntToHex($smemOffset);
+//                            once generated, save the offset
+                            $headerVariables[$name]['offset'] = $item['offset'];
                         }
-                        $smemOffset += $item['size'];
 
+
+                        if (isset($item['force_offset'])){
+                            $item['offset'] = $item['force_offset'];
+                        }
+
+
+                        $size = $item['size'];
+
+
+
+                        if ($size % 4 !== 0){
+                            $size += 4 + $size % 4;
+                        }
+                        $smemOffset += $size;
 
                         $scriptVarFinal[$name ] = $item;
                     }
                 }
 
+
                 /**
                  * Translate Token AST to Bytecode
                  */
-                $emitter = new Emitter(  $scriptVarFinal, $strings4Scripts[$index], $types, $const, $lineCount );
+                $emitter = new Emitter(  $scriptVarFinal, $strings4Scripts[$scriptName], $types, $const, $lineCount );
 
                 $code = $emitter->emitter([
                     'type' => "root",
@@ -508,8 +580,8 @@ class Compiler {
 
                 foreach ($code as $line) {
                     if ($line->lineNumber !== $start){
-//                        var_dump( $line, $start);
-//                        throw new \Exception('Calulated line number did not match with the generated one');
+                        var_dump( $line, $start);
+                        throw new \Exception('Calulated line number did not match with the generated one');
                     }
 
 
@@ -655,9 +727,8 @@ class Compiler {
                         'type' => $variableType
                     ];
 
-
-                    if (substr($variableType, 0, 7) == "string["){
-                        $size = (int) explode("]", substr($variableType, 7))[0];
+                    if (substr($variableType, 0, 7) == "string[") {
+                        $size = (int)explode("]", substr($variableType, 7))[0];
                         $row['size'] = $size;
 
                     }else{
@@ -665,23 +736,6 @@ class Compiler {
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
                                 break;
-                            case 'level_var boolean':
-
-                                $size = 4;
-
-                                $row['offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
-                                break;
-
-                            case 'level_var tlevelstate':
-
-                                $size = 4;
-                                $row['offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
-                                break;
-
-                            case 'boolean':
-                            case 'et_name':
-                            case 'entityptr':
-                            case 'televatorlevel':
                             default:
                                 $size = 4;
                                 break;

@@ -671,18 +671,23 @@ class NewMeleeTut2Test extends KernelTestCase
             '10000000', //nested call return result
             '01000000', //nested call return result
             '7d000000', //MoveEntity Call
+
             '8a000000', //GetPlayer Call
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '00000000', //value 0
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '4d000000', //RadarCreateBlip Call
+
+            '4d000000', //
             '10000000', //nested call return result
             '01000000', //nested call return result
             'b0020000', //SetPedOrientation Call
+
+
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown

@@ -161,6 +161,9 @@ class EvaluateAssign {
                             case 'object':
                                 self::toObject( $code, $getLine);
                                 break;
+                            case 'real':
+                                self::toReal($mapped['offset'], $code, $getLine);
+                                break;
                             default:
                                 var_dump($mapped);
                                 throw new \Exception("Not implemented!");
@@ -258,6 +261,13 @@ class EvaluateAssign {
 
 
 
+    }
+
+    static public function toReal($offset,&$code, \Closure $getLine){
+        $code[] = $getLine('15000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine($offset);
+        $code[] = $getLine('01000000');
     }
 
     static public function toScriptVec3D( $offset, &$code, \Closure $getLine){

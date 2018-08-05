@@ -25,12 +25,10 @@ class Parser {
             }
         }
 
-        $ast = $this->handleForward($ast);
-
         return $ast;
     }
 
-    private function handleForward( $ast ){
+    public function handleForward( $ast ){
 
         foreach ($ast['body'] as &$token) {
             if ($token['type'] == Token::T_FORWARD){
@@ -81,7 +79,7 @@ class Parser {
             case Token::T_SCRIPT_END:
             case Token::T_PROCEDURE_END:
             case Token::T_END_CODE:
-                 //just go to the next position
+                //just go to the next position
                 return $this->parseToken($tokens, $current + 1);
 
 
@@ -145,21 +143,24 @@ class Parser {
 
 
                         $doWrap = false;
-                        if (
-                            $firstNode['type'] == Token::T_BRACKET_OPEN &&
-                            $lastNode['type'] !== Token::T_BRACKET_CLOSE
-                        ) {
-                            $doWrap = true;
-                        }else if (
-                            $firstNode['type'] !== Token::T_BRACKET_OPEN &&
-                            $lastNode['type'] !== Token::T_BRACKET_CLOSE
-                        ){
-                            $doWrap = true;
-                        }else if (
-                            $firstNode['type'] !== Token::T_BRACKET_OPEN &&
-                            $lastNode['type'] == Token::T_BRACKET_CLOSE
-                        ){
-                            $doWrap = true;
+                        if ($firstNode['type'] != Token::T_NOT){
+
+                            if (
+                                $firstNode['type'] == Token::T_BRACKET_OPEN &&
+                                $lastNode['type'] !== Token::T_BRACKET_CLOSE
+                            ) {
+                                $doWrap = true;
+                            }else if (
+                                $firstNode['type'] !== Token::T_BRACKET_OPEN &&
+                                $lastNode['type'] !== Token::T_BRACKET_CLOSE
+                            ){
+                                $doWrap = true;
+                            }else if (
+                                $firstNode['type'] !== Token::T_BRACKET_OPEN &&
+                                $lastNode['type'] == Token::T_BRACKET_CLOSE
+                            ){
+                                $doWrap = true;
+                            }
                         }
 
                         //wrap if statements always in brackets
@@ -181,6 +182,13 @@ class Parser {
                     $innerTokens = $case['condition'];
 
                     while($innerCurrent < count($innerTokens)){
+
+//                        $isNot = false;
+//                        if($innerTokens[$innerCurrent]['type'] == Token::T_NOT){
+//                            $isNot = true;
+//                            $innerCurrent++;
+//                        }
+
                         list($innerCurrent, $tree)= $this->parseToken($innerTokens,$innerCurrent);
 
                         if (
@@ -261,6 +269,7 @@ class Parser {
 
 
     public function parseSwitchCase($tokens, $current){
+
 
         //skip T_CASE
         $current++;
@@ -420,9 +429,9 @@ class Parser {
 
             $current++;
 
-        /**
-         * we have a procedure define section
-         */
+            /**
+             * we have a procedure define section
+             */
         }else{
             return $this->parseScript($tokens, $current);
         }
@@ -936,9 +945,9 @@ class Parser {
                 $current++;
             }
 
-        /**
-         * parse regular true code
-         */
+            /**
+             * parse regular true code
+             */
         }else{
 
             $deep = 0;
@@ -1208,10 +1217,12 @@ class Parser {
 
         $token = $tokens[$current];
 
+//        $isNot = false;
         $operator = false;
         if (isset($tokens[$current - 1])){
             if ($tokens[$current - 1]['type'] == Token::T_AND) $operator = Token::T_AND;
             if ($tokens[$current - 1]['type'] == Token::T_OR) $operator = Token::T_OR;
+//            if ($tokens[$current - 1]['type'] == Token::T_NOT) $isNot = true;
         }
 
         $current++;
@@ -1220,6 +1231,7 @@ class Parser {
             'type' => $token['type'],
             'nested' => isset($token['nested']) ? $token['nested'] : false,
             'operator' => $operator,
+//            'isNot' => $isNot,
             'params' => []
         ];
 
@@ -1237,8 +1249,8 @@ class Parser {
                 $tokens[$current - 1]['type'] == Token::T_BRACKET_CLOSE
             ) {
 
-                    $current++;
-                    continue;
+                $current++;
+                continue;
             }else{
 
                 list($current, $param) = $this->parseToken($tokens, $current);

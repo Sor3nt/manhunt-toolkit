@@ -4,7 +4,61 @@ namespace App\Service\Compiler\FunctionMap;
 class Manhunt2 {
 
 
+    /**
+     * some functions need explicit float parameters
+     * when someone give a 10 instead of 10.0 we need to
+     * tell te engine to convert the value
+     *
+     * Sample Input: SetVector(pos, 1, 23.45, 67.89);
+     * the function require 3 floats but the first value is a int.
+     * convert it to a float with 0x4d 0x10 0x01
+     */
+    public static $functionForceFloar = [
+        'SetColourRamp' => [ false, false, true],
+        'setpedorientation' => [ false, true],
+        'setvector' => [ false, true, true, true ],
+        'aisethunteridleactionminmaxradius' => [ false, false, false, false, false, true]
+    ];
+
+    public static $functionNoReturn = [
+        'getentityname'
+    ];
+
     public static $constants = [
+
+        'MAP_COLOR_HUNTER_IDLE'  => [
+            'offset' => "08000000"
+        ],
+
+        'COL_HUNTER'  => [
+            'offset' => "10000000"
+        ],
+
+        'AISCRIPT_VERYHIGHPRIORITY'  => [
+            'offset' => "00000000"
+        ],
+
+        'AISCRIPT_LOWPRIORITY'  => [
+            'offset' => "03000000"
+        ],
+
+
+
+        'AISCRIPT_IDLE_STANDSTILL'  => [
+            'offset' => "02000000"
+        ],
+
+
+        'COMBATTYPEID_MELEE'  => [
+            'offset' => "00000000"
+        ],
+
+
+
+        'MTT_TRAINING'  => [
+            'offset' => "00000000"
+        ],
+
 
         'DIFFICULTY_NORMAL'  => [
             'offset' => "01000000"
@@ -88,11 +142,36 @@ class Manhunt2 {
 
     ];
 
+    public static $levelVarInteger = [
+        'stealthTutSpotted'                     => [
+            'offset' => "a0170000"
+        ],
+
+    ];
+
     public static $levelVarBoolean = [
+
+
+        'stealthThreeDone'                     => [
+            'offset' => "d0170000"
+        ],
+
+        'MonitorDead'                     => [
+            'offset' => "MonitorDead"
+        ],
+
+        'DannySeen'                     => [
+            'offset' => "DannySeen"
+        ],
+
+        'stealthThreeFacingYou'                     => [
+            'offset' => "stealthThreeFacingYou"
+        ],
 
         'cellTwoOpen'                     => [
             'offset' => "74170000"
         ],
+
         'lButtonTutRemoved'                     => [
             'offset' => "64170000"
         ],
@@ -698,7 +777,7 @@ class Manhunt2 {
 
         "setpedorientation" => [
             'name'      =>  'SetPedOrientation',
-            'offset'    =>  '4d000000',
+            'offset'    =>  'b0020000',
             /**
              * Parameters
              * 1: GetEntityPosition
@@ -1552,12 +1631,179 @@ class Manhunt2 {
 
         "thislevelbeencompletedalready" => [
             'name'      =>  'ThisLevelBeenCompletedAlready',
-            'offset'    =>  'ThisLevelBeenCompletedAlready',
+            'offset'    =>  '04030000',
+
+            'params'    =>  [  ],
+            'return'    =>  'Boolean',
+            'desc'      =>  ''
+        ],
+
+        "registernonexecutablehunterinlevel" => [
+            'name'      =>  'RegisterNonExecutableHunterInLevel',
+            'offset'    =>  'b1020000',
 
             'params'    =>  [  ],
             'return'    =>  'Void',
             'desc'      =>  ''
         ],
+
+        "sethuntermute" => [
+            'name'      =>  'SetHunterMute',
+            'offset'    =>  '76030000',
+
+            'params'    =>  [ 'Entity', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "playaudioloopedfromentity" => [
+            'name'      =>  'PlayAudioLoopedFromEntity',
+            'offset'    =>  '5e020000',
+
+            'params'    =>  [ 'Entity', 'String', 'String', 'Integer', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "triggersavepoint" => [
+            'name'      =>  'TriggerSavePoint',
+            'offset'    =>  '47030000',
+
+            'params'    =>  [ 'Entity', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "clearalllevelgoals" => [
+            'name'      =>  'ClearAllLevelGoals',
+            'offset'    =>  '00030000',
+
+            'params'    =>  [  ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "setplayerjumpflag" => [
+            'name'      =>  'SetPlayerJumpFlag',
+            'offset'    =>  '24030000',
+
+            'params'    =>  [ 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "aisethunteridleactionminmax" => [
+            'name'      =>  'AISetHunterIdleActionMinMax',
+            'offset'    =>  '80010000',
+
+            'params'    =>  [ 'String', 'Integer', 'Integer', 'Integer', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "killentity" => [
+            'name'      =>  'KillEntity',
+            'offset'    =>  '80000000',
+
+            'params'    =>  [ 'Entity' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "sethunterexecutable" => [
+            'name'      =>  'SetHunterExecutable',
+            'offset'    =>  '82020000',
+
+            'params'    =>  [ 'Entity', 'Boolean' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "radarpositionsetentity" => [
+            'name'      =>  'RadarPositionSetEntity',
+            'offset'    =>  'e0020000',
+
+            'params'    =>  [ 'Entity', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "setplayerheading" => [
+            'name'      =>  'SetPlayerHeading',
+            'offset'    =>  '80020000',
+
+            'params'    =>  [ 'Entity', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "sethunterrunspeed" => [
+            'name'      =>  'SetHunterRunSpeed',
+            'offset'    =>  'f1010000',
+
+            'params'    =>  [ 'String', 'Float' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "triggeraddentityclass" => [
+            'name'      =>  'TriggerAddEntityClass',
+            'offset'    =>  '10020000',
+
+            'params'    =>  [ 'Entity', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "killentitywithoutanim" => [
+            'name'      =>  'KillEntityWithoutAnim',
+            'offset'    =>  '23030000',
+
+            'params'    =>  [ 'Entity', 'Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "airemovegoalfromsubpack" => [
+            'name'      =>  'AIRemoveGoalFromSubpack',
+            'offset'    =>  '57010000',
+
+            'params'    =>  [ 'String', 'String', 'String' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+
+        "getcameraposition" => [
+            'name'      =>  'GetCameraPosition',
+            'offset'    =>  '8e010000',
+
+            'params'    =>  [ ],
+            'return'    =>  'Vec3D',
+            'desc'      =>  ''
+        ],
+
+        "sethunterhidehealth" => [
+            'name'      =>  'SetHunterHideHealth',
+            'offset'    =>  'ee010000',
+
+            'params'    =>  [ ],
+            'return'    =>  'Vec3D',
+            'desc'      =>  ''
+        ],
+        "aisetidlepatrolstop" => [
+            'name'      =>  'AISetIdlePatrolStop',
+            'offset'    =>  'a6010000',
+
+            'params'    =>  [ 'StringArray', 'String', 'Integer', 'Boolean' ],
+            'return'    =>  'Vec3D',
+            'desc'      =>  ''
+        ],
+
+        'switchlightoff'  => [
+            'name'      =>  'SwitchLightOff',
+            'offset' => "da000000"
+        ],
+
+        'playscriptaudiostreamfromposauto'  => [
+            'name'      =>  'PlayScriptAudioStreamFromPosAuto',
+            'offset' => "6c030000"
+        ],
+
 //
 //        "radarpositionsetentity" => [
 //            'name'      =>  'RadarPositionSetEntity',

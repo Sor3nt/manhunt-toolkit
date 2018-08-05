@@ -1147,22 +1147,22 @@ class BytecodeExplain {
                 if ($line->toBinary() == hex2bin($functionBinary)){
 
 
-
-                    if (
-                    !(
-                        ($lines[ $lineIndex - 1]->toHex() == "01000000") &&
-                        ($lines[ $lineIndex - 2]->toHex() == "04000000") &&
-                        ($lines[ $lineIndex - 3]->toHex() == "21000000")
-                    )
-                    ){
-
-                        if (
-                        ($lines[ $lineIndex - 1]->toHex() == "04000000") &&
-                        ($lines[ $lineIndex - 2]->toHex() == "16000000")
-                        ){
-                            continue;
-                        }
-
+//
+//                    if (
+//                    !(
+//                        ($lines[ $lineIndex - 1]->toHex() == "01000000") &&
+//                        ($lines[ $lineIndex - 2]->toHex() == "04000000") &&
+//                        ($lines[ $lineIndex - 3]->toHex() == "21000000")
+//                    )
+//                    ){
+//
+//                        if (
+//                        ($lines[ $lineIndex - 1]->toHex() == "04000000") &&
+//                        ($lines[ $lineIndex - 2]->toHex() == "16000000")
+//                        ){
+//                            continue;
+//                        }
+//
 
                         $result[$lineIndex] = [
                             $line->toHex(),
@@ -1195,7 +1195,7 @@ class BytecodeExplain {
 //
 //
 //                        }
-                    }
+//                    }
 
                 }
 

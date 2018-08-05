@@ -911,21 +911,13 @@ begin
 	end;
 
 	EndOfLevel: begin
-		{RunScript('player(player)', 'EndOfLevelCutScene');
-
-		sleep(100);
-
-		while IsCutSceneInProgress do sleep(50);}
-
-		{ the level ends here }
+		
 		SetLevelCompleted;
 	end;
 
 	end; {case of}
 end;
 
-
-{ [gupi] }
 script DisplaySavePointTutorials;
 begin
 	
@@ -1534,45 +1526,6 @@ begin
 	
 	AIInited := TRUE;
 end;
-
-
-{procedure InitMonitors;
-begin}
-	{ Set up monitors }
-{	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER');
-	RunScript('CJ_MONITER', 'MonitorOn');
-
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER01');
-	RunScript('CJ_MONITER01', 'MonitorOn');
-
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER02');
-	RunScript('CJ_MONITER02', 'MonitorOn');
-
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER');
-	RunScript('CJ_WILL_MONITER', 'MonitorOn');
-
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER01');
-	RunScript('CJ_WILL_MONITER01', 'MonitorOn');
-	
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER05');
-	RunScript('CJ_MONITER05', 'MonitorOn');
-	
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER04');
-	RunScript('CJ_MONITER04', 'MonitorOn');
-	
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER');
-	RunScript('CJ_WILL_MONITER', 'MonitorOn');
-	
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER02');
-	RunScript('CJ_WILL_MONITER02', 'MonitorOn');
-	
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER');
-	RunScript('CJ_MONITER', 'MonitorOn');
-	
-	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER03');
-	RunScript('CJ_MONITER03', 'MonitorOn');	
-	     
-end;}
 
 
 end.
@@ -2866,6 +2819,8 @@ end.
 '34000000', //reserve bytes
 '09000000', //reserve bytes
 '1c000000', //Offset in byte
+//	SetColourRamp('FE_colramps', 1, 4.0);
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
@@ -2888,6 +2843,7 @@ end.
 '10000000', //nested call return result
 '01000000', //nested call return result
 'ab030000', //SetColourRamp Call
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
@@ -3030,13 +2986,18 @@ end.
 '10000000', //nested call return result
 '01000000', //nested call return result
 '59030000', //SetMaxScoreForLevel Call
+
+#AIInited := FALSE;
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
 '00000000', //value 0
+
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
 '98170000', //unknown
 '01000000', //unknown
+
+#InitAI;
 '10000000', //unknown
 '04000000', //unknown
 '11000000', //unknown
@@ -3049,6 +3010,8 @@ end.
 '02000000', //unknown
 '39000000', //unknown
 '00000000', //unknown
+
+#SetMaxNumberOfRats(0);
 '12000000', //parameter (read simple type (int/float...))
 '01000000', //parameter (read simple type (int/float...))
 '00000000', //value 0
@@ -4191,6 +4154,8 @@ end.
 '02000000', //nested string return result
 '73000000', //writedebug Call
 '74000000', //writedebugflush Call
+
+
 '12000000', //parameter (read simple type (int/float...))
 '01000000', //parameter (read simple type (int/float...))
 '00000000', //value 0
@@ -8623,6 +8588,7 @@ end.
 '00000000', //statement (end sequence)
 '3f000000', //statement (init start offset)
 '00730000', //Offset (line number 7360)
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
@@ -8945,6 +8911,7 @@ end.
 '04000000', //parameter (access script var)
 '6c170000', //unknown
 '01000000', //unknown
+
 '3c000000', //statement (init statement start offset)
 '609c0000', //Offset (line number 10008)
 '21000000', //Prepare string read (DATA table)
@@ -10652,6 +10619,8 @@ end.
 '10000000', //nested call return result
 '01000000', //nested call return result
 '2d010000', //setcurrentlod Call
+
+
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
@@ -10666,7 +10635,7 @@ end.
 '77000000', //getentity Call
 '10000000', //nested call return result
 '01000000', //nested call return result
-'da000000', //unknown
+'da000000', //SwitchLightOff
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)
@@ -14497,17 +14466,22 @@ end.
 '10000000', //nested string return result
 '02000000', //nested string return result
 'a3010000', //AISetHunterIdlePatrol Call
+
+
 '22000000', //Prepare string read (3)
 '04000000', //Prepare string read (3)
 '01000000', //Prepare string read (3)
 '0c000000', //Offset in byte
+
 '10000000', //nested call return result
 '01000000', //nested call return result
+
 '12000000', //unknown
 '01000000', //unknown
 '0f000000', //unknown
 '2a000000', //unknown
 '01000000', //unknown
+
 '10000000', //nested call return result
 '01000000', //nested call return result
 '4d000000', //SetPedOrientation Call

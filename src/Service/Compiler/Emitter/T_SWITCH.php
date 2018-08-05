@@ -17,13 +17,18 @@ class T_SWITCH {
             $code[] = $item;
         }
 
+        $forceLineNumber = end($code)->lineNumber + 1;
+
         $calc = self::calculate( end($code)->lineNumber, $node, $emitter);
 
-        //        $casesRev = array_reverse($node['cases']);
 
-        foreach ($node['cases'] as $index => $case) {
+        $casesRev = array_reverse($node['cases']);
 
-            $code[] = $getLine('24000000');
+        foreach ($casesRev as $index => $case) {
+
+            $code[] = $getLine('24000000', $forceLineNumber);
+            $forceLineNumber = false;
+
             $code[] = $getLine('01000000');
             $code[] = $getLine( self::toIndex($case['index'], $data, $node['switch']) );
 
@@ -35,7 +40,7 @@ class T_SWITCH {
         $code[] = $getLine('3c000000');
         $code[] = $getLine(Helper::fromIntToHex( $calc['end'] ));
 
-        foreach ($node['cases'] as $case) {
+        foreach ($casesRev as $case) {
 
             foreach ($case['body'] as $bodyNode) {
                 $result = $emitter($bodyNode);
@@ -62,17 +67,16 @@ class T_SWITCH {
         ];
 
 
-//        $casesRev = array_reverse($node['cases']);
+        $casesRev = array_reverse($node['cases']);
 
-        foreach ($node['cases'] as $case) {
+        foreach ($casesRev as $case) {
             $line += 5;
         }
 
         $line += 2;
 
         foreach ($node['cases'] as $case) {
-            $calc['cases'][] = $line;
-
+            $calc['cases'][] = $line * 4;
 
             $code = [];
             foreach ($case['body'] as $bodyNode) {
@@ -88,9 +92,10 @@ class T_SWITCH {
 
             $line += 2;
 
+
         }
 
-        $calc['end'] = $line;
+        $calc['end'] = $line * 4;
 
         return $calc;
     }

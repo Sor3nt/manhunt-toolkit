@@ -103,6 +103,10 @@ class T_FUNCTION {
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
                                 break;
+                            case 'real':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                break;
                             case 'constant':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -287,7 +291,12 @@ class T_FUNCTION {
          */
 
         if (isset($node['nested']) && $node['nested'] === true){
-            Evaluate::returnResult($code, $getLine);
+
+            if (!in_array(strtolower($node['value']), Manhunt2::$functionNoReturn )){
+
+                Evaluate::returnResult($code, $getLine);
+
+            }
         }
 
         return $code;

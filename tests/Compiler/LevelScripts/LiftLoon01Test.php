@@ -438,6 +438,9 @@ end.
             '10000000', //nested call return result
             '01000000', //nested call return result
             '78000000', //GetEntityPosition Call
+
+
+
             '12000000', //unknown
             '03000000', //unknown
             '0c000000', //unknown
@@ -455,6 +458,8 @@ end.
             '10000000', //nested call return result
             '01000000', //nested call return result
             '6a000000', //sleep Call
+
+
             '3c000000', //statement (init statement start offset)
             'f0030000', //Offset (line number 252)
             '21000000', //Prepare string read (DATA table)
@@ -477,21 +482,31 @@ end.
             '10000000', //nested call return result
             '01000000', //nested call return result
             '3a010000', //SetMoverState Call
+
+
+
+
+            //	SetVector(pos, -25.075, 24.09, 35.504);
+
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
             '0c000000', //unknown
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             '9a99c841', //value 1103665562
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '4f000000', //turn prev number into negative
             '32000000', //turn prev number into negative
             '09000000', //turn prev number into negative
             '04000000', //turn prev number into negative
+
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //parameter (read simple type (int/float...))
@@ -505,6 +520,9 @@ end.
             '10000000', //nested call return result
             '01000000', //nested call return result
             '84010000', //setvector Call
+
+
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
@@ -550,16 +568,21 @@ end.
             '37000000', //value 55
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '4d000000', //SetPedOrientation Call
+
+            '4d000000', //
             '10000000', //nested call return result
             '01000000', //nested call return result
-            'b0020000', //unknown
+
+            'b0020000', //SetPedOrientation
+
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
             '0c000000', //unknown
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))
             'e926dd41', //value 1105012457
@@ -582,6 +605,9 @@ end.
             '10000000', //nested call return result
             '01000000', //nested call return result
             '84010000', //setvector Call
+
+
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
