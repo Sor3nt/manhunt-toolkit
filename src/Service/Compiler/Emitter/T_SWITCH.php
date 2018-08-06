@@ -17,11 +17,9 @@ class T_SWITCH {
             $code[] = $item;
         }
 
-
         $forceLineNumber = end($code)->lineNumber + 1;
 
         $calc = self::calculate( end($code)->lineNumber, $node, $emitter);
-
 
         $casesRev = array_reverse($node['cases']);
 
@@ -48,7 +46,6 @@ class T_SWITCH {
                 foreach ($result as $item) {
                     $code[] = $item;
                 }
-
             }
 
             $code[] = $getLine('3c000000');
@@ -61,12 +58,10 @@ class T_SWITCH {
 
     static public function calculate($line, $node, \Closure $emitter ){
 
-
         $calc = [
             'cases' => [],
             'end' => []
         ];
-
 
         $casesRev = array_reverse($node['cases']);
 
@@ -87,13 +82,10 @@ class T_SWITCH {
                 }
 
             }
-//            $result = $emitter($case['body'], false);
 
             $line += count($code);
 
             $line += 2;
-
-
         }
 
         $calc['end'] = $line * 4;
@@ -105,8 +97,6 @@ class T_SWITCH {
 
         switch ($node['type']){
             case Token::T_VARIABLE:
-//                var_dump($switchVar);
-
                 $mapping = T_VARIABLE::getMapping($switchVar, null, $data);
                 if (isset($data['types'][ $mapping['type'] ])){
 

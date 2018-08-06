@@ -3,7 +3,6 @@ namespace App\Service\Compiler\Emitter;
 
 
 use App\Bytecode\Helper;
-use App\Service\Compiler\Token;
 
 class T_WHILE {
 
@@ -23,7 +22,6 @@ class T_WHILE {
         //move pointer back to while start
         $code[] = $getLine('3c000000');
         $code[] = $getLine(Helper::fromIntToHex($firstLine * 4));
-
 
         return $code;
 

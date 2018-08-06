@@ -11,12 +11,7 @@ class T_STRING {
         // we have quotes around the string, come from the tokenizer
         $value = substr($node['value'], 1, -1);
 
-        if ($data['calculateLineNumber']){
-            $offset = $data['strings'][$value]['offset'];
-        }else{
-            $offset = "12345678";
-        }
-
+        $offset = $data['strings'][$value]['offset'];
 
         return [
             $getLine('21000000'),
@@ -27,7 +22,6 @@ class T_STRING {
 
             $getLine('12000000'),
             $getLine('02000000'),
-
 
             $getLine(Helper::fromIntToHex( strlen($value) + 1 ))
         ];

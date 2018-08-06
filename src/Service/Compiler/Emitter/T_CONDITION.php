@@ -8,8 +8,6 @@ use App\Service\Compiler\Token;
 
 class T_CONDITION {
 
-
-
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         $code = [];
@@ -17,7 +15,6 @@ class T_CONDITION {
         $token = $node['body'][0];
 
         if ($token['type'] == Token::T_OPERATION){
-
 
             if (count($token['params']) == 1){
 
@@ -34,7 +31,6 @@ class T_CONDITION {
 
                 $operator = $token['operator'];
 
-                $mapped = false;
                 foreach ($token['params'] as $index => $operation) {
 
                     if ($operation['type'] == Token::T_VARIABLE){
@@ -49,9 +45,6 @@ class T_CONDITION {
                     foreach ($result as $item) {
                         $code[] = $item;
                     }
-
-//                    if (isset($mappedTo)){
-
 
                     if (
                         isset($mappedTo['type']) &&
@@ -70,23 +63,17 @@ class T_CONDITION {
                             if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
-
                             }else{
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
-
                             }
-
 
                         }else{
                             $code[] = $getLine('10000000');
                             $code[] = $getLine('01000000');
 
                         }
-
                     }
-//                    }
-
                 }
 
                 if ($token['operation']['type'] == Token::T_AND) {
@@ -111,7 +98,6 @@ class T_CONDITION {
                     $code[] = $getLine('12000000');
                     $code[] = $getLine('01000000');
                     $code[] = $getLine('01000000');
-
                 }else if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
                     $code[] = $getLine('4e000000');
                     $code[] = $getLine('12000000');
@@ -126,28 +112,43 @@ class T_CONDITION {
                     $code[] = $getLine('01000000');
                 }
 
-
                 if ($operator){
 
-                    Evaluate::statementOperator($operator, $code, $getLine);
+                    switch ($operator['type']){
+                        case Token::T_IS_EQUAL:
+                            $code[] = $getLine('3f000000');
+                            break;
+                        case Token::T_IS_NOT_EQUAL:
+                            $code[] = $getLine('40000000');
+                            break;
+                        case Token::T_IS_SMALLER:
+                            $code[] = $getLine('3d000000');
+                            break;
+                        case Token::T_IS_GREATER:
+                            $code[] = $getLine('42000000');
+                            break;
+                        default:
+                            throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $node['type']));
+                            break;
+                    }
+
+//                    Evaluate::statementOperator($operator, $code, $getLine);
 
                     $lastLine = end($code)->lineNumber + 4;
 
                     // line offset for the IF start (or so)
                     $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
 
-                    Evaluate::setStatementFullCondition($code, $getLine);
+                    $code[] = $getLine('33000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('01000000');
                 }
-
 
                 if (isset($node['isOuterNot']) && $node['isOuterNot']){
                     Evaluate::setStatementNot($code, $getLine);
                 }
-
-
             }
         }
-
         return $code;
     }
 

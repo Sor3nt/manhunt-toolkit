@@ -1,11 +1,8 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
-use App\Bytecode\Helper;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt2;
-use App\Service\Compiler\Token;
 
 class T_VARIABLE {
 
@@ -24,8 +21,8 @@ class T_VARIABLE {
             $mapped['section'] = "header";
             $mapped['type'] = "level_var boolean";
 
-        }else if (isset(Manhunt2::$levelVarState[ $value ])) {
-            $mapped = Manhunt2::$levelVarState[ $value ];
+        }else if (isset(Manhunt2::$levelVarInteger[ $value ])) {
+            $mapped = Manhunt2::$levelVarInteger[ $value ];
             $mapped['section'] = "header";
             $mapped['type'] = "level_var tLevelState";
 
@@ -33,7 +30,6 @@ class T_VARIABLE {
             $mapped = $data['const'][ $value ];
             $mapped['section'] = "script";
             $mapped['type'] = "constant";
-
 
         }else if (strpos($value, '.') !== false){
 
@@ -48,14 +44,8 @@ class T_VARIABLE {
             $mapped = $variableType[ strtolower($value) ];
         }else{
 
-//            if (strpos(strtolower($value), 'level_var ') !== false){
-//                throw new \Exception(sprintf("T_VARIABLE: unable to find levelVar offset for %s", $value));
-//
-//            }
-
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
-
 
         return $mapped;
     }
@@ -80,16 +70,7 @@ class T_VARIABLE {
         if (class_exists($typeHandler)){
             $code = $typeHandler::map($node, $getLine, $emitter, $data);
         }else{
-
-//
-//            if (isset($data['types'][$mapped['type']])){
-//
-//                $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\T_HEADER_TYPES";
-//                $code = $typeHandler::map($node, $getLine, $emitter, $data);
-//
-//            }else{
-                throw new \Exception($typeHandler . " Not implemented!");
-//            }
+            throw new \Exception($typeHandler . " Not implemented!");
         }
 
         return $code;

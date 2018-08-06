@@ -1,7 +1,6 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
 use App\Bytecode\Helper;
 
 class T_TRUE {

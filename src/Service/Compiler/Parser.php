@@ -108,7 +108,6 @@ class Parser {
             case Token::T_SUBSTRACTION:
             case Token::T_OR:
             case Token::T_AND:
-//            case Token::T_CASE:
             case Token::T_OF:
                 return [
                     $current + 1, $tokens[$current]
@@ -269,9 +268,7 @@ class Parser {
                 return $this->parseRecursive($tokens, $current);
 
         }
-
     }
-
 
     public function parseSwitchCase($tokens, $current){
 
@@ -279,12 +276,7 @@ class Parser {
         //skip T_CASE
         $current++;
 
-        $switchBy = $tokens[$current];
-
         list($current, $switchBy) = $this->parseToken($tokens, $current);
-
-        //skip swicth var
-//        $current++;
 
         //skip T_OF
         $current++;
@@ -310,6 +302,7 @@ class Parser {
 
 
             $current++;
+
             //skip T_DEFINE
             $current++;
 
@@ -333,7 +326,6 @@ class Parser {
 
                     $current++;
 
-
                     $innerCurrent = 0;
                     $innerTokens = $case['body'];
 
@@ -350,11 +342,6 @@ class Parser {
 
                     $switch['cases'][] = $case;
 
-
-//
-//                    list($innerCurrent, $node) = $this->parseToken($case['body'], 0);
-//                    $case['body'] = $node;
-//                    $switch['cases'][] = $case;
                     break;
                 }else{
                     $case['body'][] = $tokens[$current];
@@ -447,7 +434,6 @@ class Parser {
         return [
             $current, $node
         ];
-
     }
 
     public function parseScript($tokens, $current){
@@ -498,37 +484,6 @@ class Parser {
         throw new \Exception('Parser: parseScript not handeld correct');
     }
 
-
-//    private function remapCondition( &$tokens ){
-//        $current = 0;
-//        $outerCount = count($tokens);
-//        while($current < $outerCount){
-//            $token = $tokens[$current];
-//            if ($token['type'] == Token::T_BRACKET_OPEN) {
-//                $this->remapCondition( $token['params']);
-//                $current++;
-//                continue;
-//            }
-//
-//            file_put_contents('a', $current, FILE_APPEND);
-//            $isNot = false;
-//            if ($token['type'] == Token::T_NOT) {
-//                $isNot = true;
-//                unset($tokens[ $current ]);
-//            }
-//
-//
-//            $node = [
-//                'type' => Token::T_CONDITION,
-//                'isNot' => $isNot,
-//                'body' => $tokens,
-//            ];
-//
-//            $tokens = $node;
-//            break;
-//
-//        }
-//    }
     /**
      * remap / regroup statements
      *
@@ -551,7 +506,6 @@ class Parser {
                 continue;
             }
 
-
             $isNot = false;
             if ($tokens[ $current ]['type'] == Token::T_NOT) {
                 $isNot = true;
@@ -559,9 +513,6 @@ class Parser {
 
                 $tokens = array_values($tokens);
             }
-
-
-
 
             $node = [
                 'type' => Token::T_CONDITION,
@@ -670,75 +621,8 @@ class Parser {
 
             $tokens[] = $node;
             $tokens = array_values($tokens);
-
-            //            $tokens = $node;
-
-//
-//            if (count($tokens) == 3){
-//
-//                list($leftHand, $operator, $rightHand) = $tokens;
-//
-//                $operation = [
-//                    'type' => Token::T_OPERATION,
-//                    'operator' => $operator,
-//                    'params' => [
-//                        $leftHand,
-//                        $rightHand
-//                    ]
-//                ];
-//
-//                $node = [
-//                    'type' => Token::T_CONDITION,
-//                    'isNot' => $isNot,
-//                    'body' => [
-//                        $operation
-//                    ],
-//                ];
-//
-//                $tokens[ $current] = $node;
-//                unset($tokens[ $current + 1]);
-//                unset($tokens[ $current + 2]);
-//
-//
-//            }else if (count($tokens) == 1){
-//
-//                list($leftHand) = $tokens;
-//
-//                $node = [
-//                    'type' => Token::T_CONDITION,
-//                    'isNot' => $isNot,
-//                    'body' => [
-//                        $leftHand
-//                    ],
-//                ];
-//
-//
-//                $tokens[ $current] = $node;
-//            }else if (count($tokens) == 4){
-//
-//                list($leftHand, $operator, $rightHand, $addon) = $tokens;
-//
-//                $node = [
-//                    'type' => Token::T_CONDITION,
-//                    'isNot' => $isNot,
-//                    'body' => [
-//                        $leftHand,
-//                        $operator,
-//                        $rightHand,
-//                        $addon
-//                    ],
-//                ];
-//
-//                $tokens[ $current] = $node;
-//                unset($tokens[ $current + 1]);
-//                unset($tokens[ $current + 2]);
-//                unset($tokens[ $current + 3]);
-//            }else{
-//                throw new \Exception('Parser: remapCondition not handeld correct');
-//            }
         }
     }
-
 
     private function extendConditionInformation( &$tokens ){
 
@@ -894,48 +778,6 @@ class Parser {
 
             $current++;
         }
-
-//
-//        if (
-//            count($case['condition']) &&
-//            $case['condition'][0]['type'] !== Token::T_BRACKET_OPEN
-//        ){
-//
-//            array_unshift($case['condition'], [
-//                'type' => Token::T_BRACKET_OPEN
-//            ]);
-//
-//            array_push($case['condition'], [
-//                'type' => Token::T_BRACKET_CLOSE
-//            ]);
-//        }
-//
-//        foreach ($case['condition'] as $index =>  $entry) {
-//
-//            if ($entry['type'] == Token::T_AND || $entry['type'] == Token::T_OR){
-//                if ($case['condition'][$index - 1]['type'] != Token::T_BRACKET_CLOSE){
-//                    array_splice($case['condition'], $index, 0, [[
-//                        'type' => Token::T_BRACKET_CLOSE
-//                    ]]);
-//
-//                    $case['condition'] = array_values($case['condition']);
-//                }
-//            }
-//        }
-//
-//
-//        foreach ($case['condition'] as $index =>  $entry) {
-//
-//            if ($entry['type'] == Token::T_AND || $entry['type'] == Token::T_OR){
-//                if ($case['condition'][$index + 1]['type'] != Token::T_BRACKET_OPEN){
-//                    array_splice($case['condition'], $index + 1, 0, [[
-//                        'type' => Token::T_BRACKET_OPEN
-//                    ]]);
-//
-//                    $case['condition'] = array_values($case['condition']);
-//                }
-//            }
-//        }
 
         /**
          * parse SHORT true code

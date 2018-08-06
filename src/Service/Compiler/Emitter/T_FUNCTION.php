@@ -1,8 +1,6 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
-use App\Bytecode\Helper;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\Token;
@@ -294,8 +292,8 @@ class T_FUNCTION {
 
             if (!in_array(strtolower($node['value']), Manhunt2::$functionNoReturn )){
 
-                Evaluate::returnResult($code, $getLine);
-
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
             }
         }
 

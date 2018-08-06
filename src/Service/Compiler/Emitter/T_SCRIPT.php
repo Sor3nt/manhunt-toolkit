@@ -23,7 +23,6 @@ class T_SCRIPT {
         /**
          * generate the needed bytes for the script
          */
-
         $sum = 0;
         foreach ($data['variables'] as $variable) {
 
@@ -31,7 +30,6 @@ class T_SCRIPT {
                 $variable['section'] == "script"
             ){
                 $sum += $variable['size'];
-
             }
         }
 
@@ -39,7 +37,6 @@ class T_SCRIPT {
             $code[] = $getLine('34000000');
             $code[] = $getLine('09000000');
             $code[] = $getLine(Helper::fromIntToHex($sum));
-
         }
 
         foreach ($node['body'] as $node) {

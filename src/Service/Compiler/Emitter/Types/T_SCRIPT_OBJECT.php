@@ -3,19 +3,12 @@ namespace App\Service\Compiler\Emitter\Types;
 
 
 use App\Service\Compiler\Evaluate;
-use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class T_SCRIPT_OBJECT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        if ($data['calculateLineNumber']){
-            $mapped = Evaluate::getObjectToAttributeSplit($node['value'], $data);
-        }else{
-            $mapped = [
-                'offset' => '12345678'
-            ];
-        }
+        $mapped = Evaluate::getObjectToAttributeSplit($node['value'], $data);
 
         $code = [];
 
@@ -38,15 +31,6 @@ class T_SCRIPT_OBJECT {
             $code[] = $getLine('04000000');
             $code[] = $getLine('02000000');
         }else{
-
-//            $code[] = $getLine('0f000000');
-//            $code[] = $getLine('04000000');
-//
-//            $code[] = $getLine('0f000000');
-//            $code[] = $getLine('04000000');
-//
-//            $code[] = $getLine('44000000');
-
 
             $code[] = $getLine('22000000');
             $code[] = $getLine('04000000');
@@ -74,11 +58,7 @@ class T_SCRIPT_OBJECT {
             $code[] = $getLine($mapped['offset']);
 
             $code[] = $getLine('02000000');
-
         }
-
-
-
 
         return $code;
     }

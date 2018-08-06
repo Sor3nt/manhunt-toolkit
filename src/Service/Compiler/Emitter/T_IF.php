@@ -8,9 +8,7 @@ use App\Service\Compiler\Token;
 
 class T_IF {
 
-
     static public function handleBracketOpen($params, $fullNode, $parentOperator, \Closure $getLine, \Closure $emitter, $isWhile){
-
 
         $code = [];
 
@@ -36,11 +34,9 @@ class T_IF {
                     $code[] = $item;
                 }
 
-
                 if ($fullNode['operator'] != false){
                     Evaluate::setStatementOperator($fullNode, $code, $getLine);
                 }
-
 
                 if (
                     isset($fullNode['last']) &&
@@ -49,8 +45,6 @@ class T_IF {
                 ){
                     Evaluate::setStatementOperator(['operator' => $parentOperator], $code, $getLine);
                 }
-
-
 
             }
 
@@ -81,11 +75,11 @@ class T_IF {
                             $code[] = $item;
                         }
 
-
                         if($conditionIndex + 1 != count($case['condition'])){
-                            Evaluate::returnResult($code, $getLine);
-
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('01000000');
                         }
+
                     }else if (
                         $condition['type'] == Token::T_AND ||
                         $condition['type'] == Token::T_OR
@@ -100,7 +94,6 @@ class T_IF {
                 $code[] = $getLine('01000000');
                 $code[] = $getLine('00000000');
                 $code[] = $getLine('3f000000');
-
             }
 
             //pre generate the bytecode (only for calculation)

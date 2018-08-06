@@ -1,7 +1,6 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
 use App\Bytecode\Helper;
 
 class T_FALSE {
@@ -10,7 +9,7 @@ class T_FALSE {
         return [
             $getLine('12000000'),
             $getLine('01000000'),
-            $getLine(Helper::fromIntToHex( 0 )),
+            $getLine(Helper::fromIntToHex( 0 ))
         ];
 
     }

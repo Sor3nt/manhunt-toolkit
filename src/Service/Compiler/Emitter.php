@@ -9,9 +9,7 @@ class Emitter extends Helper {
 
     /** @var Lines */
     private $lines;
-
     private $strings;
-
     private $types;
     private $const;
 
@@ -86,7 +84,6 @@ class Emitter extends Helper {
             foreach ($resultCode as $line) {
                 $code[] = $line;
             }
-
         }
 
         return $code;

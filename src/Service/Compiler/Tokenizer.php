@@ -184,9 +184,8 @@ class Tokenizer {
     }
 
 
-    public function fixHeaderBracketMismatches( $tokens, $types){
+    public function fixHeaderBracketMismatches( $tokens ){
 
-        $result = [];
         $found = false;
 
         $currentToken = false;
