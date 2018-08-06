@@ -2,6 +2,7 @@
 namespace App\Service\Compiler;
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\Emitter\T_VARIABLE;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class Compiler {
@@ -115,60 +116,23 @@ class Compiler {
                         $size = (int) explode("]", substr($variableType, 7))[0];
                         $row['type'] = 'stringarray';
                         $row['size'] = $size;
-                    }else if (substr($variableType, 0, 10) == "level_var "){
-
-                        switch ($variableType){
-                            case 'level_var integer':
-
-                                $size = 4;
-
-                                if (!isset(Manhunt2::$levelVarInteger[$token['value']])){
-                                    throw new \Exception('Compiler: level var integer, var not found ' . $token['value']);
-
-                                }
-
-                                $row['force_offset'] = Manhunt2::$levelVarInteger[$token['value']]['offset'];
-                                break;
-
-                            case 'level_var boolean':
-
-                                $size = 4;
-
-                                if (!isset(Manhunt2::$levelVarBoolean[$token['value']])){
-                                    throw new \Exception('Compiler: level var boolean, var not found ' . $token['value']);
-
-                                }
-
-                                $row['force_offset'] = Manhunt2::$levelVarBoolean[$token['value']]['offset'];
-                                break;
-
-                            case 'level_var tlevelstate':
-
-                                $size = 4;
-
-
-                                $row['force_offset'] = Manhunt2::$levelVarInteger["tLevelState"]['offset'];
-                                break;
-
-                            default:
-                                throw new \Exception('Compiler: unkown level var ' . $variableType);
-                                break;
-
-                        }
-
-                        $row['size'] = $size;
 
                     }else{
+
+                        try{
+                            $mapping = T_VARIABLE::getMapping($tokens[$current], null, []);
+
+                            var_dump($mapping);
+                            $row['force_offset'] = $mapping['offset'];
+
+                        }catch(\Exception $e){
+                            $mapping = false;
+                        }
+
+
                         switch ($variableType){
                             case 'vec3d':
                                 $size = 12; // 3 floats a 4-bytes
-                                break;
-
-                            case 'tlevelstate':
-                            case 'level_var tlevelstate':
-
-                                $size = 4;
-                                $row['offset'] = Manhunt2::$levelVarInteger["tLevelState"]['offset'];
                                 break;
 
                             default:

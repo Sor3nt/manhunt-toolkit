@@ -141,12 +141,27 @@ class Manhunt2 {
 
 
     public static $levelVarInteger = [
-        'stealthTutSpotted'                     => [
-            'offset' => "a0170000"
-        ],
+
+        /**
+         * i have no idea why the two values are the same
+         * it make also no differences if it defined as level_var or as head var
+         * it is always the samw offset (or?)
+         */
+
         'tLevelState'                     => [
             'offset' => "24170000"
         ],
+
+        'lLevelState'                     => [
+            'offset' => "24170000"
+        ],
+
+
+
+        'stealthTutSpotted'                     => [
+            'offset' => "a0170000"
+        ],
+
 
         'LevelState'                     => [
             'offset' => "24000000"
