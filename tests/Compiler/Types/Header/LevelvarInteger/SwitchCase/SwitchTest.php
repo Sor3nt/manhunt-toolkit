@@ -59,30 +59,30 @@ class SwitchTest extends KernelTestCase
 
             '24000000', //define case
             '01000000', //define case
-            '00000000', //case number 3
+            '03000000', //case number 3
             '3f000000', //statement (init start offset)
-            '1f000000', //Offset (line number 3295)
+            '7c000000', //Offset (line number 3295)
             
             '24000000', //define case
             '01000000', //define case
-            '01000000', //case number 2
+            '02000000', //case number 2
             '3f000000', //statement (init start offset)
-            '44000000', //Offset (line number 3331)
+            '10010000', //Offset (line number 3331)
             
             '24000000', //define case
             '01000000', //define case
-            '02000000', //case number 1
+            '01000000', //case number 1
             '3f000000', //statement (init start offset)
-            '68000000', //Offset (line number 3367)
+            'a0010000', //Offset (line number 3367)
 
             '24000000', //define case
             '01000000', //define case
-            '03000000', //case number 0
+            '00000000', //case number 0
             '3f000000', //statement (init start offset)
-            '8c000000', //Offset (line number 3403)
+            '30020000', //Offset (line number 3403)
             
             '3c000000', //statement (init statement start offset)
-            'b0000000', //End Offset (line number 3439)
+            'c0020000', //End Offset (line number 3439)
 
 
             // 3: AIPlayCommunication(me,'ShoutForAssistance','ScriptedAudio');
@@ -120,7 +120,6 @@ class SwitchTest extends KernelTestCase
             '10000000', //nested string return result
             '02000000', //nested string return result
             'fe010000', // AIPlayCommunication call
-            '04010000', // displaygametext call
 
 
 
@@ -129,7 +128,7 @@ class SwitchTest extends KernelTestCase
 
 
             '3c000000', //statement (init statement start offset)
-            'b0000000', //End Offset (line number 3439)
+            'c0020000', //End Offset (line number 3439)
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
@@ -171,7 +170,7 @@ class SwitchTest extends KernelTestCase
             // 1: AIPlayCommunication(me,'ShoutForAssistance','ScriptedAudio');
 
             '3c000000', //statement (init statement start offset)
-            'b0000000', //End Offset (line number 3439)
+            'c0020000', //End Offset (line number 3439)
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
@@ -212,7 +211,7 @@ class SwitchTest extends KernelTestCase
             // 0: AIPlayCommunication(me,'ShoutForAssistance','ScriptedAudio');
 
             '3c000000', //statement (init statement start offset)
-            'b0000000', //End Offset (line number 3439)
+            'c0020000', //End Offset (line number 3439)
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
@@ -248,10 +247,11 @@ class SwitchTest extends KernelTestCase
             '10000000', //nested string return result
             '02000000', //nested string return result
             'fe010000', // AIPlayCommunication call
+            '04010000', // displaygametext call
 
 
             '3c000000', //statement (init statement start offset)
-            'b0000000', //End Offset (line number 3439)
+            'c0020000', //End Offset (line number 3439)
                  
             
             // script end

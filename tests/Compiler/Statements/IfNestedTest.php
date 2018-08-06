@@ -213,7 +213,7 @@ class IfNestedTest extends KernelTestCase
             '01000000', //Bool true / int 1
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
-            '3c000000', //unknown
+            'b0170000', //unknown
             '04000000', //
 
 

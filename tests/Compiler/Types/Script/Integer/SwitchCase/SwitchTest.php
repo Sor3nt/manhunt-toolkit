@@ -57,30 +57,30 @@ class SwitchTest extends KernelTestCase
             
             '24000000', //define case
             '01000000', //define case
-            '00000000', //case number 3
+            '03000000', //case number 3
             '3f000000', //statement (init start offset)
-            '22000000', //Offset (line number 3295)
+            '88000000', //Offset (line number 3295)
             
             '24000000', //define case
             '01000000', //define case
-            '01000000', //case number 2
+            '02000000', //case number 2
             '3f000000', //statement (init start offset)
-            '46000000', //Offset (line number 3331)
+            '18010000', //Offset (line number 3331)
             
             '24000000', //define case
             '01000000', //define case
-            '02000000', //case number 1
+            '01000000', //case number 1
             '3f000000', //statement (init start offset)
-            '6a000000', //Offset (line number 3367)
+            'a8010000', //Offset (line number 3367)
 
             '24000000', //define case
             '01000000', //define case
-            '03000000', //case number 0
+            '00000000', //case number 0
             '3f000000', //statement (init start offset)
-            '8e000000', //Offset (line number 3403)
+            '38020000', //Offset (line number 3403)
             
             '3c000000', //statement (init statement start offset)
-            'b2000000', //End Offset (line number 3439)
+            'c8020000', //End Offset (line number 3439)
 
 
             // 3: AIPlayCommunication(me,'ShoutForAssistance','ScriptedAudio');
@@ -98,10 +98,10 @@ class SwitchTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '00000000', //Offset in byte
+            '20000000', //Offset in byte
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
-            '0d000000', //value 19
+            '13000000', //value 19
             '10000000', //nested call return result
             '01000000', //nested call return result
             '10000000', //nested string return result
@@ -126,7 +126,7 @@ class SwitchTest extends KernelTestCase
 
 
             '3c000000', //statement (init statement start offset)
-            'b2000000', //End Offset (line number 3439)
+            'c8020000', //End Offset (line number 3439)
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
@@ -168,7 +168,7 @@ class SwitchTest extends KernelTestCase
             // 1: AIPlayCommunication(me,'ShoutForAssistance','ScriptedAudio');
 
             '3c000000', //statement (init statement start offset)
-            'b2000000', //End Offset (line number 3439)
+            'c8020000', //End Offset (line number 3439)
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
@@ -209,7 +209,7 @@ class SwitchTest extends KernelTestCase
             // 0: AIPlayCommunication(me,'ShoutForHelp','ScriptedAudio');
 
             '3c000000', //statement (init statement start offset)
-            'b2000000', //End Offset (line number 3439)
+            'c8020000', //End Offset (line number 3439)
 
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
@@ -225,10 +225,10 @@ class SwitchTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '20000000', //Offset in byte
+            '00000000', //Offset in byte
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
-            '13000000', //value 13
+            '0d000000', //value 13
             '10000000', //nested call return result
             '01000000', //nested call return result
             '10000000', //nested string return result
@@ -250,7 +250,7 @@ class SwitchTest extends KernelTestCase
 
 
             '3c000000', //statement (init statement start offset)
-            'b2000000', //End Offset (line number 3439)
+            'c8020000', //End Offset (line number 3439)
                  
             
             // script end

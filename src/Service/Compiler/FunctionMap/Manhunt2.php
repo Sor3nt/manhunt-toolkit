@@ -139,18 +139,18 @@ class Manhunt2 {
 
     ];
 
-    public static $levelVarState = [
-        'tLevelState'                     => [
-            'offset' => "24170000"
-        ],
-
-    ];
 
     public static $levelVarInteger = [
         'stealthTutSpotted'                     => [
             'offset' => "a0170000"
         ],
+        'tLevelState'                     => [
+            'offset' => "24170000"
+        ],
 
+        'LevelState'                     => [
+            'offset' => "24000000"
+        ],
     ];
 
     public static $levelVarBoolean = [

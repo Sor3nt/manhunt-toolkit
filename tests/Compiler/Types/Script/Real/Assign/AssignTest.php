@@ -44,8 +44,8 @@ class AssignTest extends KernelTestCase
             '01000000', //nested call return result
             '8d030000', //GetPedOrientation Call
             '15000000', //unknown
+            '04000000', //
             '04000000', //offset
-            '10000000', //nested call return result
             '01000000', //nested call return result
 
 

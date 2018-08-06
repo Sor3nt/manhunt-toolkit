@@ -159,7 +159,7 @@ class Compiler {
                                 $size = 4;
 
 
-                                $row['force_offset'] = Manhunt2::$levelVarBoolean["tLevelState"]['offset'];
+                                $row['force_offset'] = Manhunt2::$levelVarInteger["tLevelState"]['offset'];
                                 break;
 
                             default:
@@ -187,7 +187,7 @@ class Compiler {
                             case 'level_var tlevelstate':
 
                                 $size = 4;
-                                $row['offset'] = Manhunt2::$levelVarState["tLevelState"]['offset'];
+                                $row['offset'] = Manhunt2::$levelVarInteger["tLevelState"]['offset'];
                                 break;
 //
 //                            case 'boolean':

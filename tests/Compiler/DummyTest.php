@@ -11,8 +11,8 @@ class DummyTest extends KernelTestCase
 
     public function test()
     {
-//        $this->assertEquals(true, true, 'The bytecode is not correct');
-//        return;
+        $this->assertEquals(true, true, 'The bytecode is not correct');
+        return;
 
 
         $script = "

@@ -197,7 +197,7 @@ class IfAndTest extends KernelTestCase
             '01000000', //Bool true / int 1
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
-            '0c000000', //offset
+            'b0170000', //offset
             '04000000', //
             
             

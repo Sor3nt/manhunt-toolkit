@@ -40,7 +40,7 @@ class AssignTrueTest extends KernelTestCase
 
             '1a000000', //parameter (access level_var)
             '01000000', //parameter (access level_var)
-            '00000000', //unknown
+            'b0170000', //unknown
             '04000000', //
 
             // script end

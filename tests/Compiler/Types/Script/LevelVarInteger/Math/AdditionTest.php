@@ -37,7 +37,7 @@ class AdditionTest extends KernelTestCase
 
 
             '1b000000', //unknown
-            '00000000', //unknown
+            'a0170000', //unknown
             '04000000', //unknown
             '01000000', //unknown
             '10000000', //nested call return result
@@ -53,7 +53,7 @@ class AdditionTest extends KernelTestCase
             '04000000', //unknown
             '1a000000', //unknown
             '01000000', //unknown
-            '00000000', //unknown
+            'a0170000', //unknown
             '04000000', //unknown
 
             // script end
