@@ -29,6 +29,12 @@ class T_SCRIPT {
             if (
                 $variable['section'] == "script"
             ){
+
+                // cleanup, das sollte HIER nicht passieren....
+                if ($variable['size'] % 4 !== 0){
+                    $variable['size'] += $variable['size'] % 4;
+                }
+
                 $sum += $variable['size'];
             }
         }

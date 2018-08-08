@@ -71,7 +71,7 @@ class T_SWITCH {
 
         $line += 2;
 
-        foreach ($node['cases'] as $case) {
+        foreach ($casesRev as $case) {
             $calc['cases'][] = $line * 4;
 
             $code = [];

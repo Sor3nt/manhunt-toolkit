@@ -12,8 +12,8 @@ class LevelScriptTest extends KernelTestCase
 
     public function test()
     {
-        $this->assertEquals(true, true, 'The bytecode is not correct');
-return;
+//        $this->assertEquals(true, true, 'The bytecode is not correct');
+//return;
         $script = "
 
 scriptmain LevelScript;
@@ -44,6 +44,7 @@ var
 	lPlayerHasUsedElevatorFlag : boolean;
 
 	lExplainedBlockFlag : boolean;
+
 
     lBeastCutsceneSyncFlag : boolean;
 
@@ -2874,35 +2875,35 @@ end.
 '00000000', //value 0
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
-'60170000', //unknown
+'60170000', //unknown                                   lSavePointTutRemoved 5984 (boolean)
 '01000000', //unknown
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
 '00000000', //value 0
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
-'64170000', //LevelVar lButtonTutRemoved
+'64170000', //LevelVar lButtonTutRemoved                lButtonTutRemoved 5988 (boolean)
 '01000000', //unknown
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
 '00000000', //value 0
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
-'20170000', //unknown
+'20170000', //unknown                                   lDebuggingFlag 5920 (boolean)
 '01000000', //unknown
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
 '00000000', //value 0
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
-'80170000', //unknown
+'80170000', //unknown                                   cellCutscenePlayed 6016 (boolean)
 '01000000', //unknown
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
 '00000000', //value 0
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
-'6c170000', //unknown
+'6c170000', //unknown                                   runSyringeSwitch 5996 (boolean)
 '01000000', //unknown
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
@@ -3737,7 +3738,7 @@ end.
 '01000000', //value 1
 '16000000', //parameter (access script var)
 '04000000', //parameter (access script var)
-'28170000', //unknown
+'28170000', //unknown                                          lLoadingFlag (5928)
 '01000000', //unknown
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
@@ -3973,7 +3974,6 @@ end.
 '00000000', //statement (end sequence)
 '3f000000', //statement (init start offset)
 '70260000', //Offset (line number 2460)
-
 '12000000', //parameter (access script var)
 '01000000', //parameter (access script var)
 '00000000', //value 0
@@ -3981,8 +3981,6 @@ end.
 '04000000', //parameter (access script var)
 '24170000', //LevelVar lLevelState
 '01000000', //unknown
-
-
 '21000000', //Prepare string read (DATA table)
 '04000000', //Prepare string read (DATA table)
 '01000000', //Prepare string read (DATA table)

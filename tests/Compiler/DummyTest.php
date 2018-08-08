@@ -11,8 +11,8 @@ class DummyTest extends KernelTestCase
 
     public function test()
     {
-        $this->assertEquals(true, true, 'The bytecode is not correct');
-        return;
+//        $this->assertEquals(true, true, 'The bytecode is not correct');
+//        return;
 
 
         $script = "
@@ -22,13 +22,35 @@ class DummyTest extends KernelTestCase
            
     
                     script OnCreate;
+                    var 	SavePoint : EntityPtr;
+                    	lLoadingFlag : Boolean;
+
                     begin
                     
-			if not (InsideTrigger(getentity('tInHouseCheck'), getplayer)) then
- begin
 
-                        end;
+	
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
+	
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
+	
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
+	
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
 
+	
+	
                     end;
 
                 end.
@@ -74,7 +96,8 @@ class DummyTest extends KernelTestCase
 
         $compiler = new Compiler();
         list($sectionCode, $sectionDATA) = $compiler->parse($script);
-
+var_dump($sectionCode);
+exit;
 
         if ($sectionCode != $expected){
             foreach ($sectionCode as $index => $item) {

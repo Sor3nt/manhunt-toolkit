@@ -7,7 +7,7 @@ class T_HEADER_LEVEL_VAR_BOOLEAN {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        $mapped = Manhunt2::$levelVarBoolean[ $node['value'] ];
+        $mapped = $data['variables'][ $node['value'] ];
 
         return [
             $getLine('1b000000'),

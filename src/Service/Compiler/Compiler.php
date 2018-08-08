@@ -119,15 +119,14 @@ class Compiler {
 
                     }else{
 
-                        try{
-                            $mapping = T_VARIABLE::getMapping($tokens[$current], null, []);
-
-                            var_dump($mapping);
-                            $row['force_offset'] = $mapping['offset'];
-
-                        }catch(\Exception $e){
-                            $mapping = false;
-                        }
+//                        try{
+//                            $mapping = T_VARIABLE::getMapping($tokens[$current], null, []);
+//
+//                            $row['force_offset'] = $mapping['offset'];
+//
+//                        }catch(\Exception $e){
+//                            $mapping = false;
+//                        }
 
 
                         switch ($variableType){
@@ -396,6 +395,7 @@ class Compiler {
         // extract every header and script variable definition
         $headerVariables = $this->getHeaderVariables($tokens, $types);
 
+
         $const = $this->getConstants($tokens, $smemOffset);
 
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
@@ -431,7 +431,23 @@ class Compiler {
                 $strings4Scripts[$token['value']] = $this->getStrings($token['body'], $smemOffset);
             }
         }
+
         $ast = $parser->handleForward($ast);
+
+
+        foreach ($headerVariables as $name => &$item) {
+
+            $item['offset'] = Helper::fromIntToHex($smemOffset);
+
+            $size = $item['size'];
+
+            if ($size % 4 !== 0){
+                $size += $size % 4;
+            }
+
+            $smemOffset += $size;
+        }
+
 
         foreach ($ast["body"] as $index => $token) {
 
@@ -449,39 +465,20 @@ class Compiler {
                 $scriptVar = $this->getScriptVar($token['body']);
 
                 $smemOffset2 = 0;
-
                 $scriptVarFinal = [];
-                foreach ($scriptVar as $name => $item) {
-                    if (!isset($item['offset'])){
+                foreach ($scriptVar as $name => &$item) {
+                    $smemOffset2 += $item['size'];
 
-                        $smemOffset2 += $item['size'];
-                        $item['offset'] = Helper::fromIntToHex($smemOffset2);
-                        $scriptVarFinal[$name ] = $item;
-
+                    if ($item['size'] % 4 !== 0){
+                        $smemOffset2 += $item['size'] % 4;
                     }
+                    $item['offset'] = Helper::fromIntToHex($smemOffset2);
+                    $scriptVarFinal[$name ] = $item;
                 }
 
                 foreach ($headerVariables as $name => $item) {
 
                     if ($this->isVariableInUse($token['body'], $name)){
-
-                        if (!isset($item['offset'])){
-                            $item['offset'] = Helper::fromIntToHex($smemOffset);
-                            // once generated, save the offset
-                            $headerVariables[$name]['offset'] = $item['offset'];
-                        }
-
-                        if (isset($item['force_offset'])){
-                            $item['offset'] = $item['force_offset'];
-                        }
-
-                        $size = $item['size'];
-
-                        if ($size % 4 !== 0){
-                            $size += 4 + $size % 4;
-                        }
-
-                        $smemOffset += $size;
 
                         $scriptVarFinal[$name ] = $item;
                     }
@@ -490,6 +487,8 @@ class Compiler {
                 /**
                  * Translate Token AST to Bytecode
                  */
+
+
                 $emitter = new Emitter(  $scriptVarFinal, $strings4Scripts[$scriptName], $types, $const, $lineCount );
 
                 $code = $emitter->emitter([

@@ -139,106 +139,106 @@ class Manhunt2 {
 
     ];
 
-
-    public static $levelVarInteger = [
-
-        /**
-         * i have no idea why the two values are the same
-         * it make also no differences if it defined as level_var or as head var
-         * it is always the samw offset (or?)
-         */
-
-        'tLevelState'                     => [
-            'offset' => "24170000"
-        ],
-
-        'lLevelState'                     => [
-            'offset' => "24170000"
-        ],
-
-
-
-        'stealthTutSpotted'                     => [
-            'offset' => "a0170000"
-        ],
-
-
-        'LevelState'                     => [
-            'offset' => "24000000"
-        ],
-    ];
-
-    public static $levelVarBoolean = [
-
-
-        'stealthThreeDone'                     => [
-            'offset' => "d0170000"
-        ],
-
-        'MonitorDead'                     => [
-            'offset' => "e4080000"
-        ],
-
-        'DannySeen'                     => [
-            'offset' => "DannySeen"
-        ],
-
-        'stealthThreeFacingYou'                     => [
-            'offset' => "stealthThreeFacingYou"
-        ],
-
-        'cellTwoOpen'                     => [
-            'offset' => "74170000"
-        ],
-
-        'lButtonTutRemoved'                     => [
-            'offset' => "64170000"
-        ],
-        'stealthTwoHeard'                 => [
-            'offset' => "c0170000"
-        ],
-        'stealthThreeHeard'               => [
-            'offset' => "c4170000"
-        ],
-        'stealthTwoLooper'                => [
-            'offset' => "b4170000"
-        ],
-        'stealthThreeLooper'              => [
-            'offset' => "b8170000"
-        ],
-        'reminderSet'                     => [
-            'offset' => "e8170000"
-        ],
-        'spottedYard'                     => [
-            'offset' => "ac170000"
-        ],
-        'checkOpenerNeeded'               => [
-            'offset' => "84170000"
-        ],
-        'aCellHasChanged'                 => [
-            'offset' => "88170000"
-        ],
-        'lElevatorLevel'                  => [
-            'offset' => "30170000"
-        ],
-
-        'stealthOneLooper'                     => [
-            'offset' => "b0170000"
-        ],
-
-        'stealthOneHeard'                     => [
-            'offset' => "bc170000"
-        ],
-
-        'SpecialStart'                     => [
-            'offset' => "c00f0000"
-        ],
-
+//
+//    public static $levelVarInteger = [
+//
+//        /**
+//         * i have no idea why the two values are the same
+//         * it make also no differences if it defined as level_var or as head var
+//         * it is always the samw offset (or?)
+//         */
+//
 //        'tLevelState'                     => [
-//            'offset' => "980f0000"
+//            'offset' => "24170000"
 //        ],
-
-    ];
+//
+//        'lLevelState'                     => [
+//            'offset' => "24170000"
+//        ],
+//
+//
+//
+//        'stealthTutSpotted'                     => [
+//            'offset' => "a0170000"
+//        ],
+//
+//
+//        'LevelState'                     => [
+//            'offset' => "24000000"
+//        ],
+//    ];
+//
+//    public static $levelVarBoolean = [
+//
+//
+//        'stealthThreeDone'                     => [
+//            'offset' => "d0170000"
+//        ],
+//
+//        'MonitorDead'                     => [
+//            'offset' => "e4080000"
+//        ],
+//
+//        'DannySeen'                     => [
+//            'offset' => "DannySeen"
+//        ],
+//
+//        'stealthThreeFacingYou'                     => [
+//            'offset' => "stealthThreeFacingYou"
+//        ],
+//
+//        'cellTwoOpen'                     => [
+//            'offset' => "74170000"
+//        ],
+//
+//        'lButtonTutRemoved'                     => [
+//            'offset' => "64170000"
+//        ],
+//        'stealthTwoHeard'                 => [
+//            'offset' => "c0170000"
+//        ],
+//        'stealthThreeHeard'               => [
+//            'offset' => "c4170000"
+//        ],
+//        'stealthTwoLooper'                => [
+//            'offset' => "b4170000"
+//        ],
+//        'stealthThreeLooper'              => [
+//            'offset' => "b8170000"
+//        ],
+//        'reminderSet'                     => [
+//            'offset' => "e8170000"
+//        ],
+//        'spottedYard'                     => [
+//            'offset' => "ac170000"
+//        ],
+//        'checkOpenerNeeded'               => [
+//            'offset' => "84170000"
+//        ],
+//        'aCellHasChanged'                 => [
+//            'offset' => "88170000"
+//        ],
+//        'lElevatorLevel'                  => [
+//            'offset' => "30170000"
+//        ],
+//
+//        'stealthOneLooper'                     => [
+//            'offset' => "b0170000"
+//        ],
+//
+//        'stealthOneHeard'                     => [
+//            'offset' => "bc170000"
+//        ],
+//
+//        'SpecialStart'                     => [
+//            'offset' => "c00f0000"
+//        ],
+//
+////        'tLevelState'                     => [
+////            'offset' => "980f0000"
+////        ],
+//
+//    ];
 
 
     public static $functions = [

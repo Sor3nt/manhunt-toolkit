@@ -133,7 +133,16 @@ class Parser {
                 list($current, $nodes) = $this->parseIfStatement($tokens, $current);
 
                 // Todo: wrap code into a function
-                foreach ($nodes['cases'] as &$case) {
+                foreach ($nodes['cases'] as $index => &$case) {
+
+                    if (isset($nodes['cases'][ $index + 1])){
+
+                        if (count($nodes['cases'][ $index + 1]['condition']) == 0){
+                            $case['next'] = Token::T_ELSE;
+                        }else{
+                            $case['next'] = Token::T_IF;
+                        }
+                    }
 
 
                     if (count($case['condition'])){

@@ -47,7 +47,7 @@ class SwitchTest extends KernelTestCase
             '14000000', //read from header var
             '01000000', //read from header var
             '04000000', //read from header var
-            '34000000', //Offset
+            '24170000', //Offset
 
             '24000000', //define case
             '01000000', //define case

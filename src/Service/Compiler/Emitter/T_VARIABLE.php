@@ -9,22 +9,13 @@ class T_VARIABLE {
     static public function getMapping( $node, \Closure $emitter = null , $data ){
 
         $value = $node['value'];
+
         if (isset($data['variables'][ $value ])){
             $mapped = $data['variables'][ $value ];
         }else if (isset(Manhunt2::$constants[ $value ])) {
             $mapped = Manhunt2::$constants[ $value ];
             $mapped['section'] = "header";
             $mapped['type'] = "constant";
-
-        }else if (isset(Manhunt2::$levelVarBoolean[ $value ])) {
-            $mapped = Manhunt2::$levelVarBoolean[ $value ];
-            $mapped['section'] = "header";
-            $mapped['type'] = "level_var boolean";
-
-        }else if (isset(Manhunt2::$levelVarInteger[ $value ])) {
-            $mapped = Manhunt2::$levelVarInteger[ $value ];
-            $mapped['section'] = "header";
-            $mapped['type'] = "level_var tLevelState";
 
         }else if (isset($data['const'][ $value ])){
             $mapped = $data['const'][ $value ];

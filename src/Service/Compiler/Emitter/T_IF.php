@@ -60,6 +60,8 @@ class T_IF {
 
         foreach ($node['cases'] as $index => $case) {
 
+
+            $byteAddon = 0;
             if (count($case['condition']) == 0){
 
                 if (isset($case['isTrue']) && count($case['isTrue'])){
@@ -96,12 +98,10 @@ class T_IF {
                 $code[] = $getLine('3f000000');
             }
 
-            //pre generate the bytecode (only for calculation)
             $isTrue = [];
 
             $lastNumber = end($code)->lineNumber;
-
-
+            //pre generate the bytecode (only for calculation)
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry, false, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {
@@ -109,13 +109,20 @@ class T_IF {
                 }
             }
 
-            // calculate the length
-            $lastLine = end($code)->lineNumber;
-            $endOffset = (($lastLine + count($isTrue)) + 1) * 4;
+
+            $endOffset = ($lastNumber + count($isTrue) + 1) * 4;
 
             if ($isWhile) $endOffset = $endOffset + 8;
 
+            if (isset($case['next'])){
+
+                if ($case['next'] == Token::T_ELSE){
+                    $endOffset += 8;
+                }
+            }
+
             // line offset for the IF end
+//            $code[] = $getLine( ($endOffset / 4) . " - " . Helper::fromIntToHex($endOffset) );
             $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
 
             foreach ($case['isTrue'] as $entry) {
