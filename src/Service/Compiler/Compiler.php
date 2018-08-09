@@ -448,7 +448,10 @@ class Compiler {
             $smemOffset += $size;
         }
 
+        $smemOffset2Tmp = 0;
 
+        $scriptBlockSizes = [];
+        $scriptBlockSizesAdditional = 0;
         foreach ($ast["body"] as $index => $token) {
 
             if (
@@ -476,6 +479,8 @@ class Compiler {
                     $scriptVarFinal[$name ] = $item;
                 }
 
+                $smemOffset2Tmp += $smemOffset2;
+
                 foreach ($headerVariables as $name => $item) {
 
                     if ($this->isVariableInUse($token['body'], $name)){
@@ -498,6 +503,20 @@ class Compiler {
                     ]
                 ]);
 
+
+                //TODO: logic recode, what a mess....
+                if ($token['type'] == Token::T_SCRIPT){
+                    if ($scriptBlockSizesAdditional > 0){
+                        $scriptBlockSizes[$scriptName] = $scriptBlockSizesAdditional;
+                        $scriptBlockSizesAdditional = count($code) * 4;
+                    }else{
+                        $scriptBlockSizes[$scriptName] = count($code) * 4;
+                    }
+                }else{
+                    $scriptBlockSizesAdditional = count($code) * 4;
+
+                }
+
                 foreach ($code as $line) {
                     if ($line->lineNumber !== $start){
                         var_dump( $line, $start);
@@ -517,7 +536,17 @@ class Compiler {
             }
         }
 
-        return [$sectionCode, []];
+
+        return [
+            'CODE' => $sectionCode,
+            'DATA' => $this->generateDATA($strings4Scripts),
+            'STAB' => $this->generateSTAB($headerVariables),
+            'SCPT' => $this->generateSCPT($scriptBlockSizes),
+
+            //todo: value did not match...
+            'SMEM' => $smemOffset + $smemOffset2Tmp
+
+        ];
     }
 
     public function recursiveSearch($tokens, $searchType, $ignoreTypes = []){
@@ -712,17 +741,83 @@ class Compiler {
      * @param $tokens
      * @return array
      */
-    public function generateDATA( $tokens ){
+    public function generateSCPT( $scriptBlockSizes ){
 
-        $strings = [];
+        $scpt = [];
+        $scriptSize = 0;
+        foreach ($scriptBlockSizes as $name => $item) {
+            $scriptSize += $item;
 
-        foreach ($tokens as $token) {
-            if ($token['type'] == Token::T_STRING){
-                $strings[] = str_replace('"', '', $token['value']);
+            $scpt[] = [
+                'name' => strtolower($name),
+                'unknown' => strtolower($name) == "oncreate" ? '00000000' : '68000000',
+                'scriptStart' => $scriptSize
+            ];
+        }
+
+        return $scpt;
+    }
+
+
+    public function generateDATA( $strings4Scripts ){
+
+        $result = [];
+
+        foreach ($strings4Scripts as $strings) {
+            foreach ($strings as $value => $string) {
+
+                $result[] = $value;
             }
         }
 
-        return $strings;
+        return $result;
+    }
+
+
+    public function generateSTAB( $headerVariables ){
+
+        $result = [];
+
+        foreach ($headerVariables as $name => $variable) {
+
+            $varType = $variable['type'];
+
+            /*
+             *
+             * TODO: HACKS... damit ich erstma lvl1 compilen kann...
+             */
+            if ($varType == "stringarray") $varType = "string";
+            if ($varType == "televatorlevel") $varType = "tLevelState";
+            if ($varType == "tlevelstate") $varType = "tLevelState";
+
+            $row = [
+                'name' => strtolower($name),
+                'offset' => $variable['offset'],
+                'size' => $variable['size'],
+
+                //TODO lvl1 verwendet 01 ja aber der rest nicht
+                'unknownType' => '01000000',
+                'objectType' => $varType,
+
+                //todo: mh1 brauch das
+                'occurrences' => []
+            ];
+
+            //todo...
+            if (strtolower($name) == "ldebuggingflag"){
+                $row['unknown'] = '012000b6012000dd03200072192000b319';
+
+            }
+
+
+            $result[] = $row;
+        }
+
+        usort($result, function($a,$b){
+            return $a['name'] > $b['name'];
+        });
+
+        return $result;
     }
 
 }
