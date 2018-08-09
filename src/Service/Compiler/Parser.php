@@ -2,6 +2,20 @@
 namespace App\Service\Compiler;
 
 class Parser {
+
+    private $types = [
+        'T_CASE' => Parser\T_CASE::class,
+        'T_VARIABLE' => Parser\T_VARIABLE::class,
+        'T_FUNCTION' => Parser\T_FUNCTION::class,
+        'T_DEFINE_SECTION_TYPE' => Parser\T_DEFINE_SECTION_TYPE::class,
+        'T_DEFINE_SECTION_ENTITY' => Parser\T_DEFINE_SECTION_ENTITY::class,
+        'T_DEFINE_SECTION_CONST' => Parser\T_DEFINE_SECTION_CONST::class,
+        'T_DEFINE_SECTION_VAR' => Parser\T_DEFINE_SECTION_VAR::class,
+        'T_BRACKET_OPEN' => Parser\T_BRACKET_OPEN::class,
+        'T_PROCEDURE' => Parser\T_PROCEDURE::class,
+        'T_SCRIPT' => Parser\T_SCRIPT::class
+    ];
+
     /**
      * @param $tokens
      * @return array
@@ -121,13 +135,6 @@ class Parser {
              *
              *********************************/
 
-            case Token::T_PROCEDURE:
-                return $this->parseProcedure($tokens, $current);
-
-
-            case Token::T_BRACKET_OPEN :
-                return $this->parseBracketOpen($tokens, $current);
-
             case Token::T_IF:
             case Token::T_WHILE:
                 list($current, $nodes) = $this->parseIfStatement($tokens, $current);
@@ -237,261 +244,21 @@ class Parser {
 
                 return [$current, $nodes];
 
-            case Token::T_DEFINE_SECTION_VAR:
-                return $this->parseDefineVarRecursive($tokens, $current);
-
-            case Token::T_DEFINE_SECTION_CONST:
-                return $this->parseDefineConstRecursive($tokens, $current);
-
-            case Token::T_DEFINE_SECTION_ENTITY:
-                return $this->parseDefineEntityRecursive($tokens, $current);
-
-            case Token::T_DEFINE_SECTION_TYPE:
-                return $this->parseDefineTypeRecursive($tokens, $current);
-
-            case Token::T_FUNCTION :
-                return $this->parseFunction($tokens, $current);
-
-            /**
-             * A variable can be used or assigned
-             * Return T_ASSIGN when its a define otherwise just the token
-             */
-            case Token::T_VARIABLE :
-                return $this->parseVariable($tokens, $current);
-
-            case Token::T_SCRIPT :
-                return $this->parseScript($tokens, $current);
-
-            case Token::T_CASE :
-                return $this->parseSwitchCase($tokens, $current);
-
-
-            /**********************************
-             *
-             *
-             * per default any other types are nested
-             *
-             *
-             *********************************/
             default:
-                return $this->parseRecursive($tokens, $current);
 
-        }
-    }
+                if (isset($this->types[$token['type']])){
+                    return (new $this->types[$token['type']]())->map($tokens, $current, function($tokens, $current){
+                        return $this->parseToken($tokens, $current);
+                    });
 
-    public function parseSwitchCase($tokens, $current){
-
-
-        //skip T_CASE
-        $current++;
-
-        list($current, $switchBy) = $this->parseToken($tokens, $current);
-
-        //skip T_OF
-        $current++;
-
-        $switch = [
-            'type' => Token::T_SWITCH,
-            'switch' => $switchBy,
-            'cases' => []
-        ];
-
-        while ($current < count($tokens)) {
-            if ($tokens[$current]['type'] == Token::T_SWITCH_END){
-
-                return [
-                    $current + 1, $switch
-                ];
-
-            }
-            $case = [
-                'index' => $tokens[$current],
-                'body' => []
-            ];
-
-
-            $current++;
-
-            //skip T_DEFINE
-            $current++;
-
-            $shortCase = true;
-            if ($tokens[$current]['type'] == Token::T_BEGIN){
-                $current++;
-                $shortCase = false;
-            }
-
-
-            while ($current < count($tokens)) {
-                if (
-                    (
-                        $shortCase &&
-                        $tokens[$current]['type'] == Token::T_LINEEND
-                    ) || (
-                        $shortCase == false &&
-                        $tokens[$current]['type'] == Token::T_CASE_END
-                    )
-                ) {
-
-                    $current++;
-
-                    $innerCurrent = 0;
-                    $innerTokens = $case['body'];
-
-                    $case['body'] = [];
-                    while($innerCurrent < count($innerTokens)){
-
-                        list($innerCurrent, $node) = $this->parseToken($innerTokens, $innerCurrent);
-
-                        if ($node !== false){
-                            $case['body'][] = $node;
-
-                        }
-                    }
-
-                    $switch['cases'][] = $case;
-
-                    break;
                 }else{
-                    $case['body'][] = $tokens[$current];
+                    throw new \Exception(sprintf('Parser: unable to handle %s', $token['type']));
                 }
 
-                $current++;
-            }
         }
-
-        throw new \Exception('Parser: parseSwitchCase not handeld correct');
     }
 
-    public function parseProcedure($tokens, $current){
 
-        $starCurrent = $current;
-
-        $isForward = true;
-
-        while ($current < count($tokens)) {
-            $token = $tokens[$current];
-
-            if ($token['type'] == Token::T_BEGIN){
-                $isForward = false;
-                break;
-            }
-
-            if ($token['type'] == Token::T_FORWARD){
-                $isForward = true;
-                break;
-            }
-
-            $current++;
-
-        }
-
-        $current = $starCurrent;
-
-        /**
-         * we have a forward define section
-         */
-        if ($isForward == true){
-
-            $current++;
-
-            $node = [
-                'type' => Token::T_FORWARD,
-                'to' => $tokens[$current]['value'],
-                'section' => Token::T_PROCEDURE,
-                'params' => [],
-            ];
-
-            $current++;
-
-            if ($tokens[$current]['type'] == Token::T_BRACKET_OPEN){
-
-                $current++;
-
-                while ($current < count($tokens)) {
-
-                    if ($tokens[$current]['type'] == Token::T_BRACKET_CLOSE){
-                        $current++;
-                        break;
-                    }else{
-                        $node['params'][] = $tokens[$current];
-                    }
-
-                    $current++;
-                }
-            }
-
-            if ($tokens[$current]['type'] !== Token::T_LINEEND){
-                throw new \Exception('Parser: parseForward T_LINEEND expected');
-            }
-
-            $current++;
-
-            if (strtolower($tokens[$current]['value']) != "forward"){
-                throw new \Exception('Parser: parseForward FORWARD expected');
-            }
-
-            $current++;
-
-            /**
-             * we have a procedure define section
-             */
-        }else{
-            return $this->parseScript($tokens, $current);
-        }
-
-        return [
-            $current, $node
-        ];
-    }
-
-    public function parseScript($tokens, $current){
-        $token = $tokens[$current];
-
-        $node = [
-            'type' => $token['type'],
-            'value' => false,
-            'body' => [],
-        ];
-
-        $current++;
-
-        while ($current < count($tokens)) {
-
-            switch ($tokens[$current]['type']){
-
-                case Token::T_PROCEDURE_NAME:
-                case Token::T_SCRIPT_NAME:
-                    $node['value'] = $tokens[$current]['value'];
-                    $current++;
-                    continue;
-                    break;
-
-                case Token::T_LINEEND:
-                case Token::T_BEGIN:
-                    $current++;
-                    continue;
-                    break;
-
-                case Token::T_PROCEDURE_END:
-                case Token::T_SCRIPT_END:
-                    return [
-                        $current, $node
-                    ];
-                default:
-
-                    list($current, $token) = $this->parseToken($tokens, $current);
-
-                    if ($token !== false){
-                        $node['body'][] = $token;
-                    }
-                    break;
-            }
-
-        }
-
-        throw new \Exception('Parser: parseScript not handeld correct');
-    }
 
     /**
      * remap / regroup statements
@@ -650,80 +417,6 @@ class Parser {
         }
     }
 
-    private function parseRecursive($tokens, $current){
-        $token = $tokens[$current];
-
-        $node = [
-            'type' => $token['type'],
-            'value' => isset($token['value']) ? $token['value'] : false,
-            'body' => [],
-        ];
-
-        $current++;
-
-        while ($current < count($tokens)) {
-
-            list($current, $token) = $this->parseToken($tokens, $current);
-
-            if ($token !== false){
-                $node['body'][] = $token;
-            }
-        }
-
-        return [
-            $current, $node
-        ];
-    }
-
-    /**
-     * @param $tokens
-     * @param $current
-     * @return array
-     * @throws \Exception
-     */
-    private function parseVariable($tokens, $current ){
-
-        $token = $tokens[$current];
-
-        if (isset($tokens[$current + 1])){
-
-            $nextToken = $tokens[$current + 1];
-
-            if ($nextToken['type'] == Token::T_ASSIGN){
-
-                $node = [
-                    'type' => $nextToken['type'],
-                    'value' => $token['value'],
-                    'body' => [],
-                ];
-
-                $current++;
-                $current++;
-                while ($current < count($tokens)) {
-                    $token = $tokens[$current];
-
-                    if ($token['type'] == Token::T_LINEEND){
-                        return [
-                            $current, $node
-                        ];
-                    }else{
-                        list($current, $param) = $this->parseToken($tokens, $current);
-                        $node['body'][] = $param;
-
-                    }
-                }
-
-                return [
-                    $current, $node
-                ];
-            }
-        }
-
-        return [
-            $current + 1, $token
-        ];
-    }
-
     private function parseIfLastElse( $tokens, $current  ){
 
         $case = [
@@ -875,260 +568,7 @@ class Parser {
         throw new \Exception('Parser: parseIfStatement unable to handle');
     }
 
-    private function parseDefineVarRecursive( $tokens, $current ){
 
-        $token = $tokens[$current];
-        $current++;
 
-        $node = [
-            'type' => $token['type'],
-            'value' => $token['value'],
-            'body' => []
-        ];
 
-        while ($current < count($tokens)) {
-
-            $token = $tokens[$current];
-
-            if (
-                $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
-                $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
-                $token['type'] == Token::T_PROCEDURE ||
-                $token['type'] == Token::T_SCRIPT ||
-                $token['type'] == Token::T_BEGIN
-            ){
-                return [$current, $node];
-
-            }else{
-
-                if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
-                    $node['body'][] = $token;
-                }
-            }
-
-            $current++;
-        }
-
-        return [++$current, $node];
-    }
-
-    private function parseDefineConstRecursive( $tokens, $current ){
-
-        $token = $tokens[$current];
-        $current++;
-
-        $node = [
-            'type' => $token['type'],
-            'value' => $token['value'],
-            'body' => []
-        ];
-
-        while ($current < count($tokens)) {
-
-            $token = $tokens[$current];
-
-            if (
-                $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
-                $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
-                $token['type'] == Token::T_PROCEDURE ||
-                $token['type'] == Token::T_SCRIPT ||
-                $token['type'] == Token::T_BEGIN
-            ){
-
-                return [$current, $node];
-
-            }else{
-
-                if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
-                    $node['body'][] = $token;
-                }
-            }
-            $current++;
-        }
-
-        return [++$current, $node];
-    }
-
-    private function parseDefineEntityRecursive( $tokens, $current ){
-
-        $token = $tokens[$current];
-        $current++;
-
-        $node = [
-            'type' => $token['type'],
-            'value' => $token['value'],
-            'body' => []
-        ];
-
-        while ($current < count($tokens)) {
-
-            $token = $tokens[$current];
-
-            if (
-                $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
-                $token['type'] == Token::T_DEFINE_SECTION_VAR ||
-                $token['type'] == Token::T_DEFINE_SECTION_CONST ||
-                $token['type'] == Token::T_PROCEDURE ||
-                $token['type'] == Token::T_SCRIPT ||
-                $token['type'] == Token::T_BEGIN
-            ){
-                return [$current, $node];
-
-            }else{
-                if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
-                    $node['body'][] = $token;
-                }
-            }
-
-            $current++;
-        }
-
-        return [++$current, $node];
-    }
-
-    private function parseDefineTypeRecursive( $tokens, $current ){
-
-        $token = $tokens[$current];
-        $current++;
-
-        $node = [
-            'type' => $token['type'],
-            'value' => $token['value'],
-            'body' => []
-        ];
-
-        while ($current < count($tokens)) {
-
-            $token = $tokens[$current];
-
-            if (
-                $token['type'] == Token::T_IS_EQUAL ||
-                $token['type'] == Token::T_BRACKET_OPEN
-            ){
-                $current++;
-                continue;
-            }
-
-            if (
-                $token['type'] == Token::T_BRACKET_CLOSE
-            ){
-                return [++$current, $node];
-
-            }else{
-                $node['body'][] = $token;
-            }
-
-            $current++;
-        }
-
-
-        return [++$current, $node];
-    }
-
-    /**
-     * @param $tokens
-     * @param $current
-     * @return array
-     * @throws \Exception
-     */
-    private function parseFunction($tokens, $current){
-
-        $token = $tokens[$current];
-
-        $current++;
-
-        $node = [
-            'type' => $token['type'],
-            'value' => $token['value'],
-            'nested' => isset($token['nested']) ? $token['nested'] : false,
-            'params' => []
-        ];
-
-        if (count($tokens) == $current + 1) return [$current, $node];
-        if (!isset($tokens[$current])) return [$current, $node];
-        $token = $tokens[$current];
-
-        if ($token['type'] != Token::T_BRACKET_OPEN){
-            return [$current, $node];
-        }
-
-        $current++;
-
-        while ($current < count($tokens)) {
-
-            $token = $tokens[$current];
-
-            if ($token['type'] === Token::T_BRACKET_CLOSE) {
-                return [$current + 1 , $node];
-            }else{
-
-                list($current, $param) = $this->parseToken($tokens, $current);
-
-                if ($token['type'] == Token::T_FUNCTION){
-                    $param['nested'] = true;
-                }
-
-                $node['params'][] = $param;
-            }
-        }
-
-        throw new \Exception('Parser: parseFunction unable to handle');
-    }
-
-    private function parseBracketOpen($tokens, $current){
-
-        $token = $tokens[$current];
-
-        $isNot = false;
-        $operator = false;
-        if (isset($tokens[$current - 1])){
-            if ($tokens[$current - 1]['type'] == Token::T_AND) $operator = Token::T_AND;
-            if ($tokens[$current - 1]['type'] == Token::T_OR) $operator = Token::T_OR;
-            if ($tokens[$current - 1]['type'] == Token::T_NOT) $isNot = true;
-        }
-
-        $current++;
-
-        $node = [
-            'type' => $token['type'],
-            'nested' => isset($token['nested']) ? $token['nested'] : false,
-            'operator' => $operator,
-            'isNot' => $isNot,
-            'params' => []
-        ];
-
-        if (count($tokens) == $current + 1) return [$current, $node];
-
-        while ($current < count($tokens)) {
-
-            $token = $tokens[$current];
-
-            if ($token['type'] === Token::T_BRACKET_CLOSE) {
-
-                return [$current + 1 , $node];
-            }else if (
-                ($token['type'] === Token::T_AND || $token['type'] === Token::T_OR) &&
-                $tokens[$current - 1]['type'] == Token::T_BRACKET_CLOSE
-            ) {
-
-                $current++;
-                continue;
-            }else{
-
-                list($current, $param) = $this->parseToken($tokens, $current);
-                if (
-                    $token['type'] == Token::T_BRACKET_OPEN ||
-                    isset(end($node['params'])['nested']) && end($node['params'])['nested'] == true
-
-                ){
-                    $param['nested'] = true;
-                }
-
-                $node['params'][] = $param;
-
-            }
-        }
-
-        throw new \Exception('Parser: parseBracketOpen unable to handle');
-    }
 }
