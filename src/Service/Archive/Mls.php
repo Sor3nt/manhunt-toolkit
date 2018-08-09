@@ -140,8 +140,8 @@ class Mls extends ZLib {
 
                         $unpacked[$scriptLabel][] = [
                             'name' => $name->toString(),
-                            'priority' => $priority->toInt(),
-                            'position' => $position->toInt()
+                            'unknown' => $priority->toHex(),
+                            'scriptStart' => $position->toInt()
                         ];
                     }
 
@@ -167,7 +167,7 @@ class Mls extends ZLib {
 
                     $unpacked['ENTT'] = [
                         'name' => $name->toString(),
-                        'offset' => $offset->toInt()
+                        'offset' => $offset->toHex()
                     ];
 
                     !is_null($output) && $output->writeln(sprintf("<comment>%s</comment>", $name->toString()));
@@ -313,7 +313,7 @@ class Mls extends ZLib {
                         if ($section2[0]->toHex() == "ffffffff"){
                             $entry['offset'] = false;
                         }else{
-                            $entry['offset'] = $section2[0]->toInt();
+                            $entry['offset'] = $section2[0]->toHex();
                         }
 
                         if ($section2[1]->toHex() == "ffffffff"){
@@ -455,18 +455,17 @@ class Mls extends ZLib {
 
 
     private function buildSCPT( $records ){
-        $scptEntries = explode("\n", $records['SCPT']);
+        $scptEntries = \json_decode($records['SCPT'], true);
 
         $code = "";
 
         foreach ($scptEntries as $scptEntry) {
-            list($name, $priority, $position) = explode(",", $scptEntry);
 
             // add the name - section is 32-byte long
-            $code .= hex2bin($this->pad(current(unpack("H*", $name)), 64 * 2));
+            $code .= hex2bin($this->pad(current(unpack("H*", $scptEntry['name'])), 64 * 2));
 
-            $code .= hex2bin($this->fromIntToHex($priority));
-            $code .= hex2bin($this->fromIntToHex($position));
+            $code .= hex2bin($scptEntry['unknown']);
+            $code .= hex2bin($this->fromIntToHex($scptEntry['scriptStart']));
         }
 
 
@@ -507,6 +506,8 @@ class Mls extends ZLib {
 //            $records['ENTT'] = 'a01_escape_asylum,2';
         }
 
+        $entt = \json_decode($records['ENTT'], true);
+
         list($name, $offset) = explode(",", $records['ENTT']);
 
         // ENTT Header
@@ -516,9 +517,9 @@ class Mls extends ZLib {
         $section .= hex2bin($this->pad(dechex(68)));
 
         // add ENTT value
-        $section .= hex2bin($this->fromIntToHex($offset));
+        $section .= hex2bin($entt['offset']);
 
-        $section .= hex2bin($this->pad(current(unpack("H*", $name)), 64 * 2));
+        $section .= hex2bin($this->pad(current(unpack("H*", $entt['name'])), 64 * 2));
 
         return $section;
 
@@ -724,7 +725,7 @@ class Mls extends ZLib {
                 if ($record['offset'] === false){
                     $stabCode .= "\xff\xff\xff\xff";
                 }else{
-                    $stabCode .= hex2bin($this->fromIntToHex( $record['offset']));
+                    $stabCode .= hex2bin( $record['offset'] );
                 }
 
                 // add size
@@ -740,6 +741,7 @@ class Mls extends ZLib {
                     $stabCode .= hex2bin($record['unknownType']);
 
                 }
+
                 switch ($record['objectType']){
 
                     case 'integer':
@@ -780,9 +782,8 @@ class Mls extends ZLib {
                         break;
                     default:
                         var_dump($record);
-                        exit;
 
-                        throw new \Exception(sprintf('Unknown object type requested: %s', strlen($record['valueType']) ));
+                        throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));
                         break;
 
                 }
