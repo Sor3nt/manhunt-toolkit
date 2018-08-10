@@ -203,7 +203,8 @@ class Mls extends ZLib {
                     do{
                         $name = $code->substr(0, "\x00", $code);
 
-                        while($code->substr(0,1)->toBinary() == "\xBC" || $code->substr(0,1)->toBinary() == "\xDA" || $code->substr(0,1)->toBinary() == "\x00"){
+
+                        while($code->substr(0,1)->toBinary() == "\xBC" || $code->substr(0,1)->toBinary() == "\x20" || $code->substr(0,1)->toBinary() == "\xDA" || $code->substr(0,1)->toBinary() == "\x00"){
                             $code = $code->substr(1);
                         }
 
@@ -383,6 +384,11 @@ class Mls extends ZLib {
 
                             case "ffffffff";
                                 $objectType = "unknown ff";
+                                break;
+
+
+                            case "50bf2b02";
+                                $objectType = "unknown 50bf2b02";
                                 break;
 
 
