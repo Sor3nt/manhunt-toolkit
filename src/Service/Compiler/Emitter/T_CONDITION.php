@@ -60,7 +60,10 @@ class T_CONDITION {
                     }else{
                         if ($index + 1 == count($token['params'])){
 
-                            if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                            if (isset($mappedTo['type']) && $mappedTo['type'] == "object") {
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                            }else if ($operation['type'] == Token::T_FLOAT){
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
                             }else{
@@ -99,6 +102,11 @@ class T_CONDITION {
                     $code[] = $getLine('01000000');
                     $code[] = $getLine('01000000');
                 }else if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                    $code[] = $getLine('4e000000');
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('01000000');
+                }else if ($operation['type'] == Token::T_FLOAT){
                     $code[] = $getLine('4e000000');
                     $code[] = $getLine('12000000');
                     $code[] = $getLine('01000000');

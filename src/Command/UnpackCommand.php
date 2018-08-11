@@ -91,7 +91,7 @@ class UnpackCommand extends Command
         }
 
         // we found a MLS scipt
-        if (substr($contentAsHex, 0, 8) == "4d484c53") { // MHLS
+        if (substr($contentAsHex, 0, 8) == "4d484c53" || substr($contentAsHex, 0, 8) == "4d485343") { // MHSC
             $output->writeln("MHLS (MLS) file detected");
 
             $question = new ChoiceQuestion(
@@ -196,25 +196,23 @@ var_dump("Process " . $mhsc['NAME']);
 //                    throw new \Exception('CODE did not match');
                 }
 //
-//                if ($compiled['SCPT'] != $mhsc['SCPT']){
-////                    var_dump($compiled);
-//                    var_dump($compiled['SCPT'], $mhsc['SCPT']);
-//                    exit;
-//
-//                }
 
                 if ($compiled['CODE'] != $mhsc['CODE']) throw new \Exception('CODE did not match');
-                if ($compiled['DATA'] != $mhsc['DATA']) throw new \Exception('DATA did not match');
-                if ($compiled['SCPT'] != $mhsc['SCPT']) throw new \Exception('SCPT did not match');
-                if ($compiled['ENTT'] != $mhsc['ENTT']) throw new \Exception('ENTT did not match');
 
-                if (isset($compiled['STAB']) && isset($mhsc['STAB'])){
-                    if ($compiled['STAB'] != $mhsc['STAB']) throw new \Exception('STAB did not match');
-                }
+
+//                if ($compiled['DATA'] != $mhsc['DATA']) throw new \Exception('DATA did not match');
+//                if ($compiled['SCPT'] != $mhsc['SCPT']) throw new \Exception('SCPT did not match');
+//                if ($compiled['ENTT'] != $mhsc['ENTT']) throw new \Exception('ENTT did not match');
+
+//                if (isset($compiled['STAB']) && isset($mhsc['STAB'])){
+//
+//                    if ($compiled['STAB'] != $mhsc['STAB']) throw new \Exception('STAB did not match');
+//                }
 
                 file_put_contents($outputTo . 'supported/' . $index . "#" . $mhsc['NAME'] . '.srce' , $mhsc['DBUG']['SRCE']);
 
             }catch(\Exception $e){
+
                 file_put_contents($outputTo . 'error.log' , sprintf("%s occured in %s#%s\n", $e->getMessage(), $index, $mhsc['NAME']), FILE_APPEND);
 
 

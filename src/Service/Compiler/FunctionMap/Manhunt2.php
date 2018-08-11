@@ -14,6 +14,7 @@ class Manhunt2 {
      * convert it to a float with 0x4d 0x10 0x01
      */
     public static $functionForceFloar = [
+        'SetEntityFade' => [ false, true, true],
         'SetColourRamp' => [ false, false, true],
         'setpedorientation' => [ false, true],
         'setvector' => [ false, true, true, true ],
@@ -36,11 +37,28 @@ class Manhunt2 {
         'onmediumhearingorabove' => '33000000',
         'ondeath' => '1e000000',
         'onlowhearingorabove' => '35000000',
+        'onfocus' => '58000000',
 
         '__default__' => '68000000'
     ];
 
     public static $constants = [
+
+        'AISCRIPT_MEDIUMPRIORITY'  => [
+            'offset' => "02000000"
+        ],
+
+        'AISCRIPT_IDLE_STANDANIMS'  => [
+            'offset' => "05000000"
+        ],
+
+        'AISCRIPT_IDLE_WANDERSEARCH'  => [
+            'offset' => "00000000"
+        ],
+
+        'MTT_HOOD_MEDIUM'  => [
+            'offset' => "02000000"
+        ],
 
         'AISCRIPT_WALKMOVESPEED'  => [
             'offset' => "01000000"
@@ -1833,6 +1851,84 @@ class Manhunt2 {
         'triggerremoveentityclass'  => [
             'name'      =>  'TriggerRemoveEntityClass',
             'offset' => "11020000"
+        ],
+
+
+        'aisetidletalkprobability'  => [
+            'name'      =>  'AISetIdleTalkProbability',
+            'offset' => "cc030000"
+        ],
+
+        'aiisidle'  => [
+            'name'      =>  'AIIsIdle',
+            'offset' => "6a010000"
+        ],
+
+        'playerignorethisentity'  => [
+            'name'      =>  'PlayerIgnoreThisEntity',
+            'offset' => "8b030000"
+        ],
+
+        'ailookatentity'  => [
+            'name'      =>  'AILookAtEntity',
+            'offset' => "fd010000"
+        ],
+
+
+        'aicancelhunteridleaction'  => [
+            'name'      =>  'AICancelHunterIdleAction',
+            'offset' => "81010000"
+        ],
+
+
+        'getdropposforplayerpickups'  => [
+            'name'      =>  'GetDropPosForPlayerPickups',
+            'offset' => "96030000"
+        ],
+
+
+        'aisethunteridleaction'  => [
+            'name'      =>  'AISetHunterIdleAction',
+            'offset' => "7f010000"
+        ],
+
+        'lockped'  => [
+            'name'      =>  'LockPed',
+            'offset' => "9a020000"
+        ],
+
+
+        'hunteruseswitch'  => [
+            'name'      =>  'HunterUseSwitch',
+            'offset' => "ae020000"
+        ],
+
+
+        'playscriptaudiostreamfromentityautolooped'  => [
+            'name'      =>  'PlayScriptAudioStreamFromEntityAutoLooped',
+            'offset' => "72030000"
+        ],
+
+
+        'aidefinegoalhidenamedhunter'  => [
+            'name'      =>  'AIDefineGoalHideNamedHunter',
+            'offset' => "4b020000"
+        ],
+
+
+        'setentityfade'  => [
+            'name'      =>  'SetEntityFade',
+            'offset' => "82030000"
+        ],
+
+        'removescript'  => [
+            'name'      =>  'RemoveScript',
+            'offset' => "e6000000"
+        ],
+
+        'isplayercarryingbody'  => [
+            'name'      =>  'IsPlayerCarryingBody',
+            'offset' => "b3020000"
         ],
 
 

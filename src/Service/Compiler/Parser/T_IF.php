@@ -256,14 +256,29 @@ class T_IF {
             'isTrue'=> []
         ];
 
+        $deep = 0;
+
         while ($current < count($tokens)) {
             $token = $tokens[$current];
 
-            if ($token['type'] == Token::T_IF_END) {
+            if ($deep == 0 && $token['type'] == Token::T_IF_END) {
                 return [$current, $case] ;
-            }else {
-                $case[ 'isTrue' ][] = $token;
+            }else if (
+                $token['type'] == Token::T_BEGIN ||
+                $token['type'] == Token::T_DO ||
+                $token['type'] == Token::T_OF
+            ){
+                $deep++;
+            }else if (
+                $token['type'] == Token::T_CASE_END ||
+                $token['type'] == Token::T_IF_END ||
+                $token['type'] == Token::T_CASE_END
+            ){
+                $deep--;
             }
+
+
+            $case[ 'isTrue' ][] = $token;
 
             $current++;
         }
