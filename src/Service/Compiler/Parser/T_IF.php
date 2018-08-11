@@ -365,8 +365,7 @@ class T_IF {
 
                 if ($opertation == false){
 
-                    var_dump("operator not found", $innerTokens);
-                    exit;
+                    throw new \Exception('operator not found');
                 }
                 $innerTokens = array_values($innerTokens);
                 $innerCurrent = 0;

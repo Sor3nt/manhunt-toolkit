@@ -6,6 +6,7 @@ use App\Bytecode\Mls\Header;
 use App\Bytecode\Mls\Scripts;
 use App\Bytecode\Mls\Sequence;
 use App\Bytecode\Mls\Srce;
+use App\Service\Compiler\Token;
 
 class Helper{
 
@@ -58,6 +59,55 @@ class Helper{
 
         return strrev(self::toBigEndian(unpack('h*', pack('f', $value))[1]));
 
+    }
+
+    static function findOpenContainerByEnd( $tokens ){
+        $tokens = array_reverse($tokens);
+
+        $endCount = 1;
+        foreach ($tokens as $index => $token) {
+            if (
+                $token['type'] == Token::T_IF_END ||
+                $token['type'] == Token::T_WHILE_END ||
+                $token['type'] == Token::T_SWITCH_END ||
+                $token['type'] == Token::T_CASE_END ||
+                $token['type'] == Token::T_END_ELSE ||
+                $token['type'] == Token::T_SCRIPT_END
+            ){
+                $endCount++;
+            }
+
+            if ($token['type'] == Token::T_BEGIN || $token['type'] == Token::T_OF){
+
+                $endCount--;
+
+                if ($endCount == 0){
+
+                    if ($tokens[$index]['type'] == Token::T_OF){
+                        return Token::T_SWITCH_END;
+                    }
+
+                    switch($tokens[$index + 1]['type']){
+                        case Token::T_THEN:
+                            return Token::T_IF_END;
+                            break;
+                        case Token::T_ELSE:
+                            return Token::T_IF_END;
+                            break;
+                        case Token::T_DO:
+                            return Token::T_WHILE_END;
+                            break;
+                        case Token::T_DEFINE:
+                            return Token::T_CASE_END;
+                            break;
+                        default:
+                            return Token::T_SCRIPT_END;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 

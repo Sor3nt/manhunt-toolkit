@@ -140,7 +140,7 @@ class Mls extends ZLib {
 
                         $unpacked[$scriptLabel][] = [
                             'name' => $name->toString(),
-                            'unknown' => $priority->toHex(),
+                            'onTrigger' => $priority->toHex(),
                             'scriptStart' => $position->toInt()
                         ];
                     }
@@ -163,11 +163,17 @@ class Mls extends ZLib {
                 case 'ENTT':                                    // entity name
 
                     /** @var Binary $name */
-                    $offset = $data->substr(0, 4, $name);
+                    $type = $data->substr(0, 4, $name);
+
+
+                    $typeName = "other";
+                    if ($unpacked['NAME'] == "levelscript") {
+                        $typeName = "levelscript";
+                    }
 
                     $unpacked['ENTT'] = [
                         'name' => $name->toString(),
-                        'offset' => $offset->toHex()
+                        'type' => $typeName
                     ];
 
                     !is_null($output) && $output->writeln(sprintf("<comment>%s</comment>", $name->toString()));
@@ -397,7 +403,7 @@ class Mls extends ZLib {
                                 break;
 
                             default:
-                                var_dump($name->toBinary());
+//                                var_dump($name->toBinary());
                                 throw new \Exception(sprintf('Unknown object type sequence: %s', $entry['valueType'] ));
                                 break;
 
@@ -461,7 +467,13 @@ class Mls extends ZLib {
 
 
     private function buildSCPT( $records ){
-        $scptEntries = \json_decode($records['SCPT'], true);
+        if (is_string($records['SCPT'])){
+            $scptEntries = \json_decode($records['SCPT'], true);
+
+        }else{
+
+            $scptEntries = $records['SCPT'];
+        }
 
         $code = "";
 
@@ -470,7 +482,7 @@ class Mls extends ZLib {
             // add the name - section is 32-byte long
             $code .= hex2bin($this->pad(current(unpack("H*", $scptEntry['name'])), 64 * 2));
 
-            $code .= hex2bin($scptEntry['unknown']);
+            $code .= hex2bin($scptEntry['onTrigger']);
             $code .= hex2bin($this->fromIntToHex($scptEntry['scriptStart']));
         }
 
@@ -505,16 +517,13 @@ class Mls extends ZLib {
 
     private function buildENTT( $records ){
 
-        if (!isset($records['ENTT'])){
 
-            // i dont know why, even the code did not use any entites we still need one...
-            $records['ENTT'] = 'player(player),0';
-//            $records['ENTT'] = 'a01_escape_asylum,2';
+        if (is_string($records['ENTT'])){
+            $records['ENTT'] = \json_decode($records['ENTT'], true);
         }
 
-        $entt = \json_decode($records['ENTT'], true);
-
-        list($name, $offset) = explode(",", $records['ENTT']);
+        $typeHex = "00000000";
+        if ($records['ENTT']['type'] == "levelscript") $typeHex = "02000000";
 
         // ENTT Header
         $section = "\x45\x4E\x54\x54";
@@ -523,17 +532,18 @@ class Mls extends ZLib {
         $section .= hex2bin($this->pad(dechex(68)));
 
         // add ENTT value
-        $section .= hex2bin($entt['offset']);
+        $section .= hex2bin($typeHex);
 
-        $section .= hex2bin($this->pad(current(unpack("H*", $entt['name'])), 64 * 2));
+        $section .= hex2bin($this->pad(current(unpack("H*", $records['ENTT']['name'])), 64 * 2));
 
         return $section;
 
     }
 
     private function buildCODE( $records ){
+        if (!is_array($records['CODE'])) $records['CODE'] = explode("\n", $records['CODE']);
 
-        $codeData = implode("", explode("\n", $records['CODE']));
+        $codeData = implode("", $records['CODE']);
 
         // CODE Header
         $section = "\x43\x4F\x44\x45";
@@ -549,12 +559,18 @@ class Mls extends ZLib {
 
     private function buildDATA( $records ){
 
+        if (!is_array($records['DATA'])) $records['DATA'] = explode("\n", $records['DATA']);
+
         if (isset($records['DATA'])){
 
             $stringArraySizes = 0;
 
             if (isset($records['STAB'])){
-                $stab = \json_decode($records['STAB'], true);
+                if (is_string($records['STAB'])){
+                    $stab = \json_decode($records['STAB'], true);
+                }else{
+                    $stab = $records['STAB'];
+                }
 
                 foreach ($stab as $item) {
                     if ($item["size"] !== false){
@@ -572,7 +588,7 @@ class Mls extends ZLib {
 
             $dataCode = "";
 
-            foreach (explode("\n", $records['DATA']) as $name) {
+            foreach ($records['DATA'] as $name) {
 
                 $name = current(unpack("H*", $name));
                 $name .= "00";
@@ -710,7 +726,11 @@ class Mls extends ZLib {
 
         if (isset($records['STAB'])){
 
-            $stabData = \json_decode($records['STAB'], true);
+            if (is_string($records['STAB'])){
+                $stabData = \json_decode($records['STAB'], true);
+            }else{
+                $stabData = $records['STAB'];
+            }
 
             $stabCode = "";
             foreach ($stabData as $indexStab => $record) {
@@ -774,6 +794,7 @@ class Mls extends ZLib {
                     case 'game_var integer':
                         $stabCode .= "\x07\x00\x00\x00";
                         break;
+                    case 'level_var tlevelstate':
                     case 'tLevelState':
                         $stabCode .= "\x08\x00\x00\x00";
                         break;
@@ -787,7 +808,7 @@ class Mls extends ZLib {
                         $stabCode .= "\xff\xff\xff\xff";
                         break;
                     default:
-                        var_dump($record);
+//                        var_dump($record);
 
                         throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));
                         break;

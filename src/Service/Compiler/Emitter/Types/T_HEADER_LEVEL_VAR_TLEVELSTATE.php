@@ -5,6 +5,10 @@ class T_HEADER_LEVEL_VAR_TLEVELSTATE {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+        if (!isset($node['target'])){
+            throw new \Exception('T_HEADER_LEVEL_VAR_TLEVELSTATE: Target is not found');
+        }
+
         $variableType = $data['types'][$node['target']];
 
         $mapped = $variableType[ strtolower($node['value']) ];

@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
+use App\Service\Compiler\Compiler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -161,6 +162,24 @@ class PackCommand extends Command
 
             $scripts[$index][ strtoupper($section) ] = $file->getContents();
 
+        }
+
+        $compiler = new Compiler();
+
+        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE']);
+
+        foreach ($scripts as &$script) {
+            if (!isset($script['CODE'])){
+
+                echo "Compile " . $script['NAME'] . "\n";
+
+                $compiler = new Compiler();
+                $name = $script['NAME'];
+                $script = $compiler->parse($script['SRCE'], $levelScriptCompiled);
+                $script['NAME'] = $name;
+
+                unset($script['extra']);
+            }
         }
 
         /**

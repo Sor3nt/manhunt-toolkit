@@ -6,6 +6,8 @@ use App\Service\Archive\Fsb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
+use App\Service\BytecodeExplain;
+use App\Service\Compiler\Compiler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -172,34 +174,85 @@ class UnpackCommand extends Command
 
     private function saveMHLS($mhls, $outputTo ){
 
-        @mkdir($outputTo, 0777, true);
+        @mkdir($outputTo . "supported/", 0777, true);
+        @mkdir($outputTo . "not-supported/", 0777, true);
+        $explain = new BytecodeExplain();
+
+
+        $levelScript = false;
 
         foreach ($mhls as $index => $mhsc) {
 
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.code', implode("\n", $mhsc['CODE']));
+var_dump("Process " . $mhsc['NAME']);
 
-            if (isset($mhsc['DATA'])){
-                file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.data' , implode("\n", $mhsc['DATA']));
-                file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.dataraw' , $mhsc['DATARAW']);
+            $compiler = new Compiler();
+            try{
+
+                $compiled = $compiler->parse($mhsc['DBUG']['SRCE'], $levelScript);
+
+                if ($index == 0){
+                    $levelScript = $compiled;
+//                }else if ($index < 2){
+//                    throw new \Exception('CODE did not match');
+                }
+//
+//                if ($compiled['SCPT'] != $mhsc['SCPT']){
+////                    var_dump($compiled);
+//                    var_dump($compiled['SCPT'], $mhsc['SCPT']);
+//                    exit;
+//
+//                }
+
+                if ($compiled['CODE'] != $mhsc['CODE']) throw new \Exception('CODE did not match');
+                if ($compiled['DATA'] != $mhsc['DATA']) throw new \Exception('DATA did not match');
+                if ($compiled['SCPT'] != $mhsc['SCPT']) throw new \Exception('SCPT did not match');
+                if ($compiled['ENTT'] != $mhsc['ENTT']) throw new \Exception('ENTT did not match');
+
+                if (isset($compiled['STAB']) && isset($mhsc['STAB'])){
+                    if ($compiled['STAB'] != $mhsc['STAB']) throw new \Exception('STAB did not match');
+                }
+
+                file_put_contents($outputTo . 'supported/' . $index . "#" . $mhsc['NAME'] . '.srce' , $mhsc['DBUG']['SRCE']);
+
+            }catch(\Exception $e){
+                file_put_contents($outputTo . 'error.log' , sprintf("%s occured in %s#%s\n", $e->getMessage(), $index, $mhsc['NAME']), FILE_APPEND);
+
+
+                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.code', implode("\n", $mhsc['CODE']));
+//
+//                $result = $explain->explain(implode("\n", $mhsc['CODE']));
+//                $result = array_map(function($entry){
+//                    return $entry[0] . (isset($entry[1]) ? ',' . $entry[1] : '');
+//                }, $result);
+//
+//                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.code.explained', implode("\n", $result));
+//
+
+                if (isset($mhsc['DATA'])){
+                    file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.data' , implode("\n", $mhsc['DATA']));
+//                    file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.dataraw' , $mhsc['DATARAW']);
+                }
+
+                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.srce' , $mhsc['DBUG']['SRCE']);
+//                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.line' , implode("\n", $mhsc['DBUG']['LINE']));
+
+                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.scpt', \json_encode( $mhsc['SCPT'], JSON_PRETTY_PRINT));
+
+
+//                if (isset($mhsc['DMEM'])){
+//                    file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.dmem' , $mhsc['DMEM']);
+//                }
+
+                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.smem' , $mhsc['SMEM']);
+                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.entt', \json_encode( $mhsc['ENTT'], JSON_PRETTY_PRINT));
+
+                if (isset($mhsc['STAB'])) {
+                    file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.stab', \json_encode( $mhsc['STAB'], JSON_PRETTY_PRINT));
+                }
+
             }
 
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.srce' , $mhsc['DBUG']['SRCE']);
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.line' , implode("\n", $mhsc['DBUG']['LINE']));
 
-            $result = array_map(function($entry){
-                return $entry['name'] . ',' . $entry['priority'] . "," . $entry['position'];
-            }, $mhsc['SCPT']);
-
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.scpt' , implode("\n", $result));
-            if (isset($mhsc['DMEM'])){
-                file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.dmem' , $mhsc['DMEM']);
-            }
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.smem' , $mhsc['SMEM']);
-            file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.entt' , $mhsc['ENTT']['name'] . ',' . $mhsc['ENTT']['offset']);
-
-            if (isset($mhsc['STAB'])) {
-                file_put_contents($outputTo . $index . "#" . $mhsc['NAME'] . '.stab', \json_encode( $mhsc['STAB'], JSON_PRETTY_PRINT));
-            }
         }
 
     }

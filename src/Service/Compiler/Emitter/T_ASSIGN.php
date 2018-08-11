@@ -57,10 +57,10 @@ class T_ASSIGN {
 
                 $code[] = $getLine($mapped['offset']);
 
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
             }
 
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
 
         }
 
@@ -116,6 +116,36 @@ class T_ASSIGN {
                 }else{
                     throw new \Exception('Float substration not implemented');
                 }
+            }else if (
+                $rightHand['type'] == Token::T_FUNCTION ||
+                $rightHand['type'] == Token::T_VARIABLE
+            ){
+
+                try{
+                    $rightMapped = T_VARIABLE::getMapping($rightHand, null, $data);
+
+                }catch(\Exception $e){
+                    throw new \Exception('righthand function handling not implemented');
+
+                }
+
+
+                $result = $emitter($rightMapped);
+
+                foreach ($result as $item) {
+                    $code[] = $item;
+                }
+
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+                if ($operator['type'] == Token::T_MULTIPLY) {
+                    $code[] = $getLine('52000000');
+                }else{
+                    throw new \Exception('Float substration not implemented');
+                }
+            }else{
+                throw new \Exception(sprintf('T_ASSIGN: rightHand operator not supported: %s', $rightHand['type']));
             }
         }
 

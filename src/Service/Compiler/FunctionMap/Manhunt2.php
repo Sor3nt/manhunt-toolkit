@@ -24,7 +24,45 @@ class Manhunt2 {
         'getentityname'
     ];
 
+    public static $functionEventDefinition = [
+
+        'oncreate' => '00000000',
+        'ondestroy' => '01000000',
+        'ondamage' => '02000000',
+        'onusebyplayer' => '03000000',
+        'onentertrigger' => '04000000',
+        'onleavetrigger' => '05000000',
+        'onmediumsightingorabove' => '1d000000',
+        'onmediumhearingorabove' => '33000000',
+        'ondeath' => '1e000000',
+        'onlowhearingorabove' => '35000000',
+
+        '__default__' => '68000000'
+    ];
+
     public static $constants = [
+
+        'AISCRIPT_WALKMOVESPEED'  => [
+            'offset' => "01000000"
+        ],
+
+
+        'COL_PLAYER'  => [
+            'offset' => "00020000"
+        ],
+
+
+        'MAP_COLOR_YELLOW'  => [
+            'offset' => "04000000"
+        ],
+
+        'MAP_COLOR_RED'  => [
+            'offset' => "02000000"
+        ],
+
+        'HID_RADAR'  => [
+            'offset' => "02000000"
+        ],
 
         'MAP_COLOR_LOCATION'  => [
             'offset' => "14000000"
@@ -1147,7 +1185,7 @@ class Manhunt2 {
             'desc'      =>  ''
         ],
 
-        "isolayerinsafezone" => [
+        "isplayerinsafezone" => [
             'name'      =>  'IsPlayerInSafeZone',
             'offset'    =>  '89020000',
             /**
@@ -1735,6 +1773,68 @@ class Manhunt2 {
             'name'      =>  'AIEntityGoHomeIfIdle',
             'offset' => "18020000"
         ],
+
+
+        'aiignoreentityifdead'  => [
+            'name'      =>  'AIIgnoreEntityIfDead',
+            'offset' => "4f020000"
+        ],
+
+        'removeentity'  => [
+            'name'      =>  'RemoveEntity',
+            'offset' => "81000000"
+        ],
+
+        'playscriptaudiostreamfromposautolooped'  => [
+            'name'      =>  'PlayScriptAudioStreamFromPosAutoLooped',
+            'offset' => "73030000"
+        ],
+
+
+        'isfrisbeespeechcompleted'  => [
+            'name'      =>  'IsFrisbeeSpeechCompleted',
+            'offset' => "unknown"
+        ],
+
+
+
+        'spawnentitywithvelocity'  => [
+            'name'      =>  'SpawnEntityWithVelocity',
+            'offset' => "a1020000"
+        ],
+
+        'applyforcetophysicsobject'  => [
+            'name'      =>  'ApplyForceToPhysicsObject',
+            'offset' => "98030000"
+        ],
+
+        'isplayerwallsquashed'  => [
+            'name'      =>  'IsPlayerWallSquashed',
+            'offset' => "e4020000"
+        ],
+
+        'switchlighton'  => [
+            'name'      =>  'SwitchLightOn',
+            'offset' => "db000000"
+        ],
+
+
+        'aiisgoalnameinsubpack'  => [
+            'name'      =>  'AIIsGoalNameInSubpack',
+            'offset' => "a5020000"
+        ],
+
+
+        'aisetentityallowsurprise'  => [
+            'name'      =>  'AISetEntityAllowSurprise',
+            'offset' => "6e020000"
+        ],
+
+        'triggerremoveentityclass'  => [
+            'name'      =>  'TriggerRemoveEntityClass',
+            'offset' => "11020000"
+        ],
+
 
 //
 //        "radarpositionsetentity" => [

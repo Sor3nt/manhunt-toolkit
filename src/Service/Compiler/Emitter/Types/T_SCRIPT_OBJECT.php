@@ -54,9 +54,7 @@ class T_SCRIPT_OBJECT {
             $code[] = $getLine('02000000');
             $code[] = $getLine('18000000');
             $code[] = $getLine('01000000');
-
-            $code[] = $getLine($mapped['offset']);
-
+            $code[] = $getLine('04000000');
             $code[] = $getLine('02000000');
         }
 

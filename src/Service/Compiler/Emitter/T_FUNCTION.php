@@ -168,12 +168,7 @@ class T_FUNCTION {
         }catch(\Exception $e){
 
             if (strpos($e->getMessage(), 'unable to find variable') == false){
-
-                var_dump($e->getMessage());
-                var_dump($e->getFile());
-                var_dump($e->getLine());
-                exit;
-
+                throw $e;
             }
         }
 

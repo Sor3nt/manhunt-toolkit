@@ -50,7 +50,7 @@ class Emitter extends Helper {
         if($node['type'] == "root") return $this->emitRoot($node);
 
         if (!isset($this->emitters[ $node['type'] ])) {
-            echo sprintf("Emitter not found for type %s\n", $node['type']);
+//            echo sprintf("Emitter not found for type %s\n", $node['type']);
             return [];
         }
 

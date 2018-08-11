@@ -29,6 +29,7 @@ use App\Service\Compiler\Tokens\T_IS_NOT_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_SMALLER;
 use App\Service\Compiler\Tokens\T_LEVEL_VAR;
 use App\Service\Compiler\Tokens\T_LINEEND;
+use App\Service\Compiler\Tokens\T_MULTIPLY;
 use App\Service\Compiler\Tokens\T_NIL;
 use App\Service\Compiler\Tokens\T_NOT;
 use App\Service\Compiler\Tokens\T_NULL;
@@ -70,6 +71,7 @@ class Tokenizer {
         T_LINEEND::class,
         T_ADDITION::class,
         T_SUBSTRACTION::class,
+        T_MULTIPLY::class,
         T_LEVEL_VAR::class,
         T_DEFINE_TYPE::class,
         T_DEFINE_SECTION_TYPE::class,

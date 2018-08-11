@@ -139,7 +139,12 @@ class T_CONDITION {
                     // line offset for the IF start (or so)
                     $code[] = $getLine( Helper::fromIntToHex($lastLine * 4) );
 
-                    $code[] = $getLine('33000000');
+                    if($token['params'][1] == Token::T_FLOAT) {
+                        $code[] = $getLine('12000000');
+                    }else{
+                        $code[] = $getLine('33000000');
+                    }
+
                     $code[] = $getLine('01000000');
                     $code[] = $getLine('01000000');
                 }

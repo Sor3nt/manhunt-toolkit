@@ -1,0 +1,1557 @@
+scriptmain LevelScript;
+
+entity
+	A01_Escape_Asylum : et_level;
+
+
+type
+	tLevelState = ( StartOfLevel, PickedUpSyringe, InOffice, LuredHunter, KilledHunter, BeforeElevator, LeftElevator, BeforeBeasts, SpottedByCamera, TurnedOnTV, InCarPark, EndOfLevel );
+	tElevatorLevel = ( ElevatorUp, ElevatorDown );
+
+
+var
+	{ Set this flag to TRUE to make developing the level easier. Set it to FALSE for the final game. }
+	lDebuggingFlag : Boolean;
+
+	{ This tells what level the state is in. After setting (increasing) it, call OnLevelStateSwitch. }
+	lLevelState : tLevelState;
+
+	{ This flag is  TRUE when we are loading a saved game, not starting the level fresh. }
+	lLoadingFlag : boolean;
+
+	{ For savepoints: ambient audio stream played }
+	lCurrentAmbientAudioTrack : integer;
+
+    lElevatorLevel : tElevatorLevel;
+	lPlayerHasUsedElevatorFlag : boolean;
+
+	lExplainedBlockFlag : boolean;
+
+    lBeastCutsceneSyncFlag : boolean;
+
+	lCurrentLoonieName : string[30];
+
+	{ [gupi] keep track of tutorial display scripts }	
+	lSavePointTutRemoved : boolean;
+	lButtonTutRemoved : boolean;
+
+	OfficeDoorUnlocked : boolean;
+	{officeKeyPickedUp :  boolean;}
+	runSyringeSwitch : boolean;
+	
+	cellOneOpen : boolean;
+	cellTwoOpen : boolean;
+	{cellThreeOpen : boolean;}
+	cellFourOpen : boolean;
+	cellFiveOpen : boolean;
+	
+	cellCutscenePlayed : boolean;
+	checkOpenerNeeded : boolean;
+	
+	aCellHasChanged : boolean;
+	
+	iLockersOpen : integer;
+	
+	bMeleeTutDone: boolean;		{Done Tut up to & incl. Pick up Health}
+	
+	leoIsReady : boolean;
+	AIInited : boolean;
+	switchReady : boolean;
+	
+	stealthTutSpotted : integer;
+	
+	lureTrigs : boolean;
+	driverFail : boolean;
+	spottedYard : boolean;
+	
+	stealthOneLooper : boolean;
+	stealthTwoLooper : boolean;
+	stealthThreeLooper : boolean;
+	stealthOneHeard : boolean;
+	stealthTwoHeard : boolean;
+	stealthThreeHeard : boolean;
+	stealthOneDone : boolean;
+	stealthTwoDone : boolean;
+	stealthThreeDone : boolean;
+	stealthTwoFacingYou : boolean;
+	stealthThreeFacingYou : boolean;
+	holdMe : boolean;
+	
+	killedATruckman : boolean;
+	NotUsed : boolean;
+	
+	reminderSet : boolean;
+
+	{Only display the locker tutorial once}
+	bLockerTutDisplayed : boolean;
+
+{ Function and procedure declarations }
+procedure InitAI; FORWARD;
+{procedure InitMonitors; FORWARD;}
+
+
+script OnCreate;
+var
+	SavePoint : EntityPtr;
+	pos, pos2 : Vec3D;
+
+begin
+	{Set colouramp for normal Danny}
+	SetColourRamp('FE_colramps', 1, 4.0);	
+	
+	WriteDebug('A01_Escape_Asylum : OnCreate');
+
+	{ [gupi] moved to OnCreate script to ease debugging }
+	SetNextLevelByName('A02_The_Old_House'); { proceed to old house }
+
+	lSavePointTutRemoved := false;
+	lButtonTutRemoved := false;
+
+	lDebuggingFlag := FALSE;
+	{lDebuggingFlag := TRUE;}
+	
+	cellCutscenePlayed := FALSE;	
+	runSyringeSwitch := FALSE;
+
+	leoIsReady := FALSE;
+
+	bLockerTutDisplayed := FALSE;
+	
+	stealthTutSpotted := 0;
+	
+	lureTrigs := FALSE;
+	bMeleeTutDone := FALSE;
+	
+		{ Are we debugging the level ? }
+	if lDebuggingFlag = TRUE then
+	begin
+		KillThisScript;
+	end;
+
+	{ Set up scoring }
+{	SetMaxScoreForLevel(27);}
+
+	{ Disable diving (will be taught in Old House) }
+	EnableAction(7, FALSE);
+	
+	FakeHunterDestroyAll;
+	{SetNumberOfKillableHuntersInLevel(14, 11);}
+	SetMaxScoreForLevel(45);
+	
+	AIInited := FALSE;
+
+	{ Initialize AI }
+	InitAI;
+	
+	{while AIInited = FALSE do
+		sleep(10);}
+		
+	{ Initialize visuals }
+	SetMaxNumberOfRats(0);
+	SwitchLitterOn(FALSE);
+	
+	{Disable QTMs}
+	SetQTMBaseProbability(-100.0);
+
+	{ Hide objects needed for end cutscene }
+	HideEntity(GetEntity('Truck_Asyl_Endcutscene'));
+{	HideEntity(GetEntity('Player_Asyl_Endcutscene'));}
+	HideEntity(GetEntity('BoxBlocker'));
+
+	{ Set up cell doors. This must be done ASAP to stop hunters from wandering out of their cells on PS2. }
+	{FIRST CELL - HALF OPEN}
+	SetSlideDoorAjarDistance(GetEntity('cell1_(SD)'), 1.1);
+	SetSlideDoorAjarDistance(GetEntity('cell2_(SD)'), 1.1);
+	{SetSlideDoorAjarDistance(GetEntity('cell3_(SD)'), 1.1);}
+	SetSlideDoorAjarDistance(GetEntity('cell4_(SD)'), 1.1);
+	SetSlideDoorAjarDistance(GetEntity('cell5_(SD)'), 1.1);
+
+	UnFreezeEntity(GetEntity('asylum_doorA_SL(D)'));
+	LockEntity(GetEntity('asylum_doorA_SL(D)'));
+	GraphModifyConnections(GetEntity('asylum_doorA_SL(D)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+	UnFreezeEntity(GetEntity('asylum_doorA_SR(D)'));
+	LockEntity(GetEntity('asylum_doorA_SR(D)'));
+	GraphModifyConnections(GetEntity('asylum_doorA_SR(D)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+	UnFreezeEntity(GetEntity('cell1_(SD)'));
+	GraphModifyConnections(GetEntity('cell1_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+
+	UnFreezeEntity(GetEntity('cell2_(SD)'));
+	GraphModifyConnections(GetEntity('cell2_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+	UnFreezeEntity(GetEntity('cell4_(SD)'));
+	GraphModifyConnections(GetEntity('cell4_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+	
+	UnFreezeEntity(GetEntity('cell5_(SD)'));
+	GraphModifyConnections(GetEntity('cell5_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+
+	UnFreezeEntity(GetEntity('gate01(SD)'));
+	SetDoorState(GetEntity('gate01(SD)'),DOOR_CLOSED);
+	GraphModifyConnections(GetEntity('gate01(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+	UnFreezeEntity(GetEntity('gate02(SD)'));
+	SetDoorState(GetEntity('gate02(SD)'),DOOR_CLOSED);
+	LockEntity(GetEntity('gate02(SD)'));
+	GraphModifyConnections(GetEntity('gate02(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+	
+	{RAIN}
+	EntityPlayAnim(GetEntity('PFXRainWindow'), 'PAT_raindow', true);
+	EntityPlayAnim(GetEntity('PFXRainWindow01'), 'PAT_raindow', true);
+	EntityPlayAnim(GetEntity('PFXRainWindow02'), 'PAT_raindow', true);
+	EntityPlayAnim(GetEntity('PFXRainWindow03'), 'PAT_raindow', true);
+	EntityPlayAnim(GetEntity('PFXRainWindow04'), 'PAT_raindow', true);
+	
+	{LOCKERS}
+	SetEntityScriptsFromEntity('SLockerC_(O)', 'SLockerC_(O)01');
+	SetEntityScriptsFromEntity('SLockerC_(O)', 'SLockerC_(O)02');
+	
+	{Stop the elev blocker}
+	EntityIgnoreCollisions(GetEntity('elev_door_block'), TRUE);
+	
+	{ Initialize monitors }
+{	InitMonitors;}
+
+	{ Hide save points and determine if we're loading a game }
+	lLoadingFlag := TRUE;
+	SavePoint := GetEntity('save_point_01');
+	if NIL <> SavePoint then
+	begin
+		lLoadingFlag := FALSE;
+		DeactivateSavePoint(SavePoint);
+	end;
+	SavePoint := GetEntity('save_point_02');
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
+	SavePoint := GetEntity('save_point_03');
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
+	SavePoint := GetEntity('save_point_04');
+	if NIL <> SavePoint then
+	begin
+		DeactivateSavePoint(SavePoint);
+	end;
+		
+	{Init Leo so his script file's OnCreate is called}
+
+	{ Start level state machine }
+	
+	
+	if lLoadingFlag = FALSE then
+	begin
+		lLevelState := StartOfLevel;
+		RunScript('A01_Escape_Asylum', 'OnLevelStateSwitch');
+	end
+	else
+	begin
+		RunScript('A01_Escape_Asylum', 'OnLevelStateLoad');
+	end;
+	        
+	 {DEBUGGGGGG      *******************}
+	
+	{SetVector(pos, 20.7197, 17.1234, 42.1878);
+
+	 MoveEntity(GetPlayer, pos, 1);
+	 lLevelState := InCarPark;
+		RunScript('A01_Escape_Asylum', 'OnLevelStateLoad');}
+	 {************************}
+	    
+
+end;
+
+
+{ (Needed to advance state from within OnLevelStateSwitch. }
+script Roundabout;
+begin
+	sleep(50);
+	RunScript('A01_Escape_Asylum', 'OnLevelStateSwitch');
+end;
+
+
+script OnLevelStateSwitch;
+{ The level is switching from one state to another.
+  It is NOT called to deal with level loading - OnLevelStateLoad takes care of that. }
+
+var
+	HunterName : string[30];
+	Door, Hunter : EntityPtr;
+	pos, pos2 : Vec3D;
+	Timer : integer;
+
+begin
+	case lLevelState of
+	{ Start of the level }
+	StartOfLevel: begin
+		WriteDebug('Switching to state: StartOfLevel');
+		
+		AIAddEntity('leo(leader)');
+		
+		SetVector(pos, -13.1617, 0.0, 14.4017);
+		SetVector(pos2, -9.86173, 2.5, 14.9017);
+		CreateBoxTrigger(pos, pos2, 'triggerExecTutFinal');
+
+		{ Create triggers }
+   		SetVector(pos, -13.1617, 0.0, 17.5953);
+		SetVector(pos2, -9.86173, 2.5, 18.0953);
+		CreateBoxTrigger(pos, pos2, 'triggerBloodSpurt2');
+
+		SetVector(pos, -3.94137, 1.75921, 1.96379);
+		SetVector(pos2, -2.80827, 5.34154, 5.05305);
+		CreateBoxTrigger(pos, pos2, 'triggerRadarTut');
+		
+		SetVector(pos, -6.80582, 3.53097, -0.250218);
+		SetVector(pos2, -5.80582, 6.03097, 1.74978);
+		CreateBoxTrigger(pos, pos2, 'triggerWheelChair');
+		
+		{ Create trigger in office }
+		SetVector(pos, -17.8864, 6.20619, 32.4688);
+		SetVector(pos2, -14.4864, 8.70619, 32.9688);
+		CreateBoxTrigger(pos, pos2, 'triggerDoorLocked');
+				
+		SetVector(pos, -17.5835, 5.83983, 8.89683);
+		SetVector(pos2, -13.9993, 8.1545, 9.51017);
+		CreateBoxTrigger(pos, pos2, 'triggerNewMeleeTutTwo');
+		
+		SetVector(pos, -33.654, 0.0140175, 40.7009);
+		SetVector(pos2, -33.0089, 2.32868, 44.196);
+		CreateBoxTrigger(pos, pos2, 'triggerChairFly');
+				
+		SetVector(pos, -13.3137, 0.0, 30.9594);
+		SetVector(pos2, -9.7295, 2.31466, 31.5728);
+		CreateBoxTrigger(pos, pos2, 'triggerNewMeleeTutSBit');
+		
+		SetVector(pos, -45.9896, -0.0116219, 22.5831);
+		SetVector(pos2, -42.9896, 2.16559, 22.9088);
+		CreateBoxTrigger(pos, pos2, 'triggerRadarCutscene');
+		
+		SetVector(pos, -51.8878, 0.0, 16.092);
+		SetVector(pos2, -41.9805, 5.59892, 20.1157);
+		CreateBoxTrigger(pos, pos2, 'triggerStealthOneAware');
+		
+		SetVector(pos, -52.4107, 0.0, 24.695);
+		SetVector(pos2, -42.5034, 5.59892, 28.8932);
+		CreateBoxTrigger(pos, pos2, 'triggerStealthTwoAware');
+		
+		SetVector(pos, -52.4107, 0.0, 33.5668);
+		SetVector(pos2, -42.5034, 5.59892, 37.7924);
+		CreateBoxTrigger(pos, pos2, 'triggerStealthThreeAware');
+		
+		SetVector(pos, -42.7699, 0.0, 40.6692);
+		SetVector(pos2, -42.0833, 4.28021, 44.217);
+		CreateBoxTrigger(pos, pos2, 'triggerStealthSummary');
+		
+		SetVector(pos, -20.7716, 0.0, 39.9957);
+		SetVector(pos2, -20.3514, 2.79072, 45.3256);
+		CreateBoxTrigger(pos, pos2, 'triggerSteamShoot');
+		
+		SetVector(pos, -13.3137, 0.0, 34.5461);
+		SetVector(pos2, -9.7295, 2.31466, 35.1595);
+		CreateBoxTrigger(pos, pos2, 'triggerBloodSpurt1');
+		
+		SetVector(pos, -53.1723, 0.0, 6.02074);
+		SetVector(pos2, -41.0816, 1.33944, 11.6464);
+		CreateBoxTrigger(pos, pos2, 'triggerWhyteSpeech');
+		
+		SetCurrentLOD(GetEntity('Asylum_cell_flicker'),1);
+		SetCurrentLOD(GetEntity('Asylum_bars_flicker'), 1);
+		SwitchLightOff (getentity('CJ_LIGHT_on_(L)39'));
+		SetCurrentLOD(GetEntity('dead_staff'),1);
+
+		{ Disable elevator button }
+{		EnableUseable(GetEntity('buttonElevatorLower_(S)'), FALSE);}
+		RunScript('buttonElevatorLower_(S)', 'BlinkRed');
+
+		{ Initialize global variables }
+		lPlayerHasUsedElevatorFlag := FALSE;
+		lExplainedBlockFlag := FALSE;
+		lBeastCutsceneSyncFlag := FALSE;
+
+		{ Set initial player health to 50% }
+{		SetDamage(GetEntity('player(player)'), 50);}
+		
+		SetLevelGoal('GOAL1');
+		
+		EntityPlayAnim(GetEntity('whyte(hunter)'), 'ASY_IDLE_STRANGLED_ANIM', true);
+
+		RunScript('leo(leader)', 'IntroCamRun');
+		
+		sleep(1000);
+		while IsCutSceneInProgress do
+			sleep(50);
+			
+		writedebug('Intro has finished');
+
+		{ Initialize sobbing woman (this will force creation of this hunter and a call to OnCreate). }
+		AIAddEntity('SobbingWoman(hunter)');
+		RegisterNonExecutableHunterInLevel;
+		SetHunterMute(GetEntity('SobbingWoman(hunter)'), TRUE);
+		HideEntity(GetEntity('SobbingWoman(hunter)'));
+		
+		AIAddEntity('StealthTut(hunter)');
+		RunScript('StealthTut(hunter)', 'Init');
+		
+		AIAddEntity('StealthTutTwo(hunter)');
+		RunScript('StealthTutTwo(hunter)', 'Init');
+		
+		AIAddEntity('StealthTutThree(hunter)');
+		RunScript('StealthTutThree(hunter)', 'Init');
+		
+		AIAddEntity('NewExecTut(hunter)');
+		RunScript('NewExecTut(hunter)', 'Init');
+
+		RunScript('StartLoon03(hunter)', 'Init');
+		
+		{Init muttering guy}
+		Runscript('ExecTut(hunter)', 'Init');
+		
+		sleep(100);
+		SetLevelGoal('GOAL4');
+		
+		while IsCutSceneInProgress do
+			sleep(50);
+						
+		HideEntity(GetEntity('E1_Cell_Door_(D)04'));
+		
+		{AIAddEntity('DyingMan(hunter)');
+		SetPedDoNotDecay(GetEntity('DyingMan(hunter)'), TRUE);}
+	
+		{ Make character unlockonable, invulnerable, unexecutable }
+		{SetPedLockonable(GetEntity('DyingMan(hunter)'), FALSE);
+		SetEntityInvulnerable(GetEntity('DyingMan(hunter)'), TRUE);
+		SetHunterExecutable(GetEntity('DyingMan(hunter)'), FALSE);
+		AISetEntityIdleOverride('DyingMan(hunter)', TRUE, TRUE);}
+		
+		{AIEntityPlayAnim('DyingMan(hunter)', 'ASY_INMATE_IDLE_1');}
+
+		sleep(1500);
+
+		EntityPlayAnim(GetEntity('PFXDrip1'), 'PAT_drips01', true);
+		EntityPlayAnim(GetEntity('PFXLand1'), 'PAT_drpcol01', true);
+		EntityPlayAnim(GetEntity('PFXLand2'), 'PAT_drpcol01', true);
+		EntityPlayAnim(GetEntity('PFXDrip02'), 'PAT_drips01', true);
+		{SOUND OF DRIPPING}
+		PlayAudioLoopedFromEntity(GetEntity('PFXDrip1'), 'LEVEL', 'WATERDRIP', 40, 8);
+		PlayAudioLoopedFromEntity(GetEntity('PFXDrip02'), 'LEVEL', 'WATERDRIP', 40, 8);
+
+		EntityPlayAnim(GetEntity('PFXDrip03'), 'PAT_drips01', true);
+		EntityPlayAnim(GetEntity('PFXLand3'), 'PAT_drpcol01', true);
+		PlayAudioLoopedFromEntity(GetEntity('PFXDrip03'), 'LEVEL', 'WATERDRIP', 40, 8);
+		
+		
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		FrisbeeSpeechPlay('LEO31', 100,10);
+    
+		DisplayGameText('MOVE1');
+		SetLevelGoal('GOAL1A');
+
+		
+		while NOT FrisbeeSpeechIsFinished('LEO31') do sleep(10);
+		sleep(500);
+        
+		FrisbeeSpeechPlay('LEO32', 100,10);
+		while NOT FrisbeeSpeechIsFinished('LEO32') do sleep(10);
+		
+		{KillEntityWithoutAnim(GetEntity('DyingMan(hunter)'));}
+	end;
+
+  PickedUpSyringe: begin
+		WriteDebug('Switching to state: PickedUpSyringe');
+		
+		if runSyringeSwitch = FALSE then
+		begin
+			
+			
+			{if (GetEntity('Syringe_(CT)')) <> NIL then
+			begin
+				clearlevelgoal('GOAL2C');
+				RadarPositionClearEntity(GetEntity('SyringeTarget'));
+			end;}
+			{ Set up elevator doors }
+			RunScript('Upt_Elevator_DoorIL_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorIR_(SD)');
+			RunScript('Upt_Elevator_DoorIR_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorDR_(SD)');
+			RunScript('Upt_Elevator_DoorDR_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorDL_(SD)');
+			RunScript('Upt_Elevator_DoorDL_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUR_(SD)');
+			RunScript('Upt_Elevator_DoorUR_(SD)', 'Init');
+			RunScript('Upt_Elevator_DoorUR_(SD)', 'Open');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUL_(SD)');
+			RunScript('Upt_Elevator_DoorUL_(SD)', 'Init');
+			RunScript('Upt_Elevator_DoorUL_(SD)', 'Open');
+			
+			runSyringeSwitch := TRUE;
+			
+		end;
+  end;
+
+	InOffice: begin
+		WriteDebug('Switching to state: InOffice');
+
+		{ClearLevelGoal('GOAL2B');}
+		{Play anim on cubicle guy}
+	   RunScript('player(player)', 'PickUpPhoneCutScene');
+
+		{ClearLevelGoal('GOAL2');}
+
+		DestroyEntity(GetEntity('triggerDoorLocked'));
+		{sleep(2000);}
+		if runSyringeSwitch = FALSE then
+		begin
+			if (GetEntity('Syringe_(CT)')) <> NIL then
+			begin
+				clearlevelgoal('GOAL2C');
+				RadarPositionClearEntity(GetEntity('SyringeTarget'));
+			end;
+		
+			{ Set up elevator doors }
+			RunScript('Upt_Elevator_DoorIL_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorIR_(SD)');
+			RunScript('Upt_Elevator_DoorIR_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorDR_(SD)');
+			RunScript('Upt_Elevator_DoorDR_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorDL_(SD)');
+			RunScript('Upt_Elevator_DoorDL_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUR_(SD)');
+			RunScript('Upt_Elevator_DoorUR_(SD)', 'Init');
+			SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUL_(SD)');
+			RunScript('Upt_Elevator_DoorUL_(SD)', 'Init');
+			
+			runSyringeSwitch := TRUE;
+			
+		end;
+	end;
+
+	BeforeElevator: begin
+		WriteDebug('Switching to state: BeforeElevator');
+		switchReady := FALSE;
+
+		{ Store current ambient stream in a global variable prior to saving }
+		lCurrentAmbientAudioTrack := GetAmbientAudioTrack;
+	
+		{ Make dead body go away (it's not really dead, the player isn't near it, not doing this currently causes an assert because of a related
+		  code bug ("[ADRIAN] Saving a corpse that isn't dead?") }
+		DestroyEntity(GetEntity('RadarTut(hunter)'));
+	
+		{ Wait to give previous command time to finish }
+		sleep(50);
+	
+		{ Save game }
+	  TriggerSavePoint(GetEntity('save_point_01'), TRUE);
+
+		{ Set level goals }
+    ClearAllLevelGoals;
+		SetLevelGoal('GOAL10');
+		SetLevelGoal('GOAL6');
+		{SetLevelGoal('GOAL6A');}
+
+		{ [gupi] use sub-script to display tutorial messages here so that we can display them asynchronously }	
+		RunScript('A01_Escape_Asylum', 'DisplaySavePointTutorials');
+
+	{ Init running guy }
+{		RunScript('leader(leader)', 'InitRunner');}
+    
+    {Runscript('DeadLiftGuy(hunter)', 'Init');}
+    
+		SetVector(pos, -29.4144, 5.89855, 53.3413);
+		SetVector(pos2, -25.7069, 7.61538, 53.7227);
+		CreateBoxTrigger(pos, pos2, 'triggerPickman');
+		
+		SetVector(pos, -30.764, 5.89855, 55.2919);
+		SetVector(pos2, -30.2079, 7.61538, 58.8733);
+		CreateBoxTrigger(pos, pos2, 'triggerPickmanSecond');
+		 		
+		AIAddEntity('LiftLoonie01(hunter)');
+		Runscript('LiftLoonie01(hunter)', 'Init');
+		
+		
+{		AIAddEntity('Mutter02(hunter)');
+		AIAddHunterToLeaderSubpack('leader2(leader)', 'subMutters', 'Mutter02(hunter)');
+		AiMakeEntityDeaf('Mutter02(hunter)', 0);
+		AiMakeEntityBlind('Mutter02(hunter)', 0);
+		AIDefineGoalGotoNode('goalMutter02', 'Mutter02(hunter)', AISCRIPT_HIGHPRIORITY, 'MUTTERGOTO2', AISCRIPT_WALKMOVESPEED, TRUE);		}
+
+		{CreateSphereTrigger(GetEntityPosition(GetEntity('Mutter02(hunter)')), 2.00014, 'tMutterAttack02');}
+
+		switchReady := TRUE;
+
+	end;
+
+	LeftElevator: begin
+		WriteDebug('Switching to state: LeftElevator');
+
+        { Destroy unnecessary hunters }
+		if NIL <> GetEntity('WackyRunner(hunter)') then DestroyEntity(GetEntity('WackyRunner(hunter)'));
+		if NIL <> GetEntity('NewExecTut(hunter)') then DestroyEntity(GetEntity('NewExecTut(hunter)'));
+		if NIL <> GetEntity('FightScene1(leader)') then DestroyEntity(GetEntity('FightScene1(leader)'));
+		if NIL <> GetEntity('FightScene2(leader)') then DestroyEntity(GetEntity('FightScene2(leader)'));
+		if NIL <> GetEntity('StartLoon03(hunter)') then DestroyEntity(GetEntity('StartLoon03(hunter)'));
+		
+		{LIGHTS}
+		RunScript('player(player)', 'FlickeringLightsLeft');
+		RunScript('player(player)', 'FlickeringLightsRight');
+		RunScript('player(player)', 'FlickeringLightsHall');
+		
+		{ In case the player didn't execute the first hunter, make sure the HUD is shown }
+		ToggleHudFlag(HID_ALL_PLAYER_ITEMS, TRUE);
+
+		{ Player can jump again }
+		SetPlayerJumpFlag(TRUE);
+
+		{ Create triggers }
+		SetVector(pos, -2.87157, 24.9674, -6.49301);
+		CreateSphereTrigger(pos, 1.92, 'triggerSavePoint2');
+
+		SetVector(pos, -25.5945, 24.162, 33.9065);
+		SetVector(pos2, -25.0945, 27.162, 40.9065);
+    CreateBoxTrigger(pos, pos2, 'triggerNearingMeleeTut');
+
+		SetVector(pos, -15.26811, 25.1953, 37.3164);
+		CreateSphereTrigger(pos, 1.5, 'triggerMeleeSounds');
+		
+		SetVector(pos, -12.5526, 24.3186, 35.1171);
+		SetVector(pos2, -9.525, 27.1686, 35.8971);
+		CreateBoxTrigger(pos, pos2, 'triggerJumpTut3');
+		
+		SetVector(pos, -16.5205, 25.1953, 37.3164);
+		CreateSphereTrigger(pos, 1.5, 'triggerWallSquash');
+
+
+		{ Wait for guy to run past }
+		Sleep(1000);
+		
+		SetVector(pos, -7.00874, 25.6269, -6.44073);
+		CreateSphereTrigger(pos, 1.47317, 'triggerBarBeating');
+		
+		
+		AIAddEntity('FightScene3(leader)');
+		AISetEntityAsLeader('FightScene3(leader)');
+		AIEntityAlwaysEnabled('FightScene3(leader)');
+		AIAddSubpackForLeader('FightScene3(leader)', 'fscene3');
+		AISetSubpackCombatType('FightScene3(leader)', 'fscene3', COMBATTYPEID_MELEE);
+		AIAddHunterToLeaderSubpack('FightScene3(leader)', 'fscene3', 'FightScene3(leader)');
+		SetPedLockonable (GetEntity ('FightScene3(leader)'), FALSE);
+		AISetHunterOnRadar('FightScene3(leader)', FALSE);
+		
+		AIAddEntity('DummyBanger(hunter)');
+		SetEntityInvulnerable(GetEntity('DummyBanger(hunter)'), TRUE);
+		SetPedLockonable (GetEntity ('DummyBanger(hunter)'), FALSE);
+		AIEntityPlayAnimLooped('DummyBanger(hunter)', 'BAT_INMATE_SMACK_HEAD_ANIM', 0.0);
+		AISetHunterOnRadar('DummyBanger(leader)', FALSE);
+		
+		AIAddEntity('FightScene4(leader)');
+		AISetEntityAsLeader('FightScene4(leader)');
+		AIEntityAlwaysEnabled('FightScene4(leader)');
+		AIAddSubpackForLeader('FightScene4(leader)', 'fscene4');
+		AISetSubpackCombatType('FightScene4(leader)', 'fscene4', COMBATTYPEID_MELEE);
+		AIAddHunterToLeaderSubpack('FightScene4(leader)', 'fscene4', 'FightScene4(leader)');
+		SetPedLockonable (GetEntity ('FightScene4(leader)'), FALSE);
+		AISetHunterOnRadar('FightScene4(leader)', FALSE);
+		
+		AISetHunterIdleActionMinMax('FightScene3(leader)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 1, 2);
+		AISetHunterIdleActionMinMax('FightScene4(leader)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 1, 2);
+		
+		SetPedHurtOtherPeds('FightScene3(leader)', true);	
+		SetPedHurtOtherPeds('FightScene4(leader)', true);	
+		
+		{Make Enemies}
+		AIDefineGoalHuntEnemy('goalHuntFScene3', 'FightScene4(leader)', true, 1);
+		AIDefineGoalHuntEnemy('goalHuntFScene4', 'FightScene3(leader)', true, 1);
+		
+		AIAddGoalForSubpack('FightScene3(leader)', 'fscene3', 'goalHuntFScene3');
+		AIAddGoalForSubpack('FightScene4(leader)', 'fscene4', 'goalHuntFScene4');
+		
+		AIAddLeaderEnemy('FightScene3(leader)', 'FightScene4(leader)');
+		AIAddLeaderEnemy('FightScene4(leader)', 'FightScene3(leader)');
+		SetEntityInvulnerable(GetEntity('FightScene3(leader)'), TRUE);
+		
+	end;
+
+	BeforeBeasts: begin
+		WriteDebug('Switching to state: BeforeBeasts');
+
+		{ Store current ambient stream in a global variable prior to saving }
+		lCurrentAmbientAudioTrack := GetAmbientAudioTrack;
+
+	    TriggerSavePoint(GetEntity('save_point_02'), TRUE);
+
+		{Get rid of fighters}
+		if GetEntity('DummyBanger(hunter)') <> NIL then DestroyEntity(GetEntity('DummyBanger(hunter)'));
+		if GetEntity('FightScene3(leader)') <> NIL then DestroyEntity(GetEntity('FightScene3(leader)'));
+		if GetEntity('FightScene4(leader)') <> NIL then DestroyEntity(GetEntity('FightScene4(leader)'));
+		
+     { Create triggers }
+		SetVector(pos, 4.53198, 24.1012, -1.43828);
+		SetVector(pos2, 5.17104, 27.4754, 2.40105);
+		CreateBoxTrigger(pos, pos2, 'triggerEnteringCellArea');
+
+		SetVector(pos, -10.1035, 18.0687, 13.0312);
+		SetVector(pos2, -6.10354, 21.0687, 14.0312);
+		CreateBoxTrigger(pos, pos2, 'triggerSavePoint3');
+
+    SetVector(pos, 6.23484, 19.0737, 3.53492);
+    SetVector(pos2, 31.2348, 22.0737, 10.5349);
+    CreateBoxTrigger(pos, pos2, 'triggerBeastArea');
+
+		{SetVector(pos, 15.0, 24.08, -1.23252);
+		SetVector(pos2, 17.81, 27.5, 2.88717);
+		CreateBoxTrigger(pos, pos2, 'triggerCellSounds');}
+
+      SetVector(pos, -10.1718, 18.09, 11.38);
+      SetVector(pos2, -6.12823, 20.59, 11.48);
+      CreateBoxTrigger(pos, pos2, 'triggerSecuCam');
+        
+			{SetVector(pos, 18.8352, 17.8278, 1.95659);
+			SetVector(pos2, 24.2485, 20.4149, 11.914);
+			CreateBoxTrigger(pos, pos2, 'triggerMadman');
+			
+			SetVector(pos, 13.3311, 17.8278, 1.95659);
+			SetVector(pos2, 18.7445, 20.4149, 11.914);
+			CreateBoxTrigger(pos, pos2, 'triggerMadmanOtherSide');
+			
+			SetEntityScriptsFromEntity('triggerMadman', 'triggerMadmanOtherSide');}
+			
+			{ Boxtrigger triggerDoor1Bugfix }
+			SetVector(pos, 6.62871, 17.8278, 1.75262);
+			SetVector(pos2, 8.2053, 20.4149, 2.09262);
+			CreateBoxTrigger(pos, pos2, 'triggerDoor1Bugfix');
+		
+			{ Boxtrigger triggerDoor2Bugfix }
+			SetVector(pos, 12.6451, 17.8278, 1.7842);
+			SetVector(pos2, 14.2217, 20.4149, 2.1242);
+			CreateBoxTrigger(pos, pos2, 'triggerDoor2Bugfix');
+		
+			{ Boxtrigger triggerDoor3Bugfix }
+			SetVector(pos, 18.632, 17.8278, 1.8851);
+			SetVector(pos2, 20.2086, 20.4149, 2.2251);
+			CreateBoxTrigger(pos, pos2, 'triggerDoor3Bugfix');
+		
+			{ Boxtrigger triggerDoor4Bugfix }
+			SetVector(pos, 24.5805, 17.8278, 1.81771);
+			SetVector(pos2, 26.1571, 20.4149, 2.15771);
+			CreateBoxTrigger(pos, pos2, 'triggerDoor4Bugfix');
+			
+			SetVector(pos, 5.51342, 18.5139, 3.09539);
+			SetVector(pos2, 27.217, 19.7435, 11.4264);
+			CreateBoxTrigger(pos, pos2, 'triggerStartLightning');
+			
+			SetVector(pos, 6.86906, 17.9561, 1.30207);
+			SetVector(pos2, 8.09926, 18.7576, 3.13897);
+			CreateBoxTrigger(pos, pos2, 'triggerLightReveal');
+
+    	ClearAllLevelGoals;
+    	SetLevelGoal('GOAL10');
+
+      { Initialize hunters }
+      AIAddEntity('Beast1(hunter)');
+      RunScript('Beast1(hunter)', 'Init');
+      AIAddEntity('Beast2(hunter)');
+      RunScript('Beast2(hunter)', 'Init');
+      
+      AIAddEntity('DeadIntroNurse(hunter)');
+      RegisterNonExecutableHunterInLevel;
+      KillEntity(GetEntity('DeadIntroNurse(hunter)'));
+      
+   {   if GetEntity('leo(hunter)') <> NIL then
+      	DestroyEntity(GetEntity('leo(hunter)'));}
+	end;
+
+	SpottedByCamera: begin
+		WriteDebug('Switching to state: SpottedByCamera');
+
+        { Destroy unnecessary hunters }
+		if NIL <> GetEntity('JumpTut(hunter)') then DestroyEntity(GetEntity('JumpTut(hunter)'));
+		if NIL <> GetEntity('Nursie(hunter)') then DestroyEntity(GetEntity('Nursie(hunter)'));
+		if NIL <> GetEntity('DeadIntroNurse(hunter)') then DestroyEntity(GetEntity('DeadIntroNurse(hunter)'));
+		if NIL <> GetEntity('Jumper(hunter)') then DestroyEntity(GetEntity('Jumper(hunter)'));
+		if NIL <> GetEntity('DeadLiftGuy(hunter)') then DestroyEntity(GetEntity('DeadLiftGuy(hunter)'));
+		
+
+		{ Set level goals }
+		ClearAllLevelGoals;
+		SetLevelGoal('GOAL10');
+		
+		checkOpenerNeeded := FALSE;
+		
+        { Open door }
+  	GraphModifyConnections(GetEntity('asylum_doorA_SL(D)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+  	GraphModifyConnections(GetEntity('asylum_doorA_SR(D)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+  
+  	UnLockEntity(GetEntity('asylum_doorA_SL(D)'));
+  	UnLockEntity(GetEntity('asylum_doorA_SR(D)'));
+    
+    	
+    UnLockEntity(GetEntity('gate02(SD)'));
+		GraphModifyConnections(GetEntity('gate02(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+		SetDoorState(GetEntity('gate02(SD)'),DOOR_CLOSING);
+	
+		UnLockEntity(GetEntity('gate01(SD)'));
+		GraphModifyConnections(GetEntity('gate01(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+		SetDoorState(GetEntity('gate01(SD)'),DOOR_CLOSING);
+
+		{ Create triggers }
+		SetVector(pos, 1.13528, 22.4246, 46.9438);
+		SetVector(pos2, 4.90758, 24.9246, 47.3238);
+		CreateBoxTrigger(pos, pos2, 'triggerNearingTVArea');
+
+		SetVector(pos, 13.9248, 15.4573, 46.5688);
+		SetVector(pos2, 17.7029, 18.4573, 50.2312);
+		CreateBoxTrigger(pos, pos2, 'triggerCarparkStart');
+		
+		{SetVector(pos, -4.62544, 17.9702, 17.0601);
+		SetVector(pos2, -2.27975, 18.9197, 18.3229);
+		CreateBoxTrigger(pos, pos2, 'triggerRadioChatter');}
+
+  	{ Initialize hunters }
+  	SetEntityScriptsFromEntity('TVLoonie(hunter)', 'TVLoonie01(hunter)');
+  	SetEntityScriptsFromEntity('TVLoonie(hunter)', 'TVLoonie02(hunter)');
+          
+    checkOpenerNeeded := FALSE;
+    
+	end;
+
+	InCarPark: begin
+		WriteDebug('Switching to state: InCarPark');
+
+        { Destroy unnecessary hunters }
+		if NIL <> GetEntity('Beast1(hunter)') then DestroyEntity(GetEntity('Beast1(hunter)'));
+		if NIL <> GetEntity('Beast2(hunter)') then DestroyEntity(GetEntity('Beast2(hunter)'));
+		if NIL <> GetEntity('TVLoonie01(hunter)') then DestroyEntity(GetEntity('TVLoonie01(hunter)'));
+		if NIL <> GetEntity('TVLoonie01(hunter)') then DestroyEntity(GetEntity('TVLoonie01(hunter)'));
+		if NIL <> GetEntity('ExecTut02(hunter)') then DestroyEntity(GetEntity('ExecTut02(hunter)'));
+		if NIL <> GetEntity('fighter02(hunter)') then DestroyEntity(GetEntity('fighter02(hunter)'));
+		if NIL <> GetEntity('RadioHunter(hunter)') then DestroyEntity(GetEntity('RadioHunter(hunter)'));
+		if NIL <> GetEntity('ExecTut(hunter)') then DestroyEntity(GetEntity('ExecTut(hunter)'));
+		if NIL <> GetEntity('LiftLoonie01(hunter)') then DestroyEntity(GetEntity('LiftLoonie01(hunter)'));
+		
+		HideEntity(GetEntity('PFXRainWindow'));
+		HideEntity(GetEntity('PFXRainWindow01'));
+		HideEntity(GetEntity('PFXRainWindow02'));
+		HideEntity(GetEntity('PFXRainWindow03'));
+		HideEntity(GetEntity('PFXRainWindow04'));
+		
+		killedATruckman := FALSE;
+
+		{ Store current ambient stream in a global variable prior to saving }
+		lCurrentAmbientAudioTrack := GetAmbientAudioTrack;
+
+		Sleep(1000);
+
+    { Play cut-scene }
+{    AIAddEntity('GuardEndScene(hunter)');
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subMeleeTut', 'GuardEndScene(hunter)');}
+			
+		AIAddEntity('DriverEndScene(hunter)');
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subMeleeTut', 'DriverEndScene(hunter)');
+		HideEntity(GetEntity('DriverEndScene(hunter)'));
+		SetHunterExecutable(GetEntity('DriverEndScene(hunter)'), FALSE);
+		
+{		RunScript('player(player)', 'CarParkSpotlight');}
+		{RunScript('player(player)', 'CarParkPuzzle');}
+		
+		SetVector(pos, 30.2101, 17.1234, 37.434);
+		CreateSphereTrigger(pos, 0.8, 'triggerEnteringTruck');
+		
+		SetVector(pos, 25.4899, 16.0642, 35.5);
+		SetVector(pos2, 48.7999, 19.0033, 51.0277);
+		CreateBoxTrigger(pos, pos2, 'triggerDeadNearTruck');
+		
+		RunScript('player(player)', 'InCarParkCutScene');
+		sleep(100);
+		while IsCutSceneInProgress do sleep(50);
+		
+		    { Initialize carpark hunters }
+		SetEntityScriptsFromEntity('TruckGuard(hunter)', 'TruckGuard1(hunter)');
+		RunScript('TruckGuard1(hunter)', 'Init');
+		SetEntityScriptsFromEntity('TruckGuard(hunter)', 'TruckGuard2(hunter)');
+		RunScript('TruckGuard2(hunter)', 'Init');
+
+    { Trigger save point }
+		TriggerSavePoint(GetEntity('save_point_04'), TRUE);
+
+    { Change level goals }
+		ClearAllLevelGoals;
+		{SetLevelGoal('GOAL13');
+		SetLevelGoal('GOAL12');}
+		SetLevelGoal('GOAL15');
+		
+		RadarPositionSetEntity(GetEntity('triggerEnteringTruck'), MAP_COLOR_BLUE);
+		
+		{SetVector(pos, 31.1342, 18.2325, 37.5213);
+		CreateSphereTrigger(pos, 1.53063, 'triggerTruckSee');}
+		
+	end;
+
+	EndOfLevel: begin
+		{RunScript('player(player)', 'EndOfLevelCutScene');
+
+		sleep(100);
+
+		while IsCutSceneInProgress do sleep(50);}
+
+		{ the level ends here }
+		SetLevelCompleted;
+	end;
+
+	end; {case of}
+end;
+
+
+{ [gupi] }
+script DisplaySavePointTutorials;
+begin
+	
+	while IsGameTextDisplaying do
+		Sleep(100);
+	
+	if (NOT ThisLevelBeenCompletedAlready	) then
+	begin
+		{ Explain how game saving works }
+		DisplayGameText('H_SAVE');
+		while IsGameTextDisplaying do
+			Sleep(100);
+	
+		DisplayGameText('H_SAVE1');
+		while IsGameTextDisplaying do
+			Sleep(100);
+	end;
+	
+	if GetDifficultyLevel <> DIFFICULTY_NORMAL then begin
+		DisplayGameText('H_RUNB');
+	end else begin
+		DisplayGameText('H_RUN');
+	end;
+	
+	SetLevelGoal('GOAL1B');
+		while IsGameTextDisplaying do
+			Sleep(100);
+			
+	DisplayGameText('H_RUN2');
+		while IsGameTextDisplaying do
+			Sleep(100);
+	
+	lSavePointTutRemoved := true;
+	RemoveThisScript;
+end;
+
+
+{ [gupi] }
+script DisplayButtonTutorials;
+begin
+	{ Tell player to enter elevator }
+	
+
+ {   FrisbeeSpeechPlay('LIFT1', 75, 25);
+    while not FrisbeeSpeechIsFinished('LIFT1') do
+        sleep(50);
+        
+    sleep(1200);}
+    
+    while IsGameTextDisplaying do
+			
+			Sleep(100);
+
+	{ Explain how buttons work }
+	DisplayGameText('LIFT2');
+
+
+	RemoveThisScript;
+end;
+
+
+script OnLevelStateLoad;
+var
+	pos, pos2 : Vec3D;
+
+begin
+    { Turn HUD on (just in case) }
+	ToggleHudFlag(HID_ALL_PLAYER_ITEMS, TRUE);
+
+	{ Restore ambient audio stream from loaded global variable }
+	SetAmbientAudioTrack(lCurrentAmbientAudioTrack);
+
+	case lLevelState of 
+		
+	BeforeElevator: begin
+		WriteDebug('Skipping to state: BeforeElevator');
+
+		{ Set player angle }
+		SetPlayerHeading(-90.0);
+
+		{ Set level goals }
+    ClearAllLevelGoals;
+		SetLevelGoal('GOAL10');
+		SetLevelGoal('GOAL6');
+		SetLevelGoal('GOAL6A');
+		
+		AIAddEntity('leo(leader)');
+
+	  { Open door the button opened }
+		UnLockEntity(GetEntity('asylum_cell_door_slide01_(SD)'));
+		GraphModifyConnections(GetEntity('asylum_cell_door_slide01_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		SetSlideDoorAjarDistance(GetEntity('asylum_cell_door_slide01_(SD)'), 1.1);
+		SetDoorState(GetEntity('asylum_cell_door_slide01_(SD)'), DOOR_OPENING);
+			
+		{ Enable elevator button }
+    EnableUseable(GetEntity('buttonElevatorLower_(S)'), TRUE);
+    RunScript('buttonElevatorLower_(S)', 'BlinkRed');
+
+		{ Set up elevator doors }
+		RunScript('Upt_Elevator_DoorIL_(SD)', 'Init');
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorIR_(SD)');
+		RunScript('Upt_Elevator_DoorIR_(SD)', 'Init');
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorDR_(SD)');
+		RunScript('Upt_Elevator_DoorDR_(SD)', 'Init');
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorDL_(SD)');
+		RunScript('Upt_Elevator_DoorDL_(SD)', 'Init');
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUR_(SD)');
+		RunScript('Upt_Elevator_DoorUR_(SD)', 'Init');
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUL_(SD)');
+		RunScript('Upt_Elevator_DoorUL_(SD)', 'Init');
+		
+		{FIGHTERS}
+		
+		AIAddEntity('FightScene1(leader)');
+		AISetEntityAsLeader('FightScene1(leader)');
+		AIEntityAlwaysEnabled('FightScene1(leader)');
+		AIAddSubpackForLeader('FightScene1(leader)', 'fscene1');
+		AISetSubpackCombatType('FightScene1(leader)', 'fscene1', COMBATTYPEID_MELEE);
+		AIAddHunterToLeaderSubpack('FightScene1(leader)', 'fscene1', 'FightScene1(leader)');
+		AIDefineGoalGotoNodeIdle('goalFightDead', 'FightScene1(leader)', AISCRIPT_VERYHIGHPRIORITY, 'LIFTRUNOFF', AISCRIPT_RUNMOVESPEED, FALSE);
+		SetPedLockonable (GetEntity ('FightScene1(leader)'), FALSE);
+		AISetHunterOnRadar('FightScene1(leader)', FALSE);
+		
+		AIAddEntity('FightScene2(leader)');
+		AISetEntityAsLeader('FightScene2(leader)');
+		AIEntityAlwaysEnabled('FightScene2(leader)');
+		AIAddSubpackForLeader('FightScene2(leader)', 'fscene2');
+		AISetSubpackCombatType('FightScene2(leader)', 'fscene2', COMBATTYPEID_MELEE);
+		AIAddHunterToLeaderSubpack('FightScene2(leader)', 'fscene2', 'FightScene2(leader)');
+		SetPedLockonable (GetEntity ('FightScene2(leader)'), FALSE);
+		AISetHunterOnRadar('FightScene2(leader)', FALSE);
+		
+		AISetHunterIdleActionMinMax('FightScene1(leader)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 1, 2);
+		AISetHunterIdleActionMinMax('FightScene2(leader)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 1, 2);
+		
+		SetPedHurtOtherPeds('FightScene1(leader)', true);	
+		SetPedHurtOtherPeds('FightScene2(leader)', true);	
+		
+		{Make Enemies}
+		AIDefineGoalHuntEnemy('goalHuntFScene1', 'FightScene2(leader)', true, 1);
+		AIDefineGoalHuntEnemy('goalHuntFScene2', 'FightScene1(leader)', true, 1);
+		
+		AIAddGoalForSubpack('FightScene1(leader)', 'fscene1', 'goalHuntFScene1');
+		AIAddGoalForSubpack('FightScene2(leader)', 'fscene2', 'goalHuntFScene2');
+		
+		AIAddLeaderEnemy('FightScene1(leader)', 'FightScene2(leader)');
+		AIAddLeaderEnemy('FightScene2(leader)', 'FightScene1(leader)');
+		SetEntityInvulnerable(GetEntity('FightScene1(leader)'), TRUE);
+
+		{ Init running guy }
+{		RunScript('leader(leader)', 'InitRunner');}
+		
+		RunScript('buttonOpenGate_(S)', 'BlinkGreen');
+		EnableUseable(GetEntity('buttonOpenGate_(S)'), TRUE);
+		
+		if GetEntity('ExecTut(hunter)') <> NIL then
+			Runscript('ExecTut(hunter)', 'Init');
+		    
+{    Runscript('DeadLiftGuy(hunter)', 'Init');}
+    
+		SetVector(pos, -29.4144, 5.89855, 53.3413);
+		SetVector(pos2, -25.7069, 7.61538, 53.7227);
+		CreateBoxTrigger(pos, pos2, 'triggerPickman');
+		
+		SetVector(pos, -30.764, 5.89855, 55.2919);
+		SetVector(pos2, -30.2079, 7.61538, 58.8733);
+		CreateBoxTrigger(pos, pos2, 'triggerPickmanSecond');
+		
+		{SetVector(pos, -12.5526, 24.3186, 35.1171);
+		SetVector(pos2, -9.525, 27.1686, 35.8971);
+		CreateBoxTrigger(pos, pos2, 'triggerJumpTut3');}
+
+		AiAddEntity('LiftLoonie01(hunter)');
+		Runscript('LiftLoonie01(hunter)', 'Init');
+		 
+		sleep(1000);
+
+		AIAddEntity('WackyRunner(hunter)');
+		AIAddHunterToLeaderSubpack('FightScene2(leader)', 'fscene2', 'WackyRunner(hunter)');
+		AIDefineGoalGotoNodeIdle('goalWackRun', 'WackyRunner(hunter)', AISCRIPT_HIGHPRIORITY, 'WACKYRUN', AISCRIPT_RUNMOVESPEED, TRUE);
+		SetHunterRunSpeed('WackyRunner(hunter)', 1.2);
+		AIMakeEntityBlind('WackyRunner(hunter)', 0);
+		AiMakeEntityDeaf('WackyRunner(hunter)', 0);
+		SetPedLockonable (GetEntity ('WackyRunner(hunter)'), FALSE);
+		SetHunterExecutable(GetEntity ('WackyRunner(hunter)'), FALSE);
+		AIAddGoalForSubpack('FightScene2(leader)', 'fscene2', 'goalWackRun');
+		AISetHunterOnRadar('WackyRunner(hunter)', FALSE);
+		
+		SetVector(pos, -26.6741, 6.4347, 58.8435);
+		CreateSphereTrigger(pos, 1.07284, 'triggerFallOver');
+		TriggerAddEntityClass(GetEntity('triggerFallOver'), COL_HUNTER);
+				
+		while (NOT InsideTrigger(GetEntity('triggerFallOver'), GetEntity('WackyRunner(hunter)'))) do sleep(1);
+		
+		AiSetEntityIdleOverride('WackyRunner(hunter)', TRUE, TRUE);		
+		
+		AiEntityPlayAnim('WackyRunner(hunter)', 'HIT_FRONT_KNOCKOUT_LAUNCH');
+		sleep(633);
+		AIEntityCancelAnim('WackyRunner(hunter)', 'HIT_FRONT_KNOCKOUT_LAUNCH');
+		AiEntityPlayAnim('WackyRunner(hunter)', 'HIT_FRONT_KNOCKOUT_LAND');
+		sleep(1666);
+		
+{		KilLEntity(GetEntity('WackyRunner(hunter)'));}
+		KilLEntityWithoutANim(GetEntity('WackyRunner(hunter)'));
+		SetPedDoNotDecay(GetEntity('WackyRunner(hunter)'), TRUE); 
+		
+    end;
+
+	BeforeBeasts: begin
+		WriteDebug('Skipping to state: BeforeBeasts');
+
+		{ Set player angle }
+		SetPlayerHeading(90.0);
+
+		{ Set level goals }
+    ClearAllLevelGoals;
+    SetLevelGoal('GOAL10');
+
+		{Get rid of entity so it doesn't stand in the T-pose}
+		if GetEntity('DeadLiftGuy(hunter)') <> NIL then
+			DestroyEntity(GetEntity('DeadLiftGuy(hunter)'));
+
+		{LIGHTS}
+		RunScript('player(player)', 'FlickeringLightsLeft');
+		RunScript('player(player)', 'FlickeringLightsRight');
+		RunScript('player(player)', 'FlickeringLightsHall');
+		
+    { Create triggers }
+		SetVector(pos, 4.53198, 24.1012, -1.43828);
+		SetVector(pos2, 5.17104, 27.4754, 2.40105);
+		CreateBoxTrigger(pos, pos2, 'triggerEnteringCellArea');
+
+		SetVector(pos, -10.1035, 18.0687, 13.0312);
+		SetVector(pos2, -6.10354, 21.0687, 14.0312);
+		CreateBoxTrigger(pos, pos2, 'triggerSavePoint3');
+
+    SetVector(pos, 6.23484, 19.0737, 3.53492);
+    SetVector(pos2, 31.2348, 22.0737, 10.5349);
+    CreateBoxTrigger(pos, pos2, 'triggerBeastArea');
+
+		{SetVector(pos, 15.0, 24.08, -1.23252);
+		SetVector(pos2, 17.81, 27.5, 2.88717);
+		CreateBoxTrigger(pos, pos2, 'triggerCellSounds');}
+
+    SetVector(pos, -10.1718, 18.09, 11.38);
+    SetVector(pos2, -6.12823, 20.59, 11.48);
+    CreateBoxTrigger(pos, pos2, 'triggerSecuCam');
+        
+		SetVector(pos, 18.8352, 17.8278, 1.95659);
+		SetVector(pos2, 24.2485, 20.4149, 11.914);
+		CreateBoxTrigger(pos, pos2, 'triggerMadman');
+		
+		SetVector(pos, 13.3311, 17.8278, 1.95659);
+		SetVector(pos2, 18.7445, 20.4149, 11.914);
+		CreateBoxTrigger(pos, pos2, 'triggerMadmanOtherSide');
+			
+		SetEntityScriptsFromEntity('triggerMadman', 'triggerMadmanOtherSide');
+
+		{ Boxtrigger triggerDoor1Bugfix }
+		SetVector(pos, 6.62871, 17.8278, 1.75262);
+		SetVector(pos2, 8.2053, 20.4149, 2.09262);
+		CreateBoxTrigger(pos, pos2, 'triggerDoor1Bugfix');
+		
+		{ Boxtrigger triggerDoor2Bugfix }
+		SetVector(pos, 12.6451, 17.8278, 1.7842);
+		SetVector(pos2, 14.2217, 20.4149, 2.1242);
+		CreateBoxTrigger(pos, pos2, 'triggerDoor2Bugfix');
+		
+		{ Boxtrigger triggerDoor3Bugfix }
+		SetVector(pos, 18.632, 17.8278, 1.8851);
+		SetVector(pos2, 20.2086, 20.4149, 2.2251);
+		CreateBoxTrigger(pos, pos2, 'triggerDoor3Bugfix');
+		
+		{ Boxtrigger triggerDoor4Bugfix }
+		SetVector(pos, 24.5805, 17.8278, 1.81771);
+		SetVector(pos2, 26.1571, 20.4149, 2.15771);
+		CreateBoxTrigger(pos, pos2, 'triggerDoor4Bugfix');
+		
+		SetVector(pos, 5.51342, 18.5139, 3.09539);
+		SetVector(pos2, 27.217, 19.7435, 11.4264);
+		CreateBoxTrigger(pos, pos2, 'triggerStartLightning');
+		
+		SetVector(pos, 6.86906, 17.9561, 1.30207);
+		SetVector(pos2, 8.09926, 18.7576, 3.13897);
+		CreateBoxTrigger(pos, pos2, 'triggerLightReveal');
+		
+		SetVector(pos, -7.00874, 25.6269, -6.44073);
+		CreateSphereTrigger(pos, 1.47317, 'triggerBarBeating');
+		RunScript('triggerBarBeating', 'OnEnterTrigger');
+		
+{		HideEntity(GetEntity('BarCrazy01(hunter)'));}
+
+    { Initialize hunters }
+	IF GetEntity('Beast1(hunter)') <> NIL then
+	begin
+    	AIAddEntity('Beast1(hunter)');
+    	RunScript('Beast1(hunter)', 'Init');
+    end;
+    IF GetEntity('Beast2(hunter)') <> NIL then
+   	begin
+    	AIAddEntity('Beast2(hunter)');
+    	RunScript('Beast2(hunter)', 'Init');
+    end;
+    
+    AIAddEntity('DeadIntroNurse(hunter)');
+    KillEntity(GetEntity('DeadIntroNurse(hunter)'));
+    
+    If GetEntity('LiftLoonie01(hunter)') <> NIL then
+    begin
+    	AIAddEntity('LiftLoonie01(hunter)');
+    	AIAddHunterToLeaderSubpack('leader2(leader)', 'subBeast1', 'LiftLoonie01(hunter)');
+    	AISetHunterIdlePatrol('LiftLoonie01(hunter)', AISCRIPT_IDLE_PATROL, AISCRIPT_HIGHPRIORITY, 2000, 5000,'pathLoonie1');
+			SetVector(pos, -15, 24.09, 24);
+			MoveEntity(GetEntity('LiftLoonie01(hunter)'), pos, 0);
+		end;
+    
+    {Close the elevator doors (fixes bug)}
+
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUR_(SD)');
+		SetEntityScriptsFromEntity('Upt_Elevator_DoorIL_(SD)', 'Upt_Elevator_DoorUL_(SD)');
+    RunScript('Upt_Elevator_DoorIL_(SD)', 'Close');
+		RunScript('Upt_Elevator_DoorIR_(SD)', 'Close');
+		RunScript('buttonInsideElev(S)', 'StopWorking');
+		EnableUseable(GetEntity('buttonInsideElev(S)'), FALSE);
+{		RunScript('Upt_Elevator_DoorUL_(SD)', 'Close');
+		RunScript('Upt_Elevator_DoorUR_(SD)', 'Close');}
+
+        { Turn on red lights }
+{    	RunScript('buttonBeastCell_(S)', 'BlinkRed');}
+    end;
+
+	SpottedByCamera: begin
+		WriteDebug('Skipping to state: SpottedByCamera');
+
+		{ Set player angle }
+		SetPlayerHeading(0.0);
+
+		{ Set level goals }
+		ClearAllLevelGoals;
+		SetLevelGoal('GOAL10');
+		
+		{LIGHTS}
+		RunScript('player(player)', 'FlickeringLightsLeft');
+		RunScript('player(player)', 'FlickeringLightsRight');
+		RunScript('player(player)', 'FlickeringLightsHall');
+		
+		{ Open doors }
+		UnFreezeEntity(GetEntity('asylum_doorA_SL(D)'));
+		UnLockEntity(GetEntity('asylum_doorA_SL(D)'));
+		GraphModifyConnections(GetEntity('asylum_doorA_SL(D)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+
+		UnFreezeEntity(GetEntity('asylum_doorA_SR(D)'));
+		UnLockEntity(GetEntity('asylum_doorA_SR(D)'));
+		GraphModifyConnections(GetEntity('asylum_doorA_SR(D)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+
+		checkOpenerNeeded := FALSE;
+
+		{ Create triggers }
+		SetVector(pos, 1.13528, 22.4246, 46.9438);
+		SetVector(pos2, 4.90758, 24.9246, 47.3238);
+		CreateBoxTrigger(pos, pos2, 'triggerNearingTVArea');
+
+		SetVector(pos, 13.9248, 15.4573, 46.5688);
+		SetVector(pos2, 17.7029, 18.4573, 50.2312);
+		CreateBoxTrigger(pos, pos2, 'triggerCarparkStart');
+		
+		{SetVector(pos, -4.62544, 17.9702, 17.0601);
+		SetVector(pos2, -2.27975, 18.9197, 18.3229);
+		CreateBoxTrigger(pos, pos2, 'triggerRadioChatter');}
+
+		AIAddEntity('RadioHunter(hunter)');
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subRadioMan', 'RadioHunter(hunter)');
+		AISetIdleHomeNode('RadioHunter(hunter)', 'RADIOHOME');
+		AISetHunterIdleActionMinMax('RadioHunter(hunter)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 2000, 5000);
+
+		AIAddEntity('RadioHunterTwo(hunter)');
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subRadioMan', 'RadioHunterTwo(hunter)');
+		AISetHunterIdleActionMinMax('RadioHunterTwo(hunter)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 2000, 5000);
+				
+		{ Initialize hunters }
+		SetEntityScriptsFromEntity('TVLoonie(hunter)', 'TVLoonie01(hunter)');
+		SetEntityScriptsFromEntity('TVLoonie(hunter)', 'TVLoonie02(hunter)');
+  	
+		UnLockEntity(GetEntity('gate02(SD)'));
+		GraphModifyConnections(GetEntity('gate02(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+		SetDoorState(GetEntity('gate02(SD)'),DOOR_CLOSING);
+	
+		UnLockEntity(GetEntity('gate01(SD)'));
+		GraphModifyConnections(GetEntity('gate01(SD)'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+		SetDoorState(GetEntity('gate01(SD)'),DOOR_CLOSING);
+		
+  end;
+
+	InCarPark: begin
+		WriteDebug('Skipping to state: InCarPark');
+
+		{ Set player angle }
+		SetPlayerHeading(180.0);
+		
+		killedATruckman := FALSE;
+
+		{ Set level goals }
+		ClearAllLevelGoals;
+{		SetLevelGoal('GOAL15');}
+		{SetLevelGoal('GOAL13');}
+		{SetLevelGoal('GOAL12');}
+
+        { Destroy unnecessary hunters }
+		if GetEntity('Beast1(hunter)') <> NIL then DestroyEntity(GetEntity('Beast1(hunter)'));
+		if GetEntity('Beast2(hunter)') <> NIL then DestroyEntity(GetEntity('Beast2(hunter)'));
+
+		{ [gupi] Added script copying. Hunter scripts were not copied, so the reload didn't work. (B*17490) }
+    { Initialize carpark hunters }
+		SetEntityScriptsFromEntity('TruckGuard(hunter)', 'TruckGuard1(hunter)');
+		RunScript('TruckGuard1(hunter)', 'Init');
+		SetEntityScriptsFromEntity('TruckGuard(hunter)', 'TruckGuard2(hunter)');
+		RunScript('TruckGuard2(hunter)', 'Init');
+			
+		AIAddEntity('DriverEndScene(hunter)');
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subMeleeTut', 'DriverEndScene(hunter)');
+			
+{		RunScript('player(player)', 'CarParkSpotlight');}
+{		RunScript('player(player)', 'CarParkPuzzle');}
+		
+		SetVector(pos, 30.2101, 17.1234, 37.434);
+		CreateSphereTrigger(pos, 0.8, 'triggerEnteringTruck');
+		
+		SetVector(pos, 25.4899, 16.0642, 35.5);
+		SetVector(pos2, 48.7999, 19.0033, 51.0277);
+		CreateBoxTrigger(pos, pos2, 'triggerDeadNearTruck');
+		
+		if GetEntity('DriverEndScene(hunter)') <> NIL then
+			HideEntity(GetEntity('DriverEndScene(hunter)'));
+		
+		SetLevelGoal('GOAL15');
+		
+		RadarPositionSetEntity(GetEntity('triggerEnteringTruck'), MAP_COLOR_BLUE);
+		
+		HideEntity(GetEntity('PFXRainWindow'));
+		HideEntity(GetEntity('PFXRainWindow01'));
+		HideEntity(GetEntity('PFXRainWindow02'));
+		HideEntity(GetEntity('PFXRainWindow03'));
+		HideEntity(GetEntity('PFXRainWindow04'));
+
+		{EntityPlayAnim(GetEntity('PFX_rainco'), 'PAT_rainco', true);
+		EntityPlayAnim(GetEntity('PFX_rainpa'), 'PAT_rainpa', true);}
+		
+		{SetVector(pos, 31.1342, 18.2325, 37.5213);
+		CreateSphereTrigger(pos, 1.53063, 'triggerTruckSee');}
+		
+    end;
+    
+    
+
+	end; {case of}
+	
+	{DOORS}
+	UnLockEntity(GetEntity('cell1_(SD)'));
+	SetSlideDoorAjarDistance(GetEntity('cell1_(SD)'), 1.1);
+	SetDoorState(GetEntity('cell1_(SD)'), DOOR_OPENING);
+	GraphModifyConnections(GetEntity('cell1_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+	RunScript('ButtonCell1_(S)', 'BlinkGreen');
+	SetCurrentLod(GetEntity('Door_Indicator1'), 1);
+	
+	UnLockEntity(GetEntity('cell4_(SD)'));
+	SetSlideDoorAjarDistance(GetEntity('cell4_(SD)'), 1.1);
+	SetDoorState(GetEntity('cell4_(SD)'), DOOR_OPENING);
+	GraphModifyConnections(GetEntity('cell4_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+	RunScript('ButtonCell4_(S)', 'BlinkGreen');
+	SetCurrentLod(GetEntity('Door_Indicator4'), 1);
+	
+	UnLockEntity(GetEntity('cell2_(SD)'));
+	UnLockEntity(GetEntity('cell5_(SD)'));
+	SetDoorState(GetEntity('cell2_(SD)'), DOOR_OPENING);
+	SetDoorState(GetEntity('cell5_(SD)'), DOOR_OPENING);
+	
+	while GetDoorState(GetEntity('cell2_(SD)')) <> DOOR_OPEN do sleep(10);
+	while GetDoorState(GetEntity('cell5_(SD)')) <> DOOR_OPEN do sleep(10);
+
+	sleep(100);
+		
+	SetDoorState(GetEntity('cell2_(SD)'), DOOR_CLOSING);
+	SetDoorState(GetEntity('cell5_(SD)'), DOOR_CLOSING);
+	
+	{UnLockEntity(GetEntity('cell5_(SD)'));
+	SetSlideDoorAjarDistance(GetEntity('cell5_(SD)'), 1.1);
+	SetDoorState(GetEntity('cell5_(SD)'), DOOR_CLOSING);
+	RunScript('ButtonCell5_(S)', 'BlinkRed');
+	SetCurrentLod(GetEntity('Door_Indicator5'), 0);}
+	
+end;
+
+script SkipMe;
+begin
+end;
+
+procedure InitAI;
+var
+	pos : Vec3D;
+
+begin
+	{ Set up player for AI }
+	AIAddPlayer('player(player)');
+	{ Set up leaders }
+	AIAddEntity('leader(leader)');
+
+	AISetHunterOnRadar('leader(leader)', FALSE);
+	AISetEntityAsLeader('leader(leader)');
+	AISetLeaderInvisible('leader(leader)');
+	AIAddLeaderEnemy('leader(leader)', 'player(player)');
+	AIEntityAlwaysEnabled('leader(leader)');
+
+	AIAddEntity('leader2(leader)');
+
+	AISetHunterOnRadar('leader2(leader)', FALSE);
+	AISetEntityAsLeader('leader2(leader)');
+	AISetLeaderInvisible('leader2(leader)');
+	AIEntityAlwaysEnabled('leader2(leader)');
+	AIAddLeaderEnemy('leader2(leader)', 'player(player)');
+	
+
+	{ Set up subpacks }
+	AIAddSubPackForLeader('leader(leader)', 'subMeleeTut');
+	AIAddSubPackForLeader('leader(leader)', 'subExecTut');
+	{AIAddSubPackForLeader('leader(leader)', 'subJumpChase');
+	AIAddSubPackForLeader('leader(leader)', 'subBeastVictims');}
+	AIAddSubPackForLeader('leader2(leader)', 'subBeast2');
+	AIAddSubPackForLeader('leader(leader)', 'subRunner');
+	AIAddSubPackForLeader('leader(leader)', 'subJumper');
+	{AIAddSubPackForLeader('leader2(leader)', 'subTVGuys');}
+	AIAddSubPackForLeader('leader(leader)', 'subTVLoonies');
+	{AIAddSubPackForLeader('leader(leader)', 'subTVFight');}
+
+	AIAddSubPackForLeader('leader2(leader)', 'subBeast1');
+	AIAddSubPackForLeader('leader(leader)', 'subTruckGuards');
+	AIAddSubPackForLeader('leader2(leader)', 'subTVGuard');
+	AIAddSubPackForLeader('leader(leader)', 'subManWoman');
+	AIAddSubPackForLeader('leader(leader)', 'subStealthTut1');
+	AIAddSubPackForLeader('leader(leader)', 'subStealthTut2');
+	AIAddSubPackForLeader('leader(leader)', 'subStealthTut3');
+	
+	AIAddSubPackForLeader('leader(leader)', 'subRadioMan');
+	
+	AIAddSubpackForLeader('leader2(leader)', 'subMutters');
+
+	{ Assign areas to subpacks }
+	{AIAddAreaForSubPack('subMeleeTut', 'aipastelev');}
+	{AIAddAreaForSubPack('subManWoman', 'aicell');}
+{	AIAddAreaForSubPack('subExecTut', 'aielevator');}
+	{AIAddAreaForSubPack('subJumpChase', 'aipastelev');}
+	{AIAddAreaForSubPack('subBeastVictims', 'aimelee2');}
+	{AIAddAreaForSubPack('subBeast2', 'aimelee2');}
+	{AIAddAreaForSubPack('subRunner', 'aipastelev');
+	AIAddAreaForSubPack('subJumper', 'aipastelev');}
+	{AIAddAreaForSubPack('subTVGuys', 'airecreation');}
+	{AIAddAreaForSubPack('subTVFight', 'airecreation');}
+	{AIAddAreaForSubPack('subBeast1', 'aimelee2');}
+	{AIAddAreaForSubPack('subTruckGuards', 'aicarpark');
+	AIAddAreaForSubPack('subTVGuard', 'aipostbeasts');
+	AIAddAreaForSubPack('subTVGuard', 'airecreation');}
+
+{	AISubPackStayInTerritory('leader(leader)', 'subManWoman', true);
+	AISetBoundaryIntercept('leader(leader)', 'subManWoman',0.1);}
+
+	{AISubpackStayInTerritory('leader(leader)', 'subBeastVictims', TRUE);}
+	{AISubpackStayInTerritory('leader2(leader)', 'subBeast1', TRUE);}
+	{AISubpackStayInTerritory('leader2(leader)', 'subBeast2', TRUE);}
+
+	{ Set up subpack combat types }
+	AISetSubpackCombatType('leader2(leader)', 'subMutters', COMBATTYPEID_OPEN_MELEE);
+	AISetSubpackCombatType('leader(leader)', 'subStealthTut1', COMBATTYPEID_COVER);
+	AISetSubpackCombatType('leader(leader)', 'subStealthTut2', COMBATTYPEID_COVER);
+	AISetSubpackCombatType('leader(leader)', 'subStealthTut3', COMBATTYPEID_COVER);
+	AISetSubpackCombatType('leader(leader)', 'subExecTut', COMBATTYPEID_OPEN_MELEE);
+	AISetSubpackCombatType('leader(leader)', 'subManWoman', COMBATTYPEID_OPEN_MELEE);
+{	AISetSubpackCombatType('leader(leader)', 'subJumpChase', COMBATTYPEID_OPEN_MELEE);
+	AISetSubpackCombatType('leader(leader)', 'subBeastVictims', COMBATTYPEID_OPEN_MELEE);}
+	AISetSubpackCombatType('leader(leader)', 'subTVLoonies', COMBATTYPEID_OPEN_MELEE);
+	{AISetSubpackCombatType('leader(leader)', 'subTVFight', COMBATTYPEID_OPEN_MELEE);}
+	AISetSubpackCombatType('leader2(leader)', 'subBeast2', COMBATTYPEID_OPEN_MELEE);
+
+	AISetSubpackCombatType('leader2(leader)', 'subBeast1', COMBATTYPEID_OPEN_MELEE);
+	AISetSubpackCombatType('leader(leader)', 'subTruckGuards', COMBATTYPEID_OPEN_MELEE);
+	AISetSubpackCombatType('leader2(leader)', 'subTVGuard', COMBATTYPEID_OPEN_MELEE);
+	
+	AISetSubPackCombatType('leader(leader)', 'subRadioMan', COMBATTYPEID_OPEN_MELEE);
+
+	{ Set up player hunting }
+	AIDefineGoalHuntEnemy('goalHuntPlayer', 'player(player)', true, 10);
+
+	AIAddGoalForSubpack('leader2(leader)', 'subMutters', 'goalHuntPlayer');	
+
+	AIAddGoalForSubpack('leader(leader)', 'subStealthTut1', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader(leader)', 'subStealthTut2', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader(leader)', 'subStealthTut3', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader(leader)', 'subExecTut', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader(leader)', 'subManWoman', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader2(leader)', 'subBeast1', 'goalHuntPlayer');
+	{AIAddGoalForSubpack('leader(leader)', 'subTVFight', 'goalHuntPlayer');}
+
+	AIAddGoalForSubpack('leader2(leader)', 'subTVGuard', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader(leader)', 'subTruckGuards', 'goalHuntPlayer');
+	AIAddGoalForSubpack('leader(leader)', 'subRadioMan',  'goalHuntPlayer');
+
+	writedebug('here');
+	
+	AIInited := TRUE;
+end;
+
+
+{procedure InitMonitors;
+begin}
+	{ Set up monitors }
+{	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER');
+	RunScript('CJ_MONITER', 'MonitorOn');
+
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER01');
+	RunScript('CJ_MONITER01', 'MonitorOn');
+
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER02');
+	RunScript('CJ_MONITER02', 'MonitorOn');
+
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER');
+	RunScript('CJ_WILL_MONITER', 'MonitorOn');
+
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER01');
+	RunScript('CJ_WILL_MONITER01', 'MonitorOn');
+	
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER05');
+	RunScript('CJ_MONITER05', 'MonitorOn');
+	
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER04');
+	RunScript('CJ_MONITER04', 'MonitorOn');
+	
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER');
+	RunScript('CJ_WILL_MONITER', 'MonitorOn');
+	
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_WILL_MONITER02');
+	RunScript('CJ_WILL_MONITER02', 'MonitorOn');
+	
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER');
+	RunScript('CJ_MONITER', 'MonitorOn');
+	
+	SetEntityScriptsFromEntity('Monitor_Template', 'CJ_MONITER03');
+	RunScript('CJ_MONITER03', 'MonitorOn');	
+	     
+end;}
+
+
+end.
+   

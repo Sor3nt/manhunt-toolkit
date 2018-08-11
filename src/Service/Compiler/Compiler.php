@@ -321,68 +321,45 @@ class Compiler {
 
     private function getEntitity($tokens){
 
-        $types = [];
-
+        $found = false;
         $current = 0;
-        $offset = 0;
-        $inside = false;
-        $currentTypeSection = false;
 
-        while( $current < count($tokens)){
-
-            $token = $tokens[ $current ];
-
-            if ($token['type'] == Token::T_DEFINE_SECTION_ENTITY) {
-                $inside = true;
-
-            }else if (
-                $token['type'] == Token::T_DEFINE_SECTION_VAR ||
-                $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
-                $token['type'] == Token::T_DEFINE_SECTION_CONST ||
-                $token['type'] == Token::T_SCRIPT
-            ){
-                return $types;
-
-            }else if (
-                $token['type'] == Token::T_BRACKET_OPEN ||
-                $token['type'] == Token::T_BRACKET_CLOSE
-            ){
-                // do nothing
-            }else if (
-                $token['type'] == Token::T_LINEEND
-            ){
-
-                $currentTypeSection = false;
-            }else if ($inside){
-
-                if ($token['type'] == Token::T_IS_EQUAL){
-                    $beforeToken = $tokens[ $current - 1 ];
-
-                    $offset = 0;
-                    $currentTypeSection = $beforeToken['value'];
-
-                    $types[ $currentTypeSection ]  = [];
+        $scriptName = strtolower($tokens[1]['value']);
 
 
-                }else if ($currentTypeSection && $token['type'] == Token::T_VARIABLE){
+        while($current < count($tokens)){
 
-                    $types[ $currentTypeSection ][ $token['value'] ] = [
-                        'offset' => Helper::fromIntToHex($offset)
-                    ];
+            $token = $tokens[$current];
 
-                    $offset++;
-                }
+            if ($token['type'] == Token::T_DEFINE_SECTION_ENTITY){
+                $found = true;
+                $current++;
+                continue;
             }
 
-            $current++;
+            if (!$found){
+                $current++;
+                continue;
+            }
+
+            return [
+                'name' => strtolower($token['value']),
+                'type' => $scriptName == "levelscript" ? "levelscript" : "other"
+            ];
         }
 
-        return $types;
+        throw new \Exception('Compiler could not find / parse the Entity section');
     }
 
-    public function parse($source){
+    public function parse($source, $levelScript = false){
+//
+//        if ($levelScript != false){
+//            var_dump($levelScript['extra']['headerVariables']);
+//            exit;
+//        }
 
         $smemOffset = 0;
+        $scriptName = false;
 
         // cleanup the source code
         $source = $this->prepare($source);
@@ -395,6 +372,21 @@ class Compiler {
         // extract every header and script variable definition
         $headerVariables = $this->getHeaderVariables($tokens, $types);
 
+        if ($levelScript != false){
+            foreach ($levelScript['extra']['headerVariables'] as $levelHeaderVariableName => $levelHeaderVariable) {
+
+                foreach ($headerVariables as $headerVariableName => &$headerVariable) {
+                    if (strpos(strtolower($headerVariable['type']), 'level_var') !== false){
+
+                        if ($levelHeaderVariableName == $headerVariableName){
+                            $headerVariable['offset'] = $levelHeaderVariable['offset'];
+
+                        }
+                    }
+                }
+
+            }
+        }
 
         $const = $this->getConstants($tokens, $smemOffset);
 
@@ -437,7 +429,10 @@ class Compiler {
 
         foreach ($headerVariables as $name => &$item) {
 
-            $item['offset'] = Helper::fromIntToHex($smemOffset);
+            if (!isset($item['offset'])){
+                $item['offset'] = Helper::fromIntToHex($smemOffset);
+
+            }
 
             $size = $item['size'];
 
@@ -451,6 +446,7 @@ class Compiler {
         $smemOffset2Tmp = 0;
 
         $scriptBlockSizes = [];
+        $lastScriptEnd = 0;
         $scriptBlockSizesAdditional = 0;
         foreach ($ast["body"] as $index => $token) {
 
@@ -503,19 +499,27 @@ class Compiler {
                     ]
                 ]);
 
-
-                //TODO: logic recode, what a mess....
                 if ($token['type'] == Token::T_SCRIPT){
-                    if ($scriptBlockSizesAdditional > 0){
-                        $scriptBlockSizes[$scriptName] = $scriptBlockSizesAdditional;
-                        $scriptBlockSizesAdditional = count($code) * 4;
-                    }else{
-                        $scriptBlockSizes[$scriptName] = count($code) * 4;
-                    }
-                }else{
-                    $scriptBlockSizesAdditional = count($code) * 4;
-
+                    $scriptBlockSizes[$scriptName] = $lastScriptEnd;
                 }
+
+                $lastScriptEnd = count($code) * 4;
+//
+//                //TODO: logic recode, what a mess....
+//                if ($token['type'] == Token::T_SCRIPT){
+//                    if ($scriptBlockSizesAdditional > 0){
+//                        echo "ja drin";
+//                        $scriptBlockSizes[$scriptName] = $scriptBlockSizesAdditional;
+//                        $scriptBlockSizesAdditional = count($code) * 4;
+//                    }else{
+//                        echo "add2";
+//                        $scriptBlockSizesAdditional = 0;
+//                    }
+//                }else{
+//                    $scriptBlockSizesAdditional = count($code) * 4;
+//                    echo "add1";
+//
+//                }
 
                 foreach ($code as $line) {
                     if ($line->lineNumber !== $start){
@@ -536,15 +540,20 @@ class Compiler {
             }
         }
 
-
         return [
+            'extra' => [
+                'headerVariables' => $headerVariables
+            ],
             'CODE' => $sectionCode,
             'DATA' => $this->generateDATA($strings4Scripts),
             'STAB' => $this->generateSTAB($headerVariables),
             'SCPT' => $this->generateSCPT($scriptBlockSizes),
+            'ENTT' => $this->getEntitity($tokens),
+//            'NAME' => $scriptName,
 
             //todo: value did not match...
-            'SMEM' => $smemOffset + $smemOffset2Tmp
+            'SMEM' => 78596
+//            'SMEM' => ($smemOffset + $smemOffset2Tmp) * 4
 
         ];
     }
@@ -748,11 +757,18 @@ class Compiler {
         foreach ($scriptBlockSizes as $name => $item) {
             $scriptSize += $item;
 
+            if (isset(Manhunt2::$functionEventDefinition[strtolower($name)])){
+                $onTrigger = Manhunt2::$functionEventDefinition[strtolower($name)];
+            }else{
+                $onTrigger = Manhunt2::$functionEventDefinition['__default__'];
+            }
+
             $scpt[] = [
                 'name' => strtolower($name),
-                'unknown' => strtolower($name) == "oncreate" ? '00000000' : '68000000',
+                'onTrigger' => $onTrigger,
                 'scriptStart' => $scriptSize
             ];
+
         }
 
         return $scpt;

@@ -1106,29 +1106,29 @@ class BytecodeExplain {
 
 
     private function mapLevelVarsBoolean(array $lines, &$result ){
-        foreach (Manhunt2::$levelVarBoolean as $levelVarName => $levelVarOffset){
-
-            $levelVarOffset = $levelVarOffset['offset'];
-
-            foreach ($lines as $lineIndex => $line) {
-
-                if ($line->toBinary() == hex2bin($levelVarOffset)){
-
-                    $result[$lineIndex] = [
-                        $line->toHex(),
-                        'LevelVar ' . $levelVarName
-                    ];
-
-                    if ($lines[ $lineIndex - 1]->toHex() == "1b000000"){
-                        $result[$lineIndex - 1] = [
-                            $lines[ $lineIndex - 1]->toHex(),
-                            'read LevelVar '
-                        ];
-
-                    }
-                }
-            }
-        }
+//        foreach (Manhunt2::$levelVarBoolean as $levelVarName => $levelVarOffset){
+//
+//            $levelVarOffset = $levelVarOffset['offset'];
+//
+//            foreach ($lines as $lineIndex => $line) {
+//
+//                if ($line->toBinary() == hex2bin($levelVarOffset)){
+//
+//                    $result[$lineIndex] = [
+//                        $line->toHex(),
+//                        'LevelVar ' . $levelVarName
+//                    ];
+//
+//                    if ($lines[ $lineIndex - 1]->toHex() == "1b000000"){
+//                        $result[$lineIndex - 1] = [
+//                            $lines[ $lineIndex - 1]->toHex(),
+//                            'read LevelVar '
+//                        ];
+//
+//                    }
+//                }
+//            }
+//        }
 
     }
 
