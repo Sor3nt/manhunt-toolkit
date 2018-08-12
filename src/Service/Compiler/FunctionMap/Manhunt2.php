@@ -1934,7 +1934,7 @@ class Manhunt2 {
 
        'settimer'  => [
             'name'      =>  'SetTimer',
-            'offset' => "0d200000"
+            'offset' => "0d200000",
              /**
              * Parameters
              * 1: Minutes
