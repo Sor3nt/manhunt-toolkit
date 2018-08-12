@@ -12,10 +12,7 @@ Every part is developed on PHP 7, you will need to install PHP on your System to
 ```
 $ git clone https://github.com/Sor3nt/manhunt-toolkit
 $ cd manhunt-toolkit
-$ composer install
 ```
-
-Don´t have composer installed ? See here https://getcomposer.org/
 
 
 ## How to use
