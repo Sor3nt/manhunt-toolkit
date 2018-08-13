@@ -1,0 +1,31 @@
+{*
+    Example: Spawn a entity on a position
+*}
+scriptmain LevelScript;
+
+    entity
+        A01_Escape_Asylum : et_level;
+
+    script OnCreate;
+        var
+            vel, pos : Vec3D;
+            speed : real;
+        begin
+
+            {* Set the position, we use the player position *}
+            pos := getplayerposition;
+            pos.z := pos.z + 4.2;
+            pos.y := pos.y + 3.2;
+
+            {*
+                Spawn entity
+                Note: any entity can only spawned once (?!)
+                      The last String parameter looks unused, write what ever you want
+            *}
+            SpawnMovingEntity('SledgeHammer_(CT)', pos, 'ScriptCreateName');
+
+        end;
+
+end.
+
+

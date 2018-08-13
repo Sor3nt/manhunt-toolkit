@@ -12,16 +12,12 @@ scriptmain LevelScript;
             speed : real;
         begin
 
-            {*
-                Set the position, we use the player position
-            *}
+            {* Set the position, we use the player position *}
             pos := getplayerposition;
             pos.z := pos.z + 4.2;
             pos.y := pos.y + 3.2;
 
-            {*
-                Setup direction and speed
-            *}
+            {* Setup direction and speed *}
             SetVector(vel, 0.838732, -0.0997477, -0.666577);
             speed := 10.0;
             vel.x := vel.x * speed;
@@ -30,7 +26,7 @@ scriptmain LevelScript;
 
             {*
                 Spawn entity
-                Note: eny entity can only spawned once (?!)
+                Note: any entity can only spawned once (?!)
             *}
             SpawnEntityWithVelocity('CJ_WHEELCHAIR1', pos, 'WheelChair', vel);
 
