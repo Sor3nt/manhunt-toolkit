@@ -1,0 +1,26 @@
+{*
+    Example: How to use the Counter feature
+*}
+scriptmain LevelScript;
+
+    entity
+        A01_Escape_Asylum : et_level;
+
+    script OnCreate;
+        begin
+
+            {* Show to counter, per default it starts by zero *}
+            ShowCounter;
+
+            {* Increase the counter *}
+            IncrementCounter;
+
+            sleep(5000);
+
+            {* Decrease the counter *}
+            DecreaseCounter;
+        end;
+
+end.
+
+

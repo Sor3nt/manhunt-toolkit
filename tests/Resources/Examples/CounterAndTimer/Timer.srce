@@ -1,0 +1,31 @@
+{*
+    Example: How to use the Timer feature
+*}
+scriptmain LevelScript;
+
+    entity
+        A01_Escape_Asylum : et_level;
+
+    script OnCreate;
+        begin
+
+            {* Set the timer (MM:SS) *}
+            SetTimer(10,20);
+
+            {* Start the timer *}
+            StartTimer;
+
+            {* Show the timer*}
+            ShowTimer;
+
+            sleep(5000)
+
+            {* hide the timer*}
+            HideTimer;
+
+
+        end;
+
+end.
+
+
