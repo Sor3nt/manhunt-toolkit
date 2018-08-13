@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\Service\Compiler\Evaluate;
+use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\Token;
 
@@ -172,10 +173,13 @@ class T_FUNCTION {
             }
         }
 
+        $functionForceFloar = Manhunt2::$functionForceFloar;
+        if (GAME == "mh1") $functionForceFloar = Manhunt::$functionForceFloar;
+
 
         $forceFloatOrder = [];
-        if (isset( Manhunt2::$functionForceFloar[strtolower($node['value'])] )){
-            $forceFloatOrder = Manhunt2::$functionForceFloar[strtolower($node['value'])];
+        if (isset( $functionForceFloar[strtolower($node['value'])] )){
+            $forceFloatOrder = $functionForceFloar[strtolower($node['value'])];
 
         }
 
@@ -260,12 +264,15 @@ class T_FUNCTION {
         /**
          * Translate function call
          */
-        if (!isset(Manhunt2::$functions[ strtolower($node['value']) ])){
+        $funtions = Manhunt2::$functions;
+        if (GAME == "mh1") $funtions = Manhunt::$functions;
+
+        if (!isset($funtions[ strtolower($node['value']) ])){
             throw new \Exception(sprintf('Unknown function %s', $node['value']));
         }
 
 
-        $code[] = $getLine( Manhunt2::$functions[ strtolower($node['value']) ]['offset'] );
+        $code[] = $getLine( $funtions[ strtolower($node['value']) ]['offset'] );
 
 
 
@@ -285,7 +292,10 @@ class T_FUNCTION {
 
         if (isset($node['nested']) && $node['nested'] === true){
 
-            if (!in_array(strtolower($node['value']), Manhunt2::$functionNoReturn )){
+            $functionNoReturn = Manhunt2::$functionNoReturn;
+            if (GAME == "mh1") $functionNoReturn = Manhunt::$functionNoReturn;
+
+            if (!in_array(strtolower($node['value']), $functionNoReturn )){
 
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');

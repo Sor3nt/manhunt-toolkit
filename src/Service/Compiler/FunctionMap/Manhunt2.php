@@ -1934,7 +1934,7 @@ class Manhunt2 {
 
        'settimer'  => [
             'name'      =>  'SetTimer',
-            'offset' => "0d200000"
+            'offset' => "d0020000",
              /**
              * Parameters
              * 1: Minutes
@@ -1947,38 +1947,41 @@ class Manhunt2 {
          
         'starttimer'  => [
             'name'      =>  'StartTimer',
-            'offset' => "1d200000"
+            'offset' => "d1020000"
         ],     
         
         'stoptimer'  => [
             'name'      =>  'StopTimer',
-            'offset' => "2d200000"
+            'offset' => "d2020000"
         ],   
         
+
         'showtimer'  => [
             'name'      =>  'ShowTimer',
-            'offset' => "4d200000"
+            'offset' => "d4020000"
         ], 
         
         'hidetimer'  => [
             'name'      =>  'HideTimer',
-            'offset' => "5d200000"
+            'offset' => "d5020000"
         ], 
         
         'incrementcounter'  => [
             'name'      =>  'IncrementCounter',
-            'offset' => "bf200000"
-        ], 
+            'offset' => "fb020000"
+        ],
 
         'decreasecounter'  => [
             'name'      =>  'DecreaseCounter',
-            'offset' => "cf200000"
+            'offset' => "fc020000"
         ], 
         
         'showcounter'  => [
             'name'      =>  'ShowCounter',
-            'offset' => "df200000"
-        ], 
+            'offset' => "fd020000"
+        ],
+
+
 //
 //        "radarpositionsetentity" => [
 //            'name'      =>  'RadarPositionSetEntity',

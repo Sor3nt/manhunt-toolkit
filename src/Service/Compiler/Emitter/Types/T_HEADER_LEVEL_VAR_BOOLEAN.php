@@ -1,8 +1,6 @@
 <?php
 namespace App\Service\Compiler\Emitter\Types;
 
-use App\Service\Compiler\FunctionMap\Manhunt2;
-
 class T_HEADER_LEVEL_VAR_BOOLEAN {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
