@@ -1,0 +1,41 @@
+{*
+    Example: Spawn a entity with velocity
+*}
+scriptmain LevelScript;
+
+    entity
+        A01_Escape_Asylum : et_level;
+
+    script OnCreate;
+        var
+            vel, pos : Vec3D;
+            speed : real;
+        begin
+
+            {*
+                Set the position, we use the player position
+            *}
+            pos := getplayerposition;
+            pos.z := pos.z + 4.2;
+            pos.y := pos.y + 3.2;
+
+            {*
+                Setup direction and speed
+            *}
+            SetVector(vel, 0.838732, -0.0997477, -0.666577);
+            speed := 10.0;
+            vel.x := vel.x * speed;
+            vel.y := vel.y * speed;
+            vel.z := vel.z * speed;
+
+            {*
+                Spawn entity
+                Note: eny entity can only spawned once (?!)
+            *}
+            SpawnEntityWithVelocity('CJ_WHEELCHAIR1', pos, 'WheelChair', vel);
+
+        end;
+
+end.
+
+
