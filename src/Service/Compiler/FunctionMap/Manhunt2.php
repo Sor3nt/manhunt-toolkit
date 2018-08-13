@@ -1955,6 +1955,7 @@ class Manhunt2 {
             'offset' => "d2020000"
         ],   
         
+
         'showtimer'  => [
             'name'      =>  'ShowTimer',
             'offset' => "d4020000"
@@ -1968,7 +1969,7 @@ class Manhunt2 {
         'incrementcounter'  => [
             'name'      =>  'IncrementCounter',
             'offset' => "fb020000"
-        ], 
+        ],
 
         'decreasecounter'  => [
             'name'      =>  'DecreaseCounter',
@@ -1978,7 +1979,9 @@ class Manhunt2 {
         'showcounter'  => [
             'name'      =>  'ShowCounter',
             'offset' => "fd020000"
-        ], 
+        ],
+
+
 //
 //        "radarpositionsetentity" => [
 //            'name'      =>  'RadarPositionSetEntity',

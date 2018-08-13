@@ -19,8 +19,7 @@ scriptmain LevelScript;
 
             {*
                 Spawn entity
-                Note: any entity can only spawned once (?!)
-                      The last String parameter looks unused, write what ever you want
+                Note: always change the last param if you want to spawn the item multiple
             *}
             SpawnMovingEntity('SledgeHammer_(CT)', pos, 'ScriptCreateName');
 

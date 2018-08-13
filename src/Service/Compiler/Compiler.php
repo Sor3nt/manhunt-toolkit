@@ -3,6 +3,7 @@ namespace App\Service\Compiler;
 
 use App\Bytecode\Helper;
 use App\Service\Compiler\Emitter\T_VARIABLE;
+use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class Compiler {
@@ -351,12 +352,16 @@ class Compiler {
         throw new \Exception('Compiler could not find / parse the Entity section');
     }
 
-    public function parse($source, $levelScript = false){
+    public function parse($source, $levelScript = false, $game = "Manhunt2"){
 //
 //        if ($levelScript != false){
 //            var_dump($levelScript['extra']['headerVariables']);
 //            exit;
 //        }
+
+        if (!defined('GAME')){
+            define('GAME', $game);
+        }
 
         $smemOffset = 0;
         $scriptName = false;
@@ -397,8 +402,6 @@ class Compiler {
         // parse the token list to a ast
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
-
-//        var_dump($ast);
 
         $this->fixWriteDebug($ast['body']);
 
@@ -757,10 +760,13 @@ class Compiler {
         foreach ($scriptBlockSizes as $name => $item) {
             $scriptSize += $item;
 
-            if (isset(Manhunt2::$functionEventDefinition[strtolower($name)])){
-                $onTrigger = Manhunt2::$functionEventDefinition[strtolower($name)];
+            $functionEventDefinition = Manhunt2::$functionEventDefinition;
+            if (GAME == "mh1") $functionEventDefinition = Manhunt::$functionEventDefinition;
+
+            if (isset($functionEventDefinition[strtolower($name)])){
+                $onTrigger = $functionEventDefinition[strtolower($name)];
             }else{
-                $onTrigger = Manhunt2::$functionEventDefinition['__default__'];
+                $onTrigger = $functionEventDefinition['__default__'];
             }
 
             $scpt[] = [

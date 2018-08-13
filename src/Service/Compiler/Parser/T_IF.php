@@ -271,6 +271,7 @@ class T_IF {
                 $deep++;
             }else if (
                 $token['type'] == Token::T_CASE_END ||
+                $token['type'] == Token::T_END_ELSE ||
                 $token['type'] == Token::T_IF_END ||
                 $token['type'] == Token::T_CASE_END
             ){

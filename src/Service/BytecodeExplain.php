@@ -2,6 +2,7 @@
 namespace App\Service;
 
 use App\Bytecode\Helper;
+use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 
 class BytecodeExplain {
@@ -1135,7 +1136,10 @@ class BytecodeExplain {
     private function mapFunctionCalls(array $lines, &$result ){
         /** @var Binary[] $lines */
 
-        foreach (Manhunt2::$functions as $functionName => $functionBinary){
+        $funtions = Manhunt2::$functions;
+        if (GAME == "mh1") $funtions = Manhunt::$functions;
+
+        foreach ($funtions as $functionName => $functionBinary){
 
             if (is_array($functionBinary)){
                 if(isset($functionBinary['name'])) $functionName = $functionBinary['name'];

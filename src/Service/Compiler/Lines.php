@@ -1,9 +1,6 @@
 <?php
 namespace App\Service\Compiler;
 
-use App\Bytecode\Helper;
-use App\Service\Compiler\FunctionMap\Manhunt2;
-
 class Lines {
 
     private $lineCount = 1;
