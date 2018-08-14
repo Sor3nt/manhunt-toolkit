@@ -4,11 +4,13 @@ namespace App\Service\Compiler\Emitter;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
+use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class T_VARIABLE {
 
     static public function getMapping( $node, \Closure $emitter = null , $data ){
 
+        $constantsDefault = ManhuntDefault::$constants;
         $constants = Manhunt2::$constants;
         if (GAME == "mh1") $constants = Manhunt::$constants;
 
@@ -17,6 +19,12 @@ class T_VARIABLE {
 
         if (isset($data['variables'][ $value ])){
             $mapped = $data['variables'][ $value ];
+
+        }else if (isset($constantsDefault[ $value ])) {
+            $mapped = $constantsDefault[ $value ];
+            $mapped['section'] = "header";
+            $mapped['type'] = "constant";
+
         }else if (isset($constants[ $value ])) {
             $mapped = $constants[ $value ];
             $mapped['section'] = "header";

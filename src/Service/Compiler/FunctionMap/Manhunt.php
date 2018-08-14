@@ -26,20 +26,6 @@ class Manhunt {
     ];
 
     public static $functionEventDefinition = [
-
-        'oncreate' => '00000000',
-        'ondestroy' => '01000000',
-        'ondamage' => '02000000',
-        'onusebyplayer' => '03000000',
-        'onentertrigger' => '04000000',
-        'onleavetrigger' => '05000000',
-        'onmediumsightingorabove' => '1d000000',
-        'onmediumhearingorabove' => '33000000',
-        'ondeath' => '1e000000',
-        'onlowhearingorabove' => '35000000',
-        'onfocus' => '58000000',
-        'ontimerended' => '4d000000',
-
         '__default__' => '68000000'
     ];
 

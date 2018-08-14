@@ -3,6 +3,7 @@ namespace App\Service\Compiler\Tokens;
 
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
+use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class T_VARIABLE {
 
@@ -22,10 +23,17 @@ class T_VARIABLE {
             }else{
 
                 if ($value !== ""){
+                    $funtionsDefault = ManhuntDefault::$functions;
                     $funtions = Manhunt2::$functions;
                     if (GAME == "mh1") $funtions = Manhunt::$functions;
 
-                    if (isset($funtions[ strtolower($value) ])) {
+                    if (isset($funtionsDefault[ strtolower($value) ])) {
+                        return [
+                            'type' => 'T_FUNCTION',
+                            'value' => $value
+                        ];
+
+                    }else if (isset($funtions[ strtolower($value) ])) {
                         return [
                             'type' => 'T_FUNCTION',
                             'value' => $value

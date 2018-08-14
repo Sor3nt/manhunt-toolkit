@@ -5,6 +5,7 @@ use App\Bytecode\Helper;
 use App\Service\Compiler\Emitter\T_VARIABLE;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
+use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class Compiler {
 
@@ -760,10 +761,13 @@ class Compiler {
         foreach ($scriptBlockSizes as $name => $item) {
             $scriptSize += $item;
 
+            $functionEventDefinitionDefault = ManhuntDefault::$functionEventDefinition;
             $functionEventDefinition = Manhunt2::$functionEventDefinition;
             if (GAME == "mh1") $functionEventDefinition = Manhunt::$functionEventDefinition;
 
-            if (isset($functionEventDefinition[strtolower($name)])){
+            if (isset($functionEventDefinitionDefault[strtolower($name)])) {
+                $onTrigger = $functionEventDefinitionDefault[strtolower($name)];
+            }else if (isset($functionEventDefinition[strtolower($name)])){
                 $onTrigger = $functionEventDefinition[strtolower($name)];
             }else{
                 $onTrigger = $functionEventDefinition['__default__'];
