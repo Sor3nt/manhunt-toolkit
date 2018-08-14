@@ -144,9 +144,6 @@ class ManhuntDefault {
 		'CT_AXE'  => [
             'offset' => "1E000000"
         ],				
-		'CT_AXE'  => [
-            'offset' => "1E000000"
-        ],			
 		'CT_ICEPICK'  => [
             'offset' => "1F000000"
         ],	
@@ -201,17 +198,11 @@ class ManhuntDefault {
        'CT_SNIPER_RIFLE_SILENCED'  => [
             'offset' => "30000000"
         ],
-       'CT_SNIPER_RIFLE_SILENCED'  => [
-            'offset' => "30000000"
-        ],
        'CT_TRANQ_RIFLE'  => [
             'offset' => "31000000"
         ],
        'CT_SAWNOFF'  => [
             'offset' => "32000000"
-        ],
-       'CT_GRENADE'  => [
-            'offset' => "33000000"
         ],
        'CT_GRENADE'  => [
             'offset' => "33000000"
@@ -230,9 +221,6 @@ class ManhuntDefault {
         ],
        'CT_BRICK_HALF'  => [
             'offset' => "38000000"
-        ],
-       'CT_FIREWORK'  => [
-            'offset' => "39000000"
         ],
        'CT_FIREWORK'  => [
             'offset' => "39000000"
@@ -330,9 +318,6 @@ class ManhuntDefault {
         ],
 		'CT_HAMMER'  => [
             'offset' => "61000000"
-        ],
-		'CT_KEY'  => [
-            'offset' => "53000000"
         ],
 		'CT_KEY'  => [
             'offset' => "53000000"
