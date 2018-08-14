@@ -365,6 +365,142 @@ class ManhuntDefault {
         ],				
 		
 
+        'AISCRIPT_MEDIUMPRIORITY'  => [
+            'offset' => "02000000"
+        ],
+
+        'AISCRIPT_IDLE_STANDANIMS'  => [
+            'offset' => "05000000"
+        ],
+
+        'AISCRIPT_IDLE_WANDERSEARCH'  => [
+            'offset' => "00000000"
+        ],
+
+        'MTT_HOOD_MEDIUM'  => [
+            'offset' => "02000000"
+        ],
+
+        'AISCRIPT_WALKMOVESPEED'  => [
+            'offset' => "01000000"
+        ],
+
+
+        'COL_PLAYER'  => [
+            'offset' => "00020000"
+        ],
+
+
+        'MAP_COLOR_YELLOW'  => [
+            'offset' => "04000000"
+        ],
+
+        'MAP_COLOR_RED'  => [
+            'offset' => "02000000"
+        ],
+
+        'HID_RADAR'  => [
+            'offset' => "02000000"
+        ],
+
+        'MAP_COLOR_LOCATION'  => [
+            'offset' => "14000000"
+        ],
+
+        'MAP_COLOR_HUNTER_IDLE'  => [
+            'offset' => "08000000"
+        ],
+
+        'COL_HUNTER'  => [
+            'offset' => "10000000"
+        ],
+
+        'AISCRIPT_VERYHIGHPRIORITY'  => [
+            'offset' => "00000000"
+        ],
+
+        'AISCRIPT_LOWPRIORITY'  => [
+            'offset' => "03000000"
+        ],
+
+        'AISCRIPT_IDLE_STANDSTILL'  => [
+            'offset' => "02000000"
+        ],
+
+        'COMBATTYPEID_MELEE'  => [
+            'offset' => "00000000"
+        ],
+
+        'MTT_TRAINING'  => [
+            'offset' => "00000000"
+        ],
+
+        'DIFFICULTY_NORMAL'  => [
+            'offset' => "01000000"
+        ],
+
+        'MAP_COLOR_BLUE'  => [
+            'offset' => "06000000"
+        ],
+
+        'COMBATTYPEID_OPEN_MELEE'  => [
+            'offset' => "03000000"
+        ],
+
+
+        'COMBATTYPEID_COVER'  => [
+            'offset' => "02000000"
+        ],
+
+        'AISCRIPT_GRAPHLINK_ALLOW_NOTHING'  => [
+            'offset' => "00000000"
+        ],
+
+        'HID_ALL_PLAYER_ITEMS'  => [
+            'offset' => "2c010000"
+        ],
+
+        'AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING' => [
+            "offset" => "03000000"
+        ],
+
+        'AISCRIPT_IDLE_PATROL' => [
+            "offset" => "01000000"
+        ],
+
+        'AISCRIPT_HIGHPRIORITY' => [
+            "offset" => "01000000"
+        ],
+
+        'MOVER_STOPPED' => [
+            "offset" => "00000000"
+        ],
+
+        'MOVER_FORWARD' => [
+            "offset" => "01000000"
+        ],
+
+        'AISCRIPT_RUNMOVESPEED' => [
+            "offset" => "00000000"
+        ],
+
+        'DOOR_OPEN' => [
+            "offset" => "00000000"
+        ],
+
+        'DOOR_OPENING' => [
+            "offset" => "01000000"
+        ],
+
+        'DOOR_CLOSED' => [
+            "offset" => "02000000"
+        ],
+
+        'DOOR_CLOSING' => [
+            "offset" => "03000000"
+        ],
+
+
     ];
 
     public static $functions = [
