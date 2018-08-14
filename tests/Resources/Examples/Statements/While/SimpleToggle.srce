@@ -1,0 +1,38 @@
+{*
+    Example: Create a simple toggle with whole if statements
+*}
+scriptmain LevelScript;
+
+    entity
+        A01_Escape_Asylum : et_level;
+
+    {* The variable need to be global otherwise the value would be static *}
+    var
+        myToggler : boolean;
+
+
+    script OnCreate;
+        begin
+
+            while true do begin
+
+                if myb = TRUE then begin
+
+                    DisplayGameText("TRUE");
+                    myToggler := FALSE;
+
+                end else begin
+
+                    DisplayGameText("FALSE");
+                    myToggler := TRUE;
+
+                end;
+
+                sleep(3000);
+
+            end;
+        end;
+
+end.
+
+
