@@ -152,8 +152,53 @@ class Manhunt {
             'name'      =>  'CreateInventoryItem',
             'offset' => "b9000000",
         ],
+		'runscript'  => [
+            'name'      =>  'RunScript',
+            'offset' => "e4000000"
+        ],
+		
+        'ispadbuttonpressed'  => [
+            'name'      =>  'IsPadButtonPressed',
+            'offset' => "f9000000",
+		    'params'    =>  [ 'Integer']
+        ],
+		
+			'aiaddentity'  => [
+            'name'      =>  'AIAddEntity',
+            'offset' => "4c010000"
+        ],
+			'getentity'  => [
+            'name'      =>  'GetEntity',
+            'offset' => "76000000"
+        ],
+		
+        "getplayerposition" => [
+            'name'      =>  'GetPlayerPosition',
+            'offset'    =>  '8a000000',
+
+            'params'    =>  [ ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+        "setvector" => [
+            'name'      =>  'SetVector',
+            'offset'    =>  '83010000'
+        ],
+		        "moveentity" => [
+            'name'      =>  'MoveEntity',
+            'offset'    =>  '7c000000',
+            /**
+             * Parameters
+             * 1: result of GetEntity
+             * 2: ref to vec3d (3x float)
+             * 3: integer
+             */
+            'params'    =>  [ 'Entity', 'Vec3D', 'Integer' ],
+            'desc'      =>  ''
+        ],
+
     ];
 
-
+//
 
 }
