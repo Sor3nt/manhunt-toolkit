@@ -38,6 +38,7 @@ class Manhunt {
         'ondeath' => '1e000000',
         'onlowhearingorabove' => '35000000',
         'onfocus' => '58000000',
+        'ontimerended' => '4d000000',
 
         '__default__' => '68000000'
     ];
@@ -245,6 +246,11 @@ class Manhunt {
         'hidetimer'  => [
             'name'      =>  'HideTimer',
             'offset' => "d3020000"
+        ],
+
+        'setlevelfailed'  => [
+            'name'      =>  'SetLevelFailed',
+            'offset' => "8b020000"
         ],
 
         'hudtoggleflashflags'  => [
