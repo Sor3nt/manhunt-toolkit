@@ -102,7 +102,8 @@ class UnpackCommand extends Command
 
             $game = strtolower($helper->ask($input, $output, $question));
 
-            $outputTo = $folder . '/extracted/' . $filename . "." . $ext . "/";
+            $outputTo = $folder . '/extracted/' . $filename . "/";
+            @mkdir($outputTo);
 
 
             file_put_contents(
