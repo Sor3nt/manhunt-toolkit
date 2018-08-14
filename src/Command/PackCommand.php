@@ -6,6 +6,8 @@ use App\Service\Archive\Glg;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
+use App\Service\Compiler\FunctionMap\Manhunt;
+use App\Service\Compiler\FunctionMap\Manhunt2;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -166,7 +168,7 @@ class PackCommand extends Command
 
         $compiler = new Compiler();
 
-        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE']);
+        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game);
 
         foreach ($scripts as &$script) {
             if (!isset($script['CODE'])){
