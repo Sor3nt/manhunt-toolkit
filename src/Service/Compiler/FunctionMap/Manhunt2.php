@@ -31,6 +31,10 @@ class Manhunt2 {
 
     public static $constants = [
 
+        'CT_GLOCK'  => [
+            'offset' => "29000000"
+        ],
+
         'AISCRIPT_MEDIUMPRIORITY'  => [
             'offset' => "02000000"
         ],
@@ -1966,6 +1970,31 @@ class Manhunt2 {
         'showcounter'  => [
             'name'      =>  'ShowCounter',
             'offset' => "fd020000"
+        ],
+
+        'stringcat'  => [
+            'name'      =>  'StringCat',
+            'offset' => "6c000000"
+        ],
+
+        'integertostring'  => [
+            'name'      =>  'IntegerToString',
+            'offset' => "5b020000"
+        ],
+
+        'aientityignoredeadbodies'  => [
+            'name'      =>  'AIEntityIgnoreDeadBodies',
+            'offset' => "af020000"
+        ],
+
+        'createinventoryitem'  => [
+            'name'      =>  'CreateInventoryItem',
+            'offset' => "ba000000"
+        ],
+
+        'sethunterdropammo'  => [
+            'name'      =>  'SetHunterDropAmmo',
+            'offset' => "d9020000"
         ],
 
 
