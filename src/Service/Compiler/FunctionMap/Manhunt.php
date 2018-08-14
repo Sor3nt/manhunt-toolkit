@@ -44,6 +44,7 @@ class Manhunt {
 
     public static $constants = [
 
+	
         'HUD_MAP'  => [
             'offset' => "01000000"
         ],
@@ -257,6 +258,62 @@ class Manhunt {
              */
             'params'    =>  [ 'Integer','Integer' ],
             'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+		
+		"displaygametext"  => [
+			'name'      =>  'DisplayGameText',
+            'offset' => "03010000",
+            'params'    =>  [ 'String' ]
+
+        ],
+		
+		'setnumberofkillablehuntersinlevel'  => [
+            'name'      =>  'SetNumberOfKillableHuntersInLevel',
+            'offset' => "e6020000",
+            /**
+             * Parameters
+             * 1:  to kill
+             * 2:  to execute
+             */
+            'params'    =>  [ 'Integer','Integer' ],
+            'return'    =>  'Void',
+            'desc'      =>  ''
+        ],
+		'handcamsetvideoeffecttimecode'  => [
+            'name'      =>  'HandCamSetVideoEffectTimeCode',
+            'offset' => "5f020000",
+            'params'    =>  [ 'Integer'],
+            'desc'      =>  ''
+        ],
+		'handcamsetvideoeffectrecorddot'  => [
+            'name'      =>  'HandCamSetVideoEffectRecordDot',
+            'offset' => "60020000",
+            'params'    =>  [ 'Integer'],
+            'desc'      =>  ''
+        ],
+		'handcamsetvideoeffectfuzz'  => [
+            'name'      =>  'HandCamSetVideoEffectFuzz',
+            'offset' => "61020000",
+            'params'    =>  [ 'Integer'],
+            'desc'      =>  ''
+        ],
+		'handcamsetvideoeffectscrollbar'  => [
+            'name'      =>  'HandCamSetVideoEffectScrollBar',
+            'offset' => "62020000",
+            'params'    =>  [ 'Integer'],
+            'desc'      =>  ''
+        ],
+		'aiaddplayer'  => [
+            'name'      =>  'AIAddPlayer',
+            'offset' => "5a010000",
+            'params'    =>  [ 'String'],
+            'desc'      =>  ''
+        ],
+        'setlevelgoal'  => [
+            'name'      =>  'SetLevelGoal',
+            'offset' => "3e020000",
+            'params'    =>  [ 'String'],
             'desc'      =>  ''
         ],
     ];
