@@ -26,6 +26,18 @@ scriptmain LevelScript;
 
         end;
 
+
+    {*
+        this event will be called when the timer ends
+        warning: the function get triggered until the script got killed !
+    *}
+    script OnTimerEnded;
+        begin
+
+
+            displaygametext("J");
+
+        end;
 end.
 
 
