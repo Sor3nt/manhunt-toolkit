@@ -39,6 +39,17 @@ class ManhuntDefault {
         'onlowhearingorabove' => '35000000',
         'onfocus' => '58000000',
         'ontimerended' => '4d000000',
+        'onhunterlookwalkruntoinvestigate' => '23000000',
+        'onhunteridle' => '18000000',
+        'onstartexecution' => '3a000000',
+        'onlowsightingorabove' => '27000000',
+        'onverylowhearingorabove' => '37000000',
+        'onhighsightingorabove' => '1c000000',
+        'onhighhearingorabove' => '31000000',
+        'onenteredsafezone' => '43000000',
+        'onbeingshot' => '13000000',
+
+
 
     ];
 
