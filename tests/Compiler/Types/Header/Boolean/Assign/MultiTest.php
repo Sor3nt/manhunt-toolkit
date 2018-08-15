@@ -14,6 +14,9 @@ class MultiTest extends KernelTestCase
 
         $script = "
             scriptmain LevelScript;
+            
+            entity
+                A01_Escape_Asylum : et_level;
 
             VAR
                 alreadyDone, alreadyDone2 : boolean;
@@ -49,7 +52,7 @@ class MultiTest extends KernelTestCase
             '00000000', // value int 0
             '16000000', // assign to script var
             '04000000', // assign to script var
-            '04000000', // save into alreadyDone 2
+            '00000000', // save into alreadyDone 2
             '01000000', // assign
 
             // script end
@@ -63,20 +66,21 @@ class MultiTest extends KernelTestCase
         ];
 
         $compiler = new Compiler();
-        list($sectionCode, $sectionDATA) = $compiler->parse($script);
+        $compiled = $compiler->parse($script);
 
-        if ($sectionCode != $expected){
-            foreach ($sectionCode as $index => $item) {
+        if ($compiled['CODE'] != $expected){
+            foreach ($compiled['CODE'] as $index => $item) {
                 if ($expected[$index] == $item){
                     echo ($index + 1) . '->' . $item . "\n";
                 }else{
-                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . "\n";
                 }
             }
             exit;
         }
 
-        $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
+        $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');
     }
+
 
 }

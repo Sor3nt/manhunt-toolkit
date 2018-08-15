@@ -7,7 +7,7 @@ use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class stealthtwoonoffTest extends KernelTestCase
+class StealthTwoOnOffTest extends KernelTestCase
 {
 
     public function test()

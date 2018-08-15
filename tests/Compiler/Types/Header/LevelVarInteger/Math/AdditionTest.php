@@ -1,26 +1,29 @@
 <?php
-namespace App\Tests\CompilerByType\Script\LevelVarInteger\Math;
+namespace App\Tests\CompilerByType\Header\LevelVarInteger\Math;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SubstractionTest extends KernelTestCase
+class AdditionTest extends KernelTestCase
 {
-////
+
     public function testLevelVar()
     {
 
         $script = "
             scriptmain LevelScript;
 
+            entity
+                A01_Escape_Asylum : et_level;
+
             VAR
                 stealthTutSpotted : level_var integer;
 
             script OnCreate;
                 begin
-                    stealthTutSpotted := stealthTutSpotted - 1;
+                    stealthTutSpotted := stealthTutSpotted + 1;
                 end;
             end.
 
@@ -35,6 +38,7 @@ class SubstractionTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+
             '1b000000', //unknown
             'a0170000', //unknown
             '04000000', //unknown
@@ -46,9 +50,10 @@ class SubstractionTest extends KernelTestCase
             '01000000', //value 1
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
-            '33000000', //unknown
-            '04000000', //unknown
+
+            '31000000', //unknown
             '01000000', //unknown
+            '04000000', //unknown
             '1a000000', //unknown
             '01000000', //unknown
             'a0170000', //unknown
@@ -65,21 +70,26 @@ class SubstractionTest extends KernelTestCase
 
         ];
 
-        $compiler = new Compiler();
-        list($sectionCode, $sectionDATA) = $compiler->parse($script);
 
-        if ($sectionCode != $expected){
-            foreach ($sectionCode as $index => $item) {
+        $compiler = new Compiler();
+        $levelScriptCompiled = $compiler->parse(file_get_contents(__DIR__ . '/../0#levelscript.srce'));
+
+        $compiler = new Compiler();
+        $compiled = $compiler->parse($script, $levelScriptCompiled);
+
+        if ($compiled['CODE'] != $expected){
+            foreach ($compiled['CODE'] as $index => $item) {
                 if ($expected[$index] == $item){
                     echo ($index + 1) . '->' . $item . "\n";
                 }else{
-                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . "\n";
                 }
             }
             exit;
         }
 
-        $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
+        $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');
     }
+
 
 }

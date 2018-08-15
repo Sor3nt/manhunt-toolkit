@@ -15,16 +15,19 @@ class AssignTest extends KernelTestCase
         $script = "
             scriptmain LevelScript;
 
+            entity
+                A01_Escape_Asylum : et_level;
+
             type
                 tLevelState = ( StartOfLevel, PickedUpSyringe, InOffice, LuredHunter, KilledHunter, BeforeElevator, LeftElevator, BeforeBeasts, SpottedByCamera, TurnedOnTV, InCarPark, EndOfLevel );
             
             VAR
-                tLevelState : level_var tLevelState;
+                lLevelState : level_var tLevelState;
             
             script OnCreate;
             
                 begin
-                    tLevelState := LeftElevator; 
+                    lLevelState := LeftElevator; 
                 end;
             
             end.        
@@ -60,20 +63,23 @@ class AssignTest extends KernelTestCase
 
 
         $compiler = new Compiler();
-        list($sectionCode, $sectionDATA) = $compiler->parse($script);
+        $levelScriptCompiled = $compiler->parse(file_get_contents(__DIR__ . '/../0#levelscript.srce'));
 
-        if ($sectionCode != $expected){
-            foreach ($sectionCode as $index => $item) {
+        $compiler = new Compiler();
+        $compiled = $compiler->parse($script, $levelScriptCompiled);
+
+        if ($compiled['CODE'] != $expected){
+            foreach ($compiled['CODE'] as $index => $item) {
                 if ($expected[$index] == $item){
                     echo ($index + 1) . '->' . $item . "\n";
                 }else{
-                    echo "MISSMATCH need " . $expected[$index] . " got " . $sectionCode[$index] . "\n";
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . "\n";
                 }
             }
             exit;
         }
 
-        $this->assertEquals($sectionCode, $expected, 'The bytecode is not correct');
+        $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');
     }
 
 }
