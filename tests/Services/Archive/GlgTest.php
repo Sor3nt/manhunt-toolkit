@@ -11,7 +11,7 @@ class GlgTest extends KernelTestCase
     public function testPackUnpackMh2()
     {
 
-        $content = file_get_contents(__DIR__ . '/../../Resources/resource1.glg');
+        $content = file_get_contents(__DIR__ . '/../../Resources/Manhunt2/resource1.glg');
 
         $this->assertEquals('eb999094e1e7ba4c4c16569cf7643083', md5($content));
 

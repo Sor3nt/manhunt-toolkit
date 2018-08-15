@@ -12,20 +12,20 @@ class InstTest extends KernelTestCase
     public function testPackUnpackMh2()
     {
 
-        $content = file_get_contents(__DIR__ . '/../../Resources/entity_pc.inst');
+        $content = file_get_contents(__DIR__ . '/../../Resources/Manhunt2/entity_pc.inst');
 
         $this->assertEquals('81027a46c078ae7de832e58591fa6e30', md5($content));
 
         $inst = new Inst();
 
-        $uncompressed = $inst->unpack($content);
+        $uncompressed = $inst->unpack($content, 'mh2');
 
-        $this->assertEquals('3dc193095233006f92bed746061cade6', md5(serialize($uncompressed)));
+        $this->assertEquals('162d5160b2cc47b2978501d5055c0b76', md5(serialize($uncompressed)));
 
-        $compressed = $inst->pack($uncompressed);
-        $uncompressed2 = $inst->unpack($compressed);
+        $compressed = $inst->pack($uncompressed, 'mh2');
+        $uncompressed2 = $inst->unpack($compressed, 'mh2');
 
-        $this->assertEquals('3dc193095233006f92bed746061cade6', md5(serialize($uncompressed2)));
+        $this->assertEquals('162d5160b2cc47b2978501d5055c0b76', md5(serialize($uncompressed2)));
         $this->assertEquals($uncompressed, $uncompressed2);
 
 
