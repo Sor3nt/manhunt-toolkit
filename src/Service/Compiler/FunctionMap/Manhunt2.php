@@ -248,9 +248,6 @@ class Manhunt2
             'offset' => "e5000000"
         ],
 
-        "runscript" => [
-            'offset' => "e4000000"
-        ],
 
 
         "setdoorstate" => [
@@ -293,9 +290,6 @@ class Manhunt2
         ],
         "setslidedoorspeed" => [
             'offset' => "ae010000"
-        ],
-        "sleep" => [
-            'offset' => "6a000000"
         ],
 
 

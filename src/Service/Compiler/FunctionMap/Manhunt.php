@@ -319,10 +319,6 @@ class Manhunt
     public static $functions = [
 
 
-        'sleep' => [
-            'name' => 'Sleep',
-            'offset' => "6a000000"
-        ],
 
         'settimer' => [
             'name' => 'SetTimer',
@@ -434,10 +430,6 @@ class Manhunt
             'name' => 'CreateInventoryItem',
             'offset' => "b9000000",
         ],
-        'runscript' => [
-            'name' => 'RunScript',
-            'offset' => "e4000000"
-        ],
 
         'ispadbuttonpressed' => [
             'name' => 'IsPadButtonPressed',
@@ -493,10 +485,6 @@ class Manhunt
              */
             'params' => ['Entity', 'Vec3D', 'Integer'],
             'desc' => ''
-        ],
-        "setvector" => [
-            'name' => 'SetVector',
-            'offset' => '83010000'
         ],
     ];
 

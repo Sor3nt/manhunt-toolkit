@@ -219,6 +219,16 @@ class ManhuntDefault {
 
     public static $functions = [
 
+        'sleep' => [
+            'name' => 'Sleep',
+            'offset' => "6a000000"
+        ],
+
+        'runscript' => [
+            'name' => 'RunScript',
+            'offset' => "e4000000"
+        ],
+
     ];
 
 
