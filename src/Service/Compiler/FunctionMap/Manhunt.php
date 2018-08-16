@@ -449,6 +449,22 @@ class Manhunt
             'name' => 'AIAddEntity',
             'offset' => "4c010000"
         ],
+        'aisetentityasleader' => [
+            'name' => 'AISetEntityAsLeader',
+            'offset' => "4e010000"
+        ],
+        'aiaddleaderenemy' => [
+            'name' => 'AIAddLeaderEnemy',
+            'offset' => "53010000"
+        ],
+        'aientityalwaysenabled' => [
+            'name' => 'AIEntityAlwaysEnabled',
+            'offset' => "be010000"
+        ],
+        'aisethunteronradar' => [
+            'name' => 'AISetHunterOnRadar',
+            'offset' => "a7010000"
+        ],
         'getentity' => [
             'name' => 'GetEntity',
             'offset' => "76000000"
@@ -478,7 +494,10 @@ class Manhunt
             'params' => ['Entity', 'Vec3D', 'Integer'],
             'desc' => ''
         ],
-
+        "setvector" => [
+            'name' => 'SetVector',
+            'offset' => '83010000'
+        ],
     ];
 
 //
