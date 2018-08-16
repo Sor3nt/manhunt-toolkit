@@ -107,6 +107,16 @@ class T_ASSIGN {
                     throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
 
                 }
+
+                if ($mapped['type'] == "level_var integer") {
+
+                }else{
+                    $code[] = $getLine('11000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+                }
+
             }else if ($rightHand['type'] == Token::T_FLOAT){
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');
@@ -116,6 +126,8 @@ class T_ASSIGN {
                 }else{
                     throw new \Exception('Float substration not implemented');
                 }
+
+
             }else if (
                 $rightHand['type'] == Token::T_FUNCTION ||
                 $rightHand['type'] == Token::T_VARIABLE
@@ -144,6 +156,8 @@ class T_ASSIGN {
                 }else{
                     throw new \Exception('Float substration not implemented');
                 }
+
+
             }else{
                 throw new \Exception(sprintf('T_ASSIGN: rightHand operator not supported: %s', $rightHand['type']));
             }
@@ -238,9 +252,11 @@ class T_ASSIGN {
                             break;
                         case 'integer':
 
-                            $code[] = $getLine('11000000');
-                            $code[] = $getLine('01000000');
-                            $code[] = $getLine('04000000');
+                            //TODO: das ist hier falscher platz
+                            //gehhört nicht dazu
+//                            $code[] = $getLine('11000000');
+//                            $code[] = $getLine('01000000');
+//                            $code[] = $getLine('04000000');
 
                             $code[] = $getLine('15000000');
                             $code[] = $getLine('04000000');
@@ -353,9 +369,13 @@ class T_ASSIGN {
     }
 
     static public function toHeaderInteger( $offset, &$code, \Closure $getLine){
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('04000000');
+
+        //TODO: das ist hier falscher platz
+        //gehhört nicht dazu
+//        $code[] = $getLine('11000000');
+//        $code[] = $getLine('01000000');
+//        $code[] = $getLine('04000000');
+
         $code[] = $getLine('15000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine( $offset );

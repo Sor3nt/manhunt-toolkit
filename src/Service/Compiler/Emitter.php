@@ -14,6 +14,7 @@ class Emitter extends Helper {
     private $const;
 
     private $emitters = [
+        'T_FOR' => Emitter\T_FOR::class,
         'T_FALSE' => Emitter\T_FALSE::class,
         'T_TRUE' => Emitter\T_TRUE::class,
         'T_NIL' => Emitter\T_NIL::class,

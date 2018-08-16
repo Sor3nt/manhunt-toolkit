@@ -40,9 +40,12 @@ use App\Service\Compiler\Tokens\T_WHITESPACE;
 
  class Token {
 
+    const T_TO                          = 'T_TO';
+    const T_FOR                         = 'T_FOR';
     const T_MULTIPLY                    = 'T_MULTIPLY';
     const T_STATE                       = 'T_STATE';
     const T_IF_END                      = 'T_IF_END';
+    const T_FOR_END                     = 'T_FOR_END';
     const T_WHILE_END                   = 'T_WHILE_END';
     const T_CASE_END                    = 'T_CASE_END';
     const T_SWITCH                      = 'T_SWITCH';

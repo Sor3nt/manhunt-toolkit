@@ -58,6 +58,10 @@ class T_FUNCTION {
 
 
                         switch ($mappedTo['type']) {
+                            case 'level_var boolean';
+                                $code[] = $getLine('level_Var');
+                                $code[] = $getLine('boolean');
+                                break;
                             case 'integer';
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -89,6 +93,13 @@ class T_FUNCTION {
 
 
                         switch ($mappedTo['type']) {
+                            case 'stringarray':
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('02000000');
+                                break;
 
                             case 'entityptr':
                                 $code[] = $getLine('10000000');
@@ -111,9 +122,10 @@ class T_FUNCTION {
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
 
-                                $code[] = $getLine('10000000');
-                                $code[] = $getLine('02000000');
-
+                                if ($mappedTo['valueType'] == "string"){
+                                    $code[] = $getLine('10000000');
+                                    $code[] = $getLine('02000000');
+                                }
                                 break;
                             default:
                                 throw new \Exception($mappedTo['type'] . " Not implemented!");
@@ -246,11 +258,14 @@ class T_FUNCTION {
                     $code[] = $getLine('01000000');
 //
                 }
+//                var_dump($param);
+//                exit;
 
                 if (
                     count($forceFloatOrder) > 0 &&
                     $param['type'] == Token::T_INT
                 ) {
+
 
                     if (count($forceFloatOrder)){
                         if ($forceFloatOrder[$index] === true){

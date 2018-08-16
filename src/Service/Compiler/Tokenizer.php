@@ -19,6 +19,7 @@ use App\Service\Compiler\Tokens\T_END;
 use App\Service\Compiler\Tokens\T_ELSE;
 use App\Service\Compiler\Tokens\T_FALSE;
 use App\Service\Compiler\Tokens\T_FLOAT;
+use App\Service\Compiler\Tokens\T_FOR;
 use App\Service\Compiler\Tokens\T_FORWARD;
 use App\Service\Compiler\Tokens\T_FUNCTION;
 use App\Service\Compiler\Tokens\T_IF;
@@ -48,6 +49,7 @@ use App\Service\Compiler\Tokens\T_SQUARE_BRACKET_OPEN;
 use App\Service\Compiler\Tokens\T_STRING;
 use App\Service\Compiler\Tokens\T_SUBSTRACTION;
 use App\Service\Compiler\Tokens\T_THEN;
+use App\Service\Compiler\Tokens\T_TO;
 use App\Service\Compiler\Tokens\T_TRUE;
 use App\Service\Compiler\Tokens\T_VARIABLE;
 use App\Service\Compiler\Tokens\T_WHILE;
@@ -67,6 +69,8 @@ class Tokenizer {
 
         T_CASE::class,
         T_OF::class,
+        T_FOR::class,
+        T_TO::class,
         T_FORWARD::class,
         T_LINEEND::class,
         T_ADDITION::class,

@@ -17,8 +17,12 @@ class Compiler {
 
         $source = str_replace([
             "if (GetEntity('Syringe_(CT)')) <> NIL then",
+            "if(",
+            "while(",
         ],[
             "if GetEntity('Syringe_(CT)') <> NIL then",
+            "if (",
+            "while (",
         ], $source);
 
         // remove double whitespaces
@@ -172,7 +176,7 @@ class Compiler {
         return false;
     }
 
-    private function getConstants($tokens, &$smemOffset){
+    private function getConstants($tokens){
 
         $current = 0;
 
@@ -192,25 +196,17 @@ class Compiler {
 
             if ($currentSection == "const"){
 
-                if ($token['type'] == Token::T_SCRIPT){
+                if (
+                    $token['type'] == Token::T_DEFINE_SECTION_VAR ||
+                    $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                    $token['type'] == Token::T_DEFINE_SECTION_TYPE ||
+                    $token['type'] == Token::T_SCRIPT
+                ){
                     break;
                 }else{
                     $variable = $token['value'];
-                    $variableValue = $tokens[$current + 2]['value'];
-                    $variableValue = str_replace('"', '', $variableValue);
 
-                    $vars[$variable] = [
-                        'offset' => Helper::fromIntToHex($smemOffset),
-                        'length' => strlen($variableValue)
-                    ];
-
-                    $length = strlen($variableValue);
-
-                    if ($length % 4 == 0){
-                        $smemOffset += $length;
-                    }else{
-                        $smemOffset += $length + (4 - $length % 4);
-                    };
+                    $vars[$variable] = $tokens[$current + 2];
 
                     $current = $current + 3;
                 }
@@ -394,7 +390,38 @@ class Compiler {
             }
         }
 
-        $const = $this->getConstants($tokens, $smemOffset);
+        $smemOffset = 0;
+
+        $const = $this->getConstants($tokens);
+        $headerStrings = [];
+
+        $result = [];
+
+        foreach ($const as $item) {
+
+            if ($item['type'] == Token::T_STRING){
+                $value = str_replace('"', '', $item['value']);
+
+                $result[$value] = $value;
+            }
+        }
+
+        $strings = array_unique($result);
+        foreach ($strings as $string) {
+
+            $length = strlen($string) + 1;
+            $headerStrings[$string] = [
+                'offset' => Helper::fromIntToHex($smemOffset),
+                'length' => strlen($string)
+            ];
+
+            if (4 - $length % 4 != 0){
+                $length += 4 - $length % 4;
+            }
+
+            $smemOffset += $length;
+        }
+
 
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
@@ -413,7 +440,6 @@ class Compiler {
         $start = 1;
 
         $lineCount = 1;
-        $smemOffset = 0;
 
         $strings4Scripts = [];
 
@@ -493,8 +519,13 @@ class Compiler {
                  * Translate Token AST to Bytecode
                  */
 
-
-                $emitter = new Emitter(  $scriptVarFinal, $strings4Scripts[$scriptName], $types, $const, $lineCount );
+                $emitter = new Emitter(
+                    $scriptVarFinal,
+                    array_merge($strings4Scripts[$scriptName], $headerStrings),
+                    $types,
+                    $const,
+                    $lineCount
+                );
 
                 $code = $emitter->emitter([
                     'type' => "root",
@@ -576,11 +607,33 @@ class Compiler {
                 }
             }
 
+            if (isset($token['variable'])){
+                $response =  $this->recursiveSearch([$token['variable']], $searchType, $ignoreTypes);
+                foreach ($response as $item) {
+                    $result[] = $item;
+                }
+            }
+
+            if (isset($token['start'])){
+                $response =  $this->recursiveSearch([$token['start']], $searchType, $ignoreTypes);
+                foreach ($response as $item) {
+                    $result[] = $item;
+                }
+            }
+
+            if (isset($token['end'])){
+                $response =  $this->recursiveSearch([$token['end']], $searchType, $ignoreTypes);
+                foreach ($response as $item) {
+                    $result[] = $item;
+                }
+            }
+
             if (isset($token['params'])) {
                 $response =  $this->recursiveSearch($token['params'], $searchType, $ignoreTypes);
                 foreach ($response as $item) {
                     $result[] = $item;
                 }
+
             }else if (isset($token['body'])){
                 $response =   $this->recursiveSearch($token['body'], $searchType, $ignoreTypes);
                 foreach ($response as $item) {
@@ -675,11 +728,10 @@ class Compiler {
                         'section' => 'script',
                         'type' => $variableType
                     ];
-
-                    if (substr($variableType, 0, 7) == "string[") {
-                        $size = (int)explode("]", substr($variableType, 7))[0];
+                    if (substr($variableType, 0, 7) == "string["){
+                        $size = (int) explode("]", substr($variableType, 7))[0];
+                        $row['type'] = 'stringarray';
                         $row['size'] = $size;
-
                     }else{
                         switch ($variableType){
                             case 'vec3d':

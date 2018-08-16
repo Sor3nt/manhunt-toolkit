@@ -14,6 +14,7 @@ class Parser {
         'T_BRACKET_OPEN' => Parser\T_BRACKET_OPEN::class,
         'T_PROCEDURE' => Parser\T_PROCEDURE::class,
         'T_IF' => Parser\T_IF::class,
+        'T_FOR' => Parser\T_FOR::class,
         'T_WHILE' => Parser\T_WHILE::class,
         'T_SCRIPT' => Parser\T_SCRIPT::class
     ];

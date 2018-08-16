@@ -5,6 +5,7 @@ use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
+use App\Service\Compiler\Token;
 
 class T_VARIABLE {
 
@@ -33,6 +34,16 @@ class T_VARIABLE {
         }else if (isset($data['const'][ $value ])){
             $mapped = $data['const'][ $value ];
             $mapped['section'] = "script";
+
+
+            if ($mapped['type'] == Token::T_INT) {
+                $mapped['valueType'] = "integer";
+
+            }else if ($mapped['type'] == Token::T_STRING){
+                $mapped['valueType'] = "string";
+
+            }
+
             $mapped['type'] = "constant";
 
         }else if (strpos($value, '.') !== false){

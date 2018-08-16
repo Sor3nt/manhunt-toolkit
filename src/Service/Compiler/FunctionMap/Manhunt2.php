@@ -1803,7 +1803,7 @@ class Manhunt2
 
         'isfrisbeespeechcompleted' => [
             'name' => 'IsFrisbeeSpeechCompleted',
-            'offset' => "unknown"
+            'offset' => "b0030000"
         ],
 
 
@@ -2087,6 +2087,22 @@ class Manhunt2
         'sethunterhitaccuracy' => [
             'name' => 'SetHunterHitAccuracy',
             'offset' => "ab010000"
+        ],
+
+
+        'setjittereffect' => [
+            'name' => 'SetJitterEffect',
+            'offset' => "c4030000"
+        ],
+
+        'aireturnsubpackentityname' => [
+            'name' => 'AIReturnSubpackEntityName',
+            'offset' => "ec010000"
+        ],
+
+        'ainumberinsubpack' => [
+            'name' => 'AINumberInSubpack',
+            'offset' => "67010000"
         ],
 
 
