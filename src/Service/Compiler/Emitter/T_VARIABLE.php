@@ -42,6 +42,9 @@ class T_VARIABLE {
             }else if ($mapped['type'] == Token::T_STRING){
                 $mapped['valueType'] = "string";
 
+            }else if ($mapped['type'] == Token::T_FLOAT){
+                $mapped['valueType'] = "float";
+
             }
 
             $mapped['type'] = "constant";

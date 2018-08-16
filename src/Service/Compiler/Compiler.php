@@ -62,7 +62,6 @@ class Compiler {
                 )
 
             ){
-
                 return $vars;
             }
 
@@ -97,7 +96,6 @@ class Compiler {
 
                 foreach ($variables as $variable) {
                     $variable = $variable['value'];
-
                     if (!$this->isVariableInUse($tokens, $variable)){
                         continue;
                     }
@@ -176,7 +174,7 @@ class Compiler {
         return false;
     }
 
-    private function getConstants($tokens){
+    private function getConstants($tokens, &$smemOffset){
 
         $current = 0;
 
@@ -209,6 +207,19 @@ class Compiler {
                     $vars[$variable] = $tokens[$current + 2];
 
                     $current = $current + 3;
+
+                    $varVal = $vars[$variable]['value'];
+                    if (substr($varVal, 0, 7) == "string["){
+                        $size = (int) explode("]", substr($varVal, 7))[0];
+                        $smemOffset += $size;
+                    }else if (
+                        $vars[$variable]['type'] == Token::T_INT ||
+                        $vars[$variable]['type'] == Token::T_FLOAT
+                    ) {
+                        $smemOffset += 4;
+
+                    }
+
                 }
             }
 
@@ -392,7 +403,7 @@ class Compiler {
 
         $smemOffset = 0;
 
-        $const = $this->getConstants($tokens);
+        $const = $this->getConstants($tokens, $smemOffset);
         $headerStrings = [];
 
         $result = [];
@@ -456,7 +467,6 @@ class Compiler {
 
         $ast = $parser->handleForward($ast);
 
-
         foreach ($headerVariables as $name => &$item) {
 
             if (!isset($item['offset'])){
@@ -472,8 +482,6 @@ class Compiler {
 
             $smemOffset += $size;
         }
-
-        $smemOffset2Tmp = 0;
 
         $scriptBlockSizes = [];
         $lastScriptEnd = 0;
@@ -498,27 +506,25 @@ class Compiler {
                 foreach ($scriptVar as $name => &$item) {
                     $smemOffset2 += $item['size'];
 
-                    if ($item['size'] % 4 !== 0){
-                        $smemOffset2 += $item['size'] % 4;
-                    }
                     $item['offset'] = Helper::fromIntToHex($smemOffset2);
+                    if ($smemOffset2 % 4 !== 0){
+                        $smemOffset2 += $smemOffset2 % 4;
+                    }
                     $scriptVarFinal[$name ] = $item;
                 }
 
-                $smemOffset2Tmp += $smemOffset2;
 
-                foreach ($headerVariables as $name => $item) {
+                foreach ($headerVariables as $_name => $_item) {
 
-                    if ($this->isVariableInUse($token['body'], $name)){
+                    if ($this->isVariableInUse($token['body'], $_name)){
 
-                        $scriptVarFinal[$name ] = $item;
+                        $scriptVarFinal[$_name ] = $_item;
                     }
                 }
 
                 /**
                  * Translate Token AST to Bytecode
                  */
-
                 $emitter = new Emitter(
                     $scriptVarFinal,
                     array_merge($strings4Scripts[$scriptName], $headerStrings),

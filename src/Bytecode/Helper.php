@@ -71,6 +71,7 @@ class Helper{
                 $token['type'] == Token::T_WHILE_END ||
                 $token['type'] == Token::T_SWITCH_END ||
                 $token['type'] == Token::T_CASE_END ||
+                $token['type'] == Token::T_FOR_END ||
                 $token['type'] == Token::T_END_ELSE ||
                 $token['type'] == Token::T_SCRIPT_END
             ){
@@ -82,6 +83,7 @@ class Helper{
                 $endCount--;
 
                 if ($endCount == 0){
+
 
                     if ($tokens[$index]['type'] == Token::T_OF){
                         return Token::T_SWITCH_END;
@@ -95,12 +97,25 @@ class Helper{
                             return Token::T_IF_END;
                             break;
                         case Token::T_DO:
-                            return Token::T_WHILE_END;
+
+                            $i = 0;
+                            while($index + $i < count($tokens)){
+                                if ($tokens[$index + $i]['type'] == Token::T_FOR){
+                                    return Token::T_FOR_END;
+                                }
+                                if ($tokens[$index + $i]['type'] == Token::T_WHILE){
+                                    return Token::T_WHILE_END;
+                                }
+                                $i++;
+                            }
+
+
                             break;
                         case Token::T_DEFINE:
                             return Token::T_CASE_END;
                             break;
                         default:
+
                             return Token::T_SCRIPT_END;
                     }
                 }

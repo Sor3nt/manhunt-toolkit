@@ -2969,6 +2969,7 @@ end.
 '3f000000', //statement (init start offset)
 '58160000', //Offset (line number 1430)
 'e7000000', //KillThisScript Call
+
 '12000000', //parameter (read simple type (int/float...))
 '01000000', //parameter (read simple type (int/float...))
 '07000000', //value 7

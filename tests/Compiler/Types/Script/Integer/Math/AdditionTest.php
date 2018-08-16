@@ -59,10 +59,6 @@ class AdditionTest extends KernelTestCase
             '01000000', //unknown
             '04000000', //unknown
 
-            '11000000',
-            '01000000',
-            '04000000',
-
             '15000000', //unknown
             '04000000', //unknown
             '04000000', //unknown

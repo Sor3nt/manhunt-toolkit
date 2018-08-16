@@ -1,36 +1,38 @@
 <?php
-namespace App\Tests\CompilerByType\Script\Integer\Math;
+namespace App\Tests\Compiler\Statements;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class SubstractionTest extends KernelTestCase
+class ForTest extends KernelTestCase
 {
-
-
-    public function testScriptVar()
-    {
+//
+    public function test() {
+        $this->assertEquals(true, true, 'The bytecode is not correct');
+        return;
 
         $script = "
             scriptmain LevelScript;
-                        
+            
             entity
                 A01_Escape_Asylum : et_level;
 
             script OnCreate;
-                VAR
-                	animLength : integer;
-                begin
-                	animLength := animLength - 1500;
-                end;
-            end.
+                var i : integer;
 
+                begin
+                    for i := 1 to 4 do begin
+                        displaygametext;
+                    end;
+
+                end;
+                
+            end.
         ";
 
         $expected = [
-
             // script start
             '10000000',
             '0a000000',
@@ -38,39 +40,44 @@ class SubstractionTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-
-
             '34000000',
             '09000000',
             '04000000',
 
-            '13000000', //read from script var
-            '01000000', //read from script var
-            '04000000', //read from script var
-            '04000000', //Offset
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '12000000', //parameter (temp int)
-            '01000000', //parameter (temp int)
-            'dc050000', //value 1
-            '0f000000', //parameter (temp int)
-            '04000000', //parameter (temp int)
 
-            '33000000', //unknown
-            '04000000', //unknown
+            '12000000', //unknown
             '01000000', //unknown
+            '01000000', //start value 0
 
-
-            '11000000',
-            '01000000',
-            '04000000',
-
-            '15000000', //offset
-
+            '15000000', //offset var i ??
             '04000000', //unknown
-            '04000000', //offset
-            '01000000', //unknown
+            '04000000', // a offset ?
+            '01000000', //
 
+            '12000000', //unknown
+            '01000000', //unknown
+            '04000000', // to value 4
+
+            '13000000',
+            '02000000', //unknown
+            '04000000', //unknown
+            '04000000', // a offset ?
+
+            '23000000', //unknown
+            '01000000', //unknown
+            '02000000', //unknown
+            '41000000', //unknown
+            '74000000', //
+
+            '3c000000', //statement (init statement start offset)
+            '8c000000', //Offset (line number 876)
+
+            '04010000', //
+
+            '3c000000', //statement (init statement start offset)
+            '20000000', //Offset (line number 811)
+
+            
             // script end
             '11000000',
             '09000000',
@@ -78,12 +85,12 @@ class SubstractionTest extends KernelTestCase
             '0f000000',
             '0a000000',
             '3b000000',
-            '00000000',
-
+            '00000000'
         ];
 
+
         $compiler = new Compiler();
-        $compiled = $compiler->parse($script);
+        $compiled = $compiler->parse($script, false);
 
         if ($compiled['CODE'] != $expected){
             foreach ($compiled['CODE'] as $index => $item) {
@@ -98,4 +105,6 @@ class SubstractionTest extends KernelTestCase
 
         $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');
     }
+
+
 }

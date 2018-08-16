@@ -9,7 +9,7 @@ class T_SCRIPT_BOOLEAN {
 
 
         return [
-            $getLine('14000000'),
+            $getLine('13000000'),
             $getLine('01000000'),
             $getLine('04000000'),
             $getLine($offset)

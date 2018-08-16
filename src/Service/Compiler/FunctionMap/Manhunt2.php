@@ -2106,5 +2106,42 @@ class Manhunt2
         ],
 
 
+        'seteffectposition' => [
+            'name' => 'SetEffectPosition',
+            'offset' => "ab000000"
+        ],
+
+        'createeffect' => [
+            'name' => 'CreateEffect',
+            'offset' => "a9000000"
+        ],
+
+        'seteffectrgbastart' => [
+            'name' => 'SetEffectRGBAStart',
+            'offset' => "61010000"
+        ],
+
+        'seteffectrgbaend' => [
+            'name' => 'SetEffectRGBAEnd',
+            'offset' => "62010000"
+        ],
+
+
+        'seteffectpausecycle' => [
+            'name' => 'SetEffectPauseCycle',
+            'offset' => "b9000000"
+        ],
+
+        'seteffectpauselength' => [
+            'name' => 'SetEffectPauseLength',
+            'offset' => "b8000000"
+        ],
+
+        'seteffectradius' => [
+            'name' => 'SetEffectRadius',
+            'offset' => "b6000000"
+        ],
+
+
     ];
 }

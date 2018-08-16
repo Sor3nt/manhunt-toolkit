@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\Compiler;
+namespace App\Tests\LevelScripts;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
@@ -7,20 +7,11 @@ use App\Service\Compiler\Compiler;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class DummyTest extends KernelTestCase
+class UsableScriptTest extends KernelTestCase
 {
 
     public function test()
     {
-
-//        foreach (Manhunt2::$constants as $name => $function) {
-//            echo ';' . $name;
-//        }
-//        exit;
-
-//        $this->assertEquals(true, true, 'The bytecode is not correct');
-//        return;
-//
 
         $script = "
 scriptmain UsableScript;

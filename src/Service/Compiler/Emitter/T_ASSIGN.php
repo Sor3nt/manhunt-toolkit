@@ -11,7 +11,6 @@ class T_ASSIGN {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
         $code = [];
-
         $mapped = T_VARIABLE::getMapping($node, null, $data);
         $isObject = $mapped['type'] == "object";
 
@@ -103,19 +102,21 @@ class T_ASSIGN {
                     $code[] = $getLine('04000000');
                     $code[] = $getLine('01000000');
 
+                    $code[] = $getLine('11000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('04000000');
+
+
                 }else{
                     throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
 
                 }
 
-                if ($mapped['type'] == "level_var integer") {
+//                if ($mapped['type'] == "level_var integer") {
+//
+//                }else{
 
-                }else{
-                    $code[] = $getLine('11000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
-
-                }
+//                }
 
             }else if ($rightHand['type'] == Token::T_FLOAT){
                 $code[] = $getLine('10000000');

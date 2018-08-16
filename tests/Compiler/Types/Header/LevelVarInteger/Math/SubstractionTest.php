@@ -18,12 +18,11 @@ class SubstractionTest extends KernelTestCase
             entity
                 A01_Escape_Asylum : et_level;
 
-            VAR
-                stealthTutSpotted : level_var integer;
+            var numBricks : level_var integer;
 
             script OnCreate;
                 begin
-                    stealthTutSpotted := stealthTutSpotted - 1;
+            		numBricks := numBricks - 1;
                 end;
             end.
 
@@ -38,24 +37,28 @@ class SubstractionTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '1b000000', //unknown
-            'a0170000', //unknown
-            '04000000', //unknown
-            '01000000', //unknown
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-            '12000000', //parameter (temp int)
-            '01000000', //parameter (temp int)
-            '01000000', //value 1
-            '0f000000', //parameter (temp int)
-            '04000000', //parameter (temp int)
-            '33000000', //unknown
-            '04000000', //unknown
-            '01000000', //unknown
-            '1a000000', //unknown
-            '01000000', //unknown
-            'a0170000', //unknown
-            '04000000', //unknown
+
+        '1b000000', //unknown
+        '00000000', //unknown
+        '04000000', //unknown
+        '01000000', //unknown
+        '10000000', //nested call return result
+        '01000000', //nested call return result
+        '12000000', //parameter (temp int)
+        '01000000', //parameter (temp int)
+        '01000000', //value 1
+        '0f000000', //parameter (temp int)
+        '04000000', //parameter (temp int)
+        '33000000', //unknown
+        '04000000', //unknown
+        '01000000', //unknown
+        '11000000', //unknown
+        '01000000', //unknown
+        '04000000', //unknown
+        '1a000000', //unknown
+        '01000000', //unknown
+        '00000000', //unknown
+        '04000000', //unknown
 
             // script end
             '11000000',
