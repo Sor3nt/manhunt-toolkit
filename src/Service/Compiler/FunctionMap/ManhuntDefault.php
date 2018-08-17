@@ -14,11 +14,11 @@ class ManhuntDefault {
      * convert it to a float with 0x4d 0x10 0x01
      */
     public static $functionForceFloar = [
-        'SetEntityFade' => [ false, true, true],
-        'SetColourRamp' => [ false, false, true],
-        'setpedorientation' => [ false, true],
-        'setvector' => [ false, true, true, true ],
-        'aisethunteridleactionminmaxradius' => [ false, false, false, false, false, true]
+        'setentityfade' => [false, true, true],
+        'setcolourramp' => [false, false, true],
+        'setpedorientation' => [false, true],
+        'setvector' => [false, true, true, true],
+        'aisethunteridleactionminmaxradius' => [false, false, false, false, false, true]
     ];
 
     public static $functionNoReturn = [
@@ -26,31 +26,49 @@ class ManhuntDefault {
     ];
 
     public static $functionEventDefinition = [
-
         'oncreate' => '00000000',
         'ondestroy' => '01000000',
         'ondamage' => '02000000',
         'onusebyplayer' => '03000000',
         'onentertrigger' => '04000000',
         'onleavetrigger' => '05000000',
-        'onmediumsightingorabove' => '1d000000',
-        'onmediumhearingorabove' => '33000000',
-        'ondeath' => '1e000000',
-        'onlowhearingorabove' => '35000000',
-        'onfocus' => '58000000',
-        'ontimerended' => '4d000000',
-        'onhunterlookwalkruntoinvestigate' => '23000000',
-        'onhunteridle' => '18000000',
-        'onstartexecution' => '3a000000',
-        'onlowsightingorabove' => '27000000',
-        'onverylowhearingorabove' => '37000000',
+        'onveryhighsighting' => '06000000',
+        'onmediumsighting' => '08000000',
+        'onhunterenterarea' => '09000000',
+        'onpickupinventoryitem' => '0b000000',
+        'onhunterreachednode' => '1b000000',
         'onhighsightingorabove' => '1c000000',
-        'onhighhearingorabove' => '31000000',
-        'onenteredsafezone' => '43000000',
+        'onmediumsightingorabove' => '1d000000',
+        'ondeath' => '1e000000',
+        'onhunterlooklisten' => '1f000000',
+        'ondeadbodyfound' => '2e000000',
+        'onstartexecution' => '3a000000',
+        'onpickupdeadbody' => '4f000000',
+        'onstartnonfatalattack' => '5b000000',
+        'onhelireachedlookat' => '5e000000',
+        'onhelispottedentity' => '5f000000',
         'onbeingshot' => '13000000',
-
-
-
+        'onhunteridle' => '18000000',
+        'onhunterwalktoinvestigate' => '20000000',
+        'onhunterruntoinvestigate' => '21000000',
+        'onhunterwalkruntoinvestigate' => '22000000',
+        'onhunterlookwalkruntoinvestigate' => '23000000',
+        'onlowsightingorabove' => '27000000',
+        'onverylowsightingorabove' => '29000000',
+        'onhighhearingorabove' => '31000000',
+        'onmediumhearing' => '32000000',
+        'onmediumhearingorabove' => '33000000',
+        'onlowhearing' => '34000000',
+        'onlowhearingorabove' => '35000000',
+        'onverylowhearingorabove' => '37000000',
+        'onplayerspotted' => '42000000',
+        'onenteredsafezone' => '43000000',
+        'onuseableused' => '46000000',
+        'onstartenvexecution' => '54000000',
+        'onfocus' => '58000000',
+        'onshotweapon' => '60000000',
+        'onhelireachednode' => '64000000',
+        'onqtmfailed' => '67000000'
     ];
 
  public static $constants = [
