@@ -397,13 +397,17 @@ class Mls extends ZLib {
                                 $objectType = "unknown 50bf2b02";
                                 break;
 
+                            case "20536372";
+                                $objectType = "unknown 20536372";
+                                break;
+
 
                             case "08000000";
                                 $objectType = "tLevelState";
                                 break;
 
                             default:
-//                                var_dump($name->toBinary());
+                                var_dump($name->toBinary());
                                 throw new \Exception(sprintf('Unknown object type sequence: %s', $entry['valueType'] ));
                                 break;
 
