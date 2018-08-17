@@ -26,6 +26,10 @@ class Manhunt2
 
     public static $constants = [
 
+        'CT_SYRINGE' => [
+            'offset' => "71000000"
+        ],
+
         'CT_GLOCK' => [
             'offset' => "29000000"
         ],

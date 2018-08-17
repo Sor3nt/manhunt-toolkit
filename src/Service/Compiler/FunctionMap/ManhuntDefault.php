@@ -68,7 +68,23 @@ class ManhuntDefault {
         'onfocus' => '58000000',
         'onshotweapon' => '60000000',
         'onhelireachednode' => '64000000',
-        'onqtmfailed' => '67000000'
+        'onqtmfailed' => '67000000',
+        
+        'onhighsighting' => '07000000',
+        'onplayerenterarea' => '0a000000',
+        'onlevelsave' => '0d000000',
+        'onstartbeinggrappled' => '3f000000',
+        'onentityusedswitch' => '4b000000',
+        'onguardidle' => '4c000000',
+        'ontimerended' => '4d000000',
+        'onstartexploding' => '10000000',
+        'onfriendleavingbuddyradius' => '17000000',
+        'onuseableanimfinished' => '41000000',
+        'onreloadweapon' => '47000000',
+        'onbuddybeingtoldtostop' => '52000000',
+        'ondropinventoryitem' => '53000000',
+        'acting' => '54000000',
+
     ];
 
  public static $constants = [
