@@ -14,224 +14,205 @@ class NewMeleeTut2Test extends KernelTestCase
     {
 
         $script = "
+scriptmain NewMeleeTut2;
 
-            scriptmain NewMeleeTut2;
-            
-            ENTITY
-                triggerNewMeleeTutTwo : et_name;
-                
-            VAR
-                    Invul: boolean;
-                
-            script OnEnterTrigger;
-            
-            VAR
-                Door : entityPtr;
-                pos : vec3d;
-                CurrDam : integer;
-            
-            begin
-            
-                {door opens, hunter jumps out}
-                
-                    writedebug('enter MELEE');                                                      { offset: 00000000 (0)  0  + (11 + 1 + 4) = 16 }
-                    AIEntityCancelAnim(
-                        'SobbingWoman(hunter)',                                                     { offset: 10000000 (16) 16 + (20 + 1 + 3) = 40 }
-                        'BAT_INMATE_SMACK_HEAD_ANIM'                                                { offset: 28000000 (40) 40 + (25 + 1 + 2) = 68 }
-                    );       
-            
-                    writedebug('here1 MELEE');                                                      { offset: 44000000 (68) }
-                    AISetEntityIdleOverRide('SobbingWoman(hunter)', FALSE, FALSE);                  
-                    SetEntityInvulnerable(GetEntity('SobbingWoman(hunter)'), FALSE);                
-                    
-                    AIMakeEntityBlind('SobbingWoman(hunter)', 0);                                   
-                    AIMakeEntityDeaf('SobbingWoman(hunter)', 0);                                    
-                    
-                    sleep(200);
-                    AISetHunterOnRadar('SobbingWoman(hunter)', TRUE);                               
-                    AIAddHunterToLeaderSubpack( 
-                        'leader(leader)',                                                           { offset: 54000000 (84) }
-                        'subManWoman',                                                              { offset: 64000000 (100) }
-                        'SobbingWoman(hunter)'                                                      
-                    );
-            
-                    writedebug('here2 MELEE');                                                      { offset: 74000000 (116) }
-                    ClearLevelGoal('GOAL2');                                                        { offset: 84000000 (132) }
-                    PlayerDropBody;
-                    sleep(500);
-                                
-                    CutSceneStart;			
-                
-                        AIMakeEntityBlind('SobbingWoman(hunter)', 1);                               
-                        AIMakeEntityDeaf('SobbingWoman(hunter)', 1);	                            
-                        ShowEntity(GetEntity('SobbingWoman(hunter)'));                              
-                
-                        CutSceneRegisterSkipScript(this, 'SkipMe');                                 { offset: 8c000000 (140) }
-                    
-                        CutsceneCameraInit;
-                        CutscenecameraSetPos(0.0, -9.59, 3.20, -13.241);
-                        CutscenecameraSetTarget(0.0, -9.59, 3.20, -14.241);
-                        CutsceneCameraSetFOV(0.0, 70.0);
-                        CutsceneCameraSetRoll(0.0, 0.0);
-                        CutSceneCameraSetHandyCam(false);
-                        CutscenecameraStart;
-            
-                        SetVector(pos, -16.012, 5.947, 14.709);
-                        MoveEntity(GetPlayer, pos, 1);
-                        SetPedOrientation(GetPlayer, 0);
-                        
-                        SetVector(pos, -16.032, 5.947, 17.645);
-                        MoveEntity(GetEntity('SobbingWoman(hunter)'), pos, 1); 	                    
-                        SetPedOrientation(GetEntity('SobbingWoman(hunter)'), 180);                  
-                        
-                        PlayScriptAudioStreamAuto('WACKO3', 100);                                   { offset: 94000000 (148) }
-                        
-                        PlayerPlayFullBodyAnim('ASY_MELEE_INTRO_PLAYER');                           { offset: 9c000000 (156) }
-                        AiEntityPlayAnim(
-                            'SobbingWoman(hunter)',                                                 
-                            'ASY_MELEE_INTRO_INMATE'                                                { offset: b4000000 (180) }
-                        );
-                    
-                        EntityPlayAnim(
-                            GetEntity('A01_cameratripod'),                                          { offset: cc000000 (204) }
-                            'ASY_MELEE_INTRO_CAMERA',                                               { offset: e0000000 (224) }
-                            false
-                        );
-                        
-                        FrisbeeSpeechPlay('MLT1', 100,100);                                         { offset: f8000000 (248) }
-                        sleep(4000);
-                        SetStreamLipsyncSpeaker(GetPlayer,true);
-                        FrisbeeSpeechPlay('MLT2', 100,100);                                         { offset: 00010000 (256) }
-                        sleep(3500);
-                        FrisbeeSpeechPlay('MLT3', 100,100);                                         { offset: 08010000 (264) }
-                        sleep(4833);                                                                
-            
-                        AIEntityCancelAnim(
-                            'SobbingWoman(hunter)',                                                 
-                            'ASY_MELEE_INTRO_INMATE'                                                
-                        );        
-                        PlayerFullBodyAnimDone;
-                        
-                    CutSceneEnd(false);	
-            
-                    DestroyEntity(GetEntity('A01_cameratripod'));	                                
-                    
-                    PlayerFullBodyAnimDone;
-                    AIEntityCancelAnim('SobbingWoman(hunter)', 'ASY_MELEE_INTRO_INMATE');           
-                    SetEntityInvulnerable(GetEntity('SobbingWoman(hunter)'), FALSE);                
-                    AISetEntityIdleOverRide('SobbingWoman(hunter)', TRUE, TRUE);                    
-                    AIEntityPlayAnimLooped('SobbingWoman(hunter)', 'BRO_FIXVENT_IDLE_3', 0.0);      { offset: 10010000 (272) }
-            
-                    Runscript('triggerNewMeleeTutTwo', 'WaitToAttack');                             { offset: 24010000 (292) + { offset: 3c010000 (316) }
-                    
-                    SetLevelGoal('GOAL8');                                                          { offset: 4c010000 (332) }
-                    sleep(1000);
-            
-                    RunScript('triggerNewMeleeTutTwo', 'TurnMeInvulnerable');                       { offset: 54010000 (340) }
-                    
-                    {NEW TUTS}
-                    if (IsEntityAlive('SobbingWoman(hunter)')) then                                 
-                    begin
-                        DisplayGameText('MTG2');                                                    { offset: 68010000 (360) }
-                        sleep(3500);
-                    end;
-            
-                    if (IsEntityAlive('SobbingWoman(hunter)')) then                                 
-                    begin		
-                        KillGameText;
-                        DisplayGameText('MTG3');                                                    { offset: 70010000 (368) }
-                        sleep(3500);
-                    end;
-            
-                    if (IsEntityAlive('SobbingWoman(hunter)')) then                                 
-                    begin
-                        KillGameText;
-                        DisplayGameText('MTG4');                                                    { offset: 78010000 (376) }
-                        sleep(3500);
-                    end;
-            
-                    if (IsEntityAlive('SobbingWoman(hunter)')) then                                 
-                    begin   
-                        AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE1');                         { offset: 80010000 (384) + { offset: 90010000 (400) }
-                        AiEntityPlayAnimLooped('leo(hunter)', 'ASY_LEO_IDLE2', 0.0);                { offset: a0010000 (416) }
-                        KillGameText;
-                        DisplayGameText('MTG5');                                                    { offset: b0010000 (432) }
-                        sleep(1500);
-                    end;
-            
-                    while GetDamage(GetEntity('SobbingWoman(hunter)')) > 50 do sleep(10);           
-            
-                    if (IsEntityAlive('SobbingWoman(hunter)')) then                                 
-                    begin
-                        FrisbeeSpeechPlay('MLT9', 100, 100);                                        
-                        AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE2');                         
-                        AiEntityPlayAnimLooped('leo(hunter)', 'ASY_LEO_IDLE3', 0.0);	            { offset: c0010000 (448) }
-                    end;
-                    
-                    {WAIT TILL HE IS ON THE FLOOR}
-                    while 
-                        (IsEntityAlive('SobbingWoman(hunter)')) AND                                            
-                        (NOT IsHunterKnockedDown('SobbingWoman(hunter)')) do sleep(10);             
-            
-                    if IsEntityAlive('SobbingWoman(hunter)') then                                   
-                    begin
-                        FrisbeeSpeechPlay('ML11', 100,100);                                         { offset: d0010000 (464) }
-                        sleep(500);
-                        KillGameText;
-                        DisplayGameText('MTG8');                                                    { offset: d8010000 (472) }
-                        sleep(3500);
-                        writedebug('got down');                                                     { offset: e0010000 (480) }
-                    end;
-                RemoveThisScript;
-            
-            end;
-            
-            script ShowRadarHelp;
-            begin
-                while IsGameTextDisplaying do sleep(10);
-                DisplayGameText('LFA1');                                                            { offset: ec010000 (492) }
-            end;
-            
-            script WaitToAttack;
-            VAR
-                pos : vec3d;
-            begin
-                SetVector(pos, 0.0, 0.5, 0.0);
-                CreateSphereTrigger(pos, 0.7, 'triggerTooNear');                                    { offset: f4010000 (500) }
-                
-                AttachToEntity(GetEntity('triggerTooNear'), GetEntity('SobbingWoman(hunter)'));     { offset: 04020000 (516) }
-                
-                while (NOT InsideTrigger(GetEntity('triggerTooNear'), GetPlayer)) do sleep(10);     
-                
-                if GetEntity('SobbingWoman(hunter)') <> NIL then                                    
-                begin
-                    AIEntityCancelAnim('SobbingWoman(hunter)', 'BRO_FIXVENT_IDLE_3');                { offset: 1c020000 (540) }
-                    AISetEntityIdleOverRide('SobbingWoman(hunter)', FALSE, FALSE);                  
-                end;
-                
-            end;
-            
-            script TurnMeInvulnerable;
-            begin
-                Invul := TRUE;                                                                      { offset: 60020000 (608) -> 68 diff }
-                while Invul = TRUE AND IsEntityAlive('SobbingWoman(hunter)') do                     { offset: 30020000 (560) }
-                begin
-                    if GetDamage(GetPlayer) < 30 then
-                    begin
-                        SetEntityInvulnerable(GetPlayer, TRUE);
-                        Invul := FALSE;                                                             
-                    end;
-                end;
-            end;
-            
-            script SkipMe;
-            begin
-                EndScriptAudioStream;
-                AISetHunterOnRadar('SobbingWoman(hunter)', TRUE);                                   { offset: 48020000 (584) }
-            end;
-            
-            end.
+ENTITY
+	triggerNewMeleeTutTwo : et_name;
+	
+VAR
+		Invul: boolean;
+	
+script OnEnterTrigger;
 
+VAR
+	Door : entityPtr;
+	pos : vec3d;
+	CurrDam : integer;
+
+begin
+
+	{door opens, hunter jumps out}
+	
+		writedebug('enter MELEE');
+		AIEntityCancelAnim('SobbingWoman(hunter)', 'BAT_INMATE_SMACK_HEAD_ANIM');
+
+		writedebug('here1 MELEE');
+		AISetEntityIdleOverRide('SobbingWoman(hunter)', FALSE, FALSE);
+		SetEntityInvulnerable(GetEntity('SobbingWoman(hunter)'), FALSE);
+		
+		AIMakeEntityBlind('SobbingWoman(hunter)', 0);
+		AIMakeEntityDeaf('SobbingWoman(hunter)', 0);
+		
+		sleep(200);
+		AISetHunterOnRadar('SobbingWoman(hunter)', TRUE);
+		AIAddHunterToLeaderSubpack('leader(leader)','subManWoman','SobbingWoman(hunter)');
+
+		writedebug('here2 MELEE');
+		ClearLevelGoal('GOAL2');
+		PlayerDropBody;
+		sleep(500);
+					
+		CutSceneStart;			
+	
+			AIMakeEntityBlind('SobbingWoman(hunter)', 1);
+			AIMakeEntityDeaf('SobbingWoman(hunter)', 1);	
+			ShowEntity(GetEntity('SobbingWoman(hunter)'));
+	
+			CutSceneRegisterSkipScript(this, 'SkipMe');
+		
+			CutsceneCameraInit;
+			CutscenecameraSetPos(0.0, -9.59, 3.20, -13.241);
+			CutscenecameraSetTarget(0.0, -9.59, 3.20, -14.241);
+			CutsceneCameraSetFOV(0.0, 70.0);
+			CutsceneCameraSetRoll(0.0, 0.0);
+			CutSceneCameraSetHandyCam(false);
+			CutscenecameraStart;
+
+			SetVector(pos, -16.012, 5.947, 14.709);
+			MoveEntity(GetPlayer, pos, 1);
+			SetPedOrientation(GetPlayer, 0);
+			
+			SetVector(pos, -16.032, 5.947, 17.645);
+			MoveEntity(GetEntity('SobbingWoman(hunter)'), pos, 1); 	
+			SetPedOrientation(GetEntity('SobbingWoman(hunter)'), 180);
+			
+			PlayScriptAudioStreamAuto('WACKO3', 100);
+			
+			PlayerPlayFullBodyAnim('ASY_MELEE_INTRO_PLAYER');
+			AiEntityPlayAnim('SobbingWoman(hunter)', 'ASY_MELEE_INTRO_INMATE');
+		
+			EntityPlayAnim(GetEntity('A01_cameratripod'), 'ASY_MELEE_INTRO_CAMERA', false);
+			
+			FrisbeeSpeechPlay('MLT1', 100,100);
+			sleep(4000);
+			SetStreamLipsyncSpeaker(GetPlayer,true);
+			FrisbeeSpeechPlay('MLT2', 100,100);
+			sleep(3500);
+			FrisbeeSpeechPlay('MLT3', 100,100);
+			sleep(4833);
+
+			AIEntityCancelAnim('SobbingWoman(hunter)', 'ASY_MELEE_INTRO_INMATE');
+			PlayerFullBodyAnimDone;
+			
+		CutSceneEnd(false);	
+
+		DestroyEntity(GetEntity('A01_cameratripod'));	
+		
+		PlayerFullBodyAnimDone;
+		AIEntityCancelAnim('SobbingWoman(hunter)', 'ASY_MELEE_INTRO_INMATE');
+		SetEntityInvulnerable(GetEntity('SobbingWoman(hunter)'), FALSE);
+		AISetEntityIdleOverRide('SobbingWoman(hunter)', TRUE, TRUE);
+		AIEntityPlayAnimLooped('SobbingWoman(hunter)', 'BRO_FIXVENT_IDLE_3', 0.0);
+
+		Runscript('triggerNewMeleeTutTwo', 'WaitToAttack');
+		
+		SetLevelGoal('GOAL8');
+		sleep(1000);
+
+		RunScript('triggerNewMeleeTutTwo', 'TurnMeInvulnerable');
+		
+		{NEW TUTS}
+		if (IsEntityAlive('SobbingWoman(hunter)')) then
+		begin
+			DisplayGameText('MTG2');
+			sleep(3500);
+		end;
+
+		if (IsEntityAlive('SobbingWoman(hunter)')) then
+		begin		
+			KillGameText;
+			DisplayGameText('MTG3');
+			sleep(3500);
+		end;
+
+		if (IsEntityAlive('SobbingWoman(hunter)')) then
+		begin
+			KillGameText;
+			DisplayGameText('MTG4');
+			sleep(3500);
+		end;
+
+		if (IsEntityAlive('SobbingWoman(hunter)')) then
+		begin
+			AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE1');
+			AiEntityPlayAnimLooped('leo(hunter)', 'ASY_LEO_IDLE2', 0.0);
+			KillGameText;
+			DisplayGameText('MTG5');
+			sleep(1500);
+		end;
+
+		while GetDamage(GetEntity('SobbingWoman(hunter)')) > 50 do sleep(10);
+
+		if (IsEntityAlive('SobbingWoman(hunter)')) then
+		begin
+			FrisbeeSpeechPlay('MLT9', 100, 100);
+			AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE2');
+			AiEntityPlayAnimLooped('leo(hunter)', 'ASY_LEO_IDLE3', 0.0);	
+		end;
+		
+		{WAIT TILL HE IS ON THE FLOOR}
+		while (IsEntityAlive('SobbingWoman(hunter)')) AND (NOT IsHunterKnockedDown('SobbingWoman(hunter)')) do sleep(10);
+
+		if IsEntityAlive('SobbingWoman(hunter)') then
+		begin
+			FrisbeeSpeechPlay('ML11', 100,100);
+			sleep(500);
+			KillGameText;
+			DisplayGameText('MTG8');
+			sleep(3500);
+			writedebug('got down');
+		end;
+	RemoveThisScript;
+
+end;
+
+script ShowRadarHelp;
+begin
+	while IsGameTextDisplaying do sleep(10);
+	DisplayGameText('LFA1');
+end;
+
+script WaitToAttack;
+VAR
+	pos : vec3d;
+begin
+	SetVector(pos, 0.0, 0.5, 0.0);
+	CreateSphereTrigger(pos, 0.7, 'triggerTooNear');
+	
+	AttachToEntity(GetEntity('triggerTooNear'), GetEntity('SobbingWoman(hunter)'));
+	
+	while (NOT InsideTrigger(GetEntity('triggerTooNear'), GetPlayer)) do sleep(10);
+	
+	if GetEntity('SobbingWoman(hunter)') <> NIL then
+	begin
+		AIEntityCancelAnim('SobbingWoman(hunter)', 'BRO_FIXVENT_IDLE_3');
+		AISetEntityIdleOverRide('SobbingWoman(hunter)', FALSE, FALSE);
+	end;
+	
+end;
+
+script TurnMeInvulnerable;
+begin
+	Invul := TRUE;
+	while Invul = TRUE AND IsEntityAlive('SobbingWoman(hunter)') do
+	begin
+		if GetDamage(GetPlayer) < 30 then
+		begin
+			SetEntityInvulnerable(GetPlayer, TRUE);
+			Invul := FALSE;
+		end;
+	end;
+end;
+
+script SkipMe;
+begin
+	EndScriptAudioStream;
+	AISetHunterOnRadar('SobbingWoman(hunter)', TRUE);
+end;
+
+end.
+
+	
         ";
 
         $expected = [

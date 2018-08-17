@@ -66,9 +66,22 @@ class T_CONDITION {
                             }else if ($operation['type'] == Token::T_FLOAT){
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
+                            }else if ($operation['type'] == Token::T_INT){
+                                if ($operation['value'] >= 0){
+                                    $code[] = $getLine('0f000000');
+                                    $code[] = $getLine('04000000');
+                                }else{
+                                    $code[] = $getLine('2a000000');
+                                    $code[] = $getLine('01000000');
+
+                                    $code[] = $getLine('0f000000');
+                                    $code[] = $getLine('04000000');
+
+                                }
                             }else{
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
+
                             }
 
                         }else{

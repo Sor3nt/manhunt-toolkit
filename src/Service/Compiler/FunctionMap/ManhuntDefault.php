@@ -69,7 +69,7 @@ class ManhuntDefault {
         'onshotweapon' => '60000000',
         'onhelireachednode' => '64000000',
         'onqtmfailed' => '67000000',
-        
+
         'onhighsighting' => '07000000',
         'onplayerenterarea' => '0a000000',
         'onlevelsave' => '0d000000',

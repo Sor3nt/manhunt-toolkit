@@ -9,6 +9,7 @@ use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class Compiler {
 
+
     /**
      * @param $source
      * @return mixed
@@ -29,7 +30,13 @@ class Compiler {
         $source = preg_replace("/\s+/", ' ', $source);
 
         // remove comments / unused code
-        $source = preg_replace("/\{(.*?)\}/", "", $source);
+        $source = preg_replace("/({([^{^}])*)*{([^{^}])*}(([^{^}])*})*/m", "", $source);
+
+        $source = str_replace([
+            "end end"
+        ],[
+            "end; end",
+        ], $source);
 
         // replace line ends with new lines
         $source = preg_replace("/;/", ";\n", $source);

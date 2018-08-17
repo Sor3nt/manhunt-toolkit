@@ -265,7 +265,6 @@ class T_IF {
                 return [$current, $case] ;
             }else if (
                 $token['type'] == Token::T_BEGIN ||
-                $token['type'] == Token::T_DO ||
                 $token['type'] == Token::T_OF
             ){
                 $deep++;
