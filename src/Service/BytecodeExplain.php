@@ -4,6 +4,7 @@ namespace App\Service;
 use App\Bytecode\Helper;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
+use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class BytecodeExplain {
 
@@ -1138,6 +1139,8 @@ class BytecodeExplain {
 
         $funtions = Manhunt2::$functions;
         if (GAME == "mh1") $funtions = Manhunt::$functions;
+
+        $funtions = array_merge($funtions, ManhuntDefault::$functions);
 
         foreach ($funtions as $functionName => $functionBinary){
 

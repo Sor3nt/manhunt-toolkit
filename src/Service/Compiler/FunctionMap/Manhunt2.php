@@ -30,6 +30,10 @@ class Manhunt2
             'offset' => "29000000"
         ],
 
+        'CT_HEAD' => [
+            'offset' => "67000000"
+        ],
+
         'MOVER_ACCEL_FAST' => [
             'offset' => "02000000"
         ],
@@ -2216,6 +2220,41 @@ class Manhunt2
             'offset' => "5d020000"
         ],
 
+
+        'activateenvexec' => [
+            'name' => 'ActivateEnvExec',
+            'offset' => "1c030000"
+        ],
+
+        'aitriggersoundlocationknown' => [
+            'name' => 'AITriggerSoundLocationKnown',
+            'offset' => "71020000"
+        ],
+
+        'aidefinegoalguard' => [
+            'name' => 'AIDefineGoalGuard',
+            'offset' => "59010000"
+        ],
+
+        'aidefinegoalorbitentity' => [
+            'name' => 'AIDefineGoalOrbitEntity',
+            'offset' => "fa010000"
+        ],
+
+        'aimodifygoalaim' => [
+            'name' => 'AIModifyGoalAim',
+            'offset' => "3f020000"
+        ],
+
+        'aistayinhuntenemy' => [
+            'name' => 'AIStayInHuntEnemy',
+            'offset' => "66020000"
+        ],
+
+        'killsubtitletext' => [
+            'name' => 'KillSubtitleText',
+            'offset' => "f6020000"
+        ],
 
     ];
 }
