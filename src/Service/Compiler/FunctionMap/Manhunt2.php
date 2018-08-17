@@ -149,6 +149,10 @@ class Manhunt2
             "offset" => "01000000"
         ],
 
+        'MOVER_ACCEL_SLOW' => [
+            "offset" => "02000000"
+        ],
+
         'AISCRIPT_RUNMOVESPEED' => [
             "offset" => "00000000"
         ],
@@ -2128,6 +2132,88 @@ class Manhunt2
         'seteffectradius' => [
             'name' => 'SetEffectRadius',
             'offset' => "b6000000"
+        ],
+
+        'substr' => [
+            'name' => 'SubStr',
+            'offset' => "17030000"
+        ],
+
+        'setdooropenanglein' => [
+            'name' => 'SetDoorOpenAngleIn',
+            'offset' => "d3010000"
+        ],
+
+        'setdooropenangleout' => [
+            'name' => 'SetDoorOpenAngleOut',
+            'offset' => "d4010000"
+        ],
+
+        'endaudiolooped' => [
+            'name' => 'EndAudioLooped',
+            'offset' => "60020000"
+        ],
+
+        'playscriptaudiostreamfromentityaux' => [
+            'name' => 'PlayScriptAudioStreamFromEntityAux',
+            'offset' => "d0030000"
+        ],
+
+
+        'airemoveallgoalsfromsubpack' => [
+            'name' => 'AIRemoveAllGoalsFromSubpack',
+            'offset' => "9a010000"
+        ],
+
+
+        'sethunterruntime' => [
+            'name' => 'SetHunterRunTime',
+            'offset' => "ef010000"
+        ],
+
+
+        'enablegraphconnection' => [
+            'name' => 'EnableGraphConnection',
+            'offset' => "87030000"
+        ],
+
+        'setqtmsoundprobabilitymodifier' => [
+            'name' => 'SetQTMSoundProbabilityModifier',
+            'offset' => "c7030000"
+        ],
+
+        'setqtmstaminaprobabilitymodifier' => [
+            'name' => 'SetQTMStaminaProbabilityModifier',
+            'offset' => "c6030000"
+        ],
+
+        'setqtmdeadbodyprobabilitymodifier' => [
+            'name' => 'SetQTMDeadBodyProbabilityModifier',
+            'offset' => "c5030000"
+        ],
+
+
+        'aisethunteridledirection' => [
+            'name' => 'AISetHunterIdleDirection',
+            'offset' => "9c010000"
+        ],
+
+
+        'aienableclimbinginidle' => [
+            'name' => 'AiEnableClimbingInIdle',
+            'offset' => "ce030000"
+        ],
+
+
+        'aideletegoaldefinition' => [
+            'name' => 'AIDeleteGoalDefinition',
+            'offset' => "df010000"
+        ],
+
+
+        'playaudiooneshotfrompos' => [
+            'name' => 'PlayAudioOneShotFromPos',
+            'offset' => "5d020000"
         ],
 
 
