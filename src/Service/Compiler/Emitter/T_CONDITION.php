@@ -149,7 +149,7 @@ class T_CONDITION {
                             $code[] = $getLine('42000000');
                             break;
                         case Token::T_IS_GREATER_EQUAL:
-                            $code[] = $getLine('T_IS_GREATER_EQUAL');
+                            $code[] = $getLine('41000000');
                             break;
                         default:
                             throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $operator['type']));

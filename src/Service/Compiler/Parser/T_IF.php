@@ -188,15 +188,14 @@ class T_IF {
                                 $node['cases'][] = $case;
                             }
 
+                            // +0 : just return given one
                             return [$current, $node];
 
                         }
-
-
-
                     }
 
 
+                    // +1 : skip T_LINEEND
                     return [$current + 1, $node];
                 }
 
@@ -245,7 +244,7 @@ class T_IF {
                         $node['cases'][] = $innerIf;
                     }
 
-                    return [$current + 1, $node];
+                    return [$current, $node];
 
                     break;
 
@@ -287,7 +286,7 @@ class T_IF {
             $token = $tokens[$current];
 
             if ($deep == 0 && $token['type'] == Token::T_IF_END) {
-                return [$current, $case] ;
+                return [$current + 1, $case] ;
             }else if (
                 $token['type'] == Token::T_BEGIN ||
                 $token['type'] == Token::T_OF

@@ -444,11 +444,11 @@ class Compiler {
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens);
+//        var_dump($tokens);
 
         // parse the token list to a ast
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
-//var_dump($ast);
 
         $this->fixWriteDebug($ast['body']);
 

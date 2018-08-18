@@ -119,7 +119,9 @@ class T_IF {
 
             if (isset($case['next'])){
 
-                if ($case['next'] == Token::T_ELSE){
+                if ($case['next'] == Token::T_ELSE ) {
+                    $endOffset += 8;
+                }else if ($case['next'] == Token::T_IF ){
                     $endOffset += 8;
                 }
             }
