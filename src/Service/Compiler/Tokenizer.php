@@ -26,6 +26,7 @@ use App\Service\Compiler\Tokens\T_IF;
 use App\Service\Compiler\Tokens\T_INT;
 use App\Service\Compiler\Tokens\T_IS_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_GREATER;
+use App\Service\Compiler\Tokens\T_IS_GREATER_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_NOT_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_SMALLER;
 use App\Service\Compiler\Tokens\T_LEVEL_VAR;
@@ -118,9 +119,10 @@ class Tokenizer {
 
         T_ASSIGN::class,
         T_IS_NOT_EQUAL::class,
-        T_IS_EQUAL::class,
+        T_IS_GREATER_EQUAL::class,
         T_IS_GREATER::class,
         T_IS_SMALLER::class,
+        T_IS_EQUAL::class,
 
 
         T_FUNCTION::class,

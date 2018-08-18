@@ -21,7 +21,7 @@ class T_SCRIPT {
         $current++;
 
         while ($current < count($tokens)) {
-
+//var_dump($tokens[$current]);
             switch ($tokens[$current]['type']){
 
                 case Token::T_PROCEDURE_NAME:

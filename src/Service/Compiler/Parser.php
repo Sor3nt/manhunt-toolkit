@@ -111,6 +111,7 @@ class Parser {
             case Token::T_TRUE :
             case Token::T_IS_EQUAL :
             case Token::T_IS_NOT_EQUAL :
+            case Token::T_IS_GREATER_EQUAL :
             case Token::T_IS_SMALLER :
             case Token::T_IS_GREATER :
             case Token::T_FALSE :
@@ -127,6 +128,7 @@ class Parser {
             case Token::T_OR:
             case Token::T_AND:
             case Token::T_OF:
+            case Token::T_BRACKET_CLOSE:
                 return [
                     $current + 1, $tokens[$current]
                 ];

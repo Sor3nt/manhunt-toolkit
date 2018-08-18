@@ -387,6 +387,7 @@ class Compiler {
         // convert script code into tokens
         $tokenizer = new Tokenizer();
         $tokens = $tokenizer->run($source);
+//var_dump($tokens);
 
         $types = $this->getTypes($tokens);
         // extract every header and script variable definition

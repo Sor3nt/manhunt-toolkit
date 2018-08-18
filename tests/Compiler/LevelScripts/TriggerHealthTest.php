@@ -12,7 +12,8 @@ class TriggerHealthTest extends KernelTestCase
 
     public function test()
     {
-
+//        $this->assertEquals(true, true, 'The bytecode is not correct');
+//return;
         $script = "
 scriptmain triggerHealth;
 

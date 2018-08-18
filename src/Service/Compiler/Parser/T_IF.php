@@ -358,6 +358,7 @@ class T_IF {
                         $innerToken['type'] == Token::T_IS_EQUAL ||
                         $innerToken['type'] == Token::T_IS_NOT_EQUAL ||
                         $innerToken['type'] == Token::T_IS_GREATER ||
+                        $innerToken['type'] == Token::T_IS_GREATER_EQUAL ||
                         $innerToken['type'] == Token::T_IS_SMALLER
                     ){
                         $opertation = [

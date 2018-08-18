@@ -103,6 +103,7 @@ use App\Service\Compiler\Tokens\T_WHITESPACE;
     const T_IS_NOT_EQUAL                = 'T_IS_NOT_EQUAL';
     const T_IS_EQUAL                    = 'T_IS_EQUAL';
     const T_IS_GREATER                  = 'T_IS_GREATER';
+    const T_IS_GREATER_EQUAL            = 'T_IS_GREATER_EQUAL';
     const T_IS_SMALLER                  = 'T_IS_SMALLER';
     const T_NOT                         = 'T_NOT';
     const T_OR                          = 'T_OR';
