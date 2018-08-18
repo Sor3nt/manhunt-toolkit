@@ -128,7 +128,7 @@ class Parser {
             case Token::T_OR:
             case Token::T_AND:
             case Token::T_OF:
-            case Token::T_BRACKET_CLOSE:
+//            case Token::T_BRACKET_CLOSE:
                 return [
                     $current + 1, $tokens[$current]
                 ];

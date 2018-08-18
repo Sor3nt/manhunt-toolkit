@@ -119,7 +119,7 @@ class T_CONDITION {
                     $code[] = $getLine('12000000');
                     $code[] = $getLine('01000000');
                     $code[] = $getLine('01000000');
-                }else if ($operation['type'] == Token::T_FLOAT){
+                }else if (isset($operation) && $operation['type'] == Token::T_FLOAT){
                     $code[] = $getLine('4e000000');
                     $code[] = $getLine('12000000');
                     $code[] = $getLine('01000000');

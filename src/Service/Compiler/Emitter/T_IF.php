@@ -82,6 +82,7 @@ class T_IF {
                             $code[] = $getLine('01000000');
                         }
 
+                        //hmmm todo: gibts das so überhaupt noch ?
                     }else if (
                         $condition['type'] == Token::T_AND ||
                         $condition['type'] == Token::T_OR
@@ -90,6 +91,8 @@ class T_IF {
                     }else{
                         throw new \Exception('T_IF: Brackets order not valid');
                     }
+
+
                 }
 
                 $code[] = $getLine('24000000');
@@ -129,6 +132,22 @@ class T_IF {
                 $codes = $emitter($entry, true, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {
                     $code[] = $singleLine;
+                }
+            }
+
+            if (isset($case['next'])) {
+
+                if ($case['next'] == Token::T_IF){
+                    $code[] = $getLine('3c000000');
+                    $code[] = $getLine("STATEMENT_LAST_LINE_OFFSET");
+
+                }
+            }else{
+
+                foreach ($code as &$item) {
+                    if ($item->hex == "STATEMENT_LAST_LINE_OFFSET"){
+                        $item->hex = Helper::fromIntToHex((end($code)->lineNumber) * 4);
+                    }
                 }
             }
         }

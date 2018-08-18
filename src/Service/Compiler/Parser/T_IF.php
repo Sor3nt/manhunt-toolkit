@@ -120,8 +120,8 @@ class T_IF {
     }
     static public function parseIfStatement( $tokens, $current, \Closure $parseToken ){
 
-
         $token = $tokens[$current];
+
 
         $node = [
             'type' => $token['type'],
@@ -150,6 +150,7 @@ class T_IF {
 
                 if ($tokens[$current]['type'] == Token::T_BEGIN) {
                     $shortStatement = false;
+
                     $current++;
                 }
 
@@ -161,15 +162,40 @@ class T_IF {
             $current++;
         }
 
+
         /**
          * parse SHORT true code
          */
         if ($shortStatement){
+
+
             while ($current < count($tokens)) {
                 $token = $tokens[$current];
 
                 if ($token['type'] == Token::T_LINEEND) {
+
                     $node['cases'][] = $case;
+
+                    if (isset($tokens[$current + 1])){
+                        if ($tokens[$current + 1]['type'] == Token::T_ELSE) {
+
+                            list($current, $innerIf) =  self::parseIfStatement(
+                                $tokens, $current + 2, $parseToken
+                            );
+
+
+                            foreach ($innerIf['cases'] as $case) {
+                                $node['cases'][] = $case;
+                            }
+
+                            return [$current, $node];
+
+                        }
+
+
+
+                    }
+
 
                     return [$current + 1, $node];
                 }
@@ -199,7 +225,6 @@ class T_IF {
                 }else if ($deep == 0 && $token['type'] == Token::T_END_ELSE) {
 
                     $node['cases'][] = $case;
-
 
                     if ($tokens[$current + 2]['type'] == Token::T_IF || $tokens[$current + 2]['type'] == Token::T_WHILE) {
                         list($current, $innerIf) = self::parseIfStatement(
