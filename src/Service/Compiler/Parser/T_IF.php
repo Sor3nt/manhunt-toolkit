@@ -273,7 +273,7 @@ class T_IF {
     }
 
 
-    static function parseIfLastElse( $tokens, $current  ){
+    static function parseIfLastElse( $tokens, $current, $shortStatement = false  ){
 
         $case = [
             'condition' => [],

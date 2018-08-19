@@ -441,6 +441,7 @@ class Compiler {
         }
 
 
+        $tokens = $tokenizer->fixShortStatementMissedLineEnd($tokens, $types);
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens);
