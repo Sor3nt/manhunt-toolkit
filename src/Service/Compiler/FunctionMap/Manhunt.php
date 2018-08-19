@@ -448,9 +448,21 @@ class Manhunt
             'name' => 'AIEntityAlwaysEnabled',
             'offset' => "be010000"
         ],
+	    'aiaddsubpackforleader' => [
+            'name' => 'AIAddSubpackForLeader',
+            'offset' => "4f010000"
+        ],
+	    'aiaddhuntertoleadersubpack' => [
+            'name' => 'AIAddHunterToLeaderSubPack',
+            'offset' => "51010000"
+        ],
         'aisethunteronradar' => [
             'name' => 'AISetHunterOnRadar',
             'offset' => "a7010000"
+        ],
+        'aisetsubpackcombattype' => [
+            'name' => 'AISetSubpackCombatType',
+            'offset' => "81010000"
         ],
         'getentity' => [
             'name' => 'GetEntity',
