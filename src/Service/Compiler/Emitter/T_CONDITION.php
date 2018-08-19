@@ -101,8 +101,13 @@ class T_CONDITION {
                             $functionNoReturn = Manhunt2::$functionNoReturn;
                             if (GAME == "mh1") $functionNoReturn = Manhunt::$functionNoReturn;
                             if (
-                                !in_array(strtolower($token['params'][$index]['value']), $functionNoReturnDefault ) &&
-                                !in_array(strtolower($token['params'][$index]['value']), $functionNoReturn )
+                                !isset($token['params'][$index]['value']) ||
+                                (
+                                    isset($token['params'][$index]['value']) &&
+                                    !in_array(strtolower($token['params'][$index]['value']), $functionNoReturnDefault ) &&
+                                    !in_array(strtolower($token['params'][$index]['value']), $functionNoReturn )
+
+                                )
                             ){
 
                                 $code[] = $getLine('10000000');

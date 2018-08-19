@@ -18,12 +18,17 @@ class Compiler {
 
         $source = str_replace([
             "if (GetEntity('Syringe_(CT)')) <> NIL then",
+            "if (GetEntity('Syringe_(CT)')) = nil then",
             "if(",
             "while(",
+            "PLAYING  TWITCH"
         ],[
             "if GetEntity('Syringe_(CT)') <> NIL then",
+            "if GetEntity('Syringe_(CT)') = nil then",
             "if (",
             "while (",
+            "PLAYING__TWITCH"  // we replace this because the next operation will remove the whitespaces
+            // result of this replacement is, the bytecode length did not match anymore
         ], $source);
 
         // remove double whitespaces
