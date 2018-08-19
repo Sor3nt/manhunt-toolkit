@@ -4,12 +4,14 @@ namespace App\Service\Compiler\Emitter;
 
 use App\Bytecode\Helper;
 use App\Service\Compiler\Evaluate;
+use App\Service\Compiler\FunctionMap\Manhunt;
+use App\Service\Compiler\FunctionMap\Manhunt2;
+use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
 
 class T_CONDITION {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-
         $code = [];
 
         $token = $node['body'][0];
@@ -63,6 +65,11 @@ class T_CONDITION {
                             if (isset($mappedTo['type']) && $mappedTo['type'] == "object") {
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
+                            }else if ($operation['type'] == Token::T_STRING){
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('02000000');
                             }else if ($operation['type'] == Token::T_FLOAT){
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -85,8 +92,22 @@ class T_CONDITION {
                             }
 
                         }else{
-                            $code[] = $getLine('10000000');
-                            $code[] = $getLine('01000000');
+//                            $code[] = $getLine($token['params'][$index]['value']);
+//                            $code[] = $getLine('10000000');
+//                            $code[] = $getLine('01000000');
+
+
+                            $functionNoReturnDefault = ManhuntDefault::$functionNoReturn;
+                            $functionNoReturn = Manhunt2::$functionNoReturn;
+                            if (GAME == "mh1") $functionNoReturn = Manhunt::$functionNoReturn;
+                            if (
+                                !in_array(strtolower($token['params'][$index]['value']), $functionNoReturnDefault ) &&
+                                !in_array(strtolower($token['params'][$index]['value']), $functionNoReturn )
+                            ){
+
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+                            }
 
                         }
                     }
@@ -120,6 +141,11 @@ class T_CONDITION {
                     $code[] = $getLine('01000000');
                     $code[] = $getLine('01000000');
                 }else if (isset($operation) && $operation['type'] == Token::T_FLOAT){
+                    $code[] = $getLine('4e000000');
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine('01000000');
+                }else if (isset($operation) && $operation['type'] == Token::T_STRING){
                     $code[] = $getLine('4e000000');
                     $code[] = $getLine('12000000');
                     $code[] = $getLine('01000000');

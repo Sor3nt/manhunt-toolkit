@@ -177,9 +177,13 @@ class T_IF {
                     $node['cases'][] = $case;
 
                     if (isset($tokens[$current + 1])){
-                        if ($tokens[$current + 1]['type'] == Token::T_ELSE) {
-
-                            list($current, $innerIf) =  self::parseIfStatement(
+                        if (
+                            $tokens[$current + 1]['type'] == Token::T_ELSE &&
+                            $tokens[$current + 2]['type'] == Token::T_IF
+                        ) {
+//var_dump($tokens[$current + 2]);
+//exit;
+                            list($current, $innerIf) = self::parseIfStatement(
                                 $tokens, $current + 2, $parseToken
                             );
 
@@ -191,9 +195,28 @@ class T_IF {
                             // +0 : just return given one
                             return [$current, $node];
 
+                        //short else
+                        }else if (
+                            $tokens[$current + 1]['type'] == Token::T_ELSE
+                        ) {
+
+                            /**
+                             * bad hack, i parse here the tokens to get the needed length....
+                             */
+                            $beforeCurrent = $current + 2;
+                            list($current, $innerIf) =  $parseToken(
+                                $tokens, $current + 2
+                            );
+
+                            $parsedTokens = $current - $beforeCurrent;
+
+                            $node['cases'][] = [
+                                'condition' => [],
+                                'isTrue'=> array_slice($tokens, $beforeCurrent, $parsedTokens)
+                            ];
+
                         }
                     }
-
 
                     // +1 : skip T_LINEEND
                     return [$current + 1, $node];
