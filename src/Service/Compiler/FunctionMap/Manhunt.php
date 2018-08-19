@@ -22,7 +22,7 @@ class Manhunt
     ];
 
     public static $functionEventDefinition = [
-        '__default__' => '68000000'
+        '__default__' => '54000000'
     ];
 
     public static $constants = [
