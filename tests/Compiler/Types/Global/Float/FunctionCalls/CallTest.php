@@ -22,7 +22,7 @@ class CallTest extends KernelTestCase
             script OnCreate;
 
                 begin
-                    writedebug(1.2);
+                    DisplayGameText(1.2);
                 end;
 
             end.
@@ -42,8 +42,7 @@ class CallTest extends KernelTestCase
             '10000000', // assign
             '01000000',
 
-            '73000000', // writedebug call (hidden call)
-            '74000000', // writedebug call
+            '04010000', // DisplayGameText call
 
             // script end
             '11000000',

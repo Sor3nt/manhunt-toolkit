@@ -9,7 +9,7 @@ use App\Service\Compiler\Token;
 
 class T_FUNCTION {
 
-    static public function finalize( $node, $data, &$code, \Closure $getLine ){
+    static public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false ){
 
         switch ($node['type']){
             case Token::T_ADDITION:
@@ -25,15 +25,15 @@ class T_FUNCTION {
 
             case Token::T_INT:
 
-                if ($node['value'] >= 0){
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
-                }else{
-                    $code[] = $getLine('2a000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('10000000');
-                    $code[] = $getLine('01000000');
-                }
+                    if ($node['value'] >= 0){
+                        $code[] = $getLine('10000000');
+                        $code[] = $getLine('01000000');
+                    }else{
+                        $code[] = $getLine('2a000000');
+                        $code[] = $getLine('01000000');
+                        $code[] = $getLine('10000000');
+                        $code[] = $getLine('01000000');
+                    }
 
                 break;
 
@@ -115,8 +115,10 @@ class T_FUNCTION {
                                 $code[] = $getLine('01000000');
                                 break;
                             case 'real':
-                                $code[] = $getLine('10000000');
-                                $code[] = $getLine('01000000');
+                                if ($writeDebug == false){
+                                    $code[] = $getLine('10000000');
+                                    $code[] = $getLine('01000000');
+                                }
                                 break;
                             case 'constant':
                                 $code[] = $getLine('10000000');
@@ -145,10 +147,175 @@ class T_FUNCTION {
 
 
         }
+    }
 
+    static public function handleWriteDebugCall($node, \Closure $getLine, \Closure $emitter, $data){
+        $code = [ ];
+
+        /**
+         *
+         * The WriteDebug call need to be separated into single calls.
+         * Any call can only process one parameter...
+         *
+         */
+        if (count($node['params']) > 1 ){
+
+            foreach ($node['params'] as $index => $param) {
+                $singleParam = $node;
+                $singleParam['params'] = [$param];
+                $singleParam['last'] = $index == count($node['params']) - 1;
+
+                $result = self::handleWriteDebugCall($singleParam, $getLine, $emitter, $data);
+                foreach ($result as $item) {
+                    $code[] = $item;
+                }
+            }
+
+            return $code;
+
+        }
+
+        /**
+         * generate the parameter code
+         */
+        $param = $node['params'][0];
+        $param['nested'] = false;
+
+        $resultCode = $emitter( $param );
+        foreach ($resultCode as $line) {
+            $code[] = $line;
+        }
+
+
+        self::finalize($param, $data, $code, $getLine, true);
+
+
+        /**
+         * generate the needed function call
+         */
+
+        switch ($param['type']){
+            case Token::T_INT:
+                $code[] = $getLine(self::getFunction('WriteDebugInteger')['offset']);
+                break;
+            case Token::T_STRING:
+                $code[] = $getLine(self::getFunction('WriteDebugString')['offset']);
+                break;
+            case Token::T_VARIABLE:
+
+                $mapping = T_VARIABLE::getMapping($param, $emitter, $data);
+
+                switch ($mapping['type']){
+                    case 'real':
+                        $code[] = $getLine(self::getFunction('WriteDebugReal')['offset']);
+                        break;
+                    case 'stringarray':
+                        $code[] = $getLine(self::getFunction('WriteDebugString')['offset']);
+                        break;
+                    default:
+                        throw new \Exception(sprintf('T_VARIABLE: mapping type %s is unknown', $mapping['type']));
+                        break;
+                }
+
+                break;
+            case Token::T_FUNCTION:
+                $function = self::getFunction($param['value']);
+
+                if (!isset($function['return'])){
+                    throw new \Exception(sprintf('T_FUNCTION: Return type for %s missed', $param['value']));
+                }
+
+                switch ($function['return']){
+                    case 'String':
+                        $code[] = $getLine(self::getFunction('WriteDebugString')['offset']);
+                        break;
+                    case 'Integer':
+                        $code[] = $getLine(self::getFunction('WriteDebugInteger')['offset']);
+                        break;
+                    case 'Real':
+                        $code[] = $getLine(self::getFunction('WriteDebugReal')['offset']);
+                        break;
+                    default:
+                        throw new \Exception(sprintf('T_FUNCTION: Return type %s is unknown', $param['return']));
+                        break;
+                }
+
+                break;
+            default:
+                throw new \Exception(sprintf('T_FUNCTION: Param type %s is unknown', $param['type']));
+                break;
+        }
+
+
+        // the writedebug call has a secret additional call, a flush command
+        if (!isset($node['last']) || $node['last'] === true) {
+            $code[] = $getLine(self::getFunction('WriteDebugFlush')['offset']);
+        }
+
+
+        return $code;
+    }
+
+    static public function getForceFloat( $functioName ){
+
+        $functioName = strtolower($functioName);
+
+        $functionForceFloar = Manhunt2::$functionForceFloar;
+        if (GAME == "mh1") $functionForceFloar = Manhunt::$functionForceFloar;
+
+        $functionForceFloar = array_merge($functionForceFloar, ManhuntDefault::$functionForceFloar);
+
+        if (isset( $functionForceFloar[$functioName] )){
+            return $functionForceFloar[$functioName];
+        }
+
+        return [];
+    }
+
+    static public function getFunction( $functioName ){
+
+        $functioName = strtolower($functioName);
+
+        $funtions = Manhunt2::$functions;
+        if (GAME == "mh1") $funtions = Manhunt::$functions;
+
+        $funtions = array_merge($funtions, ManhuntDefault::$functions);
+
+        if (
+            !isset($funtions[ $functioName ])
+        ){
+            throw new \Exception(sprintf('Unknown function %s', $functioName));
+        }
+
+        return $funtions[ $functioName ];
     }
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+        $code = [ ];
+
+
+        /**
+         * sometimes is the mapping not correct, validate if this is not a variable
+         */
+        try {
+            T_VARIABLE::getMapping($node, null, $data);
+            return $emitter([
+                'type' => Token::T_VARIABLE,
+                'value' => $node['value']
+            ]);
+        }catch(\Exception $e){
+
+            if (strpos($e->getMessage(), 'unable to find variable') == false){
+                throw $e;
+            }
+        }
+
+        /**
+         * Special WriteDebug handling
+         */
+        if (strtolower($node['value']) == "writedebug"){
+            return self::handleWriteDebugCall($node, $getLine, $emitter, $data);
+        }
 
 
         //HACK
@@ -173,33 +340,9 @@ class T_FUNCTION {
 
         }
 
-        try {
-            T_VARIABLE::getMapping($node, null, $data);
-            return $emitter([
-                'type' => Token::T_VARIABLE,
-                'value' => $node['value']
-            ]);
-        }catch(\Exception $e){
-
-            if (strpos($e->getMessage(), 'unable to find variable') == false){
-                throw $e;
-            }
-        }
-
-        $functionForceFloarDefault = ManhuntDefault::$functionForceFloar;
-        $functionForceFloar = Manhunt2::$functionForceFloar;
-        if (GAME == "mh1") $functionForceFloar = Manhunt::$functionForceFloar;
+        $forceFloatOrder = self::getForceFloat($node['value']);
 
 
-        $forceFloatOrder = [];
-        if (isset( $functionForceFloarDefault[strtolower($node['value'])] )) {
-            $forceFloatOrder = $functionForceFloarDefault[strtolower($node['value'])];
-        }else if (isset( $functionForceFloar[strtolower($node['value'])] )){
-            $forceFloatOrder = $functionForceFloar[strtolower($node['value'])];
-        }
-
-
-        $code = [ ];
         if (isset($node['params']) && count($node['params'])){
             $skipNext = false;
 
@@ -258,8 +401,7 @@ class T_FUNCTION {
                     $code[] = $getLine('01000000');
 //
                 }
-//                var_dump($param);
-//                exit;
+
 
                 if (
                     count($forceFloatOrder) > 0 &&
@@ -279,38 +421,13 @@ class T_FUNCTION {
             }
         }
 
+
         /**
          * Translate function call
          */
-        $funtionsDefault = ManhuntDefault::$functions;
-        $funtions = Manhunt2::$functions;
-        if (GAME == "mh1") $funtions = Manhunt::$functions;
+        $function = self::getFunction($node['value']);
+        $code[] = $getLine($function['offset']);
 
-        if (
-            !isset($funtionsDefault[ strtolower($node['value']) ]) &&
-            !isset($funtions[ strtolower($node['value']) ])
-        ){
-            throw new \Exception(sprintf('Unknown function %s', $node['value']));
-        }
-
-
-        if (isset($funtionsDefault[ strtolower($node['value']) ])) {
-            $code[] = $getLine($funtionsDefault[strtolower($node['value'])]['offset']);
-        }else if (isset($funtions[ strtolower($node['value']) ])){
-            $code[] = $getLine( $funtions[ strtolower($node['value']) ]['offset'] );
-        }
-
-
-
-        // the writedebug call has a secret additional call, maybe a flush command ?
-        if (
-            strtolower($node['value']) == 'writedebug' //&&
-        ){
-
-            if (!isset($node['last']) || $node['last'] === true) {
-                $code[] = $getLine('74000000');
-            }
-        }
 
         /**
          * when we are inside a nested call, tell the interpreter to return the current value
@@ -318,12 +435,13 @@ class T_FUNCTION {
 
         if (isset($node['nested']) && $node['nested'] === true){
 
-            $functionNoReturnDefault = ManhuntDefault::$functionNoReturn;
             $functionNoReturn = Manhunt2::$functionNoReturn;
             if (GAME == "mh1") $functionNoReturn = Manhunt::$functionNoReturn;
 
+            $functionNoReturn = array_merge($functionNoReturn, ManhuntDefault::$functionNoReturn);
+
             if (
-                !in_array(strtolower($node['value']), $functionNoReturnDefault ) &&
+                //not sure, maybe this is just a fix for a unknown bug
                 !in_array(strtolower($node['value']), $functionNoReturn )
             ){
 

@@ -41,7 +41,7 @@ class SingleIntegerParamTest extends KernelTestCase
             '10000000', // assign
             '01000000',
 
-            '73000000', // writedebug call (hidden call)
+            '6e000000', // writedebug integer (hidden call)
             '74000000', // writedebug call
 
             // script end

@@ -456,7 +456,7 @@ class Compiler {
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
 
-        $this->fixWriteDebug($ast['body']);
+//        $this->fixWriteDebug($ast['body']);
 
         $header = [];
         $currentSection = "header";
@@ -774,52 +774,6 @@ class Compiler {
         }
 
         return $vars;
-    }
-
-    /**
-     *
-     * well.. the writedebug calls need to be separated
-     * any call can only process one parameter...
-     *
-     * @param $ast
-     * @return array
-     */
-    private function fixWriteDebug(&$ast ){
-        $add = [];
-
-        foreach ($ast as $index =>  &$item) {
-            if (isset($item['body'])){
-                $this->fixWriteDebug( $item['body'] );
-            }
-
-            if (
-                $item['type'] == Token::T_FUNCTION &&
-                strtolower($item['value']) == "writedebug"
-            ){
-
-                $count = count($item['params']);
-                foreach ($item['params'] as $innerIndex => $param) {
-
-                    $new = [
-                        'type' => Token::T_FUNCTION,
-                        'value' => 'writedebug',
-                        'nested' => false,
-                        'last' => $count  == $innerIndex + 1,
-                        'index' => $innerIndex,
-                        'params' => [ $param ]
-                    ];
-
-                    if ($innerIndex == 0){
-                        $item = $new;
-                    }else{
-                        array_splice( $ast, $index + $innerIndex, 0, [$new] );
-
-                    }
-                }
-            }
-        }
-
-        return $add;
     }
 
     /**

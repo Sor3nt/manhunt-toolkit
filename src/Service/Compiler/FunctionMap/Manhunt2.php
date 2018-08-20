@@ -38,6 +38,10 @@ class Manhunt2
             'offset' => "67000000"
         ],
 
+        'CT_G_FIRST_AID' => [
+            "offset" => "09000000"
+        ],
+
         'MOVER_ACCEL_FAST' => [
             'offset' => "02000000"
         ],
@@ -62,11 +66,9 @@ class Manhunt2
             'offset' => "01000000"
         ],
 
-
         'COL_PLAYER' => [
             'offset' => "00020000"
         ],
-
 
         'MAP_COLOR_YELLOW' => [
             'offset' => "04000000"
@@ -181,60 +183,71 @@ class Manhunt2
             "offset" => "03000000"
         ],
 
-        'CT_G_FIRST_AID' => [
-            "offset" => "09000000"
-        ],
-
-        'CT_SYRINGE' => [
-            "offset" => "71000000"
-        ],
-
     ];
 
     public static $functions = [
 
         "randnum" => [
+            'name' => 'RandNum',
             'offset' => "69000000"
         ],
+
         "getdifficultylevel" => [
+            'name' => 'GetDifficultyLevel',
             'offset' => "9f020000"
         ],
 
         "aicutsceneentityenable" => [
+            'name' => 'AICutSceneEntityEnable',
             'offset' => "a9020000"
         ],
 
         "cutsceneend" => [
+            'name' => 'CutSceneEnd',
             'offset' => "49010000"
         ],
+
         "clearlevelgoal" => [
+            'name' => 'ClearLevelGoal',
             'offset' => "42020000"
         ],
+
         "cutscenestart" => [
+            'name' => 'CutSceneStart',
             'offset' => "48010000"
         ],
+
         "cutsceneregisterskipscript" => [
+            'name' => 'CutSceneRegisterSkipScript',
             'offset' => "20030000"
         ],
 
         "displaygametext" => [
+            'name' => 'DisplayGameText',
             'offset' => "04010000"
         ],
 
         "frisbeespeechplay" => [
+            'name' => 'FrisbeeSpeechPlay',
             'offset' => "66030000"
         ],
 
         "frisbeespeechisfinished" => [
+            'name' => 'FrisbeeSpeechIsFinished',
             'offset' => "69030000"
         ],
 
         'getentityname' => [
-            'offset' => "86000000"
+            'name' => 'GetEntityName',
+            'offset' => "86000000",
+            'return' => 'String'
         ],
+
         "getdoorstate" => [
+            'name' => 'GetDoorState',
             'offset' => "96000000"
         ],
+
         "getentity" => [
             'offset' => "77000000"
         ],
@@ -250,11 +263,10 @@ class Manhunt2
         "killgametext" => [
             'offset' => "08010000"
         ],
+
         "killscript" => [
             'offset' => "e5000000"
         ],
-
-
 
         "setdoorstate" => [
             'name' => 'SetDoorState',
@@ -269,43 +281,49 @@ class Manhunt2
             'desc' => ''
         ],
 
-
         "setswitchstate" => [
             'offset' => "95000000"
         ],
+
         "setcurrentlod" => [
             'offset' => "2d010000"
         ],
+
         "setshowhudincutscene" => [
             'offset' => "86030000"
         ],
+
         "setvector" => [
             'offset' => "84010000"
         ],
+
         "setcameraposition" => [
             'offset' => "92010000"
         ],
+
         "setcameraview" => [
             'offset' => "8f010000"
         ],
+
         "setzoomlerp" => [
             'offset' => "b5020000"
         ],
+
         "setlevelgoal" => [
             'offset' => "41020000"
         ],
+
         "setslidedoorspeed" => [
             'offset' => "ae010000"
         ],
 
-
         "togglehudflag" => [
             'offset' => "7f020000"
         ],
+
         "aiaddentity" => [
             'offset' => "4d010000"
         ],
-
 
         "aisethunteronradar" => [
             'name' => 'aisethunteronradar',
@@ -319,7 +337,6 @@ class Manhunt2
             'desc' => 'Set the Hunter visibility on the Players Radar'
         ],
 
-
         "setnextlevelbyname" => [
             'name' => 'SetNextLevelByName',
             'offset' => '4c030000',
@@ -332,36 +349,42 @@ class Manhunt2
             'desc' => ''
         ],
 
-
         "aisetentityasleader" => [
             'offset' => "4f010000"
         ],
+
         "aisetleaderinvisible" => [
             'offset' => "6d020000"
         ],
+
         "aiaddleaderenemy" => [
             'offset' => "54010000"
         ],
+
         "aientityalwaysenabled" => [
             'offset' => "bf010000"
         ],
+
         "aiaddsubpackforleader" => [
             'offset' => "50010000"
         ],
+
         "aisetsubpackcombattype" => [
             'offset' => "82010000"
         ],
+
         "aidefinegoalhuntenemy" => [
             'offset' => "58010000"
         ],
+
         "aiaddgoalforsubpack" => [
             'offset' => "56010000"
         ],
 
-
         "aiaddplayer" => [
             'offset' => "5b010000"
         ],
+
         "hideentity" => [
             'offset' => "83000000"
         ],
@@ -372,21 +395,45 @@ class Manhunt2
         "setmaxnumberofrats" => [
             'offset' => "a8020000"
         ],
+
         "switchlitteron" => [
             'offset' => "a4020000"
         ],
 
-        "writedebug" => [
-            'offset' => "73000000"
-        ],
-        "writedebugflush" => [
-            'offset' => "74000000"
-        ],
+        /**
+         * Note: WriteDebug function is internal splitted!
+         */
+            "writedebug" => [
+                'name' => 'WriteDebug',
+                'offset' => "73000000"
+            ],
+
+            "writedebugstring" => [
+                'name' => 'WriteDebugString',
+                'offset' => "73000000"
+            ],
+
+            "writedebugreal" => [
+                'name' => 'WriteDebugReal',
+                'offset' => "6f000000"
+            ],
+
+            "writedebuginteger" => [
+                'name' => 'WriteDebugInteger',
+                'offset' => "6e000000"
+            ],
+
+            "writedebugflush" => [
+                'name' => 'WriteDebugFlush',
+                'offset' => "74000000"
+            ],
+
+
         "setqtmbaseprobability" => [
+            'name' => 'SetQTMBaseProbability',
             'offset' => "ac030000"
         ],
 
-//
         "graphmodifyconnections" => [
             'name' => 'GraphModifyConnections',
             'offset' => 'e9000000',
@@ -972,6 +1019,7 @@ class Manhunt2
              * 1: string
              */
             'params' => ['String'],
+            'return' => 'Integer',
             'desc' => ''
         ],
 
