@@ -5,9 +5,9 @@ class T_ADDITION {
 
     static public function match( $input, $current, $tokens ){
 
-        $char = strtolower(substr($input, $current - 1, 3));
+        $char = strtolower(substr($input, $current, 1));
 
-        if ($char == " + "){
+        if ($char == "+"){
             return [
                 'type' => 'T_ADDITION',
                 'value' => "+"

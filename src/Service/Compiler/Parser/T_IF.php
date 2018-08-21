@@ -258,13 +258,28 @@ class T_IF {
                         }
 
                         // the else statment (without if)
-                    }else{
-
+                    }else if($tokens[$current + 2]['type'] == Token::T_BEGIN){
                         list($current, $innerIf) =  self::parseIfLastElse(
                             $tokens, $current + 3
                         );
 
                         $node['cases'][] = $innerIf;
+                    }else{
+
+                        /**
+                         * bad hack, i parse here the tokens to get the needed length....
+                         */
+                        $beforeCurrent = $current + 2;
+                        list($current, $innerIf) =  $parseToken(
+                            $tokens, $current + 2
+                        );
+
+                        $parsedTokens = $current - $beforeCurrent;
+
+                        $node['cases'][] = [
+                            'condition' => [],
+                            'isTrue'=> array_slice($tokens, $beforeCurrent, $parsedTokens)
+                        ];
                     }
 
                     return [$current, $node];
