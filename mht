@@ -22,7 +22,8 @@ $command = new \App\Command\UnpackCommand(
     new \App\Service\Archive\Glg(),
     new \App\Service\Archive\Inst(),
     new \App\Service\Archive\Fsb(),
-    new \App\Service\Archive\Grf()
+    new \App\Service\Archive\Grf(),
+    new \App\Service\Archive\Ifp()
 );
 $application->add($command);
 

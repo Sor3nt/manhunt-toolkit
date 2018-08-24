@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Service\Archive\Fsb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
+use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
 use App\Service\BytecodeExplain;
@@ -30,17 +31,22 @@ class UnpackCommand extends Command
 
     /** @var Fsb  */
     private $fsb;
+
     /** @var Grf  */
     private $grf;
 
+    /** @var Ifp  */
+    private $ifp;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Fsb $fsb, Grf $grf)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Fsb $fsb, Grf $grf, Ifp $ifp)
     {
         $this->mls = $mls;
         $this->glg = $glg;
         $this->inst = $inst;
         $this->fsb = $fsb;
         $this->grf = $grf;
+        $this->ifp = $ifp;
 
         parent::__construct();
     }
@@ -94,9 +100,9 @@ class UnpackCommand extends Command
             exit;
         }
 
-        if (substr($contentAsHex, 0, 8) == "474e4941") { // GNIA
-            $this->grf->unpack($content);
-        }
+//        if (substr($contentAsHex, 0, 8) == "474e4941") { // GNIA
+//            $this->grf->unpack($content);
+//        }
 
         // we found a MLS scipt
         if (substr($contentAsHex, 0, 8) == "4d484c53" || substr($contentAsHex, 0, 8) == "4d485343") { // MHSC
@@ -146,8 +152,17 @@ class UnpackCommand extends Command
             $this->fsb->unpack( $content );
 
         }
-        // INST format
+        // IFP format
         else if (
+            (substr($contentAsHex, 0, 8) == "414e4354") // ANCT
+        ) {
+            $outputTo = $folder . '/' . $filename . "/";
+            @mkdir($outputTo, 0777, true);
+
+            $this->ifp->unpack( $content, $output, $outputTo );
+
+            // INST format
+        } else if (
             (substr($contentAsHex, 4, 4) == "0000") &&
             (substr($contentAsHex, 10, 6) == "000000")
         ) {
