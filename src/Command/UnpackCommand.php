@@ -97,7 +97,9 @@ class UnpackCommand extends Command
                 $content
             );
 
-            exit;
+            $output->writeln("done.");
+            return;
+
         }
 
 //        if (substr($contentAsHex, 0, 8) == "474e4941") { // GNIA
@@ -109,7 +111,7 @@ class UnpackCommand extends Command
             $output->writeln("MHLS (MLS) file detected");
 
             $question = new ChoiceQuestion(
-                'Please provide the game (defaults to mh1 and mh2)',
+                'Please provide the source',
                 array('mh1', 'mh2'),
                 '0'
             );
@@ -159,7 +161,7 @@ class UnpackCommand extends Command
             $outputTo = $folder . '/' . $filename . "/";
             @mkdir($outputTo, 0777, true);
 
-            $this->ifp->unpack( $content, $output, $outputTo );
+            $this->ifp->unpack( $content, $output, $outputTo, false );
 
             // INST format
         } else if (
@@ -171,7 +173,7 @@ class UnpackCommand extends Command
 
 
             $question = new ChoiceQuestion(
-                'Please provide the game (defaults to mh1 and mh2)',
+                'Please provide the game',
                 array('mh1', 'mh2'),
                 '0'
             );
@@ -207,8 +209,6 @@ class UnpackCommand extends Command
 
         foreach ($mhls as $index => $mhsc) {
 
-var_dump("Process " . $mhsc['NAME']);
-
             $compiler = new Compiler();
             try{
 
@@ -216,30 +216,16 @@ var_dump("Process " . $mhsc['NAME']);
 
                 if ($index == 0){
                     $levelScript = $compiled;
-//                }else if ($index < 2){
-//                    throw new \Exception('CODE did not match');
                 }
 //
 
                 if ($compiled['CODE'] != $mhsc['CODE']) throw new \Exception('CODE did not match');
-
-
-//                if ($compiled['DATA'] != $mhsc['DATA']) throw new \Exception('DATA did not match');
-//                if ($compiled['SCPT'] != $mhsc['SCPT']) throw new \Exception('SCPT did not match');
-//                if ($compiled['ENTT'] != $mhsc['ENTT']) throw new \Exception('ENTT did not match');
-
-//                if (isset($compiled['STAB']) && isset($mhsc['STAB'])){
-//
-//                    if ($compiled['STAB'] != $mhsc['STAB']) throw new \Exception('STAB did not match');
-//                }
 
                 file_put_contents($outputTo . 'supported/' . $index . "#" . $mhsc['NAME'] . '.srce' , $mhsc['DBUG']['SRCE']);
 
             }catch(\Exception $e){
 
                 file_put_contents($outputTo . 'error.log' , sprintf("%s occured in %s#%s\n", $e->getMessage(), $index, $mhsc['NAME']), FILE_APPEND);
-
-
                 file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.code', implode("\n", $mhsc['CODE']));
 //
 //                $result = $explain->explain(implode("\n", $mhsc['CODE']));
@@ -252,19 +238,10 @@ var_dump("Process " . $mhsc['NAME']);
 
                 if (isset($mhsc['DATA'])){
                     file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.data' , implode("\n", $mhsc['DATA']));
-//                    file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.dataraw' , $mhsc['DATARAW']);
                 }
 
                 file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.srce' , $mhsc['DBUG']['SRCE']);
-//                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.line' , implode("\n", $mhsc['DBUG']['LINE']));
-
                 file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.scpt', \json_encode( $mhsc['SCPT'], JSON_PRETTY_PRINT));
-
-
-//                if (isset($mhsc['DMEM'])){
-//                    file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.dmem' , $mhsc['DMEM']);
-//                }
-
                 file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.smem' , $mhsc['SMEM']);
                 file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.entt', \json_encode( $mhsc['ENTT'], JSON_PRETTY_PRINT));
 

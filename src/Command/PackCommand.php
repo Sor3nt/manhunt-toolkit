@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\Archive\Glg;
+use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
@@ -12,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Finder\Finder;
@@ -28,12 +30,16 @@ class PackCommand extends Command
     /** @var Inst  */
     private $inst;
 
+    /** @var Ifp  */
+    private $ifp;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp)
     {
         $this->mls = $mls;
         $this->glg = $glg;
         $this->inst = $inst;
+        $this->ifp = $ifp;
 
         parent::__construct();
     }
@@ -44,10 +50,16 @@ class PackCommand extends Command
         $this
             ->setName('archive:pack')
             ->setAliases(['pack'])
-            ->setDescription('Pack a source file to GLG, INST or MLS')
+            ->setDescription('Pack a source file/folder')
             ->addArgument('folder', InputArgument::REQUIRED, 'The folder/file.')
             ->addArgument('output', InputArgument::OPTIONAL, 'Output result to this file')
-//            ->setHelp('This command allows you to create a user...')
+            ->addOption(
+                'game',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'mh1 or mh2?',
+                null
+            );//            ->setHelp('This command allows you to create a user...')
         ;
     }
 
@@ -58,26 +70,53 @@ class PackCommand extends Command
 
         $folder = realpath($input->getArgument('folder'));
         $saveTo = $input->getArgument('output');
+        $game = $input->getOption('game');
 
 
-        //MLS data folder
         if(is_dir(realpath($folder))){
 
+            $finder = new Finder();
+            $finder->name('/\.srce/')->files()->in( $folder );
 
-            $question = new ChoiceQuestion(
-                'Please provide the game (defaults to mh1 and mh2)',
-                array('mh1', 'mh2'),
-                '0'
-            );
+            //MLS data folder
+            if ($finder->count()){
 
-            $game = strtolower($helper->ask($input, $output, $question));
 
-            if (is_null($saveTo)){
-                $saveTo = $folder.'.mls';
+                if (is_null($game)){
+                    $question = new ChoiceQuestion(
+                        'Please provide the game (defaults to mh1 and mh2)',
+                        array('mh1', 'mh2'),
+                        '0'
+                    );
+
+                    $game = strtolower($helper->ask($input, $output, $question));
+                }
+
+                if (is_null($saveTo)){
+                    $saveTo = $folder.'.mls';
+                }
+
+
+                $this->packMLS(realpath($folder), $game, $saveTo, $output);
+            }else{
+
+                if (is_null($saveTo)){
+                    $saveTo = $folder.'.ifp.repack';
+                }
+
+
+                if (is_null($game)) {
+                    $question = new ChoiceQuestion(
+                        'Please provide the game',
+                        array('mh1', 'mh2'),
+                        '0'
+                    );
+
+                    $game = strtolower($helper->ask($input, $output, $question));
+                }
+
+                $this->packIfp( realpath($folder), $game, $saveTo, $output);
             }
-
-
-            $this->packMLS(realpath($folder), $game, $saveTo, $output);
 
         }else{
 
@@ -107,13 +146,15 @@ class PackCommand extends Command
                 }
 
 
-                $question = new ChoiceQuestion(
-                    'Please provide the game (defaults to mh1 and mh2)',
-                    array('mh1', 'mh2'),
-                    '0'
-                );
+                if (is_null($game)) {
+                    $question = new ChoiceQuestion(
+                        'Please provide the game',
+                        array('mh1', 'mh2'),
+                        '0'
+                    );
 
-                $game = strtolower($helper->ask($input, $output, $question));
+                    $game = strtolower($helper->ask($input, $output, $question));
+                }
 
                 $this->packInst( $content, $saveTo, $game);
 
@@ -126,6 +167,40 @@ class PackCommand extends Command
 
         $output->writeln('done');
     }
+
+    private function packIfp($folder, $game, $saveTo, OutputInterface $output = null){
+
+
+        $finder = new Finder();
+        $finder->files()->in($folder);
+
+        $ifp = [];
+
+        foreach ($finder as $file) {
+
+            $folder = $file->getPathInfo()->getFilename();
+
+            if (!isset($ifp[$folder])) $ifp[$folder] = [];
+
+            $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
+        }
+
+        uksort($ifp, function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        foreach ($ifp as &$item) {
+            uksort($item, function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+
+        }
+
+        $hex = $this->ifp->pack($ifp, $game);
+
+        file_put_contents($saveTo, hex2bin($hex));
+    }
+
 
     private function packMLS($folder, $game, $saveTo, OutputInterface $output = null){
 

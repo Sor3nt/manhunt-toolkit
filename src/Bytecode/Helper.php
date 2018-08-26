@@ -126,4 +126,14 @@ class Helper{
     }
 
 
+
+
+    public static function int8($i) {
+        return is_int($i) ? pack("c", $i) : unpack("c", $i)[1];
+    }
+
+    public static function int16($i) {
+        return is_int($i) ? pack("s", $i) : unpack("s", $i)[1];
+    }
+
 }

@@ -151,7 +151,6 @@ class Binary {
         );
     }
 
-
     public function substr($startOrSearchHexPos, $lengthOrSearchHexPos = null, Binary &$remain = null){
 
         $length = $lengthOrSearchHexPos;
