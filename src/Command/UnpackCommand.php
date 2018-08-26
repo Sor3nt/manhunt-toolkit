@@ -130,7 +130,6 @@ class UnpackCommand extends Command
             $mhls = $this->mls->unpack($content, $game, $output);
 
             $this->saveMHLS( $mhls,  $outputTo);
-
         }
         // GLG Record
         else if (
@@ -202,8 +201,6 @@ class UnpackCommand extends Command
 
         @mkdir($outputTo . "supported/", 0777, true);
         @mkdir($outputTo . "not-supported/", 0777, true);
-        $explain = new BytecodeExplain();
-
 
         $levelScript = false;
 
@@ -217,7 +214,6 @@ class UnpackCommand extends Command
                 if ($index == 0){
                     $levelScript = $compiled;
                 }
-//
 
                 if ($compiled['CODE'] != $mhsc['CODE']) throw new \Exception('CODE did not match');
 
@@ -227,14 +223,6 @@ class UnpackCommand extends Command
 
                 file_put_contents($outputTo . 'error.log' , sprintf("%s occured in %s#%s\n", $e->getMessage(), $index, $mhsc['NAME']), FILE_APPEND);
                 file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.code', implode("\n", $mhsc['CODE']));
-//
-//                $result = $explain->explain(implode("\n", $mhsc['CODE']));
-//                $result = array_map(function($entry){
-//                    return $entry[0] . (isset($entry[1]) ? ',' . $entry[1] : '');
-//                }, $result);
-//
-//                file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.code.explained', implode("\n", $result));
-//
 
                 if (isset($mhsc['DATA'])){
                     file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.data' , implode("\n", $mhsc['DATA']));
@@ -248,10 +236,7 @@ class UnpackCommand extends Command
                 if (isset($mhsc['STAB'])) {
                     file_put_contents($outputTo . "not-supported/" . $index . "#" . $mhsc['NAME'] . '.stab', \json_encode( $mhsc['STAB'], JSON_PRETTY_PRINT));
                 }
-
             }
-
-
         }
 
     }

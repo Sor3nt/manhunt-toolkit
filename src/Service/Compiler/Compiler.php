@@ -372,12 +372,7 @@ class Compiler {
         throw new \Exception('Compiler could not find / parse the Entity section');
     }
 
-    public function parse($source, $levelScript = false, $game = "Manhunt2"){
-//
-//        if ($levelScript != false){
-//            var_dump($levelScript['extra']['headerVariables']);
-//            exit;
-//        }
+    public function parse($source, $levelScript = false, $game = "mh2"){
 
         if (!defined('GAME')){
             define('GAME', $game);
@@ -450,13 +445,10 @@ class Compiler {
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $types);
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens);
-//        var_dump($tokens);
 
         // parse the token list to a ast
         $parser = new Parser( );
         $ast = $parser->toAST($tokens);
-
-//        $this->fixWriteDebug($ast['body']);
 
         $header = [];
         $currentSection = "header";

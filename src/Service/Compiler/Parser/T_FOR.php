@@ -99,21 +99,9 @@ class T_FOR {
             $current++;
         }
 
-
-
-
-            var_dump("eh");
-            exit;
-
-
-
-        while ($current < count($tokens)) {
-            $token = $tokens[$current];
-        }
-
-
-//        return [$current, $nodes];
+        throw new \Exception('Parser: map unable to handle');
     }
+
     static public function parseIfStatement( $tokens, $current, \Closure $parseToken ){
 
 

@@ -306,6 +306,7 @@ class Mls extends ZLib {
                         $section1 = $code->substr(0, 32, $code);
                         $section2 = $code->substr(0, $game == "mh1" ? 16 : 20, $code);
 
+                        $unknown1 = new Binary();
                         $name = $section1->substr(0, "\x00", $unknown1);
                         $entry['name'] = $name->toString();
 

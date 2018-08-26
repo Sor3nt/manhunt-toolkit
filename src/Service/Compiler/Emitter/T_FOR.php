@@ -78,13 +78,10 @@ class T_FOR {
             }
         }
 
-//var_dump($lastNumber, count($isTrue));
-//        exit;
         $endOffset = ($lastNumber + count($isTrue) + 6 ) * 4;
 
         // line offset for the IF end
         $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
-//        $code[] = $getLine( count($isTrue) . " ", $lastNumber + 1 );
 
         foreach ($node['params'] as $entry) {
             $codes = $emitter($entry);

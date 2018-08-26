@@ -165,6 +165,7 @@ class PackCommand extends Command
 
         }
 
+        $output->writeln('');
         $output->writeln('done');
     }
 

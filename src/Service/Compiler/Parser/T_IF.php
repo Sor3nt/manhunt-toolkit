@@ -181,8 +181,7 @@ class T_IF {
                             $tokens[$current + 1]['type'] == Token::T_ELSE &&
                             $tokens[$current + 2]['type'] == Token::T_IF
                         ) {
-//var_dump($tokens[$current + 2]);
-//exit;
+
                             list($current, $innerIf) = self::parseIfStatement(
                                 $tokens, $current + 2, $parseToken
                             );
