@@ -89,7 +89,7 @@ You can find some documented code examples here: https://github.com/Sor3nt/manhu
 
 This files contains any available animation from the game. At the current state we can export, remove, replace, add and also merge Animations between Manhunt 1 and Manhunt 2**
  
- \** Cross merging is disabled currently. 
+ ** Cross merging is disabled currently. 
  
 #Credits
  
