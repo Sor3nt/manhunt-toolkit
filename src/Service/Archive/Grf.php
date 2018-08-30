@@ -43,6 +43,9 @@ class Grf {
 
     public function unpack($data){
 
+
+        $testing = [];
+
         $entry = strtolower(bin2hex($data));
 
         $headerType = $this->toString($this->substr($entry, 0, 4));
@@ -77,8 +80,8 @@ class Grf {
                 $this->substr($entry, 0, $missed);
             }
 
-            $unknwonId = $this->toInt($this->substr($entry, 0, 4));
-            $result['unknwonId'] = $unknwonId;
+            $repeatingNameId = $this->toInt($this->substr($entry, 0, 4));
+//            $result['repeatingNameId'] = $repeatingNameId;
 
             $xOrNull = $this->substr($entry, 0, 4);
 
@@ -159,17 +162,33 @@ class Grf {
 
             $flagCount = $this->toInt($this->substr($entry, 0, 4));
 
-            $result['flagCount'] = $flagCount;
+//            $result['flagCount'] = $flagCount;
 
             while($flagCount > 0){
+
 
                 $flag = [
                     'key' => $this->substr($entry, 0, 4),
                     'active' => $this->substr($entry, 0, 4),
-                    'end' => $this->substr($entry, 0, 4)
+//                    'end' => $this->substr($entry, 0, 4)
                 ];
 
-                if ($flag['end'] == "01000000"){
+                $end = $this->substr($entry, 0, 4);
+                if ($end !== "00000000" && $end !== "01000000"){
+//                    $flag['unknown'] = $end;
+                    throw new \Exception(sprintf('Excepted 00000000 git %s', $end));
+                }
+
+                if (!isset($testing[$flag['key']])){
+                    $testing[$flag['key']] = [];
+                }
+                if (!in_array($flag['active'], $testing[$flag['key']])){
+
+                    $testing[$flag['key']][] = $flag['active'];
+                }
+
+
+                if ($end == "01000000"){
                     $flag['additional'] = $this->substr($entry, 0, 4);
                 }
 
@@ -193,6 +212,9 @@ class Grf {
 
             $entries--;
         }
+
+//        var_dump($testing);
+//        exit;
 
         $nextBlockCount = $this->toInt($this->substr($entry, 0, 4));
 
