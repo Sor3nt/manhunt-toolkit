@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\Bytecode\Helper;
 use App\Service\Binary;
 
 class Grf {
@@ -43,13 +44,12 @@ class Grf {
 
     public function unpack($data){
 
-
-        $testing = [];
-
         $entry = strtolower(bin2hex($data));
 
         $headerType = $this->toString($this->substr($entry, 0, 4));
-        $version = $this->toInt($this->substr($entry, 0, 4));
+
+        //version
+        $this->toInt($this->substr($entry, 0, 4));
 
         if ($headerType !== "GNIA")
             throw new \Exception(sprintf('Expected GNIA got: %s', $headerType));
@@ -81,7 +81,7 @@ class Grf {
             }
 
             $repeatingNameId = $this->toInt($this->substr($entry, 0, 4));
-//            $result['repeatingNameId'] = $repeatingNameId;
+            $result['repeatingNameId'] = $repeatingNameId;
 
             $xOrNull = $this->substr($entry, 0, 4);
 
@@ -104,11 +104,8 @@ class Grf {
 
             }
 
-
-
             //remove the position ending sequence 0000003f
             $entry = substr($entry, 8);
-
 
             /**
              * 3 cases:
@@ -120,7 +117,6 @@ class Grf {
             $entry = hex2bin($entry);
             $name2 = $this->mbSubstr($entry, 0, mb_strpos($entry, "\x00"));
             $entry = bin2hex($entry);
-
 
             $flags = [];
 
@@ -138,8 +134,11 @@ class Grf {
                 $unknownId2 = $this->substr($entry, 0, 4);
 
                 if ($unknownId2 != "00000000"){
-                    $result['unknownId2'] = $unknownId2;
-                    $result['unknownFlag2'] = $this->substr($entry, 0, 4);
+
+                    if ($unknownId2 != "01000000") throw new \Exception(sprintf('Excepted 01000000 and got %s', $test));
+
+//                    $result['unknownId2'] = $unknownId2;
+                    $result['unknown'] = $this->substr($entry, 0, 4);
                 }
 
             }else{
@@ -162,31 +161,18 @@ class Grf {
 
             $flagCount = $this->toInt($this->substr($entry, 0, 4));
 
-//            $result['flagCount'] = $flagCount;
-
             while($flagCount > 0){
 
 
                 $flag = [
                     'key' => $this->substr($entry, 0, 4),
-                    'active' => $this->substr($entry, 0, 4),
-//                    'end' => $this->substr($entry, 0, 4)
+                    'active' => $this->substr($entry, 0, 4)
                 ];
 
                 $end = $this->substr($entry, 0, 4);
                 if ($end !== "00000000" && $end !== "01000000"){
-//                    $flag['unknown'] = $end;
                     throw new \Exception(sprintf('Excepted 00000000 git %s', $end));
                 }
-
-                if (!isset($testing[$flag['key']])){
-                    $testing[$flag['key']] = [];
-                }
-                if (!in_array($flag['active'], $testing[$flag['key']])){
-
-                    $testing[$flag['key']][] = $flag['active'];
-                }
-
 
                 if ($end == "01000000"){
                     $flag['additional'] = $this->substr($entry, 0, 4);
@@ -195,7 +181,6 @@ class Grf {
                 $flags[] = $flag;
 
                 $flagCount--;
-
             }
 
             if (count($flags)){
@@ -212,9 +197,6 @@ class Grf {
 
             $entries--;
         }
-
-//        var_dump($testing);
-//        exit;
 
         $nextBlockCount = $this->toInt($this->substr($entry, 0, 4));
 
@@ -252,9 +234,8 @@ class Grf {
         }
 
         $nextBlockCount = $this->toInt($this->substr($entry, 0, 4));
+
         while($nextBlockCount > 0){
-
-
             $entry = hex2bin($entry);
             $name = $this->mbSubstr($entry, 0, mb_strpos($entry, "\x00"));
             $entry = bin2hex($entry);
@@ -273,15 +254,137 @@ class Grf {
         }
 
         if ($entry != ""){
-            throw new \Exception('Remained content found, parseing is not valid!');
+            throw new \Exception('Remained content found, parsing is not valid!');
         }
 
         return $results;
 
     }
 
-    public function pack( $records ){
+    public function pack( $record ){
 
+        $nameIndex = [];
+
+        $data = current(unpack("H*", "GNIA"));
+        $data .= Helper::fromIntToHex(1);
+
+        $data .= Helper::fromIntToHex(count($record['block1']));
+
+        foreach ($record['block1'] as $entry) {
+
+            /**
+             * Generate the NAME
+             */
+
+            $data .= $this->packString($entry['name']);
+
+
+            // count up the name usage
+//            if (!isset($nameIndex[$name])) $nameIndex[$name] = -1;
+//            $nameIndex[$name]++;
+
+//            $data .= Helper::fromIntToHex($nameIndex[$name]);
+            $data .= Helper::fromIntToHex($entry['repeatingNameId']);
+
+
+            /**
+             * Generate the POSITIONS
+             */
+            foreach ($entry['positions'] as $position) {
+                $data .= Helper::fromFloatToHex($position['x']);
+                $data .= Helper::fromFloatToHex($position['y']);
+                $data .= Helper::fromFloatToHex($position['z']);
+            }
+
+            $data .= "0000003f";
+
+            /**
+             * Generate the ACTION
+             */
+
+            if (isset($entry['action'])){
+
+                $data .= $this->packString($entry['action']);
+                $data .= "00000000";
+
+                if (isset($entry['unknownFlag2'])){
+                    //todo: ggf falsch, kommt von $unknownId2
+                    $data .= "01000000";
+
+                    $data .= $entry['unknownFlag2'];
+                }else{
+                    $data .= "00000000";
+                }
+
+            }else{
+                $data .= "00707070";
+                $data .= "00000000";
+
+                if (isset($entry['unknown'])){
+                    $data .= "01000000";
+                    $data .= $entry['unknown'];
+                }else{
+                    $data .= "00000000";
+                }
+            }
+
+            /**
+             * Generate the FLAGS
+             */
+
+            $data .= Helper::fromIntToHex(count($entry['flags']));
+
+            if (count($entry['flags'])){
+                foreach ($entry['flags'] as $flag) {
+                    $data .= $flag['key'];
+                    $data .= $flag['active'];
+
+                    if (isset($flag['additional'])){
+                        $data .= "01000000";
+                        $data .= $flag['additional'];
+                    }else{
+                        $data .= "00000000";
+                    }
+                }
+
+                $data .= "00000000";
+                $data .= "00000000";
+            }
+        }
+
+        $data .= Helper::fromIntToHex(count($record['block2']));
+
+        foreach ($record['block2'] as $entry) {
+
+            $data .= $this->packString($entry['name']);
+            $data .= Helper::fromIntToHex(count($entry['flags']));
+
+            foreach ($entry['flags'] as $flag) {
+                $data .= $flag;
+            }
+        }
+
+        $data .= Helper::fromIntToHex(count($record['block3']));
+
+        foreach ($record['block3'] as $entry) {
+            $data .= $this->packString($entry);
+        }
+
+        return $data;
+
+    }
+
+    private function packString($string){
+        $string = current(unpack("H*", $string)) . '00';
+
+        //add padding
+        $missed = 4 - (strlen($string) / 2) % 4;
+
+        if ($missed > 0 && $missed < 4 ){
+            $string .= str_repeat('70', $missed);
+        }
+
+        return $string;
     }
 
 }

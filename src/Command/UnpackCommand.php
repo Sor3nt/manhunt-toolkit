@@ -39,12 +39,12 @@ class UnpackCommand extends Command
     private $ifp;
 
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Fsb $fsb, Grf $grf, Ifp $ifp)
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp)
     {
         $this->mls = $mls;
         $this->glg = $glg;
         $this->inst = $inst;
-        $this->fsb = $fsb;
+//        $this->fsb = $fsb;
         $this->grf = $grf;
         $this->ifp = $ifp;
 

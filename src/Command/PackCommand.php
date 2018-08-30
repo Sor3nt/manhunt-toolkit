@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\Archive\Glg;
+use App\Service\Archive\Grf;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
@@ -33,13 +34,17 @@ class PackCommand extends Command
     /** @var Ifp  */
     private $ifp;
 
+    /** @var Grf  */
+    private $grf;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf)
     {
         $this->mls = $mls;
         $this->glg = $glg;
         $this->inst = $inst;
         $this->ifp = $ifp;
+        $this->grf = $grf;
 
         parent::__construct();
     }
@@ -134,7 +139,22 @@ class PackCommand extends Command
 
                 $this->packGLG( $content, $saveTo);
 
-            // Inst file
+            // grf file
+            }else if (
+                (strpos($content, "block1") !== false) &&
+                (strpos($content, "block2") !== false) &&
+                (strpos($content, "block3") !== false)
+            ){
+
+                if (is_null($saveTo)){
+                    $saveTo = $folder.'.repacked';
+                }
+
+                $hex = $this->grf->pack(\json_decode($content, true));
+
+                file_put_contents($saveTo, hex2bin($hex));
+
+                // Inst file
             }else if (
                 (strpos($content, "record") !== false) &&
                 (strpos($content, "internalName") !== false) &&
