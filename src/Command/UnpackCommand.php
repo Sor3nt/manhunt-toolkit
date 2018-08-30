@@ -102,12 +102,19 @@ class UnpackCommand extends Command
 
         }
 
-//        if (substr($contentAsHex, 0, 8) == "474e4941") { // GNIA
-//            $this->grf->unpack($content);
-//        }
+        if (substr($contentAsHex, 0, 8) == "474e4941") { // GNIA
+
+            $grf = $this->grf->unpack($content);
+
+            $outputTo = $folder . '/' . $filename . ".grf.uncompressed";
+
+            file_put_contents(
+                $outputTo,
+                \json_encode($grf, JSON_PRETTY_PRINT)
+            );
 
         // we found a MLS scipt
-        if (substr($contentAsHex, 0, 8) == "4d484c53" || substr($contentAsHex, 0, 8) == "4d485343") { // MHSC
+        }else if (substr($contentAsHex, 0, 8) == "4d484c53" || substr($contentAsHex, 0, 8) == "4d485343") { // MHSC
             $output->writeln("MHLS (MLS) file detected");
 
             $question = new ChoiceQuestion(
