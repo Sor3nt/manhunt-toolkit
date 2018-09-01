@@ -20,14 +20,6 @@ class Grf {
         return (float) current(unpack("f", hex2bin($hex)));
     }
 
-    private function toInt8($hex){
-        return is_int($hex) ? pack("c", $hex) :  current(unpack("c", hex2bin($hex)));
-    }
-
-    private function toInt16($hex){
-        return is_int($hex) ? pack("s", $hex) : current(unpack("s", hex2bin($hex)));
-    }
-
     private function substr(&$hex, $start, $end){
 
         $result = substr($hex, $start * 2, $end * 2);

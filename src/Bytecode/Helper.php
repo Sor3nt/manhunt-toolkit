@@ -16,6 +16,30 @@ class Helper{
         return join('', $split);
     }
 
+    static function toLittleEndian( $hex ){
+
+        // target : 67 29 01 00
+        // input : 12 96 7
+
+        //step 1: str reverse
+        // input : 12 96 7
+        // output : 76 92 1
+        $hex = strrev($hex);
+        $hex = self::pad($hex, 4 + (2 % strlen($hex)));
+
+        //step 1: flip bytes
+        // input : 76 92 10
+        // output : 67 29 01
+
+        $split = str_split($hex, 2);
+
+        foreach ($split as &$item) {
+            $item = strrev($item);
+        }
+
+        return join('', $split);
+    }
+
     static function pad($hex, $lim = 8, $before = false, $char = "0")
     {
         return (
@@ -45,11 +69,17 @@ class Helper{
 
     }
 
-    static function fromIntToHex( $int ){
-        $codeLenght = self::toBigEndian(self::pad(dechex($int),4, true));
-        return self::pad($codeLenght);
+    static function fromIntToHex( $int, $toBig = true ){
+        if ($toBig){
+            $codeLenght = self::toBigEndian(self::pad(dechex($int),4, true));
+            return self::pad($codeLenght);
 
+        }else{
+            $codeLenght = self::toLittleEndian(self::pad(dechex($int),8, true));
+            return self::pad($codeLenght);
+        }
     }
+
     static function fromHexToInt( $hex ){
         return (int) current(unpack("L", hex2bin($hex)));
 

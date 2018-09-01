@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\Archive\Bin;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
 use App\Service\Archive\Ifp;
@@ -37,14 +38,18 @@ class PackCommand extends Command
     /** @var Grf  */
     private $grf;
 
+    /** @var Bin  */
+    private $bin;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf, Bin $bin)
     {
         $this->mls = $mls;
         $this->glg = $glg;
         $this->inst = $inst;
         $this->ifp = $ifp;
         $this->grf = $grf;
+        $this->bin = $bin;
 
         parent::__construct();
     }
@@ -105,22 +110,39 @@ class PackCommand extends Command
                 $this->packMLS(realpath($folder), $game, $saveTo, $output);
             }else{
 
-                if (is_null($saveTo)){
-                    $saveTo = $folder.'.ifp.repack';
+                $finder = new Finder();
+                $finder->name('executions')->directories()->in( $folder );
+
+                //we pack a strmanim_pc.bin
+                if ($finder->count() == 1){
+                    if (is_null($saveTo)){
+                        $saveTo = $folder.'.bin.repack';
+                    }
+
+                    $this->packStrmAnimPcBin( realpath($folder), $game, $saveTo, $output);
+
+
+
+                }else{
+
+                    if (is_null($saveTo)){
+                        $saveTo = $folder.'.ifp.repack';
+                    }
+
+
+                    if (is_null($game)) {
+                        $question = new ChoiceQuestion(
+                            'Please provide the game',
+                            array('mh1', 'mh2'),
+                            '0'
+                        );
+
+                        $game = strtolower($helper->ask($input, $output, $question));
+                    }
+
+                    $this->packIfp( realpath($folder), $game, $saveTo, $output);
+
                 }
-
-
-                if (is_null($game)) {
-                    $question = new ChoiceQuestion(
-                        'Please provide the game',
-                        array('mh1', 'mh2'),
-                        '0'
-                    );
-
-                    $game = strtolower($helper->ask($input, $output, $question));
-                }
-
-                $this->packIfp( realpath($folder), $game, $saveTo, $output);
             }
 
         }else{
@@ -187,6 +209,77 @@ class PackCommand extends Command
 
         $output->writeln('');
         $output->writeln('done');
+    }
+
+    private function packStrmAnimPcBin($folder, $game, $saveTo, OutputInterface $output = null){
+
+
+        $finder = new Finder();
+        $finder->depth('== 0')->directories()->in($folder . '/executions');
+
+        $paddings = \json_decode(file_get_contents($folder . '/padding.json'), true);
+
+        $executions = [];
+        foreach ($finder as $directory) {
+
+            $executionId = $directory->getFilename();
+            $executions[ $executionId ] = [];
+
+            $execFinder = new Finder();
+            $execFinder->depth('== 0')->directories()->in($directory->getRealPath());
+
+            foreach ($execFinder as $executionFolder) {
+                $executionSection = $executionFolder->getFilename();
+                $executions[ $executionId ][$executionSection] = [];
+
+                $fileFinder = new Finder();
+                $fileFinder->files()->in($executionFolder->getRealPath());
+
+                foreach ($fileFinder as $file) {
+                    $excutionName = $file->getFilename();
+                    $executions[ $executionId ][$executionSection][$excutionName] = \json_decode($file->getContents(), true);
+                }
+
+
+                uksort($executions[ $executionId ][$executionSection], function($a, $b){
+                    return explode("#", $a)[0] > explode("#", $b)[0];
+                });
+
+            }
+        }
+
+        uksort($executions, function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        $finder = new Finder();
+        $finder->depth('== 0')->directories()->in($folder . '/envExecutions');
+
+        $envExecutions = [];
+        foreach ($finder as $directory) {
+
+            $executionId = $directory->getFilename();
+            $envExecutions[ $executionId ] = [];
+
+
+            $fileFinder = new Finder();
+            $fileFinder->files()->in($directory->getRealPath());
+
+            foreach ($fileFinder as $file) {
+                $excutionName = $file->getFilename();
+                $envExecutions[ $executionId ][$excutionName] = \json_decode($file->getContents(), true);
+            }
+
+            uksort($envExecutions[ $executionId ], function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+
+
+        }
+
+        $hex = $this->bin->pack($executions, $envExecutions, $paddings);
+        file_put_contents($saveTo, hex2bin($hex));
+
     }
 
     private function packIfp($folder, $game, $saveTo, OutputInterface $output = null){

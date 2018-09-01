@@ -115,7 +115,7 @@ class Ifp {
 
     }
 
-    private function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $saveAsJson){
+    public function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $saveAsJson){
         $animations = [];
 
         $count = 1;
@@ -486,75 +486,81 @@ class Ifp {
             $data .= Helper::fromIntToHex(strlen($blockName));
             $data .= current(unpack("H*", $blockName));
 
-
-            $data .= current(unpack("H*", "ANPK"));
-            $data .= Helper::fromIntToHex(count($animations));
-
-
-
-            foreach ($animations as $animationName => $animation) {
-
-                $data .= current(unpack("H*", "NAME"));
-
-                /*
-                 * Add the length of the Animation name and the Animation name itself
-                 */
-                $animationName = explode("#", $animationName)[1];
-                $animationName = explode(".json", $animationName)[0];
-                $animationName .= "\x00";
-                $data .= Helper::fromIntToHex(strlen($animationName));
-                $data .= current(unpack("H*", $animationName));
-
-
-                $data .= Helper::fromIntToHex($animation['numberOfBones']);
-                $data .= Helper::fromIntToHex($animation['chunkSize']);
-                $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
-
-
-                foreach ($animation['bones'] as $bone) {
-
-                    $data .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
-
-                    $data .= bin2hex($this->toInt16($bone['boneId']));
-                    $data .= bin2hex($this->toInt8($bone['frameType']));
-                    $data .= bin2hex($this->toInt16($bone['frameCount']));
-                    $data .= bin2hex($this->toInt16($bone['startTime']));
-
-
-                    if ($bone['frameType'] > 2){
-                        if ($bone['startTime'] > 0){
-                            $data .= $bone['unknown1'];
-                        }
-
-                        $data .= $bone['unknown2'];
-                        $data .= $bone['unknown3'];
-                        $data .= $bone['unknown4'];
-
-                    }
-
-                    if (!is_string($bone['frames'])){
-                        die("Packing of JSON Frames not supported right now...");
-                    }
-
-                    $data .= $bone['frames'];
-
-
-                }
-
-
-                $data .= Helper::fromIntToHex($animation['headerSize']);
-                $data .= $animation['unknown5'];
-                $data .= Helper::fromIntToHex($animation['eachEntrySize']);
-                $data .= Helper::fromIntToHex($animation['numEntry']);
-
-                foreach ($animation['entry'] as $entry) {
-                    $data .= $entry;
-                }
-            }
+            $data .= $this->packAnimation($animations, $game);
         }
 
         return $data;
 
+    }
+
+    public function packAnimation($animations, $game){
+
+        $data = current(unpack("H*", "ANPK"));
+        $data .= Helper::fromIntToHex(count($animations));
+
+
+
+        foreach ($animations as $animationName => $animation) {
+
+            $data .= current(unpack("H*", "NAME"));
+
+            /*
+             * Add the length of the Animation name and the Animation name itself
+             */
+            $animationName = explode("#", $animationName)[1];
+            $animationName = explode(".json", $animationName)[0];
+            $animationName .= "\x00";
+            $data .= Helper::fromIntToHex(strlen($animationName));
+            $data .= current(unpack("H*", $animationName));
+
+
+            $data .= Helper::fromIntToHex($animation['numberOfBones']);
+            $data .= Helper::fromIntToHex($animation['chunkSize']);
+            $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
+
+
+            foreach ($animation['bones'] as $bone) {
+
+                $data .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
+
+                $data .= bin2hex($this->toInt16($bone['boneId']));
+                $data .= bin2hex($this->toInt8($bone['frameType']));
+                $data .= bin2hex($this->toInt16($bone['frameCount']));
+                $data .= bin2hex($this->toInt16($bone['startTime']));
+
+
+                if ($bone['frameType'] > 2){
+                    if ($bone['startTime'] > 0){
+                        $data .= $bone['unknown1'];
+                    }
+
+                    $data .= $bone['unknown2'];
+                    $data .= $bone['unknown3'];
+                    $data .= $bone['unknown4'];
+
+                }
+
+                if (!is_string($bone['frames'])){
+                    die("Packing of JSON Frames not supported right now...");
+                }
+
+                $data .= $bone['frames'];
+
+
+            }
+
+
+            $data .= Helper::fromIntToHex($animation['headerSize']);
+            $data .= $animation['unknown5'];
+            $data .= Helper::fromIntToHex($animation['eachEntrySize']);
+            $data .= Helper::fromIntToHex($animation['numEntry']);
+
+            foreach ($animation['entry'] as $entry) {
+                $data .= $entry;
+            }
+        }
+
+        return $data;
     }
 
 

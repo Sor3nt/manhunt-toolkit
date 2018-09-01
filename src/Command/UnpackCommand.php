@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\Archive\Bin;
 use App\Service\Archive\Fsb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
@@ -38,8 +39,11 @@ class UnpackCommand extends Command
     /** @var Ifp  */
     private $ifp;
 
+    /** @var Bin  */
+    private $bin;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp, Bin $bin)
     {
         $this->mls = $mls;
         $this->glg = $glg;
@@ -47,6 +51,7 @@ class UnpackCommand extends Command
 //        $this->fsb = $fsb;
         $this->grf = $grf;
         $this->ifp = $ifp;
+        $this->bin = $bin;
 
         parent::__construct();
     }
@@ -137,6 +142,18 @@ class UnpackCommand extends Command
             $mhls = $this->mls->unpack($content, $game, $output);
 
             $this->saveMHLS( $mhls,  $outputTo);
+        }
+        // BIN animation file
+        else if (
+            (strpos(strtolower($content), "anpk") !== false) &&
+            (substr($contentAsHex, 0, 8) != "414e504b") && // is not ANPK header
+            (substr($contentAsHex, 0, 8) != "414e4354") // is not ANCT header
+        ){
+
+            $outputTo = $folder . '/' . $filename . "/";
+            @mkdir($outputTo, 0777, true);
+            $this->bin->unpack($contentAsHex, $outputTo);
+
         }
         // GLG Record
         else if (
