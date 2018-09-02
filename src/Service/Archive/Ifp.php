@@ -541,10 +541,53 @@ class Ifp {
                 }
 
                 if (!is_string($bone['frames'])){
-                    die("Packing of JSON Frames not supported right now...");
+
+                    foreach ($bone['frames']['frames'] as $index => $frame) {
+//var_dump($bone['startTime']);
+//exit;
+                        if ($bone['startTime'] == 0){
+
+                            if ($index == 0 && $bone['frameType'] < 3){
+
+                            }else{
+                                $data .= bin2hex($this->toInt16($frame['time']));
+
+                            }
+
+                        }
+
+                        if ($bone['frameType'] < 3){
+                            $data .= bin2hex($this->toInt16($frame['quat'][0]));
+                            $data .= bin2hex($this->toInt16($frame['quat'][1]));
+                            $data .= bin2hex($this->toInt16($frame['quat'][2]));
+                            $data .= bin2hex($this->toInt16($frame['quat'][3]));
+
+
+                        }
+
+                        if ($bone['frameType'] > 1){
+
+                            $data .= bin2hex($this->toInt16($frame['position'][0]));
+                            $data .= bin2hex($this->toInt16($frame['position'][1]));
+                            $data .= bin2hex($this->toInt16($frame['position'][2]));
+
+
+                        }
+
+                    }
+
+
+                    if ($game == "mh2"){
+                        $data .= Helper::fromFloatToHex($bone['frames']['lastFrameTime']);
+                    }
+
+                }else{
+                    $data .= $bone['frames'];
+
                 }
 
-                $data .= $bone['frames'];
+
+
 
 
             }
@@ -555,8 +598,37 @@ class Ifp {
             $data .= Helper::fromIntToHex($animation['eachEntrySize']);
             $data .= Helper::fromIntToHex($animation['numEntry']);
 
+
             foreach ($animation['entry'] as $entry) {
-                $data .= $entry;
+                if (!is_string($entry)) {
+
+                    if ($game == "mh2"){
+
+                        $data .= Helper::fromFloatToHex($entry['time']);
+                        $data .= $entry['unknown'];
+                        $data .= $entry['unknown2'];
+                        $data .= $entry['CommandName'];
+                        $data .= $entry['unknown3'];
+                        $data .= Helper::fromFloatToHex($entry['boneId']);
+
+                        $data .= $entry['particleName'];
+
+
+                        foreach ($entry['particlePosition'] as $pPos) {
+                            $data .= Helper::fromFloatToHex($pPos);
+                        }
+
+                        $data .= $entry['unknown5'];
+
+
+                    }else{
+                        die("mh1 json todo");
+                    }
+
+                }else{
+                    $data .= $entry;
+
+                }
             }
         }
 

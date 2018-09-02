@@ -65,6 +65,7 @@ class UnpackCommand extends Command
             ->setDescription('Unpack a GLG, INST or MLS file')
             ->addArgument('file', InputArgument::REQUIRED, 'This file will be extracted')
             ->addOption('only-unzip', null, null, 'Will only unzip the file')
+            ->addOption('save-json', null, null, 'Used for Animation files')
 
             ->setHelp('This command allows you to create a user...')
         ;
@@ -152,7 +153,7 @@ class UnpackCommand extends Command
 
             $outputTo = $folder . '/' . $filename . "/";
             @mkdir($outputTo, 0777, true);
-            $this->bin->unpack($contentAsHex, $outputTo);
+            $this->bin->unpack($contentAsHex, $outputTo, $input->getOption('save-json'));
 
         }
         // GLG Record
@@ -184,7 +185,7 @@ class UnpackCommand extends Command
             $outputTo = $folder . '/' . $filename . "/";
             @mkdir($outputTo, 0777, true);
 
-            $this->ifp->unpack( $content, $output, $outputTo, false );
+            $this->ifp->unpack( $content, $output, $outputTo, $input->getOption('save-json') );
 
             // INST format
         } else if (
