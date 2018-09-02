@@ -182,7 +182,7 @@ class Ifp {
 
             if ($game == "mh2-wii"){
                 $headerSize    = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
-                $unknown5      = $this->substr($entry, 0, 4);
+                $unknown5      = Helper::toBigEndian($this->substr($entry, 0, 4));
                 $eachEntrySize = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
                 $numEntry      = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
             }else{
@@ -272,6 +272,10 @@ class Ifp {
     }
 
     private function extractBones($numberOfBones, &$entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc"){
+
+        if ($game == "mh2-wii"){
+            $saveAsJson = true;
+        }
 
         $bones = [];
         while($numberOfBones > 0){
