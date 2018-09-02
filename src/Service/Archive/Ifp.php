@@ -357,7 +357,8 @@ class Ifp {
                 $frameType,
                 $entry,
                 $output,
-                $saveAsJson
+                $saveAsJson,
+                $game
             );
 
             $bones[] = $resultBone;
@@ -368,7 +369,12 @@ class Ifp {
         return $bones;
     }
 
-    private function extractFrames($startTime, $frames, $frameType, &$entry, OutputInterface $output = null, $saveAsJson){
+    private function extractFrames($startTime, $frames, $frameType, &$entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc"){
+
+        //bigedian swap not supported
+        if ($game == "mh2-wii"){
+            $saveAsJson = true;
+        }
 
         $resultFrames = [
             'frames' => []
@@ -390,9 +396,11 @@ class Ifp {
                     if ($index == 0 && $frameType < 3){
                         $time = $startTime;
                     }else{
-                        $time = $this->toInt16($this->substr($entry, 0, 2));
-                        var_dump($time);
-                        exit;
+                        if ($game == "mh2-wii"){
+                            $time = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                        }else{
+                            $time = $this->toInt16($this->substr($entry, 0, 2));
+                        }
                     }
 
                     $resultFrame['time'] = $time;
@@ -404,10 +412,17 @@ class Ifp {
 
                 if ($frameType < 3){
 
-                    $x = $this->toInt16($this->substr($entry, 0, 2));
-                    $y = $this->toInt16($this->substr($entry, 0, 2));
-                    $z = $this->toInt16($this->substr($entry, 0, 2));
-                    $w = $this->toInt16($this->substr($entry, 0, 2));
+                    if ($game == "mh2-wii") {
+                        $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                        $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                        $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                        $w = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    }else{
+                        $x = $this->toInt16($this->substr($entry, 0, 2));
+                        $y = $this->toInt16($this->substr($entry, 0, 2));
+                        $z = $this->toInt16($this->substr($entry, 0, 2));
+                        $w = $this->toInt16($this->substr($entry, 0, 2));
+                    }
 
                     $resultFrame['quat'] = [$x,$y,$z,$w];
 
@@ -425,9 +440,16 @@ class Ifp {
 
                 if ($frameType > 1){
 
-                    $x = $this->toInt16($this->substr($entry, 0, 2));
-                    $y = $this->toInt16($this->substr($entry, 0, 2));
-                    $z = $this->toInt16($this->substr($entry, 0, 2));
+                    if ($game == "mh2-wii") {
+                        $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                        $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                        $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    }else{
+                        $x = $this->toInt16($this->substr($entry, 0, 2));
+                        $y = $this->toInt16($this->substr($entry, 0, 2));
+                        $z = $this->toInt16($this->substr($entry, 0, 2));
+
+                    }
 
                     $resultFrame['position'] = [$x,$y,$z];
 
@@ -481,7 +503,12 @@ class Ifp {
         if ($this->game == "mh2"){
             if ($saveAsJson) {
 
-                $resultFrames['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
+                if ($game == "mh2-wii") {
+                    $resultFrames['lastFrameTime'] = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
+                }else{
+                    $resultFrames['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
+
+                }
 
 
                 if (!is_null($output)) $output->writeln(
