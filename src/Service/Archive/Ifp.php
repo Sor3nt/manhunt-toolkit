@@ -225,26 +225,53 @@ class Ifp {
                         $resultAnimation['entry'][] = $this->substr($entry, 0, 16 * 4);
                     }
                 }else{
-                    if ($saveAsJson){
-                        $resultAnimation['entry'][] = [
-                            'time' => $this->toFloat($this->substr($entry, 0, 4)),
-                            'unknown' => $this->substr($entry, 0, 4),
-                            'unknown2' => $this->substr($entry, 0, 4),
-                            'CommandName' => $this->toString($this->substr($entry, 0, 64)),
-                            'unknown3' => $this->substr($entry, 0, 4),
-                            'unknown6' => $this->toFloat($this->substr($entry, 0, 4)),
-                            'particleName' => $this->toString($this->substr($entry, 0, 8)),
-                            'particlePosition' => [
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                                $this->toFloat($this->substr($entry, 0, 4)),
-                            ],
-                            'unknown5' => $this->substr($entry, 0, 40),
-                        ];
+                    if ($saveAsJson || $game == "mh2-wii"){
+
+
+                        if ($game == "mh2-wii"){
+
+                            $resultAnimation['entry'][] = [
+                                'time' => $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                'unknown' => Helper::toBigEndian($this->substr($entry, 0, 4)),
+                                'unknown2' => $this->substr($entry, 0, 4),
+                                'CommandName' => $this->toString($this->substr($entry, 0, 64)),
+                                'unknown3' => Helper::toBigEndian($this->substr($entry, 0, 4)),
+                                'unknown6' => $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                'particleName' => $this->toString($this->substr($entry, 0, 8)),
+                                'particlePosition' => [
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                ],
+                                'unknown5' => $this->substr($entry, 0, 40),
+                            ];
+                        }else{
+                            $resultAnimation['entry'][] = [
+                                'time' => $this->toFloat($this->substr($entry, 0, 4)),
+                                'unknown' => $this->substr($entry, 0, 4),
+                                'unknown2' => $this->substr($entry, 0, 4),
+                                'CommandName' => $this->toString($this->substr($entry, 0, 64)),
+                                'unknown3' => $this->substr($entry, 0, 4),
+                                'unknown6' => $this->toFloat($this->substr($entry, 0, 4)),
+                                'particleName' => $this->toString($this->substr($entry, 0, 8)),
+                                'particlePosition' => [
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                    $this->toFloat($this->substr($entry, 0, 4)),
+                                ],
+                                'unknown5' => $this->substr($entry, 0, 40),
+                            ];
+                        }
+
+
                     }else{
 
                         $resultAnimation['entry'][] = $this->substr($entry, 0, 40 * 4);
