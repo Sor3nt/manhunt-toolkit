@@ -139,7 +139,7 @@ class Ifp {
 
 
             $resultAnimation = [
-                'numberOfBones' => $numberOfBones,
+//                'numberOfBones' => $numberOfBones,
                 'chunkSize' => $chunkSize,
                 'frameTimeCount' => $frameTimeCount,
             ];
@@ -266,10 +266,13 @@ class Ifp {
             $resultBone = [
                 'boneId' => $boneId,
                 'frameType' => $frameType,
-                'frameCount' => $frames,
                 'startTime' => $startTime,
                 'frames' => []
             ];
+
+            if ($saveAsJson == false){
+                $resultBone['frameCount'] = $frames;
+            }
 
             if (!is_null($output)) $output->writeln(
                 sprintf('          | <info>Bone Id:</info> %s', $boneId) . "\n" .
@@ -514,7 +517,7 @@ class Ifp {
             $data .= current(unpack("H*", $animationName));
 
 
-            $data .= Helper::fromIntToHex($animation['numberOfBones']);
+            $data .= Helper::fromIntToHex(count($animation['bones']));
             $data .= Helper::fromIntToHex($animation['chunkSize']);
             $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
 
@@ -525,7 +528,12 @@ class Ifp {
 
                 $data .= bin2hex($this->toInt16($bone['boneId']));
                 $data .= bin2hex($this->toInt8($bone['frameType']));
-                $data .= bin2hex($this->toInt16($bone['frameCount']));
+                if (!is_string($bone['frames'])){
+                    $data .= bin2hex($this->toInt16(count($bone['frames']['frames'])));
+
+                }else{
+                    $data .= bin2hex($this->toInt16($bone['frameCount']));
+                }
                 $data .= bin2hex($this->toInt16($bone['startTime']));
 
 
@@ -602,28 +610,28 @@ class Ifp {
             foreach ($animation['entry'] as $entry) {
                 if (!is_string($entry)) {
 
-                    if ($game == "mh2"){
+                    $data .= Helper::fromFloatToHex($entry['time']);
+                    $data .= $entry['unknown'];
+                    $data .= $entry['unknown2'];
 
-                        $data .= Helper::fromFloatToHex($entry['time']);
-                        $data .= $entry['unknown'];
-                        $data .= $entry['unknown2'];
+                    if ($game == "mh2"){
                         $data .= $entry['CommandName'];
                         $data .= $entry['unknown3'];
-                        $data .= Helper::fromFloatToHex($entry['boneId']);
-
-                        $data .= $entry['particleName'];
-
-
-                        foreach ($entry['particlePosition'] as $pPos) {
-                            $data .= Helper::fromFloatToHex($pPos);
-                        }
-
-                        $data .= $entry['unknown5'];
-
-
                     }else{
-                        die("mh1 json todo");
+                        $data .= $entry['unknown3'];
+                        $data .= $entry['unknown4'];
                     }
+
+                    $data .= Helper::fromFloatToHex($entry['boneId']);
+
+                    $data .= $entry['particleName'];
+
+
+                    foreach ($entry['particlePosition'] as $pPos) {
+                        $data .= Helper::fromFloatToHex($pPos);
+                    }
+
+                    $data .= $entry['unknown5'];
 
                 }else{
                     $data .= $entry;

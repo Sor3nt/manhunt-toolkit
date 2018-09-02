@@ -157,7 +157,7 @@ class Bin {
             if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
             $paddings[] = $paddingCount;
 
-            $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/');
+            $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/', $asJson);
 
 
             $index++;
