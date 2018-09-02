@@ -252,7 +252,7 @@ class Bin {
 
                 $prepared['executions'][$id][$section . 'Missed'] = $missed;
 
-                $offsetStart += $paddings[$paddingIndex];
+                $offsetStart += $missed;
                 $offsetStart += $size;
 
                 $paddingIndex++;
@@ -275,7 +275,7 @@ class Bin {
             $missed = 2048 - $size % 2048;
             $prepared['envExecutions'][$id]['Missed'] = $missed;
 
-            $offsetStart += $paddings[$paddingIndex];
+            $offsetStart += $missed;
             $offsetStart += $size;
 
             $paddingIndex++;
