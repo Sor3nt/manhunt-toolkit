@@ -9,6 +9,7 @@ use App\Service\Archive\Grf;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
+use App\Service\Archive\Tex;
 use App\Service\BytecodeExplain;
 use App\Service\Compiler\Compiler;
 use Symfony\Component\Console\Command\Command;
@@ -42,8 +43,11 @@ class UnpackCommand extends Command
     /** @var Bin  */
     private $bin;
 
+    /** @var Tex  */
+    private $tex;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp, Bin $bin)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp, Bin $bin, Tex $tex)
     {
         $this->mls = $mls;
         $this->glg = $glg;
@@ -52,6 +56,7 @@ class UnpackCommand extends Command
         $this->grf = $grf;
         $this->ifp = $ifp;
         $this->bin = $bin;
+        $this->tex = $tex;
 
         parent::__construct();
     }
@@ -177,6 +182,16 @@ class UnpackCommand extends Command
 
             $this->fsb->unpack( $content );
 
+        }
+        // TEX format
+        else if (
+            (substr($contentAsHex, 0, 8) == "54434454")
+        ) {
+
+            $outputTo = $folder . '/' . $filename . "/";
+            @mkdir($outputTo, 0777, true);
+
+            $this->tex->unpack($contentAsHex, $outputTo);
         }
         // IFP format
         else if (

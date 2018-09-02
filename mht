@@ -26,7 +26,8 @@ $application->add(new \App\Command\UnpackCommand(
 //    new \App\Service\Archive\Fsb(),
     new \App\Service\Archive\Grf(),
     new \App\Service\Archive\Ifp(),
-    new \App\Service\Archive\Bin()
+    new \App\Service\Archive\Bin(),
+    new \App\Service\Archive\Tex()
 ));
 
 $application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
