@@ -138,25 +138,28 @@ class Ifp {
                 $this->substr($entry, 0, $animationNameLength)
             );
 
-
-            // if PS2 MH2 !!
-//            $numberOfBones = $this->substr($entry, 0, 4);
-//            $numberOfBones = str_replace('ff', '', $numberOfBones);
-//            if (strlen($numberOfBones) == 2){
-//                $numberOfBones = $this->toInt8($numberOfBones) * -1;
-//            }else{
-//                $numberOfBones = $this->toInt($numberOfBones);
-//
-//            }
-            //end
-
-
             if ($game == "mh2-wii"){
                 $numberOfBones = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
                 $chunkSize = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
                 $frameTimeCount = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
             }else{
-                $numberOfBones = $this->toInt($this->substr($entry, 0, 4));
+                $numberOfBones = $this->substr($entry, 0, 4);
+
+                if (strpos(strtolower($numberOfBones), 'ff') !== false){
+
+                    $game = "mh2-ps2";
+                    $numberOfBones = str_replace('ff', '', $numberOfBones);
+                    if (strlen($numberOfBones) == 2){
+                        $numberOfBones = $this->toInt8($numberOfBones) * -1;
+                    }else{
+                        die("PS2 error");
+                    }
+
+                }else{
+                    $numberOfBones = $this->toInt($numberOfBones);
+
+                }
+
                 $chunkSize = $this->toInt($this->substr($entry, 0, 4));
                 $frameTimeCount = $this->toFloat($this->substr($entry, 0, 4));
             }
@@ -173,12 +176,12 @@ class Ifp {
                 sprintf('        | <info>?? Frame time count:</info> %s', $frameTimeCount)
             );
 
-
             /**
              * Sequences
              */
 
-            $resultAnimation['bones'] = $this->extractBones($numberOfBones, $entry, $output, $saveAsJson, $game);
+            list($entry, $bones) = $this->extractBones($numberOfBones, $entry, $output, $saveAsJson, $game, $chunkSize);
+            $resultAnimation['bones'] = $bones;
 
             if ($game == "mh2-wii"){
                 $headerSize    = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
@@ -298,20 +301,37 @@ class Ifp {
 
     }
 
-    private function extractBones($numberOfBones, &$entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc"){
+    private function extractBones($numberOfBones, $entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc", $chunkSize = null){
 
         if ($game == "mh2-wii"){
             $saveAsJson = true;
         }
 
         $bones = [];
+        $backupEntry = false;
+
+
+        if ($game == "mh2-ps2"){
+
+            $zlibData = $this->substr($entry, 0, $chunkSize);
+            $zlibData = bin2hex(zlib_decode(hex2bin($zlibData)));
+
+            $backupEntry = $entry;
+            $entry = $zlibData;
+
+            $unknownPs21 = $this->substr($entry, 0, 4);
+            $unknownPs22 = $this->substr($entry, 0, 4);
+        }
+
         while($numberOfBones > 0){
+
+
             $debug = $this->substr($entry, 0, 4);
             $sequenceLabel = $this->toString($debug);
 
             if ($sequenceLabel !== "SEQT" && $sequenceLabel !== "SEQU")
                 throw new \Exception(
-                    sprintf('Expected SEQT or SEQU got: %s', $debug)
+                    sprintf('Expected SEQT or SEQU got: %s %s', $debug)
                 );
 
             if ($game == "mh2-wii"){
@@ -327,6 +347,9 @@ class Ifp {
                 $startTime = $this->toInt16($this->substr($entry, 0, 2));
             }
 
+
+
+
             $resultBone = [
                 'boneId' => $boneId,
                 'frameType' => $frameType,
@@ -337,6 +360,7 @@ class Ifp {
             if ($saveAsJson == false){
                 $resultBone['frameCount'] = $frames;
             }
+
 
             if (!is_null($output)) $output->writeln(
                 sprintf('          | <info>Bone Id:</info> %s', $boneId) . "\n" .
@@ -397,7 +421,7 @@ class Ifp {
             $numberOfBones--;
         }
 
-        return $bones;
+        return [$backupEntry == false ? $entry : $backupEntry, $bones];
     }
 
     private function extractFrames($startTime, $frames, $frameType, &$entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc"){
