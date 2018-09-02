@@ -113,28 +113,53 @@ class Ifp {
 
     }
 
-    public function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $saveAsJson){
+    public function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $saveAsJson, $game = "mh2-pc"){
         $animations = [];
 
         $count = 1;
         while($animationCount > 0){
 
-            $nameLabel = $this->toString($this->substr($entry, 0, 4));
-            $animationNameLength = $this->toInt($this->substr($entry, 0, 4));
+            $debug = $this->substr($entry, 0, 4);
+
+            $nameLabel = $this->toString($debug);
 
             if ($nameLabel !== "NAME")
                 throw new \Exception(
-                    sprintf('Expected NAME got: %s', $nameLabel)
+                    sprintf('Expected NAME got: %s', $debug)
                 );
+
+            if ($game == "mh2-wii"){
+                $animationNameLength = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+            }else{
+                $animationNameLength = $this->toInt($this->substr($entry, 0, 4));
+            }
 
             $animationName = $this->toString(
                 $this->substr($entry, 0, $animationNameLength)
             );
 
-            $numberOfBones = $this->toInt($this->substr($entry, 0, 4));
-            $chunkSize = $this->toInt($this->substr($entry, 0, 4));
-            $frameTimeCount = $this->toFloat($this->substr($entry, 0, 4));
 
+            // if PS2 MH2 !!
+//            $numberOfBones = $this->substr($entry, 0, 4);
+//            $numberOfBones = str_replace('ff', '', $numberOfBones);
+//            if (strlen($numberOfBones) == 2){
+//                $numberOfBones = $this->toInt8($numberOfBones) * -1;
+//            }else{
+//                $numberOfBones = $this->toInt($numberOfBones);
+//
+//            }
+            //end
+
+
+            if ($game == "mh2-wii"){
+                $numberOfBones = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+                $chunkSize = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+                $frameTimeCount = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
+            }else{
+                $numberOfBones = $this->toInt($this->substr($entry, 0, 4));
+                $chunkSize = $this->toInt($this->substr($entry, 0, 4));
+                $frameTimeCount = $this->toFloat($this->substr($entry, 0, 4));
+            }
 
             $resultAnimation = [
                 'chunkSize' => $chunkSize,
@@ -153,12 +178,20 @@ class Ifp {
              * Sequences
              */
 
-            $resultAnimation['bones'] = $this->extractBones($numberOfBones, $entry, $output, $saveAsJson);
+            $resultAnimation['bones'] = $this->extractBones($numberOfBones, $entry, $output, $saveAsJson, $game);
 
-            $headerSize    = $this->toInt($this->substr($entry, 0, 4));
-            $unknown5      = $this->substr($entry, 0, 4);
-            $eachEntrySize = $this->toInt($this->substr($entry, 0, 4));
-            $numEntry      = $this->toInt($this->substr($entry, 0, 4));
+            if ($game == "mh2-wii"){
+                $headerSize    = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+                $unknown5      = $this->substr($entry, 0, 4);
+                $eachEntrySize = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+                $numEntry      = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+            }else{
+                $headerSize    = $this->toInt($this->substr($entry, 0, 4));
+                $unknown5      = $this->substr($entry, 0, 4);
+                $eachEntrySize = $this->toInt($this->substr($entry, 0, 4));
+                $numEntry      = $this->toInt($this->substr($entry, 0, 4));
+
+            }
 
             $resultAnimation['unknown5'] = $unknown5;
 
@@ -238,22 +271,30 @@ class Ifp {
 
     }
 
-    private function extractBones($numberOfBones, &$entry, OutputInterface $output = null, $saveAsJson){
+    private function extractBones($numberOfBones, &$entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc"){
 
         $bones = [];
         while($numberOfBones > 0){
-
-            $sequenceLabel = $this->toString($this->substr($entry, 0, 4));
+            $debug = $this->substr($entry, 0, 4);
+            $sequenceLabel = $this->toString($debug);
 
             if ($sequenceLabel !== "SEQT" && $sequenceLabel !== "SEQU")
                 throw new \Exception(
-                    sprintf('Expected SEQT or SEQU got: %s', $sequenceLabel)
+                    sprintf('Expected SEQT or SEQU got: %s', $debug)
                 );
 
-            $boneId = $this->toInt16($this->substr($entry, 0, 2));
-            $frameType = $this->toInt8($this->substr($entry, 0, 1));
-            $frames = $this->toInt16($this->substr($entry, 0, 2));
-            $startTime = $this->toInt16($this->substr($entry, 0, 2));
+            if ($game == "mh2-wii"){
+                $boneId = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                $frameType = $this->toInt8(Helper::toBigEndian($this->substr($entry, 0, 1)));
+                $frames = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                $startTime = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+
+            }else{
+                $boneId = $this->toInt16($this->substr($entry, 0, 2));
+                $frameType = $this->toInt8($this->substr($entry, 0, 1));
+                $frames = $this->toInt16($this->substr($entry, 0, 2));
+                $startTime = $this->toInt16($this->substr($entry, 0, 2));
+            }
 
             $resultBone = [
                 'boneId' => $boneId,
@@ -350,6 +391,8 @@ class Ifp {
                         $time = $startTime;
                     }else{
                         $time = $this->toInt16($this->substr($entry, 0, 2));
+                        var_dump($time);
+                        exit;
                     }
 
                     $resultFrame['time'] = $time;

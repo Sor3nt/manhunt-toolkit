@@ -28,10 +28,16 @@ class Bin {
         return $result;
     }
 
-    private function extractAnimations($entry, $outputTo, $asJson = false){
+    private function extractAnimations($entry, $outputTo, $asJson = false, $game){
+
 
         $headerType = $this->toString($this->substr($entry, 0, 4));
-        $animationCount = $this->toInt($this->substr($entry, 0, 4));
+
+        if ($game == "mh2-wii"){
+            $animationCount = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+        }else{
+            $animationCount = $this->toInt($this->substr($entry, 0, 4));
+        }
 
         if ($headerType !== "ANPK")
             throw new \Exception(
@@ -46,7 +52,8 @@ class Bin {
             $entry,
             null,
             $outputTo,
-            $asJson
+            $asJson,
+            $game
 
         );
     }
@@ -58,10 +65,24 @@ class Bin {
         $lookupEntry = $entry;
 
         //skip the version
-        $this->substr($lookupEntry, 0, 4);
+        $version = $this->substr($lookupEntry, 0, 4);
 
-        $numExec = $this->toInt($this->substr($lookupEntry, 0, 4));
-        $numEnvExec = $this->toInt($this->substr($lookupEntry, 0, 4));
+        $game = "mh2-pc";
+
+        //wii version
+        if ($version == "00000001"){
+            $game = "mh2-wii";
+
+            $numExec = $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4)));
+            $numEnvExec = $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4)));
+
+
+        }else{
+            $numExec = $this->toInt($this->substr($lookupEntry, 0, 4));
+            $numEnvExec = $this->toInt($this->substr($lookupEntry, 0, 4));
+
+
+        }
 
         $index = 0;
 
@@ -70,22 +91,40 @@ class Bin {
         while ($numExec > 0){
 
 
+            if ($game == "mh2-wii"){
+                $execution = [
+                    'executionId' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
 
-            $execution = [
-                'executionId' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'jumpExecutionOffset' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                    'jumpExecutionSize' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
 
-                'jumpExecutionOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-                'jumpExecutionSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'whiteLevelExecOffset' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                    'whiteLevelExecSize' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
 
-                'whiteLevelExecOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-                'whiteLevelExecSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'yellowLevelExecOffset' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                    'yellowLevelExecSize' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
 
-                'yellowLevelExecOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-                'yellowLevelExecSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'redLevelExecOffset' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                    'redLevelExecSize' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                ];
 
-                'redLevelExecOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-                'redLevelExecSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-            ];
+            }else{
+                $execution = [
+                    'executionId' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+
+                    'jumpExecutionOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'jumpExecutionSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+
+                    'whiteLevelExecOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'whiteLevelExecSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+
+                    'yellowLevelExecOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'yellowLevelExecSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+
+                    'redLevelExecOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'redLevelExecSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                ];
+            }
 
             foreach ([
                 'jumpExecution',
@@ -102,19 +141,18 @@ class Bin {
                 $startPos = ($execution[$section . 'Offset'] * 2) + ($execution[$section . 'Size'] * 2);
 
                 if ($startPos > 0){
-                    $nexTwo = substr($entry, $startPos, 2);
-                    $paddingCount = 0;
-                    while($nexTwo == "00"){
-                        $nexTwo = substr($entry, $startPos + $paddingCount, 2);
-                        $paddingCount = $paddingCount + 2;
-                    }
+//                    $nexTwo = substr($entry, $startPos, 2);
+//                    $paddingCount = 0;
+//                    while($nexTwo == "00"){
+//                        $nexTwo = substr($entry, $startPos + $paddingCount, 2);
+//                        $paddingCount = $paddingCount + 2;
+//                    }
+//
+//                    $paddingCount = $paddingCount - 2;
+//                    if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
+//                    $paddings[] = $paddingCount;
 
-                    $paddingCount = $paddingCount - 2;
-                    if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
-                    $paddings[] = $paddingCount;
-
-
-                    $this->extractAnimations($anpk, $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/', $asJson);
+                    $this->extractAnimations($anpk, $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/', $asJson, $game);
                 }else{
                     @mkdir(
                         $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/',
@@ -132,12 +170,22 @@ class Bin {
         $index = 0;
         while ($numEnvExec > 0){
 
-            $envExecution = [
-                'executionId' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+            if ($game == "mh2-wii") {
+                $envExecution = [
+                    'executionId' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
 
-                'envExecutionOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-                'envExecutionSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
-            ];
+                    'envExecutionOffset' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                    'envExecutionSize' => $this->toInt(Helper::toBigEndian($this->substr($lookupEntry, 0, 4))),
+                ];
+            }else{
+                $envExecution = [
+                    'executionId' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+
+                    'envExecutionOffset' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                    'envExecutionSize' => $this->toInt($this->substr($lookupEntry, 0, 4)),
+                ];
+
+            }
 
             $anpk = substr($entry,
                 $envExecution['envExecutionOffset'] * 2,
@@ -157,7 +205,7 @@ class Bin {
             if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
             $paddings[] = $paddingCount;
 
-            $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/', $asJson);
+            $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/', $asJson, $game);
 
 
             $index++;
