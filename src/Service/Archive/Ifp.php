@@ -38,9 +38,7 @@ class Ifp {
     }
 
     public function unpack($data, OutputInterface $output = null, $outputTo, $saveAsJson = true){
-        /** @var Binary $remain */
 
-//        $output = null;
         $entry = bin2hex($data);
 
         /**
@@ -139,7 +137,6 @@ class Ifp {
 
 
             $resultAnimation = [
-//                'numberOfBones' => $numberOfBones,
                 'chunkSize' => $chunkSize,
                 'frameTimeCount' => $frameTimeCount,
             ];
@@ -163,12 +160,7 @@ class Ifp {
             $eachEntrySize = $this->toInt($this->substr($entry, 0, 4));
             $numEntry      = $this->toInt($this->substr($entry, 0, 4));
 
-
-            $resultAnimation['headerSize'] = $headerSize;
             $resultAnimation['unknown5'] = $unknown5;
-            $resultAnimation['eachEntrySize'] = $eachEntrySize;
-            $resultAnimation['numEntry'] = $numEntry;
-
 
             $resultAnimation['entry'] = [];
             while ($numEntry > 0){
@@ -182,8 +174,8 @@ class Ifp {
                             'unknown2' => $this->substr($entry, 0, 4),
                             'unknown3' => $this->substr($entry, 0, 4),
                             'unknown4' => $this->substr($entry, 0, 4),
-                            'boneId' => $this->toFloat($this->substr($entry, 0, 4)),
-                            'particleName' => $this->substr($entry, 0, 8),
+                            'unknown6' => $this->toFloat($this->substr($entry, 0, 4)),
+                            'particleName' => $this->toString($this->substr($entry, 0, 8)),
                             'particlePosition' => [
                                 $this->toFloat($this->substr($entry, 0, 4)),
                                 $this->toFloat($this->substr($entry, 0, 4)),
@@ -205,10 +197,10 @@ class Ifp {
                             'time' => $this->toFloat($this->substr($entry, 0, 4)),
                             'unknown' => $this->substr($entry, 0, 4),
                             'unknown2' => $this->substr($entry, 0, 4),
-                            'CommandName' => $this->substr($entry, 0, 64),
+                            'CommandName' => $this->toString($this->substr($entry, 0, 64)),
                             'unknown3' => $this->substr($entry, 0, 4),
-                            'boneId' => $this->toFloat($this->substr($entry, 0, 4)),
-                            'particleName' => $this->substr($entry, 0, 8),
+                            'unknown6' => $this->toFloat($this->substr($entry, 0, 4)),
+                            'particleName' => $this->toString($this->substr($entry, 0, 8)),
                             'particlePosition' => [
                                 $this->toFloat($this->substr($entry, 0, 4)),
                                 $this->toFloat($this->substr($entry, 0, 4)),
@@ -244,8 +236,8 @@ class Ifp {
             $count++;
         }
 
-        //        return $animations;
     }
+
     private function extractBones($numberOfBones, &$entry, OutputInterface $output = null, $saveAsJson){
 
         $bones = [];
@@ -327,12 +319,7 @@ class Ifp {
                 $saveAsJson
             );
 
-//            if ($game == "mh1"){
-//                $resultBone['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
-//            }
-
             $bones[] = $resultBone;
-
 
             $numberOfBones--;
         }
@@ -467,7 +454,6 @@ class Ifp {
             return $this->substr($entry, 0, $bytes);
         }
 
-
         return $resultFrames;
     }
 
@@ -601,11 +587,19 @@ class Ifp {
             }
 
 
-            $data .= Helper::fromIntToHex($animation['headerSize']);
-            $data .= $animation['unknown5'];
-            $data .= Helper::fromIntToHex($animation['eachEntrySize']);
-            $data .= Helper::fromIntToHex($animation['numEntry']);
+            //headerSize
+            $data .= Helper::fromIntToHex(16);
 
+            $data .= $animation['unknown5'];
+
+            //eachEntrySize
+            if($game == "mh2"){
+                $data .= Helper::fromIntToHex(160);
+            }else{
+                $data .= Helper::fromIntToHex(64);
+            }
+
+            $data .= Helper::fromIntToHex(count($animation['entry']));
 
             foreach ($animation['entry'] as $entry) {
                 if (!is_string($entry)) {
@@ -615,16 +609,29 @@ class Ifp {
                     $data .= $entry['unknown2'];
 
                     if ($game == "mh2"){
-                        $data .= $entry['CommandName'];
+
+
+                        $commandName = current(unpack("H*", $entry['CommandName']));
+                        $missed = 128 - strlen($commandName) % 128;
+                        if ($missed > 0){
+                            $commandName .= str_repeat('00', $missed / 2);
+                        }
+                        $data .= $commandName;
+
                         $data .= $entry['unknown3'];
                     }else{
                         $data .= $entry['unknown3'];
                         $data .= $entry['unknown4'];
                     }
 
-                    $data .= Helper::fromFloatToHex($entry['boneId']);
+                    $data .= Helper::fromFloatToHex($entry['unknown6']);
 
-                    $data .= $entry['particleName'];
+                    $particleName = current(unpack("H*", $entry['particleName']));
+                    $missed = 16 - strlen($particleName) % 16;
+                    if ($missed > 0){
+                        $particleName .= str_repeat('00', $missed / 2);
+                    }
+                    $data .= $particleName;
 
 
                     foreach ($entry['particlePosition'] as $pPos) {
@@ -642,6 +649,4 @@ class Ifp {
 
         return $data;
     }
-
-
 }
