@@ -277,7 +277,7 @@ class PackCommand extends Command
 
         }
 
-        $hex = $this->bin->pack($executions, $envExecutions, $paddings);
+        $hex = $this->bin->pack($executions, $envExecutions);
         file_put_contents($saveTo, hex2bin($hex));
 
     }

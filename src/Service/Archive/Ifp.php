@@ -37,7 +37,7 @@ class Ifp {
 
     }
 
-    public function unpack($data, OutputInterface $output = null, $outputTo, $saveAsJson = true){
+    public function unpack($data, OutputInterface $output = null, $outputTo){
 
         $entry = bin2hex($data);
 
@@ -105,7 +105,7 @@ class Ifp {
             /**
              * Animation Pack Entries
              */
-            $this->extractAnimation($animationCount, $entry, $output, $outputToBlock, $saveAsJson);
+            $this->extractAnimation($animationCount, $entry, $output, $outputToBlock);
 
             $numBlock--;
             $count++;
@@ -113,7 +113,7 @@ class Ifp {
 
     }
 
-    public function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $saveAsJson, $game = "mh2-pc"){
+    public function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $game = "mh2-pc"){
         $animations = [];
 
         $count = 1;
@@ -164,6 +164,14 @@ class Ifp {
                 $frameTimeCount = $this->toFloat($this->substr($entry, 0, 4));
             }
 
+            if ($game == "mh2-ps2"){
+
+                $frameTimeCount = (string) $frameTimeCount;
+                if (strlen($frameTimeCount) > 15){
+                    $frameTimeCount = (float) substr($frameTimeCount, 0, -5);
+                }
+            }
+
             $resultAnimation = [
                 'chunkSize' => $chunkSize,
                 'frameTimeCount' => $frameTimeCount,
@@ -180,7 +188,7 @@ class Ifp {
              * Sequences
              */
 
-            list($entry, $bones) = $this->extractBones($numberOfBones, $entry, $output, $saveAsJson, $game, $chunkSize);
+            list($entry, $bones) = $this->extractBones($numberOfBones, $entry, $output, $game, $chunkSize);
             $resultAnimation['bones'] = $bones;
 
             if ($game == "mh2-wii"){
@@ -202,7 +210,6 @@ class Ifp {
             while ($numEntry > 0){
 
                 if ($this->game == "mh1"){
-                    if ($saveAsJson){
 
                         $resultAnimation['entry'][] = [
                             'time' => $this->toFloat($this->substr($entry, 0, 4)),
@@ -223,61 +230,48 @@ class Ifp {
                             ],
                             'unknown5' => $this->substr($entry, 0, 4),
                         ];
-                    }else{
-
-                        $resultAnimation['entry'][] = $this->substr($entry, 0, 16 * 4);
-                    }
                 }else{
-                    if ($saveAsJson || $game == "mh2-wii"){
 
-
-                        if ($game == "mh2-wii"){
-
-                            $resultAnimation['entry'][] = [
-                                'time' => $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                'unknown' => Helper::toBigEndian($this->substr($entry, 0, 4)),
-                                'unknown2' => $this->substr($entry, 0, 4),
-                                'CommandName' => $this->toString($this->substr($entry, 0, 64)),
-                                'unknown3' => Helper::toBigEndian($this->substr($entry, 0, 4)),
-                                'unknown6' => $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                'particleName' => $this->toString($this->substr($entry, 0, 8)),
-                                'particlePosition' => [
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                    $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
-                                ],
-                                'unknown5' => $this->substr($entry, 0, 40),
-                            ];
-                        }else{
-                            $resultAnimation['entry'][] = [
-                                'time' => $this->toFloat($this->substr($entry, 0, 4)),
-                                'unknown' => $this->substr($entry, 0, 4),
-                                'unknown2' => $this->substr($entry, 0, 4),
-                                'CommandName' => $this->toString($this->substr($entry, 0, 64)),
-                                'unknown3' => $this->substr($entry, 0, 4),
-                                'unknown6' => $this->toFloat($this->substr($entry, 0, 4)),
-                                'particleName' => $this->toString($this->substr($entry, 0, 8)),
-                                'particlePosition' => [
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                    $this->toFloat($this->substr($entry, 0, 4)),
-                                ],
-                                'unknown5' => $this->substr($entry, 0, 40),
-                            ];
-                        }
-
-
+                    if ($game == "mh2-wii"){
+                        $resultAnimation['entry'][] = [
+                            'time' => $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                            'unknown' => Helper::toBigEndian($this->substr($entry, 0, 4)),
+                            'unknown2' => $this->substr($entry, 0, 4),
+                            'CommandName' => $this->toString($this->substr($entry, 0, 64)),
+                            'unknown3' => Helper::toBigEndian($this->substr($entry, 0, 4)),
+                            'unknown6' => $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                            'particleName' => $this->toString($this->substr($entry, 0, 8)),
+                            'particlePosition' => [
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                                $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4))),
+                            ],
+                            'unknown5' => $this->substr($entry, 0, 40),
+                        ];
                     }else{
-
-                        $resultAnimation['entry'][] = $this->substr($entry, 0, 40 * 4);
+                        $resultAnimation['entry'][] = [
+                            'time' => $this->toFloat($this->substr($entry, 0, 4)),
+                            'unknown' => $this->substr($entry, 0, 4),
+                            'unknown2' => $this->substr($entry, 0, 4),
+                            'CommandName' => $this->toString($this->substr($entry, 0, 64)),
+                            'unknown3' => $this->substr($entry, 0, 4),
+                            'unknown6' => $this->toFloat($this->substr($entry, 0, 4)),
+                            'particleName' => $this->toString($this->substr($entry, 0, 8)),
+                            'particlePosition' => [
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                                $this->toFloat($this->substr($entry, 0, 4)),
+                            ],
+                            'unknown5' => $this->substr($entry, 0, 40),
+                        ];
                     }
                 }
                 $numEntry--;
@@ -301,11 +295,7 @@ class Ifp {
 
     }
 
-    private function extractBones($numberOfBones, $entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc", $chunkSize = null){
-
-        if ($game == "mh2-wii"){
-            $saveAsJson = true;
-        }
+    private function extractBones($numberOfBones, $entry, OutputInterface $output = null, $game = "mh2-pc", $chunkSize = null){
 
         $bones = [];
         $backupEntry = false;
@@ -357,9 +347,6 @@ class Ifp {
                 'frames' => []
             ];
 
-            if ($saveAsJson == false){
-                $resultBone['frameCount'] = $frames;
-            }
 
 
             if (!is_null($output)) $output->writeln(
@@ -412,7 +399,6 @@ class Ifp {
                 $frameType,
                 $entry,
                 $output,
-                $saveAsJson,
                 $game
             );
 
@@ -424,12 +410,7 @@ class Ifp {
         return [$backupEntry == false ? $entry : $backupEntry, $bones];
     }
 
-    private function extractFrames($startTime, $frames, $frameType, &$entry, OutputInterface $output = null, $saveAsJson, $game = "mh2-pc"){
-
-        //bigedian swap not supported
-        if ($game == "mh2-wii"){
-            $saveAsJson = true;
-        }
+    private function extractFrames($startTime, $frames, $frameType, &$entry, OutputInterface $output = null, $game = "mh2-pc"){
 
         $resultFrames = [
             'frames' => []
@@ -440,143 +421,101 @@ class Ifp {
 
         while($frames > 0){
 
-            if ($saveAsJson){
 
+            $resultFrame = [];
 
-                $resultFrame = [];
+            if ($startTime == 0){
 
-                if ($startTime == 0){
-
-                    // first frame == starTime
-                    if ($index == 0 && $frameType < 3){
-                        $time = $startTime;
+                // first frame == starTime
+                if ($index == 0 && $frameType < 3){
+                    $time = $startTime;
+                }else{
+                    if ($game == "mh2-wii"){
+                        $time = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
                     }else{
-                        if ($game == "mh2-wii"){
-                            $time = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                        }else{
-                            $time = $this->toInt16($this->substr($entry, 0, 2));
-                        }
+                        $time = $this->toInt16($this->substr($entry, 0, 2));
                     }
-
-                    $resultFrame['time'] = $time;
-
-                    if (!is_null($output)) $output->writeln(
-                        sprintf('            | <info>Time:</info> %s', $time)
-                    );
                 }
 
-                if ($frameType < 3){
+                $resultFrame['time'] = $time;
 
-                    if ($game == "mh2-wii") {
-                        $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                        $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                        $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                        $w = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    }else{
-                        $x = $this->toInt16($this->substr($entry, 0, 2));
-                        $y = $this->toInt16($this->substr($entry, 0, 2));
-                        $z = $this->toInt16($this->substr($entry, 0, 2));
-                        $w = $this->toInt16($this->substr($entry, 0, 2));
-                    }
-
-                    $resultFrame['quat'] = [$x,$y,$z,$w];
-
-                    if (!is_null($output)) $output->writeln(
-                        sprintf(
-                            '            | <info>Quat:</info> %s,%s,%s,%s',
-                            $x,
-                            $y,
-                            $z,
-                            $w
-                        )
-                    );
-                }
-
-
-                if ($frameType > 1){
-
-                    if ($game == "mh2-wii") {
-                        $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                        $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                        $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    }else{
-                        $x = $this->toInt16($this->substr($entry, 0, 2));
-                        $y = $this->toInt16($this->substr($entry, 0, 2));
-                        $z = $this->toInt16($this->substr($entry, 0, 2));
-
-                    }
-
-                    $resultFrame['position'] = [$x,$y,$z];
-
-                    if (!is_null($output)) $output->writeln(
-                        sprintf(
-                            '            | <info>Position:</info> %s,%s,%s',
-                            $x,
-                            $y,
-                            $z
-                        )
-                    );
-                }
-
-                $resultFrames['frames'][] = $resultFrame;
-            }else{
-
-                if ($startTime == 0){
-
-                    // first frame == starTime
-                    if ($index == 0 && $frameType < 3){
-                    }else{
-                        $bytes += 2;
-//                        $time = $this->toInt16($this->substr($entry, 0, 2));
-                    }
-
-                }
-
-                if ($frameType < 3){
-
-                    $bytes += 8;
-
-//                    $x = $this->toInt16($this->substr($entry, 0, 2));
-//                    $y = $this->toInt16($this->substr($entry, 0, 2));
-//                    $z = $this->toInt16($this->substr($entry, 0, 2));
-//                    $w = $this->toInt16($this->substr($entry, 0, 2));
-                }
-
-
-                if ($frameType > 1){
-                    $bytes += 6;
-
-                }
-
+                if (!is_null($output)) $output->writeln(
+                    sprintf('            | <info>Time:</info> %s', $time)
+                );
             }
+
+            if ($frameType < 3){
+
+                if ($game == "mh2-wii") {
+                    $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $w = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                }else{
+                    $x = $this->toInt16($this->substr($entry, 0, 2));
+                    $y = $this->toInt16($this->substr($entry, 0, 2));
+                    $z = $this->toInt16($this->substr($entry, 0, 2));
+                    $w = $this->toInt16($this->substr($entry, 0, 2));
+                }
+
+                $resultFrame['quat'] = [$x,$y,$z,$w];
+
+                if (!is_null($output)) $output->writeln(
+                    sprintf(
+                        '            | <info>Quat:</info> %s,%s,%s,%s',
+                        $x,
+                        $y,
+                        $z,
+                        $w
+                    )
+                );
+            }
+
+
+            if ($frameType > 1){
+
+                if ($game == "mh2-wii") {
+                    $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                }else{
+                    $x = $this->toInt16($this->substr($entry, 0, 2));
+                    $y = $this->toInt16($this->substr($entry, 0, 2));
+                    $z = $this->toInt16($this->substr($entry, 0, 2));
+
+                }
+
+                $resultFrame['position'] = [$x,$y,$z];
+
+                if (!is_null($output)) $output->writeln(
+                    sprintf(
+                        '            | <info>Position:</info> %s,%s,%s',
+                        $x,
+                        $y,
+                        $z
+                    )
+                );
+            }
+
+            $resultFrames['frames'][] = $resultFrame;
 
             $frames--;
             $index++;
         }
 
-
         if ($this->game == "mh2"){
-            if ($saveAsJson) {
 
-                if ($game == "mh2-wii") {
-                    $resultFrames['lastFrameTime'] = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
-                }else{
-                    $resultFrames['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
-
-                }
-
-
-                if (!is_null($output)) $output->writeln(
-                    sprintf('          | <info>Last frame time:</info> %s', $resultFrames['lastFrameTime'])
-                );
+            if ($game == "mh2-wii") {
+                $resultFrames['lastFrameTime'] = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
             }else{
-                $bytes += 4;
+                $resultFrames['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
 
             }
-        }
 
-        if ($saveAsJson == false){
-            return $this->substr($entry, 0, $bytes);
+
+            if (!is_null($output)) $output->writeln(
+                sprintf('          | <info>Last frame time:</info> %s', $resultFrames['lastFrameTime'])
+            );
         }
 
         return $resultFrames;
@@ -612,8 +551,6 @@ class Ifp {
         $data = current(unpack("H*", "ANPK"));
         $data .= Helper::fromIntToHex(count($animations));
 
-
-
         foreach ($animations as $animationName => $animation) {
 
             $data .= current(unpack("H*", "NAME"));
@@ -627,89 +564,93 @@ class Ifp {
             $data .= Helper::fromIntToHex(strlen($animationName));
             $data .= current(unpack("H*", $animationName));
 
-
             $data .= Helper::fromIntToHex(count($animation['bones']));
-            $data .= Helper::fromIntToHex($animation['chunkSize']);
-            $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
 
+            $chunkData = "";
+            $chunkSize = 0;
 
             foreach ($animation['bones'] as $bone) {
 
-                $data .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
+                $chunkData .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
 
-                $data .= bin2hex($this->toInt16($bone['boneId']));
-                $data .= bin2hex($this->toInt8($bone['frameType']));
+                $chunkData .= bin2hex($this->toInt16($bone['boneId']));
+                $chunkData .= bin2hex($this->toInt8($bone['frameType']));
                 if (!is_string($bone['frames'])){
-                    $data .= bin2hex($this->toInt16(count($bone['frames']['frames'])));
+                    $chunkData .= bin2hex($this->toInt16(count($bone['frames']['frames'])));
 
                 }else{
-                    $data .= bin2hex($this->toInt16($bone['frameCount']));
+                    $chunkData .= bin2hex($this->toInt16($bone['frameCount']));
                 }
-                $data .= bin2hex($this->toInt16($bone['startTime']));
+
+
+                /**
+                 * Chunk start
+                 */
+                $chunk = bin2hex($this->toInt16($bone['startTime']));
 
 
                 if ($bone['frameType'] > 2){
                     if ($bone['startTime'] > 0){
-                        $data .= $bone['unknown1'];
+                        $chunk .= $bone['unknown1'];
                     }
 
-                    $data .= $bone['unknown2'];
-                    $data .= $bone['unknown3'];
-                    $data .= $bone['unknown4'];
+                    $chunk .= $bone['unknown2'];
+                    $chunk .= $bone['unknown3'];
+                    $chunk .= $bone['unknown4'];
 
                 }
 
                 if (!is_string($bone['frames'])){
 
                     foreach ($bone['frames']['frames'] as $index => $frame) {
-//var_dump($bone['startTime']);
-//exit;
+
                         if ($bone['startTime'] == 0){
 
                             if ($index == 0 && $bone['frameType'] < 3){
-
                             }else{
-                                $data .= bin2hex($this->toInt16($frame['time']));
-
+                                $chunk .= bin2hex($this->toInt16($frame['time']));
                             }
 
                         }
 
                         if ($bone['frameType'] < 3){
-                            $data .= bin2hex($this->toInt16($frame['quat'][0]));
-                            $data .= bin2hex($this->toInt16($frame['quat'][1]));
-                            $data .= bin2hex($this->toInt16($frame['quat'][2]));
-                            $data .= bin2hex($this->toInt16($frame['quat'][3]));
-
-
+                            $chunk .= bin2hex($this->toInt16($frame['quat'][0]));
+                            $chunk .= bin2hex($this->toInt16($frame['quat'][1]));
+                            $chunk .= bin2hex($this->toInt16($frame['quat'][2]));
+                            $chunk .= bin2hex($this->toInt16($frame['quat'][3]));
                         }
 
                         if ($bone['frameType'] > 1){
-
-                            $data .= bin2hex($this->toInt16($frame['position'][0]));
-                            $data .= bin2hex($this->toInt16($frame['position'][1]));
-                            $data .= bin2hex($this->toInt16($frame['position'][2]));
-
-
+                            $chunk .= bin2hex($this->toInt16($frame['position'][0]));
+                            $chunk .= bin2hex($this->toInt16($frame['position'][1]));
+                            $chunk .= bin2hex($this->toInt16($frame['position'][2]));
                         }
 
                     }
 
+                    $chunkSize += strlen($chunk);
+
+                    $chunkData .= $chunk;
 
                     if ($game == "mh2"){
-                        $data .= Helper::fromFloatToHex($bone['frames']['lastFrameTime']);
+                        $chunkData .= Helper::fromFloatToHex($bone['frames']['lastFrameTime']);
                     }
 
                 }else{
-                    $data .= $bone['frames'];
+                    $chunkData .= $bone['frames'];
 
                 }
 
 
 
-
-
             }
+
+
+            $data .= Helper::fromIntToHex($chunkSize / 2);
+            $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
+
+            $data .= $chunkData;
+
 
 
             //headerSize

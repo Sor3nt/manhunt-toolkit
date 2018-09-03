@@ -28,7 +28,7 @@ class Bin {
         return $result;
     }
 
-    private function extractAnimations($entry, $outputTo, $asJson = false, $game){
+    private function extractAnimations($entry, $outputTo, $game){
 
 
         $headerType = $this->toString($this->substr($entry, 0, 4));
@@ -52,14 +52,13 @@ class Bin {
             $entry,
             null,
             $outputTo,
-            $asJson,
             $game
 
         );
     }
 
 
-    public function unpack($entry, $outputTo, $asJson){
+    public function unpack($entry, $outputTo){
 
 
         $lookupEntry = $entry;
@@ -152,7 +151,7 @@ class Bin {
 //                    if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
 //                    $paddings[] = $paddingCount;
 
-                    $this->extractAnimations($anpk, $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/', $asJson, $game);
+                    $this->extractAnimations($anpk, $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/', $game);
                 }else{
                     @mkdir(
                         $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/',
@@ -205,7 +204,7 @@ class Bin {
             if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
             $paddings[] = $paddingCount;
 
-            $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/', $asJson, $game);
+            $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/', $game);
 
 
             $index++;
@@ -215,7 +214,7 @@ class Bin {
         file_put_contents($outputTo . "padding.json", \json_encode($paddings, JSON_PRETTY_PRINT));
     }
 
-    public function pack( $executions, $envExecutions, $paddings ){
+    public function pack( $executions, $envExecutions ){
 
         /**
          * Prepare
@@ -229,8 +228,6 @@ class Bin {
             'envExecutions' => []
         ];
 
-
-        $paddingIndex = 0;
         foreach ($executions as $executionId => $execution) {
             $id = explode('_', $executionId)[1];
 
@@ -249,13 +246,10 @@ class Bin {
                 $prepared['executions'][$id][$section . 'Size'] = $size;
 
                 $missed = 2048 - $size % 2048;
-
                 $prepared['executions'][$id][$section . 'Missed'] = $missed;
 
                 $offsetStart += $missed;
                 $offsetStart += $size;
-
-                $paddingIndex++;
            }
 
         }
@@ -277,8 +271,6 @@ class Bin {
 
             $offsetStart += $missed;
             $offsetStart += $size;
-
-            $paddingIndex++;
         }
 
         /**

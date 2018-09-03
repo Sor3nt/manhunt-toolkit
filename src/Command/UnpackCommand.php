@@ -70,7 +70,6 @@ class UnpackCommand extends Command
             ->setDescription('Unpack a GLG, INST or MLS file')
             ->addArgument('file', InputArgument::REQUIRED, 'This file will be extracted')
             ->addOption('only-unzip', null, null, 'Will only unzip the file')
-            ->addOption('save-json', null, null, 'Used for Animation files')
 
             ->setHelp('This command allows you to create a user...')
         ;
@@ -158,7 +157,7 @@ class UnpackCommand extends Command
 
             $outputTo = $folder . '/' . $filename . "/";
             @mkdir($outputTo, 0777, true);
-            $this->bin->unpack($contentAsHex, $outputTo, $input->getOption('save-json'));
+            $this->bin->unpack($contentAsHex, $outputTo);
 
         }
         // GLG Record
@@ -197,10 +196,15 @@ class UnpackCommand extends Command
         else if (
             (substr($contentAsHex, 0, 8) == "414e4354") // ANCT
         ) {
+            $question = new ConfirmationQuestion('<error>WARNING!</error> The export of a IFP file can take up to some hours! Pre-decompiled files followed soon... HIT ENTER', false);
+
+            $helper = $this->getHelper('question');
+            $helper->ask($input, $output, $question);
+
             $outputTo = $folder . '/' . $filename . "/";
             @mkdir($outputTo, 0777, true);
 
-            $this->ifp->unpack( $content, $output, $outputTo, $input->getOption('save-json') );
+            $this->ifp->unpack( $content, $output, $outputTo );
 
             // INST format
         } else if (
