@@ -85,8 +85,6 @@ class Bin {
 
         $index = 0;
 
-        $paddings = [];
-
         while ($numExec > 0){
 
 
@@ -140,16 +138,6 @@ class Bin {
                 $startPos = ($execution[$section . 'Offset'] * 2) + ($execution[$section . 'Size'] * 2);
 
                 if ($startPos > 0){
-//                    $nexTwo = substr($entry, $startPos, 2);
-//                    $paddingCount = 0;
-//                    while($nexTwo == "00"){
-//                        $nexTwo = substr($entry, $startPos + $paddingCount, 2);
-//                        $paddingCount = $paddingCount + 2;
-//                    }
-//
-//                    $paddingCount = $paddingCount - 2;
-//                    if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
-//                    $paddings[] = $paddingCount;
 
                     $this->extractAnimations($anpk, $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/', $game);
                 }else{
@@ -192,17 +180,6 @@ class Bin {
             );
 
             $startPos = ($envExecution['envExecutionOffset'] * 2) + ($envExecution['envExecutionSize'] * 2);
-            $nexTwo = substr($entry, $startPos, 2);
-            $paddingCount = 0;
-            while($nexTwo == "00"){
-                $nexTwo = substr($entry, $startPos + $paddingCount, 2);
-                $paddingCount = $paddingCount + 2;
-            }
-
-            $paddingCount = $paddingCount - 2;
-
-            if ($paddingCount > 0) $paddingCount = $paddingCount / 2;
-            $paddings[] = $paddingCount;
 
             $this->extractAnimations($anpk, $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/', $game);
 
@@ -210,8 +187,6 @@ class Bin {
             $index++;
             $numEnvExec--;
         }
-
-        file_put_contents($outputTo . "padding.json", \json_encode($paddings, JSON_PRETTY_PRINT));
     }
 
     public function pack( $executions, $envExecutions ){

@@ -338,8 +338,6 @@ class Ifp {
             }
 
 
-
-
             $resultBone = [
                 'boneId' => $boneId,
                 'frameType' => $frameType,
@@ -447,16 +445,21 @@ class Ifp {
             if ($frameType < 3){
 
                 if ($game == "mh2-wii") {
-                    $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    $w = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $x = Helper::toBigEndian($this->substr($entry, 0, 2));
+                    $y = Helper::toBigEndian($this->substr($entry, 0, 2));
+                    $z = Helper::toBigEndian($this->substr($entry, 0, 2));
+                    $w = Helper::toBigEndian($this->substr($entry, 0, 2));
                 }else{
-                    $x = $this->toInt16($this->substr($entry, 0, 2));
-                    $y = $this->toInt16($this->substr($entry, 0, 2));
-                    $z = $this->toInt16($this->substr($entry, 0, 2));
-                    $w = $this->toInt16($this->substr($entry, 0, 2));
+                    $x = $this->substr($entry, 0, 2);
+                    $y = $this->substr($entry, 0, 2);
+                    $z = $this->substr($entry, 0, 2);
+                    $w = $this->substr($entry, 0, 2);
                 }
+
+                $x = current(unpack("f", $x));
+                $y = current(unpack("f", $y));
+                $z = current(unpack("f", $z));
+                $w = current(unpack("f", $w));
 
                 $resultFrame['quat'] = [$x,$y,$z,$w];
 
@@ -475,15 +478,19 @@ class Ifp {
             if ($frameType > 1){
 
                 if ($game == "mh2-wii") {
-                    $x = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    $y = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
-                    $z = $this->toInt16(Helper::toBigEndian($this->substr($entry, 0, 2)));
+                    $x = Helper::toBigEndian($this->substr($entry, 0, 2));
+                    $y = Helper::toBigEndian($this->substr($entry, 0, 2));
+                    $z = Helper::toBigEndian($this->substr($entry, 0, 2));
                 }else{
-                    $x = $this->toInt16($this->substr($entry, 0, 2));
-                    $y = $this->toInt16($this->substr($entry, 0, 2));
-                    $z = $this->toInt16($this->substr($entry, 0, 2));
-
+                    $x = $this->substr($entry, 0, 2);
+                    $y = $this->substr($entry, 0, 2);
+                    $z = $this->substr($entry, 0, 2);
                 }
+
+                $x = current(unpack("f", $x));
+                $y = current(unpack("f", $y));
+                $z = current(unpack("f", $z));
+
 
                 $resultFrame['position'] = [$x,$y,$z];
 
@@ -509,7 +516,6 @@ class Ifp {
                 $resultFrames['lastFrameTime'] = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
             }else{
                 $resultFrames['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
-
             }
 
 
@@ -550,6 +556,7 @@ class Ifp {
 
         $data = current(unpack("H*", "ANPK"));
         $data .= Helper::fromIntToHex(count($animations));
+        $isMh1To2Port = false;
 
         foreach ($animations as $animationName => $animation) {
 
@@ -573,7 +580,32 @@ class Ifp {
 
                 $chunkData .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
 
-                $chunkData .= bin2hex($this->toInt16($bone['boneId']));
+                if ($animationName == "BAT_USE_EXECUTE_SLEDGEHAMMER_2_ANIM\x00" || $animationName == "BAT_DAMAGE_EXECUTE_SLEDGEHAMMER_2_ANIM\x00"){
+
+                    $boneRemapping = [
+//                        '5' => '10000'
+                    ];
+
+                    if (isset($boneRemapping[$bone['boneId']])){
+                        $boneId = (int) $boneRemapping[$bone['boneId']];
+
+                    }else{
+                        $boneId = $bone['boneId'];
+                        echo "mapping missed " . $bone['boneId'] . "\n";
+                    }
+
+                }else{
+                    $boneId = $bone['boneId'];
+
+                }
+
+
+                if (!isset($bone['frames']['lastFrameTime'])) {
+                    $isMh1To2Port = true;
+                }
+
+
+                    $chunkData .= bin2hex($this->toInt16($boneId));
                 $chunkData .= bin2hex($this->toInt8($bone['frameType']));
                 if (!is_string($bone['frames'])){
                     $chunkData .= bin2hex($this->toInt16(count($bone['frames']['frames'])));
@@ -614,16 +646,42 @@ class Ifp {
                         }
 
                         if ($bone['frameType'] < 3){
-                            $chunk .= bin2hex($this->toInt16($frame['quat'][0]));
-                            $chunk .= bin2hex($this->toInt16($frame['quat'][1]));
-                            $chunk .= bin2hex($this->toInt16($frame['quat'][2]));
-                            $chunk .= bin2hex($this->toInt16($frame['quat'][3]));
+//                            if ($isMh1To2Port && $bone['boneId'] == 1094 ) {
+//                                $chunk .= (pack('f', $frame['quat'][0]));
+//                                $chunk .= (pack('f', $frame['quat'][1]));
+//                                $chunk .= (pack('f', $frame['quat'][2]));
+//                                $chunk .= (pack('f', $frame['quat'][3]));
+//                            }else{
+                                $chunk .= (pack('f', $frame['quat'][0]));
+                                $chunk .= (pack('f', $frame['quat'][1]));
+                                $chunk .= (pack('f', $frame['quat'][2]));
+                                $chunk .= (pack('f', $frame['quat'][3]));
+
+//                            }
+
+//                            $chunk .= bin2hex($this->toInt16($frame['quat'][0]));
+//                            $chunk .= bin2hex($this->toInt16($frame['quat'][1]));
+//                            $chunk .= bin2hex($this->toInt16($frame['quat'][2]));
+//                            $chunk .= bin2hex($this->toInt16($frame['quat'][3]));
                         }
 
                         if ($bone['frameType'] > 1){
-                            $chunk .= bin2hex($this->toInt16($frame['position'][0]));
-                            $chunk .= bin2hex($this->toInt16($frame['position'][1]));
-                            $chunk .= bin2hex($this->toInt16($frame['position'][2]));
+
+                            // correct the Bip01_R_Clavicle
+//                            if ($isMh1To2Port && $bone['boneId'] == 1057 ) {
+//                                $chunk .= (pack('f', 2.566888923638544e-9));
+//                                $chunk .= (pack('f', 2.7177762783461824e+23));
+//                                $chunk .= (pack('f', 6.410116881738759e-10));
+//                            }else{
+                                $chunk .= (pack('f', $frame['position'][0]));
+                                $chunk .= (pack('f', $frame['position'][1]));
+                                $chunk .= (pack('f', $frame['position'][2]));
+
+//                            }
+
+//                            $chunk .= bin2hex($this->toInt16($frame['position'][0]));
+//                            $chunk .= bin2hex($this->toInt16($frame['position'][1]));
+//                            $chunk .= bin2hex($this->toInt16($frame['position'][2]));
                         }
 
                     }
@@ -633,6 +691,27 @@ class Ifp {
                     $chunkData .= $chunk;
 
                     if ($game == "mh2"){
+
+                        if (!isset($bone['frames']['lastFrameTime'])){
+
+
+                            if ($bone['startTime'] == 0){
+                                $lastFrameTime = end($bone['frames']['frames'])['time'] / 2048;
+                            }else if (count($bone['frames']['frames']) == 1) {#
+                                $lastFrameTime = ($bone['startTime'] / 2048);
+                            }else {
+
+                                $startTime = ($bone['startTime'] / 2048);
+                                $frameCount = (count($bone['frames']['frames'])/ 30) / 2048;
+
+                                $lastFrameTime = $startTime - $frameCount;
+                            }
+
+
+
+                            $bone['frames']['lastFrameTime'] = $lastFrameTime;
+                        }
+
                         $chunkData .= Helper::fromFloatToHex($bone['frames']['lastFrameTime']);
                     }
 
@@ -644,7 +723,6 @@ class Ifp {
 
 
             }
-
 
             $data .= Helper::fromIntToHex($chunkSize / 2);
             $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
@@ -665,52 +743,59 @@ class Ifp {
                 $data .= Helper::fromIntToHex(64);
             }
 
-            $data .= Helper::fromIntToHex(count($animation['entry']));
+//            if ($isMh1To2Port){
+//                $data .= Helper::fromIntToHex(0);
+//
+//            }else{
 
-            foreach ($animation['entry'] as $entry) {
-                if (!is_string($entry)) {
+                $data .= Helper::fromIntToHex(count($animation['entry']));
 
-                    $data .= Helper::fromFloatToHex($entry['time']);
-                    $data .= $entry['unknown'];
-                    $data .= $entry['unknown2'];
+                foreach ($animation['entry'] as $entry) {
+                    if (!is_string($entry)) {
 
-                    if ($game == "mh2"){
+                        $data .= Helper::fromFloatToHex($entry['time']);
+                        $data .= $entry['unknown'];
+                        $data .= $entry['unknown2'];
+
+                        if ($game == "mh2"){
 
 
-                        $commandName = current(unpack("H*", $entry['CommandName']));
-                        $missed = 128 - strlen($commandName) % 128;
-                        if ($missed > 0){
-                            $commandName .= str_repeat('00', $missed / 2);
+                            $commandName = current(unpack("H*", $entry['CommandName']));
+                            $missed = 128 - strlen($commandName) % 128;
+                            if ($missed > 0){
+                                $commandName .= str_repeat('00', $missed / 2);
+                            }
+                            $data .= $commandName;
+
+                            $data .= $entry['unknown3'];
+                        }else{
+                            $data .= $entry['unknown3'];
+                            $data .= $entry['unknown4'];
                         }
-                        $data .= $commandName;
 
-                        $data .= $entry['unknown3'];
+                        $data .= Helper::fromFloatToHex($entry['unknown6']);
+
+                        $particleName = current(unpack("H*", $entry['particleName']));
+                        $missed = 16 - strlen($particleName) % 16;
+                        if ($missed > 0){
+                            $particleName .= str_repeat('00', $missed / 2);
+                        }
+                        $data .= $particleName;
+
+
+                        foreach ($entry['particlePosition'] as $pPos) {
+                            $data .= Helper::fromFloatToHex($pPos);
+                        }
+
+                        $data .= $entry['unknown5'];
+
                     }else{
-                        $data .= $entry['unknown3'];
-                        $data .= $entry['unknown4'];
+                        $data .= $entry;
+
                     }
-
-                    $data .= Helper::fromFloatToHex($entry['unknown6']);
-
-                    $particleName = current(unpack("H*", $entry['particleName']));
-                    $missed = 16 - strlen($particleName) % 16;
-                    if ($missed > 0){
-                        $particleName .= str_repeat('00', $missed / 2);
-                    }
-                    $data .= $particleName;
-
-
-                    foreach ($entry['particlePosition'] as $pPos) {
-                        $data .= Helper::fromFloatToHex($pPos);
-                    }
-
-                    $data .= $entry['unknown5'];
-
-                }else{
-                    $data .= $entry;
-
                 }
-            }
+//            }
+
         }
 
         return $data;
