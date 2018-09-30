@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\Archive\Bin;
+use App\Service\Archive\Col;
 use App\Service\Archive\Fsb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
@@ -46,8 +47,11 @@ class UnpackCommand extends Command
     /** @var Tex  */
     private $tex;
 
+    /** @var Col  */
+    private $col;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp, Bin $bin, Tex $tex)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Grf $grf, Ifp $ifp, Bin $bin, Tex $tex, Col $col)
     {
         $this->mls = $mls;
         $this->glg = $glg;
@@ -57,6 +61,7 @@ class UnpackCommand extends Command
         $this->ifp = $ifp;
         $this->bin = $bin;
         $this->tex = $tex;
+        $this->col = $col;
 
         parent::__construct();
     }
@@ -85,8 +90,8 @@ class UnpackCommand extends Command
 
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         $filename = pathinfo($file, PATHINFO_FILENAME);
+        $fileExt = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         $folder = realpath(pathinfo($file, PATHINFO_DIRNAME));
-
 
         $content = file_get_contents($file);
         $contentAsHex = bin2hex($content);
@@ -116,13 +121,23 @@ class UnpackCommand extends Command
 
             $grf = $this->grf->unpack($content);
 
-            $outputTo = $folder . '/' . $filename . ".grf.uncompressed";
+            $outputTo = $folder . '/' . $filename . ".grf.json";
 
             file_put_contents(
                 $outputTo,
                 \json_encode($grf, JSON_PRETTY_PRINT)
             );
 
+        }else if ($fileExt == "col") {
+
+            $json = $this->col->unpack($contentAsHex);
+
+            $outputTo = $folder . '/' . $filename . ".col.json";
+
+            file_put_contents(
+                $outputTo,
+                \json_encode($json, JSON_PRETTY_PRINT)
+            );
         // we found a MLS scipt
         }else if (substr($contentAsHex, 0, 8) == "4d484c53" || substr($contentAsHex, 0, 8) == "4d485343") { // MHSC
             $output->writeln("MHLS (MLS) file detected");
