@@ -337,6 +337,8 @@ class Ifp {
                 $startTime = $this->toInt16($this->substr($entry, 0, 2));
             }
 
+            //allen: need /2048.0*30 get frameid value
+            $startTime = ($startTime / 2048) * 30;
 
             $resultBone = [
                 'boneId' => $boneId,
@@ -456,10 +458,15 @@ class Ifp {
                     $w = $this->substr($entry, 0, 2);
                 }
 
-                $x = current(unpack("f", $x));
-                $y = current(unpack("f", $y));
-                $z = current(unpack("f", $z));
-                $w = current(unpack("f", $w));
+//                $x = $this->toInt16($x);
+//                $y = $this->toInt16($y);
+//                $z = $this->toInt16($z);
+//                $w = $this->toInt16($w);
+
+                $x = $this->toInt16($x) / 2048;
+                $y = $this->toInt16($y) / 2048;
+                $z = $this->toInt16($z) / 2048;
+                $w = $this->toInt16($w) / 2048;
 
                 $resultFrame['quat'] = [$x,$y,$z,$w];
 
@@ -486,11 +493,13 @@ class Ifp {
                     $y = $this->substr($entry, 0, 2);
                     $z = $this->substr($entry, 0, 2);
                 }
+//                $x = $this->toInt16($x);
+//                $y = $this->toInt16($y);
+//                $z = $this->toInt16($z);
 
-                $x = current(unpack("f", $x));
-                $y = current(unpack("f", $y));
-                $z = current(unpack("f", $z));
-
+                $x = $this->toInt16($x) / 2048;
+                $y = $this->toInt16($y) / 2048;
+                $z = $this->toInt16($z) / 2048;
 
                 $resultFrame['position'] = [$x,$y,$z];
 
@@ -580,24 +589,7 @@ class Ifp {
 
                 $chunkData .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
 
-                if ($animationName == "BAT_USE_EXECUTE_SLEDGEHAMMER_2_ANIM\x00" || $animationName == "BAT_DAMAGE_EXECUTE_SLEDGEHAMMER_2_ANIM\x00"){
-
-                    $boneRemapping = [
-//                        '5' => '10000'
-                    ];
-
-                    if (isset($boneRemapping[$bone['boneId']])){
-                        $boneId = (int) $boneRemapping[$bone['boneId']];
-
-                    }else{
-                        $boneId = $bone['boneId'];
-                        echo "mapping missed " . $bone['boneId'] . "\n";
-                    }
-
-                }else{
-                    $boneId = $bone['boneId'];
-
-                }
+                $boneId = $bone['boneId'];
 
 
                 if (!isset($bone['frames']['lastFrameTime'])) {
@@ -605,7 +597,7 @@ class Ifp {
                 }
 
 
-                    $chunkData .= bin2hex($this->toInt16($boneId));
+                $chunkData .= bin2hex($this->toInt16($boneId));
                 $chunkData .= bin2hex($this->toInt8($bone['frameType']));
                 if (!is_string($bone['frames'])){
                     $chunkData .= bin2hex($this->toInt16(count($bone['frames']['frames'])));
@@ -614,12 +606,11 @@ class Ifp {
                     $chunkData .= bin2hex($this->toInt16($bone['frameCount']));
                 }
 
-
                 /**
                  * Chunk start
                  */
-                $chunk = bin2hex($this->toInt16($bone['startTime']));
 
+                $chunk = bin2hex($this->toInt16((int)(($bone['startTime'] / 30) * 2048)));
 
                 if ($bone['frameType'] > 2){
                     if ($bone['startTime'] > 0){
@@ -644,44 +635,33 @@ class Ifp {
                             }
 
                         }
-
-                        if ($bone['frameType'] < 3){
-//                            if ($isMh1To2Port && $bone['boneId'] == 1094 ) {
-//                                $chunk .= (pack('f', $frame['quat'][0]));
-//                                $chunk .= (pack('f', $frame['quat'][1]));
-//                                $chunk .= (pack('f', $frame['quat'][2]));
-//                                $chunk .= (pack('f', $frame['quat'][3]));
-//                            }else{
-                                $chunk .= (pack('f', $frame['quat'][0]));
-                                $chunk .= (pack('f', $frame['quat'][1]));
-                                $chunk .= (pack('f', $frame['quat'][2]));
-                                $chunk .= (pack('f', $frame['quat'][3]));
-
-//                            }
-
+//
+//                        if ($bone['frameType'] < 3){
 //                            $chunk .= bin2hex($this->toInt16($frame['quat'][0]));
 //                            $chunk .= bin2hex($this->toInt16($frame['quat'][1]));
 //                            $chunk .= bin2hex($this->toInt16($frame['quat'][2]));
 //                            $chunk .= bin2hex($this->toInt16($frame['quat'][3]));
+//                        }
+//
+//                        if ($bone['frameType'] > 1){
+//                            $chunk .= bin2hex($this->toInt16($frame['position'][0]));
+//                            $chunk .= bin2hex($this->toInt16($frame['position'][1]));
+//                            $chunk .= bin2hex($this->toInt16($frame['position'][2]));
+//                        }
+
+                        if ($bone['frameType'] < 3){
+
+                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][0] * 2048) ));
+                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][1] * 2048) ));
+                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][2] * 2048) ));
+                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][3] * 2048) ));
                         }
 
                         if ($bone['frameType'] > 1){
 
-                            // correct the Bip01_R_Clavicle
-//                            if ($isMh1To2Port && $bone['boneId'] == 1057 ) {
-//                                $chunk .= (pack('f', 2.566888923638544e-9));
-//                                $chunk .= (pack('f', 2.7177762783461824e+23));
-//                                $chunk .= (pack('f', 6.410116881738759e-10));
-//                            }else{
-                                $chunk .= (pack('f', $frame['position'][0]));
-                                $chunk .= (pack('f', $frame['position'][1]));
-                                $chunk .= (pack('f', $frame['position'][2]));
-
-//                            }
-
-//                            $chunk .= bin2hex($this->toInt16($frame['position'][0]));
-//                            $chunk .= bin2hex($this->toInt16($frame['position'][1]));
-//                            $chunk .= bin2hex($this->toInt16($frame['position'][2]));
+                            $chunk .= bin2hex($this->toInt16( intval($frame['position'][0] * 2048) ));
+                            $chunk .= bin2hex($this->toInt16( intval($frame['position'][1] * 2048) ));
+                            $chunk .= bin2hex($this->toInt16( intval($frame['position'][2] * 2048) ));
                         }
 
                     }
@@ -689,7 +669,6 @@ class Ifp {
                     $chunkSize += strlen($chunk);
 
                     $chunkData .= $chunk;
-
                     if ($game == "mh2"){
 
                         if (!isset($bone['frames']['lastFrameTime'])){
