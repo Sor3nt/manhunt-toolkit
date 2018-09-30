@@ -126,9 +126,12 @@ class Manhunt2
             'offset' => "03000000"
         ],
 
-
         'COMBATTYPEID_COVER' => [
             'offset' => "02000000"
+        ],
+
+        'COMBATTYPEID_OPEN' => [
+            'offset' => "01000000"
         ],
 
         'AISCRIPT_GRAPHLINK_ALLOW_NOTHING' => [
@@ -1034,7 +1037,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "spawnEntitywithdirection" => [
+        "spawnentitywithdirection" => [
             'name' => 'SpawnEntityWithDirection',
             'offset' => '7c000000',
             /**
@@ -2306,6 +2309,11 @@ class Manhunt2
         'killsubtitletext' => [
             'name' => 'KillSubtitleText',
             'offset' => "f6020000"
+        ],
+
+        'aidefinegoalshootvector' => [
+            'name' => 'AIDefineGoalShootVector',
+            'offset' => "6a020000"
         ],
 
     ];
