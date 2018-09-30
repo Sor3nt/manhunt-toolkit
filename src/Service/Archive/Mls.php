@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\Bytecode\Helper;
 use App\Service\Binary;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,10 +18,17 @@ class Mls extends ZLib {
     ];
 
 
-    private function getLabelSizeData( Binary $data, Binary &$remain = null, $labelEndPos = 4){
+    private function getLabelSizeData( Binary $data, Binary &$remain = null, $labelEndPos = 4, $platform = "pc"){
 
         $label = $data->substr(0, $labelEndPos, $data);
-        $size = $data->substr(0, $labelEndPos, $data);
+
+        if ($platform == "wii"){
+            $size = $data->substr(0, $labelEndPos, $data);
+            $size = new Binary(Helper::toBigEndian($size->toHex()), true);
+        }else{
+            $size = $data->substr(0, $labelEndPos, $data);
+        }
+
         $data = $data->substr(0, $size->toInt(), $remain);
 
         return [
@@ -42,6 +50,8 @@ class Mls extends ZLib {
         /** @var Binary $remain */
         $binary = new Binary( $data );
 
+        $platform = "pc";
+
         /**
          * Parse file header (MHLS)
          */
@@ -52,11 +62,17 @@ class Mls extends ZLib {
 
         $mhlsVersion = $remain->substr(0, 4, $remain);
 
+        if ($mhlsVersion == "00090003"){
+            $platform = "wii";
+
+            $mhlsVersion = new Binary(Helper::toBigEndian($mhlsVersion->toHex()), true);
+        }
+
+
         $version = (int) $mhlsVersion->substr(0,1)->toHex() . '.';
         $version .= (int) $mhlsVersion->substr(2,1)->toHex();
 
         !is_null($output) && $output->writeln(sprintf("| <info>Version:</info> %s", $version));
-
         !is_null($output) && $output->writeln(' ' . str_repeat('¯', 20));
 
         $nextSection = $remain->substr(0, 4)->toString();
@@ -80,9 +96,9 @@ class Mls extends ZLib {
                 !is_null($output) && $output->writeln("Progress next script...");
                 !is_null($output) && $output->writeln("");
 
-                list(,, $data) = $this->getLabelSizeData( $remain, $remain);
+                list(,, $data) = $this->getLabelSizeData( $remain, $remain, 4, $platform);
 
-                $mhscs[] = $this->parseBody($data, $game, $output, $progressBar);
+                $mhscs[] = $this->parseBody($data, $game, $output, $progressBar, $platform);
 
             }while($remain->length() > 0);
         }
@@ -97,7 +113,7 @@ class Mls extends ZLib {
 
     }
 
-    private function parseBody( Binary $remain, $game = "mh1", OutputInterface $output = null, ProgressBar $progressBar = null ){
+    private function parseBody( Binary $remain, $game = "mh1", OutputInterface $output = null, ProgressBar $progressBar = null, $platform = "pc" ){
         /** @var Binary $code */
         /** @var Binary $sectionCode */
         /** @var Binary $data */
@@ -105,7 +121,7 @@ class Mls extends ZLib {
         $unpacked = [];
 
         do{
-            list($scriptLabel, , $data) = $this->getLabelSizeData( $remain, $remain);
+            list($scriptLabel, , $data) = $this->getLabelSizeData( $remain, $remain, 4, $platform);
 
             !is_null($progressBar) && $progressBar->advance();
 
@@ -123,24 +139,29 @@ class Mls extends ZLib {
 
 
                 case 'SCPT':
+                    /** @var Binary $part */
                     /** @var Binary $data */
                     $scptParts = $data->split(72);
 
                     foreach ($scptParts as $index =>  $part) {
 
                         $name = $part->substr(0, 64, $part);
-
                         /**
                          * first entry has always int 0
                          * and all other has 104
                          */
-                        $priority = $part->substr(0, 4, $part);
 
+                        //todo: wii swap ?
+                        $onTriggerOffset = $part->substr(0, 4, $part);
                         $position = $part->substr(0, 4, $part);
+                        if ($platform == "wii"){
+                            $onTriggerOffset = new Binary(Helper::toBigEndian($onTriggerOffset->toHex()), true);
+                            $position = new Binary(Helper::toBigEndian($position->toHex()), true);
+                        }
 
                         $unpacked[$scriptLabel][] = [
                             'name' => $name->toString(),
-                            'onTrigger' => $priority->toHex(),
+                            'onTrigger' => $onTriggerOffset->toHex(),
                             'scriptStart' => $position->toInt()
                         ];
                     }
@@ -152,7 +173,6 @@ class Mls extends ZLib {
                 case 'NAME':                                    // just the name of this script
 
                     $unpacked['NAME'] = $data->substr(0, "\x00", $data)->toString();
-
                     // contains garbage
 //                    $unpacked['NAME_remain'] = $data->toHex();
 
@@ -187,7 +207,11 @@ class Mls extends ZLib {
 
                     $split = $data->split(4);
                     foreach ($split as $value) {
-                        $unpacked['CODE'][] = $value->toHex();
+                        if ($platform == "wii"){
+                            $unpacked['CODE'][] = Helper::toBigEndian($value->toHex());
+                        }else{
+                            $unpacked['CODE'][] = $value->toHex();
+                        }
                     }
 
                     !is_null($output) && $output->writeln(sprintf("<comment>%s entries</comment>", count($unpacked['CODE'])));
@@ -209,7 +233,6 @@ class Mls extends ZLib {
                     do{
                         $name = $code->substr(0, "\x00", $code);
 
-
                         while($code->substr(0,1)->toBinary() == "\xBC" || $code->substr(0,1)->toBinary() == "\x20" || $code->substr(0,1)->toBinary() == "\xDA" || $code->substr(0,1)->toBinary() == "\x00"){
                             $code = $code->substr(1);
                         }
@@ -230,7 +253,15 @@ class Mls extends ZLib {
                     break;
 
                 case 'SMEM':                                    // hm
-                    $unpacked['SMEM'] = $data->toInt();
+
+
+                    if ($platform == "wii"){
+                        $smem = new Binary(Helper::toBigEndian($data->toHex()), true);
+                        $unpacked['SMEM'] = $smem->toInt();
+                    }else{
+                        $unpacked['SMEM'] = $data->toInt();
+                    }
+
                     !is_null($output) && $output->writeln(sprintf("<comment>%s Byte</comment>", $unpacked['SMEM']));
 
                     break;
@@ -238,26 +269,38 @@ class Mls extends ZLib {
                 case 'DBUG':                                    // source code, match 1:1 the bytecode
                     $code = $data;
 
-                    list(, , $sectionCode) = $this->getLabelSizeData( $code, $code);#
+                    list(, , $sectionCode) = $this->getLabelSizeData( $code, $code, 4, $platform);
+
                     $unpacked['DBUG']['SRCE'] = $sectionCode->toBinary();
 
-                    list(, , $lineCode) = $this->getLabelSizeData( $code, $code);
+                    list(, , $lineCode) = $this->getLabelSizeData( $code, $code, 4, $platform);
 
                     $trce = $code->split(4);
 
                     // add TRCE record
-                    $unpacked['DBUG']['TRCE'] = [
-                        'size' => $trce[1]->toHex(),
-                        'data' => $trce[2]->toHex()
-                    ];
+                    if ($platform == "wii"){
+                        $unpacked['DBUG']['TRCE'] = [
+                            'size' => Helper::toBigEndian($trce[1]->toHex()),
+                            'data' => Helper::toBigEndian($trce[2]->toHex())
+                        ];
+
+                    }else{
+                        $unpacked['DBUG']['TRCE'] = [
+                            'size' => $trce[1]->toHex(),
+                            'data' => $trce[2]->toHex()
+                        ];
+                    }
 
                     $unpacked['DBUG']['LINE'] = [];
 
 
                     //umstellen auf ->split(4)
                     do{
-
-                        $unpacked['DBUG']['LINE'][] = $lineCode->substr(0, 4, $lineCode)->toHex();
+                        if ($platform == "wii") {
+                            $unpacked['DBUG']['LINE'][] = Helper::toBigEndian( $lineCode->substr(0, 4, $lineCode)->toHex() );
+                        }else{
+                            $unpacked['DBUG']['LINE'][] = $lineCode->substr(0, 4, $lineCode)->toHex();
+                        }
                     }while($lineCode->length() > 0);
 
 
@@ -266,7 +309,14 @@ class Mls extends ZLib {
                     break;
 
                 case 'DMEM':                                    // memory allocation for debug
-                    $unpacked['DMEM'] = $data->toInt();
+
+                    if ($platform == "wii"){
+                        $dmem = new Binary(Helper::toBigEndian($data->toHex()), true);
+                        $unpacked['DMEM'] = $dmem->toInt();
+                    }else{
+                        $unpacked['DMEM'] = $data->toInt();
+                    }
+
                     !is_null($output) && $output->writeln(sprintf("<comment>%s Byte</comment>", $unpacked['DMEM']));
 
                     break;
@@ -308,10 +358,18 @@ class Mls extends ZLib {
 
                         $unknown1 = new Binary();
                         $name = $section1->substr(0, "\x00", $unknown1);
+
                         $entry['name'] = $name->toString();
 
                         /** @var Binary $unknown1 */
                         $unknown1 = $unknown1->skipBytes(1);
+//
+//                        if ($section2->length() == 0){
+//                            $entries[] = $entry;
+//                            break;
+//
+//                        }
+
 
 
                         $section2 = $section2->split(4);
@@ -322,31 +380,40 @@ class Mls extends ZLib {
                             $entry['offset'] = false;
                         }else{
                             $entry['offset'] = $section2[0]->toHex();
+                            if ($platform == "wii") {
+                                $entry['offset'] = Helper::toBigEndian($entry['offset']);
+
+                            }
                         }
 
                         if ($section2[1]->toHex() == "ffffffff"){
                             $entry['size'] = false;
                         }else{
-                            $entry['size'] = $section2[1]->toInt();
+                            if ($platform == "wii") {
+                                $entry['size'] = (new Binary(Helper::toBigEndian($section2[1]->toHex()), true))->toInt();
+                            }else{
+                                $entry['size'] = $section2[1]->toInt();
+                            }
                         }
-
 
                         if ($game == "mh1"){
                             $entry['valueType'] = $section2[2]->toHex();
                             $entry['occurrenceCount'] = $section2[3]->toInt();
 
                         }else{
+                            if ($platform == "wii") {
+                                $entry['unknownType'] = Helper::toBigEndian($section2[2]->toHex());
+                                $entry['valueType'] = Helper::toBigEndian($section2[3]->toHex());
+                                $entry['occurrenceCount'] = (new Binary(Helper::toBigEndian($section2[4]->toHex(), true)))->toInt();
 
-                            $entry['unknownType'] = $section2[2]->toHex();
-                            $entry['valueType'] = $section2[3]->toHex();
-                            $entry['occurrenceCount'] = $section2[4]->toInt();
+                            }else{
+                                $entry['unknownType'] = $section2[2]->toHex();
+                                $entry['valueType'] = $section2[3]->toHex();
+                                $entry['occurrenceCount'] = $section2[4]->toInt();
+                            }
                         }
 
-
-
                         switch ($entry['valueType']){
-
-
                             case "00000000";
                                 $objectType = "integer";
                                 break;
@@ -379,7 +446,6 @@ class Mls extends ZLib {
                                 $objectType = "game_var integer";
                                 break;
 
-
                             case "0a000000";
                                 $objectType = "unknown 0a";
                                 break;
@@ -401,7 +467,20 @@ class Mls extends ZLib {
                             case "20536372";
                                 $objectType = "unknown 20536372";
                                 break;
-
+//
+//                            //from wii
+//                            case "1e000000";
+//                                $objectType = "unknown 1e000000";
+//                                break;
+//
+//                            //from wii
+//                            case "0c030000";
+//                                $objectType = "unknown 0c030000";
+//                                break;
+//                            //from wii
+//                            case "b4020000";
+//                                $objectType = "unknown b4020000";
+//                                break;
 
                             case "08000000";
                                 $objectType = "tLevelState";
@@ -415,20 +494,20 @@ class Mls extends ZLib {
                         }
 
                         $entry['objectType'] = $objectType;
-
-
                         $entry['occurrences'] = [];
-
 
                         if ($entry['occurrenceCount'] > 0){
                             $occurrencesRaw = $code->substr(0, $entry['occurrenceCount'] * 4, $code)->split(4);
                             foreach ($occurrencesRaw as $occurrence) {
-                                $entry['occurrences'][] = $occurrence->toInt();
+//                                if ($platform == "wii") {
+//                                    $entry['occurrences'][] = (new Binary(Helper::toBigEndian($occurrence->toHex()), true))->toInt();
+                                    $entry['occurrences'][] = $occurrence->toInt();
+//                                }else{
+//                                    $entry['occurrences'][] = $occurrence->toInt();
+//
+//                                }
                             }
                         }
-
-
-
 
                         //these are the values inside the first 32-byte name section, appear right after the name -- looks like garbage
                         if ($unknown1->toString() != ""){
@@ -436,9 +515,12 @@ class Mls extends ZLib {
 
                             $split = $unknown1->split(4);
                             foreach ($split as $item) {
-                                $entry['unknown'] .= $item->toHex();
+                                if ($platform == "wii") {
+                                    $entry['unknown'] .= Helper::toBigEndian($item->toHex());
+                                }else{
+                                    $entry['unknown'] .= $item->toHex();
+                                }
                             }
-
                         }
 
                         unset($entry['valueType']);
@@ -450,7 +532,6 @@ class Mls extends ZLib {
                     }while($code->length());
 
                     $unpacked['STAB'] = $entries;
-
 
                     !is_null($output) && $output->writeln(sprintf("<comment>%s entries</comment>", count($entries)));
 
