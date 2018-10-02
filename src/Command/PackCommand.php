@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\Archive\Bin;
+use App\Service\Archive\Col;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
 use App\Service\Archive\Ifp;
@@ -41,8 +42,11 @@ class PackCommand extends Command
     /** @var Bin  */
     private $bin;
 
+    /** @var Col  */
+    private $col;
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf, Bin $bin)
+
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf, Bin $bin, Col $col)
     {
         $this->mls = $mls;
         $this->glg = $glg;
@@ -50,6 +54,7 @@ class PackCommand extends Command
         $this->ifp = $ifp;
         $this->grf = $grf;
         $this->bin = $bin;
+        $this->col = $col;
 
         parent::__construct();
     }
@@ -161,7 +166,17 @@ class PackCommand extends Command
 
                 $this->packGLG( $content, $saveTo);
 
-            // grf file
+            // col file
+            }else if (
+                (strpos($content, "min") !== false) &&
+                (strpos($content, "max") !== false) &&
+                (strpos($content, "center") !== false)
+            ){
+
+                $content = $this->col->pack(\json_decode($content, true));
+                file_put_contents($saveTo, hex2bin($content));
+
+                // grf file
             }else if (
                 (strpos($content, "block1") !== false) &&
                 (strpos($content, "block2") !== false) &&
@@ -216,8 +231,6 @@ class PackCommand extends Command
 
         $finder = new Finder();
         $finder->depth('== 0')->directories()->in($folder . '/executions');
-
-        $paddings = \json_decode(file_get_contents($folder . '/padding.json'), true);
 
         $executions = [];
         foreach ($finder as $directory) {
