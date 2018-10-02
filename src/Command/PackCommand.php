@@ -46,7 +46,7 @@ class PackCommand extends Command
     private $col;
 
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf, Bin $bin, Col $col)
+    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf, Bin $bin)
     {
         $this->mls = $mls;
         $this->glg = $glg;
@@ -54,7 +54,7 @@ class PackCommand extends Command
         $this->ifp = $ifp;
         $this->grf = $grf;
         $this->bin = $bin;
-        $this->col = $col;
+//        $this->col = $col;
 
         parent::__construct();
     }
@@ -173,8 +173,8 @@ class PackCommand extends Command
                 (strpos($content, "center") !== false)
             ){
 
-                $content = $this->col->pack(\json_decode($content, true));
-                file_put_contents($saveTo, hex2bin($content));
+               // $content = $this->col->pack(\json_decode($content, true));
+                // file_put_contents($saveTo, hex2bin($content));
 
                 // grf file
             }else if (
