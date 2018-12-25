@@ -26,6 +26,7 @@ class T_SCRIPT {
 
                 case Token::T_PROCEDURE_NAME:
                 case Token::T_SCRIPT_NAME:
+                case Token::T_CUSTOM_FUNCTION_NAME:
                     $node['value'] = $tokens[$current]['value'];
                     $current++;
                     continue;
@@ -39,6 +40,7 @@ class T_SCRIPT {
 
                 case Token::T_PROCEDURE_END:
                 case Token::T_SCRIPT_END:
+                case Token::T_CUSTOM_FUNCTION_END:
                     return [
                         $current, $node
                     ];

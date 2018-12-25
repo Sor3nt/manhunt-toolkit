@@ -10,30 +10,11 @@ $application = new Application();
 
 //$application->add(new \App\Command\SetGameCommand());
 
-$application->add(new \App\Command\PackCommand(
-    new \App\Service\Archive\Mls(),
-    new \App\Service\Archive\Glg(),
-    new \App\Service\Archive\Inst(),
-    new \App\Service\Archive\Ifp(),
-    new \App\Service\Archive\Grf(),
-    new \App\Service\Archive\Bin()
-    //,
-    //new \App\Service\Archive\Col()
-));
+$application->add(new \App\Command\PackCommand());
 
 $application->add(new \App\Command\GenerateEventsCommand());
 
-$application->add(new \App\Command\UnpackCommand(
-    new \App\Service\Archive\Mls(),
-    new \App\Service\Archive\Glg(),
-    new \App\Service\Archive\Inst(),
-//    new \App\Service\Archive\Fsb(),
-    new \App\Service\Archive\Grf(),
-    new \App\Service\Archive\Ifp(),
-    new \App\Service\Archive\Bin(),
-    new \App\Service\Archive\Tex(),
-    new \App\Service\Archive\Col()
-));
+$application->add(new \App\Command\UnpackCommand());
 
 $application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
 

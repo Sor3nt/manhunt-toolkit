@@ -1,0 +1,16 @@
+{
+    "chunkSize": 64,
+    "frameTimeCount": 3.5,
+    "bones": [
+        {
+            "boneId": 1,
+            "frameType": 2,
+            "startTime": 0,
+            "frames": {
+                "frames": "0000000000000010ac007200ceffab026503a30f0400f0ffd900fc00cfffab166503a30f0400f0ffd900fc00cfffab020000000000000010ac007200ceff"
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

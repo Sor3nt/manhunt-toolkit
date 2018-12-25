@@ -13,6 +13,7 @@ class Parser {
         'T_DEFINE_SECTION_VAR' => Parser\T_DEFINE_SECTION_VAR::class,
         'T_BRACKET_OPEN' => Parser\T_BRACKET_OPEN::class,
         'T_PROCEDURE' => Parser\T_PROCEDURE::class,
+        'T_CUSTOM_FUNCTION' => Parser\T_CUSTOM_FUNCTION::class,
         'T_IF' => Parser\T_IF::class,
         'T_FOR' => Parser\T_FOR::class,
         'T_WHILE' => Parser\T_WHILE::class,
@@ -45,8 +46,40 @@ class Parser {
         return $ast;
     }
 
-    public function handleForward( $ast ){
+    public function getProcedures( $ast ){
 
+        $result = [];
+
+
+        foreach ($ast['body'] as $token) {
+            if ($token['type'] == Token::T_PROCEDURE){
+
+                $result[strtolower($token['value'])] = false;
+            }
+        }
+
+        return $result;
+    }
+
+
+    public function getCustomFunctions( $ast ){
+
+        $result = [];
+
+
+        foreach ($ast['body'] as $token) {
+            if ($token['type'] == Token::T_CUSTOM_FUNCTION){
+
+                $result[strtolower($token['value'])] = false;
+            }
+        }
+
+        return $result;
+    }
+
+
+
+    public function handleForward( $ast ){
         foreach ($ast['body'] as &$token) {
             if ($token['type'] == Token::T_FORWARD){
 
@@ -56,6 +89,16 @@ class Parser {
                         $tokenInner['type'] == $token['section'] &&
                         $tokenInner['value'] == $token['to']
                     ){
+
+                        $tokenInner['vars'] = $token['params'];
+
+                        if (isset($token['returnType'])){
+                            $tokenInner['returnType'] = $token['returnType'];
+                        }
+
+                        if (isset($token['parameters'])){
+                            $tokenInner['parameters'] = $token['parameters'];
+                        }
 
                         $token = $tokenInner;
 
@@ -94,6 +137,7 @@ class Parser {
             case Token::T_WHILE_END:
             case Token::T_CASE_END:
             case Token::T_SCRIPT_END:
+            case Token::T_CUSTOM_FUNCTION_END:
             case Token::T_PROCEDURE_END:
             case Token::T_END_CODE:
                 //just go to the next position
@@ -127,6 +171,7 @@ class Parser {
             case Token::T_MULTIPLY:
             case Token::T_OR:
             case Token::T_AND:
+            case Token::T_SWITCH_END:
             case Token::T_OF:
 //            case Token::T_BRACKET_CLOSE:
                 return [

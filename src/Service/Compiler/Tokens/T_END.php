@@ -1,7 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
-use App\Bytecode\Helper;
+
+use App\Service\Helper;
 
 class T_END {
 

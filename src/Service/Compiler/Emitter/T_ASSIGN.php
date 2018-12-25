@@ -1,9 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-use App\Bytecode\Helper;
-use App\Service\Compiler\Evaluate;
-use App\Service\Compiler\EvaluateAssign;
+use App\Service\Helper;
 use App\Service\Compiler\Token;
 
 class T_ASSIGN {
@@ -20,6 +18,32 @@ class T_ASSIGN {
         //when we have a type usage, we have no variable entry
         //so the compiler think its a function...
         if ($leftHand['type'] == Token::T_FUNCTION ){
+
+
+
+
+            if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
+//                $leftHand['type'] = Token::T_CUSTOM_FUNCTION;
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('02000000');
+                $code[] = $getLine('11000000');
+                $code[] = $getLine('02000000');
+                $code[] = $getLine('0a000000');
+                $code[] = $getLine('34000000');
+                $code[] = $getLine('02000000');
+                $code[] = $getLine('04000000');
+                $code[] = $getLine('20000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('04000000');
+                $code[] = $getLine('02000000');
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('02000000');
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+
+            }
+
+
             $stateVar = str_replace('level_var ', '',$mapped['type']);
 
             if (isset($data['types'][$stateVar])){
@@ -29,7 +53,14 @@ class T_ASSIGN {
         }
 
         if ($mapped['type'] == "vec3d"){
-            $code[] = $getLine('22000000');
+
+            if ($mapped['section'] == "header"){
+                $code[] = $getLine('21000000');
+
+            }else{
+                $code[] = $getLine('22000000');
+
+            }
             $code[] = $getLine('04000000');
             $code[] = $getLine('01000000');
             $code[] = $getLine($mapped['offset']);
@@ -123,9 +154,11 @@ class T_ASSIGN {
                 $code[] = $getLine('01000000');
 
                 if ($operator['type'] == Token::T_ADDITION) {
+
                     $code[] = $getLine('50000000');
-                }else{
-                    throw new \Exception('Float substration not implemented');
+                }else if ($operator['type'] == Token::T_SUBSTRACTION) {
+
+                    $code[] = $getLine('51000000');
                 }
 
 
@@ -167,13 +200,30 @@ class T_ASSIGN {
         /*
          * Assign TO variable handling
          *
-         * wee need here to difference between sindlge param or multi param
+         * wee need here to difference between single param or multi param
          * mutli params are always math operators and need other return codes
          */
         if (isset($node['body'][1]) == false){
 
-            if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
-                self::toTLevelState( $mapped['offset'], $code, $getLine);
+
+            //we are inside a function and want to return a value
+//            if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
+////                $leftHand['type'] = Token::T_CUSTOM_FUNCTION;
+//
+//                $code[] = $getLine('ka');
+//
+//
+//            }else
+                if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
+
+                if (isset($mapped['isLevelVar']) && $mapped['isLevelVar'] == true){
+                    self::toHeaderTLevelState( $mapped['offset'], $code, $getLine);
+
+                }else{
+
+                    self::toTLevelState( $mapped['offset'], $code, $getLine);
+                }
+
             }else{
                 switch ($mapped['section']) {
 
@@ -182,22 +232,34 @@ class T_ASSIGN {
                         switch (strtolower($mapped['type'])) {
                             case 'boolean':
                             case 'integer':
+
                                 self::toHeaderBoolean( $mapped['offset'], $code, $getLine);
                                 break;
 //                            self::toHeaderInteger( $mapped['offset'], $code, $getLine);
 //                            break;
 
+                            case 'level_var integer':
                             case 'level_var boolean':
                                 self::toHeaderLevelVarBoolean( $mapped['offset'], $code, $getLine);
                                 break;
+                            case 'entityptr':
+                                self::toHeaderentityptr( $mapped['offset'], $code, $getLine);
+                                break;
                             case 'level_var tlevelstate':
+//                                var_dump($mapped);
+//                                die("s");
                                 self::toHeaderTLevelState( $mapped['offset'], $code, $getLine);
                                 break;
                             case 'stringarray':
                                 self::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
                                 break;
+
+                            case 'vec3d':
+                                self::toHeaderVec3D( $mapped['offset'], $code, $getLine);
+                                break;
+
                             default:
-//                                var_dump($mapped);
+                                var_dump($mapped);
                                 throw new \Exception("Not implemented!");
                         }
 
@@ -220,11 +282,15 @@ class T_ASSIGN {
                             case 'object':
                                 self::toObject( $code, $getLine);
                                 break;
+
+                            case 'custom_functions':
+                                self::toCustomFunctions( $code, $getLine);
+                                break;
                             case 'real':
                                 self::toReal($mapped['offset'], $code, $getLine);
                                 break;
                             default:
-//                                var_dump($mapped);
+                                var_dump($mapped);
                                 throw new \Exception("Not implemented!");
 
                         }
@@ -321,6 +387,20 @@ class T_ASSIGN {
         $code[] = $getLine('01000000');
     }
 
+
+    static public function toCustomFunctions( &$code, \Closure $getLine){
+        $code[] = $getLine('0f000000');
+        $code[] = $getLine('02000000');
+        $code[] = $getLine('17000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine('02000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('13000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine('04000000'); //offset?
+    }
+
     static public function toReal($offset,&$code, \Closure $getLine){
         $code[] = $getLine('15000000');
         $code[] = $getLine('04000000');
@@ -329,6 +409,19 @@ class T_ASSIGN {
     }
 
     static public function toScriptVec3D( $offset, &$code, \Closure $getLine){
+        $code[] = $getLine('12000000');
+        $code[] = $getLine('03000000');
+        $code[] = $getLine( $offset );
+
+        $code[] = $getLine('0f000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('0f000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine('44000000');
+
+    }
+
+    static public function toHeaderVec3D( $offset, &$code, \Closure $getLine){
         $code[] = $getLine('12000000');
         $code[] = $getLine('03000000');
         $code[] = $getLine( $offset );
@@ -371,18 +464,18 @@ class T_ASSIGN {
 
     static public function toHeaderInteger( $offset, &$code, \Closure $getLine){
 
-        //TODO: das ist hier falscher platz
-        //gehhört nicht dazu
-//        $code[] = $getLine('11000000');
-//        $code[] = $getLine('01000000');
-//        $code[] = $getLine('04000000');
-
         $code[] = $getLine('15000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine( $offset );
         $code[] = $getLine('01000000');
     }
 
+    static public function toHeaderentityptr( $offset, &$code, \Closure $getLine){
+        $code[] = $getLine('16000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine( $offset );
+        $code[] = $getLine('01000000');
+    }
     static public function toHeaderLevelVarBoolean( $offset, &$code, \Closure $getLine){
         $code[] = $getLine('1a000000');
         $code[] = $getLine('01000000');

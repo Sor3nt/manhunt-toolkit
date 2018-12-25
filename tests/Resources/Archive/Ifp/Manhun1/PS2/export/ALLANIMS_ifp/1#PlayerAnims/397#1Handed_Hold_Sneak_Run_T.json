@@ -1,0 +1,160 @@
+{
+    "chunkSize": 232,
+    "frameTimeCount": 1.1666666269302368,
+    "bones": [
+        {
+            "boneId": 1095,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "7905c2fbdbff6c0e"
+            }
+        },
+        {
+            "boneId": 1096,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "c5ffb3fe41ffed0f"
+            }
+        },
+        {
+            "boneId": 1040,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "9efdd0feafffc60f"
+            }
+        },
+        {
+            "boneId": 1001,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "76fd4b042eff2e0f"
+            }
+        },
+        {
+            "boneId": 9999,
+            "frameType": 3,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "8b0000000e008b0000000e00"
+            },
+            "unknown1": "0000",
+            "unknown2": "e800",
+            "unknown3": "0000",
+            "unknown4": "f90f"
+        },
+        {
+            "boneId": 1003,
+            "frameType": 3,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "d5ff6700deffd5ff6700deff"
+            },
+            "unknown1": "c20a",
+            "unknown2": "450b",
+            "unknown3": "3dfe",
+            "unknown4": "d2fc"
+        },
+        {
+            "boneId": 1039,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "0303a00a23fe6d0b"
+            }
+        },
+        {
+            "boneId": 1020,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "0000a50a0000f20b"
+            }
+        },
+        {
+            "boneId": 1021,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "1b0fbafdc1fe9704"
+            }
+        },
+        {
+            "boneId": 2222,
+            "frameType": 3,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "150005000100150005000100"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 1057,
+            "frameType": 3,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "c8ff9eff1a00c8ff9eff1a00"
+            },
+            "unknown1": "ccf6",
+            "unknown2": "e70c",
+            "unknown3": "d0fd",
+            "unknown4": "1f00"
+        },
+        {
+            "boneId": 1093,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "befc0d06a1f86d0c"
+            }
+        },
+        {
+            "boneId": 1074,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "0000ff0d0000c207"
+            }
+        },
+        {
+            "boneId": 1075,
+            "frameType": 1,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "15f334ffb0006109"
+            }
+        },
+        {
+            "boneId": 2003,
+            "frameType": 3,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "0d00fcff01000d00fcff0100"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 3333,
+            "frameType": 3,
+            "startTime": 34.9951171875,
+            "frames": {
+                "frames": "b500d9ff3901b500d9ff3901"
+            },
+            "unknown1": "a300",
+            "unknown2": "5eff",
+            "unknown3": "4c0b",
+            "unknown4": "4c0b"
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

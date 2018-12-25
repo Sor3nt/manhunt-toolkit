@@ -1,0 +1,104 @@
+{
+    "chunkSize": 624,
+    "frameTimeCount": 0.30000001192092896,
+    "bones": [
+        {
+            "boneId": 1095,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "cb00e2fea400ee0f13ff2efd0701b00f22ff88fc10018f0f86ff1bfc08017a0fdcff0cfcfc00790f040057fcef008c0f2600d3fce000a80f45006bfdce00c40f62000bfebd00dc0f81009efeab00eb0f"
+            }
+        },
+        {
+            "boneId": 1096,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "260127fdceffb30f90ff69fb6a00510fa7ffc9fa75001d0f0d0064fa6500fa0e620059fa4f00f50e8600a4fa3c00100fa1001dfb2600380fb600b2fb0e00640fca004ffcf6ff8c0fe000e0fcdfffab0f"
+            }
+        },
+        {
+            "boneId": 1040,
+            "frameType": 1,
+            "startTime": 8.994140625,
+            "frames": {
+                "frames": "0000bbfa00001b0f"
+            }
+        },
+        {
+            "boneId": 1001,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "e9fe5d0368ff980f6a013b035e018c0f2c01e9025201a20fa5008c02bc00c40f470065023600d10f1a007e02ffffce0ff0ffb302dcffc50fc2fff802c8ffb80f92ff4003beffa90f5aff8003b8ff990f"
+            }
+        },
+        {
+            "boneId": 1003,
+            "frameType": 1,
+            "startTime": 8.994140625,
+            "frames": {
+                "frames": "c209870b970320fc"
+            }
+        },
+        {
+            "boneId": 1039,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "f7fe5d03c605800e5f009c074b04660dcc001c082604210d0301fd075004230d0c018f078d044e0deb00ee06bd04970da9001b06e404f10d4d002905f304500ee2ff2f04e404a60e75ff4403c104ea0e"
+            }
+        },
+        {
+            "boneId": 1020,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "0000a7020000c70f0000ba080000690d00001e0a0000650c0000b50a0000e40b0000c10a0000d90b00006a0a0000250c0000c9090000a80c0000f7080000410d000010080000d20d000037070000480e"
+            }
+        },
+        {
+            "boneId": 1021,
+            "frameType": 1,
+            "startTime": 8.994140625,
+            "frames": {
+                "frames": "ac0a0e01e2ffdf0b"
+            }
+        },
+        {
+            "boneId": 1057,
+            "frameType": 1,
+            "startTime": 8.994140625,
+            "frames": {
+                "frames": "acf6db0b60fd60fb"
+            }
+        },
+        {
+            "boneId": 1093,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "26ff37016cf9820e6afa0c010afab70d5bf958018cfa6d0df0f8b101eefa520d19f9e60118fb700dc3f9ed0110fbbf0dc7fae301eafa1d0e01fccc01abfa6f0e4dfdad015cfaa10e82fe910110fab20e"
+            }
+        },
+        {
+            "boneId": 1074,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "000069020000d10f00002e0700004d0e0000b60800006c0d0000a7090000c30c0000720a00001f0c00003c0b0000640b0000ee0b0000a90a00008e0c0000eb090000210d000025090000aa0d00005308"
+            }
+        },
+        {
+            "boneId": 1075,
+            "frameType": 1,
+            "startTime": 8.994140625,
+            "frames": {
+                "frames": "0af5d1fed8008f0b"
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

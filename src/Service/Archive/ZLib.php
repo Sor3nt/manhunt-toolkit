@@ -1,25 +1,30 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Bytecode\Helper;
 
-abstract class ZLib extends Helper {
+use App\Service\Binary;
+use App\Service\Helper;
 
-    public $header = null;
+class ZLib {
 
+    /** @var array  */
+    static $header = [
+        'start' => '5A32484D',      // the mls header
+        'separator' => '78DA'       // zlib compress factor (best)
+    ];
 
     /**
      * @param $content
      * @return string
      */
-    public function compress($content){
-        $size = $this->toSize(bin2hex($content));
+    static function compress($content){
+        $size = Helper::toSize(bin2hex($content));
 
         $packed =
-            $this->header['start'] .
+            self::$header['start'] .
             $size .
-            $this->header['separator'] .
-            $this->zLibCompress($content)
+            self::$header['separator'] .
+            self::zLibCompress($content)
         ;
 
         return hex2bin($packed);
@@ -29,12 +34,12 @@ abstract class ZLib extends Helper {
      * @param $content
      * @return string
      */
-    public function uncompress($content){
+    static function uncompress($content){
 
         $content = substr( bin2hex($content),
-            strlen($this->header['start']) +
+            strlen(self::$header['start']) +
             strlen('00000000') +
-            strlen($this->header['separator'])
+            strlen(self::$header['separator'])
         );
 
         return zlib_decode(hex2bin($content));
@@ -45,17 +50,9 @@ abstract class ZLib extends Helper {
      * @return string
      * @throws \Exception
      */
-    private function zLibCompress($string){
-
+    static function zLibCompress($string){
         $hex = bin2hex(zlib_encode($string, ZLIB_ENCODING_DEFLATE));
-
-        if (substr($hex, 0, 4) !== '789c'){
-            throw new \Exception('Unknown header start');
-        }
-
-        $hex = substr($hex, 4);
-
-        return $hex;
+        return substr($hex, 4);
     }
 
 

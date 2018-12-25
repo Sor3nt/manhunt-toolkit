@@ -7,7 +7,7 @@ class T_NIL {
 
         $chars = strtolower(substr($input, $current - 1, 5));
 
-        if ($chars == " nil " || $chars == " nil)"|| $chars == " nil,"){
+        if ($chars == "(nil " || $chars == " nil " || $chars == " nil)"|| $chars == " nil,"){
             return [
                 'type' => 'T_NIL',
                 'value' => "nil"

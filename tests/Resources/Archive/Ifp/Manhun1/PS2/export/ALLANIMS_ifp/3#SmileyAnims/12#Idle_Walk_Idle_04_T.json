@@ -1,0 +1,56 @@
+{
+    "chunkSize": 2460,
+    "frameTimeCount": 2,
+    "bones": [
+        {
+            "boneId": 1095,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "ea02f2fd2200990ffa02f2fd2400960f0803f3fd2600930f1403f3fd2700910f1e03f4fd28008f0f2503f4fd29008d0f2a03f4fd29008c0f2c03f4fd2a008c0f2c03f4fd2a008c0f2a03f4fd29008d0f2403f4fd29008e0f1c03f4fd28008f0f1103f3fd2700910f0303f3fd2500940ff202f2fd2300970fde02f1fd21009b0fc702f1fd1e009f0fad02f0fd1b00a30f8b02eefd1700a90f6102edfd1200af0f2e02ebfd0d00b70ff401eafd0600be0fb301e8fd0000c50f6e01e6fdf8ffcc0f2601e5fdf0ffd20fdb00e3fde7ffd60f8f00e2fddfffd90f4200e0fdd6ffdb0ff9ffdffdceffdb0fb0ffdffdc6ffda0f6cffdefdbeffd80f2cffdefdb7ffd50ff3fedefdb1ffd10fc1feddfdabffce0f98feddfda6ffca0f78feddfda3ffc70f62feddfda0ffc50f53feddfd9fffc30f4afedefd9effc20f48fedefd9effc20f4afedefd9effc20f51feddfd9fffc30f5dfeddfda0ffc40f6bfeddfda1ffc60f7cfeddfda3ffc70f8ffeddfda5ffc90fa4feddfda8ffcb0fb9feddfdaaffcd0fcffeddfdacffcf0fe3fedefdafffd00ff7fedefdb1ffd20f09ffdefdb3ffd30f18ffdefdb5ffd40f28ffdefdb6ffd50f3cffdefdb9ffd60f53ffdefdbbffd70f6cffdefdbeffd80f85ffdefdc1ffd90f9effdffdc4ffda0fb6ffdffdc6ffda0fcbffdffdc9ffdb0f"
+            }
+        },
+        {
+            "boneId": 1096,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "c8ff71ff4700fc0fb7ff6fff4f00fc0fb1ff6eff5000fc0fb4ff6eff4b00fc0fbbff6fff4500fc0fc4ff70ff3e00fd0fcfff72ff3500fd0fdbff73ff2c00fd0fe7ff75ff2200fd0ff4ff77ff1700fe0fffff78ff0d00fe0f08007aff0300fe0f10007cfffbfffe0f15007dfff2fffe0f16007effebfffe0f15007fffe3fffe0f130080ffdcfffe0f100081ffd3fffe0f0c0082ffcbfffe0f070083ffc2fffe0f020084ffb9fffd0ffdff86ffb0fffd0ff6ff87ffa7fffd0fefff88ff9ffffd0fe8ff89ff96fffd0fe1ff8aff8efffd0fd9ff8bff87fffc0fd2ff8bff80fffc0fcbff8cff7afffc0fc4ff8dff75fffb0fbdff8dff71fffb0fb7ff8eff6dfffb0fb1ff8eff6bfffb0facff8eff6afffb0fa8ff8eff6bfffb0fa5ff8dff6dfffb0fa2ff8dff71fffb0f9fff8bff78fffb0f9cff8aff82fffb0f99ff88ff8efffb0f96ff86ff9bfffb0f93ff83ffaafffc0f91ff81ffbbfffc0f8fff7effccfffc0f8eff7cffdefffc0f8eff79ffeffffc0f8fff77ff0000fc0f91ff74ff1100fc0f94ff72ff2100fc0f98ff70ff2f00fc0f9eff6fff3c00fc0fa6ff6eff4700fc0fafff6dff4f00fc0fbdff6eff5400fc0fd2ff6fff5600fc0fedff71ff5400fd0f0b0074ff5000fd0f2b0078ff4a00fd0f4c007bff4300fd0f6c007eff3c00fc0f880081ff3600fb0f"
+            }
+        },
+        {
+            "boneId": 1040,
+            "frameType": 1,
+            "startTime": 60,
+            "frames": {
+                "frames": "0000bffc0000aa0f"
+            }
+        },
+        {
+            "boneId": 1001,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "7d01d602d600a70f9201e802b200a40f9b01f9028d00a10f970108036900a00f8e01180345009e0f7f01270323009d0f6b01350304009c0f52014103eaff9c0f34014b03d6ff9c0f10015103c8ff9d0fe8005503c3ff9f0fbc005703c6ffa10f8e005703cfffa30f5e005603ddffa50f2a005603edffa60ff5ff5703ffffa60fbbff59031100a50f80ff5d032600a20f48ff63033c009f0f17ff6c0353009a0fecfe78036b00940fc8fe870381008d0fa9fe98039700860f8efeab03ad007e0f77febf03c100760f64fed403d5006e0f54feea03e700650f45fe0004f8005d0f37fe16040701550f2afe2c0414014c0f1dfe42042001440f0ffe57042a013b0f00fe6b043101330ff0fd7e0434012b0fdefd8e043301240fc9fd9d042e011d0fb4fda8042601170fa2fdae041e01130f93fdaf041401110f87fdae040a01100f7ffdaa04fe00110f7afda404f100130f7afd9e04e200150f7dfd9804d000190f85fd9404bd001c0f91fd9204a600200fa3fd94048d00230fb9fd9a047100260fd7fda4045300280f01feb3043400290f34fec60416002a0f70fedb04faff2a0fb2fef304dfff280ff2fe0c05c7ff250f2aff2405b1ff200f5bff3c059dff1a0f85ff53058bff130fa9ff69057dff0c0fc9ff7d0571ff040fe5ff8f0568fffe0efeff9e0562fff80e"
+            }
+        },
+        {
+            "boneId": 1003,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "5d08330dc400a8fc5f08310dba00a1fc60082f0db0009cfc62082d0da70096fc63082c0d9f0091fc64082a0d98008dfc6508290d920089fc6608280d8d0087fc6608270d8a0085fc6608270d890085fc6608270d8a0085fc6608280d8d0087fc6508290d920089fc64082a0d98008dfc63082c0d9f0091fc62082d0da70096fc60082f0db0009cfc5f08310dba00a1fc5d08330dc400a8fc5b08350dcf00aefc5a08370dda00b4fc5808390de400bbfc56083b0def00c1fc54083d0df900c7fc53083f0d0201ccfc5108400d0a01d1fc5008410d1101d5fc4f08420d1701d9fc4e08430d1c01dcfc4e08440d1e01ddfc4d08440d1f01defc4e08440d1e01ddfc4e08430d1c01dcfc4f08420d1701d9fc5008410d1101d5fc5108400d0a01d1fc53083f0d0201ccfc54083d0df900c7fc56083b0def00c1fc5808390de400bbfc5a08370dda00b4fc5b08350dcf00aefc5d08330dc400a8fc5f08310dba00a1fc60082f0db0009cfc62082d0da70096fc63082c0d9f0091fc64082a0d98008dfc6508290d920089fc6608280d8d0087fc6608270d8a0085fc6608270d890085fc6608270d8a0085fc6608280d8c0086fc6608280d8f0088fc6508290d93008afc64082a0d98008dfc63082c0d9e0091fc62082d0da50095fc61082e0dad0099fc6008300db5009efc"
+            }
+        },
+        {
+            "boneId": 1057,
+            "frameType": 1,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "b9f7490dc2fef1fcbdf74c0dadfefdfcc1f74f0d9afe09fdc5f7520d87fe14fdc8f7540d77fe1efdcbf7560d68fe27fdcdf7580d5dfe2efdcff7590d54fe34fdd0f75a0d4efe37fdd1f75a0d4cfe39fdd0f75a0d4efe37fdcff7590d54fe34fdcdf7580d5dfe2efdcbf7560d68fe27fdc8f7540d77fe1efdc5f7520d87fe14fdc1f74f0d9afe09fdbdf74c0dadfefdfcb9f7490dc2fef1fcb6f7460dd7fee4fcb2f7420decfed7fcaef73e0d02ffcbfcaaf73b0d16ffbefca7f7370d2affb3fca4f7330d3cffa8fca1f7300d4dff9efc9ff72d0d5bff95fc9df72b0d67ff8efc9cf7290d70ff89fc9bf7280d76ff86fc9bf7270d78ff85fc9bf7280d76ff86fc9cf7290d70ff89fc9df72b0d67ff8efc9ff72d0d5bff95fca1f7300d4dff9efca4f7330d3cffa8fca7f7370d2affb3fcaaf73b0d16ffbefcaef73e0d02ffcbfcb2f7420decfed7fcb6f7460dd7fee4fcb9f7490dc2fef1fcbdf74c0dadfefdfcc1f74f0d9afe09fdc5f7520d87fe14fdc8f7540d77fe1efdcbf7560d68fe27fdcdf7580d5dfe2efdcff7590d54fe34fdd0f75a0d4efe37fdd1f75a0d4cfe39fdd0f75a0d4dfe38fdd0f75a0d51fe35fdcef7590d57fe32fdcdf7580d60fe2dfdcbf7560d6afe26fdc8f7550d76fe1ffdc5f7530d83fe17fdc2f7510d92fe0efdbff74e0da2fe04fd"
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

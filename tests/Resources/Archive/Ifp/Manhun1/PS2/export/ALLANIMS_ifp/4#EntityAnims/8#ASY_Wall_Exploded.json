@@ -1,0 +1,212 @@
+{
+    "chunkSize": 374,
+    "frameTimeCount": 0.8333333134651184,
+    "bones": [
+        {
+            "boneId": 9,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "161e27008601161e27008601"
+            },
+            "unknown1": "3302",
+            "unknown2": "6502",
+            "unknown3": "2bf4",
+            "unknown4": "430a"
+        },
+        {
+            "boneId": 2,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "8f1f0100a4e48f1f0100a4e4"
+            },
+            "unknown1": "500b",
+            "unknown2": "ddf4",
+            "unknown3": "0000",
+            "unknown4": "0afe"
+        },
+        {
+            "boneId": 3,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "ce19cf002500ce19cf002500"
+            },
+            "unknown1": "c2f5",
+            "unknown2": "780a",
+            "unknown3": "fbfa",
+            "unknown4": "fafb"
+        },
+        {
+            "boneId": 4,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "d01cb100050ad01cb100050a"
+            },
+            "unknown1": "8c07",
+            "unknown2": "280a",
+            "unknown3": "eb05",
+            "unknown4": "34f8"
+        },
+        {
+            "boneId": 5,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "c708ab006e0ac708ab006e0a"
+            },
+            "unknown1": "51f7",
+            "unknown2": "0b09",
+            "unknown3": "2b07",
+            "unknown4": "e206"
+        },
+        {
+            "boneId": 6,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "4223e8ff9fef4223e8ff9fef"
+            },
+            "unknown1": "c305",
+            "unknown2": "f405",
+            "unknown3": "54f6",
+            "unknown4": "af09"
+        },
+        {
+            "boneId": 7,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "721a0b0098fa721a0b0098fa"
+            },
+            "unknown1": "0000",
+            "unknown2": "9cfe",
+            "unknown3": "0000",
+            "unknown4": "f00f"
+        },
+        {
+            "boneId": 8,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "b81e7700aefcb81e7700aefc"
+            },
+            "unknown1": "f5fd",
+            "unknown2": "b90f",
+            "unknown3": "5f01",
+            "unknown4": "57fe"
+        },
+        {
+            "boneId": 1,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "fd1f6c0089f9fd1f6c0089f9"
+            },
+            "unknown1": "be04",
+            "unknown2": "9404",
+            "unknown3": "5ff5",
+            "unknown4": "f909"
+        },
+        {
+            "boneId": 10,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "1a144600e4081a144600e408"
+            },
+            "unknown1": "d208",
+            "unknown2": "2b08",
+            "unknown3": "85f8",
+            "unknown4": "7207"
+        },
+        {
+            "boneId": 11,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "5522fefff0f35522fefff0f3"
+            },
+            "unknown1": "ab09",
+            "unknown2": "0609",
+            "unknown3": "e4fa",
+            "unknown4": "6a07"
+        },
+        {
+            "boneId": 12,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "061b2b0066e1061b2b0066e1"
+            },
+            "unknown1": "bf02",
+            "unknown2": "9afc",
+            "unknown3": "270b",
+            "unknown4": "9c0a"
+        },
+        {
+            "boneId": 13,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "11161700dbf211161700dbf2"
+            },
+            "unknown1": "43fa",
+            "unknown2": "c004",
+            "unknown3": "ae0a",
+            "unknown4": "4c09"
+        },
+        {
+            "boneId": 14,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "280f0e00b6fd280f0e00b6fd"
+            },
+            "unknown1": "5c00",
+            "unknown2": "49fe",
+            "unknown3": "cd08",
+            "unknown4": "3f0d"
+        },
+        {
+            "boneId": 15,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "04106300f9f104106300f9f1"
+            },
+            "unknown1": "a50c",
+            "unknown2": "a609",
+            "unknown3": "4efe",
+            "unknown4": "a8ff"
+        },
+        {
+            "boneId": 17,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "d614610005f7d614610005f7"
+            },
+            "unknown1": "6afb",
+            "unknown2": "f8fb",
+            "unknown3": "08f6",
+            "unknown4": "ec0a"
+        },
+        {
+            "boneId": 16,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "78124d0033f078124d0033f0"
+            },
+            "unknown1": "e6f7",
+            "unknown2": "d1fd",
+            "unknown3": "2ef5",
+            "unknown4": "4508"
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

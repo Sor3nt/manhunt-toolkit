@@ -6,6 +6,12 @@ use App\Service\Binary;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Ifp {
+
+    /**
+     * Todo:
+     * it looks like we messed up the command block for mh2, a \x00 get lost
+     */
+
     private $game = false;
 
     private function toString( $hex ){
@@ -40,21 +46,25 @@ class Ifp {
     public function unpack($data, OutputInterface $output = null, $outputTo){
 
         $entry = bin2hex($data);
+        $game = "mh2-pc";
 
         /**
          * ROOT (ANCT)
          */
         $headerType = $this->toString($this->substr($entry, 0, 4));
-        $numBlock = $this->toInt($this->substr($entry, 0, 4));
+
+        $numBlockhex = $this->substr($entry, 0, 4);
+
+        if ($this->toInt($numBlockhex) > 10000){
+            $game = "mh2-wii";
+            $numBlock = $this->toInt(Helper::toBigEndian($numBlockhex));
+        }else{
+            $numBlock = $this->toInt($numBlockhex);
+        }
 
         if ($headerType !== "ANCT")
             throw new \Exception(sprintf('Expected ANCT got: %s', $headerType));
 
-
-        if (!is_null($output)) $output->writeln(
-            sprintf('| <info>Header:</info> %s', $headerType . "\n") .
-            sprintf('| <info>Number of Blocks:</info> %s', $numBlock)
-        );
 
         /**
          * BLOCK (BLOC)
@@ -63,8 +73,12 @@ class Ifp {
         while($numBlock > 0){
 
             $sectionBLOC = $this->toString($this->substr($entry, 0, 4));
-            $blockNameLength = $this->toInt($this->substr($entry, 0, 4));
 
+            if($game == "mh2-wii"){
+                $blockNameLength = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+            }else{
+                $blockNameLength = $this->toInt($this->substr($entry, 0, 4));
+            }
 
             if ($sectionBLOC !== "BLOC")
                 throw new \Exception(
@@ -89,23 +103,24 @@ class Ifp {
              */
 
             $headerType = $this->toString($this->substr($entry, 0, 4));
-            $animationCount = $this->toInt($this->substr($entry, 0, 4));
+//            $animationCount = $this->toInt($this->substr($entry, 0, 4));
+
+            if($game == "mh2-wii"){
+                $animationCount = $this->toInt(Helper::toBigEndian($this->substr($entry, 0, 4)));
+            }else{
+                $animationCount = $this->toInt($this->substr($entry, 0, 4));
+            }
 
             if ($headerType !== "ANPK")
                 throw new \Exception(
                     sprintf('Expected ANPK got: %s', $headerType)
                 );
 
-            if (!is_null($output)) $output->writeln(
-                sprintf('  | <info>Current Section:</info> %s', $headerType) . "\n" .
-                sprintf('    | <info>Animations:</info> %s', $animationCount)
-            );
-
 
             /**
              * Animation Pack Entries
              */
-            $this->extractAnimation($animationCount, $entry, $output, $outputToBlock);
+            $this->extractAnimation($animationCount, $entry, $output, $outputToBlock, $game);
 
             $numBlock--;
             $count++;
@@ -113,7 +128,7 @@ class Ifp {
 
     }
 
-    public function extractAnimation($animationCount, &$entry, OutputInterface $output = null, $outputTo, $game = "mh2-pc"){
+    public function extractAnimation($animationCount, $entry, OutputInterface $output = null, $outputTo, $game = "mh2-pc"){
         $animations = [];
 
         $count = 1;
@@ -147,11 +162,14 @@ class Ifp {
 
                 if (strpos(strtolower($numberOfBones), 'ff') !== false){
 
+                    $b = $numberOfBones;
+
                     $game = "mh2-ps2";
-                    $numberOfBones = str_replace('ff', '', $numberOfBones);
+                    $numberOfBones = substr($numberOfBones, 0, 2);
                     if (strlen($numberOfBones) == 2){
                         $numberOfBones = $this->toInt8($numberOfBones) * -1;
                     }else{
+                        var_dump($b);
                         die("PS2 error");
                     }
 
@@ -492,7 +510,7 @@ class Ifp {
                     $x = $this->substr($entry, 0, 2);
                     $y = $this->substr($entry, 0, 2);
                     $z = $this->substr($entry, 0, 2);
-                }
+            }
 //                $x = $this->toInt16($x);
 //                $y = $this->toInt16($y);
 //                $z = $this->toInt16($z);
@@ -519,13 +537,14 @@ class Ifp {
             $index++;
         }
 
+
         if ($this->game == "mh2"){
 
             if ($game == "mh2-wii") {
                 $resultFrames['lastFrameTime'] = $this->toFloat(Helper::toBigEndian($this->substr($entry, 0, 4)));
             }else{
                 $resultFrames['lastFrameTime'] = $this->toFloat($this->substr($entry, 0, 4));
-            }
+        }
 
 
             if (!is_null($output)) $output->writeln(
@@ -590,11 +609,6 @@ class Ifp {
                 $chunkData .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
 
                 $boneId = $bone['boneId'];
-
-
-                if (!isset($bone['frames']['lastFrameTime'])) {
-                    $isMh1To2Port = true;
-                }
 
 
                 $chunkData .= bin2hex($this->toInt16($boneId));

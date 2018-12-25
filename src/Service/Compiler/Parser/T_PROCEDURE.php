@@ -45,7 +45,7 @@ class T_PROCEDURE {
 
             $node = [
                 'type' => Token::T_FORWARD,
-                'to' => $tokens[$current]['value'],
+                'to' => trim($tokens[$current]['value']),
                 'section' => Token::T_PROCEDURE,
                 'params' => [],
             ];

@@ -1,0 +1,152 @@
+{
+    "chunkSize": 264,
+    "frameTimeCount": 1,
+    "bones": [
+        {
+            "boneId": 1,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "0cfac900cf020cfac900cf02"
+            },
+            "unknown1": "e6fe",
+            "unknown2": "62fc",
+            "unknown3": "3400",
+            "unknown4": "8b0f"
+        },
+        {
+            "boneId": 10,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "a609dbff0d00a609dbff0d00"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 6,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "cbf75f00fdffcbf75f00fdff"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 7,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "f9f770000808f9f770000808"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 8,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "0000cc00940a0000cc00940a"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 2,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "620122ff0201620122ff0201"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 9,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "0808cbff08080808cbff0808"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 3,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "0308cdffedf70308cdffedf7"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 4,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "57019cff3ff757019cff3ff7"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 5,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "20fa3a008bfa20fa3a008bfa"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "0010"
+        },
+        {
+            "boneId": 11,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "2910d30281ff2910d30281ff"
+            },
+            "unknown1": "0000",
+            "unknown2": "0000",
+            "unknown3": "28fd",
+            "unknown4": "bf0f"
+        },
+        {
+            "boneId": 8,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": "e6ff8b03de0fe6ff8b03de0f"
+            },
+            "unknown1": "9c02",
+            "unknown2": "0000",
+            "unknown3": "0000",
+            "unknown4": "c90f"
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

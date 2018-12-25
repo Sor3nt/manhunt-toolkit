@@ -5,48 +5,51 @@ use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
-use App\Service\Compiler\Token;
 
-class T_VARIABLE {
+class T_VARIABLE extends TAbstract {
 
     static public function getMapping( $node, \Closure $emitter = null , $data ){
 
-        $constantsDefault = ManhuntDefault::$constants;
-        $constants = Manhunt2::$constants;
-        if (GAME == "mh1") $constants = Manhunt::$constants;
+        $hardCodedConstants = array_merge(
+            ManhuntDefault::$constants,
+            Manhunt2::$constants
+        );
+
+        if (GAME == "mh1"){
+            $hardCodedConstants = array_merge(
+                ManhuntDefault::$constants,
+                Manhunt::$constants
+            );
+        }
 
 
         $value = $node['value'];
+        $valueLower = strtolower($value);
 
-        if (isset($data['variables'][ $value ])){
-            $mapped = $data['variables'][ $value ];
+        if (
+            isset($data['customData']['customFunctions']) &&
+            isset($data['customData']['customFunctions'][ $valueLower ])
+        ) {
 
-        }else if (isset($constantsDefault[ $value ])) {
-            $mapped = $constantsDefault[ $value ];
-            $mapped['section'] = "header";
-            $mapped['type'] = "constant";
+            $mapped = $data['customData']['blockOffsets'][$valueLower];
 
-        }else if (isset($constants[ $value ])) {
-            $mapped = $constants[ $value ];
-            $mapped['section'] = "header";
-            $mapped['type'] = "constant";
+        }else if (isset($data['customData']['procedureVars']) && isset($data['customData']['procedureVars'][ $value ])) {
+            $mapped = $data['customData']['procedureVars'][$value];
 
+
+        }else if (isset($data['customData']['customFunctionVars']) && isset($data['customData']['customFunctionVars'][ $value ])) {
+            $mapped = $data['customData']['customFunctionVars'][$value];
+
+
+
+        }else if (isset($data['variables'][ $value ])){
+            $mapped = $data['combinedVariables'][ $value ];
+        }else if (isset($hardCodedConstants[ $value ])) {
+            $mapped = $data['combinedVariables'][ $value ];
         }else if (isset($data['const'][ $value ])){
-            $mapped = $data['const'][ $value ];
-            $mapped['section'] = "script";
+            $mapped = $data['combinedVariables'][ $value ];
 
-
-            if ($mapped['type'] == Token::T_INT) {
-                $mapped['valueType'] = "integer";
-
-            }else if ($mapped['type'] == Token::T_STRING){
-                $mapped['valueType'] = "string";
-
-            }else if ($mapped['type'] == Token::T_FLOAT){
-                $mapped['valueType'] = "float";
-
-            }
-
+            //todo: das hat hier nix zusuchen, das muss schon im mapped drin sein!!
             $mapped['type'] = "constant";
 
         }else if (strpos($value, '.') !== false){
@@ -61,20 +64,24 @@ class T_VARIABLE {
             $variableType = $data['types'][$node['target']];
             $mapped = $variableType[ strtolower($value) ];
         }else{
-
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
 
         return $mapped;
     }
 
-    static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+    public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         $mapped = self::getMapping($node, $emitter, $data);
 
         $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\";
         $typeHandler .= "T_";
         $typeHandler .= strtoupper($mapped['section']);
+
+        if (isset($mapped['isLevelVar']) && $mapped['isLevelVar'] == true){
+            $typeHandler .= "_LEVEL_VAR";
+
+        }
 
         if (isset($mapped['abstract'])){
             $typeHandler .= "_" . strtoupper($mapped['abstract']);
@@ -88,6 +95,7 @@ class T_VARIABLE {
         if (class_exists($typeHandler)){
             $code = $typeHandler::map($node, $getLine, $emitter, $data);
         }else{
+            var_dump($mapped, $data);
             throw new \Exception($typeHandler . " Not implemented!");
         }
 

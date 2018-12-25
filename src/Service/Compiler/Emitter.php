@@ -1,15 +1,18 @@
 <?php
 namespace App\Service\Compiler;
 
-use App\Bytecode\Helper;
 
-class Emitter extends Helper {
+class Emitter {
+
+    private $combinedVariables = [];
+    private $combinedStrings = [];
+
 
     private $variables = [];
 
     /** @var Lines */
     private $lines;
-    private $strings;
+
     private $types;
     private $const;
 
@@ -20,6 +23,7 @@ class Emitter extends Helper {
         'T_NIL' => Emitter\T_NIL::class,
         'T_SCRIPT' => Emitter\T_SCRIPT::class,
         'T_PROCEDURE' => Emitter\T_PROCEDURE::class,
+        'T_CUSTOM_FUNCTION' => Emitter\T_CUSTOM_FUNCTION::class,
         'T_WHILE' => Emitter\T_WHILE::class,
         'T_ASSIGN' => Emitter\T_ASSIGN::class,
         'T_INT' => Emitter\T_INT::class,
@@ -35,11 +39,14 @@ class Emitter extends Helper {
         'T_SWITCH' => Emitter\T_SWITCH::class,
     ];
 
-    public function __construct( $variables, $strings, $types, $const, $lineCount = 1 )
+    public function __construct( $combinedVariables, $combinedStrings, $variables, $types, $const, $lineCount = 1 )
     {
 
+        $this->combinedVariables = $combinedVariables;
+        $this->combinedStrings = $combinedStrings;
+
+
         $this->variables = $variables;
-        $this->strings = $strings;
         $this->types = $types;
         $this->const = $const;
 
@@ -48,27 +55,26 @@ class Emitter extends Helper {
 
     public function emitter( $node, $calculateLineNumber = true, $customData = [] ){
 
-        if($node['type'] == "root") return $this->emitRoot($node);
+        if (!isset($this->emitters[ $node['type'] ])) return [];
 
-        if (!isset($this->emitters[ $node['type'] ])) {
-//            echo sprintf("Emitter not found for type %s\n", $node['type']);
-            return [];
-        }
-
-        return (new $this->emitters[ $node['type'] ]())->map(
+        return (new $this->emitters[ $node['type'] ]($customData))->map(
             $node,
 
             function( $hex, $forceNewIndex = false ) use ($calculateLineNumber){
                 return $this->lines->get($hex, $calculateLineNumber, $forceNewIndex);
             },
 
-            function($token, $calculateLineNumber = true, $customData = []) {
-                return $this->emitter($token, $calculateLineNumber, $customData);
+            function($token, $calculateLineNumber = true, $customDataInner = []) use ($customData) {
+                return $this->emitter($token, $calculateLineNumber, array_merge($customDataInner,$customData));
             },
 
             [
+                'combinedVariables' => $this->combinedVariables,
+                'combinedStrings' => $this->combinedStrings,
+
+
                 'calculateLineNumber' => $calculateLineNumber,
-                'strings' => $this->strings,
+
                 'types' => $this->types,
                 'variables' => $this->variables,
                 'const' => $this->const,
@@ -77,16 +83,4 @@ class Emitter extends Helper {
         );
     }
 
-    private function emitRoot( $root ){
-
-        $code = [];
-        foreach ($root['body'] as $node) {
-            $resultCode = $this->emitter( $node );
-            foreach ($resultCode as $line) {
-                $code[] = $line;
-            }
-        }
-
-        return $code;
-    }
 }

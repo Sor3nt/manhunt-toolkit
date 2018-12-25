@@ -1,13 +1,12 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
-use App\Bytecode\Helper;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
+use App\Service\Helper;
 
 class T_CONDITION {
 
@@ -31,10 +30,42 @@ class T_CONDITION {
 
             }else{
 
+
+                /**
+                 * little hack to map state variables
+                 */
+
+                $param1 = $token['params'][0]['value'];
+
+                if (isset($data['variables'][ $param1 ])){
+
+                    $var = $data['variables'][ $param1 ];
+
+//                    if (isset($var['abstract'])){
+
+                        $searchedType = str_replace('level_var ', '', $var['type']);
+
+                        if (isset($data['types'][ $searchedType ])){
+                            $types = $data['types'][ $searchedType ];
+
+                            $token['params'][1]['target'] = $searchedType;
+                            $token['params'][1]['types'] = $types;
+
+                        }
+
+
+//                    }
+
+                }
+
+
+
+
+
+
                 $operator = $token['operator'];
 
                 foreach ($token['params'] as $index => $operation) {
-
                     if ($operation['type'] == Token::T_VARIABLE){
                         $mappedTo = T_VARIABLE::getMapping(
                             $operation,
@@ -54,6 +85,7 @@ class T_CONDITION {
                             $mappedTo['type'] == "stringarray"
                         )
                     ){
+
                         $code[] = $getLine('10000000');
                         $code[] = $getLine('01000000');
 

@@ -7,7 +7,6 @@ class T_SCRIPT_BOOLEAN {
 
         $offset = $data['variables'][$node['value']]['offset'];
 
-
         return [
             $getLine('13000000'),
             $getLine('01000000'),

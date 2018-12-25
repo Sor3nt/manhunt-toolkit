@@ -1,7 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter\Types;
 
-use App\Bytecode\Helper;
+use App\Service\Helper;
 
 class T_SCRIPT_STRINGARRAY{
 

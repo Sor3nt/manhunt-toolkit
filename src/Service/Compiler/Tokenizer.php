@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler;
 
+use App\Service\Compiler\Tokens\T_CUSTOM_FUNCTION;
 use App\Service\Compiler\Tokens\T_ADDITION;
 use App\Service\Compiler\Tokens\T_AND;
 use App\Service\Compiler\Tokens\T_ASSIGN;
@@ -8,6 +9,7 @@ use App\Service\Compiler\Tokens\T_BEGIN;
 use App\Service\Compiler\Tokens\T_BRACKET_CLOSE;
 use App\Service\Compiler\Tokens\T_BRACKET_OPEN;
 use App\Service\Compiler\Tokens\T_CASE;
+use App\Service\Compiler\Tokens\T_CUSTOM_FUNCTION_NAME;
 use App\Service\Compiler\Tokens\T_DEFINE;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_CONST;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_ENTITY;
@@ -88,6 +90,8 @@ class Tokenizer {
         T_SCRIPTMAIN::class,
         T_DEFINE::class,
         T_PROCEDURE::class,
+        T_CUSTOM_FUNCTION::class,
+        T_CUSTOM_FUNCTION_NAME::class,
         T_SCRIPT::class,
         T_SCRIPT_NAME::class,
         T_PROCEDURE_NAME::class,
@@ -158,6 +162,30 @@ class Tokenizer {
         return $tokens;
     }
 
+   public function fixCustomFunctionEndCall($tokens){
+        $current = 0 ;
+
+        $found = false;
+        while($current < count($tokens)){
+
+            $token = $tokens[ $current ];
+
+            if (
+                $token['type'] == Token::T_CUSTOM_FUNCTION &&
+                $tokens[ $current + 3 ]['type']  != Token::T_FORWARD
+            ){
+                $found = true;
+            }elseif ($found && $token['type'] == Token::T_SCRIPT_END){
+                $found = false;
+                $tokens[ $current ]['type'] = Token::T_CUSTOM_FUNCTION_END;
+            }
+
+            $current++;
+        }
+
+        return $tokens;
+    }
+
 
     /*
      * the assignet value are sometimes a const, string, int or function call
@@ -180,6 +208,7 @@ class Tokenizer {
                     $tokens[ $current + 1] = [
                         'type' => Token::T_VARIABLE,
                         'value' => $nextToken['value'],
+                        'abstract' => 'state',
                         'target' => $prevToken['value']
                     ];
                 }
@@ -329,6 +358,8 @@ class Tokenizer {
                 if($result === false) {
                     throw new \Exception("Unable to parse line " . ($line+1) . ".");
                 }
+
+                $result['lineNumber'] = $lineNumber + 1;
 
                 if (
                     $result['type'] !== Token::T_WHITESPACE &&

@@ -39,6 +39,11 @@ class T_VARIABLE {
                             'value' => $value
                         ];
 
+                    }else if($value == "''"){
+                        return [
+                            'type' => 'T_STRING',
+                            'value' => "''"
+                        ];
                     }else{
                         return [
                             'type' => 'T_VARIABLE',

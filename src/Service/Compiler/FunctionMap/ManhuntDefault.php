@@ -14,6 +14,7 @@ class ManhuntDefault {
      * convert it to a float with 0x4d 0x10 0x01
      */
     public static $functionForceFloar = [
+        'createspheretrigger' => [false, true, false],
         'setentityfade' => [false, true, true],
         'setcolourramp' => [false, false, true],
         'setpedorientation' => [false, true],

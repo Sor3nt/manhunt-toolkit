@@ -1,0 +1,27 @@
+{
+    "chunkSize": 228,
+    "frameTimeCount": 0.3333333432674408,
+    "bones": [
+        {
+            "boneId": 1,
+            "frameType": 2,
+            "startTime": 0.99609375,
+            "frames": {
+                "frames": "5afdad016207d80d1100160277ffc1ff4005e808360cd9009901f9fe7eff44076d087c0b00018001f5fe3eff2509c9078b0a26016601f2fe01ffda0a000765094c014d01eefec9fe590c1406120873013401ebfe97fe9c0d0a059706ac01320112ff6cfe9c0ee703fc04e501300139ff48fe540fb20249031e022e015fff2efec20f6f0185013002320199ff1cfee20f2500bcff41023501d4ff"
+            }
+        },
+        {
+            "boneId": 2,
+            "frameType": 3,
+            "startTime": 0,
+            "frames": {
+                "frames": "500b09ffd7ffe6ff890009ffd7ffe6ff440009ffd7ffe6ff440009ffd7ffe6ff890009ffd7ffe6ff440009ffd7ffe6ff890009ffd7ffe6ff440009ffd7ffe6ff"
+            },
+            "unknown2": "0000",
+            "unknown3": "b1f4",
+            "unknown4": "0000"
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

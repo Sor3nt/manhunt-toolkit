@@ -39,6 +39,8 @@ class Col {
 
     public function unpack($data){
 
+        $data = bin2hex($data);
+
         $entryCount = $this->toInt($this->substr($data, 0, 4));
 
         $results = [];

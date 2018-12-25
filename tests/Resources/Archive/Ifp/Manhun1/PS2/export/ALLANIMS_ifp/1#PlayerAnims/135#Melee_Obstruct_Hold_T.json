@@ -1,0 +1,44 @@
+{
+    "chunkSize": 52,
+    "frameTimeCount": 0.8333333134651184,
+    "bones": [
+        {
+            "boneId": 1057,
+            "frameType": 3,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "ecffa3ffbeffecffa3ffbeff"
+            },
+            "unknown1": "def5",
+            "unknown2": "cf0b",
+            "unknown3": "7a02",
+            "unknown4": "3dfd"
+        },
+        {
+            "boneId": 1093,
+            "frameType": 1,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "520026fdf9f8150e"
+            }
+        },
+        {
+            "boneId": 1074,
+            "frameType": 1,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "0000ad0d00004e08"
+            }
+        },
+        {
+            "boneId": 1075,
+            "frameType": 1,
+            "startTime": 25.0048828125,
+            "frames": {
+                "frames": "8bf242010fff8108"
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

@@ -1,7 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
-class Glg extends ZLib {
+class Glg  {
 
     /** @var array  */
     public $header = [

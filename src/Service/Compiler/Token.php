@@ -40,6 +40,9 @@ use App\Service\Compiler\Tokens\T_WHITESPACE;
 
  class Token {
 
+    const T_CUSTOM_FUNCTION             = 'T_CUSTOM_FUNCTION';
+    const T_CUSTOM_FUNCTION_NAME        = 'T_CUSTOM_FUNCTION_NAME';
+    const T_CUSTOM_FUNCTION_END         = 'T_CUSTOM_FUNCTION_END';
     const T_TO                          = 'T_TO';
     const T_FOR                         = 'T_FOR';
     const T_MULTIPLY                    = 'T_MULTIPLY';

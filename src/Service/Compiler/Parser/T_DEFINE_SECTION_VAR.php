@@ -29,6 +29,7 @@ class T_DEFINE_SECTION_VAR {
                 $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
                 $token['type'] == Token::T_PROCEDURE ||
                 $token['type'] == Token::T_SCRIPT ||
+                $token['type'] == Token::T_CUSTOM_FUNCTION ||
                 $token['type'] == Token::T_BEGIN
             ){
                 return [$current, $node];

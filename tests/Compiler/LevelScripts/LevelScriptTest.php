@@ -1,9 +1,6 @@
 <?php
 namespace App\Tests\LevelScripts;
 
-use App\Bytecode\Helper;
-use App\Service\Archive\Glg;
-use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

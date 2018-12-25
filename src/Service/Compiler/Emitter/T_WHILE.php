@@ -1,8 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
-use App\Bytecode\Helper;
+use App\Service\Helper;
 
 class T_WHILE {
 

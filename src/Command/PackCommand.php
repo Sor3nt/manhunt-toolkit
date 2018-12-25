@@ -46,15 +46,14 @@ class PackCommand extends Command
     private $col;
 
 
-    public function __construct(Mls $mls, Glg $glg, Inst $inst, Ifp $ifp, Grf $grf, Bin $bin)
+    public function __construct()
     {
-        $this->mls = $mls;
-        $this->glg = $glg;
-        $this->inst = $inst;
-        $this->ifp = $ifp;
-        $this->grf = $grf;
-        $this->bin = $bin;
-//        $this->col = $col;
+        $this->mls = new Mls();
+        $this->glg = new Glg();
+        $this->inst = new Inst();
+        $this->ifp = new Ifp();
+        $this->grf = new Grf();
+        $this->bin = new Bin();
 
         parent::__construct();
     }

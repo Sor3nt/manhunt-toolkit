@@ -1,0 +1,16 @@
+{
+    "chunkSize": 240,
+    "frameTimeCount": 2.6666667461395264,
+    "bones": [
+        {
+            "boneId": 1,
+            "frameType": 2,
+            "startTime": 4.9951171875,
+            "frames": {
+                "frames": "00000000bc05f00e89ff5cff01001e0117fda005a60e93ff5cff2f0032024afa4c05cd0daeff5cff56003003b5f7c4046b0cd5ff5cff6f000e0471f50e04900a02005cff7800c40496f330034c0830005cff6e00b5facd0dcffd4afa56005cff540061faa60ee3fe17fd70005cff2d0045faf00e0000000078005cff000061faa60e1e01ea026f005cffd2ffb5facd0d3202b70554005cffabff3dfb6b0c30034c082d005cff92fff3fb900a0e04900a00005cff89ffd1fc4c08c4046b0cd2ff5cff93ffcffdb7054c05cd0dacff5cffadffe3feea02a005a60e92ff5cffd4ff00000000bc05f00e89ff5cff0100"
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

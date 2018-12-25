@@ -1,0 +1,210 @@
+{
+    "chunkSize": 5050,
+    "frameTimeCount": 2.4666666984558105,
+    "bones": [
+        {
+            "boneId": 1000,
+            "frameType": 2,
+            "startTime": 0,
+            "frames": {
+                "frames": "e8ff08f52701970b0000a4080000cd00d1ff43f50701d00bfaff910875ffcd00b3ff83f5e4000b0ce9ff6b08dafecd0096ffc5f5c200450cd1ff1b0834fecd007eff05f6a2007a0cb5ffe0078bfdcd0071ff3cf68500a60c98ffda07e5fccd0076ff68f66f00c80c7fffe30749fccd0099ff87f66000e10c6bfff407bcfbcd00d9ff9cf65900f20c58ff05083bfbcd002300a5f65600f90c47ff2a08c2facd0063009cf65700f10c36ff57084efacd0086007ff65900db0c25ff7508dbf9cd008c0049f65c00b20c14ff860866f9cd008400fef55f00770c19ff7f08edf8cd007200a8f56300310c29ff6d0874f8cd005b0051f56900e50b38ff3808f9f7cd00420003f571009d0b48ffff077ff7cd002b00c4f47b00610b58ffd00707f7cd001b009df48900390b69ffc10792f6cd0011008ff49a002a0b7cffd00721f6cd00080094f4af002e0b93fff507bbf5cd000000a7f4c8003f0bb1ff280862f5cd00fbffc2f4e200580bd0ff64080ff5cd00f4ffe0f4fd00740becff8f08b7f4cd00edfffbf416018b0bfeffa40851f48900e8ff08f52701970b0000a40800f4"
+            }
+        },
+        {
+            "boneId": 1045,
+            "frameType": 1,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "0008000801f80008"
+            }
+        },
+        {
+            "boneId": 1094,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "8cffc10028fff40fcd003bff9a002dfff30fcd00e5fe6e0030ffef0fcd008ffe410032ffe90fcd003efe1a0037ffe20fcd00f9fdffff42ffda0fcd00c3fdf2ff53ffd40fcd009efd000076ffd00fcd0086fd2800a7ffcd0fcd007ffd5b00dcffcc0fcd008cfd88000600cd0fcd00affda2001a00d10fcd00eafdaa001a00d90fcd0038feab001200e30fcd0092fea7000300ec0fcd00f2fe9f00f1fff40fcd0052ff9700dbfff90fcd00acff8e00c3fffc0fcd00f8ff8800acfffd0fcd002f00860097fffc0f44003c00860091fffc0f89004900890085fffb0fcd003b00910072fffa0fcd0011009e005efffa0fcd00dcffab004afff80fcd00a8ffb90035fff60f89008cffc10028fff40f"
+            }
+        },
+        {
+            "boneId": 1095,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "8d0322fbc100cd0ecd00750330fb6100db0ecd005e0343fbfbffe80ecd00460357fb94fff20ecd002c0367fb34fff90ecd000e0371fbe3fefd0ecd00ea026ffba6fefe0ecd00b50258fb88fefe0ecd006f022dfb83fefc0ecd002902fcfa91fef80ecd00f601d2faa7fef30ecd00e801bbfabcfeee0ecd00fc01b6facefeeb0ecd002102b7fae1fee80ecd005202bdfaf6fee40ecd008c02c7fa0cffe00ecd00c802d3fa26ffdb0ecd000303e1fa42ffd60ecd003803eefa61ffd10ecd006203f9fa84ffcc0e44006d03fcfa90ffcb0e89007e0301fbadffca0ecd008b0308fbe1ffca0ecd008e030ffb1b00cb0ecd008c0315fb5b00cd0ecd008b031cfb9a00ce0e89008d0322fbc100cd0e"
+            }
+        },
+        {
+            "boneId": 1096,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "d1ff39fd94ffc00fcd00dcff38fdd2ffc10fcd00e8ff38fd1300c10fcd00f3ff37fd5600c00fcd00feff37fd9400bf0fcd00070037fdc900bc0fcd000e0037fdf200ba0fcd00120038fd0901b90fcd00130038fd0f01b80fcd00120038fd0c01b80fcd00110038fd0501b90fcd00100038fd0101b90fcd00110038fd0301b90fcd00120038fd0901b90fcd00130038fd0f01b80fcd00140038fd1501b80fcd00140038fd1701b80fcd00140038fd1501b80fcd00120038fd0c01b80fcd000f0038fdfa00ba0f44000e0037fdf200ba0f89000a0037fdda00bb0fcd00000037fda300be0fcd00f5ff37fd5d00c00fcd00e7ff38fd0f00c10fcd00d9ff38fdc3ffc10f8900d1ff39fd94ffc00f"
+            }
+        },
+        {
+            "boneId": 1040,
+            "frameType": 1,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "000031fe0000e60f"
+            }
+        },
+        {
+            "boneId": 1001,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "b2fd79065afe5b0ecd0046fd810685fe490ecd00f5fc5c06b4fe4e0ecd00f3fcfd05dafe790ecd0006fd9505f9fea90ecd0016fd5c050bffc30ecd0026fd5705fcfec70ecd0055fd7105d5fec30ecd00a8fd9a05b5febf0ecd0006fecc05adfeb80ecd004cfe0c06aefea80ecd0058fe5306aafe8b0ecd0025fe980692fe630ecd002ffe9a069efe650ecd0061fe7806c3fe7e0ecd0072fe5b06d5fe8e0ecd0041fe4e06c8fe8d0ecd00defd5106b1fe7c0ecd006afd58069ffe640ecd0005fd60068ffe4c0e4400ecfc62068afe450e8900d0fc670686fe3c0ecd00e2fc6f0685fe3c0ecd001efd79067efe440ecd0068fd7f0673fe4e0ecd00a3fd7e0665fe570e8900b2fd79065afe5b0e"
+            }
+        },
+        {
+            "boneId": 1003,
+            "frameType": 3,
+            "startTime": 0,
+            "frames": {
+                "frames": "5fffcfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ff4400cfff6a00f9ff8900cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ffcd00cfff6a00f9ff8900cfff6a00f9ff"
+            },
+            "unknown2": "5108",
+            "unknown3": "720d",
+            "unknown4": "6002"
+        },
+        {
+            "boneId": 1039,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "ee033903f504570ecd00a503aa0210057e0ecd005703f9012f05a20ecd00090342014905bd0ecd00c402a6005605d00ecd008c0245005105df0ecd00670241003405f00ecd0040029a000e05000fcd0010022801ee04090fcd00e701ce01d504070fcd00d6016e02c304f80ecd00f201eb02bb04e00ecd003b023e03c004c30ecd009c027503d004a20ecd000e039303e3047e0ecd0087039a03f6045a0ecd00fd038c030605390ecd0067046f0313051c0ecd00bc044a031f05050ecd00f30422032d05f60d4400fd0416033305f30d8900030506033a05f20dcd00e60406033605fd0dcd00ac0416032805130ecd0062042b0313052e0ecd0018043903fe04480e8900ee033903f504570e"
+            }
+        },
+        {
+            "boneId": 1020,
+            "frameType": 1,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "0000a1070000100e"
+            }
+        },
+        {
+            "boneId": 1021,
+            "frameType": 1,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "bb0a34ff1600d80b"
+            }
+        },
+        {
+            "boneId": 1057,
+            "frameType": 3,
+            "startTime": 0,
+            "frames": {
+                "frames": "3bfdcfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ff4400cfff97fff9ff8900cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ffcd00cfff97fff9ff8900cfff97fff9ff"
+            },
+            "unknown2": "a9f6",
+            "unknown3": "aa0c",
+            "unknown4": "ca00"
+        },
+        {
+            "boneId": 1093,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "07ff7d039efd660fcd00e6fefe037efd400fcd00c1fe910464fd0f0fcd0098fe1c054dfdda0ecd0069fe8a0538fdaa0ecd0038fec70522fd880ecd0007fec10506fd7f0ecd00cdfd7805f0fc8e0ecd008afd0405e6fcab0ecd004dfd8004e2fcca0ecd0027fd0504e3fce60ecd002afdb003e8fcfe0ecd0055fd8403f8fc140fcd0098fd6e031afd2a0fcd00eafd680348fd400fcd0046fe6f0380fd540fcd00a3fe7e03bdfd630fcd00fbfe9203f9fd6e0fcd0047ffa80330fe740fcd0081ffbe035afe760f44008effc50365fe760f89009dffcb036dfe750fcd0095ffc5035afe750fcd0074ffb1032bfe730fcd0047ff9903f1fd700fcd001cff8503bafd6a0f890007ff7d039efd660f"
+            }
+        },
+        {
+            "boneId": 1074,
+            "frameType": 1,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "0000d2070000f60d"
+            }
+        },
+        {
+            "boneId": 1075,
+            "frameType": 1,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "f7f407fcf403220a"
+            }
+        },
+        {
+            "boneId": 3333,
+            "frameType": 3,
+            "startTime": 74.00390625,
+            "frames": {
+                "frames": "a900cfff5001a900cfff5001"
+            },
+            "unknown1": "42ff",
+            "unknown2": "bf00",
+            "unknown3": "4a0b",
+            "unknown4": "4a0b"
+        },
+        {
+            "boneId": 1023,
+            "frameType": 2,
+            "startTime": 0,
+            "frames": {
+                "frames": "5d040e03f7f03c011ffff3000900cd00e004be0208f1bd001efff300fdffcd002605210201f129001dfff100eeffcd00d405980131f1c0ff1dffef00dfffcd003706a90047f1b9ff1dffec00d2ffcd000b063e0032f19dff1cffe900c7ffcd009f0594000af191ff1affe500c0ffcd001a050801e1f099ff16ffe100beffcd008c045e01bbf0a4ff0fffdb00c1ffcd0002045d0194f0aaff09ffd500c8ffcd002b031c015ef07fff04ffd200cfffcd0064020e013bf070ff02ffd000d7ffcd00af01b90020f053ff02ffd200deffcd001b017e0011f04fff03ffd500e6ffcd0096005b0008f05bff05ffd800eeffcd001d00810005f081ff08ffdb00f7ffcd00a7ffbc0007f0b5ff0affdf000000cd0020ffff000ff0f2ff0dffe2000800cd00bffe41011bf0370010ffe4000f00cd009dfe8a0126f0880013ffe600150044008afe9f012af0990013ffe700160089006ffebf0131f0b10015ffe8001800cd00d2fee2012ef0d20017ffeb001700cd00c20004022ef0f40019ffed001400cd008302430268f01f011cfff0001000cd00c403d202c5f052011efff2000b0089005d040e03f7f03c011ffff3000900"
+            }
+        },
+        {
+            "boneId": 1002,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "00009d070000130ecd0000001e060000c90ecd000000ae0400004d0fcd000000740500000b0fcd000000ea0600006e0ecd000000de070000ef0dcd00000053080000aa0dcd000000840800008c0dcd0000008e080000850dcd0000006b0800009b0dcd000000bc070000010ecd0000001b070000560ecd00000092060000970ecd00000054060000b20ecd00000038060000be0ecd00000059060000b00ecd0000007b060000a10ecd0000006a060000a90ecd00000066060000aa0ecd00000090060000980e44000000820600009e0e8900000065060000aa0ecd000000d3060000790ecd0000007d090000e20ccd000000470a0000430ccd000000c9080000600d890000009d070000130e"
+            }
+        },
+        {
+            "boneId": 1019,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "c40057fed7ffe50fcd000b0020feb3ffe30fcd0044ff4ffed3ffe40fcd0050fe62fe7500d20fcd0099ff1cff6f00f70fcd002800d3fd5f00d80fcd00dfffe8fc9d00af0fcd006fff3ffcde00850fcd001dffb1fb0b01590fcd00fcfea8fbc100590fcd0062ff63fbfc00470fcd0072ff36fbf900390fcd00c1ff14fbea00310fcd00e7ffcffae5001b0fcd00ebff8bfade00040fcd00acffdbf9cf00bf0ecd005bff44f9b6007b0ecd00fdfee7f892004a0ecd0080fe2ef96700630ecd00c7fd32fa4d00bd0e44009ffd99fa5c00dd0e890070fd87fb9400220fcd0076fdbcfd2901970fcd008a004b005a01ee0fcd005302d700de00c90fcd00910125ff4300e60f8900c40057fed7ffe50f"
+            }
+        },
+        {
+            "boneId": 1024,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "0000b1f40000500bcd000000b1f40000500bcd000000b1f40000500bcd000000b1f40000500bcd00d1ffb1f4d1ff500bcd00b6ffb1f4b5ff4f0bcd00adffacf4a4ff490bcd0096ffa4f489ff3f0bcd008affa0f479ff3a0bcd007aff83f470ff1b0bcd0047ff90f443ff230bcd0029ffa8f426ff370bcd000affb1f40cff3c0bcd001dffb7f418ff450bcd0043ffb7f443ff4a0bcd0068ffc7f454ff5d0bcd00bbffbbf486ff570bcd00fdffa2f4bbff410bcd00d5ff34f4d8ffcd0acd002cff72f3e6ffe109440048ff2ef3fcff8b09890092ffa3f20500c808cd0000005c0e0000f2f8cd000000b1f30000380acd000000b1f40000500bcd000000b1f40000500b89000000b1f40000500b"
+            }
+        },
+        {
+            "boneId": 1077,
+            "frameType": 2,
+            "startTime": 0,
+            "frames": {
+                "frames": "f70119ff28f07500f2fe44ff2400cd006401e3fe1bf05500f3fe44ff2700cd00bf00b6fe13f02200f3fe45ff2a00cd003e0090fe12f0e0fff3fe46ff2d00cd007aff6efe18f09dfff3fe46ff3000cd0058fe44fe32f06dfff3fe46ff3300cd001bfd06fe69f050fff5fe45ff3700cd0052fd41fd81f0fffef8fe42ff3e00cd0036fe94fc91f056fefefe3dff4600cd0053ff9ffc81f009fe04ff38ff4e00cd005e00e3fc70f00afe0aff33ff5200cd00660274fd86f0f7fd0cff30ff5200cd006e0439fedff0f7fd0cff2eff4d00cd00430520fe17f17afe0bff2dff4500cd00090618fe56f123ff09ff2cff3b00cd00300691fd75f19eff07ff2cff3000cd00ec050cfd71f1c0ff04ff2dff2500cd00010686fd63f1bcff01ff2fff1a00cd00eb05f4fd48f1d5fffefe32ff1200cd008c055efe16f1f5fffcfe34ff0c00440063057dfe04f10000fbfe35ff0a0089000505affedff01600fafe36ff0900cd006504dafeaaf03700f8fe39ff0c00cd00a703eefe78f05400f7fe3cff1200cd00f402f8fe51f06900f5fe3fff1900cd00560206ff36f07400f3fe42ff20008900f70119ff28f07500f2fe44ff2400"
+            }
+        },
+        {
+            "boneId": 1056,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "0000ec050000dd0ecd000000e1050000e10ecd000000dc050000e30ecd0000004a060000b60ecd00000024060000c70ecd000000f7040000360fcd00000049030000a90fcd0000004e040000690fcd00000017060000cc0ecd000000e8070000e90dcd0000006b090000ef0ccd00000055090000ff0ccd000000c0080000650dcd000000ec070000e70dcd0000002f0700004c0ecd0000000a0700005e0ecd00000066070000300ecd0000000e080000d30dcd00000097080000800dcd000000ba080000690d44000000b10800006f0d89000000820800008d0dcd000000fe070000dc0dcd00000034070000490ecd0000007e060000a00ecd0000000b060000d10e89000000ec050000dd0e"
+            }
+        },
+        {
+            "boneId": 1073,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "d3feb3fbf3ff5d0fcd002cff22fb0000380fcd009cff68fa1300fc0ecd00070060f93200900ecd005800caf86600450ecd00790007f9bd005f0ecd005c00e3f93d01bb0ecd006eff34fbe302fa0ecd00adfea4fd1e04390fcd007dff03feb002a30fcd004000cbfdb600d40fcd00340077fda601b60fcd0057fff3fce4026c0fcd0011ff16fdcf01990fcd0037ff34fe5600e00fcd00cfff7ffd1800cd0fcd005e006ffc8a00950fcd000a0038fda9ffc00fcd00bdff13fd6fffb80fcd007bff7dfc98ff980f440069ff5afca3ff900f89004cff2bfcb4ff840fcd002cff15fcc0ff7d0fcd0015ff24fcc4ff7f0fcd0001ff25fccbff7e0fcd00e9fef5fbddff710f8900d3feb3fbf3ff5d0f"
+            }
+        },
+        {
+            "boneId": 1078,
+            "frameType": 1,
+            "startTime": 0,
+            "frames": {
+                "frames": "0600b2f40600520bcd00f3ffc1f4fbff600bcd00c5ffe1f4e0ff7f0bcd0098ff02f5c6ff9d0bcd0084ff12f5baffab0bcd00a1fffcf4cbff980bcd000600b2f40600520bcd005f0086f399ff000acd00f4fffe0df4ff3ff8cd00930025f368007f09cd008b00d6f4f300680bcd004600c2f479005e0bcd000000b1f40000500bcd000000b1f40000500bcd000000b1f40000500bcd000000b1f40000500bcd000000b1f40000500bcd000000b1f40000500bcd00f0ffa0f40700400bcd00edffa0f40800400b4400edff9ff408003f0b8900edff9df409003c0bcd00f0ff9bf40b003b0bcd00f4ffa1f40d00400bcd00fbffa7f40e00470bcd000100aef40a004e0b89000600b2f40600520b"
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

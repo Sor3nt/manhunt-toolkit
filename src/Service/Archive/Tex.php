@@ -1,110 +1,77 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Bytecode\Helper;
-use App\Service\Binary;
+use App\Service\NBinary;
 
 class Tex {
 
-    private function toInt8($hex){
-        return is_int($hex) ? pack("c", $hex) :  current(unpack("c", hex2bin($hex)));
+    private function parseHeader( NBinary &$binary ){
+
+        return [
+            'magic'             => $binary->consume(4,  NBinary::STRING),
+            'constNumber'       => $binary->consume(4,  NBinary::INT_32),
+            'fileSize'          => $binary->consume(4,  NBinary::INT_32),
+            'indexTableOffset'  => $binary->consume(4,  NBinary::INT_32),
+            'indexTableOffset2' => $binary->consume(4,  NBinary::INT_32),
+            'numIndex'          => $binary->consume(4,  NBinary::INT_32),
+            'unknown'           => $binary->consume(8,  NBinary::HEX),
+            'numTextures'       => $binary->consume(4,  NBinary::INT_32),
+            'firstOffset'       => $binary->consume(4,  NBinary::INT_32),
+            'lastTOffset'       => $binary->consume(4,  NBinary::INT_32)
+//            'unknown2'          => $binary->consume(20, NBinary::HEX),
+        ];
+
+
     }
 
-    private function toInt16($hex){
-        return is_int($hex) ? pack("s", $hex) : current(unpack("s", hex2bin($hex)));
+    private function parseTexture( $startOffset, NBinary &$binary ){
+
+        $binary->jumpTo($startOffset);
+
+        $texture = [
+            'nextOffset'        => $binary->consume(4,  NBinary::INT_32),
+            'prevOffset'        => $binary->consume(4,  NBinary::INT_32),
+            'name'              => $binary->consume(32, NBinary::STRING),
+            'alphaFlags'        => $binary->consume(32, NBinary::HEX),
+            'width'             => $binary->consume(4,  NBinary::INT_32),
+            'height'            => $binary->consume(4,  NBinary::INT_32),
+            'bitPerPixel'       => $binary->consume(4,  NBinary::INT_32),
+            'pitchOrLinearSize' => $binary->consume(4,  NBinary::INT_32),
+            'flags'             => $binary->consume(4,  NBinary::HEX),
+            'mipMapCount'       => $binary->consume(1,  NBinary::INT_8),
+            'unknown'           => $binary->consume(3,  NBinary::HEX),
+            'dataOffset'        => $binary->consume(4,  NBinary::INT_32),
+            'paletteOffset'     => $binary->consume(4,  NBinary::INT_32),
+            'size'              => $binary->consume(4,  NBinary::INT_32),
+            'unknown2'          => $binary->consume(20, NBinary::BINARY)
+        ];
+
+        $binary->jumpTo($texture['dataOffset']);
+
+        $texture['data'] = $binary->consume($texture['size'], NBinary::BINARY);
+
+        return $texture;
     }
 
-    private function toString( $hex ){
-        $hex = str_replace('00', '', $hex);
-        return hex2bin($hex);
-    }
+    public function unpack($binary){
 
-    private function toInt( $hex ){
-        return (int) current(unpack("L", hex2bin($hex)));
-    }
+        $binary = new NBinary($binary);
+        $header = $this->parseHeader($binary);
 
-    private function toFloat( $hex ){
-        return (float) current(unpack("f", hex2bin($hex)));
-    }
+        $currentOffset = $header['firstOffset'];
 
+        $textures = [];
+        while($header['numTextures'] > 0) {
+            $texture = $this->parseTexture($currentOffset, $binary);
+            $textures[] = $texture;
 
-    private function substr(&$hex, $start, $end){
+            $currentOffset = $texture['nextOffset'];
 
-        $result = substr($hex, $start * 2, $end * 2);
-        $hex = substr($hex, $end * 2);
-        return $result;
-    }
-
-
-    public function unpack($entry, $outputTo){
-
-        $fullEntry = $entry;
-
-        $headerType = $this->toString($this->substr($entry, 0, 4));
-        if ($headerType !== "TCDT")
-            throw new \Exception(
-                sprintf('Expected TCDT got: %s', $headerType)
-            );
-
-        /**
-         * Parse Header
-         */
-        $constNumber = $this->toInt($this->substr($entry, 0, 4));
-        $fileSize = $this->toInt($this->substr($entry, 0, 4));
-        $indexTableOffset = $this->toInt($this->substr($entry, 0, 4));
-        $indexTableOffset2 = $this->toInt($this->substr($entry, 0, 4));
-        $numIndex = $this->toInt($this->substr($entry, 0, 4));
-
-        $unknown1 = $this->toInt($this->substr($entry, 0, 4));
-        $unknown2 = $this->toInt($this->substr($entry, 0, 4));
-        $numTextures = $this->toInt($this->substr($entry, 0, 4));
-
-        $firstTextureOffset = $this->toInt($this->substr($entry, 0, 4));
-        $lastTextureOffset = $this->toInt($this->substr($entry, 0, 4));
-        $unknown3 = $this->toInt($this->substr($entry, 0, 4));
-
-        $padding = $this->substr($entry, 0, 16);
-
-        $nextTextureOffset = $firstTextureOffset;
-
-        while($numTextures > 0){
-
-            $firstTextureOffset = substr($fullEntry, $nextTextureOffset * 2);
-
-            $nextTextureOffset = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-            $prevTextureOffset = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-
-            $textureName = $this->substr($firstTextureOffset, 0, 32);
-
-            $textureName = hex2bin($textureName);
-            $textureName = mb_substr($textureName, 0, mb_strpos($textureName, "\x00"));
-
-            $alphaFlagPart = $this->substr($firstTextureOffset, 0, 32);
-            $alphaFlag = $this->substr($alphaFlagPart, 0, 1);
-
-            $textureWidth = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-            $textureHeight = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-            $bitPerPixel = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-            $pitchOrLinearSize = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-
-            $flags = $this->toInt16($this->substr($firstTextureOffset, 0, 2));
-            $unknown4 = $this->toInt16($this->substr($firstTextureOffset, 0, 2));
-
-            $mipMapCount = $this->toInt8($this->substr($firstTextureOffset, 0, 1));
-            $padding = $this->substr($firstTextureOffset, 0, 3);
-
-            $texturesDataOffset = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-            $paletteDataOffset = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-            $ddsFileSize  = $this->toInt($this->substr($firstTextureOffset, 0, 4));
-
-            $padding = $this->substr($firstTextureOffset, 0, 20);
-
-            $ddsFile = $this->substr($firstTextureOffset, 0, $ddsFileSize);
-
-            file_put_contents($outputTo . $textureName . ".dds", hex2bin($ddsFile));
-
-            $numTextures--;
+            $header['numTextures']--;
         }
+
+
+        return $textures;
     }
 
     public function pack( $executions, $envExecutions, $paddings ){

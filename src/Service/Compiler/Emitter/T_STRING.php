@@ -2,7 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 
-use App\Bytecode\Helper;
+use App\Service\Helper;
 
 class T_STRING {
 
@@ -11,20 +11,34 @@ class T_STRING {
         // we have quotes around the string, come from the tokenizer
         $value = substr($node['value'], 1, -1);
 
-        $offset = $data['strings'][$value]['offset'];
+        //hack for empty strings
+        if ($value == ""){
+            $value = "__empty__";
+        }
 
-        return [
+        $offset = $data['combinedStrings'][$value]['offset'];
+
+
+        $isProcedure = isset($data['customData']['isProcedure']) && $data['customData']['isProcedure'];
+
+        $result = [
             $getLine('21000000'),
             $getLine('04000000'),
             $getLine('01000000'),
 
             $getLine($offset),
 
-            $getLine('12000000'),
-            $getLine('02000000'),
-
-            $getLine(Helper::fromIntToHex( strlen($value) + 1 ))
+            $isProcedure ? $getLine('10000000') : $getLine('12000000'),
+            $isProcedure ? $getLine('01000000') : $getLine('02000000'),
         ];
+
+        if ($isProcedure == false){
+            $result[] = $getLine(Helper::fromIntToHex(
+                $value == "__empty__" ? 1 : strlen($value) + 1
+            ));
+        }
+
+        return $result;
     }
 
 }

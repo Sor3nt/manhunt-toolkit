@@ -17,7 +17,10 @@ class Manhunt2
     public static $functionForceFloar = [];
 
     public static $functionNoReturn = [
-        'getentityname'
+        'getentityposition',
+        'getcameraposition',
+        'getentityname',
+        'aigethunterlastnodename'
     ];
 
     public static $functionEventDefinition = [
@@ -26,6 +29,9 @@ class Manhunt2
 
     public static $constants = [
 
+        'HID_HEALTHBAR_PLAYER' => [
+            'offset' => "03000000"
+        ],
         'CT_SYRINGE' => [
             'offset' => "71000000"
         ],
@@ -190,6 +196,87 @@ class Manhunt2
 
     public static $functions = [
 
+        "ishunterinshadow" => [
+            'name' => 'IsHunterInShadow',
+            'offset' => "ca030000"
+        ],
+        "getmoverstate" => [
+            'name' => 'GetMoverState',
+            'offset' => "39010000"
+        ],
+        "radarcreateblip" => [
+            'name' => 'RadarCreateBlip',
+            'offset' => "aa030000"
+        ],
+        "closecutsceneplayed" => [
+            'name' => 'CloseCutscenePlayed',
+            'offset' => "closeCutscenePlayed"
+        ],
+        "scripthogprocessorend" => [
+            'name' => 'ScriptHogProcessorEnd',
+            'offset' => "16020000"
+        ],
+
+        "aidefinegoalgotovector" => [
+            'name' => 'AiDefineGoalGotoVector',
+            'offset' => "70010000"
+        ],
+
+        "setspotlighttransitiontime" => [
+            'name' => 'SetSpotlightTransitionTime',
+            'offset' => "a1030000"
+        ],
+
+        "setspotlighttarget" => [
+            'name' => 'SetSpotLightTarget',
+            'offset' => "a0030000"
+        ],
+
+        "initspotlight" => [
+            'name' => 'InitSpotlight',
+            'offset' => "9f030000"
+        ],
+
+
+        "aidefinegoalgotonodestayonpath" => [
+            'name' => 'AiDefineGoalGotoNodeStayOnPath',
+            'offset' => "f2010000"
+        ],
+
+        "isentitydying" => [
+            'name' => 'IsEntityDying',
+            'offset' => "52020000"
+        ],
+
+        "aiassociatefouractiveareaswithplayerarea" => [
+            'name' => 'AIAssociateFourActiveAreasWithPlayerArea',
+            'offset' => "be010000"
+        ],
+
+        "aiassociatethreeactiveareaswithplayerarea" => [
+            'name' => 'AIAssociateThreeActiveAreasWithPlayerArea',
+            'offset' => "bd010000"
+        ],
+
+        "aiassociatetwoactiveareaswithplayerarea" => [
+            'name' => 'AiAssociateTwoActiveAreasWithPlayerArea',
+            'offset' => "bc010000"
+        ],
+        "stringcopy" => [
+            'name' => 'stringcopy',
+            'offset' => "6d000000"
+        ],
+
+        "helicreatehelipath" => [
+            'name' => 'HeliCreateHeliPath',
+            'offset' => "b2030000"
+        ],
+
+        "helicreatehelinode" => [
+            'name' => 'HeliCreateHeliNode',
+            'offset' => "b1030000"
+        ],
+
         "randnum" => [
             'name' => 'RandNum',
             'offset' => "69000000"
@@ -252,22 +339,27 @@ class Manhunt2
         ],
 
         "getentity" => [
+            'name' => 'GetEntity',
             'offset' => "77000000"
         ],
 
         "hudtoggleflashflags" => [
+            'name' => 'HUDToggleFlashFlags',
             'offset' => "b2020000"
         ],
 
         "iswhitenoisedisplaying" => [
+            'name' => 'IsWhiteNoiseDisplaying',
             'offset' => "e7020000"
         ],
 
         "killgametext" => [
+            'name' => 'KillGameText',
             'offset' => "08010000"
         ],
 
         "killscript" => [
+            'name' => 'KillScript',
             'offset' => "e5000000"
         ],
 
@@ -297,6 +389,7 @@ class Manhunt2
         ],
 
         "setvector" => [
+            'name' => 'SetVector',
             'offset' => "84010000"
         ],
 
@@ -313,6 +406,7 @@ class Manhunt2
         ],
 
         "setlevelgoal" => [
+            'name' => 'SetLevelGoal',
             'offset' => "41020000"
         ],
 
@@ -389,9 +483,11 @@ class Manhunt2
         ],
 
         "hideentity" => [
+            'name' => 'HideEntity',
             'offset' => "83000000"
         ],
         "setslidedoorajardistance" => [
+            'name' => 'SetSlideDoorAjarDistance',
             'offset' => "9b010000"
         ],
 
@@ -1556,7 +1652,7 @@ class Manhunt2
              * 1: Player
              */
             'params' => ['Player'],
-            'return' => 'Void',
+            'return' => 'Integer',
             'desc' => ''
         ],
 
