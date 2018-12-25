@@ -16,6 +16,9 @@ $application->add(new \App\Command\GenerateEventsCommand());
 
 $application->add(new \App\Command\UnpackCommand());
 
+$application->add(new \App\Command\MassExtractTexCommand());
+$application->add(new \App\Command\MassExtractDffCommand());
+
 $application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
 
 

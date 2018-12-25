@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Service\BytecodeExplain;
-use App\Service\Inst;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,10 +27,8 @@ class BytecodeExplainCommand extends Command
     {
         $this
             ->setName('bytecode:explain')
-            ->setDescription('Analysis the bytecode ')
-            ->addArgument('file', InputArgument::REQUIRED, 'The code File.')
-
-//            ->setHelp('This command allows you to create a user...')
+            ->setDescription('Analysis the given MLS *.code bytecode.')
+            ->addArgument('file', InputArgument::REQUIRED, 'The *.code File.')
         ;
     }
 

@@ -51,7 +51,7 @@ class PCTest extends KernelTestCase
 //        for($i = $test; $i < $test+1 ; $i++){
             $testScript = $mhls[$i];
 
-            var_dump($testScript['NAME'], $i);
+//            var_dump($testScript['NAME'], $i);
 
             //compile a other script based on the levelscript
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, 'mh2');
@@ -89,7 +89,7 @@ class PCTest extends KernelTestCase
 
                 if ($index == "DATA"){
                     if ($testScript[$index] != $section){
-                        var_dump(bin2hex($testScript[$index][0]), $section);
+//                        var_dump(bin2hex($testScript[$index][0]), $section);
                     }
                 }
 

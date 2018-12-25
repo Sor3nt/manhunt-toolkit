@@ -3,17 +3,14 @@
 namespace App\Command;
 
 use App\Service\Archive\Bin;
-use App\Service\Archive\Col;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
+use App\Service\Archive\ZLib;
 use App\Service\Compiler\Compiler;
-use App\Service\Compiler\FunctionMap\Manhunt;
-use App\Service\Compiler\FunctionMap\Manhunt2;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -42,9 +39,6 @@ class PackCommand extends Command
     /** @var Bin  */
     private $bin;
 
-    /** @var Col  */
-    private $col;
-
 
     public function __construct()
     {
@@ -63,7 +57,7 @@ class PackCommand extends Command
     {
         $this
             ->setName('archive:pack')
-            ->setAliases(['pack'])
+            ->setAliases(['pack', 'build', 'compress'])
             ->setDescription('Pack a source file/folder')
             ->addArgument('folder', InputArgument::REQUIRED, 'The folder/file.')
             ->addArgument('output', InputArgument::OPTIONAL, 'Output result to this file')
@@ -111,7 +105,7 @@ class PackCommand extends Command
                 }
 
 
-                $this->packMLS(realpath($folder), $game, $saveTo, $output);
+                $this->packMLS(realpath($folder), $game, $saveTo);
             }else{
 
                 $finder = new Finder();
@@ -123,7 +117,7 @@ class PackCommand extends Command
                         $saveTo = $folder.'.bin.repack';
                     }
 
-                    $this->packStrmAnimPcBin( realpath($folder), $game, $saveTo, $output);
+                    $this->packStrmAnimPcBin( realpath($folder), $saveTo);
 
 
 
@@ -144,7 +138,7 @@ class PackCommand extends Command
                         $game = strtolower($helper->ask($input, $output, $question));
                     }
 
-                    $this->packIfp( realpath($folder), $game, $saveTo, $output);
+                    $this->packIfp( realpath($folder), $game, $saveTo);
 
                 }
             }
@@ -159,11 +153,7 @@ class PackCommand extends Command
                 (strpos(strtolower($content), "end") !== false)
             ){
 
-                if (is_null($saveTo)){
-                    $saveTo = $folder.'.repacked';
-                }
-
-                $this->packGLG( $content, $saveTo);
+                $output->writeln('Packing of glg files is not required. Just place the file into the right place.');
 
             // col file
             }else if (
@@ -225,7 +215,7 @@ class PackCommand extends Command
         $output->writeln('done');
     }
 
-    private function packStrmAnimPcBin($folder, $game, $saveTo, OutputInterface $output = null){
+    private function packStrmAnimPcBin($folder, $saveTo){
 
 
         $finder = new Finder();
@@ -294,7 +284,7 @@ class PackCommand extends Command
 
     }
 
-    private function packIfp($folder, $game, $saveTo, OutputInterface $output = null){
+    private function packIfp($folder, $game, $saveTo){
 
 
         $finder = new Finder();
@@ -328,7 +318,7 @@ class PackCommand extends Command
     }
 
 
-    private function packMLS($folder, $game, $saveTo, OutputInterface $output = null){
+    private function packMLS($folder, $game, $saveTo){
 
         /**
          * To build a valid MLS file, these sections are important
@@ -390,24 +380,17 @@ class PackCommand extends Command
          * Translate the files into Byte
          */
 
-        $mlsFile = $this->mls->pack($scripts, $game, false, $output);
+        $mlsFile = $this->mls->pack($scripts);
 
         /**
          * compress the file and store it
          */
-        $compressedMls = $this->mls->compress($mlsFile);
+        $compressedMls = ZLib::compress($mlsFile);
 
         file_put_contents($saveTo, $mlsFile);
         file_put_contents($saveTo . '.compressed', $compressedMls);
-
-
     }
 
-    private function packGLG($content, $saveTo){
-        $content = $this->glg->compress( $content );
-        file_put_contents($saveTo, $content);
-
-    }
     private function packInst($content, $saveTo, $game){
         $content = $this->inst->pack( \json_decode($content, true), $game );
         file_put_contents($saveTo, $content);

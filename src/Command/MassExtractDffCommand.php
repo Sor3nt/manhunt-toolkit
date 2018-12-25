@@ -2,12 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\Archive\Bmp;
-use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
-use App\Service\Archive\Dxt1;
-use App\Service\Archive\Dxt5;
-use App\Service\Archive\Tex;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,6 +17,7 @@ class MassExtractDffCommand extends Command
 
     protected function configure()
     {
+        $this->setDescription('Search and extract any *.dff. (MH1 PC/PS2)');
 
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
         $this->addArgument('outputTo', InputArgument::REQUIRED, 'Output folder');
@@ -103,7 +99,7 @@ class MassExtractDffCommand extends Command
                 $index = 1;
                 foreach ($entries as $md5 => $path) {
                     $output->write('.');
-    
+
                     list($name, $ext) = explode('.', $fileName);
 
 

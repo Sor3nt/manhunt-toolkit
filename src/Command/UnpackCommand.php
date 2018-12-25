@@ -10,11 +10,9 @@ use App\Service\Archive\Ifp;
 use App\Service\Compiler\Compiler;
 use App\Service\Resources;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class UnpackCommand extends Command
 {
@@ -24,12 +22,10 @@ class UnpackCommand extends Command
     {
         $this
             ->setName('archive:unpack')
-            ->setAliases(['unpack'])
-            ->setDescription('Unpack a GLG, INST or MLS file')
+            ->setAliases(['unpack', 'extract', 'uncompress'])
+            ->setDescription('Unpack a Manhunt file.')
             ->addArgument('file', InputArgument::REQUIRED, 'This file will be extracted')
             ->addOption('only-unzip', null, null, 'Will only unzip the file')
-
-            ->setHelp('This command allows you to create a user...')
         ;
     }
 

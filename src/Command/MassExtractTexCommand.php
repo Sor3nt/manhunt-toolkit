@@ -21,6 +21,7 @@ class MassExtractTexCommand extends Command
 
     protected function configure()
     {
+        $this->setDescription('Search and extract any *.tex. (MH2 PC)');
 
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
         $this->addArgument('outputTo', InputArgument::REQUIRED, 'Output folder');
@@ -172,7 +173,7 @@ class MassExtractTexCommand extends Command
                 foreach ($entries as $texture) {
                     $output->write('.');
 
-                    list($textureName, $contentMd5, $textureMd5) = explode("___", $texture);
+                    list($textureName,,) = explode("___", $texture);
                     $textureName = array_reverse(explode("/", $textureName))[0];
 
                     copy($texture, $collectionOutput . '/' . $textureName . "_" . $index . ".bmp");
