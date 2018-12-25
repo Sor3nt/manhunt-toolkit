@@ -7,6 +7,10 @@ class Dff {
 
     private $offset = 0;
 
+    /**
+     * @param NBinary $binary
+     * @return array
+     */
     private function getBlock( NBinary $binary ){
 
         $id = $binary->consume(4, NBinary::INT_32);
@@ -18,21 +22,25 @@ class Dff {
         return [ $id, $size ];
     }
 
+    /**
+     * @param NBinary $binary
+     * @return array
+     * @throws \Exception
+     */
     private function getEntry( NBinary $binary ){
-        list($clumpID, $size) = $this->getBlock($binary);
+        list(, $size) = $this->getBlock($binary);
         $size += 12;
 
-        list($structID, $structSize) = $this->getBlock($binary);
+        list(, $structSize) = $this->getBlock($binary);
 
         $binary->jumpTo($structSize + 12, false);
 
-        list($struct2ID, $struct2Size) = $this->getBlock($binary);
+        list(, $struct2Size) = $this->getBlock($binary);
 
         $binary->jumpTo($struct2Size, false);
 
-        list($extId, $extSize) = $this->getBlock($binary);
+        $this->getBlock($binary);
         list($id, $nSize) = $this->getBlock($binary);
-
 
         $name = false;
         if ($id == 3){
@@ -41,11 +49,32 @@ class Dff {
             if ($sId == 286){
                 $binary->jumpTo($sSize, false);
 
-                list($s2Id, $s2Size) = $this->getBlock($binary);
+                list(, $s2Size) = $this->getBlock($binary);
 
                 $name = $binary->consume($s2Size, NBinary::STRING);
             }else{
                 $name = $binary->consume($sSize, NBinary::STRING);
+            }
+        }else if ($id == 286){
+            $binary->jumpTo($nSize, false);
+
+            list($s2Id, $s2Size) = $this->getBlock($binary);
+
+            if ($s2Id == 3){
+                list($s3Id, $s3Size) = $this->getBlock($binary);
+
+                if ($s3Id == 286){
+                    $binary->jumpTo($s3Size, false);
+
+                    list(, $s4Size) = $this->getBlock($binary);
+
+                    $name = $binary->consume($s4Size, NBinary::STRING);
+               }else{
+                    $name = $binary->consume($s3Size, NBinary::STRING);
+               }
+
+            }else{
+                $name = $binary->consume($s2Size, NBinary::STRING);
             }
 
         }else if ($id == 39056126){
@@ -56,7 +85,6 @@ class Dff {
             throw new \Exception('Name not found!');
         }
 
-
         return [
             'name' => $name,
             'offset' => $this->offset,
@@ -65,6 +93,10 @@ class Dff {
 
     }
 
+    /**
+     * @param $binary
+     * @return array
+     */
     public function unpack($binary){
         $binary = new NBinary($binary);
         $fileSIZE = $binary->length();
@@ -84,7 +116,6 @@ class Dff {
             $results[] = $entry;
 
         }while( $this->offset < $fileSIZE );
-
 
         return $results;
     }
