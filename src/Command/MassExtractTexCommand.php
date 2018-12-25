@@ -10,6 +10,7 @@ use App\Service\Archive\Tex;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -23,7 +24,18 @@ class MassExtractTexCommand extends Command
 
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
         $this->addArgument('outputTo', InputArgument::REQUIRED, 'Output folder');
-
+        $this->addOption(
+            'save-differences',
+            'sd',
+            InputOption::VALUE_NONE,
+            'Compare File and save differences ?'
+        );
+        $this->addOption(
+            'copy-all-found',
+            'cf',
+            InputOption::VALUE_NONE,
+            'Copy all found files together ?'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -36,6 +48,8 @@ class MassExtractTexCommand extends Command
 
         $folder = realpath($input->getArgument('folder'));
         $outputTo = realpath($input->getArgument('outputTo'));
+        $saveDifferences = $input->getOption('save-differences');
+        $copyAllFound = $input->getOption('copy-all-found');
 
         @mkdir($outputTo, 0777, true);
 
@@ -144,38 +158,42 @@ class MassExtractTexCommand extends Command
 
         }
 
-        $collectionOutput = $outputTo . '/__differences';
-        @mkdir($collectionOutput, 0777, true);
+        if ($saveDifferences){
+            $collectionOutput = $outputTo . '/__differences';
+            @mkdir($collectionOutput, 0777, true);
 
-        $output->write("\n");
-        $output->write('Save file differences ');
+            $output->write("\n");
+            $output->write('Save file differences ');
 
-        foreach ($differences as $entries) {
-            if (count($entries) == 1) continue;
+            foreach ($differences as $entries) {
+                if (count($entries) == 1) continue;
 
-            $index = 1;
-            foreach ($entries as $texture) {
-                $output->write('.');
+                $index = 1;
+                foreach ($entries as $texture) {
+                    $output->write('.');
 
-                list($textureName, $contentMd5, $textureMd5) = explode("___", $texture);
-                $textureName = array_reverse(explode("/", $textureName))[0];
+                    list($textureName, $contentMd5, $textureMd5) = explode("___", $texture);
+                    $textureName = array_reverse(explode("/", $textureName))[0];
 
-                copy($texture, $collectionOutput . '/' . $textureName . "_" . $index . ".bmp");
-                $index++;
+                    copy($texture, $collectionOutput . '/' . $textureName . "_" . $index . ".bmp");
+                    $index++;
+                }
             }
         }
 
 
-        $collectionOutput = $outputTo . '/__any_textures/';
-        @mkdir($collectionOutput, 0777, true);
+        if ($copyAllFound){
+            $collectionOutput = $outputTo . '/__any_textures/';
+            @mkdir($collectionOutput, 0777, true);
 
-        $output->write("\n");
-        $output->write('Copy files together ');
+            $output->write("\n");
+            $output->write('Copy files together ');
 
-        foreach ($availableFiles as $availableFile) {
-            if (file_exists($collectionOutput . '/' . pathinfo($availableFile)['filename'] . '.bmp')) continue;
-            copy($availableFile, $collectionOutput . '/' . pathinfo($availableFile)['filename'] . '.bmp');
+            foreach ($availableFiles as $availableFile) {
+                if (file_exists($collectionOutput . '/' . pathinfo($availableFile)['filename'] . '.bmp')) continue;
+                copy($availableFile, $collectionOutput . '/' . pathinfo($availableFile)['filename'] . '.bmp');
 
+            }
         }
 
         $output->write("\nDone.\n");
