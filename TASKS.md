@@ -18,20 +18,33 @@
 * Implement TEX exporting
 * Implement TXD format for PS2/PSP
 
-##Audio
+##Audio (fsb, fev)
 * Implement FSB format
+* Implement FEV format
+* Implement context_map.bin format
+* Implement Executions.dir format
 
 ##AI Path (grf)
 * Write Unit-Tests, validate functionality
 
-##Translations (gxt)
+##Translations (gxt, tag)
 * Implement GXT format
+* Implement TAG format
 
 ##Pack file (pak)
 * Implement PAK format
+
+##Footstep sounds (mat_pc.bin)
+* Implement MAT_PC.BIN format
 
 ##Entity Positions (inst)
 * lookup parameter ids
 
 ##Level Compiler (mls)
 * Add Support for "FUNCTIONS"
+
+##Video format (bik)
+* Implement [BIK format](https://wiki.multimedia.cx/index.php/Bink_Container)
+
+##Font (dat)
+* Implement font.dat format

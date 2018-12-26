@@ -6,7 +6,7 @@
 
 **Requirements**
 
-You need PHP 7.0 or nearer on your System to run MHT
+You need PHP 7.0 or newer on your System to run MHT
 
 ## Installation
 
@@ -68,10 +68,10 @@ Pack/unpack **models** for Manhunt 1 (PC/PS2) (models.dff)
 Unpack **settings** for Manhunt 2 (PC) (*.glg)
 > This files are actual INI files, e.g. Setting files. MHT will just unpack them and provide the TXT version of it.
 
-Pack/unpack **entity positions** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (entity.dff)
+Pack/unpack **entity positions** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (*.dff)
 >Any Object positions is here stored, MHT convert all values into a editable JSON format
  
-Pack/unpack **level script code** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/Wii) (entity.dff)
+Pack/unpack **level script code** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
 
 > The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
 >
@@ -84,7 +84,7 @@ Pack/unpack **level script code** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/P
 >You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
 
 
-- Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
+Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
 > Any used texture, export the textures as BMP.
 
 
