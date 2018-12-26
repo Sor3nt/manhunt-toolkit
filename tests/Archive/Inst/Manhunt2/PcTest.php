@@ -11,6 +11,8 @@ class PcTest extends KernelTestCase
     public function testPackUnpackMh2()
     {
 
+        echo "\n* INST: Testing Manhunt 2 PC ==> ";
+
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
         $resource = $resources->load('/Archive/Inst/Manhunt2/PC/entity_pc.inst');

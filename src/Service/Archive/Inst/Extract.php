@@ -36,6 +36,7 @@ class Extract {
             $size = $this->binary->unpack(hex2bin($size), NBinary::INT_32);
 
             $block = new NBinary( $this->binary->consume($size, NBinary::BINARY) );
+
             $block->numericBigEndian = $this->binary->numericBigEndian;
 
             $records[] = $this->parseRecord( $block );
@@ -57,6 +58,7 @@ class Extract {
          */
         $internalName = $binary->getString();
 
+
         /**
          * Find the position and rotation
          */
@@ -76,15 +78,17 @@ class Extract {
          */
         $entityClass = $binary->getString();
 
+
         /**
          * Find parameters
          */
         $params = [];
 
-        while($binary->length()) {
+        while($binary->remain() > 0) {
 
-            if ($binary->length() >= 12){
+            if ($binary->remain() >= 12){
                 $maybeType  = trim($binary->get(4, 4));
+
 
                 if (in_array($maybeType, [ 'flo', 'boo', 'str', 'int' ])){
                     $game = "mh2";
@@ -99,7 +103,7 @@ class Extract {
 
 
             if ($game == "mh1"){
-                while($binary->length()) {
+                while($binary->remain() > 0) {
 
                     $value  = $binary->consume(4, NBinary::INT_32);
 
@@ -126,6 +130,7 @@ class Extract {
                     case 'str':
 
                         $value = $binary->getString();
+
                         break;
                     default:
                         var_dump($internalName, $glgRecord);

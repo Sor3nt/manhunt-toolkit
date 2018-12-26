@@ -13,7 +13,7 @@ class Ps2Test extends KernelTestCase
     public function testPackUnpack()
     {
 
-        echo "\n*** BIN: implement PS2 rebuild (TODO)\n";
+        echo "\n*** BIN: implement PS2 rebuild (TODO) ";
         $this->assertEquals(true, true);
         return;
 

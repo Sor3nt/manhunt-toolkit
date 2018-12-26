@@ -74,9 +74,9 @@ class Tex {
         return $textures;
     }
 
-    public function pack( $executions, $envExecutions, $paddings ){
+    public function pack( ){
 
-        die("no packing support right now");
+        die("Packing it not supported right now.");
 
     }
 }

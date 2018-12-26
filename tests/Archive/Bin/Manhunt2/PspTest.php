@@ -13,7 +13,7 @@ class PspTest extends KernelTestCase
     public function testPackUnpack()
     {
 
-        echo "\n*** BIN: implement PSP rebuild (TODO)\n";
+        echo "\n*** BIN: implement PSP rebuild (TODO) ";
         $this->assertEquals(true, true);
         return;
 

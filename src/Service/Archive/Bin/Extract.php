@@ -125,11 +125,11 @@ class Extract {
         $ifp = new Ifp();
         $ifp->extractAnimation(
             $animationCount,
-            bin2hex($binary->binary),
-            null,
+            $binary,
             $outputTo,
             $game
 
         );
+
     }
 }

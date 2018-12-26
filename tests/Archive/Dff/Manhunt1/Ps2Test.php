@@ -13,6 +13,7 @@ class Ps2Test extends KernelTestCase
 
     public function testPackUnpack()
     {
+        echo "\n* DFF: Testing Manhunt 1 PS2 ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

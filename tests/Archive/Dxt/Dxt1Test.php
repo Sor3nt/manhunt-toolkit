@@ -12,6 +12,7 @@ class Dxt1Test extends KernelTestCase
 
     public function testDxt1()
     {
+        echo "\n* DX1: Testing DXT1 Texture ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

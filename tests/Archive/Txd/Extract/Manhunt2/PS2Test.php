@@ -13,6 +13,7 @@ class PS2Test extends KernelTestCase
 
     public function testLevel1()
     {
+        echo "\n*** TXD: Implement PS2 (TODO) ";
         $this->assertEquals(true, true);
 return;
         $resources = new Resources();

@@ -3,7 +3,6 @@ namespace App\Tests\Archive\Txd\Extract\Manhunt2;
 
 use App\Service\Archive\Bmp;
 use App\Service\Archive\Dds;
-use App\Service\Archive\Dxt;
 use App\Service\Archive\Dxt1;
 use App\Service\Archive\Dxt5;
 use App\Service\Resources;
@@ -15,13 +14,15 @@ class PCTest extends KernelTestCase
     public function testLevel1()
     {
 
+        echo "\n* TEX: Testing Manhunt 2 PC ==> ";
+
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
-//        $content = $resources->load('/Archive/Tex/Manhunt2/PC/modelspc.tex');
+
         $content = $resources->load('/Archive/Tex/Manhunt2/PC/gmodelspc.tex');
 
         $content = $content->getContent();
-//
+
         $ddsHandler = new Dds();
         $bmpHandler = new Bmp();
 
@@ -51,17 +52,12 @@ class PCTest extends KernelTestCase
 
 
             //Convert the RGBa values into a Bitmap
-            $bmpImage = $bmpHandler->encode(
+            $bmpHandler->encode(
                 $bmpRgba,
                 $ddsDecoded['width'],
                 $ddsDecoded['height']
             );
 
-//            if($ddsDecoded['format'] == "DXT5"){
-//                file_put_contents('/Users/matthias/www/privat/manhunt-toolkit-ide-git/tests/Resources/_test_exports/' . $ddsDecoded['format'] .  '-' . $item['name'] . ".bmp" , $bmpImage);
-//                echo "OK";
-//exit;
-//            }
         }
 
         //we expect 13 results

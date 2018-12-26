@@ -5,11 +5,13 @@ use App\Service\Archive\Inst;
 use App\Service\Resources;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class InstTest extends KernelTestCase
+class PcTest extends KernelTestCase
 {
 
     public function testPackUnpack()
     {
+
+        echo "\n* INST: Testing Manhunt 1 PC ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

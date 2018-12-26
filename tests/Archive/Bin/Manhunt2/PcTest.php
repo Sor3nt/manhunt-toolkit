@@ -12,6 +12,7 @@ class PcTest extends KernelTestCase
 
     public function testPackUnpack()
     {
+        echo "\n* BIN: Testing Manhunt 2 PC ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
@@ -87,7 +88,7 @@ class PcTest extends KernelTestCase
 
         $hex = $handler->pack($executions, $envExecutions);
 
-        $this->assertEquals($resource->getContent(), hex2bin($hex));
+        $this->assertEquals(md5($resource->getContent()), md5(hex2bin($hex)));
 
 
         $this->rrmdir($exportFolder);

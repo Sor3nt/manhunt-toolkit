@@ -13,6 +13,7 @@ class PcTest extends KernelTestCase
 
     public function testPackUnpack()
     {
+        echo "\n* DFF: Testing Manhunt 1 PC ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

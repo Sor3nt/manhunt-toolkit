@@ -10,6 +10,7 @@ class WiiTest extends KernelTestCase
 
     public function testPackUnpackMh2()
     {
+        echo "\n* INST: Testing Manhunt 2 WII ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

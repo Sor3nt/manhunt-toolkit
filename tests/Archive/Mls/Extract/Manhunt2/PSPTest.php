@@ -9,6 +9,7 @@ class PSPTest extends KernelTestCase
 
     public function testLevel1()
     {
+        echo "\n* MLS: Testing Manhunt 2 PSP (extract) ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

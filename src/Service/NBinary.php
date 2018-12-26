@@ -12,7 +12,6 @@ class NBinary{
     const BIG_U_INT_32 = 'BIG_U_INT_32';
     const BIG_U_INT_16 = 'BIG_U_INT_16';
     const BIG_U_INT_8 = 'BIG_U_INT_8';
-//    const LITTLE_INT_32 = 'LITTLE_INT_32';
     const INT_32 = 'INT_32';
     const FLOAT_32 = 'FLOAT_32';
     const BIG_FLOAT_32 = 'BIG_FLOAT_32';
@@ -23,8 +22,9 @@ class NBinary{
     public $numericBigEndian = false;
 
     public $binary = "";
-    protected $_binary = "";
+    public $hex = "";
 
+    public $current = 0;
 
     public function __construct( $binary = null ){
         if (is_null($binary)) return;
@@ -33,12 +33,16 @@ class NBinary{
             $binary = ZLib::uncompress( $binary );
         }
 
-        $this->_binary = $binary;
         $this->binary = $binary;
+        $this->hex = bin2hex($binary);
     }
 
     public function length(){
         return mb_strlen($this->binary, '8bit');
+    }
+
+    public function remain(){
+        return $this->length() - $this->current;
     }
 
     public function getAsArray(){
@@ -46,26 +50,31 @@ class NBinary{
     }
 
     public function jumpTo( $offset, $absolutePosition = true ){
-        if ($absolutePosition == true){
-            $this->binary = $this->_binary;
+        if ($absolutePosition == false){
+            $this->current += $offset;
+        }else{
+            $this->current = $offset;
         }
-        $this->binary = mb_substr($this->binary, $offset, null, '8bit');
     }
 
     public function range( $fromOffset, $toOffset, $absolutePosition = false ){
+
         if ($absolutePosition == false){
-            $this->binary = $this->_binary;
-            return mb_substr($this->binary, $fromOffset, ($toOffset - $fromOffset), '8bit');
+            return hex2bin(substr($this->hex, ($this->current + $fromOffset) * 2, ($toOffset - $fromOffset) * 2));
+//            return mb_substr($this->binary, $this->current + $fromOffset, ($toOffset - $fromOffset), '8bit');
 
         }else{
-            return mb_substr($this->_binary, $fromOffset, ($toOffset - $fromOffset), '8bit');
+            return hex2bin(substr($this->hex, $fromOffset * 2, ($toOffset - $fromOffset) * 2));
+//            return mb_substr($this->binary, $fromOffset, ($toOffset - $fromOffset), '8bit');
 
         }
 
     }
 
     public function write($bytes, $type){
-        $this->binary .= $this->pack($bytes, $type);
+        $add = $this->pack($bytes, $type);
+        $this->binary .= $add;
+        $this->hex .= bin2hex($add);
     }
 
     public function unpack($data, $type){
@@ -79,6 +88,7 @@ class NBinary{
     private function unpackPack($data, $type, $doPack = false){
 
         if ($this->numericBigEndian){
+            if ($type == self::INT_8) die("big int_8 ?");
             if ($type == self::INT_32) $type = self::BIG_U_INT_32;
             if ($type == self::FLOAT_32) $type = self::BIG_FLOAT_32;
         }
@@ -142,28 +152,37 @@ class NBinary{
 
     }
 
-    public function get( $bytes, $startAt = 0){
-        return mb_substr($this->binary, $startAt, $bytes, '8bit');
+    public function get( $bytes, $startAt = 0, $asHex = false){
+        $result = substr($this->hex, ($this->current + $startAt) * 2, $bytes * 2);
+
+        if ($asHex){
+            return $result;
+        }
+
+        return hex2bin($result);
     }
 
     public function getString( $delimiter = "\x00", $doPadding = true ){
-        $delimiterPos = mb_strpos($this->binary, $delimiter);
-        if ($delimiterPos === -1) return '';
 
-        $result = mb_substr($this->binary, 0, $delimiterPos, '8bit');
+        $partOnly = mb_substr($this->binary, $this->current, null, '8bit');
+
+        $delimiterPos = mb_strpos($partOnly, $delimiter, null, '8bit');
+        if ($delimiterPos === -1) return '';
+        $result = mb_substr($partOnly, 0, $delimiterPos, '8bit');
+
 
         $padding = 0;
         if ($doPadding){
             $padding  = 4 - (( mb_strlen($result, '8bit') ) % 4);
         }
 
-        $this->binary = mb_substr($this->binary, $delimiterPos + $padding, null, '8bit');
+        $this->current += $delimiterPos + $padding;
 
         return $result;
     }
 
     public function getPadding($paddingChar = "\x00" ){
-        $padding = 4 - (( mb_strlen($this->binary, '8bit') ) % 4);
+        $padding = 4 - (( strlen($this->hex) / 2 ) % 4);
 
         if ($padding == 4) return "";
         return str_repeat($paddingChar, $padding);
@@ -172,17 +191,19 @@ class NBinary{
 
     public function consume( $bytes, $type, $startAt = 0){
 
-        $result = mb_substr($this->binary, $startAt, $bytes, '8bit');
 
-        $this->binary = mb_substr($this->binary, $bytes + $startAt, null , '8bit');
+        $result = hex2bin(substr($this->hex, $this->current * 2, $bytes * 2));
+//        $result = mb_substr($this->binary, $this->current, $bytes, '8bit');
+
+        $this->current += $bytes + $startAt;
 
         return $this->unpack($result, $type);
     }
 
 
     public function concat( NBinary $binary){
-
         $this->binary .= $binary->binary;
+        $this->hex .= bin2hex($binary->binary);
 
     }
 }

@@ -12,6 +12,8 @@ class Dxt5Test extends KernelTestCase
     public function testDxt5()
     {
 
+        echo "\n* DX1: Testing DXT5 Texture ==> ";
+
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
         $content = $resources->load('/Archive/Dxt/dxt.dxt5');

@@ -107,7 +107,6 @@ class Build {
 
 
         }
-
         $data .= str_repeat('00', 2048 - (strlen($data) / 2));
 
         /**

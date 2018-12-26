@@ -10,6 +10,8 @@ class WiiTest extends KernelTestCase
     public function testLevel1()
     {
 
+        echo "\n* MLS: Testing Manhunt 2 Wii (extract) ==> ";
+
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
         $mlsContent = $resources->load('/Archive/Mls/Manhunt2/Wii/A01_Escape_Asylum.mls');

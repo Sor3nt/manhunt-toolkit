@@ -9,6 +9,7 @@ class PCTest extends KernelTestCase
 
     public function testLevel1()
     {
+        echo "\n* MLS: Testing Manhunt 2 PC (extract) ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

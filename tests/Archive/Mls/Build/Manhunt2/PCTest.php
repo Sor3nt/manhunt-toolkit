@@ -11,6 +11,8 @@ class PCTest extends KernelTestCase
 
     public function testLevelScript()
     {
+        echo "\n* MLS: Testing Manhunt 2 PC (build) ==> ";
+
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
 
