@@ -2,7 +2,6 @@
 namespace App\Tests\Archive\Txd\Extract\Manhunt2;
 
 use App\Service\Archive\Bmp;
-use App\Service\Archive\Dxt;
 use App\Service\Archive\Dxt1;
 use App\Service\Resources;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -12,7 +11,7 @@ class Dxt1Test extends KernelTestCase
 
     public function testDxt1()
     {
-        echo "\n* DX1: Testing DXT1 Texture ==> ";
+        echo "\n* DXT1: Testing DXT1 Texture ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

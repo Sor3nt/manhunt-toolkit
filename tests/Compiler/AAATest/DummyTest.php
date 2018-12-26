@@ -10,7 +10,7 @@ class DummyTest extends KernelTestCase
     public function test()
     {
 
-        echo "\n*** COMPILER: Start component tests ==>  ";
+        echo "\n* COMPILER: Start component tests ==>  ";
 
         $this->assertEquals(true, true);
     }

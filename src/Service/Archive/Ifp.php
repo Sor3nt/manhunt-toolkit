@@ -4,7 +4,8 @@ namespace App\Service\Archive;
 use App\Bytecode\Helper;
 use App\Service\NBinary;
 
-class Ifp {
+class Ifp
+{
 
     /**
      * Todo:
@@ -13,15 +14,18 @@ class Ifp {
 
     private $game = false;
 
-    private function toInt8($hex){
-        return is_int($hex) ? pack("c", $hex) :  current(unpack("c", hex2bin($hex)));
+    private function toInt8($hex)
+    {
+        return is_int($hex) ? pack("c", $hex) : current(unpack("c", hex2bin($hex)));
     }
 
-    private function toInt16($hex){
+    private function toInt16($hex)
+    {
         return is_int($hex) ? pack("s", $hex) : current(unpack("s", hex2bin($hex)));
     }
 
-    public function unpack($binary, $outputTo){
+    public function unpack($binary, $outputTo)
+    {
 
         $binary = new NBinary($binary);
 
@@ -36,7 +40,7 @@ class Ifp {
 //        $numBlockhex = $this->substr($entry, 0, 4);
         $numBlock = $binary->consume(4, NBinary::INT_32);
 
-        if ($numBlock > 10000){
+        if ($numBlock > 10000) {
             $game = "mh2-wii";
             $binary->current -= 4;
             $binary->numericBigEndian = true;
@@ -52,7 +56,7 @@ class Ifp {
          * BLOCK (BLOC)
          */
         $count = 1;
-        while($numBlock > 0){
+        while ($numBlock > 0) {
 
             $sectionBLOC = $binary->consume(4, NBinary::STRING);
 
@@ -93,11 +97,12 @@ class Ifp {
 
     }
 
-    public function extractAnimation($animationCount, NBinary $binary, $outputTo, $game = "mh2-pc"){
+    public function extractAnimation($animationCount, NBinary $binary, $outputTo, $game = "mh2-pc")
+    {
         $animations = [];
 
         $count = 1;
-        while($animationCount > 0){
+        while ($animationCount > 0) {
 
             $nameLabel = $binary->consume(4, NBinary::STRING);
 
@@ -114,31 +119,31 @@ class Ifp {
 
             $numberOfBones = bin2hex($binary->get(4));
 
-            if (strpos(strtolower($numberOfBones), 'ff') !== false){
+            if (strpos(strtolower($numberOfBones), 'ff') !== false) {
 
 
                 $game = "mh2-ps2";
                 $numberOfBones = substr($numberOfBones, 0, 2);
-                if (strlen($numberOfBones) == 2){
+                if (strlen($numberOfBones) == 2) {
                     $binary->consume(4, NBinary::BINARY);
                     $numberOfBones = $binary->unpack(hex2bin($numberOfBones), NBinary::INT_8) * -1;
-                }else{
+                } else {
 
                     die("PS2 error");
                 }
 
-            }else{
+            } else {
                 $numberOfBones = $binary->consume(4, NBinary::INT_32);
             }
 
             $chunkSize = $binary->consume(4, NBinary::INT_32);
             $frameTimeCount = $binary->consume(4, NBinary::FLOAT_32);
 
-            if ($game == "mh2-ps2"){
+            if ($game == "mh2-ps2") {
 
-                $frameTimeCount = (string) $frameTimeCount;
-                if (strlen($frameTimeCount) > 15){
-                    $frameTimeCount = (float) substr($frameTimeCount, 0, -5);
+                $frameTimeCount = (string)$frameTimeCount;
+                if (strlen($frameTimeCount) > 15) {
+                    $frameTimeCount = (float)substr($frameTimeCount, 0, -5);
                 }
             }
 
@@ -156,20 +161,19 @@ class Ifp {
 
             //headerSize
             $binary->consume(4, NBinary::INT_32);
-            $unknown5      = $binary->consume(4, NBinary::HEX);
+            $unknown5 = $binary->consume(4, NBinary::HEX);
 
             //eachEntrySize
             $binary->consume(4, NBinary::INT_32);
-            $numEntry      = $binary->consume(4, NBinary::INT_32);
-
+            $numEntry = $binary->consume(4, NBinary::INT_32);
 
 
             $resultAnimation['unknown5'] = $unknown5;
 
             $resultAnimation['entry'] = [];
-            while ($numEntry > 0){
+            while ($numEntry > 0) {
 
-                if ($this->game == "mh1"){
+                if ($this->game == "mh1") {
 
                     $resultAnimation['entry'][] = [
                         'time' => $binary->consume(4, NBinary::FLOAT_32),
@@ -190,7 +194,7 @@ class Ifp {
                         ],
                         'unknown5' => $binary->consume(4, NBinary::HEX)
                     ];
-                }else{
+                } else {
 
                     $resultAnimation['entry'][] = [
                         'time' => $binary->consume(4, NBinary::FLOAT_32),
@@ -219,7 +223,7 @@ class Ifp {
             $animations[] = $resultAnimation;
 
 
-            file_put_contents($outputTo . $count . "#". $animationName . ".json", \json_encode($resultAnimation, JSON_PRETTY_PRINT));
+            file_put_contents($outputTo . $count . "#" . $animationName . ".json", \json_encode($resultAnimation, JSON_PRETTY_PRINT));
 
             $animationCount--;
             $count++;
@@ -227,11 +231,12 @@ class Ifp {
 
     }
 
-    private function extractBones($numberOfBones, NBinary $binary, $game = "mh2-pc", $chunkSize = null){
+    private function extractBones($numberOfBones, NBinary $binary, $game = "mh2-pc", $chunkSize = null)
+    {
 
         $bones = [];
 
-        if ($game == "mh2-ps2"){
+        if ($game == "mh2-ps2") {
 
             $zlibData = $binary->consume($chunkSize, NBinary::BINARY);
 
@@ -244,12 +249,12 @@ class Ifp {
             $binary->consume(4, NBinary::HEX);
         }
 
-        while($numberOfBones > 0){
+        while ($numberOfBones > 0) {
 
 
             $sequenceLabel = $binary->consume(4, NBinary::STRING);
 
-            if ($sequenceLabel !== "SEQT" && $sequenceLabel !== "SEQU"){
+            if ($sequenceLabel !== "SEQT" && $sequenceLabel !== "SEQU") {
                 throw new \Exception(
                     sprintf('Expected SEQT or SEQU got: %s', $sequenceLabel)
                 );
@@ -259,7 +264,6 @@ class Ifp {
             $frameType = $binary->consume(1, NBinary::INT_8);
             $frames = $binary->consume(2, NBinary::INT_16);
             $startTime = $binary->consume(2, NBinary::INT_16);
-
 
             //allen: need /2048.0*30 get frameid value
             $startTime = ($startTime / 2048) * 30;
@@ -272,9 +276,9 @@ class Ifp {
             ];
 
 
-            if ($frameType > 2){
+            if ($frameType > 2) {
 
-                if ($startTime > 0){
+                if ($startTime > 0) {
 
                     $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
                 }
@@ -307,7 +311,8 @@ class Ifp {
         return $bones;
     }
 
-    private function extractFrames($startTime, $frames, $frameType, NBinary $binary){
+    private function extractFrames($startTime, $frames, $frameType, NBinary $binary)
+    {
 
         $resultFrames = [
             'frames' => []
@@ -315,17 +320,17 @@ class Ifp {
 
         $index = 0;
 
-        while($frames > 0){
+        while ($frames > 0) {
 
 
             $resultFrame = [];
 
-            if ($startTime == 0){
+            if ($startTime == 0) {
 
                 // first frame == starTime
-                if ($index == 0 && $frameType < 3){
+                if ($index == 0 && $frameType < 3) {
                     $time = $startTime;
-                }else{
+                } else {
 
                     $time = $binary->consume(2, NBinary::INT_16);
                 }
@@ -333,7 +338,7 @@ class Ifp {
                 $resultFrame['time'] = $time;
             }
 
-            if ($frameType < 3){
+            if ($frameType < 3) {
 
                 $resultFrame['quat'] = [
                     $binary->consume(2, NBinary::INT_16) / 2048,
@@ -345,7 +350,7 @@ class Ifp {
             }
 
 
-            if ($frameType > 1){
+            if ($frameType > 1) {
 
                 $resultFrame['position'] = [
                     $binary->consume(2, NBinary::INT_16) / 2048,
@@ -361,8 +366,7 @@ class Ifp {
             $index++;
         }
 
-
-        if ($this->game == "mh2"){
+        if ($this->game == "mh2") {
             $resultFrames['lastFrameTime'] = $binary->consume(4, NBinary::FLOAT_32);
         }
 
@@ -370,7 +374,8 @@ class Ifp {
         return $resultFrames;
     }
 
-    public function pack( $records, $game ){
+    public function pack($records, $game)
+    {
 
         // Add ANCT
         $data = current(unpack("H*", "ANCT"));
@@ -395,14 +400,17 @@ class Ifp {
 
     }
 
-    public function packAnimation($animations, $game){
+    public function packAnimation($animations, $game)
+    {
 
-        $data = current(unpack("H*", "ANPK"));
-        $data .= Helper::fromIntToHex(count($animations));
+        $binary = new NBinary();
+
+        $binary->write("ANPK", NBinary::STRING);
+        $binary->write(count($animations), NBinary::INT_32);
 
         foreach ($animations as $animationName => $animation) {
 
-            $data .= current(unpack("H*", "NAME"));
+            $binary->write("NAME", NBinary::STRING);
 
             /*
              * Add the length of the Animation name and the Animation name itself
@@ -410,201 +418,138 @@ class Ifp {
             $animationName = explode("#", $animationName)[1];
             $animationName = explode(".json", $animationName)[0];
             $animationName .= "\x00";
-            $data .= Helper::fromIntToHex(strlen($animationName));
-            $data .= current(unpack("H*", $animationName));
 
-            $data .= Helper::fromIntToHex(count($animation['bones']));
+            $binary->write(strlen($animationName), NBinary::INT_32);
+            $binary->write($animationName, NBinary::STRING);
 
-            $chunkData = "";
+            $binary->write(count($animation['bones']), NBinary::INT_32);
+
+
+            $chunkBinary = new NBinary();
+            $chunkBinary->numericBigEndian = $binary->numericBigEndian;
+
             $chunkSize = 0;
 
             foreach ($animation['bones'] as $bone) {
 
-                $chunkData .= current(unpack("H*", $game == "mh1" ? "SEQU" : "SEQT"));
+                $chunkBinary->write($game == "mh1" ? "SEQU" : "SEQT", NBinary::STRING);
 
                 $boneId = $bone['boneId'];
 
-
-                $chunkData .= bin2hex($this->toInt16($boneId));
-                $chunkData .= bin2hex($this->toInt8($bone['frameType']));
-                if (!is_string($bone['frames'])){
-                    $chunkData .= bin2hex($this->toInt16(count($bone['frames']['frames'])));
-
-                }else{
-                    $chunkData .= bin2hex($this->toInt16($bone['frameCount']));
-                }
+                $chunkBinary->write($boneId, NBinary::INT_16);
+                $chunkBinary->write($bone['frameType'], NBinary::INT_8);
+                $chunkBinary->write(count($bone['frames']['frames']), NBinary::INT_16);
 
                 /**
                  * Chunk start
                  */
+                $singleChunkBinary = new NBinary();
+                $singleChunkBinary->numericBigEndian = $chunkBinary->numericBigEndian;
+                $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::INT_16);
 
-                $chunk = bin2hex($this->toInt16((int)(($bone['startTime'] / 30) * 2048)));
-
-                if ($bone['frameType'] > 2){
-                    if ($bone['startTime'] > 0){
-                        $chunk .= $bone['unknown1'];
+                if ($bone['frameType'] > 2) {
+                    if ($bone['startTime'] > 0) {
+                        $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
                     }
 
-                    $chunk .= $bone['unknown2'];
-                    $chunk .= $bone['unknown3'];
-                    $chunk .= $bone['unknown4'];
-
-                }
-
-                if (!is_string($bone['frames'])){
-
-                    foreach ($bone['frames']['frames'] as $index => $frame) {
-
-                        if ($bone['startTime'] == 0){
-
-                            if ($index == 0 && $bone['frameType'] < 3){
-                            }else{
-                                $chunk .= bin2hex($this->toInt16($frame['time']));
-                            }
-
-                        }
-//
-//                        if ($bone['frameType'] < 3){
-//                            $chunk .= bin2hex($this->toInt16($frame['quat'][0]));
-//                            $chunk .= bin2hex($this->toInt16($frame['quat'][1]));
-//                            $chunk .= bin2hex($this->toInt16($frame['quat'][2]));
-//                            $chunk .= bin2hex($this->toInt16($frame['quat'][3]));
-//                        }
-//
-//                        if ($bone['frameType'] > 1){
-//                            $chunk .= bin2hex($this->toInt16($frame['position'][0]));
-//                            $chunk .= bin2hex($this->toInt16($frame['position'][1]));
-//                            $chunk .= bin2hex($this->toInt16($frame['position'][2]));
-//                        }
-
-                        if ($bone['frameType'] < 3){
-
-                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][0] * 2048) ));
-                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][1] * 2048) ));
-                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][2] * 2048) ));
-                            $chunk .= bin2hex($this->toInt16( intval($frame['quat'][3] * 2048) ));
-                        }
-
-                        if ($bone['frameType'] > 1){
-
-                            $chunk .= bin2hex($this->toInt16( intval($frame['position'][0] * 2048) ));
-                            $chunk .= bin2hex($this->toInt16( intval($frame['position'][1] * 2048) ));
-                            $chunk .= bin2hex($this->toInt16( intval($frame['position'][2] * 2048) ));
-                        }
-
-                    }
-
-                    $chunkSize += strlen($chunk);
-
-                    $chunkData .= $chunk;
-                    if ($game == "mh2"){
-
-                        if (!isset($bone['frames']['lastFrameTime'])){
-
-
-                            if ($bone['startTime'] == 0){
-                                $lastFrameTime = end($bone['frames']['frames'])['time'] / 2048;
-                            }else if (count($bone['frames']['frames']) == 1) {#
-                                $lastFrameTime = ($bone['startTime'] / 2048);
-                            }else {
-
-                                $startTime = ($bone['startTime'] / 2048);
-                                $frameCount = (count($bone['frames']['frames'])/ 30) / 2048;
-
-                                $lastFrameTime = $startTime - $frameCount;
-                            }
-
-
-
-                            $bone['frames']['lastFrameTime'] = $lastFrameTime;
-                        }
-
-                        $chunkData .= Helper::fromFloatToHex($bone['frames']['lastFrameTime']);
-                    }
-
-                }else{
-                    $chunkData .= $bone['frames'];
-
+                    $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
+                    $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
+                    $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
                 }
 
 
+                foreach ($bone['frames']['frames'] as $index => $frame) {
 
+                    if ($bone['startTime'] == 0) {
+
+                        if ($index == 0 && $bone['frameType'] < 3) {
+                        } else {
+                            $singleChunkBinary->write($frame['time'], NBinary::INT_16);
+                        }
+                    }
+
+                    if ($bone['frameType'] < 3) {
+
+                        $singleChunkBinary->write(intval($frame['quat'][0] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['quat'][1] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['quat'][2] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['quat'][3] * 2048), NBinary::INT_16);
+                    }
+
+                    if ($bone['frameType'] > 1) {
+
+                        $singleChunkBinary->write(intval($frame['position'][0] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                    }
+                }
+
+                $chunkSize += $singleChunkBinary->length() * 2;
+                $chunkBinary->concat($singleChunkBinary);
+
+                if ($game == "mh2") {
+                    $chunkBinary->write($bone['frames']['lastFrameTime'], NBinary::FLOAT_32);
+                }
             }
 
-            $data .= Helper::fromIntToHex($chunkSize / 2);
-            $data .= Helper::fromFloatToHex($animation['frameTimeCount']);
-
-            $data .= $chunkData;
-
-
+            $binary->write($chunkSize / 2, NBinary::INT_32);
+            $binary->write($animation['frameTimeCount'], NBinary::FLOAT_32);
+            $binary->concat($chunkBinary);
 
             //headerSize
-            $data .= Helper::fromIntToHex(16);
-
-            $data .= $animation['unknown5'];
+            $binary->write(16, NBinary::INT_32);
+            $binary->write($animation['unknown5'], NBinary::HEX);
 
             //eachEntrySize
-            if($game == "mh2"){
-                $data .= Helper::fromIntToHex(160);
-            }else{
-                $data .= Helper::fromIntToHex(64);
+            if ($game == "mh2") {
+                $binary->write(160, NBinary::INT_32);
+            } else {
+                $binary->write(64, NBinary::INT_32);
             }
 
-//            if ($isMh1To2Port){
-//                $data .= Helper::fromIntToHex(0);
-//
-//            }else{
-
-            $data .= Helper::fromIntToHex(count($animation['entry']));
+            $binary->write(count($animation['entry']), NBinary::INT_32);
 
             foreach ($animation['entry'] as $entry) {
-                if (!is_string($entry)) {
 
-                    $data .= Helper::fromFloatToHex($entry['time']);
-                    $data .= $entry['unknown'];
-                    $data .= $entry['unknown2'];
+                $binary->write($entry['time'], NBinary::FLOAT_32);
+                $binary->write($entry['unknown'], NBinary::HEX);
+                $binary->write($entry['unknown2'], NBinary::HEX);
 
-                    if ($game == "mh2"){
+                if ($game == "mh2") {
 
+                    $commandName = current(unpack("H*", $entry['CommandName']));
+                    $missed = 128 - strlen($commandName) % 128;
 
-                        $commandName = current(unpack("H*", $entry['CommandName']));
-                        $missed = 128 - strlen($commandName) % 128;
-                        if ($missed > 0){
-                            $commandName .= str_repeat('00', $missed / 2);
-                        }
-                        $data .= $commandName;
+                    $binary->write($entry['CommandName'], NBinary::STRING);
+                    $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
 
-                        $data .= $entry['unknown3'];
-                    }else{
-                        $data .= $entry['unknown3'];
-                        $data .= $entry['unknown4'];
-                    }
+                    $binary->write($entry['unknown3'], NBinary::HEX);
 
-                    $data .= Helper::fromFloatToHex($entry['unknown6']);
-
-                    $particleName = current(unpack("H*", $entry['particleName']));
-                    $missed = 16 - strlen($particleName) % 16;
-                    if ($missed > 0){
-                        $particleName .= str_repeat('00', $missed / 2);
-                    }
-                    $data .= $particleName;
-
-
-                    foreach ($entry['particlePosition'] as $pPos) {
-                        $data .= Helper::fromFloatToHex($pPos);
-                    }
-
-                    $data .= $entry['unknown5'];
-
-                }else{
-                    $data .= $entry;
-
+                } else {
+                    $binary->write($entry['unknown3'], NBinary::HEX);
+                    $binary->write($entry['unknown4'], NBinary::HEX);
                 }
+
+
+                $binary->write($entry['unknown6'], NBinary::FLOAT_32);
+
+                $particleName = current(unpack("H*", $entry['particleName']));
+                $missed = 16 - strlen($particleName) % 16;
+
+                $binary->write($entry['particleName'], NBinary::STRING);
+                $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
+
+
+                foreach ($entry['particlePosition'] as $pPos) {
+                    $binary->write($pPos, NBinary::FLOAT_32);
+                }
+
+                $binary->write($entry['unknown5'], NBinary::HEX);
+
             }
-//            }
 
         }
 
-        return $data;
+        return $binary->hex;
     }
 }

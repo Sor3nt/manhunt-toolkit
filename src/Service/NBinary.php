@@ -88,7 +88,8 @@ class NBinary{
     private function unpackPack($data, $type, $doPack = false){
 
         if ($this->numericBigEndian){
-            if ($type == self::INT_8) die("big int_8 ?");
+//            if ($type == self::INT_8) die("big int_8 ?");
+            if ($type == self::INT_16) $type = self::BIG_U_INT_16;
             if ($type == self::INT_32) $type = self::BIG_U_INT_32;
             if ($type == self::FLOAT_32) $type = self::BIG_FLOAT_32;
         }
