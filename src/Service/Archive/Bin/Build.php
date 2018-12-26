@@ -34,7 +34,7 @@ class Build {
                          'redLevelExec'
                      ] as $index => $section) {
 
-                $prepared['executions'][$id][$section] = $ifp->packAnimation($execution[$section], 'mh2');
+                $prepared['executions'][$id][$section] = $ifp->packAnimation($execution[$section], 'mh2')->hex;
                 $prepared['executions'][$id][$section . 'Offset'] = $offsetStart;
                 $size = strlen($prepared['executions'][$id][$section]) / 2;
                 $prepared['executions'][$id][$section . 'Size'] = $size;
@@ -55,7 +55,7 @@ class Build {
             $prepared['envExecutions'][$id] = [];
 
 
-            $prepared['envExecutions'][$id]['animation'] = $ifp->packAnimation($execution, 'mh2');
+            $prepared['envExecutions'][$id]['animation'] = $ifp->packAnimation($execution, 'mh2')->hex;
             $prepared['envExecutions'][$id]['Offset'] = $offsetStart;
             $size = strlen($prepared['envExecutions'][$id]['animation']) / 2;
             $prepared['envExecutions'][$id]['Size'] = $size;

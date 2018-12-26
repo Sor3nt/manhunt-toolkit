@@ -377,26 +377,30 @@ class Ifp
     public function pack($records, $game)
     {
 
-        // Add ANCT
-        $data = current(unpack("H*", "ANCT"));
+        $binary = new NBinary("ANCT");
 
-        $data .= Helper::fromIntToHex(count($records));
+        $binary->numericBigEndian = $game == "mh2-wii";
+        if ($game == "mh2-wii") $game = "mh2";
+
+        $binary->write(count($records), NBinary::INT_32);
 
         foreach ($records as $blockName => $animations) {
 
-            $data .= current(unpack("H*", "BLOC"));
+            $binary->write("BLOC", NBinary::STRING);
 
             /*
              * Add the length of the Block name and the block name itself
              */
             $blockName = explode("#", $blockName)[1] . "\x00";
-            $data .= Helper::fromIntToHex(strlen($blockName));
-            $data .= current(unpack("H*", $blockName));
 
-            $data .= $this->packAnimation($animations, $game);
+            $binary->write(strlen($blockName), NBinary::INT_32);
+            $binary->write($blockName, NBinary::STRING);
+
+            $binary->concat( $this->packAnimation($animations, $game) );
+
         }
 
-        return $data;
+        return $binary->hex;
 
     }
 
@@ -550,6 +554,6 @@ class Ifp
 
         }
 
-        return $binary->hex;
+        return $binary;
     }
 }
