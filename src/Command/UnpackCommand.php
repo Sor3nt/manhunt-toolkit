@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\Archive\Bin;
 use App\Service\Archive\Bmp;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Dxt1;
@@ -109,7 +110,15 @@ class UnpackCommand extends Command
                 @mkdir($outputTo, 0777, true);
 
                 $handler = new Ifp();
-                $handler->unpack($content, null, $outputTo . '/');
+                $handler->unpack($content, $outputTo . '/');
+
+                break;
+            case 'bin':
+
+                @mkdir($outputTo, 0777, true);
+
+                $handler = new Bin();
+                $handler->unpack($content, $outputTo . '/');
 
                 break;
             case 'scs':

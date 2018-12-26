@@ -1,16 +1,23 @@
-# Manhunt Toolkit (MHT)
+# Manhunt Toolkit
 
-MHT allows us to mod Manhunt 1 and 2. Pack, Unpack, Compile. Patch and much more. 
+> A free and open source toolkit to quickly modify Rockstar`s game Manhunt.
 
-## Getting Started
 
-Every part is developed on PHP 7, you will need to install PHP on your System to use MHT.
 
-### Installing
+**Requirements**
 
-**Just load the latest Release and unzip it.**
+You need PHP 7.0 or nearer on your System to run MHT
 
-or grab the night build
+## Installation
+
+**Release**
+
+Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and unzip it.
+
+**Development**
+
+To use the latest features you can clone the current repository.
+
 ```
 $ git clone https://github.com/Sor3nt/manhunt-toolkit
 $ cd manhunt-toolkit
@@ -28,12 +35,12 @@ MHT will **autodetect** the given file by reading the header and content.
 
 You can unpack any supported file with
 ```
-$ php mht unpack myManhhunt.file
+$ php mht unpack allanims_pc.ifp
 ```
 
 And repack again with
 ```
-$ php mht pack myManhhunt.mod
+$ php mht pack export/allanims_pc_ifp/
 ```
 
 The toolkit provide much more features and parameters, just call **mht** to get the help!
@@ -41,62 +48,55 @@ The toolkit provide much more features and parameters, just call **mht** to get 
 php mht
 ```
 
-
-## About the Supported Formats
-
-### GLG (Manhunt 2)
-This files are actual INI files, e.g. Setting files. MHT will just unpack them and provide the TXT version of it.
-
-### INST (Manhunt 1 & 2)
-Any Object positions is here stored, MHT convert all values into a editable JSON format
+To view available Options for a command call as example
 
 ```
-        "record": "player",
-        "internalName": "player(player)",
-        "entityClass": "Player_Inst",
-        "position": {
-            "1": -44.7730712890625,
-            "2": 9.298941612243652,
-            "3": 0.03999999910593033
-        },
-        "rotation": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 1
-        },
-        ...
+php mht mass-extract:dff --help
 ```
 
-### MLS (Manhunt 1 & 2) - Level Script
+## About the supported formats
 
-The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
+Pack/unpack **execution animations** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (strmanim.bin)
+> Contains any execution animation, at the current state you can not copy between Manhunt 1 and Manhunt 2. 
 
-After unpacking a MLS File you will receive 2 folders, **Supported** and **Unsupported**.
-* Any files inside the **Supported** folder are free editable \*
-* The files inside **Unsupported** are not compatible with the compiler.
+Pack/unpack **animations** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (allanims.ifp)
+> Contains any other animation, at the current state you can not copy between Manhunt 1 and Manhunt 2.
 
-The compiler is in a **early state** but works already very well.
+Pack/unpack **models** for Manhunt 1 (PC/PS2) (models.dff)
+> Contains the models as DFF file (Can be edit with 3dsmax + Kam´s GTA Script)
 
-You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
+Unpack **settings** for Manhunt 2 (PC) (*.glg)
+> This files are actual INI files, e.g. Setting files. MHT will just unpack them and provide the TXT version of it.
 
-\* free editable: Not all combinations are supported, some action will rais an exception.
+Pack/unpack **entity positions** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (entity.dff)
+>Any Object positions is here stored, MHT convert all values into a editable JSON format
  
- **Found a bug ? Need a feature ? Question ?** 
- Feel free to create a Issue on GitHub!
+Pack/unpack **level script code** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/Wii) (entity.dff)
 
-## IFP - Animation Files
+> The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
+>
+> After unpacking a MLS File you will receive 2 folders, **Supported** and **Unsupported**.
+> * Any files inside the **Supported** folder are free editable
+> * The files inside **Unsupported** are not compatible with the compiler.
+>
+> The compiler is in a **early state** but works already very well.
+>
+>You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
 
-This files contains any available animation from the game. At the current state we can export, remove, replace, add and also merge Animations between Manhunt 1 and Manhunt 2\*
+
+- Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
+> Any used texture, export the textures as BMP.
+
  
- \* Cross merging is disabled currently. 
  
 #Credits
  
-* **Sor3nt** for 4 month sleeples bytecode reverse engineering and compiler building.
+* **Sor3nt** who build this Toolkit.
 * **Ermaccer** for extending the offsets, create awesome helpful ASI, help testing, endure my talks *g* and much more!
-* **Allen** for his structure analysis of multiple files.
-#HAPPY MODDING!
+* **Allen** for his structure analysis of multiple files and his helpful hand.
+* **Kevin Chapelier** for his awesome DXT implementation.
+
+
  
  
  
