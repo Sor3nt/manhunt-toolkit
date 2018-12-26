@@ -87,9 +87,10 @@ Pack/unpack **level script code** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/P
 - Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
 > Any used texture, export the textures as BMP.
 
- 
- 
-#Credits
+
+Happy modding!
+
+# Credits
  
 * **Sor3nt** who build this Toolkit.
 * **Ermaccer** for extending the offsets, create awesome helpful ASI, help testing, endure my talks *g* and much more!
