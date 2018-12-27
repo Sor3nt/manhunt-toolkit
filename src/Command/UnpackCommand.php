@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UnpackCommand extends Command
 {
 
-
     protected function configure()
     {
         $this
@@ -37,10 +36,13 @@ class UnpackCommand extends Command
         $file = $input->getArgument('file');
 
         $resources = new Resources();
-        $resource = $resources->load($file);
+        $resource = $resources->load($file, [
+            'allowUserQuestion' => true,
+            'outputInterface' => $output,
+            'inputInterface' => $input
+        ]);
 
         $content = $resource->getContent();
-
 
         if ($input->getOption('only-unzip')){
 
@@ -214,145 +216,6 @@ class UnpackCommand extends Command
 
             break;
         }
-
-
-
-//
-//        if (substr($contentAsHex, 0, 8) == "474e4941") { // GNIA
-//
-//            $grf = $this->grf->unpack($content);
-//
-//            $outputTo = $folder . '/' . $filename . ".grf.json";
-//
-//            file_put_contents(
-//                $outputTo,
-//                \json_encode($grf, JSON_PRETTY_PRINT)
-//            );
-
-//        }else if ($fileExt == "col") {
-//
-//            $json = $this->col->unpack($contentAsHex);
-//
-//            $outputTo = $folder . '/' . $filename . ".col.json";
-//
-//            file_put_contents(
-//                $outputTo,
-//                \json_encode($json, JSON_PRETTY_PRINT)
-//            );
-//        // we found a MLS scipt
-//        }else if (substr($contentAsHex, 0, 8) == "4d484c53" || substr($contentAsHex, 0, 8) == "4d485343") { // MHSC
-//            $output->writeln("MHLS (MLS) file detected");
-//
-//            $question = new ChoiceQuestion(
-//                'Please provide the source',
-//                array('mh1', 'mh2'),
-//                '0'
-//            );
-//
-//            $game = strtolower($helper->ask($input, $output, $question));
-//
-//            $outputTo = $folder . '/extracted/' . $filename . "/";
-//            @mkdir($outputTo);
-//
-//
-//            file_put_contents(
-//                $outputTo . 'ori.uncompressed',
-//                $content
-//            );
-//
-//            $mhls = $this->mls->unpack($content, $game, $output);
-//
-//            $this->saveMHLS( $mhls,  $outputTo);
-//        }
-        // BIN animation file
-//        else if (
-//            (strpos(strtolower($content), "anpk") !== false) &&
-//            (substr($contentAsHex, 0, 8) != "414e504b") && // is not ANPK header
-//            (substr($contentAsHex, 0, 8) != "414e4354") // is not ANCT header
-//        ){
-//
-//            $outputTo = $folder . '/' . $filename . "/";
-//            @mkdir($outputTo, 0777, true);
-//            $this->bin->unpack($contentAsHex, $outputTo);
-//
-//        }
-        // GLG Record
-//        else if (
-//            (strpos(strtolower($content), "record ") !== false) &&
-//            (strpos(strtolower($content), "end") !== false)
-//        ){
-//
-//            $output->writeln("GLG file detected");
-//            $outputTo = $folder . '/' . $filename . "." . $ext . ".txt";
-//
-//            file_put_contents(
-//                $outputTo,
-//                $content
-//            );
-//        }
-
-        // FSB format
-//        else if (
-//            (substr($contentAsHex, 0, 6) == "465342")) {  // FSB
-//
-//            $this->fsb->unpack( $content );
-//
-//        }
-        // TEX format
-//        else if (
-//            (substr($contentAsHex, 0, 8) == "54434454")
-//        ) {
-//
-//            $outputTo = $folder . '/' . $filename . "/";
-//            @mkdir($outputTo, 0777, true);
-//
-//            $this->tex->unpack($contentAsHex, $outputTo);
-//        }
-        // IFP format
-//        else if (
-//            (substr($contentAsHex, 0, 8) == "414e4354") // ANCT
-//        ) {
-//            $question = new ConfirmationQuestion('<error>WARNING!</error> The export of a IFP file can take up to some hours! Pre-decompiled files followed soon... HIT ENTER', false);
-//
-//            $helper = $this->getHelper('question');
-//            $helper->ask($input, $output, $question);
-//
-//            $outputTo = $folder . '/' . $filename . "/";
-//            @mkdir($outputTo, 0777, true);
-//
-//            $this->ifp->unpack( $content, $output, $outputTo );
-
-            // INST format
-//        } else if (
-//            (substr($contentAsHex, 4, 4) == "0000") &&
-//            (substr($contentAsHex, 10, 6) == "000000")
-//        ) {
-//
-//            $output->writeln("INST file detected");
-//
-//
-//            $question = new ChoiceQuestion(
-//                'Please provide the game',
-//                array('mh1', 'mh2'),
-//                '0'
-//            );
-//
-//            $game = strtolower($helper->ask($input, $output, $question));
-//
-//            $unpacked = $this->inst->unpack( $content, $game );
-//
-//            $outputTo = $folder . '/' . $filename . "." . $ext . ".json";
-//
-//            file_put_contents(
-//                $outputTo,
-//                \json_encode($unpacked, JSON_PRETTY_PRINT)
-//            );
-//
-//        }else{
-//            die("unknown ");
-//
-//        }
-
 
         $output->writeln('done');
     }

@@ -71,7 +71,7 @@ Unpack **settings** for Manhunt 2 (PC) (*.glg)
 Pack/unpack **entity positions** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (*.dff)
 >Any Object positions is here stored, MHT convert all values into a editable JSON format
  
-Pack/unpack **level script code** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
+Pack/unpack **level script code** for Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
 
 > The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
 >
@@ -80,6 +80,8 @@ Pack/unpack **level script code** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/
 > * The files inside **Unsupported** are not compatible with the compiler.
 >
 > The compiler is in a **early state** but works already very well.
+>
+> ***Please note that the current compiler only works with Manhunt 2***
 >
 >You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
 

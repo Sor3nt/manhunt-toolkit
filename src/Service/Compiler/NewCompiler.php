@@ -601,13 +601,10 @@ class NewCompiler
                         'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false)
                     ];
 
-
-//                    var_dump($variableType, $variableTypeWihtoutLevel);
                     if (isset($this->types[$variableTypeWihtoutLevel])) {
                         $row['isLevelVar'] = $isLevelVar;
                         $row['abstract'] = 'state';
                     }
-//                    if (isset($types[ str_replace('level_var ', '', $variableType) ] )) $row['abstract'] = 'state';
 
                     $vars[$variable['value']] = $row;
                 }

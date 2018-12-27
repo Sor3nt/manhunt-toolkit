@@ -246,8 +246,6 @@ class T_ASSIGN {
                                 self::toHeaderentityptr( $mapped['offset'], $code, $getLine);
                                 break;
                             case 'level_var tlevelstate':
-//                                var_dump($mapped);
-//                                die("s");
                                 self::toHeaderTLevelState( $mapped['offset'], $code, $getLine);
                                 break;
                             case 'stringarray':
@@ -259,7 +257,6 @@ class T_ASSIGN {
                                 break;
 
                             default:
-                                var_dump($mapped);
                                 throw new \Exception("Not implemented!");
                         }
 
@@ -290,13 +287,11 @@ class T_ASSIGN {
                                 self::toReal($mapped['offset'], $code, $getLine);
                                 break;
                             default:
-                                var_dump($mapped);
                                 throw new \Exception("Not implemented!");
 
                         }
                         break;
                     default:
-//                        var_dump($mapped);
                         throw new \Exception("Not implemented!");
                         break;
 
@@ -335,7 +330,6 @@ class T_ASSIGN {
                             break;
 
                         default:
-//                            var_dump($mapped);
                             throw new \Exception("Not implemented!");
                     }
 
@@ -352,13 +346,12 @@ class T_ASSIGN {
 
                             break;
                         default:
-//                            var_dump($mapped);
                             throw new \Exception("Not implemented!");
 
                     }
                     break;
                 default:
-//                    var_dump($mapped);
+
                     throw new \Exception("Not implemented!");
                     break;
 

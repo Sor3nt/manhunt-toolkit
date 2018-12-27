@@ -49,7 +49,7 @@ class T_PROCEDURE {
         $varCurrent = 0;
         $vars = [];
         if (isset($node['vars'])){
-//var_dump($node['vars']);
+
             while ($varCurrent < count($node['vars'])) {
                 $varToken = $node['vars'][$varCurrent];
 
@@ -93,9 +93,6 @@ class T_PROCEDURE {
                 $var['type'] = 'procedure';
                 $varOffset -= 4;
             }
-
-//            var_dump($vars);
-//            exit;
         }
 
 

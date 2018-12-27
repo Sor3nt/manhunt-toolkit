@@ -240,7 +240,6 @@ class Tokenizer {
                     $nextToken = $tokens[$current];
 
                     if ($nextToken['type'] != Token::T_BRACKET_OPEN){
-                        var_dump($nextToken);
                         die("todo");
                         //todo add line end
                         continue;

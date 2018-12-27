@@ -108,8 +108,7 @@ class T_CUSTOM_FUNCTION {
                     $current++;
                 }
             }
-//var_dump($node['params']);
-//            exit;
+
             if ($tokens[$current]['type'] !== Token::T_LINEEND){
                 throw new \Exception('Parser: parseForward T_LINEEND expected');
             }

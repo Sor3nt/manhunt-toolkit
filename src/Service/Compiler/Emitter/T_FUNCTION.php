@@ -253,7 +253,6 @@ class T_FUNCTION {
                         $code[] = $getLine($this->getFunction('WriteDebugReal')['offset']);
                         break;
                     default:
-                        var_dump($function);
                         throw new \Exception(sprintf('T_FUNCTION: Return type %s is unknown', $function['return']));
                         break;
                 }

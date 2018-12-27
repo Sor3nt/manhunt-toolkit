@@ -115,9 +115,6 @@ class T_CUSTOM_FUNCTION {
                 $var['type'] = 'customFunction';
                 $varOffset -= 4;
             }
-
-//            var_dump($vars);
-//            exit;
         }
 
 

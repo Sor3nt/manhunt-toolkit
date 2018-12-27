@@ -95,7 +95,6 @@ class T_VARIABLE extends TAbstract {
         if (class_exists($typeHandler)){
             $code = $typeHandler::map($node, $getLine, $emitter, $data);
         }else{
-            var_dump($mapped, $data);
             throw new \Exception($typeHandler . " Not implemented!");
         }
 
