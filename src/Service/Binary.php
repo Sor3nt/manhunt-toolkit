@@ -118,6 +118,10 @@ class Binary {
         return $hex ? strlen($this->toHex()) : strlen($this->toHex()) / 2;
     }
 
+    public function remain($hex = false){
+        return $hex ? strlen($this->toHex()) : strlen($this->toHex()) / 2;
+    }
+
     public function skipBytes( $bytes = 4){
         return $this->substr($bytes, $this->length(true));
     }

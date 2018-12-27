@@ -218,8 +218,9 @@ class Build {
 //                    $stabCode .= "\xff\xff\xff\xff";
 //                    break;
                 default:
-                    throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));
-                    break;
+                    $stabCode .= hex2bin($record['objectType']);
+//                    throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));
+//                    break;
 
             }
 

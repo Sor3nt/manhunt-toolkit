@@ -12,20 +12,18 @@ use App\Service\Archive\Mls;
 use App\Service\Archive\Tex;
 //use App\Service\Archive\Txd;
 use App\Service\Archive\ZLib;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 class Resources
 {
 
     public $workDirectory = '';
 
-    /**
-     * @param $relativeFile
-     * @return \App\Service\Resource
-     * @throws \Exception
-     *
-     * todo: caching verbauen
-     */
-    public function load( $relativeFile, $forceFileExtension = false ){
+
+    public function load( $relativeFile, $options = [] ){
 
         $absoluteFile = $this->workDirectory . $relativeFile;
         if (!file_exists( $absoluteFile )) throw new \Exception(sprintf('File not found: %s', $absoluteFile));
@@ -42,7 +40,10 @@ class Resources
 
         $result = $content;
 
-        if ($forceFileExtension) $fileExtension = $forceFileExtension;
+        if (isset($options['force_file_extension'])) $fileExtension = $options['force_file_extension'];
+
+        if (!isset($options['game'])) $options['game'] = "mh2";
+
 
         switch ($fileExtension){
 
@@ -56,8 +57,29 @@ class Resources
 
             case 'scc':
             case 'mls':
+
+                /**
+                 * in some extraction case we cant not detect if we have a MH1 or MH2 file, so we need to ask the user
+                 */
+                if ( isset($options['allowUserQuestion']) && $options['allowUserQuestion'] == true){
+                    $qhelper = new QuestionHelper();
+
+                    /** @var OutputInterface $output */
+                    $output = $options['outputInterface'];
+
+                    /** @var InputInterface $input */
+                    $input = $options['inputInterface'];
+
+                    do {
+                        $question = new Question('Manhunt (1) or Manhunt (2) ? : ', false);
+                        $game = (int) $qhelper->ask($input, $output, $question);
+                    }while ($game != 1 && $game != 2);
+
+                    $options['game'] = 'mh' . $game;
+                }
+
                 $handler = new Mls();
-                $result = $handler->unpack($content, 'mh2');
+                $result = $handler->unpack($content, $options['game']);
                 break;
             case 'bin':
 
@@ -65,7 +87,7 @@ class Resources
 
                     //real bin file
                 }else{
-                    return $this->load($relativeFile, 'inst');
+                    return $this->load($relativeFile, [ 'force_file_extension' => 'inst'] );
                 }
 
                 break;

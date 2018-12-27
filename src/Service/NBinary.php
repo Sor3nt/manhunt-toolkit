@@ -192,11 +192,12 @@ class NBinary{
 
     public function consume( $bytes, $type, $startAt = 0){
 
+        $this->current += $startAt;
 
         $result = hex2bin(substr($this->hex, $this->current * 2, $bytes * 2));
 //        $result = mb_substr($this->binary, $this->current, $bytes, '8bit');
 
-        $this->current += $bytes + $startAt;
+        $this->current += $bytes ;
 
         return $this->unpack($result, $type);
     }

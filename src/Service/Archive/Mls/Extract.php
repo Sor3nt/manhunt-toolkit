@@ -20,7 +20,7 @@ class Extract {
     public function get(){
 
         /** @var Binary $remain */
-        // detect the current version, wii or pc/ps2/psp?
+        // detect the current version, wii or pc/ps2/psp/xbox?
         $this->platform = $this->binary->substr(4, 4, $remain) == "00090003" ? "wii" : "pc";
 
         $nextSection = $remain->substr(0, 4)->toString();
@@ -265,9 +265,10 @@ class Extract {
 
 
                 default:
-                    var_dump($entry['name']);
-                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));
-                    break;
+                    $objectType = $valueType;
+//                    var_dump($entry['name']);
+//                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));
+//                    break;
 
             }
 

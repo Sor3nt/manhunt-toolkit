@@ -28,11 +28,12 @@ class PCTest extends KernelTestCase
         $this->assertEquals(true, isset($mhls[0]['DATA']));
         $this->assertEquals(true, isset($mhls[0]['SMEM']));
         $this->assertEquals(true, isset($mhls[0]['STAB']));
-
         $this->assertEquals('levelscript', $mhls[0]['NAME']);
         $this->assertEquals('newmeleetut2', $mhls[1]['NAME']);
         $this->assertEquals('objectscript', $mhls[97]['NAME']);
 
+//        var_dump(md5(print_r($mhls, true)));exit;
+        $this->assertEquals('df930ad44b7887d89ac3739ebbe92602', md5(print_r($mhls, true)));
 
     }
 

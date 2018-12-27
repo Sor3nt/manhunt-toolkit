@@ -13,7 +13,7 @@ class WiiTest extends KernelTestCase
 
     public function testPackUnpack()
     {
-        echo "\n*** IFP: Implement WII rebuild (TODO) ==> ";
+        echo "\n* IFP: WII test skipped - unable to verify ==> ";
         $this->assertEquals(true, true);
         return;
 
@@ -50,11 +50,10 @@ class WiiTest extends KernelTestCase
             });
 
         }
-
+var_dump($ifp);
+        exit;
         $hex = $handler->pack($ifp, 'mh2-wii');
 
-//        file_put_contents('wii.ifp', hex2bin($hex));
-//exit;
         $this->assertEquals(md5($resource->getContent()), md5(hex2bin($hex)));
 
         $this->rrmdir($exportFolder);

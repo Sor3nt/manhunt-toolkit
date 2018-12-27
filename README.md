@@ -59,19 +59,19 @@ php mht mass-extract:dff --help
 Pack/unpack **execution animations** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (strmanim.bin)
 > Contains any execution animation, at the current state you can not copy between Manhunt 1 and Manhunt 2. 
 
-Pack/unpack **animations** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (allanims.ifp)
+Pack/unpack **animations** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (allanims.ifp)
 > Contains any other animation, at the current state you can not copy between Manhunt 1 and Manhunt 2.
 
-Pack/unpack **models** for Manhunt 1 (PC/PS2) (models.dff)
+Pack/unpack **models** for Manhunt 1 (PC/PS2/XBOX) (models.dff)
 > Contains the models as DFF file (Can be edit with 3dsmax + Kam´s GTA Script)
 
 Unpack **settings** for Manhunt 2 (PC) (*.glg)
 > This files are actual INI files, e.g. Setting files. MHT will just unpack them and provide the TXT version of it.
 
-Pack/unpack **entity positions** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (*.dff)
+Pack/unpack **entity positions** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (*.dff)
 >Any Object positions is here stored, MHT convert all values into a editable JSON format
  
-Pack/unpack **level script code** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
+Pack/unpack **level script code** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
 
 > The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
 >
