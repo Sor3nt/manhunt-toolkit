@@ -240,9 +240,7 @@ class Tokenizer {
                     $nextToken = $tokens[$current];
 
                     if ($nextToken['type'] != Token::T_BRACKET_OPEN){
-                        die("todo");
-                        //todo add line end
-                        continue;
+                        throw new \Exception("dieT_BRACKET_OPEN todo");
                     }
 
                     $deep = 0;

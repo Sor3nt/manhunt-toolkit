@@ -56,7 +56,7 @@ class UnpackCommand extends Command
         }
 
         $path = pathinfo($file);
-        $outputTo = $path['dirname'] . '/export/' . $path['filename'] . '_' . $resource->getType();
+        $outputTo = $path['dirname'] . '/export/' . $path['filename'] . '#' . $resource->getType();
 
         switch ($resource->getType()){
 
@@ -125,7 +125,6 @@ class UnpackCommand extends Command
                 break;
             case 'scs':
             case 'mls':
-
                 $supportedOut = $outputTo . "/supported";
                 $notSupportedOut = $outputTo . "/not-supported";
 

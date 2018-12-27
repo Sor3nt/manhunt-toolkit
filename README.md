@@ -31,18 +31,19 @@ curl -s https://php-osx.liip.ch/install.sh | bash -s 7.1
 **Install MHT stable release on Windows**
 
 Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and extract the content of the zip file into C:\MHT
-Add the C:\MHT to the system path environment variable. (see above)
+
+Add the C:\MHT path to the system path environment variable. (see above)
 
 **Install MHT stable release on Mac/Linux**
 
 Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and extract the content of the zip file into /usr/local/bin/manhunt-tookit
 
-Add the mht command global
+Add the mht command 
 
 ```
 echo "alias mht=\"php /usr/local/bin/manhunt-tookit/mht\"" >> ~/.bash_profile
 ```
-> Note: You need to open a new Terminal to use the new Configuration
+> Note: You need to open a new Terminal to use the new configuration
 
 
 **MHT Development**
@@ -95,7 +96,7 @@ Pack/unpack **execution animations** for Manhunt 2 (PC/PS2/PSP/WII) (strmanim.bi
 Pack/unpack **animations** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (allanims.ifp)
 > Contains any other animation, at the current state you can not copy between Manhunt 1 and Manhunt 2.
 
-Pack/unpack **models** for Manhunt 1 (PC/PS2/XBOX) (models.dff)
+Pack/unpack **models** for Manhunt 1 (PC/PS2/XBOX) (*.dff)
 > Contains the models as DFF file (Can be edit with 3dsmax + Kam´s GTA Script)
 
 Unpack **settings** for Manhunt 2 (PC) (*.glg)
@@ -122,8 +123,23 @@ Pack/unpack **level script code** for Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
 Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
 > Any used texture, export the textures as BMP.
 
+#Issues
+**segmentation fault**
 
-Happy modding!
+Please open your php.ini search and set this value
+````
+pcre.recursion_limit = 1000
+````
+> the value **1000** is important!
+
+**PREG_JIT_STACKLIMIT_ERROR**
+
+Please open your php.ini search and set this value
+````
+pcre.jit=0
+````
+
+
 
 # Credits
  

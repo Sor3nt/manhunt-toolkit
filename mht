@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-// application.php
 
 require __DIR__.'/vendor/autoload.php';
 
@@ -8,18 +7,17 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-//$application->add(new \App\Command\SetGameCommand());
-
+//basic commands
 $application->add(new \App\Command\PackCommand());
-
-$application->add(new \App\Command\GenerateEventsCommand());
-
 $application->add(new \App\Command\UnpackCommand());
 
+//extraction helper
 $application->add(new \App\Command\MassExtractTexCommand());
 $application->add(new \App\Command\MassExtractDffCommand());
+$application->add(new \App\Command\MassExtractMlsCommand());
 
+//mls compiler helper
 $application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
-
+$application->add(new \App\Command\GenerateEventsCommand());
 
 $application->run();

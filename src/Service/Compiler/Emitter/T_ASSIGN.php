@@ -103,7 +103,7 @@ class T_ASSIGN {
         }
 
         //we do here some math...
-        if (isset($node['body'][1])){
+        if (isset($node['body'][1]) && isset($node['body'][2])){
 
             $rightHand = $node['body'][2];
             $operator = $node['body'][1];

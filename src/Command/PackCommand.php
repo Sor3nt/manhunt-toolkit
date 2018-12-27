@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Finder\Finder;
 
 class PackCommand extends Command
@@ -80,6 +81,10 @@ class PackCommand extends Command
         $saveTo = $input->getArgument('output');
         $game = $input->getOption('game');
 
+        if (is_null($saveTo)){
+            $saveTo = str_replace('#','.', $folder);
+        }
+
 
         if(is_dir(realpath($folder))){
 
@@ -89,19 +94,10 @@ class PackCommand extends Command
             //MLS data folder
             if ($finder->count()){
 
-
-                if (is_null($game)){
-                    $question = new ChoiceQuestion(
-                        'Please provide the game (defaults to mh1 and mh2)',
-                        array('mh1', 'mh2'),
-                        '0'
-                    );
-
-                    $game = strtolower($helper->ask($input, $output, $question));
-                }
+                $game = "mh2";
 
                 if (is_null($saveTo)){
-                    $saveTo = $folder.'.mls';
+                    $saveTo = str_replace('#','.', $folder);
                 }
 
 
@@ -113,29 +109,18 @@ class PackCommand extends Command
 
                 //we pack a strmanim_pc.bin
                 if ($finder->count() == 1){
-                    if (is_null($saveTo)){
-                        $saveTo = $folder.'.bin.repack';
-                    }
 
                     $this->packStrmAnimPcBin( realpath($folder), $saveTo);
 
-
-
                 }else{
 
-                    if (is_null($saveTo)){
-                        $saveTo = $folder.'.ifp.repack';
-                    }
-
-
                     if (is_null($game)) {
-                        $question = new ChoiceQuestion(
-                            'Please provide the game',
-                            array('mh1', 'mh2'),
-                            '0'
-                        );
+                        do {
+                            $question = new Question('Manhunt (1) or Manhunt (2) ? : ', false);
+                            $game = (int) $this->getHelper('question')->ask($input, $output, $question);
+                        }while ($game != 1 && $game != 2);
 
-                        $game = strtolower($helper->ask($input, $output, $question));
+                        $game = 'mh' . $game;
                     }
 
                     $this->packIfp( realpath($folder), $game, $saveTo);
