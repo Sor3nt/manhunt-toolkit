@@ -2,15 +2,33 @@
 
 > A free and open source toolkit to quickly modify Rockstar`s game Manhunt.
 
+## Installation
 
 
 **Requirements**
 
-You need PHP 7.0 or newer on your System to run MHT
+You need PHP 7.0 or newer to run MHT.
 
-## Installation
+**How to install PHP on Windows**
 
-**Release**
+* Download this [PHP Version](https://windows.php.net/downloads/releases/php-7.1.25-Win32-VC14-x64.zip)
+
+* Extract the contents of the zip file into C:\PHP7
+
+* Add C:\PHP7 to the Windows 10 system path environment variable.
+
+![no alt](https://github.com/Sor3nt/manhunt-toolkit/blob/master/php7-windows-path.png?raw=true)
+
+**How to install PHP on Mac**
+
+* Open a Terminal (cmd+space terminal)
+
+* Call the magic installer
+```
+curl -s https://php-osx.liip.ch/install.sh | bash -s 7.1
+```
+
+**Stable Release**
 
 Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and unzip it.
 
