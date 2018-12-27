@@ -13,7 +13,7 @@ You need PHP 7.0 or newer to run MHT.
 
 * Download this [PHP Version](https://windows.php.net/downloads/releases/php-7.1.25-Win32-VC14-x64.zip)
 
-* Extract the contents of the zip file into C:\PHP7
+* Extract the content of the zip file into C:\PHP7
 
 * Add C:\PHP7 to the Windows 10 system path environment variable.
 
@@ -28,11 +28,24 @@ You need PHP 7.0 or newer to run MHT.
 curl -s https://php-osx.liip.ch/install.sh | bash -s 7.1
 ```
 
-**Stable Release**
+**Install MHT stable release on Windows**
 
-Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and unzip it.
+Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and extract the content of the zip file into C:\MHT
+Add the C:\MHT to the system path environment variable. (see above)
 
-**Development**
+**Install MHT stable release on Mac/Linux**
+
+Load the [latest Release](https://github.com/Sor3nt/manhunt-toolkit/releases) and extract the content of the zip file into /usr/local/bin/manhunt-tookit
+
+Add the mht command global
+
+```
+echo "alias mht=\"php /usr/local/bin/manhunt-tookit/mht\"" >> ~/.bash_profile
+```
+> Note: You need to open a new Terminal to use the new Configuration
+
+
+**MHT Development**
 
 To use the latest features you can clone the current repository.
 
@@ -50,31 +63,33 @@ Nothing easier than this.
 
 MHT will **autodetect** the given file by reading the header and content.
 
+> Note for Windows users: You need to type before each command "php "
+> as example: "***php*** mht unpack allanims_pc.ifp"
 
 You can unpack any supported file with
 ```
-$ php mht unpack allanims_pc.ifp
+$ mht unpack allanims_pc.ifp
 ```
 
 And repack again with
 ```
-$ php mht pack export/allanims_pc_ifp/
+$ mht pack export/allanims_pc_ifp/
 ```
 
 The toolkit provide much more features and parameters, just call **mht** to get the help!
 ```
-php mht
+$ mht
 ```
 
 To view available Options for a command call as example
 
 ```
-php mht mass-extract:dff --help
+$ mht mass-extract:dff --help
 ```
 
 ## About the supported formats
 
-Pack/unpack **execution animations** for Manhunt 1 (PC/PS2) and Manhunt 2 (PC/PS2/PSP/WII) (strmanim.bin)
+Pack/unpack **execution animations** for Manhunt 2 (PC/PS2/PSP/WII) (strmanim.bin)
 > Contains any execution animation, at the current state you can not copy between Manhunt 1 and Manhunt 2. 
 
 Pack/unpack **animations** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (allanims.ifp)
@@ -99,7 +114,7 @@ Pack/unpack **level script code** for Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
 >
 > The compiler is in a **early state** but works already very well.
 >
-> ***Please note that the current compiler only works with Manhunt 2***
+> ***Please note that the current compiler only works with Manhunt 2!***
 >
 >You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
 
