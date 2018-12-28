@@ -61,25 +61,25 @@ class Resources
                 /**
                  * in some extraction case we cant not detect if we have a MH1 or MH2 file, so we need to ask the user
                  */
-                if ( isset($options['allowUserQuestion']) && $options['allowUserQuestion'] == true){
-                    $qhelper = new QuestionHelper();
-
-                    /** @var OutputInterface $output */
-                    $output = $options['outputInterface'];
-
-                    /** @var InputInterface $input */
-                    $input = $options['inputInterface'];
-
-                    do {
-                        $question = new Question('Manhunt (1) or Manhunt (2) ? : ', false);
-                        $game = (int) $qhelper->ask($input, $output, $question);
-                    }while ($game != 1 && $game != 2);
-
-                    $options['game'] = 'mh' . $game;
-                }
+//                if ( isset($options['allowUserQuestion']) && $options['allowUserQuestion'] == true){
+//                    $qhelper = new QuestionHelper();
+//
+//                    /** @var OutputInterface $output */
+//                    $output = $options['outputInterface'];
+//
+//                    /** @var InputInterface $input */
+//                    $input = $options['inputInterface'];
+//
+//                    do {
+//                        $question = new Question('Manhunt (1) or Manhunt (2) ? : ', false);
+//                        $game = (int) $qhelper->ask($input, $output, $question);
+//                    }while ($game != 1 && $game != 2);
+//
+//                    $options['game'] = 'mh' . $game;
+//                }
 
                 $handler = new Mls();
-                $result = $handler->unpack($content, $options['game']);
+                $result = $handler->unpack($content, 'mh2');
                 break;
             case 'bin':
 

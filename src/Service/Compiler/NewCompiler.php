@@ -48,7 +48,6 @@ class NewCompiler
 
         // cleanup the source code
         $source = $this->prepare($source);
-
         $tokenizer = new Tokenizer();
         $tokens = $tokenizer->run($source);
 
@@ -429,7 +428,6 @@ class NewCompiler
         $source = preg_replace("/\s+/", ' ', $source);
 
         // remove comments / unused code
-
         $source = preg_replace("/({([^{^}])*)*{([^{^}])*}(([^{^}])*})*/m", "", $source);
 
         if (preg_last_error() == PREG_JIT_STACKLIMIT_ERROR) {
@@ -1055,6 +1053,10 @@ class NewCompiler
 
         $tokens = $this->tokens;
         $current = 0;
+
+        if (!isset($tokens[1])){
+            return [];
+        }
 
         $scriptName = strtolower($tokens[1]['value']);
 

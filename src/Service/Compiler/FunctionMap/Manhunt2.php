@@ -29,8 +29,32 @@ class Manhunt2
 
     public static $constants = [
 
+        'ARM_INVULNERABLE' => [
+            'offset' => "04000000"
+        ],
+
+        'CT_PLIERS' => [
+            'offset' => "22000000"
+        ],
+
+        'CT_UZI' => [
+            'offset' => "2c000000"
+        ],
+
+        'CT_SHOTGUN' => [
+            'offset' => "2e000000"
+        ],
+
+        'COL_SHOT' => [
+            'offset' => "00800000"
+        ],
+
         'HID_HEALTHBAR_PLAYER' => [
             'offset' => "03000000"
+        ],
+
+        'MAP_COLOR_PERSON' => [
+            'offset' => "16000000"
         ],
         'CT_SYRINGE' => [
             'offset' => "71000000"
@@ -192,10 +216,158 @@ class Manhunt2
             "offset" => "03000000"
         ],
 
+        'CT_CROSSBOW' => [
+            "offset" => "83000000"
+        ],
+
     ];
 
     public static $functions = [
 
+        "inflictdamage" => [
+            'name' => 'InflictDamage',
+            'offset' => "85000000"
+        ],
+
+        "instantdecayalldead" => [
+            'name' => 'InstantDecayAllDead',
+            'offset' => "83030000"
+        ],
+
+        "setspotlightmode" => [
+            'name' => 'SetSpotlightMode',
+            'offset' => "a2030000"
+        ],
+
+        "heligetnodereached" => [
+            'name' => 'HeliGetNodeReached',
+            'offset' => "b4030000"
+        ],
+
+        "getindexfrominventoryitemtype" => [
+            'name' => 'GetIndexFromInventoryItemType',
+            'offset' => "c6000000"
+        ],
+
+        "enteredtrigger" => [
+            'name' => 'EnteredTrigger',
+            'offset' => "a4000000"
+        ],
+
+        "aimodifygoalcrouch" => [
+            'name' => 'AIModifyGoalCrouch',
+            'offset' => "08020000"
+        ],
+        "aiguardmodifyshootoutsideradius" => [
+            'name' => 'AIGuardModifyShootOutsideRadius',
+            'offset' => "cd010000"
+        ],
+        "sethuntergunfireminpause" => [
+            'name' => 'SetHunterGunFireMinPause',
+            'offset' => "22020000"
+        ],
+        "sethuntergunfiremaxpause" => [
+            'name' => 'SetHunterGunFireMaxPause',
+            'offset' => "23020000"
+        ],
+        "sethuntergunfireminburst" => [
+            'name' => 'SetHunterGunFireMinBurst',
+            'offset' => "24020000"
+        ],
+        "heliresumeidlepatrol" => [
+            'name' => 'HeliResumeIdlePatrol',
+            'offset' => "b9030000"
+        ],
+        "helipauseidlepatrol" => [
+            'name' => 'HeliPauseIdlePatrol',
+            'offset' => "b8030000"
+        ],
+        "helisetidlepatrolpath" => [
+            'name' => 'HeliSetIdlePatrolPath',
+            'offset' => "b5030000"
+        ],
+        "isplayercrawling" => [
+            'name' => 'IsPlayerCrawling',
+            'offset' => "84030000"
+        ],
+
+        "helisetlightrandomwander" => [
+            'name' => 'HeliSetLightRandomWander',
+            'offset' => "39030000"
+        ],
+        "helilookatposition" => [
+            'name' => 'HeliLookAtPosition',
+            'offset' => "33030000"
+        ],
+        "helilookatentity" => [
+            'name' => 'HeliLookAtEntity',
+            'offset' => "34030000"
+        ],
+
+        "helisetfiringrate" => [
+            'name' => 'HeliSetFiringRate',
+            'offset' => "70030000"
+        ],
+
+        "helisetspolightmaxdeflection" => [
+            'name' => 'HeliSetSpolightMaxDeflection',
+            'offset' => "a8030000"
+        ],
+
+        "heliopenfire" => [
+            'name' => 'HeliOpenFire',
+            'offset' => "36030000"
+        ],
+
+        "helisetlightspeed" => [
+            'name' => 'HeliSetLightSpeed',
+            'offset' => "38030000"
+        ],
+
+        "helisetenemy" => [
+            'name' => 'HeliSetEnemy',
+            'offset' => "35030000"
+        ],
+
+        "setnoisyentity" => [
+            'name' => 'SetNoisyEntity',
+            'offset' => "af030000"
+        ],
+
+        "setambienttrackvolume" => [
+            'name' => 'SetAmbientTrackVolume',
+            'offset' => "2d030000"
+        ],
+
+        "aisetidlepatrolstopdirection" => [
+            'name' => 'AISetIdlePatrolStopDirection',
+            'offset' => "a7010000"
+        ],
+
+        "aiisinsubpack" => [
+            'name' => 'AIIsInSubPack',
+            'offset' => "66010000"
+        ],
+
+        "aidoesleaderhavesubpack" => [
+            'name' => 'AIDoesLeaderHaveSubpack',
+            'offset' => "eb020000"
+        ],
+
+        "heligotonode" => [
+            'name' => 'HeliGotoNode',
+            'offset' => "b3030000"
+        ],
+
+        "setscriptaudiostreamocclusion" => [
+            'name' => 'SetScriptAudiosTreamOcclusion',
+            'offset' => "61030000"
+        ],
+
+        "allowreceivingofheadshots" => [
+            'name' => 'AllowReceivingOfHeadshots',
+            'offset' => "7f030000"
+        ],
         "ishunterinshadow" => [
             'name' => 'IsHunterInShadow',
             'offset' => "ca030000"
@@ -207,10 +379,6 @@ class Manhunt2
         "radarcreateblip" => [
             'name' => 'RadarCreateBlip',
             'offset' => "aa030000"
-        ],
-        "closecutsceneplayed" => [
-            'name' => 'CloseCutscenePlayed',
-            'offset' => "closeCutscenePlayed"
         ],
         "scripthogprocessorend" => [
             'name' => 'ScriptHogProcessorEnd',
@@ -502,30 +670,30 @@ class Manhunt2
         /**
          * Note: WriteDebug function is internal splitted!
          */
-            "writedebug" => [
-                'name' => 'WriteDebug',
-                'offset' => "73000000"
-            ],
+        "writedebug" => [
+            'name' => 'WriteDebug',
+            'offset' => "73000000"
+        ],
 
-            "writedebugstring" => [
-                'name' => 'WriteDebugString',
-                'offset' => "73000000"
-            ],
+        "writedebugstring" => [
+            'name' => 'WriteDebugString',
+            'offset' => "73000000"
+        ],
 
-            "writedebugreal" => [
-                'name' => 'WriteDebugReal',
-                'offset' => "6f000000"
-            ],
+        "writedebugreal" => [
+            'name' => 'WriteDebugReal',
+            'offset' => "6f000000"
+        ],
 
-            "writedebuginteger" => [
-                'name' => 'WriteDebugInteger',
-                'offset' => "6e000000"
-            ],
+        "writedebuginteger" => [
+            'name' => 'WriteDebugInteger',
+            'offset' => "6e000000"
+        ],
 
-            "writedebugflush" => [
-                'name' => 'WriteDebugFlush',
-                'offset' => "74000000"
-            ],
+        "writedebugflush" => [
+            'name' => 'WriteDebugFlush',
+            'offset' => "74000000"
+        ],
 
 
         "setqtmbaseprobability" => [

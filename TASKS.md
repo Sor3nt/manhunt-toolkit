@@ -42,6 +42,7 @@
 
 ##Level Compiler (mls)
 * Add Support for "FUNCTIONS"
+* Self build scripts rais a STAB error on unpack
 
 ##Video format (bik)
 * Implement [BIK format](https://wiki.multimedia.cx/index.php/Bink_Container)

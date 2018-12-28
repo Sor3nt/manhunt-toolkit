@@ -60,8 +60,6 @@ $ cd manhunt-toolkit
 
 ### Unpack and Pack files
 
-Nothing easier than this. 
-
 MHT will **autodetect** the given file by reading the header and content.
 
 > Note for Windows users: You need to type before each command "php "
@@ -124,13 +122,7 @@ Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
 > Any used texture, export the textures as BMP.
 
 #Issues
-**segmentation fault**
 
-Please open your php.ini search and set this value
-````
-pcre.recursion_limit = 1000
-````
-> the value **1000** is important!
 
 **PREG_JIT_STACKLIMIT_ERROR**
 

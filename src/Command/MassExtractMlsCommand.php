@@ -77,7 +77,10 @@ class MassExtractMlsCommand extends Command
                         $mhsc['SRCE']
                     );
 
+                    $output->write(".");
+
                 }catch(\Exception $e){
+                    $output->write("f");
 
                     file_put_contents(
                         $outputTo . '/error.log',
@@ -85,7 +88,7 @@ class MassExtractMlsCommand extends Command
                             "%s occured in %s#%s\n",
                             $e->getMessage(),
                             $index,
-                            $mhsc['NAME']
+                            $notSupportedOut . "/" . $index . "#" . $mhsc['NAME'] . '.srce'
                         ),
                         FILE_APPEND
                     );
@@ -129,7 +132,6 @@ class MassExtractMlsCommand extends Command
                         );
                     }
                 }
-                $output->write(".");
             }
 
             $output->write("\n");
