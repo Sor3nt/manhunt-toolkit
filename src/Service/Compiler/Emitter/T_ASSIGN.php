@@ -65,7 +65,13 @@ class T_ASSIGN {
             $code[] = $getLine('01000000');
 
         }else if($isObject){
-            $code[] = $getLine('22000000');
+            if ($mapped['section'] == "header"){
+                $code[] = $getLine('21000000');
+
+            }else{
+                $code[] = $getLine('22000000');
+
+            }
             $code[] = $getLine('04000000');
             $code[] = $getLine('01000000');
             $code[] = $getLine($mapped['object']['offset']);
@@ -256,9 +262,12 @@ class T_ASSIGN {
                             case 'vec3d':
                                 self::toHeaderVec3D( $mapped['offset'], $code, $getLine);
                                 break;
+                            case 'real':
+                                self::toHeaderReal( $mapped['offset'], $code, $getLine);
+                                break;
 
                             default:
-                                throw new \Exception("Not implemented!");
+                                throw new \Exception("Not implemented!" . $mapped['type']);
                         }
 
                         break;
@@ -329,9 +338,12 @@ class T_ASSIGN {
 
                             $code[] = $getLine('01000000');
                             break;
+                        case 'object':
+                            self::toHeaderObject( $code, $getLine);
+                            break;
 
                         default:
-                            throw new \Exception("Not implemented!");
+                            throw new \Exception("Not implemented! " . $mapped['type']);
                     }
 
                     break;
@@ -372,6 +384,14 @@ class T_ASSIGN {
     }
 
 
+    static public function toHeaderObject( &$code, \Closure $getLine){
+        $code[] = $getLine('0f000000');
+        $code[] = $getLine('02000000');
+        $code[] = $getLine('17000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine('02000000');
+        $code[] = $getLine('01000000');
+    }
     static public function toObject( &$code, \Closure $getLine){
         $code[] = $getLine('0f000000');
         $code[] = $getLine('02000000');
@@ -425,6 +445,15 @@ class T_ASSIGN {
         $code[] = $getLine('0f000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('44000000');
+
+    }
+
+    static public function toHeaderReal( $offset, &$code, \Closure $getLine){
+        $code[] = $getLine('16000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine($offset);
+        $code[] = $getLine('01000000');
+
 
     }
 
