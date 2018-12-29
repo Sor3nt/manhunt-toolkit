@@ -428,7 +428,9 @@ class NewCompiler
         $source = preg_replace("/\s+/", ' ', $source);
 
         // remove comments / unused code
-        $source = preg_replace("/({([^{^}])*)*{([^{^}])*}(([^{^}])*})*/m", "", $source);
+
+        $source = preg_replace("/\{.*?\}/m", "", $source);
+//        $source = preg_replace("/({([^{^}])*)*{([^{^}])*}(([^{^}])*})*/m", "", $source);
 
         if (preg_last_error() == PREG_JIT_STACKLIMIT_ERROR) {
             die("PHP7 issue, pls disable pcre.jit=0 in your php.ini");
@@ -984,6 +986,8 @@ class NewCompiler
 
         $result = [];
 
+        $memoryForDoubleEntries = 0;
+
         foreach ($headerVariables as $name => $variable) {
 
             $occur = [];
@@ -1010,12 +1014,21 @@ class NewCompiler
             /**
              * when the variable is defined inside the HEADER and also in one or multiple scripts, we need to give him the 02 sequence
              */
-            foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
-                if ($varScriptName == $name) {
-                    $hierarchieType = '02000000';
-                    $variable['offset'] = "00000000";
+//            if ($variable['type'] != "vec3d"){
+                foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
+                    if ($varScriptName == $name) {
+                        $hierarchieType = '02000000';
+                        $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
+
+                        if ($variable['type'] == "vec3d"){
+                            $memoryForDoubleEntries += 12;
+                        }else{
+                            $memoryForDoubleEntries += 4;
+                        }
+                    }
                 }
-            }
+
+//            }
 
 
             if (strtolower($varType) == "tlevelstate") $varType = "tLevelState";
