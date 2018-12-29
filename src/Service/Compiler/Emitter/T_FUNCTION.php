@@ -32,6 +32,10 @@ class T_FUNCTION {
             break;
 
 
+            case Token::T_MULTIPLY:
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+                break;
             case Token::T_ADDITION:
             case Token::T_FUNCTION:
                 break;
@@ -386,9 +390,33 @@ class T_FUNCTION {
                     $skipNext = true;
                 }else if ($param['type'] == Token::T_SUBSTRACTION){
                     throw new \Exception('T_SUBSTRACTION not iplemented');
+                }else if ($param['type'] == Token::T_MULTIPLY){
+
+                    $mathValue = $node['params'][$index + 1];
+
+                    $resultCode = $emitter( $mathValue );
+                    foreach ($resultCode as $line) {
+                        $code[] = $line;
+                    }
+
+                    $code[] = $getLine('0f000000');
+                    $code[] = $getLine('04000000');
+
+
+                    $code[] = $getLine('35000000');
+                    $code[] = $getLine('04000000');
+
+                    $code[] = $getLine('10000000');
+                    $code[] = $getLine('01000000');
+                    $skipNext = true;
+
+//                    $code[] = $getLine('10000000');
+//                    $code[] = $getLine('01000000');
 
 
                 }else{
+
+//                    die($param['type']);
                     $resultCode = $emitter( $param, true, [
                         'isProcedure' => $isProcedure,
                         'isCustomFunction' => $isCustomFunction

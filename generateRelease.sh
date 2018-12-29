@@ -10,7 +10,6 @@ mkdir release/build/var/cache
 mkdir release/build/var/log
 
 
-cp -R release/git/bin release/build/
 cp -R release/git/config release/build/
 cp -R release/git/src release/build/
 cp -R release/git/vendor release/build/
@@ -22,6 +21,7 @@ cp -R release/git/CHANGELOG.md release/build/
 zip -r release/mht-v$1-no-unittest.zip release/build/
 
 cp -R release/git/tests release/build/
+cp -R release/git/bin release/build/
 
 zip -r release/mht-v$1-with-unittest.zip release/build/
 

@@ -38,6 +38,8 @@ class MassExtractMlsCommand extends Command
         $finder->name('*.mls')->name('*.MLS')->files()->in($folder );
 
         $outputTo = getCwd() . '/export';
+        $allOkCount = 0;
+        $allFailCount = 0;
 
         foreach ($finder as $file) {
 
@@ -59,6 +61,8 @@ class MassExtractMlsCommand extends Command
 
             $levelScript = false;
 
+            $okCount = 0;
+            $failCount = 0;
             foreach ($scripts as $index => $mhsc) {
                 $compiler = new Compiler();
 
@@ -78,9 +82,11 @@ class MassExtractMlsCommand extends Command
                     );
 
                     $output->write(".");
+                    $okCount++;
 
                 }catch(\Exception $e){
                     $output->write("f");
+                    $failCount++;
 
                     file_put_contents(
                         $outputTo . '/error.log',
@@ -134,11 +140,15 @@ class MassExtractMlsCommand extends Command
                 }
             }
 
-            $output->write("\n");
+            $output->write(" (".$okCount."/" . ($failCount + $okCount) . ")\n");
+
+            $allOkCount += $okCount;
+            $allFailCount += $failCount;
 
         }
 
 
+        $output->write(" Overall: (".$allOkCount."/" . ($allFailCount + $allOkCount) . ")\n");
         $output->write("\nDone.\n");
     }
 }

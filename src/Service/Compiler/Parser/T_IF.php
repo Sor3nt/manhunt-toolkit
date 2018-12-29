@@ -1,9 +1,6 @@
 <?php
 namespace App\Service\Compiler\Parser;
 
-use App\Bytecode\Helper;
-use App\Service\Compiler\Evaluate;
-use App\Service\Compiler\EvaluateAssign;
 use App\Service\Compiler\Token;
 
 class T_IF {
@@ -93,9 +90,13 @@ class T_IF {
                 }
 
 
+                $tree = self::fixDoubleBracketOpen($tree);
+
                 $tree = [$tree];
 
                 self::remapCondition( $tree, $isNot );
+
+
                 self::extendConditionInformation( $tree );
 
                 $parsedConditions[] = current($tree);
@@ -119,6 +120,23 @@ class T_IF {
 
         return [$current, $nodes];
     }
+
+    static public function fixDoubleBracketOpen( $tokens ){
+
+//        var_dump($tokens);
+//        exit;
+        if (
+            count($tokens['params']) == 3 &&
+            $tokens['params'][0]['type'] == Token::T_BRACKET_OPEN &&
+            $tokens['params'][0]['operator'] == $tokens['operator'] &&
+            $tokens['params'][0]['isNot'] == $tokens['isNot']
+        ){
+            $tokens['params'][0] = $tokens['params'][0]['params'][0];
+        }
+
+        return $tokens;
+    }
+
     static public function parseIfStatement( $tokens, $current, \Closure $parseToken ){
 
         $token = $tokens[$current];
@@ -162,7 +180,6 @@ class T_IF {
 
             $current++;
         }
-
 
         /**
          * parse SHORT true code
@@ -208,7 +225,7 @@ class T_IF {
                              * bad hack, i parse here the tokens to get the needed length....
                              */
                             $beforeCurrent = $current + 2;
-                            list($current, $innerIf) =  $parseToken(
+                            list($current,) =  $parseToken(
                                 $tokens, $current + 2
                             );
 
@@ -274,7 +291,7 @@ class T_IF {
                          * bad hack, i parse here the tokens to get the needed length....
                          */
                         $beforeCurrent = $current + 2;
-                        list($current, $innerIf) =  $parseToken(
+                        list($current,) =  $parseToken(
                             $tokens, $current + 2
                         );
 
@@ -427,13 +444,15 @@ class T_IF {
                         $innerToken['type'] == Token::T_IS_GREATER_EQUAL ||
                         $innerToken['type'] == Token::T_IS_SMALLER
                     ){
+
+
                         $opertation = [
                             'type' => Token::T_OPERATION,
                             'operator' => $innerToken,
                             'operation' => [ 'type' => 'default' ],
                             'params' => [
                                 $innerTokens[ $innerCurrent - 1 ],
-                                $innerTokens[ $innerCurrent  + 1]
+                                $innerTokens[ $innerCurrent + 1]
                             ]
                         ];
 

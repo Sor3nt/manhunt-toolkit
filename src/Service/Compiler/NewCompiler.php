@@ -403,8 +403,8 @@ class NewCompiler
 
         $source = str_replace([
 
-            "if (GetEntity('Syringe_(CT)')) <> NIL then",
-            "if (GetEntity('Syringe_(CT)')) = nil then",
+//            "if (GetEntity('Syringe_(CT)')) <> NIL then",
+//            "if (GetEntity('Syringe_(CT)')) = nil then",
             "if(",
             "while(",
             "PLAYING  TWITCH",
@@ -412,8 +412,8 @@ class NewCompiler
             "if (NOT IsPlayerPositionKnown) AND IsScriptAudioStreamCompleted then"
         ], [
 
-            "if GetEntity('Syringe_(CT)') <> NIL then",
-            "if GetEntity('Syringe_(CT)') = nil then",
+//            "if GetEntity('Syringe_(CT)') <> NIL then",
+//            "if GetEntity('Syringe_(CT)') = nil then",
             "if (",
             "while (",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
@@ -447,7 +447,13 @@ class NewCompiler
         // replace line ends with new lines
         $source = preg_replace("/;/", ";\n", $source);
 
-        return trim($source);
+        $source = trim($source);
+
+        if (empty($source)){
+            throw new \Exception('Cleanup going wrong, source is empty');
+        }
+
+        return $source;
     }
 
 
@@ -1014,6 +1020,10 @@ class NewCompiler
 
             if (strtolower($varType) == "tlevelstate") $varType = "tLevelState";
             if ($varType == "stringarray") $varType = "string";
+
+            if ($varType == "entityptr"){
+                $varType = "integer";
+            }
 
             /**
              * todo: not important, the type should say tLevelState but its messed up by the state handling

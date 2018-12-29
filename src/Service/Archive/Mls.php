@@ -12,7 +12,7 @@ class Mls {
      * @param string $game
      * @return array
      */
-    public function unpack($data, $game = "mh1"){
+    public function unpack($data, $game = "mh2"){
 
         $extractor = new Extract($data, $game);
 

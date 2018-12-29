@@ -13,14 +13,10 @@ class T_ASSIGN {
         $isObject = $mapped['type'] == "object";
 
         $leftHand = $node['body'][0];
-
         //HACK
         //when we have a type usage, we have no variable entry
         //so the compiler think its a function...
         if ($leftHand['type'] == Token::T_FUNCTION ){
-
-
-
 
             if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
 //                $leftHand['type'] = Token::T_CUSTOM_FUNCTION;
@@ -92,6 +88,11 @@ class T_ASSIGN {
             }
 
 
+        }
+
+        //hack: nil is detected as function, but its T_NIL actual....
+        if ($leftHand['type'] == Token::T_FUNCTION && $leftHand['value'] == "nil"){
+            $leftHand['type'] = Token::T_NIL;
         }
 
         /**

@@ -220,9 +220,28 @@ class Manhunt2
             "offset" => "83000000"
         ],
 
+        'USEABLE_ON' => [
+            "offset" => "01000000"
+        ],
+
     ];
 
     public static $functions = [
+
+        "useablesetstate" => [
+            'name' => 'UseableSetState',
+            'offset' => "cc010000"
+        ],
+
+        "additemtoinventory" => [
+            'name' => 'AddItemToInventory',
+            'offset' => "bb000000"
+        ],
+
+        "enablejumpattacks" => [
+            'name' => 'EnableJumpAttacks',
+            'offset' => "80030000"
+        ],
 
         "inflictdamage" => [
             'name' => 'InflictDamage',
@@ -2578,6 +2597,11 @@ class Manhunt2
         'aidefinegoalshootvector' => [
             'name' => 'AIDefineGoalShootVector',
             'offset' => "6a020000"
+        ],
+
+        'nil' => [
+            'name' => 'nil',
+            'offset' => "00000000"
         ],
 
     ];

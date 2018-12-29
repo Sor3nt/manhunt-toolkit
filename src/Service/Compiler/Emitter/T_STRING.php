@@ -16,6 +16,10 @@ class T_STRING {
             $value = "__empty__";
         }
 
+        if (!isset($data['combinedStrings'][$value])){
+            throw new \Exception('T_STRING value not found: ' . $value);
+        }
+
         $offset = $data['combinedStrings'][$value]['offset'];
 
 
