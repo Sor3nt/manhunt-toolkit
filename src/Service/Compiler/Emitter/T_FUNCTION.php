@@ -138,6 +138,11 @@ class T_FUNCTION {
                                     $code[] = $getLine('01000000');
                                 }
                                 break;
+                            case 'object':
+                                    $code[] = $getLine('object1');
+                                    $code[] = $getLine('object1');
+
+                                break;
                             case 'constant':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -229,6 +234,9 @@ class T_FUNCTION {
                         break;
                     case 'stringarray':
                         $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
+                        break;
+                    case 'object':
+                        $code[] = $getLine($this->getFunction('WriteDebugObject')['offset']);
                         break;
                     case 'procedure':
                         $code[] = $getLine($this->getFunction('WriteDebug')['offset']);

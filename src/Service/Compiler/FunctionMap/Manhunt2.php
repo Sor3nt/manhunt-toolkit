@@ -224,10 +224,66 @@ class Manhunt2
             "offset" => "01000000"
         ],
 
+        'ARM_HEAVY' => [
+            "offset" => "03000000"
+        ],
+
     ];
 
     public static $functions = [
 
+        "fakehunterdestroy" => [
+            'name' => 'FakeHunterDestroy',
+            'offset' => "bb030000"
+        ],
+
+        "fakehunterwander" => [
+            'name' => 'FakeHunterWander',
+            'offset' => "c1030000"
+        ],
+
+        "fakehuntersetpos" => [
+            'name' => 'FakeHunterSetPos',
+            'offset' => "bc030000"
+        ],
+
+        "fakehuntersetcolour" => [
+            'name' => 'FakeHunterSetColour',
+            'offset' => "be030000"
+        ],
+
+        "fakehuntercreate" => [
+            'name' => 'FakeHunterCreate',
+            'offset' => "ba030000"
+        ],
+
+        "getentityview" => [
+            'name' => 'GetEntityView',
+            'offset' => "93010000"
+        ],
+
+        "freezeentity" => [
+            'name' => 'FreezeEntity',
+            'offset' => "37010000"
+        ],
+
+        "blockpathsaroundplayer" => [
+            'name' => 'BlockPathsAroundPlayer',
+            'offset' => "9b030000"
+        ],
+
+        "aisethunterhomenodedirection" => [
+            'name' => 'AISetHunterHomeNodeDirection',
+            'offset' => "9d010000"
+        ],
+        "setdooroverrideangle" => [
+            'name' => 'SetDoorOverrideAngle',
+            'offset' => "98020000"
+        ],
+        "aisetentitycrouch" => [
+            'name' => 'AISetEntityCrouch',
+            'offset' => "09020000"
+        ],
         "useablesetstate" => [
             'name' => 'UseableSetState',
             'offset' => "cc010000"
@@ -694,6 +750,10 @@ class Manhunt2
             'offset' => "73000000"
         ],
 
+        "writedebugobject" => [
+            'name' => 'WriteDebugObject',
+            'offset' => "write_object_73000000"
+        ],
         "writedebugstring" => [
             'name' => 'WriteDebugString',
             'offset' => "73000000"

@@ -240,7 +240,9 @@ class Tokenizer {
                     $nextToken = $tokens[$current];
 
                     if ($nextToken['type'] != Token::T_BRACKET_OPEN){
-                        throw new \Exception("dieT_BRACKET_OPEN todo");
+
+                        continue;
+//                        throw new \Exception("dieT_BRACKET_OPEN todo");
                     }
 
                     $deep = 0;

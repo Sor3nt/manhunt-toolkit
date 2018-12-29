@@ -12,6 +12,10 @@ class T_SCRIPT_OBJECT {
 
         $code = [];
 
+        if (!isset($mapped['offset'])){
+            throw new \Exception('T_SCRIPT_OBJECT: Offset not found ?! ');
+        }
+
         if ($mapped['offset'] == $mapped['object']['offset']) {
 
             $code[] = $getLine('22000000');

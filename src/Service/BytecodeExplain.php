@@ -1153,7 +1153,8 @@ class BytecodeExplain {
 
                 if (strlen($functionBinary) % 2 !== 0){
                     var_dump($functionBinary);
-                    exit;
+                    continue;
+//                    exit;
                 }
 
                 if ($line->toBinary() == hex2bin($functionBinary)){
