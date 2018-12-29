@@ -402,9 +402,8 @@ class NewCompiler
     {
 
         $source = str_replace([
-
-//            "if (GetEntity('Syringe_(CT)')) <> NIL then",
-//            "if (GetEntity('Syringe_(CT)')) = nil then",
+            "/100",
+            "}}",
             "if(",
             "while(",
             "PLAYING  TWITCH",
@@ -412,8 +411,8 @@ class NewCompiler
             "if (NOT IsPlayerPositionKnown) AND IsScriptAudioStreamCompleted then"
         ], [
 
-//            "if GetEntity('Syringe_(CT)') <> NIL then",
-//            "if GetEntity('Syringe_(CT)') = nil then",
+            "/ 100",
+            "}",
             "if (",
             "while (",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
