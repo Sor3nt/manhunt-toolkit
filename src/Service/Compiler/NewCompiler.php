@@ -407,6 +407,8 @@ class NewCompiler
             "if(",
             "while(",
             "PLAYING  TWITCH",
+
+            "if IsEntityAlive(strHunterName) and IsEntityPartOfAI(strHunterName) then",
             "if bMeleeTutDone AND (IsNamedItemInInventory(GetPlayer, CT_SYRINGE ) <> -1) then",
             "if (NOT IsPlayerPositionKnown) AND IsScriptAudioStreamCompleted then"
         ], [
@@ -417,6 +419,7 @@ class NewCompiler
             "while (",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
 
+            "if (IsEntityAlive(strHunterName)) and (IsEntityPartOfAI(strHunterName)) then",
             "if (bMeleeTutDone) AND (IsNamedItemInInventory(GetPlayer, CT_SYRINGE ) <> -1) then",
             "if (NOT IsPlayerPositionKnown) AND (IsScriptAudioStreamCompleted) then"
 

@@ -228,10 +228,26 @@ class Manhunt2
             "offset" => "03000000"
         ],
 
+        'MAP_COLOR_CYAN' => [
+            "offset" => "07000000"
+        ],
+
+        'MAP_COLOR_ORANGE' => [
+            "offset" => "03000000"
+        ],
+
     ];
 
     public static $functions = [
 
+        "fakehuntersetdir" => [
+            'name' => 'FakeHunterSetDir',
+            'offset' => "bd030000"
+        ],
+        "fakehuntergoto" => [
+            'name' => 'FakeHunterGoto',
+            'offset' => "bf030000"
+        ],
         "fakehunterdestroy" => [
             'name' => 'FakeHunterDestroy',
             'offset' => "bb030000"
