@@ -22,11 +22,9 @@ class T_IF {
                 }
             }
 
-
             if (count($case['condition'])){
                 $firstNode = $case['condition'][0];
                 $lastNode = end($case['condition']);
-
 
                 $doWrap = false;
                 if (
@@ -95,8 +93,6 @@ class T_IF {
                 $tree = [$tree];
 
                 self::remapCondition( $tree, $isNot );
-
-
                 self::extendConditionInformation( $tree );
 
                 $parsedConditions[] = current($tree);
@@ -123,8 +119,6 @@ class T_IF {
 
     static public function fixDoubleBracketOpen( $tokens ){
 
-//        var_dump($tokens);
-//        exit;
         if (
             count($tokens['params']) == 3 &&
             $tokens['params'][0]['type'] == Token::T_BRACKET_OPEN &&
@@ -140,7 +134,6 @@ class T_IF {
     static public function parseIfStatement( $tokens, $current, \Closure $parseToken ){
 
         $token = $tokens[$current];
-
 
         $node = [
             'type' => $token['type'],
@@ -225,7 +218,7 @@ class T_IF {
                              * bad hack, i parse here the tokens to get the needed length....
                              */
                             $beforeCurrent = $current + 2;
-                            list($current,) =  $parseToken(
+                            list($current, ) =  $parseToken(
                                 $tokens, $current + 2
                             );
 
@@ -291,7 +284,7 @@ class T_IF {
                          * bad hack, i parse here the tokens to get the needed length....
                          */
                         $beforeCurrent = $current + 2;
-                        list($current,) =  $parseToken(
+                        list($current, ) =  $parseToken(
                             $tokens, $current + 2
                         );
 
@@ -332,7 +325,7 @@ class T_IF {
     }
 
 
-    static function parseIfLastElse( $tokens, $current, $shortStatement = false  ){
+    static function parseIfLastElse( $tokens, $current ){
 
         $case = [
             'condition' => [],
@@ -360,7 +353,6 @@ class T_IF {
                 $deep--;
             }
 
-
             $case[ 'isTrue' ][] = $token;
 
             $current++;
@@ -369,8 +361,6 @@ class T_IF {
         throw new \Exception('Parser: parseIfLastElse not handeld correct');
     }
 
-
-
     /**
      * remap / regroup statements
      *
@@ -378,6 +368,7 @@ class T_IF {
      * output : T_IS_EQUAL[T_VARIABLE] = T_INT
      *
      * @param $tokens
+     * @param bool $isOuterNot
      * @throws \Exception
      */
     static function remapCondition( &$tokens, $isOuterNot = false ){
@@ -465,7 +456,6 @@ class T_IF {
                 }
 
                 if ($opertation == false){
-
                     throw new \Exception('operator not found');
                 }
                 $innerTokens = array_values($innerTokens);
@@ -495,7 +485,6 @@ class T_IF {
                     }
 
                     $innerCurrent++;
-
                 }
             }
 
@@ -529,6 +518,4 @@ class T_IF {
             }
         }
     }
-
-
 }
