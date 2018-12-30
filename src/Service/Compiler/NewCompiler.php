@@ -83,6 +83,19 @@ class NewCompiler
         $this->procedures = $this->searchScriptType(Token::T_PROCEDURE);
         $this->customFunction = $this->searchScriptType(Token::T_CUSTOM_FUNCTION);
 
+        $customFunction = $this->customFunction;
+
+//        $this->recursiveReplace($tokens, Token::T_VARIABLE, function($token) use ($customFunction){
+//
+//            if (isset($customFunction[ strtolower($token['value']) ])){
+//                $token['type'] = Token::T_FUNCTION;
+//            }
+//
+//            return $token;
+//        });
+
+
+
         $this->headerVariables = $this->getHeaderVariables($tokens);
 
         $this->combine();
@@ -214,11 +227,11 @@ class NewCompiler
 
         $combinedVariables = [];
 
-        $combinedVariables = array_merge($combinedVariables, Manhunt2::$constants);
         $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$constants);
+        $combinedVariables = array_merge($combinedVariables, Manhunt2::$constants);
 
-        $combinedVariables = array_merge($combinedVariables, Manhunt2::$functions);
         $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$functions);
+        $combinedVariables = array_merge($combinedVariables, Manhunt2::$functions);
 
         $combinedVariables = array_merge($combinedVariables, $this->types);
 
@@ -333,6 +346,63 @@ class NewCompiler
         }
 
         return $result;
+    }
+
+    private function recursiveReplace(&$tokens, $searchType, callable $callback)
+    {
+        foreach ($tokens as &$token) {
+
+            if ($token['type'] == $searchType) {
+
+                $token = $callback($token);
+
+            }
+
+            if (isset($token['variable'])) {
+                $val = [$token['start']];
+                $this->recursiveReplace($val, $searchType, $callback);
+                $token['start'] = $val[0];
+            }
+
+            if (isset($token['start'])) {
+                $val = [$token['start']];
+                $this->recursiveReplace($val, $searchType, $callback);
+                $token['start'] = $val[0];
+            }
+
+            if (isset($token['end'])) {
+                $val = [$token['end']];
+                $this->recursiveReplace($val, $searchType, $callback);
+                $token['end'] = $val[0];
+            }
+
+            if (isset($token['params'])) {
+                $this->recursiveReplace($token['params'], $searchType, $callback);
+
+            } else if (isset($token['body'])) {
+                $this->recursiveReplace($token['body'], $searchType, $callback);
+            } else if (isset($token['cases'])) {
+
+                if (isset($token['switch'])) {
+                    $val = [$token['switch']];
+                    $this->recursiveReplace($val, $searchType, $callback);
+                    $token['switch'] = $val[0];
+                }
+
+                foreach ($token['cases'] as $case) {
+
+                    if (!isset($case['condition'])) {
+                        $this->recursiveReplace($case['body'], $searchType, $callback);
+                    }
+
+                    if (isset($case['condition'])) {
+                        $this->recursiveReplace($case['condition'], $searchType, $callback);
+
+                        $this->recursiveReplace($case['isTrue'], $searchType, $callback);
+                    }
+                }
+            }
+        }
     }
 
     private function getMemorySizeByType($type, $add4Bytes = true)

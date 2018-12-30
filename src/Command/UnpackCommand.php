@@ -100,6 +100,7 @@ class UnpackCommand extends Command
                 }
 
                 break;
+            case 'gxt':
             case 'grf':
             case 'col':
                 file_put_contents(

@@ -182,10 +182,14 @@ class NBinary{
         return $result;
     }
 
-    public function getPadding($paddingChar = "\x00" ){
-        $padding = 4 - (( strlen($this->hex) / 2 ) % 4);
+    public function getPadding($paddingChar = "\x00", $to = 4, $text = null ){
 
-        if ($padding == 4) return "";
+        if ($text == null) $text = strlen($this->hex) / 2;
+        else $text = strlen($text);
+
+        $padding = $to - (( $text ) % $to);
+
+        if ($padding == $to) return "";
         return str_repeat($paddingChar, $padding);
 
     }

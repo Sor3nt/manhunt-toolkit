@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Service\Archive\Bin;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
+use App\Service\Archive\Gxt;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
@@ -83,6 +84,7 @@ class PackCommand extends Command
 
         if (is_null($saveTo)){
             $saveTo = str_replace('#','.', $folder);
+            $saveTo = str_replace('.json','', $saveTo);
         }
 
 
@@ -93,15 +95,7 @@ class PackCommand extends Command
 
             //MLS data folder
             if ($finder->count()){
-
-                $game = "mh2";
-
-                if (is_null($saveTo)){
-                    $saveTo = str_replace('#','.', $folder);
-                }
-
-
-                $this->packMLS(realpath($folder), $game, $saveTo);
+                $this->packMLS(realpath($folder), 'mh2', $saveTo);
             }else{
 
                 $finder = new Finder();
@@ -150,31 +144,35 @@ class PackCommand extends Command
                // $content = $this->col->pack(\json_decode($content, true));
                 // file_put_contents($saveTo, hex2bin($content));
 
-                // grf file
+            // grf file
             }else if (
                 (strpos($content, "block1") !== false) &&
                 (strpos($content, "block2") !== false) &&
                 (strpos($content, "block3") !== false)
             ){
 
-                if (is_null($saveTo)){
-                    $saveTo = $folder.'.repacked';
-                }
-
                 $hex = $this->grf->pack(\json_decode($content, true));
 
                 file_put_contents($saveTo, hex2bin($hex));
 
-                // Inst file
+            // gxt file
+            }else if (
+                (strpos($content, "id") !== false) &&
+                (strpos($content, "key") !== false) &&
+                (strpos($content, "text") !== false)
+            ){
+
+                $handler = new Gxt();
+                $binary = $handler->pack(\json_decode($content, true));
+
+                file_put_contents($saveTo, $binary);
+
+            // Inst file
             }else if (
                 (strpos($content, "record") !== false) &&
                 (strpos($content, "internalName") !== false) &&
                 (strpos($content, "entityClass") !== false)
             ){
-
-                if (is_null($saveTo)){
-                    $saveTo = $folder.'.repacked';
-                }
 
 
                 if (is_null($game)) {

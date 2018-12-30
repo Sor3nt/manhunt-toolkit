@@ -1,6 +1,6 @@
 #Changelog
 
-**2019-01-01**: **v0.5.0** Release:'
+**2019-01-01**: **v0.5.0** Release:
 * Add execution animation (strmanim) Support. (MH2 PC/PS2/PSP/Wii)
 * Add DFF Support. (MH1 PC/PS2)
 * Add TEX Support. (MH2 PC) (Export only!)

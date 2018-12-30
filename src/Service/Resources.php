@@ -6,6 +6,7 @@ use App\Service\Archive\Bin;
 use App\Service\Archive\Col;
 use App\Service\Archive\Dff;
 use App\Service\Archive\Grf;
+use App\Service\Archive\Gxt;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
@@ -102,6 +103,10 @@ class Resources
 
             case 'grf':
                 $handler = new Grf();
+                $result = $handler->unpack($content);
+                break;
+            case 'gxt':
+                $handler = new Gxt();
                 $result = $handler->unpack($content);
                 break;
 
