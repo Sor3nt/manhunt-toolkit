@@ -10,6 +10,7 @@ use App\Service\Archive\Gxt;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
+use App\Service\Archive\Pak;
 use App\Service\Archive\Tex;
 //use App\Service\Archive\Txd;
 use App\Service\Archive\ZLib;
@@ -98,6 +99,11 @@ class Resources
 
             case 'dff':
                 $handler = new Dff();
+                $result = $handler->unpack($content);
+                break;
+
+            case 'pak':
+                $handler = new Pak();
                 $result = $handler->unpack($content);
                 break;
 
