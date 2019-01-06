@@ -11,6 +11,7 @@ use App\Service\Archive\Inst;
 use App\Service\Archive\Mls;
 use App\Service\Archive\ZLib;
 use App\Service\Compiler\Compiler;
+use App\Service\Resources;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,37 +24,6 @@ use Symfony\Component\Finder\Finder;
 class PackCommand extends Command
 {
 
-    /** @var Mls */
-    private $mls;
-
-    /** @var Glg  */
-    private $glg;
-
-    /** @var Inst  */
-    private $inst;
-
-    /** @var Ifp  */
-    private $ifp;
-
-    /** @var Grf  */
-    private $grf;
-
-    /** @var Bin  */
-    private $bin;
-
-
-    public function __construct()
-    {
-        $this->mls = new Mls();
-        $this->glg = new Glg();
-        $this->inst = new Inst();
-        $this->ifp = new Ifp();
-        $this->grf = new Grf();
-        $this->bin = new Bin();
-
-        parent::__construct();
-    }
-
 
     protected function configure()
     {
@@ -61,211 +31,136 @@ class PackCommand extends Command
             ->setName('archive:pack')
             ->setAliases(['pack', 'build', 'compress'])
             ->setDescription('Pack a source file/folder')
-            ->addArgument('folder', InputArgument::REQUIRED, 'The folder/file.')
-            ->addArgument('output', InputArgument::OPTIONAL, 'Output result to this file')
+            ->addArgument('file', InputArgument::REQUIRED, 'File or folder.')
             ->addOption(
                 'game',
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'mh1 or mh2?',
                 null
-            );//            ->setHelp('This command allows you to create a user...')
+            );
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $helper = $this->getHelper('question');
-
-        $folder = realpath($input->getArgument('folder'));
-        $saveTo = $input->getArgument('output');
+        $file = realpath($input->getArgument('file'));
         $game = $input->getOption('game');
 
-        if (is_null($saveTo)){
-            $saveTo = str_replace('#','.', $folder);
-            $saveTo = str_replace('.json','', $saveTo);
-        }
+        $outputTo = str_replace('#','.', $file);
+        $outputTo = str_replace('.json','', $outputTo);
 
+        //load the resource
+        $resources = new Resources();
+        $resource = $resources->load($file);
 
-        if(is_dir(realpath($folder))){
+        $handler = $resource->getHandler();
 
-            $finder = new Finder();
-            $finder->name('/\.srce/')->files()->in( $folder );
+        $output->writeln( sprintf('Identify as %s ', $handler->name));
+        $output->write( sprintf('Processing %s ', $file));
 
-            //MLS data folder
-            if ($finder->count()){
-                $this->packMLS(realpath($folder), 'mh2', $saveTo);
-            }else{
+        $result = $handler->pack( $resource->getInput(), $game );
 
-                $finder = new Finder();
-                $finder->name('executions')->directories()->in( $folder );
+        file_put_contents($outputTo, $result);
 
-                //we pack a strmanim_pc.bin
-                if ($finder->count() == 1){
-
-                    $this->packStrmAnimPcBin( realpath($folder), $saveTo);
-
-                }else{
-
-                    if (is_null($game)) {
-                        do {
-                            $question = new Question('Manhunt (1) or Manhunt (2) ? : ', false);
-                            $game = (int) $this->getHelper('question')->ask($input, $output, $question);
-                        }while ($game != 1 && $game != 2);
-
-                        $game = 'mh' . $game;
-                    }
-
-                    $this->packIfp( realpath($folder), $game, $saveTo);
-
-                }
-            }
-
-        }else{
-
-            $content = file_get_contents($folder);
-
-            // GLG Record
-            if (
-                (strpos(strtolower($content), "record ") !== false) &&
-                (strpos(strtolower($content), "end") !== false)
-            ){
-
-                $output->writeln('Packing of glg files is not required. Just place the file into the right place.');
-
-            // col file
-            }else if (
-                (strpos($content, "min") !== false) &&
-                (strpos($content, "max") !== false) &&
-                (strpos($content, "center") !== false)
-            ){
-
-               // $content = $this->col->pack(\json_decode($content, true));
-                // file_put_contents($saveTo, hex2bin($content));
-
-            // grf file
-            }else if (
-                (strpos($content, "block1") !== false) &&
-                (strpos($content, "block2") !== false) &&
-                (strpos($content, "block3") !== false)
-            ){
-
-                $hex = $this->grf->pack(\json_decode($content, true));
-
-                file_put_contents($saveTo, hex2bin($hex));
-
-            // gxt file
-            }else if (
-                (strpos($content, "id") !== false) &&
-                (strpos($content, "key") !== false) &&
-                (strpos($content, "text") !== false)
-            ){
-
-                $handler = new Gxt();
-                $binary = $handler->pack(\json_decode($content, true));
-
-                file_put_contents($saveTo, $binary);
-
-            // Inst file
-            }else if (
-                (strpos($content, "record") !== false) &&
-                (strpos($content, "internalName") !== false) &&
-                (strpos($content, "entityClass") !== false)
-            ){
-
-
-                if (is_null($game)) {
-                    $question = new ChoiceQuestion(
-                        'Please provide the game',
-                        array('mh1', 'mh2'),
-                        '0'
-                    );
-
-                    $game = strtolower($helper->ask($input, $output, $question));
-                }
-
-                $this->packInst( $content, $saveTo, $game);
-
-            }else{
-                die("unable to detect file or unsupported");
-            }
-
-
-        }
-
-        $output->writeln('');
-        $output->writeln('done');
+        $output->writeln(sprintf("\nPacket to %s",  $outputTo));
+        return;
+//
+//
+//
+//        if(is_dir(realpath($folder))){
+//
+//            $finder = new Finder();
+//            $finder->name('/\.srce/')->files()->in( $folder );
+//
+//            //MLS data folder
+//            if ($finder->count()){
+//                $this->packMLS(realpath($folder), 'mh2', $saveTo);
+//            }else{
+//
+//                $finder = new Finder();
+//                $finder->name('executions')->directories()->in( $folder );
+//
+//                //we pack a strmanim_pc.bin
+//                if ($finder->count() == 1){
+//
+//                    $this->packStrmAnimPcBin( realpath($folder), $saveTo);
+//
+//                }else{
+//
+//                    if (is_null($game)) {
+//                        do {
+//                            $question = new Question('Manhunt (1) or Manhunt (2) ? : ', false);
+//                            $game = (int) $this->getHelper('question')->ask($input, $output, $question);
+//                        }while ($game != 1 && $game != 2);
+//
+//                        $game = 'mh' . $game;
+//                    }
+//
+//                    $this->packIfp( realpath($folder), $game, $saveTo);
+//
+//                }
+//            }
+//
+//        }else{
+//
+//            $content = file_get_contents($folder);
+//
+//            // grf file
+//            }else if (
+//                (strpos($content, "block1") !== false) &&
+//                (strpos($content, "block2") !== false) &&
+//                (strpos($content, "block3") !== false)
+//            ){
+//
+//                $hex = $this->grf->pack(\json_decode($content, true));
+//
+//                file_put_contents($saveTo, hex2bin($hex));
+//
+//            // gxt file
+//            }else if (
+//                (strpos($content, "id") !== false) &&
+//                (strpos($content, "key") !== false) &&
+//                (strpos($content, "text") !== false)
+//            ){
+//
+//                $handler = new Gxt();
+//                $binary = $handler->pack(\json_decode($content, true));
+//
+//                file_put_contents($saveTo, $binary);
+//
+//            // Inst file
+//            }else if (
+//                (strpos($content, "record") !== false) &&
+//                (strpos($content, "internalName") !== false) &&
+//                (strpos($content, "entityClass") !== false)
+//            ){
+//
+//
+//                if (is_null($game)) {
+//                    $question = new ChoiceQuestion(
+//                        'Please provide the game',
+//                        array('mh1', 'mh2'),
+//                        '0'
+//                    );
+//
+//                    $game = strtolower($helper->ask($input, $output, $question));
+//                }
+//
+//                $this->packInst( $content, $saveTo, $game);
+//
+//            }else{
+//                die("unable to detect file or unsupported");
+//            }
+//
+//
+//        }
+//
+//        $output->writeln('');
+//        $output->writeln('done');
     }
 
-    private function packStrmAnimPcBin($folder, $saveTo){
-
-
-        $finder = new Finder();
-        $finder->depth('== 0')->directories()->in($folder . '/executions');
-
-        $executions = [];
-        foreach ($finder as $directory) {
-
-            $executionId = $directory->getFilename();
-            $executions[ $executionId ] = [];
-
-            $execFinder = new Finder();
-            $execFinder->depth('== 0')->directories()->in($directory->getRealPath());
-
-            foreach ($execFinder as $executionFolder) {
-                $executionSection = $executionFolder->getFilename();
-                $executions[ $executionId ][$executionSection] = [];
-
-                $fileFinder = new Finder();
-                $fileFinder->files()->in($executionFolder->getRealPath());
-
-                foreach ($fileFinder as $file) {
-                    $excutionName = $file->getFilename();
-                    $executions[ $executionId ][$executionSection][$excutionName] = \json_decode($file->getContents(), true);
-                }
-
-
-                uksort($executions[ $executionId ][$executionSection], function($a, $b){
-                    return explode("#", $a)[0] > explode("#", $b)[0];
-                });
-
-            }
-        }
-
-        uksort($executions, function($a, $b){
-            return explode("#", $a)[0] > explode("#", $b)[0];
-        });
-
-        $finder = new Finder();
-        $finder->depth('== 0')->directories()->in($folder . '/envExecutions');
-
-        $envExecutions = [];
-        foreach ($finder as $directory) {
-
-            $executionId = $directory->getFilename();
-            $envExecutions[ $executionId ] = [];
-
-
-            $fileFinder = new Finder();
-            $fileFinder->files()->in($directory->getRealPath());
-
-            foreach ($fileFinder as $file) {
-                $excutionName = $file->getFilename();
-                $envExecutions[ $executionId ][$excutionName] = \json_decode($file->getContents(), true);
-            }
-
-            uksort($envExecutions[ $executionId ], function($a, $b){
-                return explode("#", $a)[0] > explode("#", $b)[0];
-            });
-
-
-        }
-
-        $hex = $this->bin->pack($executions, $envExecutions);
-        file_put_contents($saveTo, hex2bin($hex));
-
-    }
 
     private function packIfp($folder, $game, $saveTo){
 
@@ -379,4 +274,75 @@ class PackCommand extends Command
         file_put_contents($saveTo, $content);
 
     }
+
+
+    private function packStrmAnimPcBin($folder, $saveTo){
+
+
+        $finder = new Finder();
+        $finder->depth('== 0')->directories()->in($folder . '/executions');
+
+        $executions = [];
+        foreach ($finder as $directory) {
+
+            $executionId = $directory->getFilename();
+            $executions[ $executionId ] = [];
+
+            $execFinder = new Finder();
+            $execFinder->depth('== 0')->directories()->in($directory->getRealPath());
+
+            foreach ($execFinder as $executionFolder) {
+                $executionSection = $executionFolder->getFilename();
+                $executions[ $executionId ][$executionSection] = [];
+
+                $fileFinder = new Finder();
+                $fileFinder->files()->in($executionFolder->getRealPath());
+
+                foreach ($fileFinder as $file) {
+                    $excutionName = $file->getFilename();
+                    $executions[ $executionId ][$executionSection][$excutionName] = \json_decode($file->getContents(), true);
+                }
+
+
+                uksort($executions[ $executionId ][$executionSection], function($a, $b){
+                    return explode("#", $a)[0] > explode("#", $b)[0];
+                });
+
+            }
+        }
+
+        uksort($executions, function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        $finder = new Finder();
+        $finder->depth('== 0')->directories()->in($folder . '/envExecutions');
+
+        $envExecutions = [];
+        foreach ($finder as $directory) {
+
+            $executionId = $directory->getFilename();
+            $envExecutions[ $executionId ] = [];
+
+
+            $fileFinder = new Finder();
+            $fileFinder->files()->in($directory->getRealPath());
+
+            foreach ($fileFinder as $file) {
+                $excutionName = $file->getFilename();
+                $envExecutions[ $executionId ][$excutionName] = \json_decode($file->getContents(), true);
+            }
+
+            uksort($envExecutions[ $executionId ], function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+
+
+        }
+
+        $hex = $this->bin->pack($executions, $envExecutions);
+        file_put_contents($saveTo, hex2bin($hex));
+
+    }
+
 }

@@ -6,44 +6,39 @@ use App\Service\NBinary;
 
 class Extract {
 
-    private $binary;
 
-    public function __construct( $binaryData ) {
-        $this->binary = new NBinary($binaryData );
-    }
 
-    /**
-     * @param $outputTo
-     */
-    public function save($outputTo){
+    public function get( NBinary $binary ){
 
-        $version = $this->binary->consume(4, NBinary::HEX);
+        $version = $binary->consume(4, NBinary::HEX);
 
         $game = "mh2-pc";
 
         //wii version
         if ($version == "00000001"){
             $game = "mh2-wii";
-            $this->binary->numericBigEndian = true;
+            $binary->numericBigEndian = true;
         }
 
-        $numExec = $this->binary->consume(4, NBinary::INT_32);
-        $numEnvExec = $this->binary->consume(4, NBinary::INT_32);
+        $numExec = $binary->consume(4, NBinary::INT_32);
+        $numEnvExec = $binary->consume(4, NBinary::INT_32);
 
         $index = 0;
 
+        $results = [];
+        
         while ($numExec > 0){
 
             $execution = [
-                'executionId'           => $this->binary->consume(4, NBinary::INT_32),
-                'jumpExecutionOffset'   => $this->binary->consume(4, NBinary::INT_32),
-                'jumpExecutionSize'     => $this->binary->consume(4, NBinary::INT_32),
-                'whiteLevelExecOffset'  => $this->binary->consume(4, NBinary::INT_32),
-                'whiteLevelExecSize'    => $this->binary->consume(4, NBinary::INT_32),
-                'yellowLevelExecOffset' => $this->binary->consume(4, NBinary::INT_32),
-                'yellowLevelExecSize'   => $this->binary->consume(4, NBinary::INT_32),
-                'redLevelExecOffset'    => $this->binary->consume(4, NBinary::INT_32),
-                'redLevelExecSize'      => $this->binary->consume(4, NBinary::INT_32)
+                'executionId'           => $binary->consume(4, NBinary::INT_32),
+                'jumpExecutionOffset'   => $binary->consume(4, NBinary::INT_32),
+                'jumpExecutionSize'     => $binary->consume(4, NBinary::INT_32),
+                'whiteLevelExecOffset'  => $binary->consume(4, NBinary::INT_32),
+                'whiteLevelExecSize'    => $binary->consume(4, NBinary::INT_32),
+                'yellowLevelExecOffset' => $binary->consume(4, NBinary::INT_32),
+                'yellowLevelExecSize'   => $binary->consume(4, NBinary::INT_32),
+                'redLevelExecOffset'    => $binary->consume(4, NBinary::INT_32),
+                'redLevelExecSize'      => $binary->consume(4, NBinary::INT_32)
             ];
 
             foreach ([
@@ -53,20 +48,25 @@ class Extract {
                 'redLevelExec'
             ] as $section) {
 
-                $anpk = $this->binary->range(
+                $anpk = $binary->range(
                     $execution[$section . 'Offset'] ,
                     $execution[$section . 'Offset'] + $execution[$section . 'Size'],
                     true
                 );
 
                 $anpk = new NBinary($anpk);
-                $anpk->numericBigEndian = $this->binary->numericBigEndian;
+                $anpk->numericBigEndian = $binary->numericBigEndian;
 
-                $this->extractAnimations(
+                $targetFileName = "executions/" . $index . "#ExecutionId_" . $execution['executionId'] . '/' . $section;
+
+                $animations = $this->extractAnimations(
                     $anpk,
-                    $outputTo . 'executions/' . $index . '#ExecutionId_' . $execution['executionId'] . '/' . $section . '/',
                     $game
                 );
+
+                foreach ($animations as $animationFileName => $animation) {
+                    $results[ $targetFileName . '/' . $animationFileName] = $animation;
+                }
             }
 
             $index++;
@@ -77,39 +77,47 @@ class Extract {
         while ($numEnvExec > 0){
 
             $envExecution = [
-                'executionId' => $this->binary->consume(4, NBinary::INT_32),
+                'executionId' => $binary->consume(4, NBinary::INT_32),
 
-                'envExecutionOffset' => $this->binary->consume(4, NBinary::INT_32),
-                'envExecutionSize' => $this->binary->consume(4, NBinary::INT_32),
+                'envExecutionOffset' => $binary->consume(4, NBinary::INT_32),
+                'envExecutionSize' => $binary->consume(4, NBinary::INT_32),
             ];
 
-            $anpk = $this->binary->range(
+            $anpk = $binary->range(
                 $envExecution['envExecutionOffset'],
                 $envExecution['envExecutionOffset'] + $envExecution['envExecutionSize'],
                 true
             );
 
             $anpk = new NBinary($anpk);
-            $anpk->numericBigEndian = $this->binary->numericBigEndian;
+            $anpk->numericBigEndian = $binary->numericBigEndian;
 
-            $this->extractAnimations(
+            $targetFileName = "envExecutions/" . $index . "#ExecutionId_" . $envExecution['executionId'];
+
+            $animations = $this->extractAnimations(
                 $anpk,
-                $outputTo . 'envExecutions/' . $index . '#ExecutionId_' . $envExecution['executionId'] . '/',
                 $game
             );
+
+            foreach ($animations as $animationFileName => $animation) {
+                $results[ $targetFileName . '/' . $animationFileName] = $animation;
+            }
 
             $index++;
             $numEnvExec--;
         }
+        
+        return $results;
     }
+
 
     /**
      * @param NBinary $binary
-     * @param $outputTo
      * @param $game
+     * @return array
      * @throws \Exception
      */
-    private function extractAnimations(NBinary $binary, $outputTo, $game){
+    private function extractAnimations(NBinary $binary, $game){
 
         $headerType = $binary->consume(4, NBinary::STRING);
 
@@ -120,13 +128,10 @@ class Extract {
                 sprintf('Expected ANPK got: %s', $headerType)
             );
 
-        @mkdir($outputTo, 0777, true);
-
         $ifp = new Ifp();
-        $ifp->extractAnimation(
+        return $ifp->extractAnimation(
             $animationCount,
             $binary,
-            $outputTo,
             $game
 
         );

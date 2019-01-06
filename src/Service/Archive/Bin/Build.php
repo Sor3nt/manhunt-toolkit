@@ -8,7 +8,7 @@ use App\Service\Helper;
 class Build {
 
 
-    public function build( $executions, $envExecutions ){
+    public function build( $executions, $envExecutions, $game ){
 
         /**
          * Prepare
@@ -34,7 +34,7 @@ class Build {
                          'redLevelExec'
                      ] as $index => $section) {
 
-                $prepared['executions'][$id][$section] = $ifp->packAnimation($execution[$section], 'mh2')->hex;
+                $prepared['executions'][$id][$section] = $ifp->packAnimation($execution[$section], $game)->hex;
                 $prepared['executions'][$id][$section . 'Offset'] = $offsetStart;
                 $size = strlen($prepared['executions'][$id][$section]) / 2;
                 $prepared['executions'][$id][$section . 'Size'] = $size;
@@ -136,6 +136,6 @@ class Build {
             }
         }
 
-        return $data;
+        return hex2bin($data);
     }
 }

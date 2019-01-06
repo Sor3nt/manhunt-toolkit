@@ -3,9 +3,35 @@ namespace App\Service\Archive;
 
 use App\Bytecode\Helper;
 use App\Service\Binary;
+use App\Service\NBinary;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Col {
+class Col extends Archive {
+    public $name = 'Collision Matrix';
+
+    public static $supported = 'col';
+
+    /**
+     * @param $pathFilename
+     * @param NBinary $input
+     * @param null $game
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $input, $game = null ){
+
+        if (!$input instanceof NBinary) return false;
+
+        if (
+            (strpos($input->binary, "min") !== false) &&
+            (strpos($input->binary, "max") !== false) &&
+            (strpos($input->binary, "center") !== false)
+        ) return true;
+
+        return false;
+    }
+
+
+
     private $game = false;
 
     private function toString( $hex ){
@@ -37,9 +63,9 @@ class Col {
 
     }
 
-    public function unpack($data){
+    public function unpack(NBinary $binary, $game = null){
 
-        $data = bin2hex($data);
+        $data = $binary->hex;
 
         $entryCount = $this->toInt($this->substr($data, 0, 4));
 
@@ -190,7 +216,7 @@ class Col {
         return $results;
     }
 
-    public function pack( $records ){
+    public function pack( $records, $game = null ){
 
         $data = "";
         $data .= Helper::fromIntToHex(count($records));

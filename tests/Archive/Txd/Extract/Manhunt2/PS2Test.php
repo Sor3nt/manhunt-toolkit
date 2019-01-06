@@ -13,20 +13,23 @@ class PS2Test extends KernelTestCase
 
     public function testLevel1()
     {
-        echo "\n*** TXD: Implement PS2 (TODO) ";
-        $this->assertEquals(true, true);
-return;
+//        echo "\n*** TXD: Implement PS2 (TODO) ";
+//        $this->assertEquals(true, true);
+//return;
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
 
-        $content = $resources->load('/Archive/Txd/Manhunt2/PS2/TITLE.TXD');
+//        $resource = $resources->load('/Archive/Txd/Manhunt2/PS2/TITLE.TXD');
 //        $content = $resources->load('/Archive/Txd/Manhunt2/PS2/TITLE_2.TXD');
 //        $content = $resources->load('/Archive/Txd/Manhunt2/PS2/GMODELS.TXD');
-//        $content = $resources->load('/Archive/Txd/Manhunt2/PS2/DSFE.TXD');
+        $resource = $resources->load('/Archive/Txd/Manhunt2/PS2/DSFE.TXD');
 //        $content = $resources->load('/Archive/Txd/Manhunt2/PSP/GMODELS.TXD');
 
-        $content = $content->getContent();
+        $handler = $resource->getHandler();
 
+        $results = $handler->unpack( $resource->getInput(), 'mh2' );
+      var_dump($results);
+die("J");
 //        $content = [
 //            file_get_contents('tests/Resources/Archive/Txd/Manhunt2/PS2/test.raw')
 //        ];

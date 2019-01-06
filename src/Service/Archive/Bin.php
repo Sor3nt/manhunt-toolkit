@@ -1,24 +1,115 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Bytecode\Helper;
 use App\Service\Archive\Bin\Build;
 use App\Service\Archive\Bin\Extract;
-use App\Service\Binary;
+use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
-class Bin {
+class Bin extends Archive {
+    public $name = 'Execution Animations';
 
 
+    public static $validationMap = [
+        [0, 4, NBinary::HEX, ['01000000', '00000001']]
+    ];
 
 
-    public function unpack($entry, $outputTo){
-        $extractor = new Extract($entry);
-        $extractor->save($outputTo);
+    /**
+     * @param $pathFilename
+     * @param Finder $input
+     * @param null $game
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $input, $game = null ){
+
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            $relPath = strtolower($file->getRelativePath());
+
+            if (
+                substr( $relPath, 0, 13 ) == 'envexecutions' ||
+                substr( $relPath, 0, 10 ) == 'executions'
+            ) return true;
+        }
+
+        return false;
     }
 
-    public function pack( $executions, $envExecutions ){
-        $builder = new Build();
-        return $builder->build( $executions, $envExecutions );
 
+    public function unpack(NBinary $binary, $game = null){
+        return (new Extract())->get($binary);
+    }
+
+    /**
+     * @param Finder $data
+     * @param null $game
+     * @return string
+     */
+    public function pack( $data, $game = null ){
+
+        $executionSections = $this->prepareData( $data );
+
+        return (new Build())->build(
+            $executionSections['executions'],
+            $executionSections['envExecutions'],
+            $game
+        );
+
+    }
+
+
+    /**
+     * @param Finder $data
+     * @return array
+     */
+    private function prepareData( $data ){
+        $executionSections = [ 'executions' => [], 'envExecutions' => []];
+
+        foreach ($data as $file) {
+
+            $pathSplit = explode(DIRECTORY_SEPARATOR, $file->getRelativePathname());
+            $usedSection = $pathSplit[0];
+
+            if (!isset($executionSections[$usedSection][ $pathSplit[1] ]))
+                $executionSections[$usedSection][ $pathSplit[1] ] = [];
+
+            if ($usedSection == "executions"){
+
+                if (!isset($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ]))
+                    $executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ] = [];
+
+                $fileName = explode('.', $pathSplit[3])[0];
+
+                $executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ][$fileName] = \json_decode($file->getContents(), true);
+
+                //sort the results (thats only to reach the 100% by recompiling original game files)
+                uksort($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ], function($a, $b){
+                    return explode("#", $a)[0] > explode("#", $b)[0];
+                });
+
+            }else{
+                $fileName = explode('.', $pathSplit[2])[0];
+
+                $executionSections[$usedSection][ $pathSplit[1] ][$fileName] = \json_decode($file->getContents(), true);
+
+                //sort the results (thats only to reach the 100% by recompiling original game files)
+                uksort($executionSections[$usedSection][ $pathSplit[1] ], function($a, $b){
+                    return explode("#", $a)[0] > explode("#", $b)[0];
+                });
+            }
+        }
+
+        //sort the results (thats only to reach the 100% by recompiling original game files)
+        uksort($executionSections['executions'], function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        uksort($executionSections['envExecutions'], function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        return $executionSections;
     }
 }

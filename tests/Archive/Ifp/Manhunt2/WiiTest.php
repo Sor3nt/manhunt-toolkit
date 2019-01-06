@@ -4,76 +4,35 @@ namespace App\Tests\Archive\Ifp\Manhunt2;
 use App\Service\Archive\Bin;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
+use App\Service\Archive\ZLib;
 use App\Service\Resources;
+use App\Tests\Archive\Archive;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Finder\Finder;
 
-class WiiTest extends KernelTestCase
+class WiiTest extends Archive
 {
 
-    public function testPackUnpack()
+    public function test()
     {
-        echo "\n* IFP: WII test skipped - unable to verify ==> ";
-        $this->assertEquals(true, true);
-        return;
+        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Ifp/Manhunt2/Wii";
+        $outputFolder = $testFolder . "/export";
 
-        $resources = new Resources();
-        $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
-        $resource = $resources->load('/Archive/Ifp/Manhunt2/Wii/allanims_wii.ifp');
+        echo "\n* IFP: Testing Manhunt 2 Wii (unpack/pack) ";
+        $this->unPackPack(
+            $testFolder . "/allanims_wii.ifp",
+            $outputFolder . "/allanims_wii#ifp",
+            'animations',
+            'mh2-wii'
+        );
 
-        $exportFolder = $resources->workDirectory . '/Archive/Ifp/Manhunt2/Wii/export-test/';
+        $this->assertEquals(
+            md5(ZLib::uncompress(file_get_contents($testFolder . "/allanims_wii.ifp"))),
+            md5(file_get_contents($outputFolder . "/allanims_wii.ifp"))
+        );
 
-        $handler = new Ifp();
-        $handler->unpack($resource->getContent(), $exportFolder);
-
-        $finder = new Finder();
-        $finder->files()->in($exportFolder);
-
-        $ifp = [];
-
-        foreach ($finder as $file) {
-
-            $folder = $file->getPathInfo()->getFilename();
-
-            if (!isset($ifp[$folder])) $ifp[$folder] = [];
-
-            $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
-        }
-
-        uksort($ifp, function($a, $b){
-            return explode("#", $a)[0] > explode("#", $b)[0];
-        });
-
-        foreach ($ifp as &$item) {
-            uksort($item, function($a, $b){
-                return explode("#", $a)[0] > explode("#", $b)[0];
-            });
-
-        }
-var_dump($ifp);
-        exit;
-        $hex = $handler->pack($ifp, 'mh2-wii');
-
-        $this->assertEquals(md5($resource->getContent()), md5(hex2bin($hex)));
-
-        $this->rrmdir($exportFolder);
+        $this->rrmdir($outputFolder);
     }
 
-    private function rrmdir($src) {
-        $dir = opendir($src);
-        while(false !== ( $file = readdir($dir)) ) {
-            if (( $file != '.' ) && ( $file != '..' )) {
-                $full = $src . '/' . $file;
-                if ( is_dir($full) ) {
-                    $this->rrmdir($full);
-                }
-                else {
-                    unlink($full);
-                }
-            }
-        }
-        closedir($dir);
-        rmdir($src);
-    }
 
 }

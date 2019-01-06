@@ -1,33 +1,56 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Bytecode\Helper;
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
-class Ifp
+class Ifp extends Archive
 {
+    public $name = 'Animations';
+
+    public static $supported = 'ifp';
+
 
     /**
-     * Todo:
-     * it looks like we messed up the command block for mh2, a \x00 get lost
+     * @param $pathFilename
+     * @param Finder $input
+     * @param null $game
+     * @return bool
      */
+    public static function canPack( $pathFilename, $input, $game = null ){
+
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            $relPath = strtolower($file->getRelativePath());
+            if (strpos($relPath, "#") == false) return false;
+
+            $category = explode("#", $relPath)[1];
+
+            switch (strtolower($category)){
+
+                case 'bookends':
+                case 'legion':
+                case 'playeranims':
+                case 'openables':
+                case 'genhunteranims':
+
+                    return true;
+
+                    break;
+
+                default:
+            }
+        }
+
+        return false;
+    }
 
     private $game = false;
+    private $platform = false;
 
-    private function toInt8($hex)
+    public function unpack(NBinary $binary, $game = null)
     {
-        return is_int($hex) ? pack("c", $hex) : current(unpack("c", hex2bin($hex)));
-    }
-
-    private function toInt16($hex)
-    {
-        return is_int($hex) ? pack("s", $hex) : current(unpack("s", hex2bin($hex)));
-    }
-
-    public function unpack($binary, $outputTo)
-    {
-
-        $binary = new NBinary($binary);
 
         $game = "mh2-pc";
 
@@ -35,9 +58,6 @@ class Ifp
          * ROOT (ANCT)
          */
         $headerType = $binary->consume(4, NBinary::STRING);
-//        $headerType = $this->toString($this->substr($entry, 0, 4));
-
-//        $numBlockhex = $this->substr($entry, 0, 4);
         $numBlock = $binary->consume(4, NBinary::INT_32);
 
         if ($numBlock > 10000) {
@@ -46,12 +66,12 @@ class Ifp
             $binary->numericBigEndian = true;
 
             $numBlock = $binary->consume(4, NBinary::INT_32);
-//            $numBlock = $this->toInt(Helper::toBigEndian($numBlockhex));
         }
 
         if ($headerType !== "ANCT")
             throw new \Exception(sprintf('Expected ANCT got: %s', $headerType));
 
+        $results = [];
         /**
          * BLOCK (BLOC)
          */
@@ -70,9 +90,6 @@ class Ifp
             $blockNameLength = $binary->consume(4, NBinary::INT_32);
             $blockName = $binary->consume($blockNameLength, NBinary::STRING);
 
-            $outputToBlock = $outputTo . $count . "#" . $blockName . '/';
-            @mkdir($outputToBlock, 0777, true);
-
             /**
              * Animation Packs
              */
@@ -89,19 +106,27 @@ class Ifp
             /**
              * Animation Pack Entries
              */
-            $this->extractAnimation($animationCount, $binary, $outputToBlock, $game);
+            $path = $count . "#" . $blockName;
+            $animations = $this->extractAnimation($animationCount, $binary, $game);
+
+            foreach ($animations as $animationFilename => $animation) {
+                $results[ $path . '/' . $animationFilename] = $animation;
+            }
 
             $numBlock--;
             $count++;
         }
 
+        return $results;
     }
 
-    public function extractAnimation($animationCount, NBinary $binary, $outputTo, $game = "mh2-pc")
+    public function extractAnimation($animationCount, NBinary $binary, $game = "mh2-pc")
     {
+        $results = [];
         $animations = [];
 
         $count = 1;
+
         while ($animationCount > 0) {
 
             $nameLabel = $binary->consume(4, NBinary::STRING);
@@ -175,35 +200,50 @@ class Ifp
 
                 if ($this->game == "mh1") {
 
-                    $resultAnimation['entry'][] = [
+                    $entry = [
                         'time' => $binary->consume(4, NBinary::FLOAT_32),
                         'unknown' => $binary->consume(4, NBinary::HEX),
                         'unknown2' => $binary->consume(4, NBinary::HEX),
                         'unknown3' => $binary->consume(4, NBinary::HEX),
                         'unknown4' => $binary->consume(4, NBinary::HEX),
-                        'unknown6' => $binary->consume(4, NBinary::FLOAT_32),
-                        'particleName' => $binary->consume(8, NBinary::STRING),
+                        'unknown6' => $binary->consume(4, NBinary::FLOAT_32), //boneId todo rename
+                        'particleName' => $binary->consume(8, NBinary::BINARY),
                         'particlePosition' => [
-                            $binary->consume(4, NBinary::FLOAT_32),
-                            $binary->consume(4, NBinary::FLOAT_32),
-                            $binary->consume(4, NBinary::FLOAT_32),
-                            $binary->consume(4, NBinary::FLOAT_32),
-                            $binary->consume(4, NBinary::FLOAT_32),
-                            $binary->consume(4, NBinary::FLOAT_32),
-                            $binary->consume(4, NBinary::FLOAT_32)
+                            $binary->consume(4, NBinary::BIG_FLOAT_32),
+                            $binary->consume(4, NBinary::BIG_FLOAT_32),
+                            $binary->consume(4, NBinary::BIG_FLOAT_32),
+                            $binary->consume(4, NBinary::BIG_FLOAT_32),
+                            $binary->consume(4, NBinary::BIG_FLOAT_32),
+                            $binary->consume(4, NBinary::BIG_FLOAT_32),
+                            $binary->consume(4, NBinary::BIG_FLOAT_32)
                         ],
                         'unknown5' => $binary->consume(4, NBinary::HEX)
                     ];
+
+
+                    if (str_replace('00', '', $entry['particleName']) !== ''){
+                        $seperator = strpos($entry['particleName'], "\x00");
+
+                        $commandName = substr($entry['particleName'], 0, $seperator);
+                        $unknownCommandRemain = substr($entry['particleName'], $seperator);
+
+                        $entry['particleName'] = $commandName;
+                        $entry['unknownParticleName'] = $unknownCommandRemain;
+                    }
+
+                    $resultAnimation['entry'][] = $entry;
+
+
                 } else {
 
-                    $resultAnimation['entry'][] = [
+                    $entry = [
                         'time' => $binary->consume(4, NBinary::FLOAT_32),
                         'unknown' => $binary->consume(4, NBinary::HEX),
                         'unknown2' => $binary->consume(4, NBinary::HEX),
-                        'CommandName' => $binary->consume(64, NBinary::STRING),
+                        'CommandName' => $binary->consume(64, NBinary::BINARY),
                         'unknown3' => $binary->consume(4, NBinary::HEX),
-                        'unknown6' => $binary->consume(4, NBinary::FLOAT_32),
-                        'particleName' => $binary->consume(8, NBinary::STRING),
+                        'unknown6' => $binary->consume(4, NBinary::FLOAT_32), //boneId todo rename
+                        'particleName' => $binary->consume(8, NBinary::BINARY),
                         'particlePosition' => [
                             $binary->consume(4, NBinary::FLOAT_32),
                             $binary->consume(4, NBinary::FLOAT_32),
@@ -216,19 +256,48 @@ class Ifp
                         'unknown5' => $binary->consume(40, NBinary::HEX)
                     ];
 
+
+                    if (str_replace('00', '', $entry['CommandName']) !== ''){
+                        $seperator = strpos($entry['CommandName'], "\x00");
+
+                        $commandName = substr($entry['CommandName'], 0, $seperator);
+                        $unknownCommandRemain = substr($entry['CommandName'], $seperator);
+
+                        $entry['CommandName'] = $commandName;
+                        $entry['unknownCommandRemain'] = $unknownCommandRemain;
+                    }
+
+
+                    if (str_replace('00', '', $entry['particleName']) !== ''){
+                        $seperator = strpos($entry['particleName'], "\x00");
+
+                        $commandName = substr($entry['particleName'], 0, $seperator);
+                        $unknownCommandRemain = substr($entry['particleName'], $seperator);
+
+                        $entry['particleName'] = $commandName;
+                        $entry['unknownParticleName'] = $unknownCommandRemain;
+                    }
+
+
+                    $resultAnimation['entry'][] = $entry;
+
                 }
+
                 $numEntry--;
             }
+
 
             $animations[] = $resultAnimation;
 
 
-            file_put_contents($outputTo . $count . "#" . $animationName . ".json", \json_encode($resultAnimation, JSON_PRETTY_PRINT));
+            $results[ $count . "#" . $animationName ] = $resultAnimation;
+//            file_put_contents($outputTo . $count . "#" . $animationName . ".json", \json_encode($resultAnimation, JSON_PRETTY_PRINT));
 
             $animationCount--;
             $count++;
         }
 
+        return $results;
     }
 
     private function extractBones($numberOfBones, NBinary $binary, $game = "mh2-pc", $chunkSize = null)
@@ -279,15 +348,12 @@ class Ifp
             if ($frameType > 2) {
 
                 if ($startTime > 0) {
-
                     $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
                 }
-
 
                 $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
                 $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
                 $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
-
             }
 
             /**
@@ -314,14 +380,11 @@ class Ifp
     private function extractFrames($startTime, $frames, $frameType, NBinary $binary)
     {
 
-        $resultFrames = [
-            'frames' => []
-        ];
+        $resultFrames = [ 'frames' => [] ];
 
         $index = 0;
 
         while ($frames > 0) {
-
 
             $resultFrame = [];
 
@@ -331,7 +394,6 @@ class Ifp
                 if ($index == 0 && $frameType < 3) {
                     $time = $startTime;
                 } else {
-
                     $time = $binary->consume(2, NBinary::INT_16);
                 }
 
@@ -349,7 +411,6 @@ class Ifp
 
             }
 
-
             if ($frameType > 1) {
 
                 $resultFrame['position'] = [
@@ -357,7 +418,6 @@ class Ifp
                     $binary->consume(2, NBinary::INT_16) / 2048,
                     $binary->consume(2, NBinary::INT_16) / 2048,
                 ];
-
             }
 
             $resultFrames['frames'][] = $resultFrame;
@@ -370,12 +430,44 @@ class Ifp
             $resultFrames['lastFrameTime'] = $binary->consume(4, NBinary::FLOAT_32);
         }
 
-
         return $resultFrames;
     }
 
-    public function pack($records, $game)
+    private function prepareData( Finder $finder ){
+        $ifp = [];
+
+        foreach ($finder as $file) {
+
+            $folder = $file->getPathInfo()->getFilename();
+
+            if (!isset($ifp[$folder])) $ifp[$folder] = [];
+
+            $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
+        }
+
+        uksort($ifp, function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        foreach ($ifp as &$item) {
+            uksort($item, function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+        }
+
+        return $ifp;
+    }
+
+
+    /**
+     * @param Finder $records
+     * @param null $game
+     * @return string
+     */
+    public function pack($records, $game = null)
     {
+
+        $records = $this->prepareData($records);
 
         $binary = new NBinary("ANCT");
 
@@ -400,7 +492,7 @@ class Ifp
 
         }
 
-        return $binary->hex;
+        return $binary->binary;
 
     }
 
@@ -521,35 +613,46 @@ class Ifp
 
                 if ($game == "mh2") {
 
-                    $commandName = current(unpack("H*", $entry['CommandName']));
-                    $missed = 128 - strlen($commandName) % 128;
+//                    $commandName = current(unpack("H*", $entry['CommandName']));
+//                    $missed = 128 - strlen($commandName) % 128;
 
                     $binary->write($entry['CommandName'], NBinary::STRING);
-                    $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
 
-                    $binary->write($entry['unknown3'], NBinary::HEX);
+                    //NOTE: this is just garbage, not needed but included to reach 100%
+                    $binary->write($entry['unknownCommandRemain'], NBinary::STRING);
+//                    $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
+                }
 
-                } else {
-                    $binary->write($entry['unknown3'], NBinary::HEX);
+                $binary->write($entry['unknown3'], NBinary::HEX);
+
+                if ($game == "mh1") {
                     $binary->write($entry['unknown4'], NBinary::HEX);
                 }
 
 
+
                 $binary->write($entry['unknown6'], NBinary::FLOAT_32);
 
-                $particleName = current(unpack("H*", $entry['particleName']));
-                $missed = 16 - strlen($particleName) % 16;
+//                $particleName = current(unpack("H*", $entry['particleName']));
+//                $missed = 16 - strlen($particleName) % 16;
 
                 $binary->write($entry['particleName'], NBinary::STRING);
-                $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
 
+                //NOTE: this is just garbage, not needed but included to reach 100%
+                $binary->write($entry['unknownParticleName'], NBinary::STRING);
+//                $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
 
                 foreach ($entry['particlePosition'] as $pPos) {
-                    $binary->write($pPos, NBinary::FLOAT_32);
+                    if ($game == "mh1"){
+
+                        $binary->write($pPos, NBinary::BIG_FLOAT_32);
+                    }else{
+
+                        $binary->write($pPos, NBinary::FLOAT_32);
+                    }
                 }
 
                 $binary->write($entry['unknown5'], NBinary::HEX);
-
             }
 
         }

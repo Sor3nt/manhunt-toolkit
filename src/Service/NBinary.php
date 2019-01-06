@@ -29,7 +29,9 @@ class NBinary{
     public function __construct( $binary = null ){
         if (is_null($binary)) return;
 
-        if (mb_substr($binary, 0, 8) === "\x5a\x32\x48\x4d"){
+        $fourCC = mb_substr($binary, 0, 4, '8bit');
+
+        if ($fourCC === "\x5a\x32\x48\x4d" || $fourCC === "\x4d\x48\x32\x5a"){
             $binary = ZLib::uncompress( $binary );
         }
 
@@ -194,9 +196,9 @@ class NBinary{
 
     }
 
-    public function consume( $bytes, $type, $startAt = 0){
+    public function consume( $bytes, $type, $skip = 0){
 
-        $this->current += $startAt;
+        $this->current += $skip;
 
         $result = hex2bin(substr($this->hex, $this->current * 2, $bytes * 2));
 //        $result = mb_substr($this->binary, $this->current, $bytes, '8bit');

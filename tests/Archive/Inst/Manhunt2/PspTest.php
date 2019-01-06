@@ -22,7 +22,7 @@ class PspTest extends KernelTestCase
 
         $compressed = $inst->pack($content);
 
-        $this->assertEquals(md5($resource->getBinary()), md5($compressed));
+        $this->assertEquals(md5($resource->getInput()), md5($compressed));
 
         $uncompressed = $inst->unpack($compressed);
 

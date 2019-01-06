@@ -2,8 +2,34 @@
 namespace App\Service\Archive;
 
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
-class Dff {
+class Dff extends Archive {
+
+    public $name = '3D Models';
+
+    public static $supported = 'dff';
+
+    /**
+     * @param $pathFilename
+     * @param Finder $input
+     * @param null $game
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $input, $game = null ){
+
+
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            $extension = strtolower($file->getExtension());
+
+            if ($extension !== "dff") return false;
+        }
+
+        return true;
+    }
+
 
     private $offset = 0;
 
@@ -95,10 +121,11 @@ class Dff {
 
     /**
      * @param $binary
+     * @param null $game
      * @return array
      */
-    public function unpack($binary){
-        $binary = new NBinary($binary);
+    public function unpack(NBinary $binary, $game = null){
+
         $fileSIZE = $binary->length();
 
         $results = [];
@@ -113,14 +140,31 @@ class Dff {
 
             $this->offset += $entry['size'];
 
-            $results[] = $entry;
+            $results[ $entry['name'] ] = $entry['data'];
 
         }while( $this->offset < $fileSIZE );
 
         return $results;
     }
 
-    public function pack( $files ){
+    private function prepareData( Finder $finder ){
+
+        $files = [];
+        foreach ($finder as $file) {
+            $files[] = $file->getContents();
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param Finder $files
+     * @param null $game
+     * @return string
+     */
+    public function pack( $files, $game = null ){
+
+        $files = $this->prepareData($files);
 
         $binary = "";
 

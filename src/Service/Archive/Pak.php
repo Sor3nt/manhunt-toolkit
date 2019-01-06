@@ -2,8 +2,32 @@
 namespace App\Service\Archive;
 
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
-class Pak {
+class Pak extends Archive {
+
+    public $name = 'Manhunt Data Container';
+
+    public static $supported = 'pak';
+
+
+
+    /**
+     * @param $pathFilename
+     * @param Finder $input
+     * @param null $game
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $input, $game = null ){
+
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            if ($file->getFilename() == "WEATHER.INI") return true;
+        }
+
+        return false;
+    }
 
     private function xorCrypt($text) {
 
@@ -20,12 +44,8 @@ class Pak {
 
         return $result;
     }
-    /**
-     * @param $binary
-     * @return array
-     */
-    public function unpack($binary){
-        $binary = new NBinary($binary);
+
+    public function unpack(NBinary $binary, $game = null){
 
         $count = $binary->consume(4, NBinary::INT_32, 8);
 
@@ -54,10 +74,33 @@ class Pak {
 
         }
 
-        return $entries;
+        $results = [];
+
+        foreach ($entries as $entry) {
+            $results[ substr($entry['name'], 2) ] = $entry['data'];
+        }
+
+        return $results;
     }
 
-    public function pack( $files ){
+    private function prepareData( Finder $finder){
+        $files = [];
+
+        foreach ($finder as $file) {
+            $files[ $file->getRelativePath() ] = $file->getContents();
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param Finder $files
+     * @param null $game
+     * @return null|string
+     */
+    public function pack( $files, $game = null ){
+
+        $files = $this->prepareData($files);
 
         $binary = new NBinary();
 

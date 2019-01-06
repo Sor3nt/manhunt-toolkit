@@ -3,8 +3,12 @@ namespace App\Service\Archive;
 
 use App\Bytecode\Helper;
 use App\Service\Binary;
+use App\Service\NBinary;
 
-class Grf {
+class Grf extends Archive {
+    public $name = 'Unknown...';
+
+    public static $supported = 'grf';
 
 
     private function toString( $hex ){
@@ -34,9 +38,9 @@ class Grf {
         return $result;
     }
 
-    public function unpack($data){
+    public function unpack(NBinary $binary, $game = null){
 
-        $entry = strtolower(bin2hex($data));
+        $entry = strtolower($binary->hex);
 
         $headerType = $this->toString($this->substr($entry, 0, 4));
 
@@ -253,7 +257,7 @@ class Grf {
 
     }
 
-    public function pack( $record ){
+    public function pack( $record, $game = null ){
 
         $nameIndex = [];
 

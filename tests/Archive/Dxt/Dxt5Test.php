@@ -14,11 +14,9 @@ class Dxt5Test extends KernelTestCase
 
         echo "\n* DXT5: Testing DXT5 Texture ==> ";
 
-        $resources = new Resources();
-        $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
-        $content = $resources->load('/Archive/Dxt/dxt.dxt5');
+        $file = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Dxt/dxt.dxt5";
 
-        $content = $content->getContent();
+        $content = file_get_contents($file);
 
         $dxtHandler = new Dxt5();
         $bmpRgba =$dxtHandler->decode($content, 128, 128, 'abgr');

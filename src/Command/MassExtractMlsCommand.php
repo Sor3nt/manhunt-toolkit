@@ -51,7 +51,7 @@ class MassExtractMlsCommand extends Command
             $resource = $resources->load($file->getRelativePathname(), [ 'game' => 'mh2' ]);
 
             $handler = new Mls();
-            $scripts = $handler->unpack($resource->getBinary(), 'mh2');
+            $scripts = $handler->unpack($resource->getInput(), 'mh2');
 
             $supportedOut = $path . "/supported";
             $notSupportedOut = $path . "/not-supported";

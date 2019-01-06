@@ -5,39 +5,32 @@ use App\Service\NBinary;
 
 class Extract {
 
-    private $binary;
-    
-    public function __construct( $binary )
-    {
-        $this->binary = new NBinary( $binary );
-    }
-
-    public function get(){
+    public function get( NBinary $binary ){
 
         // detect the platform
-        $placementsBinary = $this->binary->get(4);
+        $placementsBinary = $binary->get(4);
 
-        if ($this->binary->unpack($placementsBinary, NBinary::INT_32) > 100000){
-            $this->binary->numericBigEndian = true;
+        if ($binary->unpack($placementsBinary, NBinary::INT_32) > 100000){
+            $binary->numericBigEndian = true;
         }
 
-        $placements = $this->binary->consume(4, NBinary::INT_32);
+        $placements = $binary->consume(4, NBinary::INT_32);
 
         $sizesLength = $placements * 4;
 
         //split sizes (header) from content
-        $sizes = $this->binary->consume($sizesLength, NBinary::HEX);
+        $sizes = $binary->consume($sizesLength, NBinary::HEX);
         $sizes = str_split($sizes, 8);
 
         //extract every record
         $records = [];
 
         foreach ($sizes as $size) {
-            $size = $this->binary->unpack(hex2bin($size), NBinary::INT_32);
+            $size = $binary->unpack(hex2bin($size), NBinary::INT_32);
 
-            $block = new NBinary( $this->binary->consume($size, NBinary::BINARY) );
+            $block = new NBinary( $binary->consume($size, NBinary::BINARY) );
 
-            $block->numericBigEndian = $this->binary->numericBigEndian;
+            $block->numericBigEndian = $binary->numericBigEndian;
 
             $records[] = $this->parseRecord( $block );
         }

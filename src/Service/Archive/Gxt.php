@@ -3,12 +3,30 @@ namespace App\Service\Archive;
 
 use App\Service\NBinary;
 
-class Gxt {
+class Gxt extends Archive {
+    public $name = 'Text Translation';
 
+    public static $supported = 'gxt';
 
-    public function unpack($data){
+    /**
+     * @param $pathFilename
+     * @param NBinary $input
+     * @param null $game
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $input, $game = null ){
 
-        $binary = new NBinary($data);
+        if (!$input instanceof NBinary) return false;
+
+        if (
+            strpos($input->binary, 'key') !== false &&
+            strpos($input->binary, 'text') !== false)
+            return true;
+
+        return false;
+    }
+
+    public function unpack(NBinary $binary, $game = null){
 
         $indexHeader = [
             'fourCC'    => $binary->consume(4, NBinary::STRING),
@@ -17,39 +35,72 @@ class Gxt {
 
         $indexBlock = [];
 
-        for( $i = 0; $i < $indexHeader['blockSize'] / 20; $i++ ){
-            $indexBlock[] = [
+
+        $test = $binary->consume(8, NBinary::STRING, 16);
+
+        if (ctype_alnum($test)){
+            $game = "mh1";
+        }else{
+            $game = "mh2";
+        }
+
+        $binary->jumpTo(8);
+
+        for( $i = 0; $i < $indexHeader['blockSize'] / ($game == 'mh1' ? 12 : 20); $i++ ){
+            $entry = [
                 'offset' => $binary->consume(4,  NBinary::INT_32),
-                'key'    => $binary->consume(12, NBinary::STRING),
-                'id'     => $binary->consume(4,  NBinary::INT_32),
+                'key'    => $binary->consume($game == 'mh1' ? 8 : 12, NBinary::STRING)
             ];
+
+            if ($game == 'mh2'){
+                $entry['id'] = $binary->consume(4,  NBinary::INT_32);
+            }
+
+            $indexBlock[] = $entry;
         }
 
         //skip fourCC and blockSize
         $binary->current += 8;
 
-        $result = [];
+        $results = [];
 
         foreach ($indexBlock as $entry) {
-            $binary->jumpTo($indexHeader['blockSize'] + $entry['offset'] + 16 );
+            $offset = $indexHeader['blockSize'] + $entry['offset'] + 16;
 
-            $result[] = [
-                'id' => $entry['id'],
-                'key' => $entry['key'],
-                'text' => str_replace("\x00", "", $binary->getString("\x00\x00\x00", false))
-            ];
+            if ($offset > $binary->length()){
+                //unused translation keys
+                continue;
+            }else{
+                $binary->jumpTo($offset);
 
+                $result = [
+                    'key' => $entry['key'],
+                    'text' => str_replace("\x00", "", $binary->getString("\x00\x00\x00", false))
+                ];
+
+                //MH2 only
+                if (isset($entry['id'])){
+                    $result['id'] = $entry['id'];
+                }
+
+                $results[] = $result;
+            }
 
         }
 
-        return $result;
+
+        return $results;
     }
 
-    public function pack( $records ){
+    public function pack( $records, $game = null ){
+
+        $records = \json_decode($records->binary, true);
+
+        $game = isset($records[0]['id']) ? "mh2" : "mh1";
 
         $binary = new NBinary();
         $binary->write('TKEY', NBinary::STRING);
-        $binary->write(count($records) * 20, NBinary::INT_32);
+        $binary->write(count($records) * ($game == "mh1" ? 12 : 20), NBinary::INT_32);
 
         $data = new NBinary();
         $offsets = [];
@@ -71,8 +122,11 @@ class Gxt {
         foreach ($records as $index => $record) {
             $binary->write($offsets[$index], NBinary::INT_32);
             $binary->write($record['key'], NBinary::STRING);
-            $binary->write($binary->getPadding("\x00", 12, $record['key']), NBinary::BINARY);
-            $binary->write($record['id'], NBinary::INT_32);
+            $binary->write($binary->getPadding("\x00", $game == "mh1" ? 8 : 12, $record['key']), NBinary::BINARY);
+
+            if (isset($record['id'])){
+                $binary->write($record['id'], NBinary::INT_32);
+            }
         }
 
         $binary->write('TDAT', NBinary::STRING);

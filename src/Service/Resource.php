@@ -2,66 +2,59 @@
 
 namespace App\Service;
 
+use App\Service\Archive\Archive;
+use Symfony\Component\Finder\Finder;
+
 class Resource
 {
 
-    private $binary = '';
+    /** @var Finder|NBinary */
+    private $input;
 
-
-    private $content = '';
-    private $type = '';
+    private $handler = '';
     private $relativeFile = '';
 
-    public function __construct( $content, $type, $relativeFile, $binary)
+    public function __construct( Archive $handler, $relativeFile, $input)
     {
-        $this->binary = $binary;
-        $this->content = $content;
-        $this->type = strtolower($type);
+        $this->input = $input;
+        $this->handler = $handler;
         $this->relativeFile = $relativeFile;
     }
 
     /**
-     * @return mixed
+     * @return Archive
      */
-    public function getContent(){
-        return $this->content;
+    public function getHandler()
+    {
+        return $this->handler;
     }
 
-    public function setContent( $content ){
-        $this->content = $content;
+    /**
+     * @param Archive $handler
+     */
+    public function setHandler($handler)
+    {
+        $this->handler = $handler;
+    }
+
+
+
+
+    /**
+     * @return Finder|NBinary
+     */
+    public function getInput()
+    {
+        return $this->input;
     }
 
 
     /**
-     * @return string
+     * @param Finder|NBinary $input
      */
-    public function getBinary()
+    public function setInput($input)
     {
-        return $this->binary;
-    }
-
-    /**
-     * @param string $binary
-     */
-    public function setBinary($binary)
-    {
-        $this->binary = $binary;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
+        $this->input = $input;
     }
 
 

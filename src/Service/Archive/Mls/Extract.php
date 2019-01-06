@@ -3,6 +3,7 @@ namespace App\Service\Archive\Mls;
 
 
 use App\Service\Binary;
+use App\Service\NBinary;
 
 class Extract {
 
@@ -11,10 +12,10 @@ class Extract {
     private $game;
     private $platform;
 
-    public function __construct( $binaryData, $game = "mh2")
+    public function __construct( NBinary $binaryData, $game = "mh2")
     {
         $this->game = $game;
-        $this->binary = new Binary( $binaryData );
+        $this->binary = new Binary( $binaryData->binary );
     }
 
     public function get(){

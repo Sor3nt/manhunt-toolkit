@@ -1,69 +1,42 @@
 <?php
 namespace App\Tests\Archive\Dff\Manhunt1;
 
-use App\Service\Archive\Bin;
-use App\Service\Archive\Dff;
-use App\Service\Archive\Inst;
-use App\Service\Resources;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Finder\Finder;
+use App\Tests\Archive\Archive;
 
-class XboxTest extends KernelTestCase
+class XboxTest extends Archive
 {
 
-    public function testPackUnpack()
+    public function test()
     {
-        echo "\n* DFF: Testing Manhunt 1 PS2 ==> ";
+        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Dff/Manhunt1/XBOX";
+        $outputFolder = $testFolder . "/export";
 
-        $resources = new Resources();
-        $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
-        $resource = $resources->load('/Archive/Dff/Manhunt1/XBOX/modelsXBOX.dff');
+        /*
+         * Why the double unpack/pack?
+         *
+         * We did not save the original order of the entries
+         * So the comparison would fail because of wrong entry orders.
+         */
 
-        $entries = $resource->getContent();
-
-
-        $exportFolder = $resources->workDirectory . '/Archive/Dff/Manhunt1/XBOX/export-test/';
-        @mkdir($exportFolder, 0777, true);
-
-        foreach ($entries as $entry) {
-            file_put_contents($exportFolder . $entry['name'] . '.dff', $entry['data']);
-        }
-
-        $finder = new Finder();
-        $finder->name('*.dff')->in($exportFolder);
-
-        $data = [];
-        foreach ($finder as $file) {
-            $data[ $file->getFilename() ] = $file->getContents();
-        }
-
-        $dff = new Dff();
-        $repacked = $dff->pack( $data );
-
-        $this->assertEquals(
-            mb_strlen($repacked),
-            mb_strlen($resource->getBinary())
+        echo "\n* DFF: Testing Manhunt 1 PS2 (unpack/pack) ";
+        $this->unPackPack(
+            $testFolder . "/modelsXBOX.dff",
+            $outputFolder . "/modelsXBOX#dff",
+            '3d models'
         );
 
-        $this->rrmdir($exportFolder);
-    }
+        $this->unPackPack(
+            $testFolder . "/export/modelsXBOX.dff",
+            $outputFolder . "/export/modelsXBOX#dff",
+            '3d models'
+        );
 
+        $this->assertEquals(
+            md5(file_get_contents($outputFolder . "/modelsXBOX.dff")),
+            md5(file_get_contents($outputFolder . "/export/modelsXBOX.dff"))
+        );
 
-    private function rrmdir($src) {
-        $dir = opendir($src);
-        while(false !== ( $file = readdir($dir)) ) {
-            if (( $file != '.' ) && ( $file != '..' )) {
-                $full = $src . '/' . $file;
-                if ( is_dir($full) ) {
-                    $this->rrmdir($full);
-                }
-                else {
-                    unlink($full);
-                }
-            }
-        }
-        closedir($dir);
-        rmdir($src);
+        $this->rrmdir($outputFolder);
     }
 
 

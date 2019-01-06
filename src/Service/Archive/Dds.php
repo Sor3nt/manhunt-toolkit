@@ -5,44 +5,50 @@ use App\Service\Archive\Mls\Build;
 use App\Service\Archive\Mls\Extract;
 use App\Service\NBinary;
 
-class Dds
+class Dds extends Archive
 {
+    public $name = 'DirectDraw Surface';
 
-    public function decode($data)
+    public static $supported = 'dds';
+
+    public function pack($data, $game = null){
+        throw new \Exception('Packing of DDS is not implemented');
+    }
+
+    public function unpack(NBinary $binary, $game = null)
     {
-        $data = new NBinary($data);
 
         return [
-            'magic' => $data->consume(4, NBinary::BINARY),
-            'size' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'flags' => $this->convertHeaderFlags($data->consume(4, NBinary::LITTLE_U_INT_32)),
-            'height' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'width' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'pitchOrLinearSize' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'depth' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'mipMapCount' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'reserved' => $data->consume(11 * 4, NBinary::HEX),
+            'magic' => $binary->consume(4, NBinary::BINARY),
+            'size' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'flags' => $this->convertHeaderFlags($binary->consume(4, NBinary::LITTLE_U_INT_32)),
+            'height' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'width' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'pitchOrLinearSize' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'depth' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'mipMapCount' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'reserved' => $binary->consume(11 * 4, NBinary::HEX),
 
             //pixel format
 
-            'format_size' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'format_flags' => $this->readDDSPixelFormatFlags($data->consume(4, NBinary::LITTLE_U_INT_32)),
-            'format' => $data->consume(4, NBinary::STRING),
-            'RGBBitCount' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'RBitMask' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'GBitMask' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'BBitMask' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'ABitMask' => $data->consume(4, NBinary::LITTLE_U_INT_32),
+            'format_size' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'format_flags' => $this->readDDSPixelFormatFlags($binary->consume(4, NBinary::LITTLE_U_INT_32)),
+            'format' => $binary->consume(4, NBinary::STRING),
+            'RGBBitCount' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'RBitMask' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'GBitMask' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'BBitMask' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'ABitMask' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
 
 
-            'caps' => $this->readHeaderCaps($data->consume(4, NBinary::LITTLE_U_INT_32)),
-            'caps2' => $this->readHeaderCaps2($data->consume(4, NBinary::LITTLE_U_INT_32)),
-            'caps3' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'caps4' => $data->consume(4, NBinary::LITTLE_U_INT_32),
-            'reserved2' => $data->consume(4, NBinary::LITTLE_U_INT_32),
+            'caps' => $this->readHeaderCaps($binary->consume(4, NBinary::LITTLE_U_INT_32)),
+            'caps2' => $this->readHeaderCaps2($binary->consume(4, NBinary::LITTLE_U_INT_32)),
+            'caps3' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'caps4' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
+            'reserved2' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
 
 
-            'data' => $data->binary
+            'data' => $binary->consume( $binary->remain(), NBinary::BINARY)
 
         ];
 

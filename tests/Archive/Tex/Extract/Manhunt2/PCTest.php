@@ -21,7 +21,8 @@ class PCTest extends KernelTestCase
 
         $content = $resources->load('/Archive/Tex/Manhunt2/PC/gmodelspc.tex');
 
-        $content = $content->getContent();
+        $handler = $content->getHandler();
+        $content = $handler->unpack( $content->getInput(), "mh2" );
 
         $ddsHandler = new Dds();
         $bmpHandler = new Bmp();
