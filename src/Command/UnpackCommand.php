@@ -2,14 +2,8 @@
 
 namespace App\Command;
 
-use App\Service\Archive\Bin;
-use App\Service\Archive\Bmp;
-use App\Service\Archive\Dds;
-use App\Service\Archive\Dxt1;
-use App\Service\Archive\Dxt5;
-use App\Service\Archive\Ifp;
+use App\MHT;
 use App\Service\Archive\Mls;
-use App\Service\Compiler\Compiler;
 use App\Service\Resources;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,18 +27,26 @@ class UnpackCommand extends Command
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'mh1 or mh2?',
-                null
-            );
+                MHT::GAME_AUTO
+            )
+
+            ->addOption(
+                'platform',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'pc,ps2,psp,wii,xbox?',
+                MHT::PLATFORM_AUTO
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        //TODO !!!!!
-        $game = "mh2";
-
         $file = $input->getArgument('file');
+        $game = $input->getOption('game');
+        $platform = $input->getOption('platform');
+
         $path = pathinfo($file);
 
         $originalExtension = $path['extension'];
@@ -55,7 +57,7 @@ class UnpackCommand extends Command
 
         //load the resource
         $resources = new Resources();
-        $resource = $resources->load($file);
+        $resource = $resources->load($file, $game, $platform);
 
         if ($input->getOption('only-unzip')){
 
@@ -75,7 +77,7 @@ class UnpackCommand extends Command
         $output->writeln( sprintf('Identify file as %s ', $handler->name));
         $output->write( sprintf('Processing %s ', $file));
 
-        $results = $handler->unpack( $resource->getInput(), $game );
+        $results = $handler->unpack( $resource->getInput(), $game, $platform );
 
         if ($handler instanceof Mls){
             $results = $handler->getValidatedResults( $results );
@@ -95,6 +97,12 @@ class UnpackCommand extends Command
                         $outputTo,
                         \json_encode($results, JSON_PRETTY_PRINT)
                     );
+
+                    if (json_last_error() !== 0){
+                        $output->writeln('EMERGENCY JSON error received: ' . json_last_error_msg());
+                        exit;
+                    }
+
 
                     break;
 

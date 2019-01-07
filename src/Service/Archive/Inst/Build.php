@@ -2,15 +2,16 @@
 namespace App\Service\Archive\Inst;
 
 
+use App\MHT;
 use App\Service\NBinary;
 
 class Build {
 
-    public function build( $records, $bigEndian = false ){
+    public function build( $records, $game, $platform ){
 
         $binary = new NBinary();
 
-        if ($bigEndian) $binary->numericBigEndian = true;
+        if ($platform == MHT::PLATFORM_WII) $binary->numericBigEndian = true;
 
 
         // append record count
@@ -22,7 +23,7 @@ class Build {
              * Append GlgRecord name
              */
             $entry = new NBinary($record['record']);
-            if ($bigEndian) $entry->numericBigEndian = true;
+            $entry->numericBigEndian = $binary->numericBigEndian;
 
             $entry->write("\x00", NBinary::BINARY);
             $entry->write($entry->getPadding( "\x70"), NBinary::BINARY);
@@ -37,13 +38,9 @@ class Build {
             /*
              * Append XYZ coordinates
              */
-
-            $record['position']['y'] = $record['position']['y'] * -1;
-            $record['position']['z'] = $record['position']['z'] * -1;
-
             $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
-            $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
-            $entry->write( $record['position']['z'], NBinary::FLOAT_32 );
+            $entry->write( $game == MHT::GAME_MANHUNT_2 ? $record['position']['y'] * -1 : $record['position']['y'], NBinary::FLOAT_32 );
+            $entry->write( $game == MHT::GAME_MANHUNT_2 ? $record['position']['z'] * -1 : $record['position']['z'], NBinary::FLOAT_32 );
 
             /*
              * Append rotation

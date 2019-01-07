@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\MHT;
 use App\Service\NBinary;
 
 class Gxt extends Archive {
@@ -10,11 +11,12 @@ class Gxt extends Archive {
 
     /**
      * @param $pathFilename
-     * @param NBinary $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
         if (!$input instanceof NBinary) return false;
 
@@ -26,7 +28,7 @@ class Gxt extends Archive {
         return false;
     }
 
-    public function unpack(NBinary $binary, $game = null){
+    public function unpack(NBinary $binary, $game, $platform){
 
         $indexHeader = [
             'fourCC'    => $binary->consume(4, NBinary::STRING),
@@ -38,21 +40,23 @@ class Gxt extends Archive {
 
         $test = $binary->consume(8, NBinary::STRING, 16);
 
-        if (ctype_alnum($test)){
-            $game = "mh1";
-        }else{
-            $game = "mh2";
+        if ($game == MHT::GAME_AUTO){
+            if (ctype_alnum($test)){
+                $game = MHT::GAME_MANHUNT;
+            }else{
+                $game = MHT::GAME_MANHUNT_2;
+            }
         }
 
         $binary->jumpTo(8);
 
-        for( $i = 0; $i < $indexHeader['blockSize'] / ($game == 'mh1' ? 12 : 20); $i++ ){
+        for( $i = 0; $i < $indexHeader['blockSize'] / ($game == MHT::GAME_MANHUNT ? 12 : 20); $i++ ){
             $entry = [
                 'offset' => $binary->consume(4,  NBinary::INT_32),
-                'key'    => $binary->consume($game == 'mh1' ? 8 : 12, NBinary::STRING)
+                'key'    => $binary->consume($game == MHT::GAME_MANHUNT ? 8 : 12, NBinary::STRING)
             ];
 
-            if ($game == 'mh2'){
+            if ($game == MHT::GAME_MANHUNT_2){
                 $entry['id'] = $binary->consume(4,  NBinary::INT_32);
             }
 
@@ -92,15 +96,23 @@ class Gxt extends Archive {
         return $results;
     }
 
-    public function pack( $records, $game = null ){
+    /**
+     * @param $records
+     * @param $game
+     * @param $platform
+     * @return null|string
+     */
+    public function pack( $records, $game, $platform ){
 
         $records = \json_decode($records->binary, true);
 
-        $game = isset($records[0]['id']) ? "mh2" : "mh1";
+        if ($game == MHT::GAME_AUTO){
+            $game = isset($records[0]['id']) ? MHT::GAME_MANHUNT_2 : MHT::GAME_MANHUNT;
+        }
 
         $binary = new NBinary();
         $binary->write('TKEY', NBinary::STRING);
-        $binary->write(count($records) * ($game == "mh1" ? 12 : 20), NBinary::INT_32);
+        $binary->write(count($records) * ($game == MHT::GAME_MANHUNT ? 12 : 20), NBinary::INT_32);
 
         $data = new NBinary();
         $offsets = [];
@@ -122,7 +134,7 @@ class Gxt extends Archive {
         foreach ($records as $index => $record) {
             $binary->write($offsets[$index], NBinary::INT_32);
             $binary->write($record['key'], NBinary::STRING);
-            $binary->write($binary->getPadding("\x00", $game == "mh1" ? 8 : 12, $record['key']), NBinary::BINARY);
+            $binary->write($binary->getPadding("\x00", $game == MHT::GAME_MANHUNT ? 8 : 12, $record['key']), NBinary::BINARY);
 
             if (isset($record['id'])){
                 $binary->write($record['id'], NBinary::INT_32);

@@ -12,11 +12,12 @@ class Dff extends Archive {
 
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
 
         if (!$input instanceof Finder) return false;
@@ -120,11 +121,12 @@ class Dff extends Archive {
     }
 
     /**
-     * @param $binary
-     * @param null $game
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
      * @return array
      */
-    public function unpack(NBinary $binary, $game = null){
+    public function unpack(NBinary $binary, $game, $platform){
 
         $fileSIZE = $binary->length();
 
@@ -158,11 +160,12 @@ class Dff extends Archive {
     }
 
     /**
-     * @param Finder $files
-     * @param null $game
+     * @param $files
+     * @param $game
+     * @param $platform
      * @return string
      */
-    public function pack( $files, $game = null ){
+    public function pack( $files, $game, $platform ){
 
         $files = $this->prepareData($files);
 

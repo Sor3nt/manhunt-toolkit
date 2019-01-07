@@ -52,8 +52,8 @@ class Build {
     private function buildNAME( $records ){
 
         $data = current(unpack("H*", $records['NAME']));
-        $length = strlen($data);
-        $name = Helper::pad($data, $length + (4 - $length % 4 ));
+        $length = strlen($data) + (8 - strlen($data) % 8);
+        $name = Helper::pad($data, $length);
 
         return $this->buildLabelSizeData("NAME", hex2bin($name));
     }

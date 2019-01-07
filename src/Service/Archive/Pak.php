@@ -10,15 +10,14 @@ class Pak extends Archive {
 
     public static $supported = 'pak';
 
-
-
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
         if (!$input instanceof Finder) return false;
 
@@ -45,7 +44,7 @@ class Pak extends Archive {
         return $result;
     }
 
-    public function unpack(NBinary $binary, $game = null){
+    public function unpack(NBinary $binary, $game, $platform){
 
         $count = $binary->consume(4, NBinary::INT_32, 8);
 
@@ -94,11 +93,12 @@ class Pak extends Archive {
     }
 
     /**
-     * @param Finder $files
-     * @param null $game
+     * @param $files
+     * @param $game
+     * @param $platform
      * @return null|string
      */
-    public function pack( $files, $game = null ){
+    public function pack( $files, $game, $platform ){
 
         $files = $this->prepareData($files);
 

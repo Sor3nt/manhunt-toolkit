@@ -13,14 +13,14 @@ class Mls extends Archive {
 
     public static $supported = 'mls';
 
-
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
         if (!$input instanceof Finder) return false;
 
@@ -32,19 +32,20 @@ class Mls extends Archive {
     }
 
     /**
-     * @param $binary
-     * @param string $game
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
      * @return array
      */
-    public function unpack(NBinary $binary, $game = "mh2"){
+    public function unpack(NBinary $binary, $game, $platform){
 
-        $extractor = new Extract($binary, $game);
+        $extractor = new Extract($binary, $game, $platform);
 
         return $extractor->get();
     }
 
 
-    private function prepareData( Finder $finder, $game = "mh2" ){
+    private function prepareData( Finder $finder, $game ){
 
         $scripts = [];
 
@@ -90,13 +91,14 @@ class Mls extends Archive {
     }
 
     /**
-     * @param Finder $scripts
-     * @param null $game
+     * @param $scripts
+     * @param $game
+     * @param $platform
      * @return string
      */
-    public function pack( $scripts, $game = null ){
+    public function pack( $scripts, $game, $platform){
 
-        $scripts = $this->prepareData( $scripts );
+        $scripts = $this->prepareData( $scripts, $game );
 
         $builder = new Build();
         return $builder->build( $scripts );
@@ -133,11 +135,11 @@ class Mls extends Archive {
                 $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.entt' ] = $mhsc['ENTT'];
 
                 if (isset($mhsc['DATA'])){
-                    $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.data' ] = implode("\n", $mhsc['DATA']);
+                    $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.data' ] = $mhsc['DATA'];
                 }
 
                 if (isset($mhsc['STAB'])) {
-                    $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.stab' ] = \json_encode( $mhsc['STAB']);
+                    $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.stab' ] = $mhsc['STAB'];
                 }
             }
         }

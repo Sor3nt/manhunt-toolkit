@@ -1,6 +1,7 @@
 <?php
 namespace App\Tests\Archive\Gxt\Manhunt1;
 
+use App\MHT;
 use App\Tests\Archive\Archive;
 
 class PcTest extends Archive
@@ -21,17 +22,20 @@ class PcTest extends Archive
          * The translation can contain unused text, MHT ignore these entries
          */
 
-
         $this->unPackPack(
             $testFolder . "/pc_asylum.gxt",
             $outputFolder . "/pc_asylum.gxt.json",
-            'text translation'
+            'text translation',
+            MHT::GAME_MANHUNT,
+            MHT::PLATFORM_PC
         );
 
         $this->unPackPack(
             $outputFolder . "/pc_asylum.gxt",
             $outputFolder . "/export/pc_asylum.gxt.json",
-            'text translation'
+            'text translation',
+            MHT::GAME_MANHUNT,
+            MHT::PLATFORM_PC
         );
 
         $this->assertEquals(

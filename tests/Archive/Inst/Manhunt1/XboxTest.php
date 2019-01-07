@@ -1,33 +1,48 @@
 <?php
 namespace App\Tests\Archive\Inst\Manhunt1;
 
-use App\Service\Archive\Inst;
-use App\Service\Resources;
+use App\MHT;
+use App\Tests\Archive\Archive;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class XboxTest extends KernelTestCase
+class XboxTest extends Archive
 {
 
-    public function testPackUnpack()
+
+    public function test()
     {
-        echo "\n* INST: Testing Manhunt 1 Xbox ==> ";
+        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Inst/Manhunt1/XBOX";
+        $outputFolder = $testFolder . "/export";
 
-        $resources = new Resources();
-        $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
-        $resource = $resources->load('/Archive/Inst/Manhunt1/XBOX/entity.inst');
+        /*
+         * Why the double unpack/pack?
+         *
+         * The Manhunt (1/2) INST deliver a "00 00 00 80" but translated to Little INT 32 is this a zero (0)
+         * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
+         */
+        echo "\n* INST: Testing Manhunt 1 XBOX (unpack/pack) ";
+        $this->unPackPack(
+            $testFolder . "/entity.inst",
+            $outputFolder . "/entity.inst.json",
+            'entity positions',
+            MHT::GAME_MANHUNT,
+            MHT::PLATFORM_XBOX
+        );
 
-        $content = $resource->getContent();
+        $this->unPackPack(
+            $outputFolder . "/entity.inst",
+            $outputFolder . "/export/entity.inst.json",
+            'entity positions',
+            MHT::GAME_MANHUNT,
+            MHT::PLATFORM_XBOX
+        );
 
-        $inst = new Inst();
+        $this->assertEquals(
+            md5(file_get_contents($outputFolder . "/entity.inst")),
+            md5(file_get_contents($outputFolder . "/export/entity.inst"))
+        );
 
-        $compressed = $inst->pack($content);
-
-        $this->assertEquals(md5($resource->getInput()), md5($compressed));
-
-        $uncompressed = $inst->unpack($compressed);
-
-        $this->assertEquals($content, $uncompressed);
-
+        $this->rrmdir($outputFolder);
     }
 
 }

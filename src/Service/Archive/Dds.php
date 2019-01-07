@@ -1,8 +1,6 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Service\Archive\Mls\Build;
-use App\Service\Archive\Mls\Extract;
 use App\Service\NBinary;
 
 class Dds extends Archive
@@ -11,11 +9,23 @@ class Dds extends Archive
 
     public static $supported = 'dds';
 
-    public function pack($data, $game = null){
+    /**
+     * @param $data
+     * @param $game
+     * @param $platform
+     * @throws \Exception
+     */
+    public function pack($data, $game, $platform){
         throw new \Exception('Packing of DDS is not implemented');
     }
 
-    public function unpack(NBinary $binary, $game = null)
+    /**
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
+     */
+    public function unpack(NBinary $binary, $game, $platform)
     {
 
         return [

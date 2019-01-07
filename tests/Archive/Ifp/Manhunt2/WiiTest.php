@@ -1,6 +1,7 @@
 <?php
 namespace App\Tests\Archive\Ifp\Manhunt2;
 
+use App\MHT;
 use App\Service\Archive\Bin;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
@@ -23,7 +24,8 @@ class WiiTest extends Archive
             $testFolder . "/allanims_wii.ifp",
             $outputFolder . "/allanims_wii#ifp",
             'animations',
-            'mh2-wii'
+            MHT::GAME_MANHUNT_2,
+            MHT::PLATFORM_WII
         );
 
         $this->assertEquals(

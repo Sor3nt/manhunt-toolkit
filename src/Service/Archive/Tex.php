@@ -1,8 +1,8 @@
 <?php
 namespace App\Service\Archive;
 
+use App\MHT;
 use App\Service\NBinary;
-use Symfony\Component\Finder\Finder;
 
 class Tex extends Archive {
 
@@ -12,11 +12,12 @@ class Tex extends Archive {
 
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
         return false;
     }
 
@@ -72,7 +73,7 @@ class Tex extends Archive {
         $ddsHandler = new Dds();
         $bmpHandler = new Bmp();
 
-        $ddsDecoded = $ddsHandler->unpack( new NBinary($texture['data']) );
+        $ddsDecoded = $ddsHandler->unpack( new NBinary($texture['data']), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
 
         if($ddsDecoded['format'] == "DXT1") {
             $dxtHandler = new Dxt1();
@@ -100,7 +101,13 @@ class Tex extends Archive {
         return [ $texture['name'] . ".bmp" , $bmpImage];
     }
 
-    public function unpack(NBinary $binary, $game = null){
+    /**
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
+     */
+    public function unpack(NBinary $binary, $game, $platform){
 
         $header = $this->parseHeader($binary);
 
@@ -121,7 +128,12 @@ class Tex extends Archive {
         return $textures;
     }
 
-    public function pack($data, $game = null ){
+    /**
+     * @param $data
+     * @param $game
+     * @param $platform
+     */
+    public function pack($data, $game, $platform ){
 
         die("Packing it not supported right now.");
 

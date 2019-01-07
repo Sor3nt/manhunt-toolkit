@@ -11,40 +11,47 @@ abstract class Archive {
     public static $supported = null;
     public static $validationMap = null;
 
-    abstract public function pack( $data, $game = null );
-    abstract public function unpack( NBinary $binary, $game = null );
+    abstract public function pack( $data, $game, $platform );
+    abstract public function unpack( NBinary $binary, $game, $platform );
 
     /**
      * @param $fileNameOrFolder
-     * @param NBinary|Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canHandle($fileNameOrFolder, $input, $game = null){
+    public static function canHandle($fileNameOrFolder, $input, $game, $platform){
 
         // a finder can only mean packing
         if ($input instanceof Finder){
-            return static::canPack($fileNameOrFolder, $input, $game);
+            return static::canPack($fileNameOrFolder, $input, $game, $platform);
         }
 
         $pathInfo = pathinfo($fileNameOrFolder);
 
         // every json file is from MHT and mean we want to pack it
         if ($pathInfo['extension'] == "json"){
-            return static::canPack($fileNameOrFolder, $input, $game);
+            return static::canPack($fileNameOrFolder, $input, $game, $platform);
         }
 
-        return static::canUnpack($fileNameOrFolder, $input, $game);
+        return static::canUnpack($fileNameOrFolder, $input, $game, $platform);
 
     }
 
-    public static function canPack( $pathFilename, $binary, $game = null ){
+    /**
+     * @param $pathFilename
+     * @param $binary
+     * @param $game
+     * @param $platform
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $binary, $game, $platform ){
         return false;
-//        throw new \Exception('canUnpack check not implemented');
     }
 
 
-    public static function canUnpack( $input, NBinary $binary, $game = null ){
+    public static function canUnpack( $input, NBinary $binary, $game, $platform ){
 
 
         if (static::$supported != null){
@@ -57,7 +64,7 @@ abstract class Archive {
             }else if (is_array(static::$supported) && count(static::$supported) > 0){
 
                 //filename match
-                if (in_array($pathInfo['basename'], static::$supported)) return true;
+                if (in_array(strtolower($pathInfo['basename']), static::$supported)) return true;
             }
         }
 

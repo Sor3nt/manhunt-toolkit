@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\MHT;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 
@@ -10,14 +11,14 @@ class Ifp extends Archive
 
     public static $supported = 'ifp';
 
-
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
         if (!$input instanceof Finder) return false;
 
@@ -46,13 +47,8 @@ class Ifp extends Archive
         return false;
     }
 
-    private $game = false;
-    private $platform = false;
-
-    public function unpack(NBinary $binary, $game = null)
+    public function unpack(NBinary $binary, $game, $platform)
     {
-
-        $game = "mh2-pc";
 
         /**
          * ROOT (ANCT)
@@ -61,7 +57,9 @@ class Ifp extends Archive
         $numBlock = $binary->consume(4, NBinary::INT_32);
 
         if ($numBlock > 10000) {
-            $game = "mh2-wii";
+            $game = MHT::GAME_MANHUNT_2;
+            $platform = MHT::PLATFORM_WII;
+
             $binary->current -= 4;
             $binary->numericBigEndian = true;
 
@@ -107,7 +105,7 @@ class Ifp extends Archive
              * Animation Pack Entries
              */
             $path = $count . "#" . $blockName;
-            $animations = $this->extractAnimation($animationCount, $binary, $game);
+            $animations = $this->extractAnimation($animationCount, $binary, $game, $platform);
 
             foreach ($animations as $animationFilename => $animation) {
                 $results[ $path . '/' . $animationFilename] = $animation;
@@ -120,7 +118,15 @@ class Ifp extends Archive
         return $results;
     }
 
-    public function extractAnimation($animationCount, NBinary $binary, $game = "mh2-pc")
+    /**
+     * @param $animationCount
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
+     * @throws \Exception
+     */
+    public function extractAnimation($animationCount, NBinary $binary, $game, $platform)
     {
         $results = [];
         $animations = [];
@@ -146,8 +152,8 @@ class Ifp extends Archive
 
             if (strpos(strtolower($numberOfBones), 'ff') !== false) {
 
+                $platform = MHT::PLATFORM_PS2;
 
-                $game = "mh2-ps2";
                 $numberOfBones = substr($numberOfBones, 0, 2);
                 if (strlen($numberOfBones) == 2) {
                     $binary->consume(4, NBinary::BINARY);
@@ -164,7 +170,7 @@ class Ifp extends Archive
             $chunkSize = $binary->consume(4, NBinary::INT_32);
             $frameTimeCount = $binary->consume(4, NBinary::FLOAT_32);
 
-            if ($game == "mh2-ps2") {
+            if ($game == MHT::GAME_MANHUNT_2 && $platform == MHT::PLATFORM_PS2) {
 
                 $frameTimeCount = (string)$frameTimeCount;
                 if (strlen($frameTimeCount) > 15) {
@@ -180,7 +186,7 @@ class Ifp extends Archive
             /**
              * Sequences
              */
-            $bones = $this->extractBones($numberOfBones, $binary, $game, $chunkSize);
+            $bones = $this->extractBones($numberOfBones, $binary, $chunkSize, $game, $platform);
 
             $resultAnimation['bones'] = $bones;
 
@@ -198,7 +204,7 @@ class Ifp extends Archive
             $resultAnimation['entry'] = [];
             while ($numEntry > 0) {
 
-                if ($this->game == "mh1") {
+                if ($game == MHT::GAME_MANHUNT) {
 
                     $entry = [
                         'time' => $binary->consume(4, NBinary::FLOAT_32),
@@ -209,13 +215,13 @@ class Ifp extends Archive
                         'unknown6' => $binary->consume(4, NBinary::FLOAT_32), //boneId todo rename
                         'particleName' => $binary->consume(8, NBinary::BINARY),
                         'particlePosition' => [
-                            $binary->consume(4, NBinary::BIG_FLOAT_32),
-                            $binary->consume(4, NBinary::BIG_FLOAT_32),
-                            $binary->consume(4, NBinary::BIG_FLOAT_32),
-                            $binary->consume(4, NBinary::BIG_FLOAT_32),
-                            $binary->consume(4, NBinary::BIG_FLOAT_32),
-                            $binary->consume(4, NBinary::BIG_FLOAT_32),
-                            $binary->consume(4, NBinary::BIG_FLOAT_32)
+                            $binary->consume(4, NBinary::FLOAT_32),
+                            $binary->consume(4, NBinary::FLOAT_32),
+                            $binary->consume(4, NBinary::FLOAT_32),
+                            $binary->consume(4, NBinary::FLOAT_32),
+                            $binary->consume(4, NBinary::FLOAT_32),
+                            $binary->consume(4, NBinary::FLOAT_32),
+                            $binary->consume(4, NBinary::FLOAT_32)
                         ],
                         'unknown5' => $binary->consume(4, NBinary::HEX)
                     ];
@@ -300,12 +306,12 @@ class Ifp extends Archive
         return $results;
     }
 
-    private function extractBones($numberOfBones, NBinary $binary, $game = "mh2-pc", $chunkSize = null)
+    private function extractBones($numberOfBones, NBinary $binary, $chunkSize = null, $game, $platform)
     {
 
         $bones = [];
 
-        if ($game == "mh2-ps2") {
+        if ($game == MHT::GAME_MANHUNT_2 && $platform == MHT::PLATFORM_PS2) {
 
             $zlibData = $binary->consume($chunkSize, NBinary::BINARY);
 
@@ -360,13 +366,13 @@ class Ifp extends Archive
              * FRAMES
              */
 
-            $this->game = $sequenceLabel == "SEQU" ? "mh1" : "mh2";
-
             $resultBone['frames'] = $this->extractFrames(
                 $startTime,
                 $frames,
                 $frameType,
-                $binary
+                $binary,
+                $game,
+                $platform
             );
 
             $bones[] = $resultBone;
@@ -377,7 +383,7 @@ class Ifp extends Archive
         return $bones;
     }
 
-    private function extractFrames($startTime, $frames, $frameType, NBinary $binary)
+    private function extractFrames($startTime, $frames, $frameType, NBinary $binary, $game, $platform)
     {
 
         $resultFrames = [ 'frames' => [] ];
@@ -426,7 +432,7 @@ class Ifp extends Archive
             $index++;
         }
 
-        if ($this->game == "mh2") {
+        if ($game == MHT::GAME_MANHUNT_2) {
             $resultFrames['lastFrameTime'] = $binary->consume(4, NBinary::FLOAT_32);
         }
 
@@ -458,21 +464,22 @@ class Ifp extends Archive
         return $ifp;
     }
 
-
     /**
-     * @param Finder $records
-     * @param null $game
-     * @return string
+     * @param $records
+     * @param $game
+     * @param $platform
+     * @return null|string
      */
-    public function pack($records, $game = null)
+    public function pack($records, $game, $platform)
     {
 
         $records = $this->prepareData($records);
 
         $binary = new NBinary("ANCT");
 
-        $binary->numericBigEndian = $game == "mh2-wii";
-        if ($game == "mh2-wii") $game = "mh2";
+        if ($platform == MHT::PLATFORM_WII){
+            $binary->numericBigEndian = true;
+        }
 
         $binary->write(count($records), NBinary::INT_32);
 
@@ -488,7 +495,7 @@ class Ifp extends Archive
             $binary->write(strlen($blockName), NBinary::INT_32);
             $binary->write($blockName, NBinary::STRING);
 
-            $binary->concat( $this->packAnimation($animations, $game) );
+            $binary->concat( $this->packAnimation($animations, $game, $platform) );
 
         }
 
@@ -496,10 +503,20 @@ class Ifp extends Archive
 
     }
 
-    public function packAnimation($animations, $game)
+    /**
+     * @param $animations
+     * @param $game
+     * @param $platform
+     * @return NBinary
+     */
+    public function packAnimation($animations, $game, $platform)
     {
 
         $binary = new NBinary();
+
+        if ($platform == MHT::PLATFORM_WII){
+            $binary->numericBigEndian = true;
+        }
 
         $binary->write("ANPK", NBinary::STRING);
         $binary->write(count($animations), NBinary::INT_32);
@@ -528,7 +545,7 @@ class Ifp extends Archive
 
             foreach ($animation['bones'] as $bone) {
 
-                $chunkBinary->write($game == "mh1" ? "SEQU" : "SEQT", NBinary::STRING);
+                $chunkBinary->write($game == MHT::GAME_MANHUNT ? "SEQU" : "SEQT", NBinary::STRING);
 
                 $boneId = $bone['boneId'];
 
@@ -583,7 +600,7 @@ class Ifp extends Archive
                 $chunkSize += $singleChunkBinary->length() * 2;
                 $chunkBinary->concat($singleChunkBinary);
 
-                if ($game == "mh2") {
+                if ($game == MHT::GAME_MANHUNT_2) {
                     $chunkBinary->write($bone['frames']['lastFrameTime'], NBinary::FLOAT_32);
                 }
             }
@@ -597,7 +614,7 @@ class Ifp extends Archive
             $binary->write($animation['unknown5'], NBinary::HEX);
 
             //eachEntrySize
-            if ($game == "mh2") {
+            if ($game == MHT::GAME_MANHUNT_2) {
                 $binary->write(160, NBinary::INT_32);
             } else {
                 $binary->write(64, NBinary::INT_32);
@@ -611,7 +628,7 @@ class Ifp extends Archive
                 $binary->write($entry['unknown'], NBinary::HEX);
                 $binary->write($entry['unknown2'], NBinary::HEX);
 
-                if ($game == "mh2") {
+                if ($game == MHT::GAME_MANHUNT_2) {
 
 //                    $commandName = current(unpack("H*", $entry['CommandName']));
 //                    $missed = 128 - strlen($commandName) % 128;
@@ -625,7 +642,7 @@ class Ifp extends Archive
 
                 $binary->write($entry['unknown3'], NBinary::HEX);
 
-                if ($game == "mh1") {
+                if ($game == MHT::GAME_MANHUNT) {
                     $binary->write($entry['unknown4'], NBinary::HEX);
                 }
 
@@ -643,13 +660,7 @@ class Ifp extends Archive
 //                $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
 
                 foreach ($entry['particlePosition'] as $pPos) {
-                    if ($game == "mh1"){
-
-                        $binary->write($pPos, NBinary::BIG_FLOAT_32);
-                    }else{
-
-                        $binary->write($pPos, NBinary::FLOAT_32);
-                    }
+                    $binary->write($pPos, NBinary::FLOAT_32);
                 }
 
                 $binary->write($entry['unknown5'], NBinary::HEX);

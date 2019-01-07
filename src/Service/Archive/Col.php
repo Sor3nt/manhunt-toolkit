@@ -2,9 +2,7 @@
 namespace App\Service\Archive;
 
 use App\Bytecode\Helper;
-use App\Service\Binary;
 use App\Service\NBinary;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class Col extends Archive {
     public $name = 'Collision Matrix';
@@ -13,11 +11,12 @@ class Col extends Archive {
 
     /**
      * @param $pathFilename
-     * @param NBinary $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
         if (!$input instanceof NBinary) return false;
 
@@ -29,10 +28,6 @@ class Col extends Archive {
 
         return false;
     }
-
-
-
-    private $game = false;
 
     private function toString( $hex ){
         $hex = str_replace('00', '', $hex);
@@ -51,9 +46,6 @@ class Col extends Archive {
         return is_int($hex) ? pack("c", $hex) :  current(unpack("c", hex2bin($hex)));
     }
 
-    private function toInt16($hex){
-        return is_int($hex) ? pack("s", $hex) : current(unpack("s", hex2bin($hex)));
-    }
 
     private function substr(&$hex, $start, $end){
 
@@ -63,7 +55,13 @@ class Col extends Archive {
 
     }
 
-    public function unpack(NBinary $binary, $game = null){
+    /**
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
+     */
+    public function unpack(NBinary $binary, $game, $platform){
 
         $data = $binary->hex;
 
@@ -216,7 +214,12 @@ class Col extends Archive {
         return $results;
     }
 
-    public function pack( $records, $game = null ){
+    /**
+     * @param $records
+     * @param $game
+     * @param $platform
+     */
+    public function pack( $records, $game, $platform ){
 
         $data = "";
         $data .= Helper::fromIntToHex(count($records));

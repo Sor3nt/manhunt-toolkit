@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive\Bin;
 
+use App\MHT;
 use App\Service\Archive\Ifp;
 use App\Service\NBinary;
 
@@ -8,16 +9,24 @@ class Extract {
 
 
 
-    public function get( NBinary $binary ){
+    public function get( NBinary $binary, $game, $platform ){
 
         $version = $binary->consume(4, NBinary::HEX);
 
-        $game = "mh2-pc";
 
-        //wii version
-        if ($version == "00000001"){
-            $game = "mh2-wii";
-            $binary->numericBigEndian = true;
+        if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
+        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
+
+
+        if ($platform == MHT::PLATFORM_AUTO){
+            //wii version
+            if ($version == "00000001"){
+                $platform = MHT::PLATFORM_WII;
+                $binary->numericBigEndian = true;
+            }else{
+                $platform = MHT::PLATFORM_PC;
+            }
+
         }
 
         $numExec = $binary->consume(4, NBinary::INT_32);
@@ -61,7 +70,8 @@ class Extract {
 
                 $animations = $this->extractAnimations(
                     $anpk,
-                    $game
+                    $game,
+                    $platform
                 );
 
                 foreach ($animations as $animationFileName => $animation) {
@@ -96,7 +106,8 @@ class Extract {
 
             $animations = $this->extractAnimations(
                 $anpk,
-                $game
+                $game,
+                $platform
             );
 
             foreach ($animations as $animationFileName => $animation) {
@@ -110,14 +121,14 @@ class Extract {
         return $results;
     }
 
-
     /**
      * @param NBinary $binary
      * @param $game
+     * @param $platform
      * @return array
      * @throws \Exception
      */
-    private function extractAnimations(NBinary $binary, $game){
+    private function extractAnimations(NBinary $binary, $game, $platform){
 
         $headerType = $binary->consume(4, NBinary::STRING);
 
@@ -128,12 +139,11 @@ class Extract {
                 sprintf('Expected ANPK got: %s', $headerType)
             );
 
-        $ifp = new Ifp();
-        return $ifp->extractAnimation(
+        return (new Ifp())->extractAnimation(
             $animationCount,
             $binary,
-            $game
-
+            $game,
+            $platform
         );
 
     }

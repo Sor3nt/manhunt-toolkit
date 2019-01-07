@@ -1,6 +1,7 @@
 <?php
 namespace App\Tests\Archive;
 
+use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -8,24 +9,26 @@ use Symfony\Component\Console\Tester\CommandTester;
 class Archive extends KernelTestCase
 {
 
-    public function unPackPack($file1, $file2, $contains, $game = null){
+    public function unPackPack($file1, $file2, $contains, $game, $platform ){
         $this->call(
             'unpack',
             $file1,
             $contains,
-            $game
+            $game,
+            $platform
         );
 
         $this->call(
             'pack',
             $file2,
             $contains,
-            $game
+            $game,
+            $platform
         );
 
     }
 
-    public function call( $cmd, $file, $contains, $game = null  ){
+    public function call( $cmd, $file, $contains, $game, $platform  ){
 
         $kernel = static::createKernel();
         $application = new Application($kernel);
@@ -35,20 +38,15 @@ class Archive extends KernelTestCase
 
         $options = [
             'command'  => $command->getName(),
-            'file' => $file
+            'file' => $file,
+            '--game' => $game,
+            '--platform' => $platform,
         ];
-
-        if ($game != null){
-            $options['--game'] = $game;
-        }
 
         $commandTester->execute($options);
 
         $output = strtolower($commandTester->getDisplay());
 
-        $this->assertNotContains('error', $output);
-        $this->assertNotContains('warning', $output);
-        $this->assertNotContains('notice', $output);
         $this->assertContains($contains, $output);
     }
 

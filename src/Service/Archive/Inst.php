@@ -16,15 +16,14 @@ class Inst extends Archive {
         'entinst.bin'
     ];
 
-
     /**
      * @param $pathFilename
-     * @param NBinary $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
-
+    public static function canPack( $pathFilename, $input, $game, $platform ){
         if (!$input instanceof NBinary) return false;
 
         if (
@@ -38,26 +37,25 @@ class Inst extends Archive {
     }
 
     /**
-     * Manhunt 2 - entity_pc.inst pack/unpack
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
      */
-
-    public function unpack(NBinary $binary, $game = null){
-        $extractor = new Extract();
-        return $extractor->get($binary);
+    public function unpack(NBinary $binary, $game, $platform){
+        return (new Extract())->get($binary, $game, $platform);
     }
 
-
     /**
-     * @param NBinary $records
-     * @param bool $bigEndian
+     * @param $records
+     * @param $game
+     * @param $platform
      * @return null|string
      */
-    public function pack( $records, $bigEndian = false ){
+    public function pack( $records, $game, $platform){
 
         $records = \json_decode($records->binary, true);
-
-        return (new Build())->build( $records, $bigEndian );
-
+        return (new Build())->build( $records, $game, $platform );
     }
 
 

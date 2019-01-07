@@ -1,6 +1,7 @@
 <?php
 namespace App\Tests\Archive\Gxt\Manhunt2;
 
+use App\MHT;
 use App\Tests\Archive\Archive;
 
 class PcTest extends Archive
@@ -25,13 +26,17 @@ class PcTest extends Archive
         $this->unPackPack(
             $testFolder . "/A01_Escape_Asylum.gxt",
             $outputFolder . "/A01_Escape_Asylum.gxt.json",
-            'text translation'
+            'text translation',
+            MHT::GAME_MANHUNT_2,
+            MHT::PLATFORM_PC
         );
 
         $this->unPackPack(
             $outputFolder . "/A01_Escape_Asylum.gxt",
             $outputFolder . "/export/A01_Escape_Asylum.gxt.json",
-            'text translation'
+            'text translation',
+            MHT::GAME_MANHUNT_2,
+            MHT::PLATFORM_PC
         );
 
         $this->assertEquals(

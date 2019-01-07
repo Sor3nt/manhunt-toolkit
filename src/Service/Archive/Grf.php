@@ -2,7 +2,6 @@
 namespace App\Service\Archive;
 
 use App\Bytecode\Helper;
-use App\Service\Binary;
 use App\Service\NBinary;
 
 class Grf extends Archive {
@@ -38,7 +37,14 @@ class Grf extends Archive {
         return $result;
     }
 
-    public function unpack(NBinary $binary, $game = null){
+    /**
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
+     * @throws \Exception
+     */
+    public function unpack(NBinary $binary, $game, $platform){
 
         $entry = strtolower($binary->hex);
 
@@ -257,9 +263,14 @@ class Grf extends Archive {
 
     }
 
-    public function pack( $record, $game = null ){
+    /**
+     * @param $record
+     * @param $game
+     * @param $platform
+     * @return mixed|string
+     */
+    public function pack( $record, $game, $platform ){
 
-        $nameIndex = [];
 
         $data = current(unpack("H*", "GNIA"));
         $data .= Helper::fromIntToHex(1);

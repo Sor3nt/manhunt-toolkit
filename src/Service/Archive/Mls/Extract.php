@@ -2,6 +2,7 @@
 namespace App\Service\Archive\Mls;
 
 
+use App\MHT;
 use App\Service\Binary;
 use App\Service\NBinary;
 
@@ -12,9 +13,10 @@ class Extract {
     private $game;
     private $platform;
 
-    public function __construct( NBinary $binaryData, $game = "mh2")
+    public function __construct( NBinary $binaryData, $game, $platform)
     {
         $this->game = $game;
+        $this->platform = $platform;
         $this->binary = new Binary( $binaryData->binary );
     }
 
@@ -22,7 +24,13 @@ class Extract {
 
         /** @var Binary $remain */
         // detect the current version, wii or pc/ps2/psp/xbox?
-        $this->platform = $this->binary->substr(4, 4, $remain) == "00090003" ? "wii" : "pc";
+        $version = $this->binary->substr(4, 4, $remain);
+
+
+        if ($this->platform == MHT::PLATFORM_AUTO){
+            $this->platform = $version == "00090003" ? MHT::PLATFORM_WII : MHT::PLATFORM_PC;
+        }
+
 
         $nextSection = $remain->substr(0, 4)->toString();
 
@@ -50,7 +58,7 @@ class Extract {
     private function getLabelSizeData( Binary $data, Binary &$remain = null){
 
         $label = $data->substr(0, 4, $data);
-        $size = $data->substr(0, 4, $data, $this->platform == "wii");
+        $size = $data->substr(0, 4, $data, $this->platform == MHT::PLATFORM_WII);
 
         return [
             $label->toString(),
@@ -102,7 +110,7 @@ class Extract {
 
             $name = $part->substr(0, 64, $part);
 
-            list($onTriggerOffset, $position) = $part->split(4, $this->platform == "wii");
+            list($onTriggerOffset, $position) = $part->split(4, $this->platform == MHT::PLATFORM_WII);
 
             $result[] = [
                 'name' => $name->toString(),
@@ -136,7 +144,7 @@ class Extract {
 
         $result = [];
 
-        $split = $data->split(4, $this->platform == "wii");
+        $split = $data->split(4, $this->platform == MHT::PLATFORM_WII);
         foreach ($split as $value) {
             $result[] = $value->toHex();
         }
@@ -192,18 +200,18 @@ class Extract {
              * - [4-bytes ... ] byte offset of the occurred call in CODE section (MH2 only)
              */
 
-            $section2 = $data->substr(0, $this->game == "mh1" ? 16 : 20, $data)->split(4);
+            $section2 = $data->substr(0, $this->game == MHT::GAME_MANHUNT ? 16 : 20, $data)->split(4);
 
-            $entry['offset'] = $section2[0]->toHex($this->platform == "wii");
-            $entry['size']   = $section2[1]->toHex() == "ffffffff" ? 'ffffffff' : $section2[1]->toInt($this->platform == "wii");
-
-
-            $valueType = $section2[$this->game == "mh1" ? 2 : 3]->toHex($this->platform == "wii");
-            $occurrenceCount = $section2[$this->game == "mh1" ? 3 : 4]->toInt($this->platform == "wii");
+            $entry['offset'] = $section2[0]->toHex($this->platform == MHT::PLATFORM_WII);
+            $entry['size']   = $section2[1]->toHex() == "ffffffff" ? 'ffffffff' : $section2[1]->toInt($this->platform == MHT::PLATFORM_WII);
 
 
-            if ($this->game == "mh2"){
-                $entry['hierarchieType'] = $section2[2]->toHex($this->platform == "wii");
+            $valueType = $section2[$this->game == MHT::GAME_MANHUNT ? 2 : 3]->toHex($this->platform == MHT::PLATFORM_WII);
+            $occurrenceCount = $section2[$this->game == MHT::GAME_MANHUNT ? 3 : 4]->toInt($this->platform == MHT::PLATFORM_WII);
+
+
+            if ($this->game == MHT::GAME_MANHUNT_2){
+                $entry['hierarchieType'] = $section2[2]->toHex($this->platform == MHT::PLATFORM_WII);
             }
 
             switch ($valueType){
@@ -292,7 +300,7 @@ class Extract {
     }
 
     private function parseSMEM( Binary $data ){
-        return $data->toInt($this->platform == "wii");
+        return $data->toInt($this->platform == MHT::PLATFORM_WII);
     }
 
     private function parseDBUG( Binary $data ){

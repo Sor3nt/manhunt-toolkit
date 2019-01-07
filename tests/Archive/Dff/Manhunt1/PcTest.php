@@ -1,6 +1,7 @@
 <?php
 namespace App\Tests\Archive\Dff\Manhunt1;
 
+use App\MHT;
 use App\Tests\Archive\Archive;
 
 class PcTest extends Archive
@@ -22,13 +23,17 @@ class PcTest extends Archive
         $this->unPackPack(
             $testFolder . "/modelspc.dff",
             $outputFolder . "/modelspc#dff",
-            '3d models'
+            '3d models',
+            MHT::GAME_MANHUNT,
+            MHT::PLATFORM_PC
         );
 
         $this->unPackPack(
             $testFolder . "/export/modelspc.dff",
             $outputFolder . "/export/modelspc#dff",
-            '3d models'
+            '3d models',
+            MHT::GAME_MANHUNT,
+            MHT::PLATFORM_PC
         );
 
         $this->assertEquals(

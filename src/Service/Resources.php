@@ -8,7 +8,6 @@ use App\Service\Archive\Col;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
 use App\Service\Archive\Fsb;
-use App\Service\Archive\Grf;
 use App\Service\Archive\Gxt;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
@@ -27,18 +26,14 @@ class Resources
         Bin::class,     Col::class,     Dds::class,     Dff::class,     Fsb::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class,
         Pak::class
-
-        //Grf::class,
     ];
 
 
-    public function load( $relativeFile, $options = [] ){
+    public function load( $relativeFile, $game, $platform ){
 
         $absoluteFile = $this->workDirectory . $relativeFile;
 
         if (!file_exists( $absoluteFile ) && !is_dir($absoluteFile)) throw new \Exception(sprintf('File/Folder not found: %s', $absoluteFile));
-
-        if (!isset($options['game'])) $options['game'] = "mh2";
 
         $handler = false;
 
@@ -50,7 +45,7 @@ class Resources
         }
 
         foreach ($this->archives as $archive) {
-            if ($archive::canHandle( $relativeFile, $input )){
+            if ($archive::canHandle( $relativeFile, $input, $game, $platform )){
                 /** @var Archive $handler */
                 $handler = new $archive();
                 break;

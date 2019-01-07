@@ -2,20 +2,21 @@
 namespace App\Service\Archive;
 
 use App\Service\NBinary;
-use Symfony\Component\Finder\Finder;
 
 class Fsb extends Archive {
     public $name = 'Audio File';
 
     public static $supported = 'fsb';
 
+
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
         return false;
     }
 
@@ -49,7 +50,7 @@ class Fsb extends Archive {
 //
 //    }
 
-    public function unpack(NBinary $binary, $game = null){
+    public function unpack(NBinary $binary, $game, $platform){
         throw new \Exception('Unpacking of FSB is not implemented');
 
 //        $binary = new Binary( $data );
@@ -128,7 +129,7 @@ class Fsb extends Archive {
 //exit;
     }
 
-    public function pack( $records, $game = null ){
+    public function pack( $records, $game, $platform){
         throw new \Exception('Packing of FSB is not implemented');
 
     }

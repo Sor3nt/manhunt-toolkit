@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\MHT;
 use App\Service\Archive\Bin\Build;
 use App\Service\Archive\Bin\Extract;
 use App\Service\NBinary;
@@ -14,14 +15,14 @@ class Bin extends Archive {
         [0, 4, NBinary::HEX, ['01000000', '00000001']]
     ];
 
-
     /**
      * @param $pathFilename
-     * @param Finder $input
-     * @param null $game
+     * @param $input
+     * @param $game
+     * @param $platform
      * @return bool
      */
-    public static function canPack( $pathFilename, $input, $game = null ){
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
         if (!$input instanceof Finder) return false;
 
@@ -38,23 +39,37 @@ class Bin extends Archive {
     }
 
 
-    public function unpack(NBinary $binary, $game = null){
-        return (new Extract())->get($binary);
+    /**
+     * @param NBinary $binary
+     * @param $game
+     * @param $platform
+     * @return array
+     */
+    public function unpack(NBinary $binary, $game, $platform){
+        return (new Extract())->get($binary, $game, $platform);
     }
 
+
     /**
-     * @param Finder $data
-     * @param null $game
+     * @param $data
+     * @param $game
+     * @param $platform
      * @return string
      */
-    public function pack( $data, $game = null ){
+    public function pack( $data, $game, $platform ){
 
         $executionSections = $this->prepareData( $data );
+
+        //force to Manhunt 2 since Manhunt 1 did not use this
+        $game = MHT::GAME_MANHUNT_2;
+
+        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_WII;
 
         return (new Build())->build(
             $executionSections['executions'],
             $executionSections['envExecutions'],
-            $game
+            $game,
+            $platform
         );
 
     }

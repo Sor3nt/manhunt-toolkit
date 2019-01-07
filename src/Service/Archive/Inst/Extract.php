@@ -1,11 +1,12 @@
 <?php
 namespace App\Service\Archive\Inst;
 
+use App\MHT;
 use App\Service\NBinary;
 
 class Extract {
 
-    public function get( NBinary $binary ){
+    public function get( NBinary $binary, $game, $platform ){
 
         // detect the platform
         $placementsBinary = $binary->get(4);
@@ -32,14 +33,14 @@ class Extract {
 
             $block->numericBigEndian = $binary->numericBigEndian;
 
-            $records[] = $this->parseRecord( $block );
+            $records[] = $this->parseRecord( $block, $game, $platform );
         }
 
         return $records;
     }
 
 
-    private function parseRecord( NBinary $binary ){
+    private function parseRecord( NBinary $binary, $game, $platform ){
 
         /**
          * Find the  Record
@@ -79,26 +80,29 @@ class Extract {
 
         while($binary->remain() > 0) {
 
-            if ($binary->remain() >= 12){
-                $maybeType  = trim($binary->get(4, 4));
+            if ($game == MHT::GAME_AUTO){
+
+                if ($binary->remain() >= 12){
+                    $maybeType  = trim($binary->get(4, 4));
 
 
-                if (in_array($maybeType, [ 'flo', 'boo', 'str', 'int' ])){
-                    $game = "mh2";
+                    if (in_array($maybeType, [ 'flo', 'boo', 'str', 'int' ])){
+                        $game = MHT::GAME_MANHUNT_2;
+                    }else{
+                        $game = MHT::GAME_MANHUNT;
+                    }
+
                 }else{
-                    $game = "mh1";
+                    $game = MHT::GAME_MANHUNT;
+
                 }
-
-            }else{
-                $game = "mh1";
-
             }
 
 
-            if ($game == "mh1"){
+            if ($game == MHT::GAME_MANHUNT){
                 while($binary->remain() > 0) {
 
-                    $value  = $binary->consume(4, NBinary::INT_32);
+                    $value = $binary->consume(4, NBinary::INT_32);
 
                     $params[] = [
                         'value' => $value
@@ -106,7 +110,7 @@ class Extract {
                 }
             }else{
 
-                $parameterId  = $binary->consume(4, NBinary::HEX);
+                $parameterId = $binary->consume(4, NBinary::HEX);
 
                 $type = $binary->consume(4, NBinary::STRING);
 
@@ -136,10 +140,6 @@ class Extract {
                     'value' => $value
                 ];
             }
-
-
-
-
         };
 
         return [
@@ -148,8 +148,8 @@ class Extract {
             'entityClass' => $entityClass,
             'position' => [
                 'x' => $x,
-                'y' => $y * -1,
-                'z' => $z * -1
+                'y' => $game == MHT::GAME_MANHUNT ? $y : $y * -1,
+                'z' => $game == MHT::GAME_MANHUNT ? $z : $z * -1
             ],
             'rotation' => [
                 'x' => $rotationX,
