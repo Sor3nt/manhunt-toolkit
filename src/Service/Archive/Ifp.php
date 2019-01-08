@@ -178,6 +178,9 @@ class Ifp extends Archive
                 $frameTimeCount = (string)$frameTimeCount;
                 if (strlen($frameTimeCount) > 15) {
                     $frameTimeCount = (float)substr($frameTimeCount, 0, -5);
+                } else {
+
+                    die("PS2 error");
                 }
             }
 
@@ -194,6 +197,8 @@ class Ifp extends Archive
 
             //headerSize
             $binary->consume(4, NBinary::INT_32);
+
+            //pecTime
             $unknown5 = $binary->consume(4, NBinary::HEX);
 
             //eachEntrySize
@@ -340,9 +345,8 @@ class Ifp extends Archive
             $boneId = $binary->consume(2, NBinary::INT_16);
             $frameType = $binary->consume(1, NBinary::INT_8);
             $frames = $binary->consume(2, NBinary::INT_16);
-            $startTime = $binary->consume(2, NBinary::LITTLE_U_INT_16);
 
-            //allen: need /2048.0*30 get frameid value
+            $startTime = $binary->consume(2, NBinary::LITTLE_U_INT_16);
             $startTime = ($startTime / 2048) * 30;
 
             $resultBone = [
@@ -353,16 +357,36 @@ class Ifp extends Archive
             ];
 
 
-            if ($frameType > 2) {
+            /**
+                if frameType > 2 then
+                (
+                [((readshort f)/2048.0),((readshort f)/2048.0),((readshort f)/2048.0),((readshort f)/2048.0)]
+                )
+                else if startTime == 0 then fseek f -2 #seek_cur
+             *
+             */
 
-                if ($startTime > 0) {
-                    $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
-                }
+            if ($frameType == 3) {
+
+                $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
 
                 $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
                 $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
                 $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
+            }else if($frameType < 3 && $startTime == 0){
+                //back to starttime
+                $binary->current -= 2;
             }
+//            if ($frameType > 2) {
+//
+//                if ($startTime > 0) {
+//                    $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
+//                }
+//
+//                $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
+//                $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
+//                $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
+//            }
 
             /**
              * FRAMES
@@ -399,14 +423,26 @@ class Ifp extends Archive
             if ($startTime == 0) {
 
                 // first frame == starTime
-                if ($index == 0 && $frameType < 3) {
-                    $time = $startTime;
+                if ($index == 0 && $frameType == 3) {
+                    $time = 0;
                 } else {
                     $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+                    $resultFrame['time'] = $time / 2048 * 30;
                 }
-
-                $resultFrame['time'] = ($time / 2048) * 30;
             }
+
+
+//            if ($startTime == 0) {
+//
+//                // first frame == starTime
+//                if ($index == 0 && $frameType < 3) {
+//                    $time = $startTime;
+//                } else {
+//                    $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+//                }
+//
+//                $resultFrame['time'] = ($time / 2048) * 30;
+//            }
 
             if ($frameType < 3) {
 
@@ -560,28 +596,65 @@ class Ifp extends Archive
                  */
                 $singleChunkBinary = new NBinary();
                 $singleChunkBinary->numericBigEndian = $chunkBinary->numericBigEndian;
+
+
                 $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::LITTLE_U_INT_16);
 
-                if ($bone['frameType'] > 2) {
-                    if ($bone['startTime'] > 0) {
-                        $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
-                    }
 
+                if ($bone['frameType'] == 3) {
+                    $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
                     $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
                     $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
                     $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
+//                }else if($bone['frameType'] < 3 && $bone['startTime'] == 0){
+//                    $singleChunkBinary->write("FFFF", NBinary::HEX);
+
                 }
 
+
+//                if ($bone['frameType'] > 2) {
+//                    if ($bone['startTime'] > 0) {
+//                        $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
+//                    }
+//
+//                    $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
+//                    $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
+//                    $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
+//                }
+
+
+                $onlyFirstTime = true;
 
                 foreach ($bone['frames']['frames'] as $index => $frame) {
 
                     if ($bone['startTime'] == 0) {
 
-                        if ($index == 0 && $bone['frameType'] < 3) {
+                        if ($index == 0 && $bone['frameType'] == 3) {
                         } else {
-                            $singleChunkBinary->write( ($frame['time'] / 30) * 2048, NBinary::LITTLE_U_INT_16);
+//                            $singleChunkBinary->write( 12, NBinary::LITTLE_U_INT_16);
+
+
+                            //.... thats because we skip 2 bytes by the extraction...
+                            if ($onlyFirstTime){
+                                if($frame['time'] != 0){
+
+                                    $singleChunkBinary->write( ($frame['time'] / 30) * 2048, NBinary::LITTLE_U_INT_16);
+                                }
+                                $onlyFirstTime = false;
+                            }else{
+                                $singleChunkBinary->write( ($frame['time'] / 30) * 2048, NBinary::LITTLE_U_INT_16);
+                            }
+
                         }
                     }
+
+//                    if ($bone['startTime'] == 0) {
+//
+//                        if ($index == 0 && $bone['frameType'] < 3) {
+//                        } else {
+//                            $singleChunkBinary->write( ($frame['time'] / 30) * 2048, NBinary::LITTLE_U_INT_16);
+//                        }
+//                    }
 
                     if ($bone['frameType'] < 3) {
 
