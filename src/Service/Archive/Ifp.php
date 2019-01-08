@@ -50,6 +50,9 @@ class Ifp extends Archive
     public function unpack(NBinary $binary, $game, $platform)
     {
 
+        if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
+        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
+
         /**
          * ROOT (ANCT)
          */
@@ -179,8 +182,7 @@ class Ifp extends Archive
             }
 
             $resultAnimation = [
-                'chunkSize' => $chunkSize,
-                'frameTimeCount' => $frameTimeCount,
+                'frameTimeCount' => $frameTimeCount * 30,
             ];
 
             /**
@@ -338,7 +340,7 @@ class Ifp extends Archive
             $boneId = $binary->consume(2, NBinary::INT_16);
             $frameType = $binary->consume(1, NBinary::INT_8);
             $frames = $binary->consume(2, NBinary::INT_16);
-            $startTime = $binary->consume(2, NBinary::INT_16);
+            $startTime = $binary->consume(2, NBinary::LITTLE_U_INT_16);
 
             //allen: need /2048.0*30 get frameid value
             $startTime = ($startTime / 2048) * 30;
@@ -400,10 +402,10 @@ class Ifp extends Archive
                 if ($index == 0 && $frameType < 3) {
                     $time = $startTime;
                 } else {
-                    $time = $binary->consume(2, NBinary::INT_16);
+                    $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
                 }
 
-                $resultFrame['time'] = $time;
+                $resultFrame['time'] = ($time / 2048) * 30;
             }
 
             if ($frameType < 3) {
@@ -433,7 +435,7 @@ class Ifp extends Archive
         }
 
         if ($game == MHT::GAME_MANHUNT_2) {
-            $resultFrames['lastFrameTime'] = $binary->consume(4, NBinary::FLOAT_32);
+            $resultFrames['lastFrameTime'] = ($binary->consume(4, NBinary::FLOAT_32)) * 30;
         }
 
         return $resultFrames;
@@ -558,7 +560,7 @@ class Ifp extends Archive
                  */
                 $singleChunkBinary = new NBinary();
                 $singleChunkBinary->numericBigEndian = $chunkBinary->numericBigEndian;
-                $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::INT_16);
+                $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::LITTLE_U_INT_16);
 
                 if ($bone['frameType'] > 2) {
                     if ($bone['startTime'] > 0) {
@@ -577,7 +579,7 @@ class Ifp extends Archive
 
                         if ($index == 0 && $bone['frameType'] < 3) {
                         } else {
-                            $singleChunkBinary->write($frame['time'], NBinary::INT_16);
+                            $singleChunkBinary->write( ($frame['time'] / 30) * 2048, NBinary::LITTLE_U_INT_16);
                         }
                     }
 
@@ -601,12 +603,12 @@ class Ifp extends Archive
                 $chunkBinary->concat($singleChunkBinary);
 
                 if ($game == MHT::GAME_MANHUNT_2) {
-                    $chunkBinary->write($bone['frames']['lastFrameTime'], NBinary::FLOAT_32);
+                    $chunkBinary->write($bone['frames']['lastFrameTime'] / 30, NBinary::FLOAT_32);
                 }
             }
 
             $binary->write($chunkSize / 2, NBinary::INT_32);
-            $binary->write($animation['frameTimeCount'], NBinary::FLOAT_32);
+            $binary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
             $binary->concat($chunkBinary);
 
             //headerSize
