@@ -45,6 +45,24 @@ class PackCommand extends Command
         $game = $input->getOption('game');
         $platform = $input->getOption('platform');
 
+        if ($game !== MHT::GAME_AUTO){
+            if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2){
+                throw new \Exception('Invalid game, allowed is mh1 or mh2');
+            }
+        }
+
+        if ($platform !== MHT::PLATFORM_AUTO){
+            if (
+                $platform != MHT::PLATFORM_PC &&
+                $platform != MHT::PLATFORM_PS2 &&
+                $platform != MHT::PLATFORM_PSP &&
+                $platform != MHT::PLATFORM_XBOX &&
+                $platform != MHT::PLATFORM_WII
+            ){
+                throw new \Exception('Invalid platform, allowed is pc, ps2, psp, xbox, wii');
+            }
+        }
+
         $outputTo = str_replace('#','.', $file);
         $outputTo = str_replace('.json','', $outputTo);
 

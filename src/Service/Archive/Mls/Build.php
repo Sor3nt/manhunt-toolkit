@@ -158,7 +158,7 @@ class Build {
      */
     private function buildSTAB( $records ){
 
-        if (!isset($records['STAB'])) return "";
+        if (!isset($records['STAB']) || count($records['STAB']) == 0) return "";
 
         $stabData = $records['STAB'];
 

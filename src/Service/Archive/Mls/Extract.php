@@ -16,6 +16,7 @@ class Extract {
     public function __construct( NBinary $binaryData, $game, $platform)
     {
         $this->game = $game;
+
         $this->platform = $platform;
         $this->binary = new Binary( $binaryData->binary );
     }
@@ -188,7 +189,6 @@ class Extract {
              */
             $entry['name'] = $data->substr(0, 32, $data)->substr(0, "\x00")->toString();
 
-
             /**
              * section 2 is 16 (MH1) or 20 (MH2) bytes long
              *
@@ -199,7 +199,6 @@ class Extract {
              * - 4-bytes Occurrence/Usage Count
              * - [4-bytes ... ] byte offset of the occurred call in CODE section (MH2 only)
              */
-
             $section2 = $data->substr(0, $this->game == MHT::GAME_MANHUNT ? 16 : 20, $data)->split(4);
 
             $entry['offset'] = $section2[0]->toHex($this->platform == MHT::PLATFORM_WII);
