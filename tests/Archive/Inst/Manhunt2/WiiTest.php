@@ -2,8 +2,6 @@
 namespace App\Tests\Archive\Inst\Manhunt2;
 
 use App\MHT;
-use App\Service\Archive\Inst;
-use App\Service\Resources;
 use App\Tests\Archive\Archive;
 
 class WiiTest extends Archive
@@ -20,7 +18,7 @@ class WiiTest extends Archive
          * The Manhunt (1/2) INST deliver a "00 00 00 80" but translated to Little INT 32 is this a zero (0)
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
-        echo "\n* INST: Testing Manhunt 2 WII (unpack/pack) ";
+        echo "\n* INST: Testing Manhunt 2 WII (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/entity_wii.inst",
             $outputFolder . "/entity_wii.inst.json",

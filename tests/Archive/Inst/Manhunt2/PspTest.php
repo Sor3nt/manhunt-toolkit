@@ -18,7 +18,7 @@ class PspTest extends Archive
          * The Manhunt (1/2) INST deliver a "00 00 00 80" but translated to Little INT 32 is this a zero (0)
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
-        echo "\n* INST: Testing Manhunt 2 PSP (unpack/pack) ";
+        echo "\n* INST: Testing Manhunt 2 PSP (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/ENTINST.BIN",
             $outputFolder . "/ENTINST.BIN.json",

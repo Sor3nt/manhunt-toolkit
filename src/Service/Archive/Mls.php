@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\MHT;
 use App\Service\Archive\Mls\Build;
 use App\Service\Archive\Mls\Extract;
 use App\Service\Compiler\Compiler;
@@ -38,6 +39,9 @@ class Mls extends Archive {
      * @return array
      */
     public function unpack(NBinary $binary, $game, $platform){
+
+        if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
+        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
 
         $extractor = new Extract($binary, $game, $platform);
 
@@ -97,6 +101,9 @@ class Mls extends Archive {
      * @return string
      */
     public function pack( $scripts, $game, $platform){
+
+        if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
+        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
 
         $scripts = $this->prepareData( $scripts, $game );
 

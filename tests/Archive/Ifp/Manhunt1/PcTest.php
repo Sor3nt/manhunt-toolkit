@@ -9,12 +9,9 @@ class PcTest extends Archive
 
     public function test()
     {
-        echo "\n* IFP: Testing Manhunt 1 PC ==> ";
-
 
         $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Ifp/Manhunt1/PC";
         $outputFolder = $testFolder . "/export";
-
 
         /*
          * Why the double unpack/pack?
@@ -23,7 +20,7 @@ class PcTest extends Archive
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
 
-        echo "\n* IFP: Testing Manhunt 1 PC (unpack/pack) ";
+        echo "\n* IFP: Testing Manhunt 1 PC (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/allanims.ifp",
             $outputFolder . "/allanims#ifp",
@@ -46,10 +43,5 @@ class PcTest extends Archive
         );
 
         $this->rrmdir($outputFolder);
-
-
-
     }
-
-
 }

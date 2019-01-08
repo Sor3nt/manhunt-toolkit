@@ -13,7 +13,7 @@ class PcTest extends Archive
         $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Ifp/Manhunt2/PC";
         $outputFolder = $testFolder . "/export";
 
-        echo "\n* IFP: Testing Manhunt 2 PC (unpack/pack) ";
+        echo "\n* IFP: Testing Manhunt 2 PC (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/allanims_pc.ifp",
             $outputFolder . "/allanims_pc#ifp",

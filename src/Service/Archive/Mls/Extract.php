@@ -16,7 +16,6 @@ class Extract {
     public function __construct( NBinary $binaryData, $game, $platform)
     {
         $this->game = $game;
-
         $this->platform = $platform;
         $this->binary = new Binary( $binaryData->binary );
     }

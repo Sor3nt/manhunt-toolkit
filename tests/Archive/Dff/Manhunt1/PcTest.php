@@ -19,7 +19,7 @@ class PcTest extends Archive
          * So the comparison would fail because of wrong entry orders.
          */
 
-        echo "\n* DFF: Testing Manhunt 1 PC (unpack/pack) ";
+        echo "\n* DFF: Testing Manhunt 1 PC (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/modelspc.dff",
             $outputFolder . "/modelspc#dff",

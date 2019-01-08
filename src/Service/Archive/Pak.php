@@ -22,7 +22,7 @@ class Pak extends Archive {
         if (!$input instanceof Finder) return false;
 
         foreach ($input as $file) {
-            if ($file->getFilename() == "WEATHER.INI") return true;
+            if ($file->getFilename() == "levelSetup.ini") return true;
         }
 
         return false;
@@ -54,7 +54,7 @@ class Pak extends Archive {
         for($i = 0; $i < $count; $i++){
 
             $entries[] = [
-                'name'    => $binary->consume(260, NBinary::STRING),
+                'name'    => str_replace('//', '/', $binary->consume(260, NBinary::STRING)),
                 'size'    => $binary->consume(4,   NBinary::INT_32),
                 'offset'  => $binary->consume(4,   NBinary::INT_32),
                 'unknown' => $binary->consume(4,   NBinary::INT_32),
@@ -64,19 +64,21 @@ class Pak extends Archive {
 
         // read the actual file content
         foreach ($entries as &$entry) {
+
             $binary->jumpTo($entry['offset']);
 
             $entry['data'] = $binary->consume($entry['size'], NBinary::BINARY);
 
             //encrypt the content
             $entry['data'] = $this->xorCrypt($entry['data']);
-
         }
+
+        unset($entry);
 
         $results = [];
 
         foreach ($entries as $entry) {
-            $results[ substr($entry['name'], 2) ] = $entry['data'];
+            $results[ $entry['name'] ] = $entry['data'];
         }
 
         return $results;
@@ -86,7 +88,7 @@ class Pak extends Archive {
         $files = [];
 
         foreach ($finder as $file) {
-            $files[ $file->getRelativePath() ] = $file->getContents();
+            $files[ './' . $file->getRelativePathname() ] = $file->getContents();
         }
 
         return $files;

@@ -19,7 +19,7 @@ class XboxTest extends Archive
          * So the comparison would fail because of wrong entry orders.
          */
 
-        echo "\n* DFF: Testing Manhunt 1 PS2 (unpack/pack) ";
+        echo "\n* DFF: Testing Manhunt 1 XBOX (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/modelsXBOX.dff",
             $outputFolder . "/modelsXBOX#dff",

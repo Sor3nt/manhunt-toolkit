@@ -19,7 +19,7 @@ class Ps2Test extends Archive
          * The Manhunt IFP deliver a "00 00 00 80" but translated to Little INT 32 is this a zero (0)
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
-        echo "\n* IFP: Testing Manhunt 1 PS2 (unpack/pack) ";
+        echo "\n* IFP: Testing Manhunt 1 PS2 (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/ALLANIMS.IFP",
             $outputFolder . "/ALLANIMS#IFP",

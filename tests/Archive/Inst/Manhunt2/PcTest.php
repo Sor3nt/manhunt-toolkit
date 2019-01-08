@@ -7,7 +7,6 @@ use App\Tests\Archive\Archive;
 class PcTest extends Archive
 {
 
-
     public function test()
     {
         $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Inst/Manhunt2/PC";
@@ -19,7 +18,7 @@ class PcTest extends Archive
          * The Manhunt (1/2) INST deliver a "00 00 00 80" but translated to Little INT 32 is this a zero (0)
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
-        echo "\n* INST: Testing Manhunt 2 PC (unpack/pack) ";
+        echo "\n* INST: Testing Manhunt 2 PC (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/entity_pc.inst",
             $outputFolder . "/entity_pc.inst.json",

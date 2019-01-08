@@ -13,7 +13,7 @@ class PcTest extends Archive
         $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Bin/Manhunt2/PC";
         $outputFolder = $testFolder . "/export";
 
-        echo "\n* BIN: Testing Manhunt 2 PC (unpack/pack) ";
+        echo "\n* BIN: Testing Manhunt 2 PC (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/strmanim_pc.bin",
             $outputFolder . "/strmanim_pc#bin",

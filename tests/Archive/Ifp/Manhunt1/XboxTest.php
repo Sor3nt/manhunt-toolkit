@@ -20,7 +20,7 @@ class XboxTest extends Archive
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
 
-        echo "\n* IFP: Testing Manhunt 1 XBOX (unpack/pack) ";
+        echo "\n* IFP: Testing Manhunt 1 XBOX (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/AllAnims.ifp",
             $outputFolder . "/AllAnims#ifp",

@@ -2,10 +2,7 @@
 namespace App\Tests\Archive\Inst\Manhunt1;
 
 use App\MHT;
-use App\Service\Archive\Inst;
-use App\Service\Resources;
 use App\Tests\Archive\Archive;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class Ps2Test extends Archive
 {
@@ -22,7 +19,7 @@ class Ps2Test extends Archive
          * The Manhunt (1/2) INST deliver a "00 00 00 80" but translated to Little INT 32 is this a zero (0)
          * And when we convert back the zero to hex we got "00 00 00 00" (80 missed)
          */
-        echo "\n* INST: Testing Manhunt 1 PS2 (unpack/pack) ";
+        echo "\n* INST: Testing Manhunt 1 PS2 (unpack/pack) ==> ";
         $this->unPackPack(
             $testFolder . "/ENTINST.BIN",
             $outputFolder . "/ENTINST.BIN.json",

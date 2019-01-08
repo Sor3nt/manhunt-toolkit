@@ -1,6 +1,7 @@
 <?php
 namespace App\Tests\Archive\Mls\Compiler\Manhunt2;
 
+use App\MHT;
 use App\Service\Compiler\Compiler;
 use App\Service\Resources;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -15,7 +16,10 @@ class PCTest extends KernelTestCase
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
 
-        $mhls = $resources->load('/Archive/Mls/Manhunt2/PC/A01_Escape_Asylum.mls')->getContent();
+        $resource = $resources->load('/Archive/Mls/Manhunt2/PC/A01_Escape_Asylum.mls', MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
+        $handler = $resource->getHandler();
+
+        $mhls = $handler->unpack( $resource->getInput(), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
 
         // compile levelscript
         $compiler = new Compiler();
@@ -52,8 +56,6 @@ class PCTest extends KernelTestCase
         for($i = 0; $i < 40 ; $i++){
 //        for($i = $test; $i < $test+1 ; $i++){
             $testScript = $mhls[$i];
-
-//            var_dump($testScript['NAME'], $i);
 
             //compile a other script based on the levelscript
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, 'mh2');
