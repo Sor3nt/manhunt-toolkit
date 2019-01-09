@@ -150,7 +150,6 @@ class Ifp extends Archive
 
             $animationName = $binary->consume($animationNameLength, NBinary::STRING);
 
-
             $numberOfBones = bin2hex($binary->get(4));
 
             if (strpos(strtolower($numberOfBones), 'ff') !== false) {
@@ -369,7 +368,6 @@ class Ifp extends Archive
             if ($frameType == 3) {
 
                 $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
-
                 $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
                 $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
                 $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
@@ -377,16 +375,6 @@ class Ifp extends Archive
                 //back to starttime
                 $binary->current -= 2;
             }
-//            if ($frameType > 2) {
-//
-//                if ($startTime > 0) {
-//                    $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
-//                }
-//
-//                $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
-//                $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
-//                $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
-//            }
 
             /**
              * FRAMES
@@ -415,6 +403,7 @@ class Ifp extends Archive
         $resultFrames = [ 'frames' => [] ];
 
         $index = 0;
+        $frameTime = 0;
 
         while ($frames > 0) {
 
@@ -424,12 +413,34 @@ class Ifp extends Archive
 
                 // first frame == starTime
                 if ($index == 0 && $frameType == 3) {
-                    $time = 0;
+                    $curTime = 0;
                 } else {
                     $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+
                     $resultFrame['time'] = $time / 2048 * 30;
+                    $curTime = $resultFrame['time'];
                 }
+
+                $frameTime += $curTime;
+            }else{
+
+
+                //todo ....
+                if ($startTime < 1) $startTime = 1;
+
+                $frameTime = ($index/2048*30)+$startTime-1;
             }
+
+            if (isset($resultFrame['time'])){
+
+//                var_dump($frameTime, $resultFrame['time'], "\n");
+            }
+
+
+
+//
+//            var_dump($frameTime / 30);
+
 
 
 //            if ($startTime == 0) {
@@ -658,17 +669,48 @@ class Ifp extends Archive
 
                     if ($bone['frameType'] < 3) {
 
-                        $singleChunkBinary->write(intval($frame['quat'][0] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['quat'][1] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['quat'][2] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['quat'][3] * 2048), NBinary::INT_16);
+                        // we want MH2 but have no lastFrameTime that mean we port a MH1 animation to MH2
+                        if (
+                            $game == MHT::GAME_MANHUNT_2 &&
+                            !isset($bone['frames']['lastFrameTime']) &&
+                            $boneId == 1094
+                        ) {
+                            //Spine(0) is in someway twisted, for now just use another mh2 spine values
+                            $singleChunkBinary->write(intval(0.99365234375 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval(0.8232421875 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval(-1.01513671875 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval(1.1416015625 * 2048), NBinary::INT_16);
+
+                        }else{
+                            $singleChunkBinary->write(intval($frame['quat'][0] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][1] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][2] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][3] * 2048), NBinary::INT_16);
+
+                        }
+
                     }
 
                     if ($bone['frameType'] > 1) {
 
-                        $singleChunkBinary->write(intval($frame['position'][0] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                        // we want MH2 but have no lastFrameTime that mean we port a MH1 animation to MH2
+                        if (
+                            $game == MHT::GAME_MANHUNT_2 &&
+                            !isset($bone['frames']['lastFrameTime']) &&
+                            ($boneId == 1057 || $boneId == 1003)
+                        ){
+                            //clavicle right and clavicle left, cash is heigher as daniel so fix the first value
+                            $singleChunkBinary->write(intval(0.1318359375 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+
+                        }else{
+                            $singleChunkBinary->write(intval($frame['position'][0] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                        }
+
+
                     }
                 }
 
@@ -676,7 +718,15 @@ class Ifp extends Archive
                 $chunkBinary->concat($singleChunkBinary);
 
                 if ($game == MHT::GAME_MANHUNT_2) {
-                    $chunkBinary->write($bone['frames']['lastFrameTime'] / 30, NBinary::FLOAT_32);
+
+                    //when we pack a MH1 animation into MH2 , the lastFrameTime is missed
+                    //use frameTimeCount instead
+                    if (!isset($bone['frames']['lastFrameTime'])){
+
+                        $chunkBinary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
+                    }else{
+                        $chunkBinary->write($bone['frames']['lastFrameTime'] / 30, NBinary::FLOAT_32);
+                    }
                 }
             }
 
