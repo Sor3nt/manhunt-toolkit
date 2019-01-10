@@ -106,6 +106,7 @@ class Tex extends Archive {
      * @param $game
      * @param $platform
      * @return array
+     * @throws \Exception
      */
     public function unpack(NBinary $binary, $game, $platform){
 
@@ -116,6 +117,11 @@ class Tex extends Archive {
         $textures = [];
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
+
+            if ($texture['mipMapCount'] > 1){
+                throw new \Exception('MipMap handler missed');
+            }
+
             list($filename, $bmp) = $this->convertToBmp($texture);
             $textures[$filename] = $bmp;
 

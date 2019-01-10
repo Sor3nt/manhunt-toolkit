@@ -7,6 +7,48 @@ use App\Service\NBinary;
 class Gxt extends Archive {
     public $name = 'Text Translation';
 
+    private $transmap = [
+        'ï'   => "\xa4", "\xa4" => 'ï',
+        'Ü'   => "\x95", "\x95" => 'Ü',
+        'Ä'   => "\x83", "\x83" => 'Ä',
+        'ä'   => "\x9a", "\x9a" => 'ä',
+        'ü'   => "\xac", "\xac" => 'ü',
+        'ö'   => "\xa8", "\xa8" => 'ö',
+        'Ö'   => "\x91", "\x91" => 'Ö',
+        'ß'   => "\x96", "\x96" => 'ß',
+        '\''  => "\x27", "\x27" => '\'',
+        'è'   => "\x9d", "\x9d" => 'è',
+        'é'   => "\x9e", "\x9e" => 'é',
+        'É'   => "\x87", "\x87" => 'É',
+        'ô'   => "\xa7", "\xa7" => 'ô',
+        'â'   => "\x99", "\x99" => 'â',
+        'ñ'   => "\xae", "\xae" => 'ñ',
+//        '°'   => "\xb0", "\xb0" => '°',
+        'í'   => "\xa2", "\xa2" => 'í',
+        'ó'   => "\xa6", "\xa6" => 'ó',
+        '¿'   => "\xaf", "\xaf" => '¿',
+        'à'   => "\x97", "\x97" => 'à',
+        'ù'   => "\xa9", "\xa9" => 'ù',
+        'ê'   => "\x9f", "\x9f" => 'ê',
+        'á'   => "\x98", "\x98" => 'á',
+        'È'   => "\x86", "\x86" => 'È',
+        'Î'   => "\xa3", "\xa3" => 'Î',
+        'ç'   => "\x9c", "\x9c" => 'ç',
+        '¡'   => "\xb0", "\xb0" => '¡',
+//        '¡'   => "\x87", "\x87" => '¡',
+        '`'   => "\x60", "\x60" => '`',
+        'ì'   => "\xa1", "\xa1" => 'ì',
+        'û'   => "\xab", "\xab" => 'û',
+        'ú'   => "\xaa", "\xaa" => 'ú',
+        'Ó'   => "\x8f", "\x8f" => 'Ó',
+        'Í'   => "\x8b", "\x8b" => 'Í',
+        '"'   => "\x23", "\x23" => '"',
+        '°'   => "\xf3", "\xf3" => '°',
+        '’'   => "\x93", "\x93" => '’',       // not sure about this, text is : MAYS
+        '´'   => "\xa5", "\xa5" => '´',       // not sure about this
+        ''   => "\x81", "\x81" => '',       // char is unknown text is : "brete paso por el ~colour_location~sex-shop~colour~."
+    ];
+
     public static $supported = 'gxt';
 
     /**
@@ -30,6 +72,10 @@ class Gxt extends Archive {
 
     public function unpack(NBinary $binary, $game, $platform){
 
+
+        // a empty translation file
+        if ($binary->length() <= 8) return [];
+
         $indexHeader = [
             'fourCC'    => $binary->consume(4, NBinary::STRING),
             'blockSize' => $binary->consume(4, NBinary::INT_32),
@@ -38,10 +84,10 @@ class Gxt extends Archive {
         $indexBlock = [];
 
 
-        $test = $binary->consume(8, NBinary::STRING, 16);
+        $test = $binary->consume(4, NBinary::INT_32, 16);
 
         if ($game == MHT::GAME_AUTO){
-            if (ctype_alnum($test)){
+            if ($test > 100000){
                 $game = MHT::GAME_MANHUNT;
             }else{
                 $game = MHT::GAME_MANHUNT_2;
@@ -82,6 +128,8 @@ class Gxt extends Archive {
                     'text' => str_replace("\x00", "", $binary->getString("\x00\x00\x00", false))
                 ];
 
+                $result['text'] = $this->fixTextChars($result['text']);
+
                 //MH2 only
                 if (isset($entry['id'])){
                     $result['id'] = $entry['id'];
@@ -94,6 +142,19 @@ class Gxt extends Archive {
 
 
         return $results;
+    }
+
+    private function fixTextChars($text){
+
+        $text = str_split($text);
+
+        foreach ($text as &$char){
+            if (isset($this->transmap[$char])){
+                $char = $this->transmap[$char];
+            }
+        }
+
+        return implode('', $text);
     }
 
     /**

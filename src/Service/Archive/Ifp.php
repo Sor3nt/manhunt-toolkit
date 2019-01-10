@@ -570,9 +570,9 @@ class Ifp extends Archive
         $binary->write("ANPK", NBinary::STRING);
         $binary->write(count($animations), NBinary::INT_32);
 
-        $portAnimationToManhunt2 = false;
-
         foreach ($animations as $animationName => $animation) {
+
+            $portAnimationToManhunt2 = false;
 
             $binary->write("NAME", NBinary::STRING);
 
@@ -609,32 +609,14 @@ class Ifp extends Archive
                  */
                 $singleChunkBinary = new NBinary();
                 $singleChunkBinary->numericBigEndian = $chunkBinary->numericBigEndian;
-
-
                 $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::LITTLE_U_INT_16);
-
 
                 if ($bone['frameType'] == 3) {
                     $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
                     $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
                     $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
                     $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
-//                }else if($bone['frameType'] < 3 && $bone['startTime'] == 0){
-//                    $singleChunkBinary->write("FFFF", NBinary::HEX);
-
                 }
-
-
-//                if ($bone['frameType'] > 2) {
-//                    if ($bone['startTime'] > 0) {
-//                        $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
-//                    }
-//
-//                    $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
-//                    $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
-//                    $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
-//                }
-
 
                 $onlyFirstTime = true;
 

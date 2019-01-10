@@ -57,6 +57,9 @@ class Extract {
                 'redLevelExec'
             ] as $section) {
 
+                //not every BIN file has any execution state
+                if ($execution[$section . 'Offset'] == 0) continue;
+
                 $anpk = $binary->range(
                     $execution[$section . 'Offset'] ,
                     $execution[$section . 'Offset'] + $execution[$section . 'Size'],
@@ -73,7 +76,6 @@ class Extract {
                     $game,
                     $platform
                 );
-
                 foreach ($animations as $animationFileName => $animation) {
                     $results[ $targetFileName . '/' . $animationFileName] = $animation;
                 }
