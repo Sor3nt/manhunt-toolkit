@@ -76,6 +76,12 @@ class Gxt extends Archive {
         // a empty translation file
         if ($binary->length() <= 8) return [];
 
+        $isWIiCheck = $binary->get(4, 4);
+        if ($binary->unpack($isWIiCheck, NBinary::INT_32 ) > 100000){
+            $platform = MHT::PLATFORM_WII;
+            $binary->numericBigEndian = true;
+        }
+
         $indexHeader = [
             'fourCC'    => $binary->consume(4, NBinary::STRING),
             'blockSize' => $binary->consume(4, NBinary::INT_32),
@@ -96,7 +102,13 @@ class Gxt extends Archive {
 
         $binary->jumpTo(8);
 
-        for( $i = 0; $i < $indexHeader['blockSize'] / ($game == MHT::GAME_MANHUNT ? 12 : 20); $i++ ){
+        $entrySize = 20; //mh2 default;
+
+        if($game == MHT::GAME_MANHUNT){
+            $entrySize = 12;
+        }
+
+        for( $i = 0; $i < $indexHeader['blockSize'] / $entrySize; $i++ ){
             $entry = [
                 'offset' => $binary->consume(4,  NBinary::INT_32),
                 'key'    => $binary->consume($game == MHT::GAME_MANHUNT ? 8 : 12, NBinary::STRING)
@@ -172,6 +184,11 @@ class Gxt extends Archive {
         }
 
         $binary = new NBinary();
+
+        if ($platform == MHT::PLATFORM_WII){
+            $binary->numericBigEndian = true;
+        }
+
         $binary->write('TKEY', NBinary::STRING);
         $binary->write(count($records) * ($game == MHT::GAME_MANHUNT ? 12 : 20), NBinary::INT_32);
 
