@@ -12,8 +12,6 @@ $application->add(new \App\Command\PackCommand());
 $application->add(new \App\Command\UnpackCommand());
 
 //extraction helper
-$application->add(new \App\Command\MassExtractTexCommand());
-$application->add(new \App\Command\MassExtractDffCommand());
 $application->add(new \App\Command\MassExtractMlsCommand());
 $application->add(new \App\Command\MassExtractionCommand());
 

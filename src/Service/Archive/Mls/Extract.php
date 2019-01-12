@@ -27,9 +27,7 @@ class Extract {
         $version = $this->binary->substr(4, 4, $remain);
 
 
-        if ($this->platform == MHT::PLATFORM_AUTO){
-            $this->platform = $version == "00090003" ? MHT::PLATFORM_WII : MHT::PLATFORM_PC;
-        }
+        $this->platform = $version == "00090003" ? MHT::PLATFORM_WII : MHT::PLATFORM_PC;
 
 
         $nextSection = $remain->substr(0, 4)->toString();
