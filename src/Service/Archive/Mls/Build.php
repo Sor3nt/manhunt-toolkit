@@ -27,6 +27,7 @@ class Build {
             $scriptCode .= $this->buildDATA( $records );
             $scriptCode .= $this->buildSMEM( $records );
             $scriptCode .= $this->buildDebug( $records );
+            $scriptCode .= $this->buildDMEM( $records );
             $scriptCode .= $this->buildSTAB( $records );
 
             $mls .= $this->buildLabelSizeData("MHSC", $scriptCode);
@@ -51,9 +52,14 @@ class Build {
 
     private function buildNAME( $records ){
 
-        $data = current(unpack("H*", $records['NAME']));
-        $length = strlen($data) + (8 - strlen($data) % 8);
-        $name = Helper::pad($data, $length);
+        $name = bin2hex( $records['NAME']['name'] );
+
+        if (isset($records['NAME']['nameGarbage'])){
+            $name .= $records['NAME']['nameGarbage'];
+        }else{
+            $length = strlen($name) + (8 - strlen($name) % 8);
+            $name = Helper::pad($name, $length);
+        }
 
         return $this->buildLabelSizeData("NAME", hex2bin($name));
     }
@@ -87,25 +93,27 @@ class Build {
         if (!isset($records['DATA'])) return "";
 
         $stringArraySizes = 0;
-
         if (isset($records['STAB'])){
-
             foreach ($records['STAB'] as $item) {
+
                 if ($item["size"] !== "ffffffff"){
-                    $stringArraySizes += $item["size"];
+
+                    $size = $item["size"] + ($item["size"] % 4);
+
+                    $stringArraySizes += $size;
                 }else{
-                    if (isset($item['occurrences']) && count($item['occurrences']) > 0) {
-                        $stringArraySizes += 2 * count($item['occurrences']);
-                    }else {
-                        $stringArraySizes += 4;
-                    }
+                    $stringArraySizes += 4;
                 }
             }
         }
 
         $dataCode = "";
 
-        foreach ($records['DATA'] as $name) {
+        foreach ($records['DATA']['const'] as $const) {
+            $dataCode .= Helper::fromIntToHex($const);
+        }
+
+        foreach ($records['DATA']['strings'] as $name) {
 
             $name = current(unpack("H*", $name)) . "00";
             $nameLength = strlen($name);
@@ -115,15 +123,8 @@ class Build {
             $dataCode .= (Helper::pad($dataCodeTmp , $nameLength +  (8 - $nameLength % 8), false, 'da'));
         }
 
-        $dataCode .= str_repeat('da', $stringArraySizes);
+        $dataCode .= str_repeat('da', $stringArraySizes );
 
-        $dataCodeLength = strlen($dataCode) ;
-
-        $dataCode = Helper::pad($dataCode, $dataCodeLength +  (8 - $dataCodeLength % 8), false, 'da');
-
-        if (substr($dataCode, -8) == "dadadada"){
-            $dataCode = substr($dataCode, 0, -8);
-        }
 
         return $this->buildLabelSizeData("DATA", hex2bin($dataCode));
     }
@@ -131,6 +132,11 @@ class Build {
     private function buildSMEM( $records ){
 
         return $this->buildLabelSizeData("SMEM", pack("L", $records['SMEM']));
+    }
+
+    private function buildDMEM( $records ){
+
+        return $this->buildLabelSizeData("DMEM", pack("L", $records['DMEM']));
     }
 
 
@@ -145,9 +151,16 @@ class Build {
      */
     private function buildDebug( $records ){
 
+        $data = $this->buildLabelSizeData('SRCE', hex2bin( current( unpack( "H*", $records['SRCE'] ) ) ) );
+
+        if (isset($records['LINE']))
+            $data .= $this->buildLabelSizeData('LINE', hex2bin( implode('', $records['LINE'])) );
+
+        if (isset($records['TRCE']))
+            $data .= $this->buildLabelSizeData('TRCE', hex2bin( implode('', $records['TRCE'])) );
+
         return $this->buildLabelSizeData(
-            'DBUG',
-            $this->buildLabelSizeData('SRCE', hex2bin( current( unpack( "H*", $records['SRCE'] ) ) ) )
+            'DBUG', $data
         );
     }
 
@@ -166,7 +179,12 @@ class Build {
         foreach ($stabData as $indexStab => $record) {
 
             // add name
-            $stabCode .= hex2bin(Helper::pad(current(unpack("H*", $record['name'])) , 64)) ;
+            if (isset($record['nameGarbage'])){
+                $stabCode .= hex2bin(current(unpack("H*", $record['name'])));
+                $stabCode .= hex2bin( $record['nameGarbage'] );
+            }else{
+                $stabCode .= hex2bin(Helper::pad(current(unpack("H*", $record['name'])) , 64)) ;
+            }
 
             // add offset
             $stabCode .= hex2bin( $record['offset'] );

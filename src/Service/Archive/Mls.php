@@ -55,16 +55,15 @@ class Mls extends Archive {
 
         foreach ($finder as $file) {
 
-            preg_match('/code|data|dataraw|dmem|entt|line|nameremain|scpt|smem|stab|srce/', $file->getExtension(), $validFile);
+            preg_match('/code|data|dataraw|name|dmem|trce|entt|line|nameremain|scpt|smem|stab|srce/', $file->getExtension(), $validFile);
 
             if (count($validFile) == 0) continue;
-
             list($index, $filename) = explode("#", $file->getFilename());
             $index = (int) $index;
 
             list($scriptName, $section) = explode(".", $filename);
 
-            if (!isset($scripts[$index])) $scripts[$index] = [ "NAME" => $scriptName ];
+            if (!isset($scripts[$index])) $scripts[$index] = [ "NAME" => [ 'name' => $scriptName] ];
 
             $content = $file->getContents();
 
@@ -84,10 +83,9 @@ class Mls extends Archive {
         foreach ($scripts as &$script) {
             if (!isset($script['CODE'])){
                 $compiler = new Compiler();
-                $name = $script['NAME'];
+                $name = $script['NAME']['name'];
                 $script = $compiler->parse($script['SRCE'], $levelScriptCompiled);
-
-                $script['NAME'] = $name;
+                $script['NAME'] = [ 'name' => $name];
             }
         }
 
@@ -120,6 +118,8 @@ class Mls extends Archive {
 
         foreach ($data as $index => $mhsc) {
 
+            $scriptName = $mhsc['NAME']['name'];
+
             $compiler = new Compiler();
             try{
 
@@ -131,22 +131,27 @@ class Mls extends Archive {
 
                 if ($compiled['CODE'] != $mhsc['CODE']) throw new \Exception('CODE did not match');
 
-                $results[ 'supported/' . $index . "#" . $mhsc['NAME'] . '.srce' ] = $mhsc['SRCE'];
+                $results[ 'supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
 
             }catch(\Exception $e){
 
-                $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.code' ] = $mhsc['CODE'];
-                $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.srce' ] = $mhsc['SRCE'];
-                $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.scpt' ] = $mhsc['SCPT'];
-                $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.smem' ] = $mhsc['SMEM'];
-                $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.entt' ] = $mhsc['ENTT'];
+
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.scpt' ] = $mhsc['SCPT'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.smem' ] = $mhsc['SMEM'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.dmem' ] = $mhsc['DMEM'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.entt' ] = $mhsc['ENTT'];
 
                 if (isset($mhsc['DATA'])){
-                    $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.data' ] = $mhsc['DATA'];
+                    $results[ 'not-supported/' . $index . "#" . $scriptName . '.data' ] = $mhsc['DATA'];
                 }
 
                 if (isset($mhsc['STAB'])) {
-                    $results[ 'not-supported/' . $index . "#" . $mhsc['NAME'] . '.stab' ] = $mhsc['STAB'];
+                    $results[ 'not-supported/' . $index . "#" . $scriptName . '.stab' ] = $mhsc['STAB'];
                 }
             }
         }

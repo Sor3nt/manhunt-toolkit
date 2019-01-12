@@ -4,6 +4,7 @@ namespace App\Service\Archive\Mls;
 
 use App\MHT;
 use App\Service\Binary;
+use App\Service\Helper;
 use App\Service\NBinary;
 
 class Extract {
@@ -78,13 +79,18 @@ class Extract {
 
             switch($scriptLabel){
 
-                case 'DMEM': break;
+                case 'DMEM': $results['DMEM'] = $this->parseMEM($data); break;
                 case 'SCPT': $results['SCPT'] = $this->parseSCPT($data); break;
                 case 'NAME': $results['NAME'] = $this->parseNAME($data); break;
                 case 'ENTT': $results['ENTT'] = $this->parseENTT($data, $results['NAME']); break;
                 case 'CODE': $results['CODE'] = $this->parseCODE($data); break;
-                case 'SMEM': $results['SMEM'] = $this->parseSMEM($data); break;
-                case 'DBUG': $results['SRCE'] = $this->parseDBUG($data); break;
+                case 'SMEM': $results['SMEM'] = $this->parseMEM($data); break;
+                case 'DBUG':
+                    $dbug = $this->parseDBUG($data);
+                    $results['SRCE'] = $dbug['SRCE'];
+                    $results['LINE'] = $dbug['LINE'];
+                    $results['TRCE'] = $dbug['TRCE'];
+                    break;
                 case 'DATA': $results['DATA'] = $this->parseDATA($data); break;
                 case 'STAB': $results['STAB'] = $this->parseSTAB($data); break;
 
@@ -121,7 +127,13 @@ class Extract {
     }
 
     private function parseNAME( Binary $data ){
-        return $data->substr(0, "\x00", $data)->toString();
+        $name = $data->substr(0, "\x00", $remain);
+        $nameGarbage = $remain->toHex();
+
+        return [
+            'name' => $name->toString(),
+            'nameGarbage' => $nameGarbage
+        ];
     }
 
     private function parseENTT( Binary $data, $levelName ){
@@ -133,7 +145,7 @@ class Extract {
 
         return [
             'name' => $name->toString(),
-            'type' => $levelName == "levelscript" ? "levelscript" : "other"
+            'type' => $levelName['name'] == "levelscript" ? "levelscript" : "other"
         ];
 
     }
@@ -154,19 +166,20 @@ class Extract {
 
         $rows = preg_split("/(?:00)(?:da)+/", $data->toHex());
 
-        $result = [];
+        $result = [
+            'const' => [],
+            'strings' => []
+        ];
         foreach ($rows as $row) {
             if (!$row) continue;
 
-            /*
-             * I dont know. this is garbage, we can throw it away
-             */
-            if (substr($row, 0, 8) == "2c010000"){
-                $result[] = hex2bin(substr($row, 8));
+            while(substr($row, 4, 4) == "0000"){
+                $result['const'][] = Helper::fromHexToInt(substr($row, 0, 8));
+                $row = substr($row, 8);
+            }
 
-            }else{
-                $result[] = hex2bin($row);
-
+            if (strlen($row) > 0){
+                $result['strings'][] = hex2bin($row);
             }
         }
 
@@ -184,7 +197,9 @@ class Extract {
              *
              * - name terminated by \x00 (remaining data is garbage from the r* compiler)
              */
-            $entry['name'] = $data->substr(0, 32, $data)->substr(0, "\x00")->toString();
+            $entry['name'] = $data->substr(0, 32, $data)->substr(0, "\x00", $nameGarbage)->toString();
+
+            $entry['nameGarbage'] = $nameGarbage->toHex();
 
             /**
              * section 2 is 16 (MH1) or 20 (MH2) bytes long
@@ -295,13 +310,27 @@ class Extract {
         return $entries;
     }
 
-    private function parseSMEM( Binary $data ){
+    private function parseMEM( Binary $data ){
         return $data->toInt($this->platform == MHT::PLATFORM_WII);
     }
 
     private function parseDBUG( Binary $data ){
 
-        list(,$sectionCode) = $this->getLabelSizeData( $data, $data);
-        return $sectionCode->toBinary();
+        $dbug = [];
+
+        list(,$srce) = $this->getLabelSizeData( $data, $data);
+        $dbug['SRCE'] = $srce->toBinary();
+
+        list(,$line) = $this->getLabelSizeData( $data, $data);
+        $lines = $line->split(4);
+        $dbug['LINE'] = [];
+        foreach ($lines as $line) {
+            $dbug['LINE'][] = $line->toHex();
+        }
+
+        list(,$trce) = $this->getLabelSizeData( $data, $data);
+        $dbug['TRCE'] = [ $trce->toHex() ];
+
+        return $dbug;
     }
 }

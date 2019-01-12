@@ -1038,16 +1038,35 @@ class NewCompiler
 
     private function generateDATA($strings4Scripts)
     {
-        $result = [];
+        $result = [
+            'const' => [],
+            'strings' => []
+        ];
+
+        if (count($this->constants)){
+
+            foreach ($this->constants as $constant) {
+                if ($constant['section'] == "script"){
+                    if ($constant['type'] == Token::T_INT){
+                        $result['const'][] = (int) $constant['value'];
+
+                    }else{
+
+                        throw new \Exception("generateDATA: unhandled type..." . $constant['type']);
+
+                    }
+                }
+            }
+        }
 
         foreach ($strings4Scripts as $strings) {
             foreach ($strings as $value => $string) {
-                if ($value !== '__empty__') $result[] = $value;
+                if ($value !== '__empty__') $result['strings'][] = $value;
             }
         }
 
         if (count($result) == 0) {
-            $result[] = hex2bin('dadadadadadadada');
+            $result['strings'][] = hex2bin('dadadadadadadada');
         }
 
         return $result;
