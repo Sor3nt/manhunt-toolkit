@@ -37,6 +37,10 @@ class Evaluate {
 
     static public function getObjectToAttributeSplit( $value, $data ){
         list($originalObject, $attribute) = explode('.', $value);
+
+        if (!isset($data['variables'][$originalObject])){
+            throw new \Exception('Evaluate fail for ' . $originalObject);
+        }
         $originalMap = $data['variables'][$originalObject];
 
         if (strtolower($originalMap['type']) == "vec3d"){

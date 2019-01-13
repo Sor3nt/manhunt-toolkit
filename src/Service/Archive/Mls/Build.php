@@ -67,7 +67,9 @@ class Build {
     private function buildENTT( $records ){
 
         $typeHex = "00000000";
-        if ($records['ENTT']['type'] == "levelscript") $typeHex = "02000000";
+        if (
+            $records['ENTT']['type'] == "levelscript"
+        ) $typeHex = "02000000";
 
         // ENTT Header
         $section = "ENTT";
@@ -153,7 +155,7 @@ class Build {
 
         $data = $this->buildLabelSizeData('SRCE', hex2bin( current( unpack( "H*", $records['SRCE'] ) ) ) );
 
-        if (isset($records['LINE']))
+        if (isset($records['LINE']) && count($records['LINE']))
             $data .= $this->buildLabelSizeData('LINE', hex2bin( implode('', $records['LINE'])) );
 
         if (isset($records['TRCE']))
@@ -210,6 +212,7 @@ class Build {
                 case 'boolean':
                     $stabCode .= "\x03\x00\x00\x00";
                     break;
+                case 'real': //is this correct ?
                 case 'level_var integer':
                     $stabCode .= "\x04\x00\x00\x00";
                     break;
