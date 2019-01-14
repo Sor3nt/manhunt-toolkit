@@ -164,23 +164,37 @@ class Extract {
 
     private function parseDATA( Binary $data ){
 
-        $rows = preg_split("/(?:00)(?:da)+/", $data->toHex());
+        $binary = new NBinary($data->toBinary());
 
         $result = [
             'const' => [],
-            'strings' => []
+            'strings' => [],
+            'byteReserved' => 0
         ];
-        foreach ($rows as $row) {
-            if (!$row) continue;
 
-            while(substr($row, 4, 4) == "0000"){
-                $result['const'][] = Helper::fromHexToInt(substr($row, 0, 8));
-                $row = substr($row, 8);
-            }
+        //consume constants
+        while($binary->get(2, 2) == "\x00\x00"){
+            $result['const'][] = $binary->consume(4, NBinary::INT_32);
+        }
 
-            if (strlen($row) > 0){
-                $result['strings'][] = hex2bin($row);
-            }
+        //consume strings
+        while ($binary->get(1) != "\xda"  && $binary->remain() > 0 ){
+            $string = $binary->getString("\x00\xda");
+
+            //take the 00da into account
+            $binary->current += 2;
+
+            $padding = 4 - ($binary->current % 4);
+            if ($padding == 4) $padding = 0;
+
+            $binary->current += $padding;
+
+            $result['strings'][] = $string;
+        }
+
+        //consume the reserved bytes ( reserved for header variables like string, int, bool ... )
+        if ($binary->remain() > 0){
+            $result['byteReserved'] = $binary->remain();
         }
 
         return $result;

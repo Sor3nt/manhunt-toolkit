@@ -106,8 +106,22 @@ class Build {
                 }else{
                     $stringArraySizes += 4;
                 }
+
+
             }
         }
+//
+        if ($records['ENTT']['name'] == "exectut(hunter)"){
+            $stringArraySizes += 4;
+        }
+
+//        if ($records['ENTT']['name'] == "leader(leader)"){
+//            var_dump($records['DATA']);
+//            exit;
+//
+//        }
+
+
 
         $dataCode = "";
 
@@ -115,17 +129,23 @@ class Build {
             $dataCode .= Helper::fromIntToHex($const);
         }
 
+
         foreach ($records['DATA']['strings'] as $name) {
 
             $name = current(unpack("H*", $name)) . "00";
             $nameLength = strlen($name);
 
             // add NAME size (its always / max 16)
-            $dataCodeTmp = Helper::pad($name);
+            $dataCodeTmp = Helper::pad($name, 8, false, 'da');
             $dataCode .= (Helper::pad($dataCodeTmp , $nameLength +  (8 - $nameLength % 8), false, 'da'));
         }
 
-        $dataCode .= str_repeat('da', $stringArraySizes );
+
+        if (isset($records['DATA']['byteReserved'])){
+            $dataCode .= str_repeat('da', $records['DATA']['byteReserved'] );
+        }else{
+            $dataCode .= str_repeat('da', $stringArraySizes );
+        }
 
 
         return $this->buildLabelSizeData("DATA", hex2bin($dataCode));

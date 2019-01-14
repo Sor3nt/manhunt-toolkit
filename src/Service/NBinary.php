@@ -176,7 +176,9 @@ class NBinary{
 
         $padding = 0;
         if ($doPadding){
-            $padding  = 4 - (( mb_strlen($result, '8bit') ) % 4);
+//            $padding  = 4 - ( mb_strlen($result, '8bit') + mb_strlen($delimiter, '8bit')  ) % 4;
+//            $padding += mb_strlen($delimiter, '8bit');
+//            var_dump($padding);
         }
 
         $this->current += $delimiterPos + $padding;
