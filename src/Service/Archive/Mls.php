@@ -122,6 +122,7 @@ class Mls extends Archive {
 
             $compiler = new Compiler();
             try{
+                throw new \Exception("t");
 
                 $compiled = $compiler->parse($mhsc['SRCE'], $levelScript);
 
@@ -139,8 +140,8 @@ class Mls extends Archive {
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
+//                $results[ 'not-supported/' . $index . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
+//                $results[ 'not-supported/' . $index . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.scpt' ] = $mhsc['SCPT'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.smem' ] = $mhsc['SMEM'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.dmem' ] = $mhsc['DMEM'];

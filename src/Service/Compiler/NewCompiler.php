@@ -928,8 +928,13 @@ class NewCompiler
 
             $token = $tokens[$current];
 
-            if ($token['type'] == Token::T_VARIABLE && $tokens[$current + 1]['type'] == Token::T_DEFINE_TYPE) {
-
+            if (
+                $token['type'] == Token::T_VARIABLE &&
+                (
+                    $tokens[$current + 1]['type'] == Token::T_DEFINE_TYPE ||
+                    $tokens[$current + 1]['type'] == "T_LEVEL_VAR"
+                )
+            ) {
                 $variables = [$token];
 
                 $oriPos = $current;
@@ -977,16 +982,33 @@ class NewCompiler
 
         $blockMemory = 0;
         $scriptVarFinal = [];
+
         foreach ($vars as $name => &$item) {
-            $blockMemory += $item['size'];
 
-            $item['offset'] = Helper::fromIntToHex($blockMemory);
+            if (substr($item['type'], 0, 9) == "level_var" ){
 
-            $blockMemory += $this->calculateMissedIntegerSize($blockMemory);
+                /**
+                 * this section handle level_vars INSIDE scripts...
+                 */
+                $item['offset'] =  $this->parentScript['extra']['headerVariables'][$name]['offset'];
+                $item['isLevelVarFromScript'] = true;
+                $item['section'] = "header";
+                $this->headerVariables[$name] = $item;
+                $item['section'] = "script";
+//                continue;
+
+            }else{
+                $blockMemory += $item['size'];
+
+                $item['offset'] = Helper::fromIntToHex($blockMemory);
+
+                $blockMemory += $this->calculateMissedIntegerSize($blockMemory);
+            }
 
             $scriptVarFinal[$name] = $item;
             $this->variablesOverAllScripts[$name] = $item;
         }
+
 
         foreach ($this->headerVariables as $_name => $_item) {
 
@@ -1061,12 +1083,12 @@ class NewCompiler
 
         foreach ($strings4Scripts as $strings) {
             foreach ($strings as $value => $string) {
-                if ($value !== '__empty__') $result['strings'][] = $value;
+                if ($value == '__empty__'){
+                    $result['strings'][] = '';
+                }else{
+                    $result['strings'][] = $value;
+                }
             }
-        }
-
-        if (count($result) == 0) {
-            $result['strings'][] = hex2bin('dadadadadadadada');
         }
 
         return $result;
@@ -1106,18 +1128,19 @@ class NewCompiler
              * when the variable is defined inside the HEADER and also in one or multiple scripts, we need to give him the 02 sequence
              */
 //            if ($variable['type'] != "vec3d"){
-                foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
-                    if ($varScriptName == $name) {
-                        $hierarchieType = '02000000';
-                        $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
+            foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
+                if ($varScriptName == $name) {
 
-                        if ($variable['type'] == "vec3d"){
-                            $memoryForDoubleEntries += 12;
-                        }else{
-                            $memoryForDoubleEntries += 4;
-                        }
+                    $hierarchieType = '02000000';
+                    $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
+
+                    if ($variable['type'] == "vec3d"){
+                        $memoryForDoubleEntries += 12;
+                    }else{
+                        $memoryForDoubleEntries += 4;
                     }
                 }
+            }
 
 //            }
 
@@ -1148,17 +1171,15 @@ class NewCompiler
             ];
 
 
-            //todo...
-//            if (strtolower($name) == "ldebuggingflag"){
-//                $row['unknown'] = '012000b6012000dd03200072192000b319';
-//            }
+            if (isset($variable['isLevelVarFromScript'])){
+                $row['isLevelVarFromScript'] = true;
+            }
 
             $result[] = $row;
         }
         usort($result, function ($a, $b) {
             return $a['name'] > $b['name'];
         });
-
         return $result;
     }
 

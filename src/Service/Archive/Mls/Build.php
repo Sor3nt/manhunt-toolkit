@@ -9,6 +9,7 @@ class Build {
     /**
      * @param $scripts
      * @return string
+     * @throws \Exception
      */
     public function build( $scripts){
         $mls =
@@ -17,14 +18,26 @@ class Build {
         ;
         ksort($scripts);
 
-        foreach ($scripts as $index => $records) {
+        $levelScriptRecords = false;
 
+        foreach ($scripts as $index => $records) {
+            if ($records['ENTT']['type'] == "levelscript"){
+                $levelScriptRecords = $records;
+                break;
+            }
+        }
+
+        if ($levelScriptRecords === false){
+            throw new \Exception('Levelscript not found ?!');
+        }
+
+        foreach ($scripts as $index => $records) {
 
             $scriptCode = $this->buildSCPT( $records );
             $scriptCode .= $this->buildNAME( $records );
             $scriptCode .= $this->buildENTT( $records );
             $scriptCode .= $this->buildCODE( $records );
-            $scriptCode .= $this->buildDATA( $records );
+            $scriptCode .= $this->buildDATA( $records, $levelScriptRecords );
             $scriptCode .= $this->buildSMEM( $records );
             $scriptCode .= $this->buildDebug( $records );
             $scriptCode .= $this->buildDMEM( $records );
@@ -83,14 +96,13 @@ class Build {
         $section .= hex2bin(Helper::pad(current(unpack("H*", $records['ENTT']['name'])), 128));
 
         return $section;
-
     }
 
     private function buildCODE( $records ){
         return $this->buildLabelSizeData("CODE", hex2bin(implode("", $records['CODE'])));
     }
 
-    private function buildDATA( $records ){
+    private function buildDATA( $records, $levelScriptRecords ){
 
         if (!isset($records['DATA'])) return "";
 
@@ -98,37 +110,35 @@ class Build {
         if (isset($records['STAB'])){
             foreach ($records['STAB'] as $item) {
 
+                // level_vars inside a script block are not calculated
+                if (isset($item["isLevelVarFromScript"]) && $item["isLevelVarFromScript"] == true) continue;
+
                 if ($item["size"] !== "ffffffff"){
 
                     $size = $item["size"] + ($item["size"] % 4);
 
                     $stringArraySizes += $size;
                 }else{
-                    $stringArraySizes += 4;
-                }
 
+                    // we need the size from the levelscript
+                    foreach ($levelScriptRecords['STAB'] as $levelScriptStab) {
+                        if ($levelScriptStab['name'] == $item["name"]){
+
+                            $size = $levelScriptStab["size"] + ($levelScriptStab["size"] % 4);
+                            $stringArraySizes += $size;
+                            break;
+                        }
+                    }
+                }
 
             }
         }
-//
-        if ($records['ENTT']['name'] == "exectut(hunter)"){
-            $stringArraySizes += 4;
-        }
-
-//        if ($records['ENTT']['name'] == "leader(leader)"){
-//            var_dump($records['DATA']);
-//            exit;
-//
-//        }
-
-
 
         $dataCode = "";
 
         foreach ($records['DATA']['const'] as $const) {
             $dataCode .= Helper::fromIntToHex($const);
         }
-
 
         foreach ($records['DATA']['strings'] as $name) {
 
@@ -140,6 +150,26 @@ class Build {
             $dataCode .= (Helper::pad($dataCodeTmp , $nameLength +  (8 - $nameLength % 8), false, 'da'));
         }
 
+
+        /**
+         * What the hack, i am not sure about this part, why they should just take "onlowsightingorabove" into account ?!
+         * Whatever, this solve the size error on 3 script files
+         */
+        if (isset($records['SCPT'])){
+            foreach ($records['SCPT'] as $scpt) {
+                if ($scpt['name'] == "onlowsightingorabove"){
+                    $stringArraySizes += 4;
+                }
+            }
+        }
+
+//
+//        if ($records['DATA']['byteReserved'] != $stringArraySizes){
+////            var_dump($records['STAB']);
+//            var_dump($stringArraySizes);
+//            var_dump($records['DATA']['byteReserved']);
+//            var_dump($records['ENTT']['name']);
+//        }
 
         if (isset($records['DATA']['byteReserved'])){
             $dataCode .= str_repeat('da', $records['DATA']['byteReserved'] );

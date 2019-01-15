@@ -290,6 +290,10 @@ class T_ASSIGN {
                                 self::toObject( $code, $getLine);
                                 break;
 
+                            case 'level_var boolean':
+                                self::toScriptLevelVarBoolean( $mapped['offset'], $code, $getLine);
+                                break;
+
                             case 'custom_functions':
                                 self::toCustomFunctions( $code, $getLine);
                                 break;
@@ -297,6 +301,7 @@ class T_ASSIGN {
                                 self::toReal($mapped['offset'], $code, $getLine);
                                 break;
                             default:
+                                var_dump($mapped);
                                 throw new \Exception("Not implemented!");
 
                         }
@@ -500,6 +505,13 @@ class T_ASSIGN {
         $code[] = $getLine('01000000');
     }
     static public function toHeaderLevelVarBoolean( $offset, &$code, \Closure $getLine){
+        $code[] = $getLine('1a000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine( $offset );
+        $code[] = $getLine('04000000');
+    }
+
+    static public function toScriptLevelVarBoolean( $offset, &$code, \Closure $getLine){
         $code[] = $getLine('1a000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine( $offset );
