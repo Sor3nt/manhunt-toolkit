@@ -341,8 +341,13 @@ class BytecodeExplain {
 
     public function explain( $content ){
 
-        $content = new Binary( implode("", explode("\n", $content)), true);
-        $lines = $content->split(4);
+//        $content = new Binary( implode("", explode("\n", $content)), true);
+//        $lines = $content->split(4);
+
+        $lines = json_decode($content, true);
+        foreach ($lines as &$line) {
+            $line = new Binary($line, true);
+        }
 
         $result = [];
 

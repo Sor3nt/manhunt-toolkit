@@ -72,12 +72,16 @@ class T_FUNCTION {
                     $data
                 );
 
-
                 switch ($mappedTo['section']) {
                     case 'header':
 
                         $code[] = $getLine('10000000');
                         $code[] = $getLine('01000000');
+
+                        if ($mappedTo['type'] == 'level_var stringarray'){
+                            $code[] = $getLine('10000000');
+                            $code[] = $getLine('02000000');
+                        }
 
                         if ($mappedTo['type'] == 'stringarray'){
                             $code[] = $getLine('10000000');
