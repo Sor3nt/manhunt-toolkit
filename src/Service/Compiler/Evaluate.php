@@ -3,15 +3,6 @@ namespace App\Service\Compiler;
 
 class Evaluate {
 
-    /**
-     * Todo: cleanup, die class sollte nicht mehr vorhanden sein
-     */
-
-    static public function setStatementNot( &$code, \Closure $getLine ){
-        $code[] = $getLine('29000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('01000000');
-    }
 
     static public function setStatementOperator($node, &$code, \Closure $getLine ){
 

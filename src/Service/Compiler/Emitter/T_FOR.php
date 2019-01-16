@@ -29,22 +29,7 @@ class T_FOR {
 
         $firstLineNumber = end($code)->lineNumber;
 
-        if ($node['end']['type'] == Token::T_INT) {
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine(Helper::fromIntToHex($node['end']['value']   ));
-
-        }else if ($node['end']['type'] == Token::T_FUNCTION) {
-
-            $codes = $emitter($node['end']);
-            foreach ($codes as $singleLine) {
-                $code[] = $singleLine;
-            }
-
-        }else{
-            throw new \Exception('T_FOR: Unable to handle type');
-        }
-
+        foreach ($emitter($node['end']) as $item) $code[] = $item;
 
         $code[] = $getLine('13000000');
         $code[] = $getLine('02000000');
@@ -65,12 +50,10 @@ class T_FOR {
         $isTrue = [];
 
         $lastNumber = end($code)->lineNumber;
+
         //pre generate the bytecode (only for calculation)
         foreach ($node['params'] as $entry) {
-            $codes = $emitter($entry, false);
-            foreach ($codes as $singleLine) {
-                $isTrue[] = $singleLine;
-            }
+            foreach ($emitter($entry, false) as $singleLine) $isTrue[] = $singleLine;
         }
 
         $endOffset = ($lastNumber + count($isTrue) + 6 ) * 4;
@@ -79,10 +62,7 @@ class T_FOR {
         $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1 );
 
         foreach ($node['params'] as $entry) {
-            $codes = $emitter($entry);
-            foreach ($codes as $singleLine) {
-                $code[] = $singleLine;
-            }
+            foreach ($emitter($entry) as $singleLine) $code[] = $singleLine;
         }
 
         //i dont know...

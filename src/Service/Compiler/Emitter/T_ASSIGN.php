@@ -11,16 +11,14 @@ class T_ASSIGN {
         $code = [];
         $mapped = T_VARIABLE::getMapping($node, null, $data);
 
-        $isObject = $mapped['type'] == "object";
-
         $leftHand = $node['body'][0];
+
         //HACK
         //when we have a type usage, we have no variable entry
         //so the compiler think its a function...
         if ($leftHand['type'] == Token::T_FUNCTION ){
 
             if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
-//                $leftHand['type'] = Token::T_CUSTOM_FUNCTION;
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('02000000');
                 $code[] = $getLine('11000000');
@@ -37,11 +35,9 @@ class T_ASSIGN {
                 $code[] = $getLine('02000000');
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');
-
             }
 
-
-            $stateVar = str_replace('level_var ', '',$mapped['type']);
+            $stateVar = str_replace('level_var ', '', $mapped['type']);
 
             if (isset($data['types'][$stateVar])){
                 $leftHand['target'] = $stateVar;
@@ -51,15 +47,14 @@ class T_ASSIGN {
 
 
         if ($mapped['type'] == "vec3d"){
-            self::fromVec3d($mapped, $code, $getLine);
-
-        }else if($isObject){
             self::fromObject($mapped, $code, $getLine);
 
-        }
+        //Todo "object" also rename to objectAttribute ....
+        }else if($mapped['type'] == "object"){
+            self::fromObjectAttribute($mapped, $code, $getLine);
 
         //hack: nil is detected as function, but its T_NIL actual....
-        if ($leftHand['type'] == Token::T_FUNCTION && $leftHand['value'] == "nil"){
+        }else if ($leftHand['type'] == Token::T_FUNCTION && $leftHand['value'] == "nil"){
             $leftHand['type'] = Token::T_NIL;
         }
 
@@ -130,7 +125,6 @@ class T_ASSIGN {
         /*
          * Assign TO variable handling
          */
-
         if ($mapped['type'] == "vec3d") {
             self::toVec3D($mapped['offset'], $code, $getLine);
 
@@ -193,7 +187,7 @@ class T_ASSIGN {
         $code[] = $getLine('04000000'); //offset?
     }
 
-    static public function fromVec3d($mapped, &$code, \Closure $getLine){
+    static public function fromObject($mapped, &$code, \Closure $getLine){
         $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000');
 
         $code[] = $getLine('04000000');
@@ -204,9 +198,9 @@ class T_ASSIGN {
         $code[] = $getLine('01000000');
     }
 
-    static public function fromObject($mapped, &$code, \Closure $getLine){
+    static public function fromObjectAttribute($mapped, &$code, \Closure $getLine){
 
-        self::fromVec3d([
+        self::fromObject([
             'offset' => $mapped['object']['offset'],
             'section' => $mapped['section']
         ], $code, $getLine);

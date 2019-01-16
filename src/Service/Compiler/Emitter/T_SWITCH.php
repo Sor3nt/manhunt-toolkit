@@ -64,27 +64,17 @@ class T_SWITCH {
 
         $casesRev = array_reverse($node['cases']);
 
-        foreach ($casesRev as $case) {
-            $line += 5;
-        }
-
-        $line += 2;
+        $line += (count($node['cases']) * 5) + 2;
 
         foreach ($casesRev as $case) {
             $calc['cases'][] = $line * 4;
 
             $code = [];
             foreach ($case['body'] as $bodyNode) {
-                $result = $emitter($bodyNode, false);
-                foreach ($result as $item) {
-                    $code[] = $item;
-                }
-
+                foreach ($emitter($bodyNode, false) as $item) $code[] = $item;
             }
 
-            $line += count($code);
-
-            $line += 2;
+            $line += count($code) + 2;
         }
 
         $calc['end'] = $line * 4;

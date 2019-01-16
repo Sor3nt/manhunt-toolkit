@@ -19,13 +19,10 @@ class T_CONDITION {
 
             if (count($token['params']) == 1){
 
-                $result = $emitter($token['params'][0]);
-                foreach ($result as $item) {
-                    $code[] = $item;
-                }
+                foreach ($emitter($token['params'][0]) as $item) $code[] = $item;
 
                 if ($node['isNot'] || $node['isOuterNot']){
-                    Evaluate::setStatementNot($code, $getLine);
+                    self::setStatementNot($code, $getLine);
                 }
 
             }else{
@@ -41,26 +38,15 @@ class T_CONDITION {
 
                     $var = $data['variables'][ $param1 ];
 
-//                    if (isset($var['abstract'])){
+                    $searchedType = str_replace('level_var ', '', $var['type']);
 
-                        $searchedType = str_replace('level_var ', '', $var['type']);
+                    if (isset($data['types'][ $searchedType ])){
+                        $types = $data['types'][ $searchedType ];
 
-                        if (isset($data['types'][ $searchedType ])){
-                            $types = $data['types'][ $searchedType ];
-
-                            $token['params'][1]['target'] = $searchedType;
-                            $token['params'][1]['types'] = $types;
-
-                        }
-
-
-//                    }
-
+                        $token['params'][1]['target'] = $searchedType;
+                        $token['params'][1]['types'] = $types;
+                    }
                 }
-
-
-
-
 
 
                 $operator = $token['operator'];
@@ -74,10 +60,7 @@ class T_CONDITION {
                         );
                     }
 
-                    $result = $emitter($operation);
-                    foreach ($result as $item) {
-                        $code[] = $item;
-                    }
+                    foreach ($emitter($operation) as $item) $code[] = $item;
 
                     if (
                         isset($mappedTo['type']) &&
@@ -106,17 +89,14 @@ class T_CONDITION {
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
                             }else if ($operation['type'] == Token::T_INT){
-                                if ($operation['value'] >= 0){
-                                    $code[] = $getLine('0f000000');
-                                    $code[] = $getLine('04000000');
-                                }else{
+                                if ($operation['value'] < 0){
                                     $code[] = $getLine('2a000000');
                                     $code[] = $getLine('01000000');
-
-                                    $code[] = $getLine('0f000000');
-                                    $code[] = $getLine('04000000');
-
                                 }
+
+                                $code[] = $getLine('0f000000');
+                                $code[] = $getLine('04000000');
+
                             }else{
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
@@ -124,11 +104,6 @@ class T_CONDITION {
                             }
 
                         }else{
-//                            $code[] = $getLine($token['params'][$index]['value']);
-//                            $code[] = $getLine('10000000');
-//                            $code[] = $getLine('01000000');
-
-
                             $functionNoReturnDefault = ManhuntDefault::$functionNoReturn;
                             $functionNoReturn = Manhunt2::$functionNoReturn;
                             if (GAME == "mh1") $functionNoReturn = Manhunt::$functionNoReturn;
@@ -162,39 +137,28 @@ class T_CONDITION {
                     throw new \Exception(" Or implementation missed");
                 }
 
-                if ($node['isNot']){
-                    Evaluate::setStatementNot($code, $getLine);
-                }
+                if ($node['isNot']) self::setStatementNot($code, $getLine);
 
                 // not sure about this part
                 if (isset($mappedTo['type']) && $mappedTo['type'] == "stringarray") {
                     $code[] = $getLine('49000000');
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('01000000');
-                }else if (isset($mappedTo['type']) && $mappedTo['type'] == "object"){
+                }else if (
+                    (isset($mappedTo['type']) && $mappedTo['type'] == "object") ||
+                    (isset($operation) && $operation['type'] == Token::T_FLOAT)
+                ){
                     $code[] = $getLine('4e000000');
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('01000000');
-                }else if (isset($operation) && $operation['type'] == Token::T_FLOAT){
-                    $code[] = $getLine('4e000000');
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('01000000');
                 }else if (isset($operation) && $operation['type'] == Token::T_STRING){
                     $code[] = $getLine('4e000000');
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('01000000');
                 }else{
                     $code[] = $getLine('23000000');
                     $code[] = $getLine('04000000');
                     $code[] = $getLine('01000000');
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('01000000');
                 }
+
+                $code[] = $getLine('12000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('01000000');
+
 
                 if ($operator){
 
@@ -219,8 +183,6 @@ class T_CONDITION {
                             break;
                     }
 
-//                    Evaluate::statementOperator($operator, $code, $getLine);
-
                     $lastLine = end($code)->lineNumber + 4;
 
                     // line offset for the IF start (or so)
@@ -237,11 +199,19 @@ class T_CONDITION {
                 }
 
                 if (isset($node['isOuterNot']) && $node['isOuterNot']){
-                    Evaluate::setStatementNot($code, $getLine);
+                    self::setStatementNot($code, $getLine);
                 }
             }
         }
+
         return $code;
     }
 
+
+
+    static public function setStatementNot( &$code, \Closure $getLine ){
+        $code[] = $getLine('29000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('01000000');
+    }
 }
