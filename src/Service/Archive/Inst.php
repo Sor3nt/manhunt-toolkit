@@ -43,7 +43,7 @@ class Inst extends Archive {
      * @return array
      */
     public function unpack(NBinary $binary, $game, $platform){
-        return (new Extract())->get($binary, $game, $platform);
+        return (new Extract())->get($binary, $game);
     }
 
     /**

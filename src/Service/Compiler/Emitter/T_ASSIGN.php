@@ -10,6 +10,7 @@ class T_ASSIGN {
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
         $code = [];
         $mapped = T_VARIABLE::getMapping($node, null, $data);
+
         $isObject = $mapped['type'] == "object";
 
         $leftHand = $node['body'][0];
@@ -48,8 +49,8 @@ class T_ASSIGN {
             }
         }
 
-        if ($mapped['type'] == "vec3d"){
 
+        if ($mapped['type'] == "vec3d"){
             if ($mapped['section'] == "header"){
                 $code[] = $getLine('21000000');
 
@@ -79,7 +80,6 @@ class T_ASSIGN {
 
             $code[] = $getLine('10000000');
             $code[] = $getLine('01000000');
-
             if ($mapped['offset'] != $mapped['object']['offset']){
                 $code[] = $getLine('0f000000');
                 $code[] = $getLine('01000000');
@@ -221,7 +221,8 @@ class T_ASSIGN {
 //
 //
 //            }else
-                if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
+
+            if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
 
                 if (isset($mapped['isLevelVar']) && $mapped['isLevelVar'] == true){
                     self::toHeaderTLevelState( $mapped['offset'], $code, $getLine);
@@ -260,6 +261,7 @@ class T_ASSIGN {
                                 break;
 
                             case 'vec3d':
+
                                 self::toHeaderVec3D( $mapped['offset'], $code, $getLine);
                                 break;
                             case 'real':
@@ -301,7 +303,7 @@ class T_ASSIGN {
                                 self::toReal($mapped['offset'], $code, $getLine);
                                 break;
                             default:
-                                var_dump($mapped);
+//                                var_dump($mapped);
                                 throw new \Exception("Not implemented!");
 
                         }
@@ -443,7 +445,9 @@ class T_ASSIGN {
     static public function toHeaderVec3D( $offset, &$code, \Closure $getLine){
         $code[] = $getLine('12000000');
         $code[] = $getLine('03000000');
-        $code[] = $getLine( $offset );
+
+//        $code[] = $getLine('0c000000'); //always 12
+        $code[] = $getLine( $offset  );
 
         $code[] = $getLine('0f000000');
         $code[] = $getLine('01000000');

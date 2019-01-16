@@ -34,8 +34,8 @@ class PS2Test extends KernelTestCase
         $handler = $resource->getHandler();
 
         $results = $handler->unpack( $resource->getInput(), 'mh2' );
-      var_dump($results);
-die("J");
+//      var_dump($results);
+//die("J");
 //        $content = [
 //            file_get_contents('tests/Resources/Archive/Txd/Manhunt2/PS2/test.raw')
 //        ];

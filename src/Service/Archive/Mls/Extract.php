@@ -179,7 +179,7 @@ class Extract {
 
         //consume strings
         while ($binary->get(1) != "\xda"  && $binary->remain() > 0 ){
-            $string = $binary->getString("\x00\xda");
+            $string = $binary->getString("\x00\xda", false);
 
             //take the 00da into account
             $binary->current += 2;

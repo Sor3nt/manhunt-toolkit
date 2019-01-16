@@ -6,7 +6,7 @@ use App\Service\NBinary;
 
 class Extract {
 
-    public function get( NBinary $binary, $game, $platform ){
+    public function get( NBinary $binary, $game ){
 
         // detect the platform
         $placementsBinary = $binary->get(4);
@@ -33,14 +33,14 @@ class Extract {
 
             $block->numericBigEndian = $binary->numericBigEndian;
 
-            $records[] = $this->parseRecord( $block, $game, $platform );
+            $records[] = $this->parseRecord( $block, $game );
         }
 
         return $records;
     }
 
 
-    private function parseRecord( NBinary $binary, $game, $platform ){
+    private function parseRecord( NBinary $binary, $game ){
 
         /**
          * Find the  Record

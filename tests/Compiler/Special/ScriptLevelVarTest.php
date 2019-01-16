@@ -139,8 +139,6 @@ class ScriptLevelVarTest extends KernelTestCase
 
         $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');
 
-        var_dump($compiled);
-
     }
 
 
