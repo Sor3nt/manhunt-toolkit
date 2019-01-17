@@ -94,24 +94,7 @@ class T_VARIABLE extends TAbstract {
         }else if ($mapped['type'] == "custom_functions") {
            $this->fromCustomFunctions($node['value'], $data, $code, $getLine);
 
-        }else if ($mapped['type'] == "level_var state") {
-            $this->fromLevelVarState($node, $data, $code, $getLine);
-
-        }else if ($mapped['type'] == "level_var tlevelstate") {
-            $this->fromLevelVarState($node, $data, $code, $getLine);
-
         }else if (
-            $mapped['section'] == "header" &&
-            isset($mapped['isLevelVar']) &&
-            $mapped['isLevelVar'] == false  &&
-            isset($mapped['abstract']) &&
-            $mapped['abstract'] == "state"
-        ){
-                $this->fromHeader($mapped, $code, $getLine);
-
-
-        }else if (
-            $mapped['section'] == "header" &&
             isset($mapped['isLevelVar']) &&
             $mapped['isLevelVar'] == true  &&
             isset($mapped['abstract']) &&
@@ -121,61 +104,27 @@ class T_VARIABLE extends TAbstract {
 
 
         }else if (
+            $mapped['type'] == "level_var state" ||
+            $mapped['type'] == "level_var tlevelstate"
+        ) {
+            $this->fromLevelVarState($node, $data, $code, $getLine);
+
+        }else if (
             $mapped['type'] == "constant"
         ){
-
-            if ($mapped['section'] == "script"){
-                //TODO: why the hack is the offset not precalculated ?!
-                $mapped['offset'] = Helper::fromIntToHex($mapped['value'] );
-            }
-
             $this->fromConstant($mapped, $code, $getLine);
 
-
-
-        }else if($mapped['section'] == "script" && $mapped['type'] == "level_var boolean") {
-            $this->fromLevelVar($mapped, $code, $getLine);
-        }else if($mapped['section'] == "header" && $mapped['type'] == "level_var boolean") {
-            $this->fromLevelVar($mapped, $code, $getLine);
-        }else if($mapped['section'] == "header" && $mapped['type'] == "level_var integer") {
+        }else if(substr($mapped['type'], 0, 9) == "level_var") {
             $this->fromLevelVar($mapped, $code, $getLine);
 
+        }else if ($mapped['section'] == "header"){
+            $this->fromHeader($mapped, $code, $getLine);
 
-
-        }else if($mapped['type'] == "procedure") {
-            $this->fromProcedure($mapped, $code, $getLine);
-
+        }else if ($mapped['section'] == "script" || $mapped['type'] == "procedure"){
+            $this->fromScript($mapped, $code, $getLine);
 
         }else{
-
-            if (
-                $mapped['section'] == "script" &&
-                (
-                    $mapped['type'] == "boolean" ||
-                    $mapped['type'] == "integer" ||
-                    $mapped['type'] == "real" ||
-                    $mapped['type'] == "entityptr"
-                )
-            ) {
-
-                $this->fromScript($mapped, $code, $getLine);
-
-            }else if (
-                    $mapped['section'] == "header" &&
-                    (
-                        $mapped['type'] == "boolean" ||
-                        $mapped['type'] == "entityptr" ||
-                        $mapped['type'] == "real" ||
-                        $mapped['type'] == "integer"
-                    )
-                ){
-
-                $this->fromHeader($mapped, $code, $getLine);
-
-            }else{
-                throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
-
-            }
+            throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
         }
 
         return $code;
@@ -184,6 +133,8 @@ class T_VARIABLE extends TAbstract {
 
     private function fromCustomFunctions($value, $data, &$code, \Closure $getLine){
         $offset = $data['customData']['customFunctions'][strtolower($value)];
+//        var_dump($offset);
+//        exit;
         $code[] = $getLine(Helper::fromIntToHex($offset));
     }
 
@@ -200,17 +151,6 @@ class T_VARIABLE extends TAbstract {
 
         $code[] = $getLine($mapped['offset']);
     }
-
-    private function fromProcedure($mapped, &$code, \Closure $getLine){
-
-        $code[] = $getLine('13000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('04000000');
-
-        //TODO: what the ... the offset should be already calculated...
-        $code[] = $getLine(substr(Helper::fromIntToHex($mapped['offset']),0, 8));
-    }
-
 
     private function fromHeader($mapped, &$code, \Closure $getLine){
         $code[] = $getLine('14000000');
@@ -243,15 +183,12 @@ class T_VARIABLE extends TAbstract {
         $code[] = $getLine($mapped['offset']);
     }
 
-
     private function fromVec3d($mapped, &$code, \Closure $getLine){
         $code[] = $getLine( $mapped['section'] == "header" ? '21000000' : '22000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine($mapped['offset']);
     }
-
-
 
     private function fromLevelVarStringArray($mapped, &$code, \Closure $getLine){
         $code[] = $getLine('1c000000');
@@ -265,7 +202,6 @@ class T_VARIABLE extends TAbstract {
 
         $code[] = $getLine(Helper::fromIntToHex( $mapped['size']  ));
     }
-
 
     private function fromStringArray($mapped, &$code, \Closure $getLine){
         $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000');

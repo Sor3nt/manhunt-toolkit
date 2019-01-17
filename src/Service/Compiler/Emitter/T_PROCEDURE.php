@@ -88,7 +88,7 @@ class T_PROCEDURE {
 
             $varOffset = -12;
             foreach ($vars as &$var) {
-                $var['offset'] = $varOffset;
+                $var['offset'] = substr(Helper::fromIntToHex($varOffset),0, 8);
                 $var['section'] = 'script';
                 $var['type'] = 'procedure';
                 $varOffset -= 4;

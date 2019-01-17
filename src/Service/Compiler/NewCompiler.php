@@ -768,6 +768,8 @@ class NewCompiler
 
                     $constants[$variable] = $tokens[$current + 2];
 
+                    $constants[$variable]['offset'] = substr(Helper::fromIntToHex($constants[$variable]['value']),0, 8);
+
                     if (
                         $constants[$variable]['type'] == Token::T_INT ||
                         $constants[$variable]['type'] == Token::T_FLOAT
