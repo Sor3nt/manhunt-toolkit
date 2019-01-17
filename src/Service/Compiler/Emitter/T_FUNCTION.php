@@ -68,7 +68,6 @@ class T_FUNCTION {
             case Token::T_VARIABLE:
                 $mappedTo = T_VARIABLE::getMapping(
                     $node,
-                    null,
                     $data
                 );
 
@@ -230,7 +229,7 @@ class T_FUNCTION {
                 break;
             case Token::T_VARIABLE:
 
-                $mapping = T_VARIABLE::getMapping($param, $emitter, $data);
+                $mapping = T_VARIABLE::getMapping($param, $data);
 
                 switch ($mapping['type']){
                     case 'real':
@@ -326,7 +325,7 @@ class T_FUNCTION {
          * sometimes is the mapping not correct, validate it
          */
         try {
-            T_VARIABLE::getMapping($node, null, $data);
+            T_VARIABLE::getMapping($node, $data);
             return $emitter([
                 'type' => Token::T_VARIABLE,
                 'value' => $node['value']

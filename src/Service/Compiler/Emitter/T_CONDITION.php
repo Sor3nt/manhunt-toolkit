@@ -55,7 +55,6 @@ class T_CONDITION {
                     if ($operation['type'] == Token::T_VARIABLE){
                         $mappedTo = T_VARIABLE::getMapping(
                             $operation,
-                            null,
                             $data
                         );
                     }

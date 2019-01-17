@@ -11,7 +11,10 @@ class T_SWITCH {
         $code = [];
 
         //evaluate the switch variable
-        foreach ($emitter($node['switch']) as $item) $code[] = $item;
+        $result = $emitter($node['switch']);
+        foreach ($result as $item) {
+            $code[] = $item;
+        }
 
         $forceLineNumber = end($code)->lineNumber + 1;
 
@@ -83,14 +86,14 @@ class T_SWITCH {
 
         switch ($node['type']){
             case Token::T_VARIABLE:
-                $mapping = T_VARIABLE::getMapping($switchVar, null, $data);
+                $mapping = T_VARIABLE::getMapping($switchVar, $data);
                 if (isset($data['types'][ $mapping['type'] ])){
 
                     $mapping = $data['types'][ $mapping['type'] ];
                     $mapping = $mapping[ strtolower($node['value']) ];
 
                 }else{
-                    $mapping = T_VARIABLE::getMapping($node, null, $data);
+                    $mapping = T_VARIABLE::getMapping($node, $data);
                 }
 
                 return $mapping['offset'];

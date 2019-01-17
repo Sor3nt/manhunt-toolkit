@@ -9,7 +9,7 @@ class T_ASSIGN {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
         $code = [];
-        $mapped = T_VARIABLE::getMapping($node, null, $data);
+        $mapped = T_VARIABLE::getMapping($node, $data);
 
         $leftHand = $node['body'][0];
 
@@ -111,7 +111,7 @@ class T_ASSIGN {
                 $rightHand['type'] == Token::T_VARIABLE
             ){
 
-                $rightMapped = T_VARIABLE::getMapping($rightHand, null, $data);
+                $rightMapped = T_VARIABLE::getMapping($rightHand, $data);
 
                 foreach ($emitter($rightMapped) as $item) $code[] = $item;
 
