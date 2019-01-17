@@ -122,10 +122,11 @@ class T_VARIABLE extends TAbstract {
 
 
     private function fromCustomFunctions($value, $data){
-        $offset = $data['customData']['customFunctions'][strtolower($value)];
 
+//        var_dump($data['combinedVariables'][ strtolower($value) ]);
+//        exit;
         return [
-            Helper::fromIntToHex($offset)
+            $data['customData']['customFunctions'][strtolower($value)]
         ];
     }
 

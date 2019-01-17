@@ -83,19 +83,6 @@ class NewCompiler
         $this->procedures = $this->searchScriptType(Token::T_PROCEDURE);
         $this->customFunction = $this->searchScriptType(Token::T_CUSTOM_FUNCTION);
 
-        $customFunction = $this->customFunction;
-
-//        $this->recursiveReplace($tokens, Token::T_VARIABLE, function($token) use ($customFunction){
-//
-//            if (isset($customFunction[ strtolower($token['value']) ])){
-//                $token['type'] = Token::T_FUNCTION;
-//            }
-//
-//            return $token;
-//        });
-
-
-
         $this->headerVariables = $this->getHeaderVariables($tokens);
 
         $this->combine();
@@ -167,9 +154,9 @@ class NewCompiler
 
         // OLD CODE; DO REFACTOR
         if ($token['type'] == Token::T_PROCEDURE) {
-            $this->procedures[$scriptName] = $this->lineCount - 1;
+            $this->procedures[$scriptName] = Helper::fromIntToHex($this->lineCount - 1);
         } else if ($token['type'] == Token::T_CUSTOM_FUNCTION) {
-            $this->customFunction[$scriptName] = $this->lineCount - 1;
+            $this->customFunction[$scriptName] = Helper::fromIntToHex($this->lineCount - 1);
         }
         // OLD CODE; DO REFACTOR
 
@@ -775,7 +762,7 @@ class NewCompiler
                         $constants[$variable]['type'] == Token::T_INT ||
                         $constants[$variable]['type'] == Token::T_FLOAT
                     ) {
-                        //just rais the memory, we dont need to save a offset for numerics
+                        //just raise the memory, we do not need to save a offset for numbers
                         $this->memoryOffset += 4;
                     }
 
@@ -791,15 +778,14 @@ class NewCompiler
          * Caclulate string offsets
          */
 
-        $tmpArray = [];
         $strings = [];
+
         foreach ($constants as $item) {
 
             if ($item['type'] == Token::T_STRING) {
                 $string = str_replace('"', '', $item['value']);
 
-                if(!isset($tmpArray[$string])){
-                    $tmpArray[$string] = $string;
+                if(!isset($strings[$string])){
 
                     $length = strlen($string) + 1;
                     $strings[$string] = [
@@ -807,9 +793,7 @@ class NewCompiler
                         'length' => strlen($string)
                     ];
 
-
                     $this->memoryOffset += $length + $this->calculateMissedStringSize($length);
-
                 }
             }
         }
@@ -817,18 +801,11 @@ class NewCompiler
 
         foreach ($constants as &$var) {
 
+            if ($var['type'] == Token::T_INT)    $var['valueType'] = "integer";
+            if ($var['type'] == Token::T_STRING) $var['valueType'] = "string";
+            if ($var['type'] == Token::T_FLOAT)  $var['valueType'] = "float";
+
             $var['section'] = 'script';
-
-            if ($var['type'] == Token::T_INT) {
-                $var['valueType'] = "integer";
-
-            } else if ($var['type'] == Token::T_STRING) {
-                $var['valueType'] = "string";
-
-            } else if ($var['type'] == Token::T_FLOAT) {
-                $var['valueType'] = "float";
-            }
-
             $var['type'] = 'constant';
         }
 
