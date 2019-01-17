@@ -50,9 +50,6 @@ class T_VARIABLE extends TAbstract {
         }else if (isset($data['const'][ $value ])){
             $mapped = $data['combinedVariables'][ $value ];
 
-            //todo: das hat hier nix zusuchen, das muss schon im mapped drin sein!!
-            $mapped['type'] = "constant";
-
         }else if (strpos($value, '.') !== false){
 
             $mapped = Evaluate::getObjectToAttributeSplit($value, $data);

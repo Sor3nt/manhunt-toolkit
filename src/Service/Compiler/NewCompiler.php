@@ -234,7 +234,8 @@ class NewCompiler
         $combinedVariables = array_merge($combinedVariables, Manhunt2::$functions);
 
         $combinedVariables = array_merge($combinedVariables, $this->types);
-
+//var_dump($this->constants);
+//exit;
         $combinedVariables = array_merge($combinedVariables, $this->constants);
 
         $combinedVariables = array_merge($combinedVariables, $this->headerVariables);
@@ -826,12 +827,9 @@ class NewCompiler
 
             } else if ($var['type'] == Token::T_FLOAT) {
                 $var['valueType'] = "float";
-
             }
 
-            //todo: hmm ich brauch den richtigen type in T_SCRIPT_CONSTANT -.-
-//            $var['type'] = 'constant';
-
+            $var['type'] = 'constant';
         }
 
         /**
@@ -1071,14 +1069,7 @@ class NewCompiler
 
             foreach ($this->constants as $constant) {
                 if ($constant['section'] == "script"){
-                    if ($constant['type'] == Token::T_INT){
-                        $result['const'][] = (int) $constant['value'];
-
-                    }else{
-
-                        throw new \Exception("generateDATA: unhandled type..." . $constant['type']);
-
-                    }
+                    $result['const'][] = (int) $constant['value'];
                 }
             }
         }
