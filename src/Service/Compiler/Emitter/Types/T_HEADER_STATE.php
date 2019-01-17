@@ -5,7 +5,7 @@ class T_HEADER_STATE {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        $mapped = $data['variables'][$node['value']];
+        $mapped = $data['combinedVariables'][$node['value']];
 
         return [
             $getLine('14000000'),

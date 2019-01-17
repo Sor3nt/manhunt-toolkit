@@ -5,7 +5,7 @@ class T_SCRIPT_CONSTANT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        $mapped = $data['const'][$node['value']];
+        $mapped = $data['combinedVariables'][$node['value']];
 
         return $emitter($mapped);
 

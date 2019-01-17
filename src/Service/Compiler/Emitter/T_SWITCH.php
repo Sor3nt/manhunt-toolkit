@@ -11,10 +11,7 @@ class T_SWITCH {
         $code = [];
 
         //evaluate the switch variable
-        $result = $emitter($node['switch']);
-        foreach ($result as $item) {
-            $code[] = $item;
-        }
+        foreach ($emitter($node['switch']) as $item) $code[] = $item;
 
         $forceLineNumber = end($code)->lineNumber + 1;
 

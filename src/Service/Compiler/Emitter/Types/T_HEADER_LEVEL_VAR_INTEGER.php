@@ -5,7 +5,7 @@ class T_HEADER_LEVEL_VAR_INTEGER {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        $mapped = $data['variables'][ $node['value'] ];
+        $mapped = $data['combinedVariables'][$node['value']];
 
         return [
             $getLine('1b000000'),

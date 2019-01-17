@@ -7,12 +7,8 @@ class T_HEADER_LEVEL_VAR_STATE {
 
         if (!isset($node['target'])){
 
-            $mapped = $data['variables'][$node['value']];
+            $mapped = $data['combinedVariables'][$node['value']];
 
-/*
- *
- * das stimmt irgendwie nur halb, die selbe section+type sollte immer gleich sein.... aber es geht... erstmal...
- */
 
             return [
                 $getLine('1b000000'),
