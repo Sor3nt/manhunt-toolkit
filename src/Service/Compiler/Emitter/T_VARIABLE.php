@@ -42,30 +42,23 @@ class T_VARIABLE extends TAbstract {
             $mapped = $data['customData']['customFunctionVars'][$value];
 
 
-
-        }else if (isset($data['variables'][ $value ])){
-            $mapped = $data['combinedVariables'][ $value ];
-        }else if (isset($hardCodedConstants[ $value ])) {
-            $mapped = $data['combinedVariables'][ $value ];
-        }else if (isset($data['const'][ $value ])){
-            $mapped = $data['combinedVariables'][ $value ];
-
         }else if (strpos($value, '.') !== false){
-
             $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
+
 
         }else if (
             isset($node['target']) &&
             isset($data['types'][ $node['target'] ])
         ){
-
             $variableType = $data['types'][$node['target']];
             $mapped = $variableType[ strtolower($value) ];
+
+        }else if (isset($data['combinedVariables'][ $value ])){
+            $mapped = $data['combinedVariables'][ $value ];
 
         }else{
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
-
         return $mapped;
     }
 
@@ -108,6 +101,9 @@ class T_VARIABLE extends TAbstract {
                     $code = $this->fromScript($mapped);
 
                 }else{
+
+                    var_dump($mapped);
+                    exit;
                     throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
                 }
         }

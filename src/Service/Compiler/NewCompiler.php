@@ -166,9 +166,10 @@ class NewCompiler
          * Translate Token AST to Bytecode
          */
         $emitter = new Emitter(
-            array_merge($this->combinedVariables, $scriptVar),
-            array_merge($this->stringsForScript[$scriptName], $this->headerStrings),
 
+            array_merge($this->combinedVariables, $scriptVar),
+
+            array_merge($this->stringsForScript[$scriptName], $this->headerStrings),
 
             $scriptVar,
             $this->types,
@@ -180,6 +181,8 @@ class NewCompiler
 
             'procedures' => $this->procedures,
             'customFunctions' => $this->customFunction,
+
+            'functions' => array_merge(ManhuntDefault::$functions, Manhunt2::$functions),
 
             'combinedVariables' => array_merge($this->combinedVariables, $scriptVar),
 
@@ -217,12 +220,11 @@ class NewCompiler
         $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$constants);
         $combinedVariables = array_merge($combinedVariables, Manhunt2::$constants);
 
-        $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$functions);
-        $combinedVariables = array_merge($combinedVariables, Manhunt2::$functions);
+//        $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$functions);
+//        $combinedVariables = array_merge($combinedVariables, Manhunt2::$functions);
 
         $combinedVariables = array_merge($combinedVariables, $this->types);
-//var_dump($this->constants);
-//exit;
+
         $combinedVariables = array_merge($combinedVariables, $this->constants);
 
         $combinedVariables = array_merge($combinedVariables, $this->headerVariables);

@@ -12,11 +12,13 @@ class T_FUNCTION {
 
     private $blockOffsets;
     private $combinedVariables;
+    private $functions;
 
     public function __construct( $customData )
     {
         $this->blockOffsets = $customData['blockOffsets'];
         $this->combinedVariables = $customData['combinedVariables'];
+        $this->functions = $customData['functions'];
     }
 
     public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
@@ -310,12 +312,12 @@ class T_FUNCTION {
         $functionName = strtolower($functionName);
 
         if (
-            !isset($this->combinedVariables[$functionName])
+            !isset($this->functions[$functionName])
         ){
             throw new \Exception(sprintf('Unknown function %s', $functionName));
         }
 
-        return $this->combinedVariables[$functionName];
+        return $this->functions[$functionName];
     }
 
     public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
