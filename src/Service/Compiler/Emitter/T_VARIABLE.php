@@ -64,6 +64,9 @@ class T_VARIABLE extends TAbstract {
 
             $variableType = $data['types'][$node['target']];
             $mapped = $variableType[ strtolower($value) ];
+
+
+
         }else{
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
@@ -78,16 +81,70 @@ class T_VARIABLE extends TAbstract {
 
         if ($mapped['type'] == "vec3d") {
             $this->fromVec3d($mapped, $code, $getLine);
+
         }else if ($mapped['type'] == "object") {
            $this->fromObject($node, $data, $code, $getLine);
+
         }else if ($mapped['type'] == "stringarray") {
-           $this->fromHeaderStringArray($mapped, $code, $getLine);
+           $this->fromStringArray($mapped, $code, $getLine);
+
+        }else if ($mapped['type'] == "level_var stringarray") {
+           $this->fromLevelVarStringArray($mapped, $code, $getLine);
+
         }else if ($mapped['type'] == "custom_functions") {
            $this->fromCustomFunctions($node['value'], $data, $code, $getLine);
+
         }else if ($mapped['type'] == "level_var state") {
             $this->fromLevelVarState($node, $data, $code, $getLine);
-//        }else if(substr($mapped['type'], 0, 9) == "level_var") {
-//            $this->fromLevelVar($mapped, $code, $getLine);
+
+        }else if ($mapped['type'] == "level_var tlevelstate") {
+            $this->fromLevelVarState($node, $data, $code, $getLine);
+
+        }else if (
+            $mapped['section'] == "header" &&
+            isset($mapped['isLevelVar']) &&
+            $mapped['isLevelVar'] == false  &&
+            isset($mapped['abstract']) &&
+            $mapped['abstract'] == "state"
+        ){
+                $this->fromHeader($mapped, $code, $getLine);
+
+
+        }else if (
+            $mapped['section'] == "header" &&
+            isset($mapped['isLevelVar']) &&
+            $mapped['isLevelVar'] == true  &&
+            isset($mapped['abstract']) &&
+            $mapped['abstract'] == "state"
+        ){
+                $this->fromLevelVarState($node, $data, $code, $getLine);
+
+
+        }else if (
+            $mapped['type'] == "constant"
+        ){
+
+            if ($mapped['section'] == "script"){
+                //TODO: why the hack is the offset not precalculated ?!
+                $mapped['offset'] = Helper::fromIntToHex($mapped['value'] );
+            }
+
+            $this->fromConstant($mapped, $code, $getLine);
+
+
+
+        }else if($mapped['section'] == "script" && $mapped['type'] == "level_var boolean") {
+            $this->fromLevelVar($mapped, $code, $getLine);
+        }else if($mapped['section'] == "header" && $mapped['type'] == "level_var boolean") {
+            $this->fromLevelVar($mapped, $code, $getLine);
+        }else if($mapped['section'] == "header" && $mapped['type'] == "level_var integer") {
+            $this->fromLevelVar($mapped, $code, $getLine);
+
+
+
+        }else if($mapped['type'] == "procedure") {
+            $this->fromProcedure($mapped, $code, $getLine);
+
 
         }else{
 
@@ -106,15 +163,6 @@ class T_VARIABLE extends TAbstract {
             }else if (
                     $mapped['section'] == "header" &&
                     (
-                        $mapped['type'] == "constant"
-                    )
-                ){
-
-                $this->fromConstant($mapped, $code, $getLine);
-
-            }else if (
-                    $mapped['section'] == "header" &&
-                    (
                         $mapped['type'] == "boolean" ||
                         $mapped['type'] == "entityptr" ||
                         $mapped['type'] == "real" ||
@@ -125,38 +173,10 @@ class T_VARIABLE extends TAbstract {
                 $this->fromHeader($mapped, $code, $getLine);
 
             }else{
-//                    var_dump($mapped);
-//                    exit;
-                $typeHandler = "App\\Service\\Compiler\\Emitter\\Types\\";
-                $typeHandler .= "T_";
-                $typeHandler .= strtoupper($mapped['section']);
-//var_dump($typeHandler);
-                if (isset($mapped['isLevelVar']) && $mapped['isLevelVar'] == true){
-                    $typeHandler .= "_LEVEL_VAR";
+                throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
 
-                }
-
-                if (isset($mapped['abstract'])){
-                    $typeHandler .= "_" . strtoupper($mapped['abstract']);
-
-                }else{
-                    $typeHandler .= "_" . strtoupper($mapped['type']);
-                }
-
-                $typeHandler = str_replace(' ', '_', $typeHandler);
-
-                if (class_exists($typeHandler)){
-                    $code = $typeHandler::map($node, $getLine, $emitter, $data);
-                }else{
-                    throw new \Exception($typeHandler . " Not implemented!");
-                }
             }
-
-
-
         }
-
-
 
         return $code;
     }
@@ -177,8 +197,20 @@ class T_VARIABLE extends TAbstract {
         $code[] = $getLine('13000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine('04000000');
+
         $code[] = $getLine($mapped['offset']);
     }
+
+    private function fromProcedure($mapped, &$code, \Closure $getLine){
+
+        $code[] = $getLine('13000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('04000000');
+
+        //TODO: what the ... the offset should be already calculated...
+        $code[] = $getLine(substr(Helper::fromIntToHex($mapped['offset']),0, 8));
+    }
+
 
     private function fromHeader($mapped, &$code, \Closure $getLine){
         $code[] = $getLine('14000000');
@@ -186,7 +218,6 @@ class T_VARIABLE extends TAbstract {
         $code[] = $getLine('04000000');
         $code[] = $getLine($mapped['offset']);
     }
-
 
     private function fromLevelVar($mapped, &$code, \Closure $getLine){
         $code[] = $getLine('1b000000');
@@ -200,10 +231,7 @@ class T_VARIABLE extends TAbstract {
 
             $mapped = $data['combinedVariables'][$node['value']];
 
-            $code[] = $getLine('1b000000');
-            $code[] = $getLine($mapped['offset']);
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
+            $this->fromLevelVar($mapped, $code, $getLine);
             return;
         }
 
@@ -213,7 +241,6 @@ class T_VARIABLE extends TAbstract {
         $code[] = $getLine('12000000');
         $code[] = $getLine('01000000');
         $code[] = $getLine($mapped['offset']);
-
     }
 
 
@@ -225,15 +252,22 @@ class T_VARIABLE extends TAbstract {
     }
 
 
-    private function fromState($mapped, &$code, \Closure $getLine){
-        $code[] = $getLine('14000000');
+
+    private function fromLevelVarStringArray($mapped, &$code, \Closure $getLine){
+        $code[] = $getLine('1c000000');
         $code[] = $getLine('01000000');
-        $code[] = $getLine('04000000');
         $code[] = $getLine($mapped['offset']);
+        $code[] = $getLine('1e000000');
+
+
+        $code[] = $getLine('12000000');
+        $code[] = $getLine('02000000');
+
+        $code[] = $getLine(Helper::fromIntToHex( $mapped['size']  ));
     }
 
 
-    private function fromHeaderStringArray($mapped, &$code, \Closure $getLine){
+    private function fromStringArray($mapped, &$code, \Closure $getLine){
         $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000');
         $code[] = $getLine('04000000');
         $code[] = $getLine('01000000');
@@ -260,14 +294,7 @@ class T_VARIABLE extends TAbstract {
 
         $code[] = $getLine('0f000000');
 
-        if ($mapped['offset'] == $mapped['object']['offset']) {
-            $code[] = $getLine('02000000');
-
-            $code[] = $getLine('18000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('02000000');
-        }else{
+        if ($mapped['offset'] !== $mapped['object']['offset']) {
             $code[] = $getLine('01000000');
 
             $code[] = $getLine('32000000');
@@ -278,12 +305,13 @@ class T_VARIABLE extends TAbstract {
             $code[] = $getLine('10000000');
             $code[] = $getLine('01000000');
             $code[] = $getLine('0f000000');
-            $code[] = $getLine('02000000');
-            $code[] = $getLine('18000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('02000000');
         }
+
+        $code[] = $getLine('02000000');
+        $code[] = $getLine('18000000');
+        $code[] = $getLine('01000000');
+        $code[] = $getLine('04000000');
+        $code[] = $getLine('02000000');
     }
 
 }
