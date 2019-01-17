@@ -70,25 +70,32 @@ class T_VARIABLE extends TAbstract {
             case 'vec3d':
                 $code = $this->fromVec3d($mapped);
                 break;
+
             case 'object':
                 $code = $this->fromObject($node, $data);
                 break;
+
             case 'stringarray':
                 $code = $this->fromStringArray($mapped);
                 break;
+
             case 'level_var stringarray':
                 $code = $this->fromLevelVarStringArray($mapped);
                 break;
+
             case 'custom_functions':
                 $code = $this->fromCustomFunctions($node['value'], $data);
                 break;
+
             case 'constant':
                 $code = $this->fromConstant($mapped);
                 break;
+
             case 'level_var state':
             case 'level_var tlevelstate':
                 $code = $this->fromLevelVarState($node, $data);
                 break;
+
             default:
 
                 if(substr($mapped['type'], 0, 9) == "level_var") {
@@ -101,9 +108,6 @@ class T_VARIABLE extends TAbstract {
                     $code = $this->fromScript($mapped);
 
                 }else{
-
-                    var_dump($mapped);
-                    exit;
                     throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
                 }
         }
@@ -118,9 +122,6 @@ class T_VARIABLE extends TAbstract {
 
 
     private function fromCustomFunctions($value, $data){
-
-//        var_dump($data['combinedVariables'][ strtolower($value) ]);
-//        exit;
         return [
             $data['customData']['customFunctions'][strtolower($value)]
         ];
