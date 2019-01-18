@@ -1,7 +1,6 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
@@ -29,15 +28,12 @@ class T_FUNCTION {
             case Token::T_FALSE:
             case Token::T_TRUE:
             case Token::T_SELF:
+            case Token::T_MULTIPLY:
                 $code[] = $getLine('10000000');
                 $code[] = $getLine('01000000');
             break;
 
 
-            case Token::T_MULTIPLY:
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
-                break;
             case Token::T_ADDITION:
             case Token::T_FUNCTION:
                 break;
@@ -90,8 +86,8 @@ class T_FUNCTION {
                         }
 
                         break;
-                    case 'script':
 
+                    case 'script':
 
                         switch ($mappedTo['type']) {
 
@@ -143,11 +139,6 @@ class T_FUNCTION {
                                     $code[] = $getLine('01000000');
                                 }
                                 break;
-                            case 'object':
-                                    $code[] = $getLine('object1');
-                                    $code[] = $getLine('object1');
-
-                                break;
                             case 'constant':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -172,8 +163,6 @@ class T_FUNCTION {
             default:
                 throw new \Exception($node['type'] . " Not implemented!");
                 break;
-
-
         }
     }
 
@@ -200,7 +189,6 @@ class T_FUNCTION {
             }
 
             return $code;
-
         }
 
         /**
@@ -209,19 +197,13 @@ class T_FUNCTION {
         $param = $node['params'][0];
         $param['nested'] = false;
 
-        $resultCode = $emitter( $param );
-        foreach ($resultCode as $line) {
-            $code[] = $line;
-        }
-
+        foreach ($emitter( $param ) as $line) $code[] = $line;
 
         $this->finalize($param, $data, $code, $getLine, true);
-
 
         /**
          * generate the needed function call
          */
-
         switch ($param['type']){
             case Token::T_INT:
                 $code[] = $getLine($this->getFunction('WriteDebugInteger')['offset']);
@@ -290,19 +272,13 @@ class T_FUNCTION {
         return $code;
     }
 
-    public function getForceFloat( $functioName ){
+    public function getForceFloat( $functionName ){
 
+        $functionName = strtolower($functionName);
 
-        $functioName = strtolower($functioName);
+        $functionForceFloat = array_merge(Manhunt2::$functionForceFloar, ManhuntDefault::$functionForceFloar);
 
-        $functionForceFloar = Manhunt2::$functionForceFloar;
-        if (GAME == "mh1") $functionForceFloar = Manhunt::$functionForceFloar;
-
-        $functionForceFloar = array_merge($functionForceFloar, ManhuntDefault::$functionForceFloar);
-
-        if (isset( $functionForceFloar[$functioName] )){
-            return $functionForceFloar[$functioName];
-        }
+        if (isset( $functionForceFloat[$functionName] )) return $functionForceFloat[$functionName];
 
         return [];
     }
@@ -311,9 +287,7 @@ class T_FUNCTION {
 
         $functionName = strtolower($functionName);
 
-        if (
-            !isset($this->functions[$functionName])
-        ){
+        if ( !isset($this->functions[$functionName]) ){
             throw new \Exception(sprintf('Unknown function %s', $functionName));
         }
 
@@ -347,8 +321,6 @@ class T_FUNCTION {
         }
 
         $forceFloatOrder = $this->getForceFloat($node['value']);
-
-
 
         $isProcedure = false;
         $isCustomFunction = false;
@@ -421,15 +393,11 @@ class T_FUNCTION {
 
                     $code[] = $getLine('10000000');
                     $code[] = $getLine('01000000');
+
                     $skipNext = true;
-
-//                    $code[] = $getLine('10000000');
-//                    $code[] = $getLine('01000000');
-
 
                 }else{
 
-//                    die($param['type']);
                     $resultCode = $emitter( $param, true, [
                         'isProcedure' => $isProcedure,
                         'isCustomFunction' => $isCustomFunction
@@ -448,10 +416,9 @@ class T_FUNCTION {
                  * we assign the positive value and negate them with this sequence
                  */
                 if (
-                    ( $param['type'] == Token::T_FLOAT) &&
+                    $param['type'] == Token::T_FLOAT &&
                     $param['value'] < 0
                 ) {
-
                     $code[] = $getLine('4f000000');
                     $code[] = $getLine('32000000');
                     $code[] = $getLine('09000000');
@@ -461,12 +428,14 @@ class T_FUNCTION {
                 }
 
 
+                /**
+                 * when a function want a float but receive a int instead
+                 * we need to tell the engine to convert the int to float
+                 */
                 if (
                     count($forceFloatOrder) > 0 &&
                     $param['type'] == Token::T_INT
                 ) {
-
-
                     if (count($forceFloatOrder)){
                         if ($forceFloatOrder[$index] === true){
                             $code[] = $getLine('4d000000');
@@ -487,7 +456,7 @@ class T_FUNCTION {
 
         }catch (\Exception $e){
 
-            if ($isProcedure) {
+            if ($isProcedure || $isCustomFunction) {
                 $procedureOffset = $mappedToBlock['offset'];
 
                 $code[] = $getLine('10000000'); //procedure
@@ -504,25 +473,6 @@ class T_FUNCTION {
                 $code[] = $getLine(Helper::fromIntToHex($procedureOffset * 4)); //procedure offset
 
                 return $code;
-
-            }else if ($isCustomFunction){
-
-                $procedureOffset = $mappedToBlock['offset'];
-
-                $code[] = $getLine('10000000'); //procedure
-                $code[] = $getLine('04000000'); //procedure
-                $code[] = $getLine('11000000'); //procedure
-                $code[] = $getLine('02000000'); //procedure
-                $code[] = $getLine('00000000'); //procedure
-                $code[] = $getLine('32000000'); //procedure
-                $code[] = $getLine('02000000'); //procedure
-                $code[] = $getLine('1c000000'); //procedure
-                $code[] = $getLine('10000000'); //procedure
-                $code[] = $getLine('02000000'); //procedure
-                $code[] = $getLine('39000000'); //procedure
-                $code[] = $getLine( Helper::fromIntToHex($procedureOffset * 4 ) ); // customFunction offset
-
-                return $code;
             }
 
             throw $e;
@@ -537,10 +487,7 @@ class T_FUNCTION {
 
         if (isset($node['nested']) && $node['nested'] === true){
 
-            $functionNoReturn = Manhunt2::$functionNoReturn;
-            if (GAME == "mh1") $functionNoReturn = Manhunt::$functionNoReturn;
-
-            $functionNoReturn = array_merge($functionNoReturn, ManhuntDefault::$functionNoReturn);
+            $functionNoReturn = array_merge(Manhunt2::$functionNoReturn, ManhuntDefault::$functionNoReturn);
 
             if (
                 //not sure, maybe this is just a fix for a unknown bug
