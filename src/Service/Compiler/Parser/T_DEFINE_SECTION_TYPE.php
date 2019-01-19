@@ -22,28 +22,30 @@ class T_DEFINE_SECTION_TYPE {
 
         while ($current < count($tokens)) {
 
+
             $token = $tokens[$current];
 
             if (
-                $token['type'] == Token::T_IS_EQUAL ||
-                $token['type'] == Token::T_BRACKET_OPEN
+                $token['type'] == Token::T_DEFINE_SECTION_VAR ||
+                $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                $token['type'] == Token::T_PROCEDURE ||
+                $token['type'] == Token::T_SCRIPT ||
+                $token['type'] == Token::T_CUSTOM_FUNCTION ||
+                $token['type'] == Token::T_BEGIN
             ){
-                $current++;
-                continue;
-            }
 
-            if (
-                $token['type'] == Token::T_BRACKET_CLOSE
-            ){
-                return [++$current, $node];
+                return [$current, $node];
 
             }else{
-                $node['body'][] = $token;
+
+                if ($token['type'] !== Token::T_DEFINE && $token['type'] !== Token::T_LINEEND) {
+                    $node['body'][] = $token;
+                }
             }
 
             $current++;
-        }
 
+        }
 
         return [++$current, $node];
     }

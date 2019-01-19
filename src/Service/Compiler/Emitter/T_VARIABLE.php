@@ -41,10 +41,18 @@ class T_VARIABLE extends TAbstract {
         }else if (isset($data['customData']['customFunctionVars']) && isset($data['customData']['customFunctionVars'][ $value ])) {
             $mapped = $data['customData']['customFunctionVars'][$value];
 
+            //array index access
+        }else if (strpos($value, '[') !== false){
+
+            $variableName = explode('[', $value)[0];
+
+            $mapped = $data['combinedVariables'][$variableName];
+
 
         }else if (strpos($value, '.') !== false){
-            $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
 
+            //vec3d object pos.x
+            $mapped = Evaluate::getObjectToAttributeSplit($value, $data);
 
         }else if (
             isset($node['target']) &&

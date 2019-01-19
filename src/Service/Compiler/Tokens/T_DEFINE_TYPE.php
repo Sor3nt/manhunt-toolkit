@@ -19,11 +19,35 @@ class T_DEFINE_TYPE {
                 while($current < strlen($input)) {
                     $char = substr($input, $current, 1);
 
-                    if ($char === ";" || $char === ")"){
+                    if ($char === ";" || $char === ")") {
                         return [
                             'type' => 'T_DEFINE_TYPE',
                             'value' => $value
                         ];
+                    }else if ($char === "]"){
+
+                        //Searchables : array [1..9] of Searchable;
+                        if (substr($value, 0, 5) == "array"){
+                            $remain = trim(substr($value, 5));
+                            $remain = explode('[', $remain)[1];
+
+                            list($from, $to) = explode('..', $remain);
+
+                            $remain = substr($input, $current + 1);
+                            $remain = trim(explode("of", $remain)[1]);
+                            $ofVar = explode(";", $remain)[0];
+
+                            return [
+                                'type' => Token::T_ARRAY,
+                                'value' => $value . ']' . substr($input, $current + 1),
+                                'from' => $from,
+                                'to' => $to,
+                                'ofVar' => $ofVar
+
+                            ];
+                        }else{
+                            $value .= $char;
+                        }
                     }else{
                         $value .= $char;
                     }

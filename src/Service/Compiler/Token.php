@@ -1,45 +1,11 @@
 <?php
 namespace App\Service\Compiler;
 
-use App\Service\Compiler\Tokens\T_ASSIGN;
-use App\Service\Compiler\Tokens\T_BEGIN;
-use App\Service\Compiler\Tokens\T_BRACKET_CLOSE;
-use App\Service\Compiler\Tokens\T_BRACKET_OPEN;
-use App\Service\Compiler\Tokens\T_DEFINE;
-use App\Service\Compiler\Tokens\T_DEFINE_TYPE;
-use App\Service\Compiler\Tokens\T_DEFINE_VAR;
-use App\Service\Compiler\Tokens\T_DO;
-use App\Service\Compiler\Tokens\T_END;
-use App\Service\Compiler\Tokens\T_ENTITY;
-use App\Service\Compiler\Tokens\T_FALSE;
-use App\Service\Compiler\Tokens\T_FLOAT;
-use App\Service\Compiler\Tokens\T_FUNCTION;
-use App\Service\Compiler\Tokens\T_IF;
-use App\Service\Compiler\Tokens\T_INT;
-use App\Service\Compiler\Tokens\T_IS_EQUAL;
-use App\Service\Compiler\Tokens\T_IS_GREATER;
-use App\Service\Compiler\Tokens\T_IS_NOT_EQUAL;
-use App\Service\Compiler\Tokens\T_IS_SMALLER;
-use App\Service\Compiler\Tokens\T_LINEEND;
-use App\Service\Compiler\Tokens\T_NOT;
-use App\Service\Compiler\Tokens\T_NULL;
-use App\Service\Compiler\Tokens\T_SCRIPT;
-use App\Service\Compiler\Tokens\T_SCRIPT_NAME;
-use App\Service\Compiler\Tokens\T_SCRIPTMAIN;
-use App\Service\Compiler\Tokens\T_SCRIPTMAIN_NAME;
-use App\Service\Compiler\Tokens\T_SELF;
-use App\Service\Compiler\Tokens\T_SEPERATOR;
-use App\Service\Compiler\Tokens\T_SQUARE_BRACKET_CLOSE;
-use App\Service\Compiler\Tokens\T_SQUARE_BRACKET_OPEN;
-use App\Service\Compiler\Tokens\T_STRING;
-use App\Service\Compiler\Tokens\T_THEN;
-use App\Service\Compiler\Tokens\T_TRUE;
-use App\Service\Compiler\Tokens\T_VARIABLE;
-use App\Service\Compiler\Tokens\T_WHILE;
-use App\Service\Compiler\Tokens\T_WHITESPACE;
-
  class Token {
 
+    const T_ARRAY                       = 'T_ARRAY';
+    const T_RECORD                      = 'T_RECORD';
+    const T_RECORD_END                  = 'T_RECORD_END';
     const T_CUSTOM_FUNCTION             = 'T_CUSTOM_FUNCTION';
     const T_CUSTOM_FUNCTION_NAME        = 'T_CUSTOM_FUNCTION_NAME';
     const T_CUSTOM_FUNCTION_END         = 'T_CUSTOM_FUNCTION_END';

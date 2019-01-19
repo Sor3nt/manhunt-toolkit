@@ -524,73 +524,127 @@ class NewCompiler
     /**
      * Getter
      */
-    private function getTypes($tokens)
-    {
+    private function getTypes($tokens){
 
-        $types = [];
+        $content = [];
 
+        /**
+         * Step 1 : collect any data inside the TYPE section
+         */
         $current = 0;
-        $offset = 0;
-        $inside = false;
-        $currentTypeSection = false;
-
         while ($current < count($tokens)) {
-
             $token = $tokens[$current];
 
             if ($token['type'] == Token::T_DEFINE_SECTION_TYPE) {
-                $inside = true;
+                $current++;
 
-            } else if (
-                $inside && (
-                    $token['type'] == Token::T_DEFINE_SECTION_VAR ||
-                    $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
-                    $token['type'] == Token::T_DEFINE_SECTION_CONST ||
-                    $token['type'] == Token::T_PROCEDURE ||
-                    $token['type'] == Token::T_CUSTOM_FUNCTION ||
-                    $token['type'] == Token::T_SCRIPT
-                )
-            ) {
+                while ($current < count($tokens)) {
+                    $token = $tokens[$current];
 
-                return $types;
+                    if (
+                        $token['type'] == Token::T_DEFINE_SECTION_VAR ||
+                        $token['type'] == Token::T_DEFINE_SECTION_ENTITY ||
+                        $token['type'] == Token::T_DEFINE_SECTION_CONST ||
+                        $token['type'] == Token::T_PROCEDURE ||
+                        $token['type'] == Token::T_CUSTOM_FUNCTION ||
+                        $token['type'] == Token::T_SCRIPT
+                    ){
+                        break;
 
-            } else if (
-                $token['type'] == Token::T_BRACKET_OPEN ||
-                $token['type'] == Token::T_BRACKET_CLOSE
-            ) {
-                // do nothing
-            } else if (
-                $token['type'] == Token::T_LINEEND
-            ) {
+                    }else{
+                        $content[] = $token;
+                    }
 
-                $currentTypeSection = false;
-            } else if ($inside) {
-
-                if ($token['type'] == Token::T_IS_EQUAL) {
-                    $beforeToken = $tokens[$current - 1];
-
-                    $offset = 0;
-                    $currentTypeSection = strtolower($beforeToken['value']);
-
-                    $types[$currentTypeSection] = [];
-
-
-                } else if ($currentTypeSection && $token['type'] == Token::T_VARIABLE) {
-
-                    $types[$currentTypeSection][strtolower($token['value'])] = [
-                        'type' => 'level_var state',
-                        'section' => "header",
-                        'offset' => Helper::fromIntToHex($offset)
-                    ];
-
-                    $offset++;
+                    $current++;
                 }
+
+                break;
             }
 
             $current++;
         }
 
+        /**
+         * Step 2 : split content into single types
+         */
+        $current = 0;
+        $typesTokens = [];
+
+        if (count($content)){
+
+            $typeTokens = [];
+
+            $endWIth = false;
+            while ($current < count($content)) {
+                $token = $content[$current];
+
+                if ($token['type'] == Token::T_BRACKET_OPEN) {
+                    $endWIth = Token::T_LINEEND;
+                }else if ($token['type'] == Token::T_RECORD){
+                    $endWIth = Token::T_RECORD_END;
+                }
+
+                $typeTokens[] = $token;
+
+                if ($token['type'] == $endWIth ){
+                    $typesTokens[] = $typeTokens;
+                    $typeTokens = [];
+                    $endWIth = false;
+                }
+
+                $current++;
+            }
+
+        }
+
+        /**
+         * Step 3 : parse the types
+         */
+        $types = [];
+        foreach ($typesTokens as $typeTokens) {
+            $currentTypeSection = strtolower($typeTokens[0]['value']);
+            $types[$currentTypeSection] = [];
+
+            $current = 3;
+            $offset = 0;
+
+            if ($typeTokens[2]['type'] == Token::T_RECORD){
+                while ($typeTokens[$current]['type'] == Token::T_VARIABLE) {
+
+                    $usedType = strtolower($typeTokens[$current + 2]['value']);
+
+                    $types[$currentTypeSection][strtolower($typeTokens[$current]['value'])] = [
+                        'type' => $usedType,
+                        'section' => "header",
+                        'offset' => Helper::fromIntToHex($offset)
+                    ];
+
+                    //todo.. ka ob das stimmt...
+                    $offset += $this->getMemorySizeByType($usedType);
+
+                    $current += 4;
+                }
+
+            }else if ($typeTokens[2]['type'] == Token::T_BRACKET_OPEN){
+
+                while ($typeTokens[$current]['type'] != Token::T_BRACKET_CLOSE) {
+
+                    $types[$currentTypeSection][strtolower($typeTokens[$current]['value'])] = [
+                        'type' => 'level_var state',
+                        'section' => "header",
+                        'offset' => Helper::fromIntToHex($offset)
+                    ];
+                    $offset++;
+
+                    $current++;
+                }
+
+
+            }
+        }
+
         return $types;
+
     }
 
     private function getHeaderVariables($tokens)
@@ -656,25 +710,46 @@ class NewCompiler
                 foreach ($variables as $variable) {
                     if (!$this->isVariableInUse($tokens, $variable['value'])) continue;
 
-                    $variableType = strtolower($tokens[$current + 2]['value']);
+                    if ($tokens[$current + 2]['type'] == Token::T_ARRAY){
+
+                        $row = [
+                            'section' => 'header',
+                            'type' => 'array',
+                            'from' => $tokens[$current + 2]['from'],
+                            'to' => $tokens[$current + 2]['to'],
+                            'ofVar' => $tokens[$current + 2]['ofVar'],
+
+                            'length' => $tokens[$current + 2]['to'],
+                            'size' => $tokens[$current + 2]['to']
+                        ];
 
 
-                    $isLevelVar = strpos($variableType, 'level_var') !== false;
-                    $variableTypeWihtoutLevel = str_replace('level_var ', '', $variableType);
+                    }else{
 
-                    $row = [
-                        'section' => $currentSection,
-                        'type' => substr($variableTypeWihtoutLevel, 0, 7) == "string[" ? ($isLevelVar ? 'level_var stringarray' : 'stringarray') : $variableType,
-                        'length' => $this->getMemorySizeByType($variableTypeWihtoutLevel),
-                        'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false)
-                    ];
+                        $variableType = strtolower($tokens[$current + 2]['value']);
 
-                    if (isset($this->types[$variableTypeWihtoutLevel])) {
-                        $row['isLevelVar'] = $isLevelVar;
-                        $row['abstract'] = 'state';
+                        if (substr($variableType, 0, 5) == "array"){
+                            $variableType = 'array';
+                        }
+
+                        $isLevelVar = strpos($variableType, 'level_var') !== false;
+                        $variableTypeWihtoutLevel = str_replace('level_var ', '', $variableType);
+
+                        $row = [
+                            'section' => $currentSection,
+                            'type' => substr($variableTypeWihtoutLevel, 0, 7) == "string[" ? ($isLevelVar ? 'level_var stringarray' : 'stringarray') : $variableType,
+                            'length' => $this->getMemorySizeByType($variableTypeWihtoutLevel),
+                            'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false)
+                        ];
+
+                        if (isset($this->types[$variableTypeWihtoutLevel])) {
+                            $row['isLevelVar'] = $isLevelVar;
+                            $row['abstract'] = 'state';
+                        }
                     }
 
                     $vars[$variable['value']] = $row;
+
                 }
             }
 

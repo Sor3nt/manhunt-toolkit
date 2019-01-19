@@ -42,7 +42,8 @@ class Parser {
                 $ast['body'][] = $node;
             }
         }
-
+//var_dump($ast);
+//        exit;
         return $ast;
     }
 

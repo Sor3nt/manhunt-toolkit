@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler;
 
+use App\Service\Compiler\Tokens\T_ARRAY;
+use App\Service\Compiler\Tokens\T_ARRAY_RANGE;
 use App\Service\Compiler\Tokens\T_CUSTOM_FUNCTION;
 use App\Service\Compiler\Tokens\T_ADDITION;
 use App\Service\Compiler\Tokens\T_AND;
@@ -41,6 +43,7 @@ use App\Service\Compiler\Tokens\T_OF;
 use App\Service\Compiler\Tokens\T_OR;
 use App\Service\Compiler\Tokens\T_PROCEDURE;
 use App\Service\Compiler\Tokens\T_PROCEDURE_NAME;
+use App\Service\Compiler\Tokens\T_RECORD;
 use App\Service\Compiler\Tokens\T_SCRIPT;
 use App\Service\Compiler\Tokens\T_SCRIPT_NAME;
 use App\Service\Compiler\Tokens\T_SCRIPTMAIN;
@@ -70,6 +73,7 @@ class Tokenizer {
         T_STRING::class,
         T_WHITESPACE::class,
 
+        T_RECORD::class,
         T_CASE::class,
         T_OF::class,
         T_FOR::class,
@@ -115,6 +119,7 @@ class Tokenizer {
         T_END::class,
         T_DO::class,
 
+        T_ARRAY::class,
         T_TRUE::class,
         T_FALSE::class,
         T_FLOAT::class,
@@ -382,7 +387,6 @@ class Tokenizer {
      */
     private function match($line, $offset, $tokens) {
         $string = substr($line, $offset);
-
         foreach ($this->tokens as $token) {
             $parsed = $token::match($line, $offset, $tokens);
 

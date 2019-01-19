@@ -53,6 +53,56 @@ class T_ASSIGN {
         }else if($mapped['type'] == "object"){
             self::fromObjectAttribute($mapped, $code, $getLine);
 
+        }else if($mapped['type'] == "array"){
+
+            $code[] = $getLine('21000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('01000000');
+
+            $code[] = $getLine($mapped['offset']);
+
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('01000000');
+
+            $indexName = explode('[', $node['value'])[1];
+            $indexName = explode(']', $indexName)[0];
+
+            switch ($mapped['ofVar']){
+                case 'boolean':
+                    $code[] = $getLine('12000000');
+                    $code[] = $getLine('01000000');
+                    $code[] = $getLine(Helper::fromIntToHex( (int) $indexName));
+
+                    break;
+                default:
+                    throw new \Exception('T_ASSIGN: array Handler missed for ' . $mapped['ofVar']);
+            }
+
+
+            $code[] = $getLine('34000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('12000000');
+            $code[] = $getLine('04000000');
+
+            $code[] = $getLine('04000000');
+//            $code[] = $getLine('offset from index');
+
+
+            $code[] = $getLine('35000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('0f000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('31000000');
+            $code[] = $getLine('04000000');
+            $code[] = $getLine('01000000');
+            $code[] = $getLine('10000000');
+            $code[] = $getLine('04000000');
+
+
+//            var_dump($mapped);
+//            exit;
+
         //hack: nil is detected as function, but its T_NIL actual....
         }else if ($leftHand['type'] == Token::T_FUNCTION && $leftHand['value'] == "nil"){
             $leftHand['type'] = Token::T_NIL;
@@ -130,6 +180,17 @@ class T_ASSIGN {
 
         }else if ($mapped['type'] == "object"){
             self::toObject( $code, $getLine);
+
+        }else if ($mapped['type'] == "array"){
+            self::toObject( $code, $getLine);
+
+//            $code[] = $getLine('0f000000');
+//            $code[] = $getLine('01000000');
+//            $code[] = $getLine('32000000');
+//            $code[] = $getLine('01000000');
+//            $code[] = $getLine('04000000'); // offset
+//            $code[] = $getLine('10000000');
+//            $code[] = $getLine('01000000');
 
         }else if ($mapped['type'] == "stringarray"){
             self::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
