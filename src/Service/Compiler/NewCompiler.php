@@ -609,6 +609,7 @@ class NewCompiler
             $offset = 0;
 
             if ($typeTokens[2]['type'] == Token::T_RECORD){
+                $index = 0;
                 while ($typeTokens[$current]['type'] == Token::T_VARIABLE) {
 
                     $usedType = strtolower($typeTokens[$current + 2]['value']);
@@ -616,12 +617,15 @@ class NewCompiler
                     $types[$currentTypeSection][strtolower($typeTokens[$current]['value'])] = [
                         'type' => $usedType,
                         'section' => "header",
+                        'index' => $index,
+                        'size' => $this->getMemorySizeByType($usedType),
                         'offset' => Helper::fromIntToHex($offset)
                     ];
 
-                    //todo.. ka ob das stimmt...
+//                    //todo.. ka ob das stimmt...
                     $offset += $this->getMemorySizeByType($usedType);
 
+                    $index++;
                     $current += 4;
                 }
 

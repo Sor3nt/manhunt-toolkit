@@ -45,6 +45,7 @@ class T_ASSIGN {
             }
         }
 
+        $mappedRecord = false;
 
         if ($mapped['type'] == "vec3d"){
             self::fromObject($mapped, $code, $getLine);
@@ -67,6 +68,8 @@ class T_ASSIGN {
             $indexName = explode('[', $node['value'])[1];
             $indexName = explode(']', $indexName)[0];
 
+            $ofVarSize = 4;
+
             switch ($mapped['ofVar']){
                 case 'boolean':
                     $code[] = $getLine('12000000');
@@ -75,7 +78,32 @@ class T_ASSIGN {
 
                     break;
                 default:
-                    throw new \Exception('T_ASSIGN: array Handler missed for ' . $mapped['ofVar']);
+
+                    //we access a record
+                    if (strpos($node['value'], ".") !== false){
+                        $mappedRecord = T_VARIABLE::getMapping(
+                            ['value' => strtolower($mapped['ofVar'])],
+                            $data
+                        );
+
+                        $ofVarSize = 0;
+                        foreach ($mappedRecord as $item) {
+                            if ($item['type'] == "vec3d") $ofVarSize += 12;
+                            else $ofVarSize += 4;
+                        }
+
+                        $wantedVariable = strtolower(explode('.', $node['value'])[1]);
+                        $mappedRecord = $mappedRecord[$wantedVariable];
+
+
+                        $code[] = $getLine('13000000');
+                        $code[] = $getLine('01000000');
+                        $code[] = $getLine('04000000');
+                        $code[] = $getLine(Helper::fromIntToHex($mappedRecord['size']));
+
+                    }else{
+                        throw new \Exception('T_ASSIGN: array Handler missed for ' . $mapped['ofVar']);
+                    }
             }
 
 
@@ -85,9 +113,7 @@ class T_ASSIGN {
             $code[] = $getLine('12000000');
             $code[] = $getLine('04000000');
 
-            $code[] = $getLine('04000000');
-//            $code[] = $getLine('offset from index');
-
+            $code[] = $getLine(Helper::fromIntToHex($ofVarSize));
 
             $code[] = $getLine('35000000');
             $code[] = $getLine('04000000');
@@ -99,6 +125,17 @@ class T_ASSIGN {
             $code[] = $getLine('10000000');
             $code[] = $getLine('04000000');
 
+
+
+            if ($mappedRecord['index'] > 0){
+                $code[] = $getLine('0f000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('32000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine($mappedRecord['offset']); // offset
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+            }
 
 //            var_dump($mapped);
 //            exit;
@@ -182,15 +219,9 @@ class T_ASSIGN {
             self::toObject( $code, $getLine);
 
         }else if ($mapped['type'] == "array"){
+
             self::toObject( $code, $getLine);
 
-//            $code[] = $getLine('0f000000');
-//            $code[] = $getLine('01000000');
-//            $code[] = $getLine('32000000');
-//            $code[] = $getLine('01000000');
-//            $code[] = $getLine('04000000'); // offset
-//            $code[] = $getLine('10000000');
-//            $code[] = $getLine('01000000');
 
         }else if ($mapped['type'] == "stringarray"){
             self::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
