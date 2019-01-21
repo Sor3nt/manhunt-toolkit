@@ -84,6 +84,9 @@ class T_CONDITION {
                                 $code[] = $getLine('01000000');
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('02000000');
+//                            }else if ($operation['type'] == Token::T_VARIABLE){
+//                                $code[] = $getLine('10000000');
+//                                $code[] = $getLine('01000000');
                             }else if ($operation['type'] == Token::T_FLOAT){
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
@@ -97,6 +100,7 @@ class T_CONDITION {
                                 $code[] = $getLine('04000000');
 
                             }else{
+
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
 
@@ -145,6 +149,8 @@ class T_CONDITION {
                     (isset($mappedTo['type']) && $mappedTo['type'] == "object") ||
                     (isset($operation) && $operation['type'] == Token::T_FLOAT)
                 ){
+//                    $code[] = $getLine('4e000000');
+//                }else if (isset($operation) && $operation['type'] == Token::T_VARIABLE){
                     $code[] = $getLine('4e000000');
                 }else if (isset($operation) && $operation['type'] == Token::T_STRING){
                     $code[] = $getLine('4e000000');

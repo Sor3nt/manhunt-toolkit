@@ -24,6 +24,7 @@ class T_STRING {
 
 
         $isProcedure = isset($data['customData']['isProcedure']) && $data['customData']['isProcedure'];
+        $isCustomFunction = isset($data['customData']['isCustomFunction']) && $data['customData']['isCustomFunction'];
 
         $result = [
             $getLine('21000000'),
@@ -32,8 +33,12 @@ class T_STRING {
 
             $getLine($offset),
 
-            $isProcedure ? $getLine('10000000') : $getLine('12000000'),
-            $isProcedure ? $getLine('01000000') : $getLine('02000000'),
+            $isProcedure || $isCustomFunction ?
+                $getLine('10000000') :
+                $getLine('12000000'),
+            $isProcedure || $isCustomFunction ?
+                $getLine('01000000') :
+                $getLine('02000000'),
         ];
 
         if ($isProcedure == false){

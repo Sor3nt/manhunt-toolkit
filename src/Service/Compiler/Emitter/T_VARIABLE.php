@@ -34,7 +34,9 @@ class T_VARIABLE extends TAbstract {
 
             $mapped = $data['customData']['blockOffsets'][$valueLower];
 
-        }else if (isset($data['customData']['procedureVars']) && isset($data['customData']['procedureVars'][ $value ])) {
+        }else
+
+            if (isset($data['customData']['procedureVars']) && isset($data['customData']['procedureVars'][ $value ])) {
             $mapped = $data['customData']['procedureVars'][$value];
 
 

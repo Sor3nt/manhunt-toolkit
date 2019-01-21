@@ -28,6 +28,7 @@ class T_IF {
                 }
 
             }else{
+
                 $result = $emitter($node, true, [ 'isWhile' => $isWhile ]);
                 foreach ($result as $item) {
                     $code[] = $item;
@@ -68,6 +69,7 @@ class T_IF {
                 }
 
             }else{
+
                 foreach ($case['condition'] as $conditionIndex => $condition) {
 
                     if ($condition['type'] == Token::T_BRACKET_OPEN){
@@ -104,6 +106,7 @@ class T_IF {
 
             $lastNumber = end($code)->lineNumber;
             //pre generate the bytecode (only for calculation)
+
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry, false, [ 'isWhile' => $isWhile ]);
                 foreach ($codes as $singleLine) {

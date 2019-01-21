@@ -22,7 +22,6 @@ class T_FUNCTION {
 
     public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
 
-
         switch ($node['type']){
             case Token::T_FLOAT:
             case Token::T_FALSE:
@@ -61,6 +60,7 @@ class T_FUNCTION {
                     $code[] = $getLine('10000000');
                     $code[] = $getLine('02000000');
                 }
+
                 break;
 
             case Token::T_VARIABLE:
@@ -96,6 +96,11 @@ class T_FUNCTION {
                             case 'integer':
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
+                                break;
+
+                            case 'customFunction':
+                                $code[] = $getLine('12000000');
+                                $code[] = $getLine('02000000');
                                 break;
 
                             case 'stringarray':
@@ -199,6 +204,7 @@ class T_FUNCTION {
 
         foreach ($emitter( $param ) as $line) $code[] = $line;
 
+
         $this->finalize($param, $data, $code, $getLine, true);
 
         /**
@@ -300,12 +306,18 @@ class T_FUNCTION {
         /**
          * sometimes is the mapping not correct, validate it
          */
+
         try {
-            T_VARIABLE::getMapping($node, $data);
-            return $emitter([
-                'type' => Token::T_VARIABLE,
-                'value' => $node['value']
-            ]);
+            $mapping = T_VARIABLE::getMapping($node, $data);
+
+            //todo: why do the variable mapper, map custom functions ?!
+            if ($mapping['type'] != 'custom_functions'){
+                return $emitter([
+                    'type' => Token::T_VARIABLE,
+                    'value' => $node['value']
+                ]);
+            }
+
         }catch(\Exception $e){
 
             if (strpos($e->getMessage(), 'unable to find variable') == false){
@@ -326,6 +338,7 @@ class T_FUNCTION {
         $isCustomFunction = false;
 
         $mappedToBlock = false;
+
         if (isset($this->blockOffsets[ strtolower($node['value']) ]) ){
 
             $mappedToBlock = $this->blockOffsets[ strtolower($node['value']) ];
@@ -341,7 +354,6 @@ class T_FUNCTION {
             }
 
         }
-
 
         if (isset($node['params']) && count($node['params'])){
             $skipNext = false;
@@ -453,6 +465,17 @@ class T_FUNCTION {
          */
         try{
             $function = $this->getFunction($node['value']);
+
+            if (
+                isset($data['customData']['insideCustomFunction']) &&
+                $data['customData']['insideCustomFunction'] = true
+            ){
+                $code[] = $getLine('00000000');
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('01000000');
+                $code[] = $getLine('10000000');
+                $code[] = $getLine('02000000');
+            }
 
         }catch (\Exception $e){
 

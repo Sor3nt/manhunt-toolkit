@@ -110,17 +110,16 @@ class T_CUSTOM_FUNCTION {
 
             $varOffset = -12;
             foreach ($vars as &$var) {
-//                $var['offset'] = substr(Helper::fromIntToHex($varOffset),0, 8);
-                $var['offset'] = $varOffset;
+                $var['offset'] = substr(Helper::fromIntToHex($varOffset),0, 8);
+//                $var['offset'] = $varOffset;
                 $var['section'] = 'script';
                 $var['type'] = 'customFunction';
                 $varOffset -= 4;
             }
         }
 
-
         foreach ($node['body'] as $innerNode) {
-            $resultCode = $emitter( $innerNode, true, [ 'customFunctionVars' => $vars, 'parameters' => $node['parameters'] ] );
+            $resultCode = $emitter( $innerNode, true, [ 'customFunctionVars' => $vars ] );
 
             if (is_null($resultCode)){
                 throw new \Exception('Return was null, a emitter missed a return statement ?');

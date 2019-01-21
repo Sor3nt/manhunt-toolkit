@@ -837,7 +837,7 @@ class NewCompiler
 
                     $constants[$variable] = $tokens[$current + 2];
 
-                    $constants[$variable]['offset'] = substr(Helper::fromIntToHex($constants[$variable]['value']),0, 8);
+//                        $constants[$variable]['offset'] = substr(Helper::fromIntToHex($constants[$variable]['value']),0, 8);
 
                     if (
                         $constants[$variable]['type'] == Token::T_INT ||
@@ -879,12 +879,20 @@ class NewCompiler
             }
         }
 
-
         foreach ($constants as &$var) {
 
-            if ($var['type'] == Token::T_INT)    $var['valueType'] = "integer";
             if ($var['type'] == Token::T_STRING) $var['valueType'] = "string";
-            if ($var['type'] == Token::T_FLOAT)  $var['valueType'] = "float";
+
+
+            if ($var['type'] == Token::T_INT){
+                $var['valueType'] = "integer";
+                $var['offset'] = Helper::fromIntToHex($var['value']);
+            }
+
+            if ($var['type'] == Token::T_FLOAT){
+                $var['valueType'] = "float";
+                $var['offset'] = Helper::fromFloatToHex($var['value']);
+            }
 
             $var['section'] = 'script';
             $var['type'] = 'constant';
