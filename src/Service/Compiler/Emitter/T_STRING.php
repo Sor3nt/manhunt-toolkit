@@ -8,7 +8,6 @@ class T_STRING {
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         $debugMsg = sprintf('[T_STRING] map ');
-
         // we have quotes around the string, come from the tokenizer
         $value = substr($node['value'], 1, -1);
 

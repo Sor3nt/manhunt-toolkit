@@ -6,11 +6,13 @@ use App\Service\Helper;
 class T_TRUE {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-        return [
-            $getLine('12000000'),
-            $getLine('01000000'),
+        $debugMsg = sprintf('[T_TRUE] map ');
 
-            $getLine(Helper::fromIntToHex( 1 ))
+        return [
+            $getLine('12000000', false, $debugMsg),
+            $getLine('01000000', false, $debugMsg),
+
+            $getLine(Helper::fromIntToHex( 1 ), false, $debugMsg . 'value 1')
         ];
     }
 
