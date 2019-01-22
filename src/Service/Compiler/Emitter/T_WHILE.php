@@ -14,13 +14,14 @@ class T_WHILE {
         $firstLine = $resultCode[0]->lineNumber - 1;
 
         foreach ($resultCode as $line) {
+            $line->debug = '[T_WHILE] map ' . $line->debug;
             $code[] = $line;
         }
 
         //this is like a "goto" function, 3c == goto => line offset
         //move pointer back to while start
-        $code[] = $getLine('3c000000');
-        $code[] = $getLine(Helper::fromIntToHex($firstLine * 4));
+        $code[] = $getLine('3c000000', false, '[T_WHILE] map');
+        $code[] = $getLine(Helper::fromIntToHex($firstLine * 4), false, '[T_WHILE] map offset (first line) ');
 
         return $code;
 
