@@ -55,7 +55,7 @@ class T_FUNCTION {
 
             case Token::T_STRING:
 
-                if ($isProcedure == false){
+                if ($isProcedure == false && $isCustomFunction == false){
                     $code[] = $getLine('10000000', false, $debugMsg . 'value=' . $node['value'] . ' (first)');
                     $code[] = $getLine('01000000', false, $debugMsg);
                     $code[] = $getLine('10000000', false, $debugMsg);
