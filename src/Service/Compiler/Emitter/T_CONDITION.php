@@ -13,13 +13,18 @@ class T_CONDITION {
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
         $code = [];
 
+        $debugMsg = '[T_CONDITION] map ';
+
         $token = $node['body'][0];
 
         if ($token['type'] == Token::T_OPERATION){
 
             if (count($token['params']) == 1){
 
-                foreach ($emitter($token['params'][0]) as $item) $code[] = $item;
+                foreach ($emitter($token['params'][0]) as $item){
+                    $item->debug = $debugMsg . ' ' . $item->debug;
+                    $code[] = $item;
+                }
 
                 if ($node['isNot'] || $node['isOuterNot']){
                     self::setStatementNot($code, $getLine);
@@ -61,7 +66,10 @@ class T_CONDITION {
                         );
                     }
 
-                    foreach ($emitter($operation) as $item) $code[] = $item;
+                    foreach ($emitter($operation) as $item){
+                        $item->debug = $debugMsg . ' ' . $item->debug;
+                        $code[] = $item;
+                    }
 
                     if (
                         isset($mappedTo['type']) &&

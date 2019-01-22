@@ -8,16 +8,18 @@ class T_CUSTOM_FUNCTION {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+        $debugMsg = '[T_CUSTOM_FUNCTION] map ';
+
         $code = [ ];
 
         /**
          * Create script start sequence
          */
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('09000000');
+        $code[] = $getLine('10000000', false, $debugMsg . 'function start');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'function start');
+        $code[] = $getLine('11000000', false, $debugMsg . 'function start');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'function start');
+        $code[] = $getLine('09000000', false, $debugMsg . 'function start');
 
         /**
          * generate the needed bytes for the script
@@ -36,18 +38,18 @@ class T_CUSTOM_FUNCTION {
 
 
         // add return size
-        $code[] = $getLine('34000000');
-        $code[] = $getLine('09000000');
+        $code[] = $getLine('34000000', false, $debugMsg . 'reserve return bytes');
+        $code[] = $getLine('09000000', false, $debugMsg . 'reserve return bytes');
 
         switch (strtolower($node['returnType'])){
             case 'vec3d':
-                $code[] = $getLine(Helper::fromIntToHex(12));
+                $code[] = $getLine(Helper::fromIntToHex(12), false, $debugMsg . 'reserve return bytes 12');
                 break;
             case 'string':
             case 'real':
             case 'integer':
             case 'boolean':
-                $code[] = $getLine(Helper::fromIntToHex(4));
+                $code[] = $getLine(Helper::fromIntToHex(4), false, $debugMsg . 'reserve return bytes 4');
                 break;
 
             default:
@@ -58,9 +60,9 @@ class T_CUSTOM_FUNCTION {
 
         if ($sum > 0){
 
-            $code[] = $getLine('34000000');
-            $code[] = $getLine('09000000');
-            $code[] = $getLine(Helper::fromIntToHex($sum));
+            $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
+            $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
+            $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
 
         }
 
@@ -126,6 +128,7 @@ class T_CUSTOM_FUNCTION {
             }
 
             foreach ($resultCode as $line) {
+                $line->debug = $debugMsg . ' ' . $line->debug;
                 $code[] = $line;
             }
         }
@@ -133,13 +136,13 @@ class T_CUSTOM_FUNCTION {
         /**
          * Create script end sequence
          */
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('09000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('3a000000');
-        $code[] = $getLine(Helper::fromIntToHex(4 + (count($vars) * 4)));
+        $code[] = $getLine('11000000' , false, $debugMsg . 'function end');
+        $code[] = $getLine('09000000' , false, $debugMsg . 'function end');
+        $code[] = $getLine('0a000000' , false, $debugMsg . 'function end');
+        $code[] = $getLine('0f000000' , false, $debugMsg . 'function end');
+        $code[] = $getLine('0a000000' , false, $debugMsg . 'function end');
+        $code[] = $getLine('3a000000' , false, $debugMsg . 'function end');
+        $code[] = $getLine(Helper::fromIntToHex(4 + (count($vars) * 4)) , false, $debugMsg . 'reserve byte' );
 
 
         return $code;

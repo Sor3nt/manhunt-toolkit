@@ -75,7 +75,9 @@ class T_SWITCH {
 
             $code = [];
             foreach ($case['body'] as $bodyNode) {
-                foreach ($emitter($bodyNode, false) as $item) $code[] = $item;
+                foreach ($emitter($bodyNode, false) as $item){
+                    $code[] = $item;
+                }
             }
 
             $line += count($code) + 2;

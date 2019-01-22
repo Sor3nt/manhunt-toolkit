@@ -179,6 +179,8 @@ class T_FUNCTION {
     }
 
     public function handleWriteDebugCall($node, \Closure $getLine, \Closure $emitter, $data){
+
+        $debugMsg = '[T_FUNCTION] handleWriteDebugCall ';
         $code = [  ];
 
         /**
@@ -211,7 +213,10 @@ class T_FUNCTION {
         $param = $node['params'][0];
         $param['nested'] = false;
 
-        foreach ($emitter( $param ) as $line) $code[] = $line;
+        foreach ($emitter( $param ) as $line){
+            $line->debug = $debugMsg . ' ' . $line->debug;
+            $code[] = $line;
+        }
 
 
         $this->finalize($param, $data, $code, $getLine, true);
@@ -314,6 +319,8 @@ class T_FUNCTION {
     }
 
     public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+
+        $debugMsg = '[T_FUNCTION] map ';
         $code = [ ];
 
         /**
@@ -383,6 +390,7 @@ class T_FUNCTION {
 
                     $resultCode = $emitter( $mathValue );
                     foreach ($resultCode as $line) {
+                        $line->debug = $debugMsg .  ' ' . $line->debug;
                         $code[] = $line;
                     }
 
@@ -407,6 +415,7 @@ class T_FUNCTION {
 
                     $resultCode = $emitter( $mathValue );
                     foreach ($resultCode as $line) {
+                        $line->debug = $debugMsg .  ' ' . $line->debug;
                         $code[] = $line;
                     }
 
@@ -430,6 +439,7 @@ class T_FUNCTION {
                     ]);
 
                     foreach ($resultCode as $line) {
+                        $line->debug = $debugMsg .  ' ' . $line->debug;
                         $code[] = $line;
                     }
                 }
