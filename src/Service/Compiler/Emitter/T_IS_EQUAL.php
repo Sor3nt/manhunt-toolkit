@@ -6,7 +6,7 @@ class T_IS_EQUAL {
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         return [
-            $getLine('3f000000')
+            $getLine('3f000000', false, '[T_IS_EQUAL] map')
         ];
     }
 
