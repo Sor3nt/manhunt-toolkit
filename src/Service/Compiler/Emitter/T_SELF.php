@@ -4,11 +4,12 @@ namespace App\Service\Compiler\Emitter;
 class T_SELF {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-        return [
-            $getLine('12000000'),
-            $getLine('01000000'),
+        $debugMsg = sprintf('[T_SELF] map ');
 
-            $getLine("49000000")
+        return [
+            $getLine('12000000', false, $debugMsg),
+            $getLine('01000000', false, $debugMsg),
+            $getLine("49000000", false, $debugMsg)
         ];
     }
 
