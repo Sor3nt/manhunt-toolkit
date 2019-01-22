@@ -8,6 +8,7 @@ use App\Service\Helper;
 class T_INT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+        $debugMsg = "[T_INT] map ";
 
         $value = (int) $node['value'];
 
@@ -15,10 +16,10 @@ class T_INT {
 
         return [
 
-            $getLine('12000000'),
-            $getLine('01000000'),
+            $getLine('12000000', false, $debugMsg),
+            $getLine('01000000', false, $debugMsg),
 
-            $getLine(Helper::fromIntToHex( $value ))
+            $getLine(Helper::fromIntToHex( $value ), false, $debugMsg . 'value ' . $value )
         ];
     }
 
