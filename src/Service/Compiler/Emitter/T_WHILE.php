@@ -20,7 +20,7 @@ class T_WHILE {
 
         //this is like a "goto" function, 3c == goto => line offset
         //move pointer back to while start
-        $code[] = $getLine('3c000000', false, '[T_WHILE] map');
+        $code[] = $getLine('3c000000', false, '[T_WHILE] map goto');
         $code[] = $getLine(Helper::fromIntToHex($firstLine * 4), false, '[T_WHILE] map offset (first line) ');
 
         return $code;
