@@ -61,7 +61,11 @@ class T_VARIABLE extends TAbstract {
 
     public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+
         $mapped = self::getMapping($node, $data);
+
+        $debugMsg = "[T_VARIABLE] map type " . $mapped['type'];
+
 
         switch ($mapped['type']){
             case 'vec3d':
@@ -111,7 +115,7 @@ class T_VARIABLE extends TAbstract {
 
         $result = [];
         foreach ($code as $item) {
-            $result[] = $getLine($item);
+            $result[] = $getLine($item, false, $debugMsg);
         }
 
         return $result;
