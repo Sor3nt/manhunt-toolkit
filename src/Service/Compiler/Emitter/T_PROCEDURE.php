@@ -7,17 +7,18 @@ use App\Service\Helper;
 class T_PROCEDURE {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+        $debugMsg = '[T_PROCEDURE] map ';
 
         $code = [ ];
 
         /**
          * Create script start sequence
          */
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('09000000');
+        $code[] = $getLine('10000000', false, $debugMsg . 'procedure start');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure start');
+        $code[] = $getLine('11000000', false, $debugMsg . 'procedure start');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure start');
+        $code[] = $getLine('09000000', false, $debugMsg . 'procedure start');
 
 
         /**
@@ -37,9 +38,9 @@ class T_PROCEDURE {
 
         if ($sum > 0){
 
-            $code[] = $getLine('34000000');
-            $code[] = $getLine('09000000');
-            $code[] = $getLine(Helper::fromIntToHex($sum));
+            $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
+            $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
+            $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
         }
 
 
@@ -104,6 +105,7 @@ class T_PROCEDURE {
             }
 
             foreach ($resultCode as $line) {
+                $line->debug = $debugMsg . ' ' . $line->debug;
                 $code[] = $line;
             }
         }
@@ -111,13 +113,13 @@ class T_PROCEDURE {
         /**
          * Create script end sequence
          */
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('09000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('3a000000');
-        $code[] = $getLine(Helper::fromIntToHex(4 + (count($vars) * 4)));
+        $code[] = $getLine('11000000', false, $debugMsg . 'procedure end');
+        $code[] = $getLine('09000000', false, $debugMsg . 'procedure end');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure end');
+        $code[] = $getLine('0f000000', false, $debugMsg . 'procedure end');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure end');
+        $code[] = $getLine('3a000000', false, $debugMsg . 'procedure end');
+        $code[] = $getLine(Helper::fromIntToHex(4 + (count($vars) * 4)), false, $debugMsg . 'byte reserve');
 
 
         return $code;
