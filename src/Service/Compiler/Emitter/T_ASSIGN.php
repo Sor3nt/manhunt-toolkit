@@ -8,6 +8,9 @@ class T_ASSIGN {
 
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
+
+        $debugMsg = sprintf('[T_ASSIGN] map ');
+
         $code = [];
         $mapped = T_VARIABLE::getMapping($node, $data);
 
@@ -19,22 +22,22 @@ class T_ASSIGN {
         if ($leftHand['type'] == Token::T_FUNCTION ){
 
             if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('02000000');
-                $code[] = $getLine('11000000');
-                $code[] = $getLine('02000000');
-                $code[] = $getLine('0a000000');
-                $code[] = $getLine('34000000');
-                $code[] = $getLine('02000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('20000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('04000000');
-                $code[] = $getLine('02000000');
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('02000000');
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
+                $code[] = $getLine('10000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']) . '(start)');
+                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('11000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('0a000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('34000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('20000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('01000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('0f000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('10000000', false, $debugMsg . 'custom function call');
+                $code[] = $getLine('01000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']) . '(end)');
             }
 
             $stateVar = str_replace('level_var ', '', $mapped['type']);
@@ -56,14 +59,14 @@ class T_ASSIGN {
 
         }else if($mapped['type'] == "array"){
 
-            $code[] = $getLine('21000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
+            $code[] = $getLine('21000000', false, $debugMsg . 'array (first)');
+            $code[] = $getLine('04000000', false, $debugMsg . 'array');
+            $code[] = $getLine('01000000', false, $debugMsg . 'array');
 
-            $code[] = $getLine($mapped['offset']);
+            $code[] = $getLine($mapped['offset'], false, $debugMsg . 'array offset');
 
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+            $code[] = $getLine('10000000', false, $debugMsg . 'array');
+            $code[] = $getLine('01000000', false, $debugMsg . 'array (last)');
 
             $indexName = explode('[', $node['value'])[1];
             $indexName = explode(']', $indexName)[0];
@@ -72,9 +75,10 @@ class T_ASSIGN {
 
             switch ($mapped['ofVar']){
                 case 'boolean':
-                    $code[] = $getLine('12000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine(Helper::fromIntToHex( (int) $indexName));
+                    //todo: change to evaluate
+                    $code[] = $getLine('12000000', false, $debugMsg . 'boolean');
+                    $code[] = $getLine('01000000', false, $debugMsg . 'boolean');
+                    $code[] = $getLine(Helper::fromIntToHex( (int) $indexName), false, $debugMsg . 'boolean ' . $indexName);
 
                     break;
                 default:
@@ -96,10 +100,10 @@ class T_ASSIGN {
                         $mappedRecord = $mappedRecord[$wantedVariable];
 
 
-                        $code[] = $getLine('13000000');
-                        $code[] = $getLine('01000000');
-                        $code[] = $getLine('04000000');
-                        $code[] = $getLine(Helper::fromIntToHex($mappedRecord['size']));
+                        $code[] = $getLine('13000000', false, $debugMsg . '(default)');
+                        $code[] = $getLine('01000000', false, $debugMsg . '(default)');
+                        $code[] = $getLine('04000000', false, $debugMsg . '(default)');
+                        $code[] = $getLine(Helper::fromIntToHex($mappedRecord['size']), false, $debugMsg . '(default) with size ' . $mappedRecord['size']);
 
                     }else{
                         throw new \Exception('T_ASSIGN: array Handler missed for ' . $mapped['ofVar']);
@@ -107,34 +111,34 @@ class T_ASSIGN {
             }
 
 
-            $code[] = $getLine('34000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('12000000');
-            $code[] = $getLine('04000000');
+            $code[] = $getLine('34000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('12000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
 
-            $code[] = $getLine(Helper::fromIntToHex($ofVarSize));
+            $code[] = $getLine(Helper::fromIntToHex($ofVarSize), false, $debugMsg . ' size of ofVar ' . $ofVarSize);
 
-            $code[] = $getLine('35000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('31000000');
-            $code[] = $getLine('04000000');
-            $code[] = $getLine('01000000');
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('04000000');
+            $code[] = $getLine('35000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
+            $code[] = $getLine('0f000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
+            $code[] = $getLine('31000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('10000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
 
 
 
             if ($mappedRecord['index'] > 0){
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine('32000000');
-                $code[] = $getLine('01000000');
-                $code[] = $getLine($mappedRecord['offset']); // offset
-                $code[] = $getLine('10000000');
-                $code[] = $getLine('01000000');
+                $code[] = $getLine('0f000000', false, $debugMsg . 'access index ' . $mappedRecord['index']);
+                $code[] = $getLine('01000000', false, $debugMsg . 'access index ');
+                $code[] = $getLine('32000000', false, $debugMsg . 'access index ');
+                $code[] = $getLine('01000000', false, $debugMsg . 'access index ');
+                $code[] = $getLine($mappedRecord['offset'], false, $debugMsg . 'access index offset'); // offset
+                $code[] = $getLine('10000000', false, $debugMsg . 'access index ');
+                $code[] = $getLine('01000000', false, $debugMsg . 'access index ');
             }
 
 //            var_dump($mapped);
@@ -148,7 +152,10 @@ class T_ASSIGN {
         /**
          * Evaluate the left hand
          */
-        foreach ($emitter($leftHand) as $item) $code[] = $item;
+        foreach ($emitter($leftHand) as $item){
+            $item->debug = $debugMsg . ' ' . $item->debug;
+            $code[] = $item;
+        }
 
         //we do here some math...
         if (isset($node['body'][1]) && isset($node['body'][2])){
@@ -156,35 +163,35 @@ class T_ASSIGN {
             $rightHand = $node['body'][2];
             $operator = $node['body'][1];
 
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+            $code[] = $getLine('10000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
 
             /**
              * Evaluate the right hand
              */
-            foreach ($emitter($rightHand) as $item) $code[] = $item;
+            foreach ($emitter($rightHand) as $item){
+                $item->debug = $debugMsg . ' ' . $item->debug;
+                $code[] = $item;
+            }
 
             if ($rightHand['type'] == Token::T_INT) {
-                $code[] = $getLine('0f000000');
-                $code[] = $getLine('04000000');
+                $code[] = $getLine('0f000000', false, $debugMsg . 'int');
+                $code[] = $getLine('04000000', false, $debugMsg . 'int');
 
                 if ($operator['type'] == Token::T_ADDITION) {
 
-                    $code[] = $getLine('31000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
+                    $code[] = $getLine('31000000', false, $debugMsg . 'int T_ADDITION');
+                    $code[] = $getLine('01000000', false, $debugMsg . 'int T_ADDITION');
+                    $code[] = $getLine('04000000', false, $debugMsg . 'int T_ADDITION');
 
                 }else if ($operator['type'] == Token::T_SUBSTRACTION){
 
-                    $code[] = $getLine('33000000');
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('01000000');
-
-                    $code[] = $getLine('11000000');
-                    $code[] = $getLine('01000000');
-                    $code[] = $getLine('04000000');
-
-
+                    $code[] = $getLine('33000000', false, $debugMsg . 'int T_SUBSTRACTION');
+                    $code[] = $getLine('04000000', false, $debugMsg . 'int T_SUBSTRACTION');
+                    $code[] = $getLine('01000000', false, $debugMsg . 'int T_SUBSTRACTION');
+                    $code[] = $getLine('11000000', false, $debugMsg . 'int T_SUBSTRACTION');
+                    $code[] = $getLine('01000000', false, $debugMsg . 'int T_SUBSTRACTION');
+                    $code[] = $getLine('04000000', false, $debugMsg . 'int T_SUBSTRACTION');
                 }else{
                     throw new \Exception(sprintf('T_ASSIGN: handleSimpleMath operator not supported: %s', $operator['type']));
                 }
@@ -200,7 +207,10 @@ class T_ASSIGN {
 
                 $rightMapped = T_VARIABLE::getMapping($rightHand, $data);
 
-                foreach ($emitter($rightMapped) as $item) $code[] = $item;
+                foreach ($emitter($rightMapped) as $item){
+                    $item->debug = $debugMsg . ' function/variable ' . $item->debug;
+                    $code[] = $item;
+                }
 
                 self::applyFloatMath($operator['type'], $code, $getLine);
 
@@ -252,17 +262,18 @@ class T_ASSIGN {
 
 
     static public function applyFloatMath( $type, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] applyFloatMath operation ' . $type);
 
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('01000000');
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
 
 
         if ($type == Token::T_ADDITION) {
-            $code[] = $getLine('50000000');
+            $code[] = $getLine('50000000', false, $debugMsg);
         }else if ($type == Token::T_SUBSTRACTION) {
-            $code[] = $getLine('51000000');
+            $code[] = $getLine('51000000', false, $debugMsg);
         }else if ($type == Token::T_MULTIPLY) {
-            $code[] = $getLine('52000000');
+            $code[] = $getLine('52000000', false, $debugMsg);
         }else{
             throw new \Exception('divide not implemented');
         }
@@ -270,27 +281,31 @@ class T_ASSIGN {
 
 
     static public function toCustomFunctions( &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toCustomFunctions ');
 
         self::toObject($code, $getLine);
 
-        $code[] = $getLine('13000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine('04000000'); //offset?
+        $code[] = $getLine('13000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg); //offset?
     }
 
     static public function fromObject($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] fromObject ');
+
         $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000');
 
-        $code[] = $getLine('04000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine($mapped['offset']);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
 
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('01000000');
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
     }
 
     static public function fromObjectAttribute($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] fromObjectAttribute ');
 
         self::fromObject([
             'offset' => $mapped['object']['offset'],
@@ -298,81 +313,93 @@ class T_ASSIGN {
         ], $code, $getLine);
 
         if ($mapped['offset'] != $mapped['object']['offset']){
-            $code[] = $getLine('0f000000');
-            $code[] = $getLine('01000000');
+            $code[] = $getLine('0f000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
 
-            $code[] = $getLine('32000000');
-            $code[] = $getLine('01000000');
+            $code[] = $getLine('32000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
 
-            $code[] = $getLine($mapped['offset']);
+            $code[] = $getLine($mapped['offset'], false, $debugMsg . 'offset');
 
-            $code[] = $getLine('10000000');
-            $code[] = $getLine('01000000');
+            $code[] = $getLine('10000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
         }
     }
 
 
     static public function toObject( &$code, \Closure $getLine){
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('02000000');
-        $code[] = $getLine('17000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine('02000000');
-        $code[] = $getLine('01000000');
+        $debugMsg = sprintf('[T_ASSIGN] toObject ');
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+        $code[] = $getLine('17000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
     }
 
     static public function toVec3D( $offset, &$code, \Closure $getLine){
-        $code[] = $getLine('12000000');
-        $code[] = $getLine('03000000');
-        $code[] = $getLine( $offset );
+        $debugMsg = sprintf('[T_ASSIGN] toVec3D ');
 
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine('44000000');
+        $code[] = $getLine('12000000', false, $debugMsg);
+        $code[] = $getLine('03000000', false, $debugMsg);
+        $code[] = $getLine( $offset , false, $debugMsg . 'offset');
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('44000000', false, $debugMsg);
 
     }
 
     static public function toHeader( $offset, &$code, \Closure $getLine){
-        $code[] = $getLine('16000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine($offset);
-        $code[] = $getLine('01000000');
+        $debugMsg = sprintf('[T_ASSIGN] toHeader ');
+
+        $code[] = $getLine('16000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine($offset, false, $debugMsg . 'offset');
+        $code[] = $getLine('01000000', false, $debugMsg);
     }
 
     static public function toScript( $offset, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toScript ');
 
-        $code[] = $getLine('15000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine( $offset );
-        $code[] = $getLine('01000000');
+        $code[] = $getLine('15000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
+        $code[] = $getLine('01000000', false, $debugMsg);
     }
 
     static public function toLevelVar( $offset, &$code, \Closure $getLine){
-        $code[] = $getLine('1a000000');
-        $code[] = $getLine('01000000');
-        $code[] = $getLine( $offset );
-        $code[] = $getLine('04000000');
+        $debugMsg = sprintf('[T_ASSIGN] toLevelVar ');
+
+        $code[] = $getLine('1a000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
+        $code[] = $getLine('04000000', false, $debugMsg);
     }
 
     static public function toHeaderStringArray( $offset, $size, &$code, \Closure $getLine){
+
+        $debugMsg = sprintf('[T_ASSIGN] toHeaderStringArray ');
+
         //define target offset
-        $code[] = $getLine('21000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine('04000000');
-        $code[] = $getLine( $offset );
+        $code[] = $getLine('21000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
 
         //define the length
-        $code[] = $getLine('12000000');
-        $code[] = $getLine('03000000');
-        $code[] = $getLine( Helper::fromIntToHex($size) );
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('04000000');
+        $code[] = $getLine('12000000', false, $debugMsg);
+        $code[] = $getLine('03000000', false, $debugMsg);
+        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg . 'size' );
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
 
         // save result
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('03000000');
-        $code[] = $getLine('48000000');
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('03000000', false, $debugMsg);
+        $code[] = $getLine('48000000', false, $debugMsg);
     }
 }
