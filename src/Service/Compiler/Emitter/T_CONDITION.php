@@ -84,14 +84,12 @@ class T_CONDITION {
                                 $code[] = $getLine('01000000');
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('02000000');
-//                            }else if ($operation['type'] == Token::T_VARIABLE){
-//                                $code[] = $getLine('10000000');
-//                                $code[] = $getLine('01000000');
+
                             }else if ($operation['type'] == Token::T_FLOAT){
                                 $code[] = $getLine('10000000');
                                 $code[] = $getLine('01000000');
-                            }else if ($operation['type'] == Token::T_INT){
-                                if ($operation['value'] < 0){
+                            }else if ($operation['type'] == Token::T_INT) {
+                                if ($operation['value'] < 0) {
                                     $code[] = $getLine('2a000000');
                                     $code[] = $getLine('01000000');
                                 }
@@ -99,8 +97,12 @@ class T_CONDITION {
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
 
-                            }else{
+                            }else if (isset($mappedTo['type']) && $mappedTo['type'] == "customFunction"){
 
+                                $code[] = $getLine('10000000');
+                                $code[] = $getLine('01000000');
+
+                            }else{
                                 $code[] = $getLine('0f000000');
                                 $code[] = $getLine('04000000');
 
@@ -128,6 +130,50 @@ class T_CONDITION {
                     }
                 }
 
+                if (count($token['params'])){
+
+                    $lastParam = end($token['params']);
+//
+//                    if ($lastParam['type'] == Token::T_STRING){
+//                        $code[] = $getLine('10000000');
+//                        $code[] = $getLine('01000000');
+//                        $code[] = $getLine('10000000');
+//                        $code[] = $getLine('02000000');
+//
+//                    }else if ($lastParam['type'] == Token::T_FLOAT){
+//                        $code[] = $getLine('10000000');
+//                        $code[] = $getLine('01000000');
+//                    }else if ($lastParam['type'] == Token::T_INT) {
+//                        if ($lastParam['value'] < 0) {
+//                            $code[] = $getLine('2a000000');
+//                            $code[] = $getLine('01000000');
+//                        }
+//
+//                        $code[] = $getLine('0f000000');
+//                        $code[] = $getLine('04000000');
+//
+//                    }else if ($lastParam['type'] == Token::T_VARIABLE){
+//                        $mappedTo = T_VARIABLE::getMapping(
+//                            $lastParam,
+//                            $data
+//                        );
+//
+//                        if (isset($mappedTo['type']) && $mappedTo['type'] == "object") {
+//                            $code[] = $getLine('10000000');
+//                            $code[] = $getLine('01000000');
+//                        }else if (isset($mappedTo['type']) && $mappedTo['type'] == "customFunction"){
+//
+//                            $code[] = $getLine('10000000');
+//                            $code[] = $getLine('01000000');
+//                        }
+//                    }else{
+//                        $code[] = $getLine('0f000000');
+//                        $code[] = $getLine('04000000');
+//
+//
+//                    }
+                }
+
                 if ($token['operation']['type'] == Token::T_AND) {
 
                     $code[] = $getLine('25000000');
@@ -142,7 +188,12 @@ class T_CONDITION {
 
                 if ($node['isNot']) self::setStatementNot($code, $getLine);
 
+
+
+
+
                 // not sure about this part
+                //todo das stimmt hier garnicht, ich greif einfach auf das letzte mapping vom loop zu...
                 if (isset($mappedTo['type']) && $mappedTo['type'] == "stringarray") {
                     $code[] = $getLine('49000000');
                 }else if (
@@ -155,10 +206,20 @@ class T_CONDITION {
                 }else if (isset($operation) && $operation['type'] == Token::T_STRING){
                     $code[] = $getLine('4e000000');
                 }else{
-                    $code[] = $getLine('23000000');
-                    $code[] = $getLine('04000000');
-                    $code[] = $getLine('01000000');
+
+                    if (isset($mappedTo) && $mappedTo['type'] == "customFunction"){
+                        $code[] = $getLine('4e000000');
+
+                    }else{
+                        $code[] = $getLine('23000000');
+                        $code[] = $getLine('04000000');
+                        $code[] = $getLine('01000000');
+                    }
                 }
+
+
+
+
 
                 $code[] = $getLine('12000000');
                 $code[] = $getLine('01000000');

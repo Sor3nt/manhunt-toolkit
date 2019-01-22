@@ -5,10 +5,12 @@ class Line {
 
     public $lineNumber = 0;
     public $hex = "";
+    public $debug = "";
 
-    public function __construct($hex, $lineNumber) {
+    public function __construct($hex, $lineNumber, $debug) {
         $this->hex = $hex;
         $this->lineNumber = $lineNumber;
+        $this->debug = $debug;
     }
 
     public function __toString(){

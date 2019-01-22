@@ -41,11 +41,13 @@ class T_STRING {
                 $getLine('02000000'),
         ];
 
-        if ($isProcedure == false){
+
+        if ($isProcedure == false && $isCustomFunction == false){
             $result[] = $getLine(Helper::fromIntToHex(
                 $value == "__empty__" ? 1 : strlen($value) + 1
             ));
         }
+
 
         return $result;
     }

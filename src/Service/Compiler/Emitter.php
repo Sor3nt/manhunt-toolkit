@@ -60,8 +60,8 @@ class Emitter {
         return (new $this->emitters[ $node['type'] ]($customData))->map(
             $node,
 
-            function( $hex, $forceNewIndex = false ) use ($calculateLineNumber){
-                return $this->lines->get($hex, $calculateLineNumber, $forceNewIndex);
+            function( $hex, $forceNewIndex = false, $debug = false ) use ($calculateLineNumber){
+                return $this->lines->get($hex, $calculateLineNumber, $forceNewIndex, $debug);
             },
 
             function($token, $calculateLineNumber = true, $customDataInner = []) use ($customData) {

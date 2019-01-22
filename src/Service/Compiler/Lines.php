@@ -9,18 +9,18 @@ class Lines {
         $this->lineCount = $lineCount;
     }
 
-    public function get( $hex, $calculateLineNumber = true, $forceNewIndex = false ){
+    public function get( $hex, $calculateLineNumber = true, $forceNewIndex = false, $debug = false ){
 
         if ($forceNewIndex){
             $this->lineCount = $forceNewIndex;
         }
 
         if ($calculateLineNumber){
-            $line = new Line( $hex, $this->lineCount);
+            $line = new Line( $hex, $this->lineCount, $debug);
             $this->lineCount++;
 
         }else{
-            $line = new Line( $hex, 0);
+            $line = new Line( $hex, 0, $debug);
         }
 
         return $line;

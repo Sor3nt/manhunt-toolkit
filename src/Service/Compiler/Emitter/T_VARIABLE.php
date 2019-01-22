@@ -11,19 +11,6 @@ class T_VARIABLE extends TAbstract {
 
     static public function getMapping( $node, $data ){
 
-        $hardCodedConstants = array_merge(
-            ManhuntDefault::$constants,
-            Manhunt2::$constants
-        );
-
-        if (GAME == "mh1"){
-            $hardCodedConstants = array_merge(
-                ManhuntDefault::$constants,
-                Manhunt::$constants
-            );
-        }
-
-
         $value = $node['value'];
         $valueLower = strtolower($value);
 

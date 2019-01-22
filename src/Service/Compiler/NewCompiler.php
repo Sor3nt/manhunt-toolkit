@@ -105,7 +105,8 @@ class NewCompiler
             ) {
                 $code = $this->processBlock($token);
                 foreach ($code as $line) {
-                    $result[] = $line->hex;
+                    $result[] = $line;
+//                    $result[] = $line->hex;
                 }
 
             }
@@ -861,7 +862,7 @@ class NewCompiler
 
         $strings = [];
 
-        foreach ($constants as $item) {
+        foreach ($constants as &$item) {
 
             if ($item['type'] == Token::T_STRING) {
                 $string = str_replace('"', '', $item['value']);
@@ -873,6 +874,8 @@ class NewCompiler
                         'offset' => Helper::fromIntToHex($this->memoryOffset),
                         'length' => strlen($string)
                     ];
+
+                    $item['offset'] = $strings[$string]['offset'];
 
                     $this->memoryOffset += $length + $this->calculateMissedStringSize($length);
                 }
