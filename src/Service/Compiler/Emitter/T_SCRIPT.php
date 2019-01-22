@@ -7,6 +7,8 @@ class T_SCRIPT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+        $debugMsg = "[T_SCRIPT] map ";
+
         $code = [ ];
 
         /**
@@ -14,11 +16,11 @@ class T_SCRIPT {
          *
          * Note: we have here no names, its calculated by the offset inside the todo... section
          */
-        $code[] = $getLine('10000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('09000000');
+        $code[] = $getLine('10000000', false, $debugMsg . 'script start');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'script start');
+        $code[] = $getLine('11000000', false, $debugMsg . 'script start');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'script start');
+        $code[] = $getLine('09000000', false, $debugMsg . 'script start');
 
         /**
          * generate the needed bytes for the script
@@ -40,12 +42,13 @@ class T_SCRIPT {
         }
 
         if ($sum > 0){
-            $code[] = $getLine('34000000');
-            $code[] = $getLine('09000000');
-            $code[] = $getLine(Helper::fromIntToHex($sum));
+            $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
+            $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
+            $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
         }
 
         foreach ($node['body'] as $node) {
+
             $resultCode = $emitter( $node );
 
             if (is_null($resultCode)){
@@ -53,6 +56,7 @@ class T_SCRIPT {
             }
 
             foreach ($resultCode as $line) {
+                $line->debug = $debugMsg . ' ' . $line->debug;
                 $code[] = $line;
             }
         }
@@ -60,13 +64,13 @@ class T_SCRIPT {
         /**
          * Create script end sequence
          */
-        $code[] = $getLine('11000000');
-        $code[] = $getLine('09000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('0a000000');
-        $code[] = $getLine('3b000000');
-        $code[] = $getLine('00000000');
+        $code[] = $getLine('11000000', false, $debugMsg . 'script end');
+        $code[] = $getLine('09000000', false, $debugMsg . 'script end');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
+        $code[] = $getLine('0f000000', false, $debugMsg . 'script end');
+        $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
+        $code[] = $getLine('3b000000', false, $debugMsg . 'script end');
+        $code[] = $getLine('00000000', false, $debugMsg . 'script end');
 
 
         return $code;
