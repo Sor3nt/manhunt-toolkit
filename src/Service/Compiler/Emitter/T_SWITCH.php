@@ -15,6 +15,7 @@ class T_SWITCH {
         //evaluate the switch variable
         $result = $emitter($node['switch']);
         foreach ($result as $item) {
+            $item->debug = '[T_SWITCH] map: ' . $item->debug;
             $code[] = $item;
         }
 
@@ -45,6 +46,7 @@ class T_SWITCH {
             foreach ($case['body'] as $bodyNode) {
                 $result = $emitter($bodyNode);
                 foreach ($result as $item) {
+                    $item->debug = '[T_SWITCH] map: ' . $item->debug;
                     $code[] = $item;
                 }
             }
