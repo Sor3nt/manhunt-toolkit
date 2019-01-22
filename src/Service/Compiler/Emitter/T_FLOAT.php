@@ -8,6 +8,8 @@ class T_FLOAT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+        $debugMsg = sprintf('[T_FLOAT] map ');
+
         $value = (float) $node['value'];
 
         if ($value < 0) $value = $value * -1;
@@ -19,10 +21,10 @@ class T_FLOAT {
 
 
         return [
-            $getLine('12000000'),
-            $getLine('01000000'),
+            $getLine('12000000', false, $debugMsg),
+            $getLine('01000000', false, $debugMsg),
 
-            $getLine(Helper::fromFloatToHex( $value ))
+            $getLine(Helper::fromFloatToHex( $value ), false, $debugMsg . $value)
         ];
     }
 
