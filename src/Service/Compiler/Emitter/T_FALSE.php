@@ -12,7 +12,7 @@ class T_FALSE {
         return [
             $getLine('12000000', false, $debugMsg),
             $getLine('01000000', false, $debugMsg),
-            $getLine(Helper::fromIntToHex( 0 ), false, $debugMsg . ' offset 0')
+            $getLine(Helper::fromIntToHex( 0 ), false, $debugMsg . ' value 0')
         ];
 
     }

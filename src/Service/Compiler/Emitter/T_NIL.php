@@ -6,11 +6,13 @@ use App\Service\Helper;
 class T_NIL {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-        return [
-            $getLine('12000000'),
-            $getLine('01000000'),
+        $debugMsg = sprintf('[T_NIL] map ');
 
-            $getLine(Helper::fromIntToHex( 0 ))
+        return [
+            $getLine('12000000', false, $debugMsg),
+            $getLine('01000000', false, $debugMsg),
+
+            $getLine(Helper::fromIntToHex( 0 ), false, $debugMsg . ' value 0')
         ];
 
     }
