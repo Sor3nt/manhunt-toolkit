@@ -1026,11 +1026,12 @@ class NewCompiler
 
                 $variableType = strtolower($tokens[$current]['value']);
 
-                foreach ($variables as $variable) {
+                foreach ($variables as $index => $variable) {
                     $variable = $variable['value'];
 
                     $row = [
                         'section' => 'script',
+                        'order' => $index,
                         'type' => $variableType,
                         'isArg' => $section == Token::T_DEFINE_SECTION_ARG
                     ];
