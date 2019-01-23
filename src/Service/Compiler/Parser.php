@@ -11,6 +11,7 @@ class Parser {
         'T_DEFINE_SECTION_ENTITY' => Parser\T_DEFINE_SECTION_ENTITY::class,
         'T_DEFINE_SECTION_CONST' => Parser\T_DEFINE_SECTION_CONST::class,
         'T_DEFINE_SECTION_VAR' => Parser\T_DEFINE_SECTION_VAR::class,
+        'T_DEFINE_SECTION_ARG' => Parser\T_DEFINE_SECTION_ARG::class,
         'T_BRACKET_OPEN' => Parser\T_BRACKET_OPEN::class,
         'T_PROCEDURE' => Parser\T_PROCEDURE::class,
         'T_CUSTOM_FUNCTION' => Parser\T_CUSTOM_FUNCTION::class,
@@ -195,6 +196,8 @@ class Parser {
                     });
 
                 }else{
+//                    var_dump($tokens[$current - 2], $tokens[$current - 1], $tokens[$current]);
+//                    exit;
                     throw new \Exception(sprintf('Parser: unable to handle %s', $token['type']));
                 }
 

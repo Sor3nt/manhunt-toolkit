@@ -49,7 +49,8 @@ class T_ASSIGN {
         }
 
         $mappedRecord = false;
-
+//var_dump($mapped);
+//exit;
         if ($mapped['type'] == "vec3d"){
             self::fromObject($mapped, $code, $getLine);
 
@@ -247,6 +248,7 @@ class T_ASSIGN {
 
         //regular assignment
         }else if (isset($node['body'][1]) == false){
+
             if ($mapped['section'] == "header") self::toHeader( $mapped['offset'], $code, $getLine);
             if ($mapped['section'] == "script") self::toScript( $mapped['offset'], $code, $getLine);
 

@@ -13,6 +13,7 @@ use App\Service\Compiler\Tokens\T_BRACKET_OPEN;
 use App\Service\Compiler\Tokens\T_CASE;
 use App\Service\Compiler\Tokens\T_CUSTOM_FUNCTION_NAME;
 use App\Service\Compiler\Tokens\T_DEFINE;
+use App\Service\Compiler\Tokens\T_DEFINE_SECTION_ARG;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_CONST;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_ENTITY;
 use App\Service\Compiler\Tokens\T_DEFINE_TYPE;
@@ -88,6 +89,7 @@ class Tokenizer {
         T_DEFINE_SECTION_TYPE::class,
         T_DEFINE_SECTION_ENTITY::class,
         T_DEFINE_SECTION_VAR::class,
+        T_DEFINE_SECTION_ARG::class,
         T_DEFINE_SECTION_CONST::class,
         T_SCRIPTMAIN_NAME::class,
 

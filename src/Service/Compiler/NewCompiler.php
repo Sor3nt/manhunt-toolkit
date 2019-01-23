@@ -161,7 +161,8 @@ class NewCompiler
         }
         // OLD CODE; DO REFACTOR
 
-        $scriptVar = $this->getScriptVar($token['body']);
+        $scriptArg = $this->getScriptVar($token['body'], Token::T_DEFINE_SECTION_ARG);
+        $scriptVar = array_merge($scriptArg, $this->getScriptVar($token['body']));
 
         /**
          * Translate Token AST to Bytecode
@@ -973,7 +974,7 @@ class NewCompiler
         return $strings4Scripts;
     }
 
-    private function getScriptVar($tokens)
+    private function getScriptVar($tokens, $section = Token::T_DEFINE_SECTION_VAR)
     {
 
         $originalTokens = $tokens;
@@ -982,7 +983,7 @@ class NewCompiler
         $varSection = [];
 
         foreach ($tokens as $token) {
-            if ($token['type'] == Token::T_DEFINE_SECTION_VAR) {
+            if ($token['type'] == $section) {
                 $varSection = $token['body'];
             } else {
                 $otherTokens[] = $token;
@@ -1001,6 +1002,7 @@ class NewCompiler
                 $token['type'] == Token::T_VARIABLE &&
                 (
                     $tokens[$current + 1]['type'] == Token::T_DEFINE_TYPE ||
+                    $tokens[$current + 1]['type'] == Token::T_ARRAY ||
                     $tokens[$current + 1]['type'] == "T_LEVEL_VAR"
                 )
             ) {
@@ -1029,7 +1031,8 @@ class NewCompiler
 
                     $row = [
                         'section' => 'script',
-                        'type' => $variableType
+                        'type' => $variableType,
+                        'isArg' => $section == Token::T_DEFINE_SECTION_ARG
                     ];
 
                     if (substr($variableType, 0, 7) == "string[") {
@@ -1079,11 +1082,14 @@ class NewCompiler
         }
 
 
-        foreach ($this->headerVariables as $_name => $_item) {
+        if ($section == Token::T_DEFINE_SECTION_VAR){
 
-            if ($this->isVariableInUse($originalTokens, $_name)) {
-                if (!isset($scriptVarFinal[$_name])) {
-                    $scriptVarFinal[$_name] = $_item;
+            foreach ($this->headerVariables as $_name => $_item) {
+
+                if ($this->isVariableInUse($originalTokens, $_name)) {
+                    if (!isset($scriptVarFinal[$_name])) {
+                        $scriptVarFinal[$_name] = $_item;
+                    }
                 }
             }
         }

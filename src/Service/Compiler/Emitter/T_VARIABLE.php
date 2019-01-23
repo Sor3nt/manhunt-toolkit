@@ -106,7 +106,17 @@ class T_VARIABLE extends TAbstract {
                     $code = $this->fromHeader($mapped);
 
                 }else if ($mapped['section'] == "script" || $mapped['type'] == "procedure"){
-                    $code = $this->fromScript($mapped);
+
+                    if (isset($mapped['isArg']) && $mapped['isArg']){
+
+                        $code[] = '10030000';
+                        $code[] = '24000000';
+                        $code[] = '01000000';
+
+//                        $code = $this->fromScript($mapped);
+                    }else{
+                        $code = $this->fromScript($mapped);
+                    }
 
                 }else{
                     throw new \Exception(sprintf('T_VARIABLE: unhandled read '));

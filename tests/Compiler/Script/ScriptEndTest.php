@@ -1,12 +1,12 @@
 <?php
-namespace App\Tests\Block;
+namespace App\Tests\Script;
 
 use App\Service\Archive\Glg;
 use App\Service\Archive\Mls;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ProcedureEndTest extends KernelTestCase
+class ScriptEndTest extends KernelTestCase
 {
 
     public function test()
@@ -18,7 +18,7 @@ class ProcedureEndTest extends KernelTestCase
             entity
                 A01_Escape_Asylum : et_level;
 
-            procedure OnCreate;
+            script OnCreate;
                 begin
                 end;
 
@@ -33,14 +33,14 @@ class ProcedureEndTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            // procedure end
+            // script end
             '11000000',
             '09000000',
             '0a000000',
             '0f000000',
             '0a000000',
-            '3a000000',
-            '04000000'
+            '3b000000',
+            '00000000'
         ];
 
         $compiler = new Compiler();
@@ -58,7 +58,6 @@ class ProcedureEndTest extends KernelTestCase
         }
 
         $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');
-
     }
 
 }
