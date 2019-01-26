@@ -55,16 +55,11 @@ class T_CONDITION {
 
                 $operator = $token['operator'];
 
+                $lastIndex = count($token['params']) - 1;
                 foreach ($token['params'] as $index => $operation) {
+                    $isLastIndex = $index == $lastIndex;
 
                     $debugMsg = sprintf('[T_CONDITION] map: type ');
-
-                    if ($operation['type'] == Token::T_VARIABLE){
-                        $mappedTo = T_VARIABLE::getMapping(
-                            $operation,
-                            $data
-                        );
-                    }
 
                     foreach ($emitter($operation) as $item){
                         $item->debug = $debugMsg . ' ' . $item->debug;
@@ -72,74 +67,260 @@ class T_CONDITION {
                     }
 
                     if (
-                        isset($mappedTo['type']) &&
-                        (
-                            $mappedTo['type'] == "stringarray"
-                        )
-                    ){
+                        $operation['type'] == Token::T_FUNCTION
+                    ) {
 
-                        $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
-                        $code[] = $getLine('01000000', false, $debugMsg . $mappedTo['type']);
+                        $funcMappedTo = $data['customData']['functions'][ $operation['value'] ];
 
-                        $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
-                        $code[] = $getLine('02000000', false, $debugMsg . $mappedTo['type']);
-                    }else{
-                        if ($index + 1 == count($token['params'])){
+                        if (!isset($funcMappedTo['return'])){
+                            throw new \Exception(sprintf('No return value configured for %s', $operation['value']));
+                        }
 
-                            if (isset($mappedTo['type']) && $mappedTo['type'] == "object") {
-                                $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
-                                $code[] = $getLine('01000000', false, $debugMsg . $mappedTo['type']);
-                            }else if ($operation['type'] == Token::T_STRING){
-                                $code[] = $getLine('10000000', false, $debugMsg . $operation['type']);
-                                $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
-                                $code[] = $getLine('10000000', false, $debugMsg . $operation['type']);
-                                $code[] = $getLine('02000000', false, $debugMsg . $operation['type']);
 
-                            }else if ($operation['type'] == Token::T_FLOAT){
-                                $code[] = $getLine('10000000', false, $debugMsg . $operation['type']);
-                                $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
-                            }else if ($operation['type'] == Token::T_INT) {
-                                if ($operation['value'] < 0) {
-                                    $code[] = $getLine('2a000000', false, $debugMsg . $operation['type']);
-                                    $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
-                                }
-
-                                $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
-                                $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
-
-                            }else if (isset($mappedTo['type']) && $mappedTo['type'] == "customFunction"){
-
-                                $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
-                                $code[] = $getLine('01000000', false, $debugMsg . $mappedTo['type']);
-
-                            }else{
-                                $code[] = $getLine('0f000000', false, $debugMsg);
-                                $code[] = $getLine('04000000', false, $debugMsg);
-
-                            }
-
+                        if ($funcMappedTo['return'] == 'String') {
+                        }else if ($isLastIndex){
+                            $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+                            $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
+//
                         }else{
-                            $functionNoReturnDefault = ManhuntDefault::$functionNoReturn;
-                            $functionNoReturn = Manhunt2::$functionNoReturn;
+                            $code[] = $getLine('10000000', false, $debugMsg);
+                            $code[] = $getLine('01000000', false, $debugMsg);
+//
+                        }
+
+                    }else if ($operation['type'] == Token::T_NIL){
+//                        var_dump($operation);
+
+//                        throw new \Exception('sd');
+//
+//                        if (isset($operation['nested']) && $operation['nested']){
+//                            $code[] = $getLine('10000000', false, $debugMsg);
+//                            $code[] = $getLine('01000000', false, $debugMsg);
+//
+//                        }else{
+
+                        if ($isLastIndex){
+                            $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+                            $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
+//
+                        }else{
+                            $code[] = $getLine('10000000', false, $debugMsg);
+                            $code[] = $getLine('01000000', false, $debugMsg);
+//
+                        }
+//                        }
+
+
+                    }else if ($operation['type'] == Token::T_VARIABLE){
+                        $mappedTo = T_VARIABLE::getMapping(
+                            $operation,
+                            $data
+                        );
+
+                        if ($mappedTo['section'] == "script") {
 
                             if (
-                                !isset($token['params'][$index]['value']) ||
-                                (
-                                    isset($token['params'][$index]['value']) &&
-                                    !in_array(strtolower($token['params'][$index]['value']), $functionNoReturnDefault ) &&
-                                    !in_array(strtolower($token['params'][$index]['value']), $functionNoReturn )
+                                $mappedTo['type'] == "entityptr" ||
+                                $mappedTo['type'] == "level_var boolean" ||
+                                $mappedTo['type'] == "integer" ||
+                                $mappedTo['type'] == "boolean" ||
+                                $mappedTo['type'] == "object"
+                            ) {
 
-                                )
-                            ){
+                                if ($isLastIndex){
+                                    $code[] = $getLine('0f000000', false, $debugMsg);
+                                    $code[] = $getLine('04000000', false, $debugMsg);
+                                }else{
+                                    $code[] = $getLine('10000000', false, $debugMsg);
+                                    $code[] = $getLine('01000000', false, $debugMsg);
+                                }
 
-                                $debugMsg = sprintf('[T_CONDITION] map: return ');
+
+                            }else if ($mappedTo['type'] == "customFunction") {
+                                $code[] = $getLine('10000000', false, $debugMsg);
+                                $code[] = $getLine('01000000', false, $debugMsg);
+                            }else{
+
+                                throw new \Exception(sprintf(
+                                    'T_CONDITION: script config missed for %s',
+                                    $mappedTo['type']
+                                ));
+                            }
+
+
+//                                $code[] = $getLine('10000000', false, $debugMsg);
+//                            $code[] = $getLine('01000000', false, $debugMsg);
+                        }else if ($mappedTo['section'] == "header"){
+
+                            if (
+                                $mappedTo['type'] == "integer" ||
+                                $mappedTo['type'] == "boolean" ||
+                                $mappedTo['type'] == "constant" ||
+                                $mappedTo['type'] == "level_var boolean" ||
+                                $mappedTo['type'] == "level_var integer"
+
+                            ) {
+
+                                if ($isLastIndex){
+                                    $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+                                    $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
+                                }else{
+                                    $code[] = $getLine('10000000', false, $debugMsg);
+                                    $code[] = $getLine('01000000', false, $debugMsg);
+                                }
+
+
+                            }else if ($mappedTo['type'] == "stringarray") {
 
                                 $code[] = $getLine('10000000', false, $debugMsg);
                                 $code[] = $getLine('01000000', false, $debugMsg);
+
+                                $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
+                                $code[] = $getLine('02000000', false, $debugMsg . $mappedTo['type']);
+
+                            }else{
+
+                                throw new \Exception(sprintf(
+                                    'T_CONDITION: header config missed for %s',
+                                    $mappedTo['type']
+                                ));
                             }
+                        }else{
+                            throw new \Exception(sprintf(
+                                'T_CONDITION: other config missed for %s',
+                                $mappedTo['type']
+                            ));
+                        }
+
+
+                    }else if ( $operation['type'] == Token::T_INT){
+                        if ($operation['value'] < 0) {
+                            $code[] = $getLine('2a000000', false, $debugMsg . $operation['type']);
+                            $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
+                        }
+
+                        if ($index == 0){
+                            $code[] = $getLine('10000000', false, $debugMsg);
+                            $code[] = $getLine('01000000', false, $debugMsg);
+
+                        }else{
+                            $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+                            $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
 
                         }
+
+                    }else if (
+                        $operation['type'] == Token::T_TRUE ||
+                        $operation['type'] == Token::T_FALSE
+                    ){
+
+                        if ($index != $lastIndex){
+                            $code[] = $getLine('10000000', false, $debugMsg);
+                            $code[] = $getLine('01000000', false, $debugMsg);
+//
+                        }else{
+                            $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+                            $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
+//
+                        }
+
+//
+
+//                        $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+//                        $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
+                    }else if (
+                        $operation['type'] == Token::T_FLOAT
+                    ){
+                        $code[] = $getLine('10000000', false, $debugMsg);
+                        $code[] = $getLine('01000000', false, $debugMsg);
+                    }else if (
+                        $operation['type'] == Token::T_STRING
+                    ){
+                        $code[] = $getLine('10000000', false, $debugMsg);
+                        $code[] = $getLine('01000000', false, $debugMsg);
+
+                        $code[] = $getLine('10000000', false, $debugMsg);
+                        $code[] = $getLine('02000000', false, $debugMsg);
+                    }else{
+
+                        throw new \Exception(sprintf(
+                            'T_CONDITION:  missed for %s',
+                            $operation['type']
+                        ));
+
                     }
+
+
+//
+//                    if (
+//                        isset($mappedTo['type']) &&
+//                        (
+//                            $mappedTo['type'] == "stringarray"
+//                        )
+//                    ){
+//
+//                        $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
+//                        $code[] = $getLine('01000000', false, $debugMsg . $mappedTo['type']);
+//
+//                        $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
+//                        $code[] = $getLine('02000000', false, $debugMsg . $mappedTo['type']);
+//                    }else{
+//                        if ($index + 1 == count($token['params'])){
+//
+//                            if (isset($mappedTo['type']) && $mappedTo['type'] == "object") {
+//                                $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
+//                                $code[] = $getLine('01000000', false, $debugMsg . $mappedTo['type']);
+//                            }else if ($operation['type'] == Token::T_STRING){
+//                                $code[] = $getLine('10000000', false, $debugMsg . $operation['type']);
+//                                $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
+//                                $code[] = $getLine('10000000', false, $debugMsg . $operation['type']);
+//                                $code[] = $getLine('02000000', false, $debugMsg . $operation['type']);
+//
+//                            }else if ($operation['type'] == Token::T_FLOAT){
+//                                $code[] = $getLine('10000000', false, $debugMsg . $operation['type']);
+//                                $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
+//                            }else if ($operation['type'] == Token::T_INT) {
+//                                if ($operation['value'] < 0) {
+//                                    $code[] = $getLine('2a000000', false, $debugMsg . $operation['type']);
+//                                    $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
+//                                }
+//
+//                                $code[] = $getLine('0f000000', false, $debugMsg . $operation['type']);
+//                                $code[] = $getLine('04000000', false, $debugMsg . $operation['type']);
+//
+//                            }else if (isset($mappedTo['type']) && $mappedTo['type'] == "customFunction"){
+//
+//                                $code[] = $getLine('10000000', false, $debugMsg . $mappedTo['type']);
+//                                $code[] = $getLine('01000000', false, $debugMsg . $mappedTo['type']);
+//
+//                            }else{
+//                                $code[] = $getLine('0f000000', false, $debugMsg);
+//                                $code[] = $getLine('04000000', false, $debugMsg);
+//
+//                            }
+//
+//                        }else{
+//                            $functionNoReturnDefault = ManhuntDefault::$functionNoReturn;
+//                            $functionNoReturn = Manhunt2::$functionNoReturn;
+//
+//                            if (
+//                                !isset($token['params'][$index]['value']) ||
+//                                (
+//                                    isset($token['params'][$index]['value']) &&
+//                                    !in_array(strtolower($token['params'][$index]['value']), $functionNoReturnDefault ) &&
+//                                    !in_array(strtolower($token['params'][$index]['value']), $functionNoReturn )
+//
+//                                )
+//                            ){
+//
+//                                $debugMsg = sprintf('[T_CONDITION] map: return ');
+//
+//                                $code[] = $getLine('10000000', false, $debugMsg);
+//                                $code[] = $getLine('01000000', false, $debugMsg);
+//                            }
+//
+//                        }
+//                    }
                 }
 
                 if (count($token['params'])){

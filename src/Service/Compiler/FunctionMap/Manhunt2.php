@@ -551,7 +551,8 @@ class Manhunt2
 
         "getdifficultylevel" => [
             'name' => 'GetDifficultyLevel',
-            'offset' => "9f020000"
+            'offset' => "9f020000",
+            'return' => 'Integer'
         ],
 
         "aicutsceneentityenable" => [
@@ -602,12 +603,14 @@ class Manhunt2
 
         "getdoorstate" => [
             'name' => 'GetDoorState',
-            'offset' => "96000000"
+            'offset' => "96000000",
+            'return' => 'Integer'
         ],
 
         "getentity" => [
             'name' => 'GetEntity',
-            'offset' => "77000000"
+            'offset' => "77000000",
+            'return' => 'Entity'
         ],
 
         "hudtoggleflashflags" => [
@@ -2466,7 +2469,8 @@ class Manhunt2
 
         'aigethunterlastnodename' => [
             'name' => 'AIGetHunterLastNodeName',
-            'offset' => "77010000"
+            'offset' => "77010000",
+            'return' => "String"
         ],
 
         'aidefinegoalguardlookatentity' => [
