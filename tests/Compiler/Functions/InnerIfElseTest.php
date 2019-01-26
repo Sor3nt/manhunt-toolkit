@@ -4,7 +4,7 @@ namespace App\Tests\Functions;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class IfElseTest extends KernelTestCase
+class InnerIfElseTest extends KernelTestCase
 {
 
     public function test()

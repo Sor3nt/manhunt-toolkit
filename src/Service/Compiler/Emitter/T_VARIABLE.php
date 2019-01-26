@@ -124,6 +124,19 @@ class T_VARIABLE extends TAbstract {
 
     private function fromCustomFunctions($value, $data){
         return [
+
+            '10000000',
+            '04000000',
+            '11000000',
+            '02000000',
+            '00000000',
+            '32000000',
+            '02000000',
+            '1c000000',
+            '10000000',
+            '02000000',
+            '39000000',
+
             $data['customData']['customFunctions'][strtolower($value)]
         ];
     }

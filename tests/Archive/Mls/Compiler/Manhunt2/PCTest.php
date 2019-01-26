@@ -57,6 +57,8 @@ class PCTest extends KernelTestCase
 //        for($i = $test; $i < $test+1 ; $i++){
             $testScript = $mhls[$i];
 
+//            var_dump($testScript['ENTT']['name']);
+
             //compile a other script based on the levelscript
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, 'mh2');
 
@@ -65,9 +67,9 @@ class PCTest extends KernelTestCase
             if ($testScript['CODE'] != $compiled['CODE']){
                 foreach ($testScript['CODE'] as $index => $item) {
                     if ($compiled['CODE'][$index] == $item){
-                        echo ($index + 1) . '->' . $item . "\n";
+                        echo ($index + 1) . '->' . $item . " " . $compiled['CODE'][$index]->debug . "\n";
                     }else{
-                        echo "MISMATCH need |" . $item . "| got |" . $compiled['CODE'][$index] . "|\n";
+                        echo "MISMATCH need |" . $item . "| got |" . $compiled['CODE'][$index] . " " . $compiled['CODE'][$index]->debug . "|\n";
                     }
                 }
                 exit;
