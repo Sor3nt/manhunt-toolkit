@@ -29,210 +29,210 @@ class Manhunt2
 
     public static $constants = [
 
-        'ARM_INVULNERABLE' => [
+        'arm_invulnerable' => [
             'offset' => "04000000"
         ],
 
-        'CT_PLIERS' => [
+        'ct_pliers' => [
             'offset' => "22000000"
         ],
 
-        'CT_UZI' => [
+        'ct_uzi' => [
             'offset' => "2c000000"
         ],
 
-        'CT_SHOTGUN' => [
+        'ct_shotgun' => [
             'offset' => "2e000000"
         ],
 
-        'COL_SHOT' => [
+        'col_shot' => [
             'offset' => "00800000"
         ],
 
-        'HID_HEALTHBAR_PLAYER' => [
+        'hid_healthbar_player' => [
             'offset' => "03000000"
         ],
 
-        'MAP_COLOR_PERSON' => [
+        'map_color_person' => [
             'offset' => "16000000"
         ],
-        'CT_SYRINGE' => [
+        'ct_syringe' => [
             'offset' => "71000000"
         ],
 
-        'CT_GLOCK' => [
+        'ct_glock' => [
             'offset' => "29000000"
         ],
 
-        'CT_HEAD' => [
+        'ct_head' => [
             'offset' => "67000000"
         ],
 
-        'CT_G_FIRST_AID' => [
+        'ct_g_first_aid' => [
             "offset" => "09000000"
         ],
 
-        'MOVER_ACCEL_FAST' => [
+        'mover_accel_fast' => [
             'offset' => "02000000"
         ],
 
-        'AISCRIPT_MEDIUMPRIORITY' => [
+        'aiscript_mediumpriority' => [
             'offset' => "02000000"
         ],
 
-        'AISCRIPT_IDLE_STANDANIMS' => [
+        'aiscript_idle_standanims' => [
             'offset' => "05000000"
         ],
 
-        'AISCRIPT_IDLE_WANDERSEARCH' => [
+        'aiscript_idle_wandersearch' => [
             'offset' => "00000000"
         ],
 
-        'MTT_HOOD_MEDIUM' => [
+        'mtt_hood_medium' => [
             'offset' => "02000000"
         ],
 
-        'AISCRIPT_WALKMOVESPEED' => [
+        'aiscript_walkmovespeed' => [
             'offset' => "01000000"
         ],
 
-        'COL_PLAYER' => [
+        'col_player' => [
             'offset' => "00020000"
         ],
 
-        'MAP_COLOR_YELLOW' => [
+        'map_color_yellow' => [
             'offset' => "04000000"
         ],
 
-        'MAP_COLOR_RED' => [
+        'map_color_red' => [
             'offset' => "02000000"
         ],
 
-        'HID_RADAR' => [
+        'hid_radar' => [
             'offset' => "02000000"
         ],
 
-        'MAP_COLOR_LOCATION' => [
+        'map_color_location' => [
             'offset' => "14000000"
         ],
 
-        'MAP_COLOR_HUNTER_IDLE' => [
+        'map_color_hunter_idle' => [
             'offset' => "08000000"
         ],
 
-        'COL_HUNTER' => [
+        'col_hunter' => [
             'offset' => "10000000"
         ],
 
-        'AISCRIPT_VERYHIGHPRIORITY' => [
+        'aiscript_veryhighpriority' => [
             'offset' => "00000000"
         ],
 
-        'AISCRIPT_LOWPRIORITY' => [
+        'aiscript_lowpriority' => [
             'offset' => "03000000"
         ],
 
-        'AISCRIPT_IDLE_STANDSTILL' => [
+        'aiscript_idle_standstill' => [
             'offset' => "02000000"
         ],
 
-        'COMBATTYPEID_MELEE' => [
+        'combattypeid_melee' => [
             'offset' => "00000000"
         ],
 
-        'MTT_TRAINING' => [
+        'mtt_training' => [
             'offset' => "00000000"
         ],
 
-        'DIFFICULTY_NORMAL' => [
+        'difficulty_normal' => [
             'offset' => "01000000"
         ],
 
-        'MAP_COLOR_BLUE' => [
+        'map_color_blue' => [
             'offset' => "06000000"
         ],
 
-        'COMBATTYPEID_OPEN_MELEE' => [
+        'combattypeid_open_melee' => [
             'offset' => "03000000"
         ],
 
-        'COMBATTYPEID_COVER' => [
+        'combattypeid_cover' => [
             'offset' => "02000000"
         ],
 
-        'COMBATTYPEID_OPEN' => [
+        'combattypeid_open' => [
             'offset' => "01000000"
         ],
 
-        'AISCRIPT_GRAPHLINK_ALLOW_NOTHING' => [
+        'aiscript_graphlink_allow_nothing' => [
             'offset' => "00000000"
         ],
 
-        'HID_ALL_PLAYER_ITEMS' => [
+        'hid_all_player_items' => [
             'offset' => "2c010000"
         ],
 
-        'AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING' => [
+        'aiscript_graphlink_allow_everything' => [
             "offset" => "03000000"
         ],
 
-        'AISCRIPT_IDLE_PATROL' => [
+        'aiscript_idle_patrol' => [
             "offset" => "01000000"
         ],
 
-        'AISCRIPT_HIGHPRIORITY' => [
+        'aiscript_highpriority' => [
             "offset" => "01000000"
         ],
 
-        'MOVER_STOPPED' => [
+        'mover_stopped' => [
             "offset" => "00000000"
         ],
 
-        'MOVER_FORWARD' => [
+        'mover_forward' => [
             "offset" => "01000000"
         ],
 
-        'MOVER_ACCEL_SLOW' => [
+        'mover_accel_slow' => [
             "offset" => "02000000"
         ],
 
-        'AISCRIPT_RUNMOVESPEED' => [
+        'aiscript_runmovespeed' => [
             "offset" => "00000000"
         ],
 
-        'DOOR_OPEN' => [
+        'door_open' => [
             "offset" => "00000000"
         ],
 
-        'DOOR_OPENING' => [
+        'door_opening' => [
             "offset" => "01000000"
         ],
 
-        'DOOR_CLOSED' => [
+        'door_closed' => [
             "offset" => "02000000"
         ],
 
-        'DOOR_CLOSING' => [
+        'door_closing' => [
             "offset" => "03000000"
         ],
 
-        'CT_CROSSBOW' => [
+        'ct_crossbow' => [
             "offset" => "83000000"
         ],
 
-        'USEABLE_ON' => [
+        'useable_on' => [
             "offset" => "01000000"
         ],
 
-        'ARM_HEAVY' => [
+        'arm_heavy' => [
             "offset" => "03000000"
         ],
 
-        'MAP_COLOR_CYAN' => [
+        'map_color_cyan' => [
             "offset" => "07000000"
         ],
 
-        'MAP_COLOR_ORANGE' => [
+        'map_color_orange' => [
             "offset" => "03000000"
         ],
 
@@ -240,6 +240,14 @@ class Manhunt2
 
     public static $functions = [
 
+        "playscriptaudiostreamaux" => [
+            'name' => 'PlayScriptAudioStreamAux',
+            'offset' => "d7030000"
+        ],
+        "playdirectorspeechplaceholder" => [
+            'name' => 'PlayDirectorSpeechPlaceholder',
+            'offset' => "8f020000"
+        ],
         "fakehuntersetdir" => [
             'name' => 'FakeHunterSetDir',
             'offset' => "bd030000"

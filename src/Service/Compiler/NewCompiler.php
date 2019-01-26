@@ -604,7 +604,7 @@ class NewCompiler
          */
         $types = [];
         foreach ($typesTokens as $typeTokens) {
-            $currentTypeSection = strtolower($typeTokens[0]['value']);
+            $currentTypeSection = ($typeTokens[0]['value']);
             $types[$currentTypeSection] = [];
 
             $current = 3;
@@ -614,9 +614,9 @@ class NewCompiler
                 $index = 0;
                 while ($typeTokens[$current]['type'] == Token::T_VARIABLE) {
 
-                    $usedType = strtolower($typeTokens[$current + 2]['value']);
+                    $usedType = $typeTokens[$current + 2]['value'];
 
-                    $types[$currentTypeSection][strtolower($typeTokens[$current]['value'])] = [
+                    $types[$currentTypeSection][$typeTokens[$current]['value']] = [
                         'type' => $usedType,
                         'section' => "header",
                         'index' => $index,
@@ -635,7 +635,7 @@ class NewCompiler
 
                 while ($typeTokens[$current]['type'] != Token::T_BRACKET_CLOSE) {
 
-                    $types[$currentTypeSection][strtolower($typeTokens[$current]['value'])] = [
+                    $types[$currentTypeSection][$typeTokens[$current]['value']] = [
                         'type' => 'level_var state',
                         'section' => "header",
                         'offset' => Helper::fromIntToHex($offset)
