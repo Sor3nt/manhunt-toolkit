@@ -24,7 +24,7 @@ class T_FUNCTION {
                 if ($char == ";" || $char == "("){
                     return [
                         'type' => 'T_FUNCTION',
-                        'value' => trim($value)
+                        'value' => strtolower(trim($value))
                     ];
                 }else{
                     return false;

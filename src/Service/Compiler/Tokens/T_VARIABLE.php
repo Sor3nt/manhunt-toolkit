@@ -30,13 +30,13 @@ class T_VARIABLE {
                     if (isset($funtionsDefault[ strtolower($value) ])) {
                         return [
                             'type' => 'T_FUNCTION',
-                            'value' => $value
+                            'value' => strtolower($value)
                         ];
 
                     }else if (isset($funtions[ strtolower($value) ])) {
                         return [
                             'type' => 'T_FUNCTION',
-                            'value' => $value
+                            'value' => strtolower($value)
                         ];
 
                     }else if($value == "''"){
@@ -47,7 +47,7 @@ class T_VARIABLE {
                     }else{
                         return [
                             'type' => 'T_VARIABLE',
-                            'value' => $value
+                            'value' => strtolower($value)
                         ];
 
                     }
