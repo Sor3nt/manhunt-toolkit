@@ -38,30 +38,29 @@ class T_ASSIGN {
         }
 
 
+        if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
+            $code[] = $getLine('10000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']) . '(start)');
+            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('11000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('0a000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('34000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('20000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('01000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('0f000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('10000000', false, $debugMsg . 'custom function call');
+            $code[] = $getLine('01000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']) . '(end)');
+        }
 
             //HACK
         //when we have a type usage, we have no variable entry
         //so the compiler think its a function...
         if ($leftHand['type'] == Token::T_FUNCTION ){
-
-            if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
-                $code[] = $getLine('10000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']) . '(start)');
-                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('11000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('0a000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('34000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('20000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('01000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('0f000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('10000000', false, $debugMsg . 'custom function call');
-                $code[] = $getLine('01000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']) . '(end)');
-            }
 
             $stateVar = str_replace('level_var ', '', $mapped['type']);
 
@@ -349,10 +348,6 @@ class T_ASSIGN {
 
         self::toObject($code, $getLine);
 
-        $code[] = $getLine('13000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg); //offset?
     }
 
     static public function fromObject($mapped, &$code, \Closure $getLine){

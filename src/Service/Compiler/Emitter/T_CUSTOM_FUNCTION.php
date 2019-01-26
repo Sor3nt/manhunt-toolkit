@@ -133,6 +133,12 @@ class T_CUSTOM_FUNCTION {
             }
         }
 
+
+        $code[] = $getLine('13000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg); //offset?
+
         /**
          * Create script end sequence
          */
