@@ -10,7 +10,7 @@ class PCTest extends Archive
     public function testLevelScript()
     {
 
-        $checkMd5 = 'e67ad5dd0b319011fe5e297004bd9fd9';
+        $checkMd5 = '32448eb887b7e7725b46d25ace0539a3';
 
 
         $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Mls/Manhunt2/PC";

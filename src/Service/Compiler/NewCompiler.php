@@ -1136,6 +1136,7 @@ class NewCompiler
 
     private function generateDATA($strings4Scripts)
     {
+
         $result = [
             'const' => [],
             'strings' => []
@@ -1200,14 +1201,26 @@ class NewCompiler
             foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
                 if ($varScriptName == $name) {
 
-                    $hierarchieType = '02000000';
-                    $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
+                    if (isset($variable['isLevelVarFromScript']) && $variable['isLevelVarFromScript'] == true){
 
-                    if ($variable['type'] == "vec3d"){
-                        $memoryForDoubleEntries += 12;
+                        unset($variable['isLevelVarFromScript']);
+                        $hierarchieType = "ffffffff";
+                        $variable['offset'] = "ffffffff";
+                        $variable['size'] = "ffffffff";
+
                     }else{
-                        $memoryForDoubleEntries += 4;
+
+
+                        $hierarchieType = '02000000';
+                        $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
+
+                        if ($variable['type'] == "vec3d"){
+                            $memoryForDoubleEntries += 12;
+                        }else{
+                            $memoryForDoubleEntries += 4;
+                        }
                     }
+
                 }
             }
 
