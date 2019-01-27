@@ -64,8 +64,6 @@ namespace App\Service\Compiler;
     const T_END_ELSE                    = 'T_END_ELSE';
     const T_END_CODE                    = 'T_END_CODE';
     const T_DO                          = 'T_DO';
-    const T_TRUE                        = 'T_TRUE';
-    const T_FALSE                       = 'T_FALSE';
     const T_FLOAT                       = 'T_FLOAT';
     const T_INT                         = 'T_INT';
     const T_STRING                      = 'T_STRING';

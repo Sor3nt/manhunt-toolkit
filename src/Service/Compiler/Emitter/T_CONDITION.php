@@ -126,9 +126,8 @@ class T_CONDITION {
                     }else if (
                         $operation['type'] == Token::T_INT ||
                         $operation['type'] == Token::T_NIL ||
-                        $operation['type'] == Token::T_TRUE ||
-                        $operation['type'] == Token::T_SELF ||
-                        $operation['type'] == Token::T_FALSE
+                        $operation['type'] == Token::T_BOOLEAN ||
+                        $operation['type'] == Token::T_SELF
                     ){
                         $output = "regular";
 

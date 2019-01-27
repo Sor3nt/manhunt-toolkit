@@ -9,7 +9,7 @@ class T_BOOLEAN {
 
         if ($char == "true"){
             return [
-                'type' => 'T_TRUE',
+                'type' => 'T_BOOLEAN',
                 'value' => "true"
             ];
         }
@@ -17,7 +17,7 @@ class T_BOOLEAN {
         $char = strtolower(substr($input, $current, 5));
         if ($char == "false"){
             return [
-                'type' => 'T_FALSE',
+                'type' => 'T_BOOLEAN',
                 'value' => "false"
             ];
         }

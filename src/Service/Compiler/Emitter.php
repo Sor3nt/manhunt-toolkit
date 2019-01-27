@@ -18,8 +18,7 @@ class Emitter {
 
     private $emitters = [
         'T_FOR' => Emitter\T_FOR::class,
-        'T_FALSE' => Emitter\T_FALSE::class,
-        'T_TRUE' => Emitter\T_TRUE::class,
+        'T_BOOLEAN' => Emitter\T_BOOLEAN::class,
         'T_NIL' => Emitter\T_NIL::class,
         'T_SCRIPT' => Emitter\T_SCRIPT::class,
         'T_PROCEDURE' => Emitter\T_PROCEDURE::class,

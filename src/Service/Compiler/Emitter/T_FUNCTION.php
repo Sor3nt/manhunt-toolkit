@@ -26,8 +26,7 @@ class T_FUNCTION {
 
         switch ($node['type']){
             case Token::T_FLOAT:
-            case Token::T_FALSE:
-            case Token::T_TRUE:
+            case Token::T_BOOLEAN:
             case Token::T_SELF:
             case Token::T_MULTIPLY:
                 $code[] = $getLine('10000000', false, $debugMsg);

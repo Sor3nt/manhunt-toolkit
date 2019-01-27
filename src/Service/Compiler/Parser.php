@@ -154,13 +154,11 @@ class Parser {
              *
              *********************************/
             case Token::T_NIL :
-            case Token::T_TRUE :
             case Token::T_IS_EQUAL :
             case Token::T_IS_NOT_EQUAL :
             case Token::T_IS_GREATER_EQUAL :
             case Token::T_IS_SMALLER :
             case Token::T_IS_GREATER :
-            case Token::T_FALSE :
             case Token::T_STRING:
             case Token::T_INT:
             case Token::T_FLOAT:
@@ -178,6 +176,15 @@ class Parser {
 //            case Token::T_BRACKET_CLOSE:
                 return [
                     $current + 1, $tokens[$current]
+                ];
+
+
+            case Token::T_BOOLEAN:
+                return [
+                    $current + 1, [
+                        'type' => Token::T_BOOLEAN,
+                        'value' => $tokens[$current]['value'] == 'true'
+                    ]
                 ];
 
             /**********************************

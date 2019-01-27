@@ -105,14 +105,9 @@ class T_SWITCH {
                 return $mapping['offset'];
 
                 break;
+            case Token::T_BOOLEAN:
             case Token::T_INT:
-                return Helper::fromIntToHex($node['value']);
-                break;
-            case Token::T_FALSE:
-                return Helper::fromIntToHex(0);
-                break;
-            case Token::T_TRUE:
-                return Helper::fromIntToHex(1);
+                return Helper::fromIntToHex((int) $node['value']);
                 break;
             default:
                 throw new \Exception('T_SWITCH: can not convert index from ' . $node['type']);
