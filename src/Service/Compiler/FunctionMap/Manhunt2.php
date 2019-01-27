@@ -473,7 +473,8 @@ class Manhunt2
         ],
         "getmoverstate" => [
             'name' => 'GetMoverState',
-            'offset' => "39010000"
+            'offset' => "39010000",
+            'return' => 'Integer'
         ],
         "radarcreateblip" => [
             'name' => 'RadarCreateBlip',

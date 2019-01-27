@@ -195,34 +195,121 @@ class T_CONDITION {
 
                 if ($node['isNot']) self::setStatementNot($code, $getLine);
 
+//
+//
+                if (count($token['params']) == 2){
+
+                    list($left, $right) = $token['params'];
+
+                    if ($right['type'] == Token::T_VARIABLE || $right['type'] == Token::T_FUNCTION){
+                        $rightTmp = $right;
+                        $right = $left;
+                        $left = $rightTmp;
+                    }
+
+                    $isNillCompare = false;
+                    if ($right['type'] == Token::T_NIL) $isNillCompare = true;
+                    if ($left['type'] == Token::T_NIL) $isNillCompare = true;
+
+//                    $isConstCompare = false;
+//                    if ($right['type'] == 'constant') $isConstCompare = true;
+//                    if ($left['type'] == 'constant') $isConstCompare = true;
+//
 
 
 
-
-                // not sure about this part
-                //todo das stimmt hier garnicht, ich greif einfach auf das letzte mapping vom loop zu...
-                if (isset($mappedTo['type']) && $mappedTo['type'] == "stringarray") {
-                    $code[] = $getLine('49000000', false, '[T_CONDITION] map (finalize?): stringarray');
-                }else if (
-                    (isset($mappedTo['type']) && $mappedTo['type'] == "object") ||
-                    (isset($operation) && $operation['type'] == Token::T_FLOAT)
-                ){
-//                    $code[] = $getLine('4e000000');
-//                }else if (isset($operation) && $operation['type'] == Token::T_VARIABLE){
-                    $code[] = $getLine('4e000000', false, '[T_CONDITION] map (finalize?): stringarray');
-                }else if (isset($operation) && $operation['type'] == Token::T_STRING){
-                    $code[] = $getLine('4e000000', false, '[T_CONDITION] map (finalize?): T_STRING');
-                }else{
-
-                    if (isset($mappedTo) && $mappedTo['type'] == "customFunction"){
-                        $code[] = $getLine('4e000000', false, '[T_CONDITION] map (finalize?): customFunction');
-
-                    }else{
+                    if ($isNillCompare ) {
                         $code[] = $getLine('23000000', false, '[T_CONDITION] map (finalize?): other');
                         $code[] = $getLine('04000000', false, '[T_CONDITION] map (finalize?): other');
                         $code[] = $getLine('01000000', false, '[T_CONDITION] map (finalize?): other');
+
+                    }else if ($left['type'] == Token::T_VARIABLE) {
+                        $mappedTo = T_VARIABLE::getMapping(
+                            $left,
+                            $data
+                        );
+
+                        if (
+                            $mappedTo['type'] == "level_var state" ||
+                            $mappedTo['type'] == "level_var integer" ||
+                            $mappedTo['type'] == "level_var boolean" ||
+                            $mappedTo['type'] == "integer" ||
+                            $mappedTo['type'] == "boolean" ||
+                            $mappedTo['type'] == "constant"
+
+
+                        ) {
+                            $code[] = $getLine('23000000', false, '[T_CONDITION] map (finalize?): other');
+                            $code[] = $getLine('04000000', false, '[T_CONDITION] map (finalize?): other');
+                            $code[] = $getLine('01000000', false, '[T_CONDITION] map (finalize?): other');
+
+                        }else if ($mappedTo['type'] == 'stringarray'){
+                            $code[] = $getLine('49000000');
+
+                        }else if ($right['type'] == Token::T_FLOAT){
+                            $code[] = $getLine('4e000000');
+
+                        }else if ($mappedTo['type'] == 'customFunction'){
+                            $code[] = $getLine('4e000000');
+
+                        }else{
+
+                            $code[] = $getLine('ka-' . $mappedTo['type'] . $right['type'], false, '[T_CONDITION] map (finalize?): other');
+
+                        }
+
+                    }else{
+
+                        if ($right['type'] == Token::T_INT) {
+                            $code[] = $getLine('23000000', false, '[T_CONDITION] map (finalize?): other');
+                            $code[] = $getLine('04000000', false, '[T_CONDITION] map (finalize?): other');
+                            $code[] = $getLine('01000000', false, '[T_CONDITION] map (finalize?): other');
+                        }else if ($right['type'] == Token::T_FLOAT){
+                            $code[] = $getLine('4e000000');
+
+                        }else if ($right['type'] == Token::T_STRING){
+
+                                $code[] = $getLine('49000000');
+
+                        }else{
+                            var_dump($left, $right);
+                            $code[] = $getLine('ka2-' . $left['type'] . $right['type'], false, '[T_CONDITION] map (finalize?): other');
+
+                        }
                     }
+
+                }else{
+                    $code[] = $getLine('23000000', false, '[T_CONDITION] map (finalize?): other');
+                    $code[] = $getLine('04000000', false, '[T_CONDITION] map (finalize?): other');
+                    $code[] = $getLine('01000000', false, '[T_CONDITION] map (finalize?): other');
+
                 }
+////
+//
+//                // not sure about this part
+//                //todo das stimmt hier garnicht, ich greif einfach auf das letzte mapping vom loop zu...
+//                if (isset($mappedTo['type']) && $mappedTo['type'] == "stringarray") {
+//                    $code[] = $getLine('49000000', false, '[T_CONDITION] map (finalize?): stringarray');
+//                }else if (
+//                    (isset($mappedTo['type']) && $mappedTo['type'] == "object") ||
+//                    (isset($operation) && $operation['type'] == Token::T_FLOAT)
+//                ){
+////                    $code[] = $getLine('4e000000');
+////                }else if (isset($operation) && $operation['type'] == Token::T_VARIABLE){
+//                    $code[] = $getLine('4e000000', false, '[T_CONDITION] map (finalize?): stringarray');
+//                }else if (isset($operation) && $operation['type'] == Token::T_STRING){
+//                    $code[] = $getLine('4e000000', false, '[T_CONDITION] map (finalize?): T_STRING');
+//                }else{
+//
+//                    if (isset($mappedTo) && $mappedTo['type'] == "customFunction"){
+//                        $code[] = $getLine('4e000000', false, '[T_CONDITION] map (finalize?): customFunction');
+//
+//                    }else{
+//                        $code[] = $getLine('23000000', false, '[T_CONDITION] map (finalize?): other');
+//                        $code[] = $getLine('04000000', false, '[T_CONDITION] map (finalize?): other');
+//                        $code[] = $getLine('01000000', false, '[T_CONDITION] map (finalize?): other');
+//                    }
+//                }
 
 
 
