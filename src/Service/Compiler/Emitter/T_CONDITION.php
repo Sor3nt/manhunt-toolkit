@@ -100,10 +100,9 @@ class T_CONDITION {
                         );
 
                         if (
+                            substr($mappedTo['type'], 0, 9) == "level_var" ||
                             $mappedTo['type'] == "entityptr" ||
                             $mappedTo['type'] == "constant" ||
-                            $mappedTo['type'] == "level_var boolean" ||
-                            $mappedTo['type'] == "level_var integer" ||
                             $mappedTo['type'] == "integer" ||
                             $mappedTo['type'] == "boolean" ||
                             $mappedTo['type'] == "object"
@@ -128,6 +127,7 @@ class T_CONDITION {
                         $operation['type'] == Token::T_INT ||
                         $operation['type'] == Token::T_NIL ||
                         $operation['type'] == Token::T_TRUE ||
+                        $operation['type'] == Token::T_SELF ||
                         $operation['type'] == Token::T_FALSE
                     ){
                         $output = "regular";
