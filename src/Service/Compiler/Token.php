@@ -3,6 +3,7 @@ namespace App\Service\Compiler;
 
  class Token {
 
+    const T_BOOLEAN                     = 'T_BOOLEAN';
     const T_ARRAY                       = 'T_ARRAY';
     const T_RECORD                      = 'T_RECORD';
     const T_RECORD_END                  = 'T_RECORD_END';
