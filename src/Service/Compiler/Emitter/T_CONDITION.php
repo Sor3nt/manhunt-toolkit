@@ -63,19 +63,9 @@ class T_CONDITION {
                     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    /**
+                     * We need for the parameters a special return code, depend on the used type
+                     */
 
                     $output = "none";
 
@@ -111,6 +101,9 @@ class T_CONDITION {
                         }else if ($mappedTo['type'] == "stringarray") {
                             $output = "string";
 
+                        }else if (isset($mappedTo['abstract']) && $mappedTo['abstract'] == "state") {
+                            $output = "state";
+
                         }else{
 
                             throw new \Exception(sprintf(
@@ -143,38 +136,38 @@ class T_CONDITION {
 
                     }
 
+                    //generate the code based on the defined output (above)
 
                     if ($operation['type'] == Token::T_INT && $operation['value'] < 0) {
-                        $code[] = $getLine('2a000000', false, $debugMsg . $operation['type']);
-                        $code[] = $getLine('01000000', false, $debugMsg . $operation['type']);
+                        $code[] = $getLine('2a000000', false, $debugMsg . 'int lower 0');
+                        $code[] = $getLine('01000000', false, $debugMsg . 'int lower 0');
                     }
 
                     if ($output == "string") {
-                        $code[] = $getLine('10000000', false, $debugMsg);
-                        $code[] = $getLine('01000000', false, $debugMsg);
+                        $code[] = $getLine('10000000', false, $debugMsg . 'string');
+                        $code[] = $getLine('01000000', false, $debugMsg . 'string');
 
-                        $code[] = $getLine('10000000', false, $debugMsg);
-                        $code[] = $getLine('02000000', false, $debugMsg);
+                        $code[] = $getLine('10000000', false, $debugMsg . 'string');
+                        $code[] = $getLine('02000000', false, $debugMsg . 'string');
 
                     }else if ($output == "float" || $output == "customFunction") {
-                        $code[] = $getLine('10000000', false, $debugMsg);
-                        $code[] = $getLine('01000000', false, $debugMsg);
+                        $code[] = $getLine('10000000', false, $debugMsg . 'float');
+                        $code[] = $getLine('01000000', false, $debugMsg . 'float');
+
+                    }else if ($output == "state") {
+                        $code[] = $getLine('10000000', false, $debugMsg . 'float');
+                        $code[] = $getLine('01000000', false, $debugMsg . 'float');
 
                     }else if ($output == "regular"){
                         if ($isLastIndex){
-                            $code[] = $getLine('0f000000', false, $debugMsg);
-                            $code[] = $getLine('04000000', false, $debugMsg);
+                            $code[] = $getLine('0f000000', false, $debugMsg . 'regular');
+                            $code[] = $getLine('04000000', false, $debugMsg . 'regular');
                         }else{
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('01000000', false, $debugMsg);
+                            $code[] = $getLine('10000000', false, $debugMsg . 'regular');
+                            $code[] = $getLine('01000000', false, $debugMsg . 'regular');
                         }
-
                     }
-
-
-
                 }
-
 
                 if ($token['operation']['type'] == Token::T_AND) {
                     $debugMsg = sprintf('[T_CONDITION] map: T_AND ');
@@ -191,8 +184,12 @@ class T_CONDITION {
 
                 if ($node['isNot']) self::setStatementNot($code, $getLine);
 
-//
-//
+
+                /**
+                 * this part tell the engine something about the comparision
+                 * strings and floats need a special code
+                 * any other conditions share the same code
+                 */
 
                 $toHandle = [];
                 if (count($token['params']) == 2){
@@ -212,12 +209,6 @@ class T_CONDITION {
                         }
                     }
                 }
-
-                /**
-                 * this part tell the engine something about the comparision
-                 * strings and floats need a special code
-                 * any other conditions share the same code
-                 */
 
                 if (
                     in_array('stringarray', $toHandle) !== false ||
@@ -287,13 +278,6 @@ class T_CONDITION {
 
         return $code;
     }
-
-
-
-    static public function finalize( &$code, \Closure $getLine ){
-
-    }
-
 
     static public function setStatementNot( &$code, \Closure $getLine ){
         $debugMsg = sprintf('[T_CONDITION] setStatementNot: NOT');
