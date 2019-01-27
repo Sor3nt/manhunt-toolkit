@@ -225,7 +225,7 @@ class T_CONDITION {
                     in_array(Token::T_STRING, $toHandle) !== false
                 ) {
                     $code[] = $getLine('49000000', false, '[T_CONDITION] map finalize string');
-                }else if (in_array(Token::T_FLOAT, $toHandle) !== false ){
+                }else if (in_array(Token::T_FLOAT, $toHandle) !== false ||in_array('customFunction', $toHandle) !== false ){
                     $code[] = $getLine('4e000000', false, '[T_CONDITION] map finalize float');
 
                 }else{

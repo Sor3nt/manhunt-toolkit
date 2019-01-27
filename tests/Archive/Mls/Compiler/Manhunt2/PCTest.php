@@ -44,20 +44,16 @@ class PCTest extends KernelTestCase
 //            );
 //        }
 
-        $test = 68; // operator not found
-//        $test = 68; // unable to handle T_ASSIGN
-//        $test = 82; // T_VARIABLE: unable to find variable offset for bLockerTutDisplayed
-//        $test = 83; // T_VARIABLE: unable to find variable offset for bLockerTutDisplayed
-//        $test = 94;
-//        $test = 97;
+//        $test = 94; // operator not found
+        $test = 97;
 
 
 //        $test = 37;
-        for($i = 0; $i < 94 ; $i++){
+        for($i = 0; $i < 95 ; $i ++){
 //        for($i = $test; $i < $test+1 ; $i++){
             $testScript = $mhls[$i];
 
-//            var_dump($testScript['ENTT']['name'], $i);
+            var_dump($testScript['ENTT']['name'], $i);
 
             //compile a other script based on the levelscript
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, 'mh2');

@@ -762,7 +762,6 @@ class NewCompiler
             $current++;
         }
 
-
         /**
          * Apply variables from parent script
          */
@@ -800,6 +799,7 @@ class NewCompiler
 
             $this->memoryOffset += $size;
         }
+
 
         return $vars;
     }

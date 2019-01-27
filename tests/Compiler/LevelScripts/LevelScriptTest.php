@@ -17031,14 +17031,17 @@ end.
         $compiler = new Compiler();
         $compiled = $compiler->parse($script);
 
+
         if ($compiled['CODE'] != $expected){
+            $index = 0;
             foreach ($compiled['CODE'] as $index => $item) {
                 if ($expected[$index] == $item){
-                    echo ($index + 1) . '->' . $item . "\n";
+                    echo ($index + 1) . '->' . $item . " " . $item->debug . "\n";
                 }else{
-                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . "\n";
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . " " . $compiled['CODE'][$index]->debug . "\n";
                 }
             }
+
             exit;
         }
 

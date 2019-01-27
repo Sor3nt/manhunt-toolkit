@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Helper;
 use App\Service\Compiler\Token;
 
@@ -285,7 +286,28 @@ class T_ASSIGN {
          * Assign TO variable handling
          */
         if ($mapped['type'] == "vec3d") {
-            self::toVec3D($mapped['offset'], $code, $getLine);
+
+
+            if ($node['body'][0]['type'] == Token::T_FUNCTION){
+                $mappedFunction = Manhunt2::$functions[$node['body'][0]['value']];
+
+                if (!isset($mappedFunction['return'])){
+                    throw new \Exception('T_ASSIGN: function return code missed');
+                }
+
+                if ($mappedFunction['return'] == "Vec3d"){
+                    self::toVec3D2($mapped['offset'], $code, $getLine);
+
+                }else{
+                    self::toVec3D($mapped['offset'], $code, $getLine);
+
+                }
+
+
+            }else{
+                self::toVec3D($mapped['offset'], $code, $getLine);
+
+            }
 
         }else if ($mapped['type'] == "object"){
             self::toObject( $code, $getLine);
@@ -403,6 +425,20 @@ class T_ASSIGN {
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('03000000', false, $debugMsg);
         $code[] = $getLine( $offset , false, $debugMsg . 'offset');
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('44000000', false, $debugMsg);
+
+    }
+    static public function toVec3D2( $offset, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toVec3D2 ');
+
+        $code[] = $getLine('12000000', false, $debugMsg);
+        $code[] = $getLine('03000000', false, $debugMsg);
+        $code[] = $getLine('0c000000', false, $debugMsg);
 
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
