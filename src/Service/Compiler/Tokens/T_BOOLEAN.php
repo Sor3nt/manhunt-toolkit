@@ -1,7 +1,7 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
-class T_TRUE {
+class T_BOOLEAN {
 
     static public function match( $input, $current, $tokens ){
 
@@ -10,7 +10,15 @@ class T_TRUE {
         if ($char == "true"){
             return [
                 'type' => 'T_TRUE',
-                'value' => "TRUE"
+                'value' => "true"
+            ];
+        }
+
+        $char = strtolower(substr($input, $current, 5));
+        if ($char == "false"){
+            return [
+                'type' => 'T_FALSE',
+                'value' => "false"
             ];
         }
 

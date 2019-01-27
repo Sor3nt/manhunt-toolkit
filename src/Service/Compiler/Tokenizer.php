@@ -3,6 +3,7 @@ namespace App\Service\Compiler;
 
 use App\Service\Compiler\Tokens\T_ARRAY;
 use App\Service\Compiler\Tokens\T_ARRAY_RANGE;
+use App\Service\Compiler\Tokens\T_BOOLEAN;
 use App\Service\Compiler\Tokens\T_CUSTOM_FUNCTION;
 use App\Service\Compiler\Tokens\T_ADDITION;
 use App\Service\Compiler\Tokens\T_AND;
@@ -122,8 +123,7 @@ class Tokenizer {
         T_DO::class,
 
         T_ARRAY::class,
-        T_TRUE::class,
-        T_FALSE::class,
+        T_BOOLEAN::class,
         T_FLOAT::class,
         T_INT::class,
         T_NULL::class,
