@@ -1,5 +1,12 @@
 #Changelog
 
+**2019-01-27**: **v0.6.0** Release:
+* Fix MLS Compiler (MH2 A01 100% Support)
+* Add GXT Support. (MH1 PC/PS2 and MH2 PC/PS2/PSP/WII)
+* Replace "mass-extract:*" command with "mass:extraction" for all supported files.
+* Add Manhunt.pak support.
+* Some fixes.
+
 **2019-01-01**: **v0.5.0** Release:
 * Add execution animation (strmanim) Support. (MH2 PC/PS2/PSP/Wii)
 * Add DFF Support. (MH1 PC/PS2)
