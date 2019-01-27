@@ -107,7 +107,12 @@ class T_SWITCH {
                 break;
             case Token::T_BOOLEAN:
             case Token::T_INT:
-                return Helper::fromIntToHex((int) $node['value']);
+
+                //just a hack: todo, boolean transform failed
+                if ($node['value'] == "true") $node['value'] = 1;
+                if ($node['value'] == "false") $node['value'] = 0;
+
+                return Helper::fromIntToHex($node['value']);
                 break;
             default:
                 throw new \Exception('T_SWITCH: can not convert index from ' . $node['type']);
