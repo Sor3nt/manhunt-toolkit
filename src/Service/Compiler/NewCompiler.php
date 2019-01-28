@@ -67,7 +67,6 @@ class NewCompiler
         $tokens = $tokenizer->fixTypeMapping($tokens, $this->types);
         $tokens = $tokenizer->fixHeaderBracketMismatches($tokens);
 
-
         // parse the token list to a ast
         $parser = new Parser();
         $this->ast = $parser->toAST($tokens);

@@ -283,7 +283,8 @@ class Manhunt2
 
         "getentityview" => [
             'name' => 'GetEntityView',
-            'offset' => "93010000"
+            'offset' => "93010000",
+            'return' => 'Vec3d'
         ],
 
         "freezeentity" => [

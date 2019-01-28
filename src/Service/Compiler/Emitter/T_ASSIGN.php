@@ -292,7 +292,7 @@ class T_ASSIGN {
                 $mappedFunction = Manhunt2::$functions[$node['body'][0]['value']];
 
                 if (!isset($mappedFunction['return'])){
-                    throw new \Exception('T_ASSIGN: function return code missed');
+                    throw new \Exception('T_ASSIGN: function return code missed for ' . $node['body'][0]['value']);
                 }
 
                 if ($mappedFunction['return'] == "Vec3d"){

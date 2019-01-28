@@ -6,6 +6,11 @@ class T_SCRIPT_NAME {
     static public function match( $input, $current, $tokens ){
 
         $char = strtolower(substr($input, $current - 7, 7));
+        $notChar = strtolower(substr($input, $current - 10, 10));
+
+        if ($notChar == "runscript "){
+            return false;
+        }
 
         if ($char == "script "){
 

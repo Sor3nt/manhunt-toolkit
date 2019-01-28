@@ -101,6 +101,9 @@ class T_CONDITION {
                         }else if ($mappedTo['type'] == "stringarray") {
                             $output = "string";
 
+                        }else if ($mappedTo['type'] == "array") {
+                            $output = "array";
+
                         }else if (isset($mappedTo['abstract']) && $mappedTo['abstract'] == "state") {
                             $output = "state";
 
@@ -157,6 +160,13 @@ class T_CONDITION {
                     }else if ($output == "state") {
                         $code[] = $getLine('10000000', false, $debugMsg . 'float');
                         $code[] = $getLine('01000000', false, $debugMsg . 'float');
+
+                    }else if ($output == "array") {
+                        $code[] = $getLine('10000000', false, $debugMsg . 'array');
+                        $code[] = $getLine('01000000', false, $debugMsg . 'array');
+
+                        $code[] = $getLine('10000000', false, $debugMsg . 'array');
+                        $code[] = $getLine('02000000', false, $debugMsg . 'array');
 
                     }else if ($output == "regular"){
                         if ($isLastIndex){
