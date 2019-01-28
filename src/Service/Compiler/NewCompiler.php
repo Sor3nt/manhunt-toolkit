@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler;
 
+use App\MHT;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
@@ -41,8 +42,14 @@ class NewCompiler
     protected $ast = false;
     protected $tokens = [];
 
-    public function __construct($source, $parentScript = false)
+    private $game;
+    private $platform;
+
+    public function __construct($source, $parentScript = false, $game, $platform)
     {
+
+        $this->game = $game;
+        $this->platform = $platform;
 
         $this->untouchedSource = $source;
 
@@ -183,7 +190,7 @@ class NewCompiler
             'procedures' => $this->procedures,
             'customFunctions' => $this->customFunction,
 
-            'functions' => array_merge(ManhuntDefault::$functions, Manhunt2::$functions),
+            'functions' => array_merge(ManhuntDefault::$functions, $this->game == MHT::GAME_MANHUNT_2 ? Manhunt2::$functions : Manhunt::$functions),
 
             'combinedVariables' => array_merge($this->combinedVariables, $scriptVar),
 
@@ -219,10 +226,7 @@ class NewCompiler
         $combinedVariables = [];
 
         $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$constants);
-        $combinedVariables = array_merge($combinedVariables, Manhunt2::$constants);
-
-//        $combinedVariables = array_merge($combinedVariables, ManhuntDefault::$functions);
-//        $combinedVariables = array_merge($combinedVariables, Manhunt2::$functions);
+        $combinedVariables = array_merge($combinedVariables, $this->game == MHT::GAME_MANHUNT_2 ? Manhunt2::$constants : Manhunt::$constants);
 
         $combinedVariables = array_merge($combinedVariables, $this->types);
 
@@ -903,12 +907,15 @@ class NewCompiler
 
         /**
          * apply the hardcoded constants
+         *
+         *
+         * todo: das ist doppelt ?!
          */
 
         foreach (
             array_merge(
                 ManhuntDefault::$constants,
-                Manhunt2::$constants
+                $this->game == MHT::GAME_MANHUNT_2 ? Manhunt2::$constants : Manhunt::$constants
             ) as $index => $hardCodedConstant) {
 
             $hardCodedConstant['section'] = 'header';
@@ -1111,8 +1118,7 @@ class NewCompiler
             $scriptSize += $item;
 
             $functionEventDefinitionDefault = ManhuntDefault::$functionEventDefinition;
-            $functionEventDefinition = Manhunt2::$functionEventDefinition;
-            if ($game == "mh1") $functionEventDefinition = Manhunt::$functionEventDefinition;
+            $functionEventDefinition = $this->game == MHT::GAME_MANHUNT_2 ? Manhunt2::$functionEventDefinition : Manhunt::$functionEventDefinition;
 
             if (isset($functionEventDefinitionDefault[strtolower($name)])) {
                 $onTrigger = $functionEventDefinitionDefault[strtolower($name)];

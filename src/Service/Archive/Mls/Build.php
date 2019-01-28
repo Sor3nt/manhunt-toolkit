@@ -11,7 +11,7 @@ class Build {
      * @return string
      * @throws \Exception
      */
-    public function build( $scripts){
+    public function build( $scripts , $game, $platform){
         $mls =
             "MHLS" .
             "\x03\x00\x09\x00"        // MHLS Version (3.9)

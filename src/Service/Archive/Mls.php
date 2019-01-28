@@ -49,7 +49,7 @@ class Mls extends Archive {
     }
 
 
-    private function prepareData( Finder $finder, $game ){
+    private function prepareData( Finder $finder, $game, $platform ){
 
         $scripts = [];
 
@@ -78,7 +78,7 @@ class Mls extends Archive {
         //for the supported files, we need to compile the src and generate the needed sections
         $compiler = new Compiler();
 
-        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game);
+        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game, $platform);
 
         foreach ($scripts as &$script) {
             if (!isset($script['CODE'])){
@@ -103,10 +103,10 @@ class Mls extends Archive {
         if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
         if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
 
-        $scripts = $this->prepareData( $scripts, $game );
+        $scripts = $this->prepareData( $scripts, $game, $platform );
 
         $builder = new Build();
-        return $builder->build( $scripts );
+        return $builder->build( $scripts, $game, $platform );
 
     }
 
@@ -137,6 +137,7 @@ class Mls extends Archive {
             }catch(\Exception $e){
 
 
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.error' ] = $e->getMessage();
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];

@@ -23,17 +23,9 @@ class T_VARIABLE {
             }else{
 
                 if ($value !== ""){
-                    $funtionsDefault = ManhuntDefault::$functions;
-                    $funtions = Manhunt2::$functions;
-                    if (GAME == "mh1") $funtions = Manhunt::$functions;
+                    $funtions = array_merge(ManhuntDefault::$functions, Manhunt::$functions, Manhunt2::$functions);
 
-                    if (isset($funtionsDefault[ strtolower($value) ])) {
-                        return [
-                            'type' => 'T_FUNCTION',
-                            'value' => strtolower($value)
-                        ];
-
-                    }else if (isset($funtions[ strtolower($value) ])) {
+                    if (isset($funtions[ strtolower($value) ])) {
                         return [
                             'type' => 'T_FUNCTION',
                             'value' => strtolower($value)
