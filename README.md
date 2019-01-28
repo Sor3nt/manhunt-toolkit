@@ -83,28 +83,29 @@ $ mht
 To view available Options for a command call as example
 
 ```
-$ mht mass-extract:dff --help
+$ mht mass:extraction --help
 ```
 
 ## About the supported formats
 
-Pack/unpack **execution animations** for Manhunt 2 (PC/PS2/PSP/WII) (strmanim.bin)
-> Contains any execution animation, at the current state you can not copy between Manhunt 1 and Manhunt 2. 
+### Manhunt 1
+* Entity and Character animations \[PC, PS2, XBOX\] (allanims.ifp)
+* Entity Models \[PC, PS2, XBOX\] (*.dff)
+* Entity Positions \[PC, PS2, XBOX\] (*.inst)
+* Data container \[PC, PS2, XBOX\] (ManHunt.pak)
+* Translations \[PC, PS2, XBOX\] (*.gxt)
 
-Pack/unpack **animations** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (allanims.ifp)
-> Contains any other animation, at the current state you can not copy between Manhunt 1 and Manhunt 2.
+### Manhunt 2
+* Enitity and Character animations \[PC, PS2, PSP, WII\] (allanims.ifp)
+* Execution animations \[PC, PS2, PSP, WII\] (strmanim.bin)
+* Settings files \[PC\] (*.glg)
+* Entity Positions \[PC, PS2, PSP, WII\] (*.inst)
+* Level script code \[PC\] (*.mls)
+* Texture extracting \[PC\] (*.tex)
+* Translations \[PC, PS2, PSP, WII\] (*.gxt)
 
-Pack/unpack **models** for Manhunt 1 (PC/PS2/XBOX) (*.dff)
-> Contains the models as DFF file (Can be edit with 3dsmax + Kam´s GTA Script)
-
-Unpack **settings** for Manhunt 2 (PC) (*.glg)
-> This files are actual INI files, e.g. Setting files. MHT will just unpack them and provide the TXT version of it.
-
-Pack/unpack **entity positions** for Manhunt 1 (PC/PS2/XBOX) and Manhunt 2 (PC/PS2/PSP/WII) (*.dff)
->Any Object positions is here stored, MHT convert all values into a editable JSON format
  
-Pack/unpack **level script code** for Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
-
+ 
 > The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
 >
 > After unpacking a MLS File you will receive 2 folders, **Supported** and **Unsupported**.
@@ -118,8 +119,6 @@ Pack/unpack **level script code** for Manhunt 2 (PC/PS2/PSP/Wii) (*.mls)
 >You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
 
 
-Unpack **textures** for Manhunt 2 (PC) (modelspc.tex)
-> Any used texture, export the textures as BMP.
 
 #Issues
 
