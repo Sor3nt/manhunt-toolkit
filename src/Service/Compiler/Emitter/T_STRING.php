@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Helper;
 
 class T_STRING {
@@ -43,8 +44,11 @@ class T_STRING {
 
 
         if ($isProcedure == false && $isCustomFunction == false){
+
+            $val = $value == "__empty__" ? 1 : strlen($value) + 1;
+
             $result[] = $getLine(Helper::fromIntToHex(
-                $value == "__empty__" ? 1 : strlen($value) + 1
+                $val
             ), false, $debugMsg . '(length)');
         }
 

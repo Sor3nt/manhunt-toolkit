@@ -101,6 +101,8 @@ class T_VARIABLE extends TAbstract {
 
                 if(substr($mapped['type'], 0, 9) == "level_var") {
                     $code = $this->fromLevelVar($mapped);
+                }else if(substr($mapped['type'], 0, 8) == "game_var") {
+                    $code = $this->fromGameVar($mapped);
 
                 }else if ($mapped['section'] == "header"){
                     $code = $this->fromHeader($mapped);
@@ -170,6 +172,15 @@ class T_VARIABLE extends TAbstract {
     private function fromLevelVar($mapped){
         return [
             '1b000000',
+            $mapped['offset'],
+            '04000000',
+            '01000000'
+        ];
+    }
+
+    private function fromGameVar($mapped){
+        return [
+            '1e000000',
             $mapped['offset'],
             '04000000',
             '01000000'

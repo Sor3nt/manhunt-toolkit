@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Helper;
 use App\Service\Compiler\Token;
@@ -327,12 +328,12 @@ class T_ASSIGN {
             self::toLevelVar($mapped['offset'], $code, $getLine);
 
         }else if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
-            self::toHeader( $mapped['offset'], $code, $getLine);
+            self::toHeader( $mapped['offset'], $code, $getLine, $data['game']);
 
         //regular assignment
         }else if (isset($node['body'][1]) == false){
 
-            if ($mapped['section'] == "header") self::toHeader( $mapped['offset'], $code, $getLine);
+            if ($mapped['section'] == "header") self::toHeader( $mapped['offset'], $code, $getLine, $data['game']);
             if ($mapped['section'] == "script") self::toScript( $mapped['offset'], $code, $getLine);
 
         //math operation
@@ -448,13 +449,23 @@ class T_ASSIGN {
 
     }
 
-    static public function toHeader( $offset, &$code, \Closure $getLine){
+    static public function toHeader( $offset, &$code, \Closure $getLine, $game){
         $debugMsg = sprintf('[T_ASSIGN] toHeader ');
+//
+//        if ($game == MHT::GAME_MANHUNT){
+//            $code[] = $getLine($offset, false, $debugMsg . 'offset');
+//            $code[] = $getLine('01000000', false, $debugMsg);
+//            $code[] = $getLine('30000000', false, $debugMsg);
+//            $code[] = $getLine('04000000', false, $debugMsg);
+//
+//        }else{
 
-        $code[] = $getLine('16000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine($offset, false, $debugMsg . 'offset');
-        $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('16000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
+            $code[] = $getLine($offset, false, $debugMsg . 'offset');
+            $code[] = $getLine('01000000', false, $debugMsg);
+//        }
+
     }
 
     static public function toScript( $offset, &$code, \Closure $getLine){

@@ -55,6 +55,13 @@ class T_CONDITION {
                 foreach ($token['params'] as $index => $operation) {
                     $isLastIndex = $index == $lastIndex;
 
+
+                    //remove brackets from the operation
+                    if ($operation['type'] == Token::T_BRACKET_OPEN){
+                        $operation = $operation['params'][0];
+                    }
+
+
                     $debugMsg = sprintf('[T_CONDITION] map: type ');
 
                     foreach ($emitter($operation) as $item){
@@ -86,6 +93,7 @@ class T_CONDITION {
                         );
 
                         if (
+                            substr($mappedTo['type'], 0, 8) == "game_var" ||
                             substr($mappedTo['type'], 0, 9) == "level_var" ||
                             $mappedTo['type'] == "entityptr" ||
                             $mappedTo['type'] == "constant" ||

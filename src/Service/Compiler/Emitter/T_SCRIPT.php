@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Helper;
 
 class T_SCRIPT {
@@ -64,13 +65,25 @@ class T_SCRIPT {
         /**
          * Create script end sequence
          */
-        $code[] = $getLine('11000000', false, $debugMsg . 'script end');
-        $code[] = $getLine('09000000', false, $debugMsg . 'script end');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
-        $code[] = $getLine('0f000000', false, $debugMsg . 'script end');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
-        $code[] = $getLine('3b000000', false, $debugMsg . 'script end');
-        $code[] = $getLine('00000000', false, $debugMsg . 'script end');
+        if ($data['game'] == MHT::GAME_MANHUNT_2){
+            $code[] = $getLine('11000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('09000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('0f000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('3b000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('00000000', false, $debugMsg . 'script end');
+
+        }else{
+            $code[] = $getLine('11000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('09000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('0f000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('3b000000', false, $debugMsg . 'script end');
+            $code[] = $getLine('00000000', false, $debugMsg . 'script end');
+
+        }
 
 
         return $code;

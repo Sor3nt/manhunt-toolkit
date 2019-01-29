@@ -309,6 +309,40 @@ class Manhunt
             'offset' => "6F000000"
         ],
 
+        'aiscript_mediumpriority' => [
+            'offset' => "02000000"
+        ],
+
+        'aiscript_highpriority' => [
+            'offset' => "01000000"
+        ],
+
+        'aiscript_walkmovespeed' => [
+            'offset' => "01000000"
+        ],
+
+        'aiscript_lowpriority' => [
+            'offset' => "03000000"
+        ],
+
+        'combattypeid_melee' => [
+            'offset' => "combattypeid_melee"
+        ],
+
+        'combattypeid_cover' => [
+            'offset' => "combattypeid_cover"
+        ],
+
+        'combattypeid_open' => [
+            'offset' => "combattypeid_open"
+        ],
+        'combattypeid_open_melee' => [
+            'offset' => "combattypeid_open_melee"
+        ],
+        'col_basic' => [
+            'offset' => "col_basic"
+        ],
+
     ];
 
     public static $functions = [
@@ -321,11 +355,141 @@ class Manhunt
             /**
              * Parameters
              * 1: Minutes
-             * 2: Seconds
+             * 2: Seconds>
              */
             'params' => ['Integer', 'Integer'],
             'return' => 'Void',
             'desc' => ''
+        ],
+
+        'getplayerlevelrestarts' => [
+            'name' => 'getplayerlevelrestarts',
+            'offset' => "89020000",
+            'return' => 'Integer'
+
+        ],
+
+
+        'killentity' => [
+            'name' => 'killentity',
+            'offset' => "killentity",
+        ],
+
+        'createboxtrigger' => [
+            'name' => 'createboxtrigger',
+            'offset' => "createboxtrigger",
+        ],
+
+        'triggeraddentityclass' => [
+            'name' => 'triggeraddentityclass',
+            'offset' => "triggeraddentityclass",
+        ],
+
+        'createspheretrigger' => [
+            'name' => 'createspheretrigger',
+            'offset' => "createspheretrigger",
+        ],
+
+        'aiassociatefouractiveareaswithplayerarea' => [
+            'name' => 'aiassociatefouractiveareaswithplayerarea',
+            'offset' => "aiassociatefouractiveareaswithplayerarea",
+        ],
+
+        'aiassociatethreeactiveareaswithplayerarea' => [
+            'name' => 'aiassociatethreeactiveareaswithplayerarea',
+            'offset' => "aiassociatethreeactiveareaswithplayerarea",
+        ],
+
+        'aiclearallactiveareaassociations' => [
+            'name' => 'aiclearallactiveareaassociations',
+            'offset' => "aiclearallactiveareaassociations",
+        ],
+
+        'aisubpackstayinterritory' => [
+            'name' => 'aisubpackstayinterritory',
+            'offset' => "aisubpackstayinterritory",
+        ],
+
+        'aiaddgoalforsubpack' => [
+            'name' => 'aiaddgoalforsubpack',
+            'offset' => "aiaddgoalforsubpack",
+        ],
+
+        'aiaddareaforsubpack' => [
+            'name' => 'aiaddareaforsubpack',
+            'offset' => "aiaddareaforsubpack",
+        ],
+
+        'aisetleaderinvisible' => [
+            'name' => 'aisetleaderinvisible',
+            'offset' => "aisetleaderinvisible",
+        ],
+
+
+        'aidefinegoalgotonode' => [
+            'name' => 'aidefinegoalgotonode',
+            'offset' => "6e010000",
+        ],
+
+
+        'aidefinegoalguarddirection' => [
+            'name' => 'aidefinegoalguarddirection',
+            'offset' => "af010000",
+        ],
+
+        'aiguardmodifyshootoutsideradius' => [
+            'name' => 'aiguardmodifyshootoutsideradius',
+            'offset' => "cc010000",
+        ],
+
+        'aidefinegoalhuntenemy' => [
+            'name' => 'aidefinegoalhuntenemy',
+            'offset' => "57010000",
+        ],
+
+        'getplayerareaname' => [
+            'name' => 'getplayerareaname',
+            'offset' => "1c010000",
+            'return' => 'String'
+        ],
+
+        'spawnmovingentity' => [
+            'name' => 'spawnmovingentity',
+            'offset' => "spawnmovingentity"
+        ],
+
+        'isentityalive' => [
+            'name' => 'isentityalive',
+            'offset' => "a9010000"
+        ],
+
+        'setentityscriptsfromentity' => [
+            'name' => 'setentityscriptsfromentity',
+            'offset' => "d8010000"
+        ],
+        'writedebugflush' => [
+            'name' => 'writedebugflush',
+            'offset' => "73000000"
+        ],
+        'writedebugstring' => [
+            'name' => 'writedebugstring',
+            'offset' => "72000000"
+        ],
+        'writedebuginteger' => [
+            'name' => 'writedebuginteger',
+            'offset' => "writedebuginteger"
+        ],
+        'switchlightoff' => [
+            'name' => 'switchlightoff',
+            'offset' => "d9000000"
+        ],
+        'setnumberofkillablehuntersinlevel' => [
+            'name' => 'SetNumberOfKillableHuntersInLevel',
+            'offset' => "SetNumberOfKillableHuntersInLevel"
+        ],
+        'setmaxnumberofrats' => [
+            'name' => 'setmaxnumberofrats',
+            'offset' => "a5020000"
         ],
 
         'starttimer' => [
@@ -466,7 +630,8 @@ class Manhunt
         ],
         'getentity' => [
             'name' => 'GetEntity',
-            'offset' => "76000000"
+            'offset' => "76000000",
+            'return' => 'Entity'
         ],
 
         "getplayerposition" => [

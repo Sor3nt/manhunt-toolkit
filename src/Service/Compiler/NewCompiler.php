@@ -182,7 +182,8 @@ class NewCompiler
             $scriptVar,
             $this->types,
             $this->constants,
-            $this->lineCount
+            $this->lineCount,
+            $this->game
         );
 
         $code = $emitter->emitter($token, true, [
@@ -880,6 +881,10 @@ class NewCompiler
                     ];
 
                     $item['offset'] = $strings[$string]['offset'];
+
+                    if ($this->game == MHT::GAME_MANHUNT){
+                        $length -= 1;
+                    }
 
                     $this->memoryOffset += $length + $this->calculateMissedStringSize($length);
                 }

@@ -15,6 +15,7 @@ class Emitter {
 
     private $types;
     private $const;
+    private $game;
 
     private $emitters = [
         'T_FOR' => Emitter\T_FOR::class,
@@ -38,11 +39,12 @@ class Emitter {
         'T_SWITCH' => Emitter\T_SWITCH::class,
     ];
 
-    public function __construct( $combinedVariables, $combinedStrings, $variables, $types, $const, $lineCount = 1 )
+    public function __construct( $combinedVariables, $combinedStrings, $variables, $types, $const, $lineCount = 1, $game )
     {
 
         $this->combinedVariables = $combinedVariables;
         $this->combinedStrings = $combinedStrings;
+        $this->game = $game;
 
 
         $this->variables = $variables;
@@ -77,7 +79,8 @@ class Emitter {
                 'types' => $this->types,
                 'variables' => $this->variables,
                 'const' => $this->const,
-                'customData' => $customData
+                'customData' => $customData,
+                'game' => $this->game
             ]
         );
     }

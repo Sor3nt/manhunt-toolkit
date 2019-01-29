@@ -118,7 +118,6 @@ class T_IF {
     }
 
     static public function fixDoubleBracketOpen( $tokens ){
-
         if (
             count($tokens['params']) == 3 &&
             $tokens['params'][0]['type'] == Token::T_BRACKET_OPEN &&
@@ -173,6 +172,7 @@ class T_IF {
 
             $current++;
         }
+
 
         /**
          * parse SHORT true code
