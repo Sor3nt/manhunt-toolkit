@@ -19,12 +19,16 @@ class T_FLOAT {
             $value = 100.409488;
         }
 
+        $hex = Helper::fromFloatToHex( $value );
+
+        //replace -0 with ß
+        if ($hex == '00000080') $hex = '00000000';
 
         return [
             $getLine('12000000', false, $debugMsg),
             $getLine('01000000', false, $debugMsg),
 
-            $getLine(Helper::fromFloatToHex( $value ), false, $debugMsg . $value)
+            $getLine($hex, false, $debugMsg . $value)
         ];
     }
 

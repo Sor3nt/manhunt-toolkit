@@ -478,7 +478,6 @@ class NewCompiler
             "if bMeleeTutDone AND (IsNamedItemInInventory(GetPlayer, CT_SYRINGE ) <> -1) then",
             "if (NOT IsPlayerPositionKnown) AND IsScriptAudioStreamCompleted then"
         ], [
-
             "/ 100",
             "}",
             "if (",

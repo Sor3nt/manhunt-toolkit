@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
@@ -72,8 +73,12 @@ class T_FUNCTION {
                 switch ($mappedTo['section']) {
                     case 'header':
 
-                        $code[] = $getLine('10000000', false, $debugMsg . ' (header read)');
-                        $code[] = $getLine('01000000', false, $debugMsg . 'value=' . $node['value']);
+                        if ($data['game'] == MHT::GAME_MANHUNT && $writeDebug) {
+
+                        }else{
+                            $code[] = $getLine('10000000', false, $debugMsg . ' (header read)');
+                            $code[] = $getLine('01000000', false, $debugMsg . 'value=' . $node['value']);
+                        }
 
                         $debugMsg = sprintf('[T_FUNCTION] finalize: header %s ', $mappedTo['type']);
 
@@ -454,7 +459,11 @@ class T_FUNCTION {
                  */
                 if (
                     $param['type'] == Token::T_FLOAT &&
-                    $param['value'] < 0
+                    (
+                        $param['value'] < 0 ||
+                        // -0 cant be detected by php, need the hex value for it
+                        Helper::fromFloatToHex($param['value']) == "00000080"
+                    )
                 ) {
                     $debugMsg = sprintf('[T_FUNCTION] map: negative float %s', $param['value']);
 

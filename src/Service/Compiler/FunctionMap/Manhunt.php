@@ -326,21 +326,21 @@ class Manhunt
         ],
 
         'combattypeid_melee' => [
-            'offset' => "combattypeid_melee"
+            'offset' => "00000000"
         ],
 
         'combattypeid_cover' => [
-            'offset' => "combattypeid_cover"
+            'offset' => "02000000"
         ],
 
         'combattypeid_open' => [
-            'offset' => "combattypeid_open"
+            'offset' => "03000000"
         ],
         'combattypeid_open_melee' => [
-            'offset' => "combattypeid_open_melee"
+            'offset' => "03000000"
         ],
         'col_basic' => [
-            'offset' => "col_basic"
+            'offset' => "01000000"
         ],
 
     ];
@@ -377,52 +377,52 @@ class Manhunt
 
         'createboxtrigger' => [
             'name' => 'createboxtrigger',
-            'offset' => "createboxtrigger",
+            'offset' => "27010000",
         ],
 
         'triggeraddentityclass' => [
             'name' => 'triggeraddentityclass',
-            'offset' => "triggeraddentityclass",
+            'offset' => "0d020000",
         ],
 
         'createspheretrigger' => [
             'name' => 'createspheretrigger',
-            'offset' => "createspheretrigger",
+            'offset' => "a2000000",
         ],
 
         'aiassociatefouractiveareaswithplayerarea' => [
             'name' => 'aiassociatefouractiveareaswithplayerarea',
-            'offset' => "aiassociatefouractiveareaswithplayerarea",
+            'offset' => "bd010000",
         ],
 
         'aiassociatethreeactiveareaswithplayerarea' => [
             'name' => 'aiassociatethreeactiveareaswithplayerarea',
-            'offset' => "aiassociatethreeactiveareaswithplayerarea",
+            'offset' => "bc010000",
         ],
 
         'aiclearallactiveareaassociations' => [
             'name' => 'aiclearallactiveareaassociations',
-            'offset' => "aiclearallactiveareaassociations",
+            'offset' => "b9010000",
         ],
 
         'aisubpackstayinterritory' => [
             'name' => 'aisubpackstayinterritory',
-            'offset' => "aisubpackstayinterritory",
+            'offset' => "d4010000",
         ],
 
         'aiaddgoalforsubpack' => [
             'name' => 'aiaddgoalforsubpack',
-            'offset' => "aiaddgoalforsubpack",
+            'offset' => "55010000",
         ],
 
         'aiaddareaforsubpack' => [
             'name' => 'aiaddareaforsubpack',
-            'offset' => "aiaddareaforsubpack",
+            'offset' => "77010000",
         ],
 
         'aisetleaderinvisible' => [
             'name' => 'aisetleaderinvisible',
-            'offset' => "aisetleaderinvisible",
+            'offset' => "6a020000",
         ],
 
 

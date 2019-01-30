@@ -45,7 +45,12 @@ class T_STRING {
 
         if ($isProcedure == false && $isCustomFunction == false){
 
-            $val = $value == "__empty__" ? 1 : strlen($value) + 1;
+            if ($data['game'] == MHT::GAME_MANHUNT){
+                $val = $value == "__empty__" ? 4 : strlen($value) + (4 - strlen($value) % 4);
+            }else{
+                $val = $value == "__empty__" ? 1 : strlen($value) + 1;
+
+            }
 
             $result[] = $getLine(Helper::fromIntToHex(
                 $val
