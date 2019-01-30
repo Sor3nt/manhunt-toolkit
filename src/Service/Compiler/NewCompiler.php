@@ -85,11 +85,11 @@ class NewCompiler
          */
         $this->ast = $parser->handleForward($this->ast);
 
+        $this->headerVariables = $this->getHeaderVariables($tokens);
 
         $this->procedures = $this->searchScriptType(Token::T_PROCEDURE);
         $this->customFunction = $this->searchScriptType(Token::T_CUSTOM_FUNCTION);
 
-        $this->headerVariables = $this->getHeaderVariables($tokens);
 
         $this->combine();
 
@@ -742,6 +742,7 @@ class NewCompiler
                         }
 
                         $isLevelVar = strpos($variableType, 'level_var') !== false;
+                        $isGameVar = strpos($variableType, 'game_var') !== false;
                         $variableTypeWihtoutLevel = str_replace('level_var ', '', $variableType);
 
                         $row = [
@@ -752,7 +753,10 @@ class NewCompiler
                         ];
 
                         if (isset($this->types[$variableTypeWihtoutLevel])) {
+
+                            //todo move to row
                             $row['isLevelVar'] = $isLevelVar;
+                            $row['isGameVar'] = $isGameVar;
                             $row['abstract'] = 'state';
                         }
                     }
@@ -776,7 +780,10 @@ class NewCompiler
 
                 // look if we use a parent varoable
                 foreach ($vars as $headerVariableName => &$headerVariable) {
-                    if (strpos(strtolower($headerVariable['type']), 'level_var') === false) continue;
+                    if (
+                        strpos(strtolower($headerVariable['type']), 'level_var') === false &&
+                        strpos(strtolower($headerVariable['type']), 'game_var') === false
+                    ) continue;
                     if ($parentVariableName != $headerVariableName) continue;
 
                     $headerVariable['offset'] = $parentVariable['offset'];
@@ -971,7 +978,11 @@ class NewCompiler
                         'offset' => Helper::fromIntToHex($this->memoryOffset)
                     ];
 
-                    $length += $this->calculateMissedStringSize($length);
+                    if($this->game == MHT::GAME_MANHUNT && $length % 4 == 0){
+
+                    }else{
+                        $length += $this->calculateMissedStringSize($length);
+                    }
 
                     $this->memoryOffset += $length;
 
@@ -1239,9 +1250,12 @@ class NewCompiler
             if (strtolower($varType) == "tlevelstate") $varType = "tLevelState";
             if ($varType == "stringarray") $varType = "string";
 
-            if ($varType == "entityptr"){
-                $varType = "integer";
-            }
+//            if ($this->game == MHT::GAME_MANHUNT_2){
+                if ($varType == "entityptr"){
+                    $varType = "integer";
+                }
+
+//            }
 
             /**
              * todo: not important, the type should say tLevelState but its messed up by the state handling

@@ -333,7 +333,7 @@ class T_ASSIGN {
         //regular assignment
         }else if (isset($node['body'][1]) == false){
 
-            if (substr($mapped['type'], 0, 8) == "game_var") self::toGameVar( $mapped['offset'], $code, $getLine, $data['game']);
+            if (substr($mapped['type'], 0, 8) == "game_var") self::toGameVar( $node, $code, $getLine, $data['game']);
             else if ($mapped['section'] == "header") self::toHeader( $mapped['offset'], $code, $getLine, $data['game']);
             else if ($mapped['section'] == "script") self::toScript( $mapped['offset'], $code, $getLine);
 
@@ -459,12 +459,20 @@ class T_ASSIGN {
         $code[] = $getLine('01000000', false, $debugMsg);
 
     }
-    static public function toGameVar( $offset, &$code, \Closure $getLine, $game){
+    static public function toGameVar( $node, &$code, \Closure $getLine, $game){
         $debugMsg = sprintf('[T_ASSIGN] toGameVar ');
 
-        $code[] = $getLine($offset, false, $debugMsg . 'offset');
+        $code[] = $getLine('1d000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine('34000000', false, $debugMsg);
+
+        if ($node['value'] == "willie_game_int"){
+            $code[] = $getLine('30000000', false, $debugMsg);
+        }else{
+            $code[] = $getLine('34000000', false, $debugMsg);
+        }
+
+        //        $code[] = $getLine('30000000', false, $debugMsg);
+//        $code[] = $getLine($mapped['offset'], false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
 
     }

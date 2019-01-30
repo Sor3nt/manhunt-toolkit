@@ -181,7 +181,7 @@ class T_VARIABLE extends TAbstract {
     private function fromGameVar($mapped){
         return [
             '1e000000',
-            $mapped['offset'],
+            '34000000',
             '04000000',
             '01000000'
         ];

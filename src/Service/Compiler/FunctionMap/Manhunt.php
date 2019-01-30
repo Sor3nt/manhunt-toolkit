@@ -334,13 +334,16 @@ class Manhunt
         ],
 
         'combattypeid_open' => [
-            'offset' => "03000000"
+            'offset' => "01000000"
         ],
         'combattypeid_open_melee' => [
             'offset' => "03000000"
         ],
         'col_basic' => [
             'offset' => "01000000"
+        ],
+        'door_closed' => [
+            'offset' => "02000000"
         ],
 
     ];
@@ -370,9 +373,37 @@ class Manhunt
         ],
 
 
+        'setdooropenangleout' => [
+            'name' => 'setdooropenangleout',
+            'offset' => "d3010000",
+        ],
+
+        'unlockentity' => [
+            'name' => 'unlockentity',
+            'offset' => "98000000",
+        ],
+
+
+        'setdoorstate' => [
+            'name' => 'setdoorstate',
+            'offset' => "96000000",
+        ],
+
+
         'killentity' => [
             'name' => 'killentity',
-            'offset' => "killentity",
+            'offset' => "7f000000",
+        ],
+
+
+        'unfreezeentity' => [
+            'name' => 'unfreezeentity',
+            'offset' => "37010000",
+        ],
+
+        'runscript' => [
+            'name' => 'runscript',
+            'offset' => "e3000000",
         ],
 
         'createboxtrigger' => [
@@ -455,7 +486,7 @@ class Manhunt
 
         'spawnmovingentity' => [
             'name' => 'spawnmovingentity',
-            'offset' => "spawnmovingentity"
+            'offset' => "79000000"
         ],
 
         'isentityalive' => [
@@ -477,7 +508,7 @@ class Manhunt
         ],
         'writedebuginteger' => [
             'name' => 'writedebuginteger',
-            'offset' => "writedebuginteger"
+            'offset' => "6d000000"
         ],
         'switchlightoff' => [
             'name' => 'switchlightoff',
