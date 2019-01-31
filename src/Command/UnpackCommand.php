@@ -99,7 +99,7 @@ class UnpackCommand extends Command
         $results = $handler->unpack( $resource->getInput(), $game, $platform );
 
         if ($handler instanceof Mls){
-            $results = $handler->getValidatedResults( $results );
+            $results = $handler->getValidatedResults( $results, $game, $platform );
         }
 
         if (is_array($results)){
@@ -118,6 +118,7 @@ class UnpackCommand extends Command
                     );
 
                     if (json_last_error() !== 0){
+                        var_dump($results);
                         $output->writeln('EMERGENCY JSON error received: ' . json_last_error_msg());
                         exit;
                     }

@@ -110,7 +110,7 @@ class Mls extends Archive {
 
     }
 
-    public function getValidatedResults( $data ){
+    public function getValidatedResults( $data, $game, $platform ){
 
         $levelScript = false;
 
@@ -118,24 +118,28 @@ class Mls extends Archive {
 
         foreach ($data as $index => $mhsc) {
 
+
+
+
             $scriptName = $mhsc['NAME']['name'];
 
             $compiler = new Compiler();
             try{
 //                throw new \Exception("t");
 
-                $compiled = $compiler->parse($mhsc['SRCE'], $levelScript);
+                $compiled = $compiler->parse($mhsc['SRCE'], $levelScript, $game, $platform);
 
                 if ($index == 0){
                     $levelScript = $compiled;
                 }
 
-                if ($compiled['CODE'] != $mhsc['CODE']) throw new \Exception('CODE did not match');
+                if ($compiled['CODE'] != $mhsc['CODE']){
+                    throw new \Exception('CODE did not match');
+                }
 
                 $results[ 'supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
 
             }catch(\Exception $e){
-
 
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.error' ] = $e->getMessage();
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.name' ] = $mhsc['NAME'];

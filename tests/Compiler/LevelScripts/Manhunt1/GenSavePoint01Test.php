@@ -5,23 +5,29 @@ use App\MHT;
 use App\Service\Compiler\Compiler;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class Hunter1TowerHTest extends KernelTestCase
+class GenSavePoint01Test extends KernelTestCase
 {
 
     public function test()
     {
 
         $script = "
-
-SCRIPTMAIN		Triggers;
+SCRIPTMAIN SAVEPOINTScript;
 
 ENTITY
-Hunter1_Tower_h		:	et_name;
+Gen_Save_Point01	:	et_name;
 
-SCRIPT OnCreate;
+VAR
+willie_game_int2 : game_var integer;
+
+SCRIPT OnLevelSave;
 begin
-	RunScript('player','OnPickUpInventoryItem');
-	WriteDebug('HeadCheck has been run');
+		
+	if (willie_game_int2 = 1) then
+	begin
+		willie_game_int2 := 2;
+	end;
+
 end;
 
 END.
@@ -34,42 +40,40 @@ END.
             "11000000",
             "0a000000",
             "09000000",
-            "21000000",
+            "1e000000",
+            "34000000",
             "04000000",
+            "01000000",
+            "10000000",
+            "01000000",
+            "12000000",
+            "01000000",
+            "01000000",
+            "0f000000",
+            "04000000",
+            "23000000",
+            "04000000",
+            "01000000",
+            "12000000",
+            "01000000",
+            "01000000",
+            "3f000000",
+            "6c000000",
+            "33000000",
+            "01000000",
+            "01000000",
+            "24000000",
             "01000000",
             "00000000",
+            "3f000000",
+            "9c000000",
             "12000000",
-            "02000000",
-            "08000000",
-            "10000000",
             "01000000",
-            "10000000",
             "02000000",
-            "21000000",
+            "1d000000",
+            "01000000",
+            "34000000",
             "04000000",
-            "01000000",
-            "08000000",
-            "12000000",
-            "02000000",
-            "18000000",
-            "10000000",
-            "01000000",
-            "10000000",
-            "02000000",
-            "e3000000",
-            "21000000",
-            "04000000",
-            "01000000",
-            "20000000",
-            "12000000",
-            "02000000",
-            "18000000",
-            "10000000",
-            "01000000",
-            "10000000",
-            "02000000",
-            "72000000",
-            "73000000",
             "11000000",
             "09000000",
             "0a000000",
