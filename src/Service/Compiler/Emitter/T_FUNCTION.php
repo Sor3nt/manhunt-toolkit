@@ -246,8 +246,12 @@ class T_FUNCTION {
                     case 'stringarray':
                         $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
                         break;
+                    case 'integer':
                     case 'game_var integer':
                         $code[] = $getLine($this->getFunction('WriteDebugInteger')['offset']);
+                        break;
+                    case 'level_var integer':
+                        $code[] = $getLine($this->getFunction('WriteDebugLevelVarInteger')['offset']);
                         break;
                     case 'object':
                         $code[] = $getLine($this->getFunction('WriteDebugObject')['offset']);

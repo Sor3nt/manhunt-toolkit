@@ -345,6 +345,36 @@ class Manhunt
         'door_closed' => [
             'offset' => "02000000"
         ],
+        'aiscript_graphlink_allow_everything' => [
+            'offset' => "03000000"
+        ],
+        'aiscript_graphlink_allow_nothing' => [
+            'offset' => "00000000"
+        ],
+        'voice_smiley3voice1' => [
+            'offset' => "1d000000"
+        ],
+        'aiscript_idle_patrol' => [
+            'offset' => "01000000"
+        ],
+        'aispeech_s3v1_asy_close_door' => [
+            'offset' => "11000000"
+        ],
+        'aispeech_s2v1_asy_close_door' => [
+            'offset' => "10000000"
+        ],
+        'voice_smiley2voice1' => [
+            'offset' => "1b000000"
+        ],
+        'voice_smiley1voice1' => [
+            'offset' => "19000000"
+        ],
+        'aispeech_s1v1_asy_close_door' => [
+            'offset' => "0f000000"
+        ],
+        'aiscript_idle_wandersearch' => [
+            'offset' => "00000000"
+        ],
 
     ];
 
@@ -372,6 +402,149 @@ class Manhunt
 
         ],
 
+
+        'aientitygohomeifidle' => [
+            'name' => 'aientitygohomeifidle',
+            'offset' => "15020000",
+        ],
+        'aisethunteridleactionminmaxradius' => [
+            'name' => 'aisethunteridleactionminmaxradius',
+            'offset' => "a3010000",
+        ],
+
+        'graphmodifyconnections' => [
+            'name' => 'graphmodifyconnections',
+            'offset' => "e8000000",
+        ],
+
+        'lockentity' => [
+            'name' => 'lockentity',
+            'offset' => "97000000",
+        ],
+
+        'ainumberinsubpack' => [
+            'name' => 'ainumberinsubpack',
+            'offset' => "66010000",
+            'return' => 'Integer'
+        ],
+
+
+
+        'aisethunterhomenodedirection' => [
+            'name' => 'aisethunterhomenodedirection',
+            'offset' => "9c010000",
+        ],
+        'airemovegoalfromsubpack' => [
+            'name' => 'airemovegoalfromsubpack',
+            'offset' => "56010000",
+        ],
+        'setentityinvulnerable' => [
+            'name' => 'setentityinvulnerable',
+            'offset' => "5d010000",
+        ],
+        'setpeddonotdecay' => [
+            'name' => 'setpeddonotdecay',
+            'offset' => "68020000",
+        ],
+        'playhunterspeech' => [
+            'name' => 'playhunterspeech',
+            'offset' => "99020000",
+        ],
+
+        'destroyentity' => [
+            'name' => 'destroyentity',
+            'offset' => "9d020000",
+        ],
+
+        'aisetidlepatrolstop' => [
+            'name' => 'aisetidlepatrolstop',
+            'offset' => "a5010000",
+        ],
+
+        'aisethunteridlepatrol' => [
+            'name' => 'aisethunteridlepatrol',
+            'offset' => "a2010000",
+        ],
+
+
+        'sethunterhidehealth' => [
+            'name' => 'sethunterhidehealth',
+            'offset' => "ed010000",
+        ],
+
+
+
+        'sethunterhitaccuracy' => [
+            'name' => 'sethunterhitaccuracy',
+            'offset' => "aa010000",
+        ],
+
+
+        'aisetidlehomenode' => [
+            'name' => 'aisetidlehomenode',
+            'offset' => "82010000",
+        ],
+
+        'aisetentityvoiceid' => [
+            'name' => 'aisetentityvoiceid',
+            'offset' => "6f020000",
+        ],
+
+
+        'sethunterheadskin' => [
+            'name' => 'sethunterheadskin',
+            'offset' => "45020000",
+        ],
+
+        'sethunterskin' => [
+            'name' => 'sethunterskin',
+            'offset' => "42020000",
+        ],
+
+        'entityignorecollisions' => [
+            'name' => 'entityignorecollisions',
+            'offset' => "9f020000",
+        ],
+
+        'cutsceneend' => [
+            'name' => 'cutsceneend',
+            'offset' => "48010000",
+        ],
+
+
+        'removeentity' => [
+            'name' => 'removeentity',
+            'offset' => "80000000",
+        ],
+
+        'setdooroverrideangle' => [
+            'name' => 'setdooroverrideangle',
+            'offset' => "95020000",
+        ],
+
+        'setcameraview' => [
+            'name' => 'setcameraview',
+            'offset' => "8e010000",
+        ],
+
+        'setcameraposition' => [
+            'name' => 'setcameraposition',
+            'offset' => "91010000",
+        ],
+        'cutscenestart' => [
+            'name' => 'cutscenestart',
+            'offset' => "47010000",
+        ],
+
+        'isexecutioninprogress' => [
+            'name' => 'isexecutioninprogress',
+            'offset' => "4e020000",
+        ],
+
+        'aiisgoalnameinsubpack' => [
+            'name' => 'aiisgoalnameinsubpack',
+            'offset' => "a2020000",
+        ],
 
         'setdooropenangleout' => [
             'name' => 'setdooropenangleout',
@@ -514,9 +687,69 @@ class Manhunt
             'name' => 'switchlightoff',
             'offset' => "d9000000"
         ],
+        'writedebuglevelvarinteger' => [
+            'name' => 'writedebuglevelvarinteger',
+            'offset' => "d0040000"
+        ],
         'setnumberofkillablehuntersinlevel' => [
             'name' => 'SetNumberOfKillableHuntersInLevel',
             'offset' => "SetNumberOfKillableHuntersInLevel"
+        ],
+        'aicutsceneentityenable' => [
+            'name' => 'aicutsceneentityenable',
+            'offset' => "a6020000"
+        ],
+        'isscriptaudioslotloaded' => [
+            'name' => 'isscriptaudioslotloaded',
+            'offset' => "bf020000"
+        ],
+        'aisetentityidleoverride' => [
+            'name' => 'aisetentityidleoverride',
+            'offset' => "b4010000"
+        ],
+        'playscriptaudioslotoneshotfromentity' => [
+            'name' => 'playscriptaudioslotoneshotfromentity',
+            'offset' => "c0020000"
+        ],
+        'aitriggersoundlocationknown' => [
+            'name' => 'aitriggersoundlocationknown',
+            'offset' => "6e020000"
+        ],
+        'createkillablemhfx' => [
+            'name' => 'createkillablemhfx',
+            'offset' => "f1020000"
+        ],
+        'createmhfx' => [
+            'name' => 'createmhfx',
+            'offset' => "8d020000"
+        ],
+        'getentityposition' => [
+            'name' => 'getentityposition',
+            'offset' => "77000000"
+        ],
+        'setdooropenanglein' => [
+            'name' => 'setdooropenanglein',
+            'offset' => "d2010000"
+        ],
+        'createandfireweapon' => [
+            'name' => 'createandfireweapon',
+            'offset' => "9b020000"
+        ],
+        'killmhfx' => [
+            'name' => 'killmhfx',
+            'offset' => "f2020000"
+        ],
+        'switchlighton' => [
+            'name' => 'switchlighton',
+            'offset' => "da000000"
+        ],
+        'setlightflicker' => [
+            'name' => 'setlightflicker',
+            'offset' => "de000000"
+        ],
+        'entityplayanim' => [
+            'name' => 'entityplayanim',
+            'offset' => "a0010000"
         ],
         'rotateentityleft' => [
             'name' => 'rotateentityleft',

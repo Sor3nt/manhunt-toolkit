@@ -124,6 +124,9 @@ class T_CONDITION {
                         }else if ($mappedTo['type'] == "array") {
                             $output = "array";
 
+                        }else if ($mappedTo['type'] == "mhfxptr") {
+                            $output = "regular";
+
                         }else if (isset($mappedTo['abstract']) && $mappedTo['abstract'] == "state") {
                             $output = "state";
 

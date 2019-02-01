@@ -78,7 +78,7 @@ class MassExtractionCommand extends Command
             $results = $handler->unpack($resource->getInput(), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
 
             if ($handler instanceof Mls){
-                $results = $handler->getValidatedResults( $results );
+                $results = $handler->getValidatedResults( $results, MHT::GAME_AUTO, MHT::PLATFORM_AUTO );
             }
 
             if (is_array($results)){

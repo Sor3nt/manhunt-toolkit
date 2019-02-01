@@ -64,6 +64,7 @@ class T_IF {
                         'type' => Token::T_BRACKET_CLOSE
                     ]);
                 }
+
             }
 
             $parsedConditions = [];
@@ -172,7 +173,6 @@ class T_IF {
 
             $current++;
         }
-
 
         /**
          * parse SHORT true code
@@ -409,7 +409,6 @@ class T_IF {
                 ];
 
             }else{
-
 
                 $opertation = false;
 

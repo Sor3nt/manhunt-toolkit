@@ -468,6 +468,8 @@ class NewCompiler
     {
 
         $source = str_replace([
+            "if EnteredTrigger(this,(GetEntity('Hunter1_Tower')))",
+            "or InsideTrigger(this,(GetEntity('Hunter1_Tower'))) then",
             "+",
             "/100",
             "}}",
@@ -479,6 +481,8 @@ class NewCompiler
             "if bMeleeTutDone AND (IsNamedItemInInventory(GetPlayer, CT_SYRINGE ) <> -1) then",
             "if (NOT IsPlayerPositionKnown) AND IsScriptAudioStreamCompleted then"
         ], [
+            "if (EnteredTrigger(this,(GetEntity('Hunter1_Tower'))))",
+            "or (InsideTrigger(this,(GetEntity('Hunter1_Tower')))) then",
             " + ",
             "/ 100",
             "}",
