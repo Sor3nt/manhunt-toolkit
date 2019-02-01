@@ -32,12 +32,20 @@ class T_FUNCTION {
 
         $current++;
 
+        $deep = 0;
         while ($current < count($tokens)) {
 
             $token = $tokens[$current];
 
-            if ($token['type'] === Token::T_BRACKET_CLOSE) {
-                return [$current + 1 , $node];
+            if ($deep == 0 &&$token['type'] === Token::T_BRACKET_CLOSE) {
+
+                return [$current + 1, $node];
+            }else if ($token['type'] === Token::T_BRACKET_OPEN) {
+                $deep++;
+                $current++;
+            }else if ($deep > 0 && $token['type'] === Token::T_BRACKET_CLOSE) {
+                $deep--;
+                $current++;
             }else{
 
                 list($current, $param) = $parseToken($tokens, $current);
