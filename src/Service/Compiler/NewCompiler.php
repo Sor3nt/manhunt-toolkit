@@ -468,6 +468,7 @@ class NewCompiler
     {
 
         $source = str_replace([
+            "+",
             "/100",
             "}}",
             "if(",
@@ -478,6 +479,7 @@ class NewCompiler
             "if bMeleeTutDone AND (IsNamedItemInInventory(GetPlayer, CT_SYRINGE ) <> -1) then",
             "if (NOT IsPlayerPositionKnown) AND IsScriptAudioStreamCompleted then"
         ], [
+            " + ",
             "/ 100",
             "}",
             "if (",
@@ -1198,16 +1200,26 @@ class NewCompiler
             $varType = $variable['type'];
             $hierarchieType = '01000000';
 
-            if (substr($varType, 0, 9) == "level_var") {
-                $varType = substr($varType, 10);
+            if (
+                substr($varType, 0, 9) == "level_var" ||
+                substr($varType, 0, 8) == "game_var"
+            ) {
+
+                $isGameVar = substr($varType, 0, 8) == "game_var";
+                $varType = substr($varType, $isGameVar ? 9 : 10);
 
                 foreach ($sectionCode as $index => $code) {
-
                     if ($code == $variable['offset']) {
                         $occur[] = $index * 4;
                     }
+//                    var_dump($variable['offset'], $name, $occur);
+//                    var_dump($variable);
+//                    exit;
                 }
 
+                if ($isGameVar){
+                    $varType = "feffffff";
+                }
                 $hierarchieType = "ffffffff";
                 $variable['offset'] = "ffffffff";
                 $variable['size'] = "ffffffff";
@@ -1264,16 +1276,25 @@ class NewCompiler
                 $varType = "tLevelState";
             }
 
+            if ($this->game == MHT::GAME_MANHUNT){
+                if ($varType == "integer"){
+                    $varType = "boolean";
+                }
+            }
+
             $row = [
                 'name' => strtolower($name),
                 'offset' => $variable['offset'],
                 'size' => $variable['size'],
 
-                'hierarchieType' => $hierarchieType,
                 'objectType' => ($varType),
 
                 'occurrences' => $occur
             ];
+
+            if ($this->game == MHT::GAME_MANHUNT_2){
+                $row['hierarchieType'] = $hierarchieType;
+            }
 
 
             if (isset($variable['isLevelVarFromScript'])){

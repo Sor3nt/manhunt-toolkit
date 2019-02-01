@@ -518,6 +518,10 @@ class Manhunt
             'name' => 'SetNumberOfKillableHuntersInLevel',
             'offset' => "SetNumberOfKillableHuntersInLevel"
         ],
+        'rotateentityleft' => [
+            'name' => 'rotateentityleft',
+            'offset' => "4d000000"
+        ],
         'setmaxnumberofrats' => [
             'name' => 'setmaxnumberofrats',
             'offset' => "a5020000"

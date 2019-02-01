@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -16,6 +17,17 @@ class T_CONDITION {
         if ($token['type'] == Token::T_OPERATION){
 
             if (count($token['params']) == 1){
+
+
+                if (
+                    $data['game'] == MHT::GAME_MANHUNT &&
+                    $token['params'][0]['type'] == Token::T_BOOLEAN
+                ){
+                    $code[] = $getLine('10000000', false, $debugMsg . 'mh1 boolean special');
+                    $code[] = $getLine('01000000', false, $debugMsg . 'mh1 boolean special');
+                    $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
+                }
+
 
                 foreach ($emitter($token['params'][0]) as $item){
                     $item->debug = $debugMsg . ' ' . $item->debug;

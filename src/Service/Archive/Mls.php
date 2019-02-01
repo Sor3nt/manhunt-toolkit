@@ -130,6 +130,7 @@ class Mls extends Archive {
                 $compiled = $compiler->parse($mhsc['SRCE'], $levelScript, $game, $platform);
 
                 if ($index == 0){
+                    //todo: check ENTT not the index
                     $levelScript = $compiled;
                 }
 

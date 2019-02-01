@@ -179,15 +179,20 @@ class Extract {
 
         //consume strings
         while ($binary->get(1) != "\xda"  && $binary->remain() > 0 ){
-            $string = $binary->getString("\x00\xda", false);
 
-            //take the 00da into account
-            $binary->current += 2;
+            if ($this->game == MHT::GAME_MANHUNT){
+                $string = $binary->getString("\x00", true);
 
-            $padding = 4 - ($binary->current % 4);
-            if ($padding == 4) $padding = 0;
+            }else{
+                $string = $binary->getString("\x00\xda", false);
+                //take the 00da into account
+                $binary->current += 2;
 
-            $binary->current += $padding;
+                $padding = 4 - ($binary->current % 4);
+                if ($padding == 4) $padding = 0;
+
+                $binary->current += $padding;
+            }
 
             $result['strings'][] = $string;
         }
@@ -239,42 +244,55 @@ class Extract {
                 $entry['hierarchieType'] = $section2[2]->toHex($this->platform == MHT::PLATFORM_WII);
             }
 
-            switch ($valueType){
-                case "00000000";
-                    $objectType = "integer";
-                    break;
+            if ($this->game == MHT::GAME_MANHUNT){
+                switch ($valueType) {
+                    case "01000000";
+                        $objectType = "boolean";
+                        break;
 
-                case "01000000";
-                    $objectType = "level_var boolean";
-                    break;
+                    default:
+                        $objectType = $valueType;
+                        var_dump($entry['name'], $objectType);
+//                        throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType));
+//                    break;
+                }
+                }else{
+                switch ($valueType){
+                    case "00000000";
+                        $objectType = "integer";
+                        break;
 
-                case "02000000";
-                    $objectType = "game_var real";
-                    break;
+                    case "01000000";
+                        $objectType = "level_var boolean";
+                        break;
 
-                case "03000000";
-                    $objectType = "boolean";
-                    break;
+                    case "02000000";
+                        $objectType = "game_var real";
+                        break;
 
-                case "04000000";
-                    $objectType = "level_var integer";
-                    break;
+                    case "03000000";
+                        $objectType = "boolean";
+                        break;
 
-                case "05000000";
-                    $objectType = "string";
-                    break;
+                    case "04000000";
+                        $objectType = "level_var integer";
+                        break;
 
-                case "06000000";
-                    $objectType = "vec3d";
-                    break;
+                    case "05000000";
+                        $objectType = "string";
+                        break;
 
-                case "07000000";
-                    $objectType = "game_var integer";
-                    break;
+                    case "06000000";
+                        $objectType = "vec3d";
+                        break;
 
-                case "08000000";
-                    $objectType = "tLevelState";
-                    break;
+                    case "07000000";
+                        $objectType = "game_var integer";
+                        break;
+
+                    case "08000000";
+                        $objectType = "tLevelState";
+                        break;
 
 //                case "0a000000";
 //                    $objectType = "unknown 0a";
@@ -298,13 +316,15 @@ class Extract {
 //                    break;
 
 
-                default:
-                    $objectType = $valueType;
+                    default:
+                        $objectType = $valueType;
 //                    var_dump($entry['name']);
 //                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));
 //                    break;
 
+                }
             }
+
 
             $entry['objectType'] = $objectType;
             $entry['occurrences'] = [];

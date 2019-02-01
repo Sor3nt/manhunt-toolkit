@@ -302,12 +302,12 @@ class T_IF {
 
                 }else if (
                     $token['type'] == Token::T_IF_END ||
+                    $token['type'] == Token::T_FOR_END ||
                     $token['type'] == Token::T_WHILE_END
                 ) {
 
                     if ($deep == 0){
                         $node['cases'][] = $case;
-
                         return [$current + 1, $node];
                     }
 
