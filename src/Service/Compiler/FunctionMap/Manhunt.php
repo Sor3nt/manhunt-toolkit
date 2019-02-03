@@ -689,11 +689,11 @@ class Manhunt
         ],
         'writedebuglevelvarinteger' => [
             'name' => 'writedebuglevelvarinteger',
-            'offset' => "d0040000"
+            'offset' => "6d000000"
         ],
         'setnumberofkillablehuntersinlevel' => [
             'name' => 'SetNumberOfKillableHuntersInLevel',
-            'offset' => "SetNumberOfKillableHuntersInLevel"
+            'offset' => "e6020000"
         ],
         'aicutsceneentityenable' => [
             'name' => 'aicutsceneentityenable',
@@ -805,18 +805,7 @@ class Manhunt
 
         ],
 
-        'setnumberofkillablehuntersinlevel' => [
-            'name' => 'SetNumberOfKillableHuntersInLevel',
-            'offset' => "e6020000",
-            /**
-             * Parameters
-             * 1:  to kill
-             * 2:  to execute
-             */
-            'params' => ['Integer', 'Integer'],
-            'return' => 'Void',
-            'desc' => ''
-        ],
+
         'handcamsetvideoeffecttimecode' => [
             'name' => 'HandCamSetVideoEffectTimeCode',
             'offset' => "5f020000",

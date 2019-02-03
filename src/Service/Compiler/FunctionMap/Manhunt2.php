@@ -619,6 +619,10 @@ class Manhunt2
             'name' => 'HUDToggleFlashFlags',
             'offset' => "b2020000"
         ],
+        "isfirstpersoncamera" => [
+            'name' => 'isfirstpersoncamera',
+            'offset' => "88000000"
+        ],
 
         "iswhitenoisedisplaying" => [
             'name' => 'IsWhiteNoiseDisplaying',

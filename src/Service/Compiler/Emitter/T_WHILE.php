@@ -9,7 +9,6 @@ class T_WHILE {
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
         $code = [];
-
         $resultCode = T_IF::map($node, $getLine,$emitter, $data, true );
 
         $firstLine = $resultCode[0]->lineNumber - 1;
