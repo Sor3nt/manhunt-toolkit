@@ -148,8 +148,8 @@ class Extract {
             'entityClass' => $entityClass,
             'position' => [
                 'x' => $x,
-                'y' => $game == MHT::GAME_MANHUNT ? $y : $y * -1,
-                'z' => $game == MHT::GAME_MANHUNT ? $z : $z * -1
+                'y' => $z,
+                'z' => $y * -1
             ],
             'rotation' => [
                 'x' => $rotationX,

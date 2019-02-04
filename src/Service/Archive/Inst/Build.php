@@ -39,8 +39,8 @@ class Build {
              * Append XYZ coordinates
              */
             $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
-            $entry->write( $game == MHT::GAME_MANHUNT_2 ? $record['position']['y'] * -1 : $record['position']['y'], NBinary::FLOAT_32 );
-            $entry->write( $game == MHT::GAME_MANHUNT_2 ? $record['position']['z'] * -1 : $record['position']['z'], NBinary::FLOAT_32 );
+            $entry->write( $record['position']['z'] * -1, NBinary::FLOAT_32 );
+            $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
 
             /*
              * Append rotation
