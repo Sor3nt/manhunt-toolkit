@@ -8,6 +8,8 @@ function SimpleBox(width, height, deep) {
 
 
         _init : function () {
+            var color = new THREE.Color();
+
             self._boxGeometry = self._boxGeometry.toNonIndexed();
 
             var position = self._boxGeometry.attributes.position;
@@ -33,9 +35,9 @@ function SimpleBox(width, height, deep) {
 
     return function(x, y, z){
         var box = new THREE.Mesh( self._boxGeometry, self._boxMaterial );
-        box.position.x = x;
-        box.position.y = y;
-        box.position.z = z;
+        box.position.x = x * 48;
+        box.position.y = y * 48;
+        box.position.z = z * 48;
         return box;
     };
 

@@ -17,6 +17,7 @@
     <script src="Resources/public/js/mapViewer/controls.js"></script>
     <script src="Resources/public/js/mapViewer/simpleBox.js"></script>
     <script src="Resources/public/js/mapViewer/drawObject.js"></script>
+    <script src="entities.js"></script>
 
     <style>
         html, body {
@@ -28,7 +29,6 @@
             background-color: #ffffff;
             margin: 0;
             overflow: hidden;
-            font-family: arial;
         }
 
         #blocker {
@@ -49,19 +49,6 @@
 
             display: -webkit-box;
             display: -moz-box;
-            display: box;
-
-            -webkit-box-orient: horizontal;
-            -moz-box-orient: horizontal;
-            box-orient: horizontal;
-
-            -webkit-box-pack: center;
-            -moz-box-pack: center;
-            box-pack: center;
-
-            -webkit-box-align: center;
-            -moz-box-align: center;
-            box-align: center;
 
             color: #ffffff;
             text-align: center;
@@ -92,16 +79,41 @@
         var drawObject = new DrawObject( environment, controls );
         var simpleBoxCreator = new SimpleBox( 10,10,10 );
 
-
-        var prevTime = performance.now();
-        var velocity = new THREE.Vector3();
-        var direction = new THREE.Vector3();
-
-
-//        var box = simpleBoxCreator(0,0,0);
-//        environment.scene.add(box);
-
         drawObject('scene1.obj', { ry: 270 });
+
+        for ( var i = 0; i < entities.length; i ++ ) {
+
+            var entity = entities[i];
+
+            (function (entity) {
+                var box;
+
+                if (entity.entityClass == "Trigger_Inst"){
+
+                    var geometry = new THREE.CircleGeometry( 5, 32 );
+                    var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+                    var circle = new THREE.Mesh( geometry, material );
+
+                    circle.position.x = entity.position.x * 48;
+                    circle.position.y = entity.position.y * 48;
+                    circle.position.z = entity.position.z * 48;
+
+                    environment.scene.add( circle );
+
+//                    box = simpleBoxCreator(entity.position.x, entity.position.y, entity.position.z);
+//                    environment.scene.add(box);
+
+                }else{
+
+                    box = simpleBoxCreator(entity.position.x, entity.position.y, entity.position.z);
+                    environment.scene.add(box);
+                }
+
+
+            }(entity));
+
+        }
+
 
         controls.moveTo(
             -44.7730712890625,
@@ -125,8 +137,8 @@
         } );
 
         controls.controls.addEventListener( 'unlock', function () {
-            blocker.style.display = 'block';
-            instructions.style.display = '';
+//            blocker.style.display = 'block';
+//            instructions.style.display = '';
         } );
 
 
