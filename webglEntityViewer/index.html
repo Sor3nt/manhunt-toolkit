@@ -92,6 +92,12 @@
         var drawObject = new DrawObject( environment, controls );
         var simpleBoxCreator = new SimpleBox( 10,10,10 );
 
+
+        var prevTime = performance.now();
+        var velocity = new THREE.Vector3();
+        var direction = new THREE.Vector3();
+
+
 //        var box = simpleBoxCreator(0,0,0);
 //        environment.scene.add(box);
 
@@ -110,75 +116,31 @@
         var instructions = document.getElementById( 'instructions' );
 
         instructions.addEventListener( 'click', function () {
-
             controls.controls.lock();
-
         }, false );
 
         controls.controls.addEventListener( 'lock', function () {
-
             instructions.style.display = 'none';
             blocker.style.display = 'none';
-
         } );
 
         controls.controls.addEventListener( 'unlock', function () {
-
             blocker.style.display = 'block';
             instructions.style.display = '';
-
         } );
 
 
 
 
-        var prevTime = performance.now();
-        var velocity = new THREE.Vector3();
-        var direction = new THREE.Vector3();
+
 
         animate();
-
-        var raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-
 
         function animate() {
 
             requestAnimationFrame( animate );
 
-            if ( controls.controls.isLocked === true ) {
-
-
-//            if (window.testLabel) window.testLabel.LookAt(camera.position);
-
-                raycaster.ray.origin.copy( controls.controls.getObject().position );
-                raycaster.ray.origin.y -= 10;
-
-                var time = performance.now();
-                var delta = ( time - prevTime ) / 1000;
-
-                velocity.x -= velocity.x * 10.0 * delta;
-                velocity.z -= velocity.z * 10.0 * delta;
-
-
-                direction.z = Number( controls.move.up ) - Number( controls.move.down );
-                direction.x = Number( controls.move.left ) - Number( controls.move.right );
-                direction.normalize(); // this ensures consistent movements in all directions
-
-                if ( controls.move.up || controls.move.down ) velocity.z -= direction.z * 4000.0 * delta;
-                if ( controls.move.left || controls.move.right ) velocity.x -= direction.x * 4000.0 * delta;
-
-
-                controls.controls.getObject().translateX( velocity.x * delta );
-//            controls.getObject().translateY( velocity.y * delta );
-                controls.controls.getObject().translateZ( velocity.z * delta );
-
-                controls.controls.getObject().position.y = 70;
-
-
-
-                prevTime = time;
-
-            }
+            controls.update();
 
             environment.renderer.render( environment.scene, environment.camera );
 

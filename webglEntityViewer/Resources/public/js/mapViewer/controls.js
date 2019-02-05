@@ -3,6 +3,7 @@ function Controls( environment ){
     var self = {
 
         controls: {},
+        raycaster: {},
 
         move: {
             up: false,
@@ -14,14 +15,15 @@ function Controls( environment ){
         _init : function () {
             self._createControls();
             self._createEvents();
+
+            self.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+
         },
 
 
         _createControls: function () {
             self.controls = new THREE.PointerLockControls( environment.camera );
-            console.log(self.controls);
             environment.scene.add( self.controls.getObject() );
-
         },
 
         _createEvents: function () {
@@ -89,6 +91,43 @@ function Controls( environment ){
             self.controls.getObject().translateZ( z * environment.worldScale);
 
 
+        },
+
+        update: function () {
+            if ( self.controls.isLocked === true ) {
+
+
+//            if (window.testLabel) window.testLabel.LookAt(camera.position);
+
+                self.raycaster.ray.origin.copy( self.controls.getObject().position );
+                self.raycaster.ray.origin.y -= 10;
+
+                var time = performance.now();
+                var delta = ( time - prevTime ) / 1000;
+
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+
+                direction.z = Number( self.move.up ) - Number( self.move.down );
+                direction.x = Number( self.move.left ) - Number( self.move.right );
+                direction.normalize(); // this ensures consistent movements in all directions
+
+                if ( self.move.up || self.move.down ) velocity.z -= direction.z * 4000.0 * delta;
+                if ( self.move.left || self.move.right ) velocity.x -= direction.x * 4000.0 * delta;
+
+
+                self.controls.getObject().translateX( velocity.x * delta );
+//            controls.getObject().translateY( velocity.y * delta );
+                self.controls.getObject().translateZ( velocity.z * delta );
+
+                self.controls.getObject().position.y = 70;
+
+
+
+                prevTime = time;
+
+            }
         }
 
     };
@@ -99,7 +138,8 @@ function Controls( environment ){
     return {
         controls: self.controls,
         move: self.move,
-        moveTo: self.moveTo
+        moveTo: self.moveTo,
+        update: self.update
     };
 
 }
