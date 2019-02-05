@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Entity</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <script src="Resources/public/js/vendor/three.min.js"></script>
+
+    <script src="Resources/public/js/vendor/three.pointer.lock.controls.js"></script>
+    <script src="Resources/public/js/vendor/three.obj.loader.js"></script>
+
+
+
+    <script src="Resources/public/js/mapViewer/environment.js"></script>
+    <script src="Resources/public/js/mapViewer/controls.js"></script>
+    <script src="Resources/public/js/mapViewer/simpleBox.js"></script>
+    <script src="Resources/public/js/mapViewer/drawObject.js"></script>
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+            font-family: arial;
+        }
+
+        #blocker {
+
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+
+            background-color: rgba(0,0,0,0.5);
+
+        }
+
+        #instructions {
+
+            width: 100%;
+            height: 100%;
+
+            display: -webkit-box;
+            display: -moz-box;
+            display: box;
+
+            -webkit-box-orient: horizontal;
+            -moz-box-orient: horizontal;
+            box-orient: horizontal;
+
+            -webkit-box-pack: center;
+            -moz-box-pack: center;
+            box-pack: center;
+
+            -webkit-box-align: center;
+            -moz-box-align: center;
+            box-align: center;
+
+            color: #ffffff;
+            text-align: center;
+
+            cursor: pointer;
+
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div id="blocker">
+
+        <div id="instructions">
+            <span style="font-size:40px">click to activate</span>
+            <br />
+
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var environment = new Environment();
+        var controls = new Controls( environment );
+        var drawObject = new DrawObject( environment, controls );
+        var simpleBoxCreator = new SimpleBox( 10,10,10 );
+
+//        var box = simpleBoxCreator(0,0,0);
+//        environment.scene.add(box);
+
+        drawObject('scene1.obj', { ry: 270 });
+
+        controls.moveTo(
+            -44.7730712890625,
+            -0.03999999910593033,
+            9.298941612243652
+        );
+
+
+
+
+        var blocker = document.getElementById( 'blocker' );
+        var instructions = document.getElementById( 'instructions' );
+
+        instructions.addEventListener( 'click', function () {
+
+            controls.controls.lock();
+
+        }, false );
+
+        controls.controls.addEventListener( 'lock', function () {
+
+            instructions.style.display = 'none';
+            blocker.style.display = 'none';
+
+        } );
+
+        controls.controls.addEventListener( 'unlock', function () {
+
+            blocker.style.display = 'block';
+            instructions.style.display = '';
+
+        } );
+
+
+
+
+        var prevTime = performance.now();
+        var velocity = new THREE.Vector3();
+        var direction = new THREE.Vector3();
+
+        animate();
+
+        var raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+
+
+        function animate() {
+
+            requestAnimationFrame( animate );
+
+            if ( controls.controls.isLocked === true ) {
+
+
+//            if (window.testLabel) window.testLabel.LookAt(camera.position);
+
+                raycaster.ray.origin.copy( controls.controls.getObject().position );
+                raycaster.ray.origin.y -= 10;
+
+                var time = performance.now();
+                var delta = ( time - prevTime ) / 1000;
+
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+
+                direction.z = Number( controls.move.up ) - Number( controls.move.down );
+                direction.x = Number( controls.move.left ) - Number( controls.move.right );
+                direction.normalize(); // this ensures consistent movements in all directions
+
+                if ( controls.move.up || controls.move.down ) velocity.z -= direction.z * 4000.0 * delta;
+                if ( controls.move.left || controls.move.right ) velocity.x -= direction.x * 4000.0 * delta;
+
+
+                controls.controls.getObject().translateX( velocity.x * delta );
+//            controls.getObject().translateY( velocity.y * delta );
+                controls.controls.getObject().translateZ( velocity.z * delta );
+
+                controls.controls.getObject().position.y = 70;
+
+
+
+                prevTime = time;
+
+            }
+
+            environment.renderer.render( environment.scene, environment.camera );
+
+        }
+    </script>
+
+
+
+</body>
+</html>
