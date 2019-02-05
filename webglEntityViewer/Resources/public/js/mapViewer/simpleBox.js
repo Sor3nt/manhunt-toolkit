@@ -34,7 +34,7 @@ function SimpleBox(width, height, deep) {
     self._init();
 
     return function(x, y, z){
-        var box = new THREE.Mesh( self._boxGeometry, self._boxMaterial );
+        var box = new THREE.Mesh( self._boxGeometry, self._boxMaterial.clone() );
         box.position.x = x * 48;
         box.position.y = y * 48;
         box.position.z = z * 48;

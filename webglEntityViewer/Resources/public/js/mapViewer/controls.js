@@ -38,6 +38,30 @@ function Controls( environment ){
         _createEvents: function () {
             document.addEventListener( 'keydown', self._onKeyDown, false );
             document.addEventListener( 'keyup', self._onKeyUp, false );
+            document.addEventListener( 'mousedown', function (event) {
+
+
+                var mouse3D = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   //x
+                    -( event.clientY / window.innerHeight ) * 2 + 1,  //y
+                    70 );                                            //z
+                // projector.unprojectVector( mouse3D, camera );
+                // mouse3D.sub( environment.camera.position );
+                mouse3D.normalize();
+
+
+                var raycaster = new THREE.Raycaster(  );
+
+                raycaster.setFromCamera( mouse3D, environment.camera );
+
+
+                var intersects = raycaster.intersectObjects( environment.scene.children );
+                // Change color if hit block
+                if ( intersects.length > 0 ) {
+                    console.log(intersects);
+                    intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+                }
+
+            }, false );
         },
 
         _onKeyDown: function ( event ) {
@@ -45,6 +69,9 @@ function Controls( environment ){
 
                 case 38: // up
                 case 87: // w
+
+
+
                     self.move.up = true;
                     break;
 
@@ -127,6 +154,23 @@ function Controls( environment ){
                 self.controls.getObject().position.y = 70;
 
                 self._prevTime = time;
+
+
+
+                //
+                // self._direction.copy( self._direction ).applyEuler( environment.camera.rotation );
+                // // self._direction.y = this.game.usermodel.root.children[0].rotation._x;
+                //
+                // var raycaster = new THREE.Raycaster(environment.camera.position, self._direction);
+                //
+                //
+                //
+                // var intersects = raycaster.intersectObjects( environment.scene.children );
+                //
+                // for ( var i = 0; i < intersects.length; i++ ) {
+                //
+                //     intersects[ i ].object.material.color.set( 0xff0000 );
+                // }
             }
         }
 
