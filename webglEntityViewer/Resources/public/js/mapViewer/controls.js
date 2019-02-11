@@ -16,6 +16,8 @@ function Controls( environment ){
         move: {
             up: false,
             left: false,
+            liftUp: false,
+            liftDown: false,
             down: false,
             right: false
         },
@@ -36,36 +38,43 @@ function Controls( environment ){
         },
 
         _createEvents: function () {
-            document.addEventListener( 'keydown', self._onKeyDown, false );
-            document.addEventListener( 'keyup', self._onKeyUp, false );
-            document.addEventListener( 'mousedown', function (event) {
+            document.addEventListener('keydown', self._onKeyDown, false);
+            document.addEventListener('keyup', self._onKeyUp, false);
+            document.addEventListener('mousedown', self._doRaycast);
+        },
 
+        _doRaycast: function (event) {
 
-                var mouse3D = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   //x
-                    -( event.clientY / window.innerHeight ) * 2 + 1,  //y
-                    70 );                                            //z
-                // projector.unprojectVector( mouse3D, camera );
-                // mouse3D.sub( environment.camera.position );
-                mouse3D.normalize();
+            var mouse3D = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   //x
+                -( event.clientY / window.innerHeight ) * 2 + 1,  //y
+                70 );                                            //z
 
+            mouse3D.normalize();
 
-                var raycaster = new THREE.Raycaster(  );
+            var raycaster = new THREE.Raycaster();
 
-                raycaster.setFromCamera( mouse3D, environment.camera );
+            raycaster.setFromCamera( mouse3D, environment.camera );
 
+            var intersects = raycaster.intersectObjects( environment.scene.children );
 
-                var intersects = raycaster.intersectObjects( environment.scene.children );
-                // Change color if hit block
-                if ( intersects.length > 0 ) {
-                    console.log(intersects);
-                    intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
-                }
+            if ( intersects.length > 0 ) {
+                document.getElementById('clickedRecord').innerHTML = intersects[ 0 ].object.name;
 
-            }, false );
+                intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+            }
         },
 
         _onKeyDown: function ( event ) {
+
             switch ( event.keyCode ) {
+
+                case 81: //q
+                    self.move.liftUp = true;
+                    break;
+                case 69: //e
+                    self.move.liftDown = true;
+                    break;
+
 
                 case 38: // up
                 case 87: // w
@@ -95,6 +104,13 @@ function Controls( environment ){
 
         _onKeyUp: function ( event ) {
             switch ( event.keyCode ) {
+
+                case 81: //q
+                    self.move.liftUp = false;
+                    break;
+                case 69: //e
+                    self.move.liftDown = false;
+                    break;
 
                 case 38: // up
                 case 87: // w
@@ -132,26 +148,30 @@ function Controls( environment ){
             if ( self.controls.isLocked === true ) {
 
                 self.raycaster.ray.origin.copy( self.controls.getObject().position );
-                self.raycaster.ray.origin.y -= 10;
+                // self.raycaster.ray.origin.y -= 10;
 
                 var time = performance.now();
                 var delta = ( time - self._prevTime ) / 1000;
 
                 self._velocity.x -= self._velocity.x * 10.0 * delta;
                 self._velocity.z -= self._velocity.z * 10.0 * delta;
+                self._velocity.y -= self._velocity.y * 10.0 * delta;
 
 
                 self._direction.z = Number( self.move.up ) - Number( self.move.down );
                 self._direction.x = Number( self.move.left ) - Number( self.move.right );
+                self._direction.y = Number( self.move.liftUp ) - Number( self.move.liftDown );
                 self._direction.normalize(); // this ensures consistent movements in all directions
 
                 if ( self.move.up || self.move.down ) self._velocity.z -= self._direction.z * 4000.0 * delta;
                 if ( self.move.left || self.move.right ) self._velocity.x -= self._direction.x * 4000.0 * delta;
+                if ( self.move.liftUp || self.move.liftDown ) self._velocity.y -= self._direction.y * 4000.0 * delta;
 
                 self.controls.getObject().translateX( self._velocity.x * delta );
                 self.controls.getObject().translateZ( self._velocity.z * delta );
+                self.controls.getObject().translateY( (self._velocity.y * -1) * delta );
 
-                self.controls.getObject().position.y = 70;
+                // self.controls.getObject().position.y = 70;
 
                 self._prevTime = time;
 

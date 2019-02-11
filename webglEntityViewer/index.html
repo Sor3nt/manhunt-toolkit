@@ -61,6 +61,11 @@
 
 </head>
 <body>
+<div style="position: absolute;top: 0px; left: 0px">
+    <span style="font-size:40px" id="clickedRecord"></span>
+
+
+</div>
 
     <div id="blocker">
 
@@ -81,39 +86,64 @@
         var controls = new Controls( environment );
         var drawObject = new DrawObject( environment, controls );
         var simpleBoxCreator = new SimpleBox( 10,10,10 );
+//        var simpleBoxCreator2 = new SimpleBox( 20,10,20 );
 
         drawObject('scene1.obj', { ry: 270 });
 
-        for ( var i = 0; i < entities.length; i ++ ) {
-
+        for (var i in entities){
             var entity = entities[i];
 
-            (function (entity) {
 
-                if (entity.entityClass == "Trigger_Inst"){
 
-                    var geometry = new THREE.CircleGeometry( 5, 32 );
-                    var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-                    var circle = new THREE.Mesh( geometry, material );
+                if (entity.model == "sphere") {
 
-                    circle.position.x = entity.position.x * 48;
-                    circle.position.y = entity.position.y * 48;
-                    circle.position.z = entity.position.z * 48;
+                    var sphere = new THREE.Mesh(
+                        new THREE.SphereGeometry(entity.radius * 48, 32, 32),
+                        new THREE.MeshBasicMaterial({
+                            color: 0xffff00,
+                            opacity: 0.2,
+                            transparent: true
+                        })
+                    );
 
-                    environment.scene.add( circle );
+                    sphere.position.x = entity.position.x * 48;
+                    sphere.position.y = entity.position.y * 48;
+                    sphere.position.z = entity.position.z * 48;
+                    sphere.name = i;
 
-//                    box = simpleBoxCreator(entity.position.x, entity.position.y, entity.position.z);
-//                    environment.scene.add(box);
+                    environment.scene.add(sphere);
+                }else if (entity.model == "box"){
+
+                    var nX = entity.position.x - entity.position2.x;
+                    var nY = entity.position.y - entity.position2.y;
+                    var nZ = entity.position.z - entity.position2.z;
+
+                    var mesh = new THREE.Mesh(
+
+                        new THREE.BoxBufferGeometry(nX * 48 , nY * 48  , nZ * 48),
+
+                        new THREE.MeshStandardMaterial({
+                            color: 0xd4f9a9,
+                            opacity: 0.2,
+                            transparent: true
+                        })
+                    );
+
+                    mesh.position.x = (entity.position.x - (nX / 2)) * 48;
+                    mesh.position.y = (entity.position.y - (nY / 2)) * 48;
+                    mesh.position.z = (entity.position.z - (nZ / 2)) * 48;
+                    mesh.name = i;
+
+                    environment.scene.add( mesh );
 
                 }else{
 
                     var box = simpleBoxCreator(entity.position.x, entity.position.y, entity.position.z);
-//                    box.name = entity.internalName;
+                    box.name = i;
                     environment.scene.add(box);
                 }
 
 
-            }(entity));
 
         }
 
@@ -140,8 +170,8 @@
         } );
 
         controls.controls.addEventListener( 'unlock', function () {
-//            blocker.style.display = 'block';
-//            instructions.style.display = '';
+            blocker.style.display = 'block';
+            instructions.style.display = '';
         } );
 
 
