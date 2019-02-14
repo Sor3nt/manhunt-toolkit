@@ -10,7 +10,7 @@
 
     <script src="Resources/public/js/vendor/three.pointer.lock.controls.js"></script>
     <script src="Resources/public/js/vendor/three.obj.loader.js"></script>
-
+    <script src="Resources/public/js/vendor/three.mtl.loader.js"></script>
 
 
     <script src="Resources/public/js/mapViewer/environment.js"></script>
@@ -57,6 +57,14 @@
 
         }
 
+
+        .label{
+            color: #FFF;
+            font-family: sans-serif;
+            padding: 2px;
+            background: rgba( 0, 0, 0, .6 );
+        }
+
     </style>
 
 </head>
@@ -86,9 +94,56 @@
         var controls = new Controls( environment );
         var drawObject = new DrawObject( environment, controls );
         var simpleBoxCreator = new SimpleBox( 10,10,10 );
-//        var simpleBoxCreator2 = new SimpleBox( 20,10,20 );
 
-        drawObject('scene1.obj', { ry: 270 });
+        var mtlLoader = new THREE.MTLLoader();
+
+
+            mtlLoader.load('Resources/public/Levels/Manhunt2/A01/Map/map.mtl', function(materials) {
+                materials.preload();
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+
+                objLoader.load('Resources/public/Levels/Manhunt2/A01/Map/map.obj', function(object) {
+
+                    object.scale.set(environment.worldScale, environment.worldScale, environment.worldScale);
+
+                    object.rotation.y = 270 * (Math.PI/180);
+
+                    environment.scene.add(object);
+                }, function () {
+
+                }, function () {
+
+                });
+
+
+            });
+
+//
+//
+//            mtlLoader.load('map_2.mtl', function(materials) {
+//                materials.preload();
+//                var objLoader = new THREE.OBJLoader();
+//                objLoader.setMaterials(materials);
+//
+//                objLoader.load('map_2.obj', function(object) {
+//
+//                    object.scale.set(environment.worldScale, environment.worldScale, environment.worldScale);
+//
+//                    object.rotation.y = 270 * (Math.PI/180);
+//
+//                    environment.scene.add(object);
+//                }, function () {
+//
+//                }, function () {
+//
+//                });
+//
+//
+//            });
+
+
+
 
         for (var i in entities){
             var entity = entities[i];
@@ -138,14 +193,73 @@
 
                 }else{
 
-                    var box = simpleBoxCreator(entity.position.x, entity.position.y, entity.position.z);
-                    box.name = i;
-                    environment.scene.add(box);
+                    if (i == "CJ_MINICAMB01") {
+                        drawObject('Resources/public/Levels/Manhunt2/A01/Entities/CJ_MINICAMB.obj', {
+                            x: entity.position.x * 48,
+                            y: entity.position.y * 48,
+                            z: entity.position.z * 48
+                        });
+
+                    }else if (i == "CJ_bunk_bed_upright04"){
+                        drawObject('Resources/public/Levels/Manhunt2/A01/Entities/CJ_bunk_bed_upright.obj', {
+                            x: entity.position.x * 48,
+                            y: entity.position.y * 48,
+                            z: entity.position.z * 48
+                        });
+                    }else if (i == "DE_MattressDown04"){
+                        drawObject('Resources/public/Levels/Manhunt2/A01/Entities/DE_MattressDown.obj', {
+                            x: entity.position.x * 48,
+                            y: entity.position.y * 48,
+                            z: entity.position.z * 48
+                        });
+                    }else if (i == "DirtyOldToilet18"){
+
+                        (function (entity) {
+
+                            mtlLoader.load('Resources/public/Levels/Manhunt2/A01/Entities/DirtyOldToilet2.mtl', function(materials) {
+                                materials.preload();
+                                var objLoader = new THREE.OBJLoader();
+
+                                objLoader.setMaterials(materials);
+
+                                objLoader.load('Resources/public/Levels/Manhunt2/A01/Entities/DirtyOldToilet2.obj', function(object) {
+                                    object.position.x = entity.position.x * 48;
+                                    object.position.y = entity.position.y * 48;
+                                    object.position.z = entity.position.z * 48;
+
+                                    object.scale.set(environment.worldScale, environment.worldScale, environment.worldScale);
+
+                                    environment.scene.add(object);
+                                }, function () {
+
+                                }, function () {
+
+                                });
+
+
+                            });
+                        })(entity);
+
+                    }else{
+
+                        var box = simpleBoxCreator(entity.position, entity.rotation);
+                        box.name = i;
+                        environment.scene.add(box);
+                    }
+
+                    var axesHelper = new THREE.AxesHelper( 48);
+                    axesHelper.position.x = entity.position.x * 48;
+                    axesHelper.position.y = entity.position.y * 48;
+                    axesHelper.position.z = entity.position.z * 48;
+                    environment.scene.add(axesHelper);
+
+
                 }
 
 
 
         }
+
 
 
         controls.moveTo(
@@ -170,8 +284,8 @@
         } );
 
         controls.controls.addEventListener( 'unlock', function () {
-            blocker.style.display = 'block';
-            instructions.style.display = '';
+//            blocker.style.display = 'block';
+//            instructions.style.display = '';
         } );
 
 
@@ -188,8 +302,11 @@
             controls.update();
 
             environment.renderer.render( environment.scene, environment.camera );
-
         }
+
+        //add fps monitor
+        (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()
+
     </script>
 
 

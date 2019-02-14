@@ -19,6 +19,7 @@ function DrawObject( environment, controls ) {
                     if (rotatePosition.ry) object.rotation.y = rotatePosition.ry *(Math.PI/180);
                     if (rotatePosition.rx) object.rotation.x = rotatePosition.rx *(Math.PI/180);
                     if (rotatePosition.rz) object.rotation.z = rotatePosition.rz *(Math.PI/180);
+                    // if (rotatePosition.rw) object.rotation.y = rotatePosition.rw *(Math.PI/180);
                 }
 
                 object.scale.set(environment.worldScale, environment.worldScale, environment.worldScale);

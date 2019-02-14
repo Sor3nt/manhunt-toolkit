@@ -33,11 +33,19 @@ function SimpleBox(width, height, deep) {
 
     self._init();
 
-    return function(x, y, z){
+    return function(position, rotation){
         var box = new THREE.Mesh( self._boxGeometry, self._boxMaterial.clone() );
-        box.position.x = x * 48;
-        box.position.y = y * 48;
-        box.position.z = z * 48;
+        box.position.x = position.x * 48;
+        box.position.y = position.y * 48;
+        box.position.z = position.z * 48;
+
+        if (typeof rotation != "undefined"){
+            box.rotation.x = rotation.x;
+            box.rotation.y = rotation.y;
+            box.rotation.z = rotation.z;
+
+        }
+
         return box;
     };
 
