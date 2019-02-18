@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\MHT;
+use App\Service\Compiler\Token;
 use App\Service\Helper;
 
 class T_SCRIPT {
@@ -46,6 +47,51 @@ class T_SCRIPT {
             $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
             $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
             $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
+        }
+
+        if (isset($node['body'][0]) && $node['body'][0]['type'] == Token::T_DEFINE_SECTION_ARG){
+
+            //todo: das gehört wohl zum anfang des script-block init
+            $code[] = $getLine('10030000', false, $debugMsg . 'argument init');
+            $code[] = $getLine('24000000', false, $debugMsg . 'argument init');
+            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
+            $code[] = $getLine('00000000', false, $debugMsg . 'argument init');
+            $code[] = $getLine('3f000000', false, $debugMsg . 'argument init');
+            $code[] = $getLine('__END_OFFSET__', false, $debugMsg . 'argument end offset');
+//
+            $lastLineIndex = count($code) - 1;
+//
+
+            $code[] = $getLine('12000000', false, $debugMsg . 'read argument number...');
+            $code[] = $getLine('01000000', false, $debugMsg . 'read argument number...');
+            $code[] = $getLine('00000000', false, $debugMsg . 'read argument number... offset');
+//            $code[] = $getLine(Helper::fromIntToHex($rightHandNewMapped['order']), false, $debugMsg . 'read argument number...');
+            $code[] = $getLine('10000000', false, $debugMsg . 'read argument number...');
+            $code[] = $getLine('01000000', false, $debugMsg . 'read argument number...');
+
+
+            $code[] = $getLine('12000000', false, $debugMsg . 'read argument fallback...');
+            $code[] = $getLine('01000000', false, $debugMsg . 'read argument fallback...');
+
+            $code[$lastLineIndex]->hex = Helper::fromIntToHex(end($code)->lineNumber);
+
+            $code[] = $getLine('00000000', false, $debugMsg . 'read argument fallback (offset todo)...');
+            $code[] = $getLine('10000000', false, $debugMsg . 'read argument fallback...');
+            $code[] = $getLine('01000000', false, $debugMsg . 'read argument fallback...');
+
+
+            $code[] = $getLine('0a030000', false, $debugMsg . 'read argument finish');
+
+
+            $code[] = $getLine('15000000', false, $debugMsg . 'read argument unknown');
+            $code[] = $getLine('04000000', false, $debugMsg . 'read argument unknown');
+            $code[] = $getLine('04000000', false, $debugMsg . 'read argument unknown');
+            $code[] = $getLine('01000000', false, $debugMsg . 'read argument unknown');
+
+
+            $code[] = $getLine('0f030000', false, $debugMsg . 'read argument finish 2');
+
+
         }
 
         foreach ($node['body'] as $node) {

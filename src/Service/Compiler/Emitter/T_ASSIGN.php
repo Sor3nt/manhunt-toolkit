@@ -77,42 +77,6 @@ class T_ASSIGN {
 //exit;
         if ($rightHandNewMapped && isset($rightHandNewMapped['isArg']) && $rightHandNewMapped['isArg']) {
 
-            $code[] = $getLine('10030000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('24000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('00000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('3f000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('__END_OFFSET__', false, $debugMsg . 'argument end offset');
-//
-            $lastLineIndex = count($code) - 1;
-//
-
-            $code[] = $getLine('12000000', false, $debugMsg . 'read argument number...');
-            $code[] = $getLine('01000000', false, $debugMsg . 'read argument number...');
-            $code[] = $getLine(Helper::fromIntToHex($rightHandNewMapped['order']), false, $debugMsg . 'read argument number...');
-            $code[] = $getLine('10000000', false, $debugMsg . 'read argument number...');
-            $code[] = $getLine('01000000', false, $debugMsg . 'read argument number...');
-
-
-            $code[] = $getLine('12000000', false, $debugMsg . 'read argument fallback...');
-            $code[] = $getLine('01000000', false, $debugMsg . 'read argument fallback...');
-            $code[] = $getLine('00000000', false, $debugMsg . 'read argument fallback (offset todo)...');
-            $code[] = $getLine('10000000', false, $debugMsg . 'read argument fallback...');
-            $code[] = $getLine('01000000', false, $debugMsg . 'read argument fallback...');
-
-
-            $code[] = $getLine('0a030000', false, $debugMsg . 'read argument finish');
-
-
-            $code[] = $getLine('15000000', false, $debugMsg . 'read argument unknown');
-            $code[] = $getLine('04000000', false, $debugMsg . 'read argument unknown');
-            $code[] = $getLine('04000000', false, $debugMsg . 'read argument unknown');
-            $code[] = $getLine('01000000', false, $debugMsg . 'read argument unknown');
-
-
-            $code[] = $getLine('0f030000', false, $debugMsg . 'read argument finish 2');
-
-            $code[$lastLineIndex]->hex = Helper::fromIntToHex(count($code) - 1);
 
         }else if ($mapped['type'] == "vec3d"){
             self::fromObject($mapped, $code, $getLine);

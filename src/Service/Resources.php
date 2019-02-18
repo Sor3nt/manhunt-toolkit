@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Service\Archive\Archive;
 use App\Service\Archive\Bin;
+use App\Service\Archive\Bsp;
 use App\Service\Archive\Col;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
@@ -12,6 +13,7 @@ use App\Service\Archive\Glg;
 use App\Service\Archive\Gxt;
 use App\Service\Archive\Ifp;
 use App\Service\Archive\Inst;
+use App\Service\Archive\Mdl;
 use App\Service\Archive\Mls;
 use App\Service\Archive\Pak;
 use App\Service\Archive\Tex;
@@ -26,7 +28,7 @@ class Resources
     private $archives = [
         Bin::class,     Col::class,     Dds::class,     Dff::class,     /*Fsb::class,*/
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class,
-        Pak::class,     Glg::class
+        Pak::class,     Glg::class,     Mdl::class,     Bsp::class
     ];
 
 

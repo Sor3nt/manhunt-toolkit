@@ -37,5 +37,44 @@ class Glg extends Archive {
         return false;
     }
 
+    public function convertRecords( $text ){
+
+        $result = [];
+
+        preg_match_all('/RECORD\s(.*\s)*?END/mi', $text, $matches);
+        foreach ($matches[0] as $match) {
+            preg_match('/RECORD\s(.*)((.*\s*)*)END/i', $match, $entry);
+
+            $options = [];
+            $optionsRaw = explode("\n", $entry[2]);
+
+            foreach ($optionsRaw as $singleOption) {
+                $singleOption = trim($singleOption);
+                if (empty($singleOption)) continue;
+
+                if (strpos($singleOption, ' ') !== false){
+                    preg_match('/(.*)\s(.*)/i', $singleOption, $singleOptionRow);
+
+                    $options[] = [
+                        'attr' => $singleOptionRow[1],
+                        'value' => $singleOptionRow[2],
+                    ];
+                }else{
+                    $options[] = [
+                        'attr' => $singleOption
+                    ];
+                }
+
+
+            }
+
+
+            $result[ trim($entry[1]) ] = $options;
+
+        }
+
+        return $result;
+    }
+
 
 }

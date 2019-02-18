@@ -64,7 +64,7 @@ class T_VARIABLE extends TAbstract {
 
         $mapped = self::getMapping($node, $data);
 
-        $debugMsg = "[T_VARIABLE] map type " . $mapped['type'];
+        $debugMsg = "[T_VARIABLE] map type " . $mapped['type'] . ' ' . $node['value'] . " ";
 
 
         switch ($mapped['type']){

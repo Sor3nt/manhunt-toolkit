@@ -11,6 +11,7 @@ class Inst extends Archive {
 
     public static $supported = [
         'entity.inst',
+        'entity2.inst',
         'entity_pc.inst',
         'entity_wii.inst',
         'entinst.bin'
