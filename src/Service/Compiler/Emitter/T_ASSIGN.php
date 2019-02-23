@@ -11,7 +11,7 @@ class T_ASSIGN {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
-        $debugMsg = sprintf('[T_ASSIGN] map ');
+        $debugMsg = sprintf('[T_ASSIGN] map ' . $node['value']);
 
         $code = [];
         $mapped = T_VARIABLE::getMapping($node, $data);
