@@ -240,6 +240,11 @@ class Manhunt2
 
     public static $functions = [
 
+        "callscript" => [
+            'name' => 'callscript',
+            'offset' => "0d030000"
+        ],
+
         "playscriptaudiostreamaux" => [
             'name' => 'PlayScriptAudioStreamAux',
             'offset' => "d7030000"

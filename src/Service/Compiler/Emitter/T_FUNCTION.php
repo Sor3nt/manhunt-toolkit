@@ -583,7 +583,40 @@ class T_FUNCTION {
             }
         }
 
+        $this->processArguments($node, $code, $getLine, $emitter);
+
         return $code;
+    }
+
+    private function processArguments($node, &$code, \Closure $getLine, \Closure $emitter){
+        if (!isset($node['arguments'])) return;
+
+        $debugMsg = 'processArguments ';
+
+        foreach ($node['arguments'] as $index => $argument) {
+
+            $code[] = $getLine('12000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine(Helper::fromIntToHex($index), false, $debugMsg . ' index');
+            $code[] = $getLine('10000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+
+            $resultCode = $emitter( $argument );
+            foreach ($resultCode as $line) {
+                $line->debug = $debugMsg .  ' ' . $line->debug;
+                $code[] = $line;
+            }
+
+            $code[] = $getLine('10000000', false, $debugMsg . ' return');
+            $code[] = $getLine('01000000', false, $debugMsg . ' return');
+
+            if ($index == 0){
+                $code[] = $getLine('07030000', false, $debugMsg . ' A OFFSET HMM');
+            }else{
+                $code[] = $getLine('08030000', false, $debugMsg . ' A OFFSET HMM');
+
+            }
+        }
     }
 
 }

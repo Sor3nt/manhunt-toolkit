@@ -29,6 +29,9 @@ class Evaluate {
     static public function getObjectToAttributeSplit( $value, $data ){
         list($originalObject, $attribute) = explode('.', $value);
 
+        $originalObject = strtolower($originalObject);
+        $attribute = strtolower($attribute);
+
         if (!isset($data['combinedVariables'][$originalObject])){
             throw new \Exception('Evaluate fail for ' . $originalObject);
         }

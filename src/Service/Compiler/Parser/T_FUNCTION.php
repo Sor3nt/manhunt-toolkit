@@ -39,7 +39,26 @@ class T_FUNCTION {
 
             if ($deep == 0 &&$token['type'] === Token::T_BRACKET_CLOSE) {
 
-                return [$current + 1, $node];
+                $current++;
+
+                if (isset($tokens[$current]) && $tokens[$current]['type'] == Token::T_DEFINE){
+
+                    $node['arguments'] = [];
+
+                    $current++;
+                    foreach (explode(",", $tokens[$current]['value']) as $variable) {
+                        $variable = trim($variable);
+
+                        $node['arguments'][] = [
+                            'type' => Token::T_VARIABLE,
+                            'value' => $variable
+                        ];
+                    }
+                    $current++;
+                }
+
+
+                return [$current, $node];
             }else if ($token['type'] === Token::T_BRACKET_OPEN) {
                 $deep++;
                 $current++;

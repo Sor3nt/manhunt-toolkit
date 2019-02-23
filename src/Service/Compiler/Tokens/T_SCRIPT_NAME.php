@@ -6,11 +6,37 @@ class T_SCRIPT_NAME {
     static public function match( $input, $current, $tokens ){
 
         $char = strtolower(substr($input, $current - 7, 7));
+        $prevChar = strtolower(substr($input, $current - 1, 1));
         $notChar = strtolower(substr($input, $current - 10, 10));
 
-        if ($notChar == "runscript "){
+        //todo: this is just a hack because of the whitespace -.-
+        if (
+            $notChar == "runscript " ||
+            (
+                $prevChar == " " &&
+                strtolower(substr($input, $current - 11, 10)) == "runscript "
+            )
+        ){
+
             return false;
         }
+
+
+
+        //todo: this is just a hack because of the whitespace -.-
+        $notChar = strtolower(substr($input, $current - 10, 11));
+        if (
+            $notChar == "callscript " ||
+            (
+                $prevChar == " " &&
+                strtolower(substr($input, $current - 11, 11)) == "callscript "
+            )
+        ){
+
+            return false;
+        }
+
+
 
         if ($char == "script "){
 
