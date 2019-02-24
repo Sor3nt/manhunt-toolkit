@@ -25,8 +25,7 @@ class T_IF {
                 }
 
                 if($current + 1 != count($params)){
-                    $code[] = $getLine('10000000', false, $debugMsg);
-                    $code[] = $getLine('01000000', false, $debugMsg);
+                    Evaluate::regularReturn($code, $getLine);
                 }
 
             }else{
@@ -64,8 +63,6 @@ class T_IF {
 
         foreach ($node['cases'] as $index => $case) {
 
-
-            $byteAddon = 0;
             if (count($case['condition']) == 0){
 
                 if (isset($case['isTrue']) && count($case['isTrue'])){
@@ -84,16 +81,9 @@ class T_IF {
                         }
 
                         if($conditionIndex + 1 != count($case['condition'])){
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('01000000', false, $debugMsg);
+                            Evaluate::regularReturn($code, $getLine);
                         }
 
-                        //hmmm todo: gibts das so überhaupt noch ?
-                    }else if (
-                        $condition['type'] == Token::T_AND ||
-                        $condition['type'] == Token::T_OR
-                    ) {
-                        continue;
                     }else{
                         throw new \Exception('T_IF: Brackets order not valid');
                     }

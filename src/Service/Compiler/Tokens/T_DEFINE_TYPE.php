@@ -20,10 +20,10 @@ class T_DEFINE_TYPE {
                     $char = substr($input, $current, 1);
 
                     if ($char === ";" || $char === ")") {
-                        return [
-                            'type' => 'T_DEFINE_TYPE',
-                            'value' => $value
-                        ];
+                            return [
+                                'type' => 'T_DEFINE_TYPE',
+                                'value' => $value
+                            ];
                     }else if ($char === "]"){
 
                         //Searchables : array [1..9] of Searchable;

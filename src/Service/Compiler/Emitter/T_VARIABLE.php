@@ -73,7 +73,7 @@ class T_VARIABLE extends TAbstract {
                 break;
 
             case 'object':
-                $code = $this->fromObject($node, $data);
+                $code = $this->fromObjectAttribute($node, $data);
                 break;
 
             case 'stringarray':
@@ -239,7 +239,7 @@ class T_VARIABLE extends TAbstract {
         ];
     }
 
-    private function fromObject($node, $data){
+    private function fromObjectAttribute($node, $data){
 
         $mapped = Evaluate::getObjectToAttributeSplit($node['value'], $data);
 
