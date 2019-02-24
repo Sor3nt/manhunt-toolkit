@@ -1328,7 +1328,8 @@ class Manhunt2
              * none
              */
             'params' => [],
-            'desc' => ''
+            'desc' => '',
+            'return' => 'Entity'
         ],
 //
 

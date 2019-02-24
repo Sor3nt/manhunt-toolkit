@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\MHT;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -23,8 +24,8 @@ class T_CONDITION {
                     $data['game'] == MHT::GAME_MANHUNT &&
                     $token['params'][0]['type'] == Token::T_BOOLEAN
                 ){
-                    $code[] = $getLine('10000000', false, $debugMsg . 'mh1 boolean special');
-                    $code[] = $getLine('01000000', false, $debugMsg . 'mh1 boolean special');
+                    Evaluate::regularReturn($code, $getLine);
+
                     $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
                 }
 
@@ -35,7 +36,7 @@ class T_CONDITION {
                 }
 
                 if ($node['isNot'] || $node['isOuterNot']){
-                    self::setStatementNot($code, $getLine);
+                    Evaluate::setStatementNot($code, $getLine);
                 }
 
             }else{
@@ -111,6 +112,7 @@ class T_CONDITION {
                             $mappedTo['type'] == "constant" ||
                             $mappedTo['type'] == "integer" ||
                             $mappedTo['type'] == "boolean" ||
+                            $mappedTo['type'] == "mhfxptr" ||
                             $mappedTo['type'] == "object"
                         ) {
                             $output = "regular";
@@ -123,9 +125,6 @@ class T_CONDITION {
 
                         }else if ($mappedTo['type'] == "array") {
                             $output = "array";
-
-                        }else if ($mappedTo['type'] == "mhfxptr") {
-                            $output = "regular";
 
                         }else if (isset($mappedTo['abstract']) && $mappedTo['abstract'] == "state") {
                             $output = "state";
@@ -169,36 +168,18 @@ class T_CONDITION {
                         $code[] = $getLine('01000000', false, $debugMsg . 'int lower 0');
                     }
 
-                    if ($output == "string") {
-                        $code[] = $getLine('10000000', false, $debugMsg . 'string');
-                        $code[] = $getLine('01000000', false, $debugMsg . 'string');
 
-                        $code[] = $getLine('10000000', false, $debugMsg . 'string');
-                        $code[] = $getLine('02000000', false, $debugMsg . 'string');
+                    if ($isLastIndex && $output == "regular"){
+                        $code[] = $getLine('0f000000', false, $debugMsg . 'regular');
+                        $code[] = $getLine('04000000', false, $debugMsg . 'regular');
 
-                    }else if ($output == "float" || $output == "customFunction") {
-                        $code[] = $getLine('10000000', false, $debugMsg . 'float');
-                        $code[] = $getLine('01000000', false, $debugMsg . 'float');
+                    }else if($output !== "none"){
+                        Evaluate::regularReturn($code, $getLine);
+                    }
 
-                    }else if ($output == "state") {
-                        $code[] = $getLine('10000000', false, $debugMsg . 'float');
-                        $code[] = $getLine('01000000', false, $debugMsg . 'float');
-
-                    }else if ($output == "array") {
-                        $code[] = $getLine('10000000', false, $debugMsg . 'array');
-                        $code[] = $getLine('01000000', false, $debugMsg . 'array');
-
-                        $code[] = $getLine('10000000', false, $debugMsg . 'array');
-                        $code[] = $getLine('02000000', false, $debugMsg . 'array');
-
-                    }else if ($output == "regular"){
-                        if ($isLastIndex){
-                            $code[] = $getLine('0f000000', false, $debugMsg . 'regular');
-                            $code[] = $getLine('04000000', false, $debugMsg . 'regular');
-                        }else{
-                            $code[] = $getLine('10000000', false, $debugMsg . 'regular');
-                            $code[] = $getLine('01000000', false, $debugMsg . 'regular');
-                        }
+                    if ($output == "string" || $output == "array") {
+                        $code[] = $getLine('10000000', false, $debugMsg . $output);
+                        $code[] = $getLine('02000000', false, $debugMsg . $output);
                     }
                 }
 
@@ -211,11 +192,9 @@ class T_CONDITION {
 
                     $code[] = $getLine('0f000000', false, $debugMsg);
                     $code[] = $getLine('04000000', false, $debugMsg);
-                }else if ($token['operation']['type'] == Token::T_OR){
-                    throw new \Exception(" Or implementation missed");
                 }
 
-                if ($node['isNot']) self::setStatementNot($code, $getLine);
+                if ($node['isNot']) Evaluate::setStatementNot($code, $getLine);
 
 
                 /**
@@ -265,28 +244,8 @@ class T_CONDITION {
 
 
                 if ($operator){
-                    $debugMsg = sprintf('[T_CONDITION] map: operation ' . $operator['type']);
 
-                    switch ($operator['type']){
-                        case Token::T_IS_EQUAL:
-                            $code[] = $getLine('3f000000', false, $debugMsg);
-                            break;
-                        case Token::T_IS_NOT_EQUAL:
-                            $code[] = $getLine('40000000', false, $debugMsg);
-                            break;
-                        case Token::T_IS_SMALLER:
-                            $code[] = $getLine('3d000000', false, $debugMsg);
-                            break;
-                        case Token::T_IS_GREATER:
-                            $code[] = $getLine('42000000', false, $debugMsg);
-                            break;
-                        case Token::T_IS_GREATER_EQUAL:
-                            $code[] = $getLine('41000000', false, $debugMsg);
-                            break;
-                        default:
-                            throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $operator['type']));
-                            break;
-                    }
+                    Evaluate::setOperation($operator['type'], $code, $getLine);
 
                     $lastLine = end($code)->lineNumber + 4;
 
@@ -304,7 +263,7 @@ class T_CONDITION {
                 }
 
                 if (isset($node['isOuterNot']) && $node['isOuterNot']){
-                    self::setStatementNot($code, $getLine);
+                    Evaluate::setStatementNot($code, $getLine);
                 }
             }
         }
@@ -312,10 +271,4 @@ class T_CONDITION {
         return $code;
     }
 
-    static public function setStatementNot( &$code, \Closure $getLine ){
-        $debugMsg = sprintf('[T_CONDITION] setStatementNot: NOT');
-        $code[] = $getLine('29000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-    }
 }

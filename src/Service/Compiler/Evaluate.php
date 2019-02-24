@@ -12,6 +12,47 @@ class Evaluate {
         $code[] = $getLine('01000000', false, 'Return result');
     }
 
+    static public function stringReturn(&$code, \Closure $getLine ){
+        $code[] = $getLine('10000000', false, 'Return result');
+        $code[] = $getLine('01000000', false, 'Return result');
+
+        $code[] = $getLine('10000000', false, 'Return result');
+        $code[] = $getLine('02000000', false, 'Return result');
+    }
+
+
+    static public function setStatementNot( &$code, \Closure $getLine ){
+        $debugMsg = sprintf('[T_CONDITION] setStatementNot: NOT');
+        $code[] = $getLine('29000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+    }
+
+    static public function setOperation($type, &$code, \Closure $getLine ){
+        $debugMsg = sprintf('[T_CONDITION] map: operation ' . $type);
+
+        switch ($type){
+            case Token::T_IS_EQUAL:
+                $code[] = $getLine('3f000000', false, $debugMsg);
+                break;
+            case Token::T_IS_NOT_EQUAL:
+                $code[] = $getLine('40000000', false, $debugMsg);
+                break;
+            case Token::T_IS_SMALLER:
+                $code[] = $getLine('3d000000', false, $debugMsg);
+                break;
+            case Token::T_IS_GREATER:
+                $code[] = $getLine('42000000', false, $debugMsg);
+                break;
+            case Token::T_IS_GREATER_EQUAL:
+                $code[] = $getLine('41000000', false, $debugMsg);
+                break;
+            default:
+                throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $type));
+                break;
+        }
+    }
+
     static public function setIntMathOperator($type, &$code, \Closure $getLine ){
         $debugMsg = sprintf('[setIntMathOperator] ' . $type);
 
@@ -175,7 +216,7 @@ class Evaluate {
     }
 
 
-    static public function toHeader( $offset, &$code, \Closure $getLine, $game){
+    static public function toHeader( $offset, &$code, \Closure $getLine){
         $debugMsg = sprintf('[T_ASSIGN] toHeader ');
 
         $code[] = $getLine('16000000', false, $debugMsg);
@@ -184,7 +225,7 @@ class Evaluate {
         $code[] = $getLine('01000000', false, $debugMsg);
 
     }
-    static public function toGameVar( $node, &$code, \Closure $getLine, $game){
+    static public function toGameVar( $node, &$code, \Closure $getLine){
         $debugMsg = sprintf('[T_ASSIGN] toGameVar ');
 
         $code[] = $getLine('1d000000', false, $debugMsg);
@@ -241,13 +282,42 @@ class Evaluate {
     }
 
 
+
+    static public function gotoIndex( $index, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[gotoIndex] ' . $index);
+
+        $code[] = $getLine('12000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine( Helper::fromIntToHex($index), false, $debugMsg );
+
+    }
+
     static public function reserveBytes( $size, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] reserveBytes ');
+        $debugMsg = sprintf('[T_ASSIGN] reserveBytes ' . $size);
 
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('03000000', false, $debugMsg);
-        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg . $size );
+        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg );
 
+    }
+
+    static public function negate( $type, &$code, \Closure $getLine){
+
+        if ($type == Token::T_FLOAT) {
+            $debugMsg = '[negate] float';
+
+            $code[] = $getLine('4f000000', false, $debugMsg);
+            $code[] = $getLine('32000000', false, $debugMsg);
+            $code[] = $getLine('09000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
+
+        }else if ($type == Token::T_INT){
+            $debugMsg = '[negate] integer';
+
+            $code[] = $getLine('2a000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+
+        }
     }
 
 }

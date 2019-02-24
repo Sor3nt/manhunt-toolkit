@@ -2,6 +2,8 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\MHT;
+use App\Service\Compiler\Evaluate;
+use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
@@ -23,43 +25,25 @@ class T_FUNCTION {
 
     public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
 
-        $debugMsg = sprintf('[T_FUNCTION] finalize: %s ', $node['type']);
-
         switch ($node['type']){
             case Token::T_FLOAT:
             case Token::T_BOOLEAN:
             case Token::T_SELF:
             case Token::T_MULTIPLY:
-                $code[] = $getLine('10000000', false, $debugMsg);
-                $code[] = $getLine('01000000', false, $debugMsg);
+                Evaluate::regularReturn($code, $getLine);
             break;
 
 
             case Token::T_ADDITION:
             case Token::T_FUNCTION:
-                break;
-
             case Token::T_INT:
-
-                    if ($node['value'] >= 0){
-                        $code[] = $getLine('10000000', false, $debugMsg . 'value=' . $node['value'] . ' (first)');
-                        $code[] = $getLine('01000000', false, $debugMsg . '(last)');
-                    }else{
-                        $code[] = $getLine('2a000000', false, $debugMsg . 'value=' . $node['value'] . ' (negative) (first)');
-                        $code[] = $getLine('01000000', false, $debugMsg);
-                        $code[] = $getLine('10000000', false, $debugMsg);
-                        $code[] = $getLine('01000000', false, $debugMsg . '(last)');
-                    }
-
                 break;
 
             case Token::T_STRING:
 
                 if ($isProcedure == false && $isCustomFunction == false){
-                    $code[] = $getLine('10000000', false, $debugMsg . 'value=' . $node['value'] . ' (first)');
-                    $code[] = $getLine('01000000', false, $debugMsg);
-                    $code[] = $getLine('10000000', false, $debugMsg);
-                    $code[] = $getLine('02000000', false, $debugMsg . '(last)');
+
+                    Evaluate::stringReturn($code, $getLine);
                 }
 
                 break;
@@ -76,22 +60,20 @@ class T_FUNCTION {
                         if ($data['game'] == MHT::GAME_MANHUNT && $writeDebug) {
 
                         }else{
-                            $code[] = $getLine('10000000', false, $debugMsg . ' (header read)');
-                            $code[] = $getLine('01000000', false, $debugMsg . 'value=' . $node['value']);
+
+                            if (
+                                $mappedTo['type'] == 'level_var stringarray' ||
+                                $mappedTo['type'] == 'stringarray'
+                            ){
+                                Evaluate::stringReturn($code, $getLine);
+
+                            }else{
+                                Evaluate::regularReturn($code, $getLine);
+
+                            }
+
+
                         }
-
-                        $debugMsg = sprintf('[T_FUNCTION] finalize: header %s ', $mappedTo['type']);
-
-                        if ($mappedTo['type'] == 'level_var stringarray'){
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('02000000', false, $debugMsg);
-                        }
-
-                        if ($mappedTo['type'] == 'stringarray'){
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('02000000', false, $debugMsg);
-                        }
-
 
 
                         break;
@@ -104,8 +86,7 @@ class T_FUNCTION {
                             case 'entityptr':
                             case 'vec3d':
                             case 'integer':
-                                $code[] = $getLine('10000000', false, $debugMsg);
-                                $code[] = $getLine('01000000', false, $debugMsg);
+                                Evaluate::regularReturn($code, $getLine);
                                 break;
 
                             case 'customFunction':
@@ -114,11 +95,8 @@ class T_FUNCTION {
                                 break;
 
                             case 'stringarray':
-                                $code[] = $getLine('10000000', false, $debugMsg);
-                                $code[] = $getLine('01000000', false, $debugMsg);
+                                Evaluate::stringReturn($code, $getLine);
 
-                                $code[] = $getLine('10000000', false, $debugMsg);
-                                $code[] = $getLine('02000000', false, $debugMsg);
                                 break;
 
                             case 'procedure':
@@ -131,15 +109,10 @@ class T_FUNCTION {
 
                                         $code[] = $getLine('00000000', false, $debugMsg); // 0 always ?
 
-                                        $code[] = $getLine('10000000', false, $debugMsg);
-                                        $code[] = $getLine('01000000', false, $debugMsg);
-
-                                        $code[] = $getLine('10000000', false, $debugMsg);
-                                        $code[] = $getLine('02000000', false, $debugMsg);
+                                        Evaluate::stringReturn($code, $getLine);
                                         break;
                                     case 'real':
-                                        $code[] = $getLine('10000000', false, $debugMsg);
-                                        $code[] = $getLine('01000000', false, $debugMsg);
+                                        Evaluate::regularReturn($code, $getLine);
                                         break;
 
                                     default:
@@ -151,17 +124,15 @@ class T_FUNCTION {
                                 break;
                             case 'real':
                                 if ($writeDebug == false){
-                                    $code[] = $getLine('10000000', false, $debugMsg);
-                                    $code[] = $getLine('01000000', false, $debugMsg);
+                                    Evaluate::regularReturn($code, $getLine);
                                 }
                                 break;
                             case 'constant':
-                                $code[] = $getLine('10000000', false, $debugMsg);
-                                $code[] = $getLine('01000000', false, $debugMsg);
 
                                 if ($mappedTo['valueType'] == "string"){
-                                    $code[] = $getLine('10000000', false, $debugMsg . ' (string)');
-                                    $code[] = $getLine('02000000', false, $debugMsg . ' (string)');
+                                    Evaluate::stringReturn($code, $getLine);
+                                }else{
+                                    Evaluate::regularReturn($code, $getLine);
                                 }
                                 break;
                             default:
@@ -298,11 +269,6 @@ class T_FUNCTION {
         if (!isset($node['last']) || $node['last'] === true) {
             $code[] = $getLine($this->getFunction('WriteDebugFlush')['offset']);
         }
-//
-//        foreach ($code as &$line) {
-//            $line->debug = sprintf('[T_FUNCTION] handleWriteDebugCall');
-//        }
-
 
         return $code;
     }
@@ -399,8 +365,7 @@ class T_FUNCTION {
                 if ($param['type'] == Token::T_ADDITION){
                     $mathValue = $node['params'][$index + 1];
 
-                    $resultCode = $emitter( $mathValue );
-                    foreach ($resultCode as $line) {
+                    foreach ($emitter( $mathValue ) as $line) {
                         $line->debug = $debugMsg .  ' ' . $line->debug;
                         $code[] = $line;
                     }
@@ -414,8 +379,7 @@ class T_FUNCTION {
                     $code[] = $getLine('01000000', false, $debugMsg);
                     $code[] = $getLine('04000000', false, $debugMsg);
 
-                    $code[] = $getLine('10000000', false, $debugMsg);
-                    $code[] = $getLine('01000000', false, $debugMsg);
+                    Evaluate::regularReturn($code, $getLine);
 
                     $skipNext = true;
                 }else if ($param['type'] == Token::T_SUBSTRACTION){
@@ -438,8 +402,7 @@ class T_FUNCTION {
                     $code[] = $getLine('35000000', false, $debugMsg);
                     $code[] = $getLine('04000000', false, $debugMsg);
 
-                    $code[] = $getLine('10000000', false, $debugMsg);
-                    $code[] = $getLine('01000000', false, $debugMsg);
+                    Evaluate::regularReturn($code, $getLine);
 
                     $skipNext = true;
 
@@ -469,19 +432,25 @@ class T_FUNCTION {
                         Helper::fromFloatToHex($param['value']) == "00000080"
                     )
                 ) {
-                    $debugMsg = sprintf('[T_FUNCTION] map: negative float %s', $param['value']);
 
-                    $code[] = $getLine('4f000000', false, $debugMsg);
-                    $code[] = $getLine('32000000', false, $debugMsg);
-                    $code[] = $getLine('09000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
-                    $code[] = $getLine('10000000', false, $debugMsg);
-                    $code[] = $getLine('01000000', false, $debugMsg);
+                    Evaluate::negate(Token::T_FLOAT, $code, $getLine);
+                    Evaluate::regularReturn($code, $getLine);
                 }
 
 
+                if ($param['type'] == Token::T_INT){
+                    if ($param['value'] < 0){
+                        Evaluate::negate(Token::T_INT, $code,$getLine);
+                    }
+
+                    Evaluate::regularReturn($code, $getLine);
+
+                }
+
+
+
                 /**
-                 * when a function want a float but receive a int instead
+                 * when a function need a float but receive a int instead
                  * we need to tell the engine to convert the int to float
                  */
                 if (
@@ -493,69 +462,52 @@ class T_FUNCTION {
                             $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
 
                             $code[] = $getLine('4d000000', false, $debugMsg);
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('01000000', false, $debugMsg);
+
+                            Evaluate::regularReturn($code, $getLine);
 
                         }
                     }
                 }
 
-                if ($param['type'] == Token::T_VARIABLE){
-                    $mapping = T_VARIABLE::getMapping($param, $data);
-
-                    if ($mapping['type'] == "constant") {
-//                        $code[] = $getLine('hier');
-
-                    }else if ($mapping['type'] == "customFunction"){
-                        $debugMsg = sprintf('[T_FUNCTION] map: customFunction %s', $param['value']);
-
-//                        if ($mapping['valueType'] == "string"){
-                            $code[] = $getLine('00000000', false, $debugMsg); //maybe argument position ?
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('01000000', false, $debugMsg);
-                            $code[] = $getLine('10000000', false, $debugMsg);
-                            $code[] = $getLine('02000000', false, $debugMsg);
-
-//                        }
-                    }
-
-
-                }
-
+//                if ($param['type'] == Token::T_VARIABLE){
+//                    $mapping = T_VARIABLE::getMapping($param, $data);
+//
+//                    if ($mapping['type'] == "customFunction"){
+//                        $debugMsg = sprintf('[T_FUNCTION] map: customFunction %s', $param['value']);
+//
+//                        //TODO: kommt wohl drauf an was die custom function returnt...
+//                        $code[] = $getLine('00000000', false, $debugMsg); //maybe argument position ?
+//                        Evaluate::stringReturn($code, $getLine);
+//                    }
+//                }
             }
+        }
+
+        if ($isProcedure || $isCustomFunction) {
+            $procedureOffset = $mappedToBlock['offset'];
+
+            $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $node['value']);
+
+            $code[] = $getLine('10000000', false, $debugMsg); //procedure
+            $code[] = $getLine('04000000', false, $debugMsg); //procedure
+            $code[] = $getLine('11000000', false, $debugMsg); //procedure
+            $code[] = $getLine('02000000', false, $debugMsg); //procedure
+            $code[] = $getLine('00000000', false, $debugMsg); //procedure
+            $code[] = $getLine('32000000', false, $debugMsg); //procedure
+            $code[] = $getLine('02000000', false, $debugMsg); //procedure
+            $code[] = $getLine('1c000000', false, $debugMsg); //procedure
+            $code[] = $getLine('10000000', false, $debugMsg); //procedure
+            $code[] = $getLine('02000000', false, $debugMsg); //procedure
+            $code[] = $getLine('39000000', false, $debugMsg); //procedure
+            $code[] = $getLine(Helper::fromIntToHex($procedureOffset * 4), false, $debugMsg . ' (offset)'); //procedure offset
+
+            return $code;
         }
 
         /**
          * Translate function call
          */
-        try{
-            $function = $this->getFunction($node['value']);
-
-        }catch (\Exception $e){
-
-            if ($isProcedure || $isCustomFunction) {
-                $procedureOffset = $mappedToBlock['offset'];
-
-                $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $node['value']);
-
-                $code[] = $getLine('10000000', false, $debugMsg); //procedure
-                $code[] = $getLine('04000000', false, $debugMsg); //procedure
-                $code[] = $getLine('11000000', false, $debugMsg); //procedure
-                $code[] = $getLine('02000000', false, $debugMsg); //procedure
-                $code[] = $getLine('00000000', false, $debugMsg); //procedure
-                $code[] = $getLine('32000000', false, $debugMsg); //procedure
-                $code[] = $getLine('02000000', false, $debugMsg); //procedure
-                $code[] = $getLine('1c000000', false, $debugMsg); //procedure
-                $code[] = $getLine('10000000', false, $debugMsg); //procedure
-                $code[] = $getLine('02000000', false, $debugMsg); //procedure
-                $code[] = $getLine('39000000', false, $debugMsg); //procedure
-                $code[] = $getLine(Helper::fromIntToHex($procedureOffset * 4), false, $debugMsg . ' (offset)'); //procedure offset
-
-                return $code;
-            }
-
-            throw $e;
-        }
+        $function = $this->getFunction($node['value']);
 
         $debugMsg = sprintf('[T_FUNCTION] map: call function %s', $node['value']);
 
@@ -568,18 +520,20 @@ class T_FUNCTION {
 
         if (isset($node['nested']) && $node['nested'] === true){
 
-            $functionNoReturn = array_merge(Manhunt2::$functionNoReturn, ManhuntDefault::$functionNoReturn);
+            if ($data['game'] == MHT::GAME_MANHUNT){
+                $functionNoReturn = Manhunt::$functionNoReturn;
+            }else{
+                $functionNoReturn = Manhunt2::$functionNoReturn;
+            }
+
+            $functionNoReturn = array_merge($functionNoReturn, ManhuntDefault::$functionNoReturn);
 
             if (
                 //not sure, maybe this is just a fix for a unknown bug
                 !in_array(strtolower($node['value']), $functionNoReturn )
             ){
 
-                $debugMsg = sprintf('[T_FUNCTION] map: call function return');
-
-                $code[] = $getLine('10000000', false, $debugMsg);
-                $code[] = $getLine('01000000', false, $debugMsg);
-
+                Evaluate::regularReturn($code, $getLine);
             }
         }
 
@@ -595,11 +549,9 @@ class T_FUNCTION {
 
         foreach ($node['arguments'] as $index => $argument) {
 
-            $code[] = $getLine('12000000', false, $debugMsg);
-            $code[] = $getLine('01000000', false, $debugMsg);
-            $code[] = $getLine(Helper::fromIntToHex($index), false, $debugMsg . ' index');
-            $code[] = $getLine('10000000', false, $debugMsg);
-            $code[] = $getLine('01000000', false, $debugMsg);
+            Evaluate::gotoIndex($index, $code, $getLine);
+
+            Evaluate::regularReturn($code, $getLine);
 
             $resultCode = $emitter( $argument );
             foreach ($resultCode as $line) {
@@ -607,8 +559,7 @@ class T_FUNCTION {
                 $code[] = $line;
             }
 
-            $code[] = $getLine('10000000', false, $debugMsg . ' return');
-            $code[] = $getLine('01000000', false, $debugMsg . ' return');
+            Evaluate::regularReturn($code, $getLine);
 
             if ($index == 0){
                 $code[] = $getLine('07030000', false, $debugMsg . ' A OFFSET HMM');
