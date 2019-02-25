@@ -12,6 +12,7 @@ class Evaluate {
         $code[] = $getLine('01000000', false, 'Return result');
     }
 
+
     static public function stringReturn(&$code, \Closure $getLine ){
         $code[] = $getLine('10000000', false, 'Return result');
         $code[] = $getLine('01000000', false, 'Return result');
@@ -19,6 +20,15 @@ class Evaluate {
         $code[] = $getLine('10000000', false, 'Return result');
         $code[] = $getLine('02000000', false, 'Return result');
     }
+
+
+    static public function forward(&$code, \Closure $getLine ){
+        $debugMsg = sprintf('[forward] ');
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+    }
+
+
 
 
     static public function setStatementNot( &$code, \Closure $getLine ){
@@ -95,12 +105,15 @@ class Evaluate {
         }
     }
 
-    static public function setStatementOperator($node, &$code, \Closure $getLine ){
-
+    static public function setStatementNext(&$code, \Closure $getLine ){
         $code[] = $getLine('0f000000');
         $code[] = $getLine('04000000');
 
-        switch ($node['operator']){
+    }
+
+    static public function setStatementOperator($operator, &$code, \Closure $getLine ){
+
+        switch ($operator){
 
             case Token::T_OR:
                 $code[] = $getLine('27000000');
@@ -109,7 +122,7 @@ class Evaluate {
                 $code[] = $getLine('25000000');
                 break;
             default:
-                throw new \Exception(sprintf('Evaluate: setStatementOperator =>  %s is not a valid operator !', $node['operator']));
+                throw new \Exception(sprintf('Evaluate: setStatementOperator =>  %s is not a valid operator !', $operator));
         }
 
         $code[] = $getLine('01000000');
@@ -158,6 +171,18 @@ class Evaluate {
 
 
 
+
+
+
+    static public function toLevelVar( $offset, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toLevelVar ');
+
+        $code[] = $getLine('1a000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
+        $code[] = $getLine('04000000', false, $debugMsg);
+    }
+
     static public function fromLevelVar($mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromLevelVar] ');
         $code[] = $getLine('1b000000', false, $debugMsg);
@@ -172,22 +197,39 @@ class Evaluate {
         $code[] = $getLine('01000000', false, $debugMsg);
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
         $code[] = $getLine('1e000000', false, $debugMsg);
-//        $code[] = $getLine('01000000', false, $debugMsg);
 
         self::readObject($mapped['size'] , $code, $getLine);
+    }
 
-//        var_dump($code);
-//        exit;
+    static public function toGameVar( $node, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toGameVar ');
+
+        $code[] = $getLine('1d000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+
+        //todo hier muss der offset verbaut werden
+        if ($node['value'] == "willie_game_int"){
+            $code[] = $getLine('30000000', false, $debugMsg . 'right offset missed');
+        }else{
+            $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed');
+        }
+
+        $code[] = $getLine('04000000', false, $debugMsg);
+
     }
 
     static public function fromGameVar($mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromGameVar] ');
         $code[] = $getLine('1e000000', false, $debugMsg);
 //        $code[] = $getLine($mapped['offset'], false, $debugMsg);
-        $code[] = $getLine('34000000', false, $debugMsg);
+        //todo hier muss der offset verbaut werden
+        $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed');
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
     }
+
+
+
 
 
     static public function fromFineANameforMeTodo($mapped, &$code, \Closure $getLine){
@@ -209,6 +251,17 @@ class Evaluate {
         $code[] = $getLine('01000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
+
+    }
+
+    static public function fromFinedANameforMeTodoThird($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
+
+        $code[] = $getLine($mapped['section'] == "header" ? '16000000' : '15000000');
+
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
 
     }
 
@@ -265,48 +318,7 @@ class Evaluate {
     }
 
 
-    static public function toHeader( $offset, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] toHeader ');
 
-        $code[] = $getLine('16000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine($offset, false, $debugMsg . 'offset');
-        $code[] = $getLine('01000000', false, $debugMsg);
-
-    }
-    static public function toGameVar( $node, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] toGameVar ');
-
-        $code[] = $getLine('1d000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-
-        if ($node['value'] == "willie_game_int"){
-            $code[] = $getLine('30000000', false, $debugMsg);
-        }else{
-            $code[] = $getLine('34000000', false, $debugMsg);
-        }
-
-        $code[] = $getLine('04000000', false, $debugMsg);
-
-    }
-
-    static public function toScript( $offset, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] toScript ');
-
-        $code[] = $getLine('15000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
-        $code[] = $getLine('01000000', false, $debugMsg);
-    }
-
-    static public function toLevelVar( $offset, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] toLevelVar ');
-
-        $code[] = $getLine('1a000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
-        $code[] = $getLine('04000000', false, $debugMsg);
-    }
 
     static public function toHeaderStringArray( $offset, $size, &$code, \Closure $getLine){
 
@@ -321,8 +333,8 @@ class Evaluate {
         //define the length
         self::readPosition($size, $code, $getLine);
 
-        $code[] = $getLine('10000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
+        //forward the result
+        self::forward($code, $getLine);
 
         // save result
         $code[] = $getLine('10000000', false, $debugMsg);
@@ -332,8 +344,13 @@ class Evaluate {
 
 
 
+
+
+
+
+
     static public function readIndex($index, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[gotoIndex] ' . $index);
+        $debugMsg = sprintf('[readIndex] ' . $index);
 
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
@@ -359,6 +376,13 @@ class Evaluate {
 
     }
 
+
+
+
+
+
+
+
     static public function reserveBytes($size, &$code, \Closure $getLine){
         $debugMsg = sprintf('[reserveBytes] ' . $size);
 
@@ -368,22 +392,29 @@ class Evaluate {
 
     }
 
+    static public function reserveBytesUnknown($size, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[reserveBytes] ' . $size);
+
+        $code[] = $getLine('32000000', false, $debugMsg);
+        $code[] = $getLine('09000000', false, $debugMsg);
+        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg );
+
+    }
+
     static public function negate( $type, &$code, \Closure $getLine){
+        $debugMsg = '[negate] ' . $type;
 
         if ($type == Token::T_FLOAT) {
-            $debugMsg = '[negate] float';
 
             $code[] = $getLine('4f000000', false, $debugMsg);
-            $code[] = $getLine('32000000', false, $debugMsg);
-            $code[] = $getLine('09000000', false, $debugMsg);
-            $code[] = $getLine('04000000', false, $debugMsg);
+
+            self::reserveBytesUnknown(4, $code, $getLine);
 
         }else if ($type == Token::T_INT){
-            $debugMsg = '[negate] integer';
 
+            // * -1 ?
             $code[] = $getLine('2a000000', false, $debugMsg);
             $code[] = $getLine('01000000', false, $debugMsg);
-
         }
     }
 

@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\MHT;
+use App\Service\Compiler\Evaluate;
 use App\Service\Helper;
 
 class T_STRING {
@@ -27,23 +28,16 @@ class T_STRING {
         $isProcedure = isset($data['customData']['isProcedure']) && $data['customData']['isProcedure'];
         $isCustomFunction = isset($data['customData']['isCustomFunction']) && $data['customData']['isCustomFunction'];
 
-        $result = [
-            $getLine('21000000', false, $debugMsg),
-            $getLine('04000000', false, $debugMsg),
-            $getLine('01000000', false, $debugMsg),
+        $code = [];
 
-            $getLine($offset, false, $debugMsg . 'value ' . $value),
+        Evaluate::fromFineANameforMeTodo([
+            'section' => "header",
+            'offset' => $offset
+        ], $code, $getLine);
 
-            $isProcedure || $isCustomFunction ?
-                $getLine('10000000', false, $debugMsg . '(procedure/customFunction)') :
-                $getLine('12000000', false, $debugMsg),
-            $isProcedure || $isCustomFunction ?
-                $getLine('01000000', false, $debugMsg . '(procedure/customFunction)') :
-                $getLine('02000000', false, $debugMsg),
-        ];
-
-
-        if ($isProcedure == false && $isCustomFunction == false){
+        if ($isProcedure || $isCustomFunction){
+            Evaluate::regularReturn($code, $getLine);
+        }else{
 
             if ($data['game'] == MHT::GAME_MANHUNT){
                 $val = $value == "__empty__" ? 4 : strlen($value) + (4 - strlen($value) % 4);
@@ -52,13 +46,11 @@ class T_STRING {
 
             }
 
-            $result[] = $getLine(Helper::fromIntToHex(
-                $val
-            ), false, $debugMsg . '(length)');
+            Evaluate::readObject($val, $code, $getLine);
+
         }
 
-
-        return $result;
+        return $code;
     }
 
 }

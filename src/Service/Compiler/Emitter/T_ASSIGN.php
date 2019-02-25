@@ -226,19 +226,21 @@ class T_ASSIGN {
         }else if(substr($mapped['type'], 0, 9) == "level_var") {
             Evaluate::toLevelVar($mapped['offset'], $code, $getLine);
 
-        }else if (isset($mapped['abstract']) && $mapped['abstract'] == "state"){
-            Evaluate::toHeader( $mapped['offset'], $code, $getLine);
+        }else if (
+            isset($mapped['abstract']) && $mapped['abstract'] == "state" ||
+            isset($node['body'][1]) == true
+        ){
+//            Evaluate::toHeader( $mapped['offset'], $code, $getLine);
+            Evaluate::fromFinedANameforMeTodoThird($mapped, $code, $getLine);
 
         //regular assignment
         }else if (isset($node['body'][1]) == false){
 
-            if (substr($mapped['type'], 0, 8) == "game_var") Evaluate::toGameVar( $node, $code, $getLine);
-            else if ($mapped['section'] == "header") Evaluate::toHeader( $mapped['offset'], $code, $getLine);
-            else if ($mapped['section'] == "script") Evaluate::toScript( $mapped['offset'], $code, $getLine);
-
-        //math operation
-        }else if (isset($node['body'][1]) == true){
-            Evaluate::toScript($mapped['offset'], $code, $getLine);
+            if (substr($mapped['type'], 0, 8) == "game_var"){
+                Evaluate::toGameVar( $node, $code, $getLine);
+            } else {
+                Evaluate::fromFinedANameforMeTodoThird($mapped, $code, $getLine);
+            }
         }else{
             throw new \Exception(sprintf('T_ASSIGN: unhandled assignment '));
         }

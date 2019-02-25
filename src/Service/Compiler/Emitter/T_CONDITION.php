@@ -19,7 +19,6 @@ class T_CONDITION {
 
             if (count($token['params']) == 1){
 
-
                 if (
                     $data['game'] == MHT::GAME_MANHUNT &&
                     $token['params'][0]['type'] == Token::T_BOOLEAN
@@ -28,7 +27,6 @@ class T_CONDITION {
 
                     $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
                 }
-
 
                 foreach ($emitter($token['params'][0]) as $item){
                     $item->debug = $debugMsg . ' ' . $item->debug;
@@ -164,8 +162,8 @@ class T_CONDITION {
                     //generate the code based on the defined output (above)
 
                     if ($operation['type'] == Token::T_INT && $operation['value'] < 0) {
-                        $code[] = $getLine('2a000000', false, $debugMsg . 'int lower 0');
-                        $code[] = $getLine('01000000', false, $debugMsg . 'int lower 0');
+
+                        Evaluate::negate($operation['type'], $code, $getLine);
                     }
 
 
@@ -173,25 +171,21 @@ class T_CONDITION {
                         $code[] = $getLine('0f000000', false, $debugMsg . 'regular');
                         $code[] = $getLine('04000000', false, $debugMsg . 'regular');
 
+                    }else if ($output == "string" || $output == "array") {
+                        Evaluate::stringReturn($code, $getLine);
                     }else if($output !== "none"){
                         Evaluate::regularReturn($code, $getLine);
+
                     }
 
-                    if ($output == "string" || $output == "array") {
-                        $code[] = $getLine('10000000', false, $debugMsg . $output);
-                        $code[] = $getLine('02000000', false, $debugMsg . $output);
-                    }
+
+
                 }
 
                 if ($token['operation']['type'] == Token::T_AND) {
-                    $debugMsg = sprintf('[T_CONDITION] map: T_AND ');
 
-                    $code[] = $getLine('25000000', false, $debugMsg);
-                    $code[] = $getLine('01000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
-
-                    $code[] = $getLine('0f000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
+                    Evaluate::setStatementOperator($token['operation']['type'], $code, $getLine);
+                    Evaluate::setStatementNext($code, $getLine);
                 }
 
                 if ($node['isNot']) Evaluate::setStatementNot($code, $getLine);
@@ -238,9 +232,7 @@ class T_CONDITION {
                 }
 
 
-                $code[] = $getLine('12000000', false, '[T_CONDITION] map ( after finalize?)');
-                $code[] = $getLine('01000000', false, '[T_CONDITION] map ( after finalize?)');
-                $code[] = $getLine('01000000', false, '[T_CONDITION] map ( after finalize?)');
+                Evaluate::readIndex(1, $code, $getLine);
 
 
                 if ($operator){
