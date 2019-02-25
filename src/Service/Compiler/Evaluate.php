@@ -158,14 +158,63 @@ class Evaluate {
 
 
 
-    static public function fromObject($mapped, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] fromObject ');
+    static public function fromLevelVar($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromLevelVar] ');
+        $code[] = $getLine('1b000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+    }
+
+    static public function fromLevelVarStringArray($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromLevelVarStringArray] ');
+        $code[] = $getLine('1c000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+        $code[] = $getLine('1e000000', false, $debugMsg);
+//        $code[] = $getLine('01000000', false, $debugMsg);
+
+        self::readObject($mapped['size'] , $code, $getLine);
+
+//        var_dump($code);
+//        exit;
+    }
+
+    static public function fromGameVar($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromGameVar] ');
+        $code[] = $getLine('1e000000', false, $debugMsg);
+//        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+        $code[] = $getLine('34000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+    }
+
+
+    static public function fromFineANameforMeTodo($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromFineANameforMeTodo] ');
 
         $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000');
 
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
+
+    }
+
+    static public function fromFinedANameforMeTodoSecond($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
+
+        $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
+
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+
+    }
+
+    static public function fromObject($mapped, &$code, \Closure $getLine){
+
+        self::fromFineANameforMeTodo($mapped, $code, $getLine);
 
         self::regularReturn($code, $getLine);
     }
@@ -206,7 +255,7 @@ class Evaluate {
     static public function toVec3D( &$code, \Closure $getLine){
         $debugMsg = sprintf('[T_ASSIGN] toVec3D ');
 
-        self::reserveBytes(12, $code, $getLine);
+        self::readPosition(12, $code, $getLine);
 
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
@@ -270,7 +319,7 @@ class Evaluate {
         $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
 
         //define the length
-        self::reserveBytes($size, $code, $getLine);
+        self::readPosition($size, $code, $getLine);
 
         $code[] = $getLine('10000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
@@ -283,20 +332,38 @@ class Evaluate {
 
 
 
-    static public function gotoIndex( $index, &$code, \Closure $getLine){
+    static public function readIndex($index, &$code, \Closure $getLine){
         $debugMsg = sprintf('[gotoIndex] ' . $index);
 
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine( Helper::fromIntToHex($index), false, $debugMsg );
+        $code[] = $getLine( strlen($index) != 8 ? Helper::fromIntToHex($index) : $index, false, $debugMsg );
 
     }
 
-    static public function reserveBytes( $size, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] reserveBytes ' . $size);
+    static public function readObject($size, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[readObject] ' . $size);
+
+        $code[] = $getLine('12000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+        $code[] = $getLine( strlen($size) != 8 ? Helper::fromIntToHex($size) : $size, false, $debugMsg );
+
+    }
+
+    static public function readPosition($size, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[readPosition] ' . $size);
 
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('03000000', false, $debugMsg);
+        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg );
+
+    }
+
+    static public function reserveBytes($size, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[reserveBytes] ' . $size);
+
+        $code[] = $getLine('34000000', false, $debugMsg);
+        $code[] = $getLine('09000000', false, $debugMsg);
         $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg );
 
     }
@@ -318,6 +385,31 @@ class Evaluate {
             $code[] = $getLine('01000000', false, $debugMsg);
 
         }
+    }
+
+
+    static public function scriptStart( &$code, \Closure $getLine){
+        $debugMsg = "[T_SCRIPT] START ";
+
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('0a000000', false, $debugMsg);
+        $code[] = $getLine('11000000', false, $debugMsg);
+        $code[] = $getLine('0a000000', false, $debugMsg);
+        $code[] = $getLine('09000000', false, $debugMsg);
+
+    }
+
+    static public function scriptEnd( &$code, \Closure $getLine){
+        $debugMsg = "[T_SCRIPT] END ";
+
+        $code[] = $getLine('11000000', false, $debugMsg);
+        $code[] = $getLine('09000000', false, $debugMsg);
+        $code[] = $getLine('0a000000', false, $debugMsg);
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('0a000000', false, $debugMsg);
+        $code[] = $getLine('3b000000', false, $debugMsg);
+        $code[] = $getLine('00000000', false, $debugMsg);
+
     }
 
 }

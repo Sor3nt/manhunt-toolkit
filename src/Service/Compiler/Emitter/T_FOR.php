@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\MHT;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -98,8 +99,7 @@ class T_FOR {
             //könnte sein das dies innerhalb des params block gemacht werden muss...
             $data['game'] == MHT::GAME_MANHUNT
         ){
-            $code[] = $getLine('10000000', false, $debugMsg . 'mh1 boolean special');
-            $code[] = $getLine('01000000', false, $debugMsg . 'mh1 boolean special');
+            Evaluate::regularReturn($code, $getLine);
             $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
         }
 

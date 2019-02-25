@@ -549,7 +549,7 @@ class T_FUNCTION {
 
         foreach ($node['arguments'] as $index => $argument) {
 
-            Evaluate::gotoIndex($index, $code, $getLine);
+            Evaluate::readIndex($index, $code, $getLine);
 
             Evaluate::regularReturn($code, $getLine);
 

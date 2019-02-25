@@ -5,6 +5,7 @@ use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
+use App\Service\Compiler\Line;
 use App\Service\Helper;
 
 class T_VARIABLE extends TAbstract {
@@ -66,22 +67,25 @@ class T_VARIABLE extends TAbstract {
 
         $debugMsg = "[T_VARIABLE] map type " . $mapped['type'] . ' ' . $node['value'] . " ";
 
+        $code = [];
 
         switch ($mapped['type']){
             case 'vec3d':
-                $code = $this->fromVec3d($mapped);
+                Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
                 break;
 
             case 'object':
-                $code = $this->fromObjectAttribute($node, $data);
+                $code = $this->fromObjectAttribute($node, $data, $getLine);
                 break;
 
             case 'stringarray':
-                $code = $this->fromStringArray($mapped);
+                Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
+                Evaluate::readObject($mapped['size'], $code, $getLine);
+
                 break;
 
             case 'level_var stringarray':
-                $code = $this->fromLevelVarStringArray($mapped);
+                Evaluate::fromLevelVarStringArray($mapped, $code, $getLine);
                 break;
 
             case 'custom_functions':
@@ -89,26 +93,27 @@ class T_VARIABLE extends TAbstract {
                 break;
 
             case 'constant':
-                $code = $this->fromConstant($mapped);
+                Evaluate::readIndex($mapped['offset'], $code, $getLine);
                 break;
 
             case 'level_var state':
             case 'level_var tlevelstate':
-                $code = $this->fromLevelVarState($node, $data);
+                $code = $this->fromLevelVarState($node, $data, $getLine);
+
                 break;
 
             default:
 
                 if(substr($mapped['type'], 0, 9) == "level_var") {
-                    $code = $this->fromLevelVar($mapped);
+                    Evaluate::fromLevelVar($mapped, $code, $getLine);
                 }else if(substr($mapped['type'], 0, 8) == "game_var") {
-                    $code = $this->fromGameVar($mapped);
+                    Evaluate::fromGameVar($mapped, $code, $getLine);
 
                 }else if ($mapped['section'] == "header"){
-                    $code = $this->fromHeader($mapped);
+                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
 
                 }else if ($mapped['section'] == "script" || $mapped['type'] == "procedure"){
-                    $code = $this->fromScript($mapped);
+                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
 
                 }else{
                     throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
@@ -117,7 +122,11 @@ class T_VARIABLE extends TAbstract {
 
         $result = [];
         foreach ($code as $item) {
-            $result[] = $getLine($item, false, $debugMsg);
+            if ($item instanceof Line){
+                $result[] = $item;
+            }else{
+                $result[] = $getLine($item, false, $debugMsg);
+            }
         }
 
         return $result;
@@ -143,129 +152,40 @@ class T_VARIABLE extends TAbstract {
         ];
     }
 
-    private function fromConstant($mapped){
-        return [
-            '12000000',
-            '01000000',
-            $mapped['offset']
-        ];
-    }
-
-    private function fromScript($mapped){
-        return [
-            '13000000',
-            '01000000',
-            '04000000',
-            $mapped['offset']
-        ];
-    }
-
-    private function fromHeader($mapped){
-        return [
-            '14000000',
-            '01000000',
-            '04000000',
-            $mapped['offset']
-        ];
-    }
-
-    private function fromLevelVar($mapped){
-        return [
-            '1b000000',
-            $mapped['offset'],
-            '04000000',
-            '01000000'
-        ];
-    }
-
-    private function fromGameVar($mapped){
-        return [
-            '1e000000',
-            '34000000',
-            '04000000',
-            '01000000'
-        ];
-    }
-
-    private function fromLevelVarState($node, $data){
+    private function fromLevelVarState($node, $data, $getLine){
         if (!isset($node['target'])){
 
             $mapped = $data['combinedVariables'][$node['value']];
 
-            return $this->fromLevelVar($mapped);
+
+            $code = [];
+            Evaluate::fromLevelVar($mapped, $code, $getLine);
+
+            return $code;
         }
 
         $variableType = $data['types'][$node['target']];
         $mapped = $variableType[ strtolower($node['value']) ];
 
-        return [
-            '12000000',
-            '01000000',
-            $mapped['offset']
-        ];
+        $code = [];
+        Evaluate::readIndex($mapped['offset'], $code, $getLine);
+        return $code;
     }
 
-    private function fromVec3d($mapped){
-        return [
-            $mapped['section'] == "header" ? '21000000' : '22000000',
-            '04000000',
-            '01000000',
-            $mapped['offset']
-        ];
-    }
-
-    private function fromLevelVarStringArray($mapped){
-
-        return [
-            '1c000000',
-            '01000000',
-            $mapped['offset'],
-            '1e000000',
-            '12000000',
-            '02000000',
-            Helper::fromIntToHex( $mapped['size']  )
-        ];
-    }
-
-    private function fromStringArray($mapped){
-        return [
-            $mapped['section'] == "header" ? '21000000' : '22000000',
-            '04000000',
-            '01000000',
-            $mapped['offset'],
-            '12000000',
-            '02000000',
-            Helper::fromIntToHex( $mapped['size']  )
-        ];
-    }
-
-    private function fromObjectAttribute($node, $data){
+    private function fromObjectAttribute($node, $data, $getLine){
 
         $mapped = Evaluate::getObjectToAttributeSplit($node['value'], $data);
 
-        $code =  [
-            $mapped['section'] == "header" ? '21000000' : '22000000',
-            '04000000',
-            '01000000',
-            $mapped['object']['offset'],
-            '10000000',
-            '01000000',
-            '0f000000'
-        ];
+        $code = [];
 
         if ($mapped['offset'] !== $mapped['object']['offset']) {
-            $code[] = '01000000';
-
-            $code[] = '32000000';
-            $code[] = '01000000';
-
-            $code[] = $mapped['offset'];
-
-            $code[] = '10000000';
-            $code[] = '01000000';
-            $code[] = '0f000000';
+            Evaluate::fromObjectAttribute($mapped, $code, $getLine);
+        }else{
+            Evaluate::fromObject($mapped, $code, $getLine);
         }
 
+        //TODO: unknown code sequence... lookup needed
+        $code[] = '0f000000';
         $code[] = '02000000';
         $code[] = '18000000';
         $code[] = '01000000';
@@ -273,6 +193,7 @@ class T_VARIABLE extends TAbstract {
         $code[] = '02000000';
 
         return $code;
+
     }
 
 }

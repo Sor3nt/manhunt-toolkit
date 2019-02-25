@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Emitter;
 
 use App\MHT;
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -15,14 +16,8 @@ class T_SCRIPT {
 
         /**
          * Create script start sequence
-         *
-         * Note: we have here no names, its calculated by the offset inside the todo... section
-         */
-        $code[] = $getLine('10000000', false, $debugMsg . 'script start');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'script start');
-        $code[] = $getLine('11000000', false, $debugMsg . 'script start');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'script start');
-        $code[] = $getLine('09000000', false, $debugMsg . 'script start');
+        */
+        Evaluate::scriptStart($code, $getLine);
 
         /**
          * generate the needed bytes for the script
@@ -44,9 +39,7 @@ class T_SCRIPT {
         }
 
         if ($sum > 0){
-            $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
-            $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
-            $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
+            Evaluate::reserveBytes($sum, $code, $getLine);
         }
 
         if (isset($node['body'][0]) && $node['body'][0]['type'] == Token::T_DEFINE_SECTION_ARG){
@@ -61,22 +54,15 @@ class T_SCRIPT {
             $lastLineIndex = count($code) - 1;
 //
 
-            $code[] = $getLine('12000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('00000000', false, $debugMsg . 'argument init');
-//            $code[] = $getLine(Helper::fromIntToHex($rightHandNewMapped['order']), false, $debugMsg . 'argument init');
-            $code[] = $getLine('10000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
+            Evaluate::readIndex(0, $code, $getLine);
 
+            Evaluate::regularReturn($code, $getLine);
 
-            $code[] = $getLine('12000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
+            Evaluate::readIndex(0, $code, $getLine);
 
-            $code[$lastLineIndex]->hex = Helper::fromIntToHex(end($code)->lineNumber);
+            $code[$lastLineIndex]->hex = Helper::fromIntToHex(end($code)->lineNumber - 1);
 
-            $code[] = $getLine('00000000', false, $debugMsg . 'read argument fallback (offset todo)...');
-            $code[] = $getLine('10000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
+            Evaluate::regularReturn($code, $getLine);
 
 
             $code[] = $getLine('0a030000', false, $debugMsg . 'argument init');
@@ -111,26 +97,8 @@ class T_SCRIPT {
         /**
          * Create script end sequence
          */
-        if ($data['game'] == MHT::GAME_MANHUNT_2){
-            $code[] = $getLine('11000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('09000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('0f000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('3b000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('00000000', false, $debugMsg . 'script end');
 
-        }else{
-            $code[] = $getLine('11000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('09000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('0f000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('0a000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('3b000000', false, $debugMsg . 'script end');
-            $code[] = $getLine('00000000', false, $debugMsg . 'script end');
-
-        }
-
+        Evaluate::scriptEnd($code, $getLine);
 
         return $code;
     }
