@@ -15,25 +15,10 @@ class T_FOR {
 
         $code = [];
 
-        // assign value to var
-        $code[] = $getLine('12000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
+        Evaluate::readIndex($node['start']['value'], $code, $getLine);
 
-        if ($node['start']['type'] == Token::T_INT) {
-            $code[] = $getLine(Helper::fromIntToHex($node['start']['value']), false, $debugMsg . ' int value ' . $node['start']['value']);
-        }else{
-            throw new \Exception('T_FOR: Unable to handle type');
-        }
+        Evaluate::fromFinedANameforMeTodoThird($incrementVarMapped, $code, $getLine);
 
-
-        if ($data['game'] == MHT::GAME_MANHUNT){
-            $code[] = $getLine('16000000', false, $debugMsg);
-        }else{
-            $code[] = $getLine('15000000', false, $debugMsg);
-        }
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine($incrementVarMapped['offset'], false, $debugMsg . 'offset');
-        $code[] = $getLine('01000000', false, $debugMsg);
 
         $firstLineNumber = end($code)->lineNumber;
 
@@ -42,17 +27,7 @@ class T_FOR {
             $code[] = $item;
         }
 
-        if ($data['game'] == MHT::GAME_MANHUNT){
-            $code[] = $getLine('14000000', false, $debugMsg);
-
-        }else{
-            $code[] = $getLine('13000000', false, $debugMsg);
-        }
-
-        $code[] = $getLine('02000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine($incrementVarMapped['offset'], false, $debugMsg . 'offset');
-
+        Evaluate::fromFinedANameforMeTodoSecondAgain($incrementVarMapped, $code, $getLine);
 
         $code[] = $getLine('23000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);

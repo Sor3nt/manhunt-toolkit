@@ -55,7 +55,7 @@ class NewCompiler
 
         // cleanup the source code
         $source = $this->prepare($source);
-        $tokenizer = new Tokenizer();
+        $tokenizer = new Tokenizer($game);
         $tokens = $tokenizer->run($source);
 
         $this->parentScript = $parentScript;
@@ -401,29 +401,13 @@ class NewCompiler
         }
     }
 
+    /**
+     * @deprecated use Helper::calcTypeSize
+     */
     private function getMemorySizeByType($type, $add4Bytes = true)
     {
+        return Helper::calcTypeSize([[ 'type' => $type]], $add4Bytes);
 
-        if (substr($type, 0, 7) == "string[") {
-            $len = (int)explode("]", substr($type, 7))[0];
-
-            if ($add4Bytes) {
-                if ($len % 4 == 0) $len += 4;
-            }
-
-            return $len;
-        }
-
-        switch ($type) {
-            case 'vec3d':
-                return 12; // 3 floats a 4-bytes
-                break;
-
-            default:
-                return 4;
-                break;
-
-        }
     }
 
     private function calculateMissedStringSize($length)
@@ -1231,45 +1215,37 @@ class NewCompiler
             /**
              * when the variable is defined inside the HEADER and also in one or multiple scripts, we need to give him the 02 sequence
              */
-//            if ($variable['type'] != "vec3d"){
             foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
                 if ($varScriptName == $name) {
 
                     if (isset($variable['isLevelVarFromScript']) && $variable['isLevelVarFromScript'] == true){
 
                         unset($variable['isLevelVarFromScript']);
+
                         $hierarchieType = "ffffffff";
                         $variable['offset'] = "ffffffff";
                         $variable['size'] = "ffffffff";
 
                     }else{
 
-
                         $hierarchieType = '02000000';
                         $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
 
-                        if ($variable['type'] == "vec3d"){
-                            $memoryForDoubleEntries += 12;
-                        }else{
-                            $memoryForDoubleEntries += 4;
-                        }
+                        $memoryForDoubleEntries += Helper::calcTypeSize([$variable]);
+
+
                     }
 
                 }
             }
 
-//            }
-
 
             if (strtolower($varType) == "tlevelstate") $varType = "tLevelState";
             if ($varType == "stringarray") $varType = "string";
 
-//            if ($this->game == MHT::GAME_MANHUNT_2){
-                if ($varType == "entityptr"){
-                    $varType = "integer";
-                }
-
-//            }
+            if ($varType == "entityptr"){
+                $varType = "integer";
+            }
 
             /**
              * todo: not important, the type should say tLevelState but its messed up by the state handling

@@ -87,11 +87,8 @@ class T_ASSIGN {
 
             switch ($mapped['ofVar']){
                 case 'boolean':
-                    //todo: change to evaluate
-                    $code[] = $getLine('12000000', false, $debugMsg . 'boolean');
-                    $code[] = $getLine('01000000', false, $debugMsg . 'boolean');
-                    $code[] = $getLine(Helper::fromIntToHex( (int) $indexName), false, $debugMsg . 'boolean ' . $indexName);
 
+                    Evaluate::readIndex((int) $indexName, $code, $getLine);
                     break;
                 default:
 
@@ -102,20 +99,15 @@ class T_ASSIGN {
                             $data
                         );
 
-                        $ofVarSize = 0;
-                        foreach ($mappedRecord as $item) {
-                            if ($item['type'] == "vec3d") $ofVarSize += 12;
-                            else $ofVarSize += 4;
-                        }
+                        $ofVarSize = Helper::calcTypeSize($mappedRecord);
 
                         $wantedVariable = strtolower(explode('.', $node['value'])[1]);
                         $mappedRecord = $mappedRecord[$wantedVariable];
 
-
-                        $code[] = $getLine('13000000', false, $debugMsg . '(default)');
-                        $code[] = $getLine('01000000', false, $debugMsg . '(default)');
-                        $code[] = $getLine('04000000', false, $debugMsg . '(default)');
-                        $code[] = $getLine(Helper::fromIntToHex($mappedRecord['size']), false, $debugMsg . '(default) with size ' . $mappedRecord['size']);
+                        Evaluate::fromFinedANameforMeTodoSecond([
+                            'section' => 'script',
+                            'offset' => Helper::fromIntToHex($mappedRecord['size'])
+                        ], $code, $getLine);
 
                     }else{
                         throw new \Exception('T_ASSIGN: array Handler missed for ' . $mapped['ofVar']);
@@ -126,27 +118,22 @@ class T_ASSIGN {
             $code[] = $getLine('34000000', false, $debugMsg);
             $code[] = $getLine('01000000', false, $debugMsg);
             $code[] = $getLine('01000000', false, $debugMsg);
-            $code[] = $getLine('12000000', false, $debugMsg);
-            $code[] = $getLine('04000000', false, $debugMsg);
 
-            $code[] = $getLine(Helper::fromIntToHex($ofVarSize), false, $debugMsg . ' size of ofVar ' . $ofVarSize);
+            Evaluate::readArray($ofVarSize, $code, $getLine);
 
             $code[] = $getLine('35000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);
             $code[] = $getLine('0f000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);
+
             $code[] = $getLine('31000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);
             $code[] = $getLine('01000000', false, $debugMsg);
-            $code[] = $getLine('10000000', false, $debugMsg);
-            $code[] = $getLine('04000000', false, $debugMsg);
+
+            Evaluate::forward($code, $getLine);
 
             if ($mappedRecord['index'] > 0){
-                $code[] = $getLine('0f000000', false, $debugMsg . 'access index ' . $mappedRecord['index']);
-                $code[] = $getLine('01000000', false, $debugMsg . 'access index ');
-                $code[] = $getLine('32000000', false, $debugMsg . 'access index ');
-                $code[] = $getLine('01000000', false, $debugMsg . 'access index ');
-                $code[] = $getLine($mappedRecord['offset'], false, $debugMsg . 'access index offset'); // offset
+                Evaluate::fromAttribute($mappedRecord, $code, $getLine);
 
                 Evaluate::regularReturn($code, $getLine);
             }

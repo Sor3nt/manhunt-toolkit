@@ -98,7 +98,7 @@ class T_SCRIPT {
          * Create script end sequence
          */
 
-        Evaluate::scriptEnd($code, $getLine);
+        Evaluate::scriptEnd(Token::T_SCRIPT, '00000000', $code, $getLine);
 
         return $code;
     }

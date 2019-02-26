@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -15,16 +16,11 @@ class T_CUSTOM_FUNCTION {
         /**
          * Create script start sequence
          */
-        $code[] = $getLine('10000000', false, $debugMsg . 'function start');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'function start');
-        $code[] = $getLine('11000000', false, $debugMsg . 'function start');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'function start');
-        $code[] = $getLine('09000000', false, $debugMsg . 'function start');
+        Evaluate::scriptStart($code, $getLine);
 
         /**
          * generate the needed bytes for the script
          */
-
         $sum = 0;
         foreach ($data['variables'] as $variable) {
 
@@ -32,40 +28,16 @@ class T_CUSTOM_FUNCTION {
                 $variable['section'] == "script"
             ){
                 $sum += $variable['size'];
-
             }
         }
 
+        $size = Helper::calcTypeSize([['type' => $node['returnType']]]);
 
-        // add return size
-        $code[] = $getLine('34000000', false, $debugMsg . 'reserve return bytes');
-        $code[] = $getLine('09000000', false, $debugMsg . 'reserve return bytes');
-
-        switch (strtolower($node['returnType'])){
-            case 'vec3d':
-                $code[] = $getLine(Helper::fromIntToHex(12), false, $debugMsg . 'reserve return bytes 12');
-                break;
-            case 'string':
-            case 'real':
-            case 'integer':
-            case 'boolean':
-                $code[] = $getLine(Helper::fromIntToHex(4), false, $debugMsg . 'reserve return bytes 4');
-                break;
-
-            default:
-                throw new \Exception('Unknown returntype ' . $node['returnType']);
-        }
-
-
+        Evaluate::reserveBytes($size, $code, $getLine);
 
         if ($sum > 0){
-
-            $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
-            $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
-            $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
-
+            Evaluate::reserveBytes($sum, $code, $getLine);
         }
-
 
         /**
          * parse out the parameters
@@ -133,23 +105,20 @@ class T_CUSTOM_FUNCTION {
             }
         }
 
-
-        $code[] = $getLine('13000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg); //offset?
+        Evaluate::fromFinedANameforMeTodoSecond([
+            'section' => 'script',
+            'offset' => '04000000'
+        ], $code, $getLine);
 
         /**
          * Create script end sequence
          */
-        $code[] = $getLine('11000000' , false, $debugMsg . 'function end');
-        $code[] = $getLine('09000000' , false, $debugMsg . 'function end');
-        $code[] = $getLine('0a000000' , false, $debugMsg . 'function end');
-        $code[] = $getLine('0f000000' , false, $debugMsg . 'function end');
-        $code[] = $getLine('0a000000' , false, $debugMsg . 'function end');
-        $code[] = $getLine('3a000000' , false, $debugMsg . 'function end');
-        $code[] = $getLine(Helper::fromIntToHex(4 + (count($vars) * 4)) , false, $debugMsg . 'reserve byte' );
-
+        Evaluate::scriptEnd(
+            Token::T_CUSTOM_FUNCTION,
+            Helper::fromIntToHex(4 + (count($vars) * 4)),
+            $code,
+            $getLine
+        );
 
         return $code;
     }

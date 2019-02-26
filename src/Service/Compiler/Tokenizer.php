@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler;
 
+use App\MHT;
 use App\Service\Compiler\Tokens\T_ARRAY;
 use App\Service\Compiler\Tokens\T_ARRAY_RANGE;
 use App\Service\Compiler\Tokens\T_BOOLEAN;
@@ -138,6 +139,12 @@ class Tokenizer {
         T_VARIABLE::class
     ];
 
+    private $game;
+
+    public function __construct( $game = MHT::GAME_MANHUNT_2 )
+    {
+        $this->game = $game;
+    }
 
     /**
      * the tokenizer has no section informations while tokenizing.
@@ -167,7 +174,7 @@ class Tokenizer {
         return $tokens;
     }
 
-   public function fixCustomFunctionEndCall($tokens){
+    public function fixCustomFunctionEndCall($tokens){
         $current = 0 ;
 
         $found = false;
@@ -388,7 +395,13 @@ class Tokenizer {
     private function match($line, $offset, $tokens) {
         $string = substr($line, $offset);
         foreach ($this->tokens as $token) {
-            $parsed = $token::match($line, $offset, $tokens);
+
+            if ($token == "App\\Service\\Compiler\\Tokens\\T_VARIABLE"){
+                $parsed = $token::match($line, $offset, $this->game);
+
+            }else{
+                $parsed = $token::match($line, $offset, $tokens);
+            }
 
             if ($parsed) return $parsed;
         }

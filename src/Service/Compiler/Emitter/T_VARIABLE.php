@@ -135,7 +135,7 @@ class T_VARIABLE extends TAbstract {
 
     private function fromCustomFunctions($value, $data){
         return [
-
+            //TODO: unknown code sequence... lookup needed
             '10000000',
             '04000000',
             '11000000',

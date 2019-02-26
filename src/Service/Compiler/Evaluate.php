@@ -92,6 +92,7 @@ class Evaluate {
     static public function setFloatMathOperator($type, &$code, \Closure $getLine ){
         $debugMsg = sprintf('[T_ASSIGN] setFloatMathOperator ' . $type);
 
+        //TODO: das return gehört hier garnicht hin, oder ?!
         self::regularReturn($code, $getLine);
 
         if ($type == Token::T_ADDITION) {
@@ -244,11 +245,24 @@ class Evaluate {
     }
 
     static public function fromFinedANameforMeTodoSecond($mapped, &$code, \Closure $getLine){
+
         $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
 
         $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
 
         $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+
+    }
+
+    static public function fromFinedANameforMeTodoSecondAgain($mapped, &$code, \Closure $getLine){
+
+        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
+
+        $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
+
+        $code[] = $getLine('02000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
 
@@ -269,9 +283,28 @@ class Evaluate {
 
         self::fromFineANameforMeTodo($mapped, $code, $getLine);
 
+        //TODO: das return gehört hier garnicht hin
         self::regularReturn($code, $getLine);
     }
 
+    static public function fromAttribute($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromAttribute] ');
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+
+        $code[] = $getLine('32000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+
+        $code[] = $getLine($mapped['offset'], false, $debugMsg . 'offset');
+
+        //TODO: das return gehört hier garnicht hin
+        Evaluate::regularReturn($code, $getLine);
+
+    }
+
+    /**
+     * @deprecated
+     */
     static public function fromObjectAttribute($mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[T_ASSIGN] fromObjectAttribute ');
 
@@ -281,15 +314,18 @@ class Evaluate {
         ], $code, $getLine);
 
         if ($mapped['offset'] != $mapped['object']['offset']){
-            $code[] = $getLine('0f000000', false, $debugMsg);
-            $code[] = $getLine('01000000', false, $debugMsg);
 
-            $code[] = $getLine('32000000', false, $debugMsg);
-            $code[] = $getLine('01000000', false, $debugMsg);
-
-            $code[] = $getLine($mapped['offset'], false, $debugMsg . 'offset');
-
-            Evaluate::regularReturn($code, $getLine);
+            self::fromAttribute($mapped, $code, $getLine);
+//            $code[] = $getLine('0f000000', false, $debugMsg);
+//            $code[] = $getLine('01000000', false, $debugMsg);
+//
+//            $code[] = $getLine('32000000', false, $debugMsg);
+//            $code[] = $getLine('01000000', false, $debugMsg);
+//
+//            $code[] = $getLine($mapped['offset'], false, $debugMsg . 'offset');
+//
+//            //TODO: das return gehört hier garnicht hin
+//            Evaluate::regularReturn($code, $getLine);
         }
     }
 
@@ -376,6 +412,15 @@ class Evaluate {
 
     }
 
+    static public function readArray($size, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[readPosition] ' . $size);
+
+        $code[] = $getLine('12000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg );
+
+    }
+
 
 
 
@@ -430,7 +475,7 @@ class Evaluate {
 
     }
 
-    static public function scriptEnd( &$code, \Closure $getLine){
+    static public function scriptEnd($type, $offset, &$code, \Closure $getLine){
         $debugMsg = "[T_SCRIPT] END ";
 
         $code[] = $getLine('11000000', false, $debugMsg);
@@ -438,8 +483,14 @@ class Evaluate {
         $code[] = $getLine('0a000000', false, $debugMsg);
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('0a000000', false, $debugMsg);
-        $code[] = $getLine('3b000000', false, $debugMsg);
-        $code[] = $getLine('00000000', false, $debugMsg);
+
+        if ($type == Token::T_SCRIPT) {
+            $code[] = $getLine('3b000000', false, $debugMsg);
+        }else if ($type == Token::T_CUSTOM_FUNCTION){
+            $code[] = $getLine('3a000000', false, $debugMsg);
+        }
+
+        $code[] = $getLine($offset, false, $debugMsg);
 
     }
 

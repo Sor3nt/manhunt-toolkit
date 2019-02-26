@@ -1,13 +1,14 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\MHT;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class T_VARIABLE {
 
-    static public function match( $input, $current, $tokens ){
+    static public function match( $input, $current, $game ){
 
         $line = substr($input, $current);
 
@@ -23,9 +24,17 @@ class T_VARIABLE {
             }else{
 
                 if ($value !== ""){
-                    $funtions = array_merge(ManhuntDefault::$functions, Manhunt::$functions, Manhunt2::$functions);
+
+                    if ($game == MHT::GAME_MANHUNT){
+                        $funtions = Manhunt::$functions;
+                    }else{
+                        $funtions = Manhunt2::$functions;
+                    }
+
+                    $funtions = array_merge($funtions, ManhuntDefault::$functions);
 
                     if (isset($funtions[ strtolower($value) ])) {
+
                         return [
                             'type' => 'T_FUNCTION',
                             'value' => strtolower($value)
