@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -14,12 +15,7 @@ class T_PROCEDURE {
         /**
          * Create script start sequence
          */
-        $code[] = $getLine('10000000', false, $debugMsg . 'procedure start');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure start');
-        $code[] = $getLine('11000000', false, $debugMsg . 'procedure start');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure start');
-        $code[] = $getLine('09000000', false, $debugMsg . 'procedure start');
-
+        Evaluate::scriptStart($code, $getLine);
 
         /**
          * generate the needed bytes for the script
@@ -37,10 +33,7 @@ class T_PROCEDURE {
         }
 
         if ($sum > 0){
-
-            $code[] = $getLine('34000000', false, $debugMsg . 'reserve bytes');
-            $code[] = $getLine('09000000', false, $debugMsg . 'reserve bytes');
-            $code[] = $getLine(Helper::fromIntToHex($sum), false, $debugMsg . 'reserve bytes ' . $sum);
+            Evaluate::reserveBytes($sum, $code, $getLine);
         }
 
 
@@ -113,13 +106,13 @@ class T_PROCEDURE {
         /**
          * Create script end sequence
          */
-        $code[] = $getLine('11000000', false, $debugMsg . 'procedure end');
-        $code[] = $getLine('09000000', false, $debugMsg . 'procedure end');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure end');
-        $code[] = $getLine('0f000000', false, $debugMsg . 'procedure end');
-        $code[] = $getLine('0a000000', false, $debugMsg . 'procedure end');
-        $code[] = $getLine('3a000000', false, $debugMsg . 'procedure end');
-        $code[] = $getLine(Helper::fromIntToHex(4 + (count($vars) * 4)), false, $debugMsg . 'byte reserve');
+
+        Evaluate::scriptEnd(
+            Token::T_CUSTOM_FUNCTION,
+            Helper::fromIntToHex(4 + (count($vars) * 4)),
+            $code,
+            $getLine
+        );
 
 
         return $code;

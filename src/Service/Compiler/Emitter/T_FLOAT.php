@@ -2,13 +2,12 @@
 namespace App\Service\Compiler\Emitter;
 
 
+use App\Service\Compiler\Evaluate;
 use App\Service\Helper;
 
 class T_FLOAT {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
-
-        $debugMsg = sprintf('[T_FLOAT] map ');
 
         $value = (float) $node['value'];
 
@@ -21,15 +20,19 @@ class T_FLOAT {
 
         $hex = Helper::fromFloatToHex( $value );
 
-        //replace -0 with ß
+        //replace -0 with 0
         if ($hex == '00000080') $hex = '00000000';
 
-        return [
-            $getLine('12000000', false, $debugMsg),
-            $getLine('01000000', false, $debugMsg),
+        $code = [];
 
-            $getLine($hex, false, $debugMsg . $value)
-        ];
+        Evaluate::readIndex(
+            $hex,
+            $code,
+            $getLine
+        );
+
+        return $code;
+
     }
 
 }

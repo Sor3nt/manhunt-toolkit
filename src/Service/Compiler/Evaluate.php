@@ -7,6 +7,28 @@ class Evaluate {
 
 //Evaluate::regularReturn($code, $getLine);
 
+    static public function goto($name, $offset, &$code, \Closure $getLine ){
+
+        $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $name);
+
+        $code[] = $getLine('10000000', false, $debugMsg); //procedure
+        $code[] = $getLine('04000000', false, $debugMsg); //procedure
+        $code[] = $getLine('11000000', false, $debugMsg); //procedure
+        $code[] = $getLine('02000000', false, $debugMsg); //procedure
+        $code[] = $getLine('00000000', false, $debugMsg); //procedure
+        $code[] = $getLine('32000000', false, $debugMsg); //procedure
+        $code[] = $getLine('02000000', false, $debugMsg); //procedure
+        $code[] = $getLine('1c000000', false, $debugMsg); //procedure
+        $code[] = $getLine('10000000', false, $debugMsg); //procedure
+        $code[] = $getLine('02000000', false, $debugMsg); //procedure
+        $code[] = $getLine('39000000', false, $debugMsg); //procedure
+        $code[] = $getLine(Helper::fromIntToHex($offset), false, $debugMsg . ' (offset)');
+    }
+
+    static public function int2float(&$code, \Closure $getLine ){
+        $code[] = $getLine('4d000000', false, 'integer to float');
+    }
+
     static public function regularReturn(&$code, \Closure $getLine ){
         $code[] = $getLine('10000000', false, 'Return result');
         $code[] = $getLine('01000000', false, 'Return result');
@@ -306,7 +328,6 @@ class Evaluate {
      * @deprecated
      */
     static public function fromObjectAttribute($mapped, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] fromObjectAttribute ');
 
         self::fromObject([
             'offset' => $mapped['object']['offset'],
@@ -316,16 +337,6 @@ class Evaluate {
         if ($mapped['offset'] != $mapped['object']['offset']){
 
             self::fromAttribute($mapped, $code, $getLine);
-//            $code[] = $getLine('0f000000', false, $debugMsg);
-//            $code[] = $getLine('01000000', false, $debugMsg);
-//
-//            $code[] = $getLine('32000000', false, $debugMsg);
-//            $code[] = $getLine('01000000', false, $debugMsg);
-//
-//            $code[] = $getLine($mapped['offset'], false, $debugMsg . 'offset');
-//
-//            //TODO: das return gehört hier garnicht hin
-//            Evaluate::regularReturn($code, $getLine);
         }
     }
 
@@ -335,6 +346,7 @@ class Evaluate {
 
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('02000000', false, $debugMsg);
+
         $code[] = $getLine('17000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('02000000', false, $debugMsg);
@@ -348,6 +360,7 @@ class Evaluate {
 
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
+
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('44000000', false, $debugMsg);

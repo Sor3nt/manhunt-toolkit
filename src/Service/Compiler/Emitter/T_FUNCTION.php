@@ -435,16 +435,15 @@ class T_FUNCTION {
 
                     Evaluate::negate(Token::T_FLOAT, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
-                }
+                }else if ($param['type'] == Token::T_INT){
 
-
-                if ($param['type'] == Token::T_INT){
+                    //todo: hm irgendwie ist das komisch hier
+                    //todo: genauer nochmal anschauen
                     if ($param['value'] < 0){
                         Evaluate::negate(Token::T_INT, $code,$getLine);
                     }
 
                     Evaluate::regularReturn($code, $getLine);
-
                 }
 
 
@@ -461,7 +460,7 @@ class T_FUNCTION {
                         if ($forceFloatOrder[$index] === true){
                             $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
 
-                            $code[] = $getLine('4d000000', false, $debugMsg);
+                            Evaluate::int2float($code, $getLine);
 
                             Evaluate::regularReturn($code, $getLine);
 
@@ -469,37 +468,13 @@ class T_FUNCTION {
                     }
                 }
 
-//                if ($param['type'] == Token::T_VARIABLE){
-//                    $mapping = T_VARIABLE::getMapping($param, $data);
-//
-//                    if ($mapping['type'] == "customFunction"){
-//                        $debugMsg = sprintf('[T_FUNCTION] map: customFunction %s', $param['value']);
-//
-//                        //TODO: kommt wohl drauf an was die custom function returnt...
-//                        $code[] = $getLine('00000000', false, $debugMsg); //maybe argument position ?
-//                        Evaluate::stringReturn($code, $getLine);
-//                    }
-//                }
             }
         }
 
         if ($isProcedure || $isCustomFunction) {
             $procedureOffset = $mappedToBlock['offset'];
 
-            $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $node['value']);
-
-            $code[] = $getLine('10000000', false, $debugMsg); //procedure
-            $code[] = $getLine('04000000', false, $debugMsg); //procedure
-            $code[] = $getLine('11000000', false, $debugMsg); //procedure
-            $code[] = $getLine('02000000', false, $debugMsg); //procedure
-            $code[] = $getLine('00000000', false, $debugMsg); //procedure
-            $code[] = $getLine('32000000', false, $debugMsg); //procedure
-            $code[] = $getLine('02000000', false, $debugMsg); //procedure
-            $code[] = $getLine('1c000000', false, $debugMsg); //procedure
-            $code[] = $getLine('10000000', false, $debugMsg); //procedure
-            $code[] = $getLine('02000000', false, $debugMsg); //procedure
-            $code[] = $getLine('39000000', false, $debugMsg); //procedure
-            $code[] = $getLine(Helper::fromIntToHex($procedureOffset * 4), false, $debugMsg . ' (offset)'); //procedure offset
+            Evaluate::goto($node['value'], $procedureOffset * 4, $code, $getLine);
 
             return $code;
         }

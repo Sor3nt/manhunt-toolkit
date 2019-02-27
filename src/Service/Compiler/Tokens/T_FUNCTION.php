@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Tokens;
 
 use App\Service\Compiler\Emitter\T_VARIABLE;
+use App\Service\Compiler\Token;
 
 class T_FUNCTION {
 
@@ -22,9 +23,19 @@ class T_FUNCTION {
             }else{
 
                 if ($char == ";" || $char == "("){
+                    $val = strtolower(trim($value));
+
+                    if ($val == "nil"){
+                        return [
+                            'type' => Token::T_NIL,
+                            'value' => 'nil'
+                        ];
+
+                    }
+
                     return [
                         'type' => 'T_FUNCTION',
-                        'value' => strtolower(trim($value))
+                        'value' => $val
                     ];
                 }else{
                     return false;

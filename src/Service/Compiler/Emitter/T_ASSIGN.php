@@ -138,9 +138,6 @@ class T_ASSIGN {
                 Evaluate::regularReturn($code, $getLine);
             }
 
-        //hack: nil is detected as function, but its T_NIL actual....
-        }else if ($leftHand['type'] == Token::T_FUNCTION && $leftHand['value'] == "nil"){
-            $leftHand['type'] = Token::T_NIL;
         }
 
         /**
