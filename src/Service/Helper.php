@@ -10,6 +10,28 @@ use App\Service\Compiler\Token;
 
 class Helper{
 
+    static function calcTypeSize( $types, $addString4Bytes = false ){
+
+        $size = 0;
+
+        foreach ($types as $type) {
+            if (strtolower($type['type']) == "vec3d") $size += 12;
+            else if (substr($type['type'], 0, 7) == "string[") {
+                $len = (int)explode("]", substr($type['type'], 7))[0];
+
+                if ($addString4Bytes) {
+                    if ($len % 4 == 0) $len += 4;
+                }
+
+                $size += $len;
+            }
+            else $size += 4;
+        }
+
+        return $size;
+
+    }
+
     static function toBigEndian( $hex ){
         $split = str_split($hex, 2);
         $split = array_reverse($split);
