@@ -95,7 +95,7 @@ class T_CONDITION {
                             throw new \Exception(sprintf('No return value configured for %s', $operation['value']));
                         }
 
-                        if ($funcMappedTo['return'] != 'String') $output = "regular";
+                        if ($funcMappedTo['return'] != 'string') $output = "regular";
 
                     }else if ($operation['type'] == Token::T_VARIABLE){
                         $mappedTo = T_VARIABLE::getMapping(

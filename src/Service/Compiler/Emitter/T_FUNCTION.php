@@ -244,13 +244,13 @@ class T_FUNCTION {
                 }
 
                 switch ($function['return']){
-                    case 'String':
+                    case 'string':
                         $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
                         break;
-                    case 'Integer':
+                    case 'integer':
                         $code[] = $getLine($this->getFunction('WriteDebugInteger')['offset']);
                         break;
-                    case 'Real':
+                    case 'real':
                         $code[] = $getLine($this->getFunction('WriteDebugReal')['offset']);
                         break;
                     default:
@@ -498,7 +498,7 @@ class T_FUNCTION {
             if (
                 !isset($function['return']) || (
                     $function['return'] != "vec3d" &&
-                    $function['return'] != "String"
+                    $function['return'] != "string"
                 )
             ){
                 Evaluate::regularReturn($code, $getLine);

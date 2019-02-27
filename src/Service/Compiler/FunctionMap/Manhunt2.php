@@ -23,621 +23,621 @@ class Manhunt2
     public static $constants = [
 
         'arm_invulnerable' => [
-            'offset' => "04000000"
+            'offset' => '04000000'
         ],
 
         'ct_pliers' => [
-            'offset' => "22000000"
+            'offset' => '22000000'
         ],
 
         'ct_uzi' => [
-            'offset' => "2c000000"
+            'offset' => '2c000000'
         ],
 
         'ct_shotgun' => [
-            'offset' => "2e000000"
+            'offset' => '2e000000'
         ],
 
         'col_shot' => [
-            'offset' => "00800000"
+            'offset' => '00800000'
         ],
 
         'hid_healthbar_player' => [
-            'offset' => "03000000"
+            'offset' => '03000000'
         ],
 
         'map_color_person' => [
-            'offset' => "16000000"
+            'offset' => '16000000'
         ],
         'ct_syringe' => [
-            'offset' => "71000000"
+            'offset' => '71000000'
         ],
 
         'ct_glock' => [
-            'offset' => "29000000"
+            'offset' => '29000000'
         ],
 
         'ct_head' => [
-            'offset' => "67000000"
+            'offset' => '67000000'
         ],
 
         'ct_g_first_aid' => [
-            "offset" => "09000000"
+            'offset' => '09000000'
         ],
 
         'mover_accel_fast' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'aiscript_mediumpriority' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'aiscript_idle_standanims' => [
-            'offset' => "05000000"
+            'offset' => '05000000'
         ],
 
         'aiscript_idle_wandersearch' => [
-            'offset' => "00000000"
+            'offset' => '00000000'
         ],
 
         'mtt_hood_medium' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'aiscript_walkmovespeed' => [
-            'offset' => "01000000"
+            'offset' => '01000000'
         ],
 
         'col_player' => [
-            'offset' => "00020000"
+            'offset' => '00020000'
         ],
 
         'map_color_yellow' => [
-            'offset' => "04000000"
+            'offset' => '04000000'
         ],
 
         'map_color_red' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'hid_radar' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'map_color_location' => [
-            'offset' => "14000000"
+            'offset' => '14000000'
         ],
 
         'map_color_hunter_idle' => [
-            'offset' => "08000000"
+            'offset' => '08000000'
         ],
 
         'col_hunter' => [
-            'offset' => "10000000"
+            'offset' => '10000000'
         ],
 
         'aiscript_veryhighpriority' => [
-            'offset' => "00000000"
+            'offset' => '00000000'
         ],
 
         'aiscript_lowpriority' => [
-            'offset' => "03000000"
+            'offset' => '03000000'
         ],
 
         'aiscript_idle_standstill' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'combattypeid_melee' => [
-            'offset' => "00000000"
+            'offset' => '00000000'
         ],
 
         'mtt_training' => [
-            'offset' => "00000000"
+            'offset' => '00000000'
         ],
 
         'difficulty_normal' => [
-            'offset' => "01000000"
+            'offset' => '01000000'
         ],
 
         'map_color_blue' => [
-            'offset' => "06000000"
+            'offset' => '06000000'
         ],
 
         'combattypeid_open_melee' => [
-            'offset' => "03000000"
+            'offset' => '03000000'
         ],
 
         'combattypeid_cover' => [
-            'offset' => "02000000"
+            'offset' => '02000000'
         ],
 
         'combattypeid_open' => [
-            'offset' => "01000000"
+            'offset' => '01000000'
         ],
 
         'aiscript_graphlink_allow_nothing' => [
-            'offset' => "00000000"
+            'offset' => '00000000'
         ],
 
         'hid_all_player_items' => [
-            'offset' => "2c010000"
+            'offset' => '2c010000'
         ],
 
         'aiscript_graphlink_allow_everything' => [
-            "offset" => "03000000"
+            'offset' => '03000000'
         ],
 
         'aiscript_idle_patrol' => [
-            "offset" => "01000000"
+            'offset' => '01000000'
         ],
 
         'aiscript_highpriority' => [
-            "offset" => "01000000"
+            'offset' => '01000000'
         ],
 
         'mover_stopped' => [
-            "offset" => "00000000"
+            'offset' => '00000000'
         ],
 
         'mover_forward' => [
-            "offset" => "01000000"
+            'offset' => '01000000'
         ],
 
         'mover_accel_slow' => [
-            "offset" => "02000000"
+            'offset' => '02000000'
         ],
 
         'aiscript_runmovespeed' => [
-            "offset" => "00000000"
+            'offset' => '00000000'
         ],
 
         'door_open' => [
-            "offset" => "00000000"
+            'offset' => '00000000'
         ],
 
         'door_opening' => [
-            "offset" => "01000000"
+            'offset' => '01000000'
         ],
 
         'door_closed' => [
-            "offset" => "02000000"
+            'offset' => '02000000'
         ],
 
         'door_closing' => [
-            "offset" => "03000000"
+            'offset' => '03000000'
         ],
 
         'ct_crossbow' => [
-            "offset" => "83000000"
+            'offset' => '83000000'
         ],
 
         'useable_on' => [
-            "offset" => "01000000"
+            'offset' => '01000000'
         ],
 
         'arm_heavy' => [
-            "offset" => "03000000"
+            'offset' => '03000000'
         ],
 
         'map_color_cyan' => [
-            "offset" => "07000000"
+            'offset' => '07000000'
         ],
 
         'map_color_orange' => [
-            "offset" => "03000000"
+            'offset' => '03000000'
         ],
 
     ];
 
     public static $functions = [
 
-        "callscript" => [
+        'callscript' => [
             'name' => 'callscript',
-            'offset' => "0d030000"
+            'offset' => '0d030000'
         ],
 
-        "playscriptaudiostreamaux" => [
+        'playscriptaudiostreamaux' => [
             'name' => 'PlayScriptAudioStreamAux',
-            'offset' => "d7030000"
+            'offset' => 'd7030000'
         ],
-        "playdirectorspeechplaceholder" => [
+        'playdirectorspeechplaceholder' => [
             'name' => 'PlayDirectorSpeechPlaceholder',
-            'offset' => "8f020000"
+            'offset' => '8f020000'
         ],
-        "fakehuntersetdir" => [
+        'fakehuntersetdir' => [
             'name' => 'FakeHunterSetDir',
-            'offset' => "bd030000"
+            'offset' => 'bd030000'
         ],
-        "fakehuntergoto" => [
+        'fakehuntergoto' => [
             'name' => 'FakeHunterGoto',
-            'offset' => "bf030000"
+            'offset' => 'bf030000'
         ],
-        "fakehunterdestroy" => [
+        'fakehunterdestroy' => [
             'name' => 'FakeHunterDestroy',
-            'offset' => "bb030000"
+            'offset' => 'bb030000'
         ],
 
-        "fakehunterwander" => [
+        'fakehunterwander' => [
             'name' => 'FakeHunterWander',
-            'offset' => "c1030000"
+            'offset' => 'c1030000'
         ],
 
-        "fakehuntersetpos" => [
+        'fakehuntersetpos' => [
             'name' => 'FakeHunterSetPos',
-            'offset' => "bc030000"
+            'offset' => 'bc030000'
         ],
 
-        "fakehuntersetcolour" => [
+        'fakehuntersetcolour' => [
             'name' => 'FakeHunterSetColour',
-            'offset' => "be030000"
+            'offset' => 'be030000'
         ],
 
-        "fakehuntercreate" => [
+        'fakehuntercreate' => [
             'name' => 'FakeHunterCreate',
-            'offset' => "ba030000"
+            'offset' => 'ba030000'
         ],
 
-        "getentityview" => [
+        'getentityview' => [
             'name' => 'GetEntityView',
-            'offset' => "93010000",
+            'offset' => '93010000',
             'return' => 'vec3d'
         ],
 
-        "freezeentity" => [
+        'freezeentity' => [
             'name' => 'FreezeEntity',
-            'offset' => "37010000"
+            'offset' => '37010000'
         ],
 
-        "blockpathsaroundplayer" => [
+        'blockpathsaroundplayer' => [
             'name' => 'BlockPathsAroundPlayer',
-            'offset' => "9b030000"
+            'offset' => '9b030000'
         ],
 
-        "aisethunterhomenodedirection" => [
+        'aisethunterhomenodedirection' => [
             'name' => 'AISetHunterHomeNodeDirection',
-            'offset' => "9d010000"
+            'offset' => '9d010000'
         ],
-        "setdooroverrideangle" => [
+        'setdooroverrideangle' => [
             'name' => 'SetDoorOverrideAngle',
-            'offset' => "98020000"
+            'offset' => '98020000'
         ],
-        "aisetentitycrouch" => [
+        'aisetentitycrouch' => [
             'name' => 'AISetEntityCrouch',
-            'offset' => "09020000"
+            'offset' => '09020000'
         ],
-        "useablesetstate" => [
+        'useablesetstate' => [
             'name' => 'UseableSetState',
-            'offset' => "cc010000"
+            'offset' => 'cc010000'
         ],
 
-        "additemtoinventory" => [
+        'additemtoinventory' => [
             'name' => 'AddItemToInventory',
-            'offset' => "bb000000"
+            'offset' => 'bb000000'
         ],
 
-        "enablejumpattacks" => [
+        'enablejumpattacks' => [
             'name' => 'EnableJumpAttacks',
-            'offset' => "80030000"
+            'offset' => '80030000'
         ],
 
-        "inflictdamage" => [
+        'inflictdamage' => [
             'name' => 'InflictDamage',
-            'offset' => "85000000"
+            'offset' => '85000000'
         ],
 
-        "instantdecayalldead" => [
+        'instantdecayalldead' => [
             'name' => 'InstantDecayAllDead',
-            'offset' => "83030000"
+            'offset' => '83030000'
         ],
 
-        "setspotlightmode" => [
+        'setspotlightmode' => [
             'name' => 'SetSpotlightMode',
-            'offset' => "a2030000"
+            'offset' => 'a2030000'
         ],
 
-        "heligetnodereached" => [
+        'heligetnodereached' => [
             'name' => 'HeliGetNodeReached',
-            'offset' => "b4030000"
+            'offset' => 'b4030000'
         ],
 
-        "getindexfrominventoryitemtype" => [
+        'getindexfrominventoryitemtype' => [
             'name' => 'GetIndexFromInventoryItemType',
-            'offset' => "c6000000"
+            'offset' => 'c6000000'
         ],
 
-        "enteredtrigger" => [
+        'enteredtrigger' => [
             'name' => 'EnteredTrigger',
-            'offset' => "a4000000"
+            'offset' => 'a4000000'
         ],
 
-        "aimodifygoalcrouch" => [
+        'aimodifygoalcrouch' => [
             'name' => 'AIModifyGoalCrouch',
-            'offset' => "08020000"
+            'offset' => '08020000'
         ],
-        "aiguardmodifyshootoutsideradius" => [
+        'aiguardmodifyshootoutsideradius' => [
             'name' => 'AIGuardModifyShootOutsideRadius',
-            'offset' => "cd010000"
+            'offset' => 'cd010000'
         ],
-        "sethuntergunfireminpause" => [
+        'sethuntergunfireminpause' => [
             'name' => 'SetHunterGunFireMinPause',
-            'offset' => "22020000"
+            'offset' => '22020000'
         ],
-        "sethuntergunfiremaxpause" => [
+        'sethuntergunfiremaxpause' => [
             'name' => 'SetHunterGunFireMaxPause',
-            'offset' => "23020000"
+            'offset' => '23020000'
         ],
-        "sethuntergunfireminburst" => [
+        'sethuntergunfireminburst' => [
             'name' => 'SetHunterGunFireMinBurst',
-            'offset' => "24020000"
+            'offset' => '24020000'
         ],
-        "heliresumeidlepatrol" => [
+        'heliresumeidlepatrol' => [
             'name' => 'HeliResumeIdlePatrol',
-            'offset' => "b9030000"
+            'offset' => 'b9030000'
         ],
-        "helipauseidlepatrol" => [
+        'helipauseidlepatrol' => [
             'name' => 'HeliPauseIdlePatrol',
-            'offset' => "b8030000"
+            'offset' => 'b8030000'
         ],
-        "helisetidlepatrolpath" => [
+        'helisetidlepatrolpath' => [
             'name' => 'HeliSetIdlePatrolPath',
-            'offset' => "b5030000"
+            'offset' => 'b5030000'
         ],
-        "isplayercrawling" => [
+        'isplayercrawling' => [
             'name' => 'IsPlayerCrawling',
-            'offset' => "84030000"
+            'offset' => '84030000'
         ],
 
-        "helisetlightrandomwander" => [
+        'helisetlightrandomwander' => [
             'name' => 'HeliSetLightRandomWander',
-            'offset' => "39030000"
+            'offset' => '39030000'
         ],
-        "helilookatposition" => [
+        'helilookatposition' => [
             'name' => 'HeliLookAtPosition',
-            'offset' => "33030000"
+            'offset' => '33030000'
         ],
-        "helilookatentity" => [
+        'helilookatentity' => [
             'name' => 'HeliLookAtEntity',
-            'offset' => "34030000"
+            'offset' => '34030000'
         ],
 
-        "helisetfiringrate" => [
+        'helisetfiringrate' => [
             'name' => 'HeliSetFiringRate',
-            'offset' => "70030000"
+            'offset' => '70030000'
         ],
 
-        "helisetspolightmaxdeflection" => [
+        'helisetspolightmaxdeflection' => [
             'name' => 'HeliSetSpolightMaxDeflection',
-            'offset' => "a8030000"
+            'offset' => 'a8030000'
         ],
 
-        "heliopenfire" => [
+        'heliopenfire' => [
             'name' => 'HeliOpenFire',
-            'offset' => "36030000"
+            'offset' => '36030000'
         ],
 
-        "helisetlightspeed" => [
+        'helisetlightspeed' => [
             'name' => 'HeliSetLightSpeed',
-            'offset' => "38030000"
+            'offset' => '38030000'
         ],
 
-        "helisetenemy" => [
+        'helisetenemy' => [
             'name' => 'HeliSetEnemy',
-            'offset' => "35030000"
+            'offset' => '35030000'
         ],
 
-        "setnoisyentity" => [
+        'setnoisyentity' => [
             'name' => 'SetNoisyEntity',
-            'offset' => "af030000"
+            'offset' => 'af030000'
         ],
 
-        "setambienttrackvolume" => [
+        'setambienttrackvolume' => [
             'name' => 'SetAmbientTrackVolume',
-            'offset' => "2d030000"
+            'offset' => '2d030000'
         ],
 
-        "aisetidlepatrolstopdirection" => [
+        'aisetidlepatrolstopdirection' => [
             'name' => 'AISetIdlePatrolStopDirection',
-            'offset' => "a7010000"
+            'offset' => 'a7010000'
         ],
 
-        "aiisinsubpack" => [
+        'aiisinsubpack' => [
             'name' => 'AIIsInSubPack',
-            'offset' => "66010000"
+            'offset' => '66010000'
         ],
 
-        "aidoesleaderhavesubpack" => [
+        'aidoesleaderhavesubpack' => [
             'name' => 'AIDoesLeaderHaveSubpack',
-            'offset' => "eb020000"
+            'offset' => 'eb020000'
         ],
 
-        "heligotonode" => [
+        'heligotonode' => [
             'name' => 'HeliGotoNode',
-            'offset' => "b3030000"
+            'offset' => 'b3030000'
         ],
 
-        "setscriptaudiostreamocclusion" => [
+        'setscriptaudiostreamocclusion' => [
             'name' => 'SetScriptAudiosTreamOcclusion',
-            'offset' => "61030000"
+            'offset' => '61030000'
         ],
 
-        "allowreceivingofheadshots" => [
+        'allowreceivingofheadshots' => [
             'name' => 'AllowReceivingOfHeadshots',
-            'offset' => "7f030000"
+            'offset' => '7f030000'
         ],
-        "ishunterinshadow" => [
+        'ishunterinshadow' => [
             'name' => 'IsHunterInShadow',
-            'offset' => "ca030000"
+            'offset' => 'ca030000'
         ],
-        "getmoverstate" => [
+        'getmoverstate' => [
             'name' => 'GetMoverState',
-            'offset' => "39010000",
-            'return' => 'Integer'
+            'offset' => '39010000',
+            'return' => 'integer'
         ],
-        "radarcreateblip" => [
+        'radarcreateblip' => [
             'name' => 'RadarCreateBlip',
-            'offset' => "aa030000"
+            'offset' => 'aa030000'
         ],
-        "scripthogprocessorend" => [
+        'scripthogprocessorend' => [
             'name' => 'ScriptHogProcessorEnd',
-            'offset' => "16020000"
+            'offset' => '16020000'
         ],
 
-        "aidefinegoalgotovector" => [
+        'aidefinegoalgotovector' => [
             'name' => 'AiDefineGoalGotoVector',
-            'offset' => "70010000"
+            'offset' => '70010000'
         ],
 
-        "setspotlighttransitiontime" => [
+        'setspotlighttransitiontime' => [
             'name' => 'SetSpotlightTransitionTime',
-            'offset' => "a1030000"
+            'offset' => 'a1030000'
         ],
 
-        "setspotlighttarget" => [
+        'setspotlighttarget' => [
             'name' => 'SetSpotLightTarget',
-            'offset' => "a0030000"
+            'offset' => 'a0030000'
         ],
 
-        "initspotlight" => [
+        'initspotlight' => [
             'name' => 'InitSpotlight',
-            'offset' => "9f030000"
+            'offset' => '9f030000'
         ],
 
 
-        "aidefinegoalgotonodestayonpath" => [
+        'aidefinegoalgotonodestayonpath' => [
             'name' => 'AiDefineGoalGotoNodeStayOnPath',
-            'offset' => "f2010000"
+            'offset' => 'f2010000'
         ],
 
-        "isentitydying" => [
+        'isentitydying' => [
             'name' => 'IsEntityDying',
-            'offset' => "52020000"
+            'offset' => '52020000'
         ],
 
-        "aiassociatefouractiveareaswithplayerarea" => [
+        'aiassociatefouractiveareaswithplayerarea' => [
             'name' => 'AIAssociateFourActiveAreasWithPlayerArea',
-            'offset' => "be010000"
+            'offset' => 'be010000'
         ],
 
-        "aiassociatethreeactiveareaswithplayerarea" => [
+        'aiassociatethreeactiveareaswithplayerarea' => [
             'name' => 'AIAssociateThreeActiveAreasWithPlayerArea',
-            'offset' => "bd010000"
+            'offset' => 'bd010000'
         ],
 
-        "aiassociatetwoactiveareaswithplayerarea" => [
+        'aiassociatetwoactiveareaswithplayerarea' => [
             'name' => 'AiAssociateTwoActiveAreasWithPlayerArea',
-            'offset' => "bc010000"
+            'offset' => 'bc010000'
         ],
-        "stringcopy" => [
+        'stringcopy' => [
             'name' => 'stringcopy',
-            'offset' => "6d000000"
+            'offset' => '6d000000'
         ],
 
-        "helicreatehelipath" => [
+        'helicreatehelipath' => [
             'name' => 'HeliCreateHeliPath',
-            'offset' => "b2030000"
+            'offset' => 'b2030000'
         ],
 
-        "helicreatehelinode" => [
+        'helicreatehelinode' => [
             'name' => 'HeliCreateHeliNode',
-            'offset' => "b1030000"
+            'offset' => 'b1030000'
         ],
 
-        "randnum" => [
+        'randnum' => [
             'name' => 'RandNum',
-            'offset' => "69000000"
+            'offset' => '69000000'
         ],
 
-        "getdifficultylevel" => [
+        'getdifficultylevel' => [
             'name' => 'GetDifficultyLevel',
-            'offset' => "9f020000",
-            'return' => 'Integer'
+            'offset' => '9f020000',
+            'return' => 'integer'
         ],
 
-        "aicutsceneentityenable" => [
+        'aicutsceneentityenable' => [
             'name' => 'AICutSceneEntityEnable',
-            'offset' => "a9020000"
+            'offset' => 'a9020000'
         ],
 
-        "cutsceneend" => [
+        'cutsceneend' => [
             'name' => 'CutSceneEnd',
-            'offset' => "49010000"
+            'offset' => '49010000'
         ],
 
-        "clearlevelgoal" => [
+        'clearlevelgoal' => [
             'name' => 'ClearLevelGoal',
-            'offset' => "42020000"
+            'offset' => '42020000'
         ],
 
-        "cutscenestart" => [
+        'cutscenestart' => [
             'name' => 'CutSceneStart',
-            'offset' => "48010000"
+            'offset' => '48010000'
         ],
 
-        "cutsceneregisterskipscript" => [
+        'cutsceneregisterskipscript' => [
             'name' => 'CutSceneRegisterSkipScript',
-            'offset' => "20030000"
+            'offset' => '20030000'
         ],
 
-        "displaygametext" => [
+        'displaygametext' => [
             'name' => 'DisplayGameText',
-            'offset' => "04010000"
+            'offset' => '04010000'
         ],
 
-        "frisbeespeechplay" => [
+        'frisbeespeechplay' => [
             'name' => 'FrisbeeSpeechPlay',
-            'offset' => "66030000"
+            'offset' => '66030000'
         ],
 
-        "frisbeespeechisfinished" => [
+        'frisbeespeechisfinished' => [
             'name' => 'FrisbeeSpeechIsFinished',
-            'offset' => "69030000"
+            'offset' => '69030000'
         ],
 
         'getentityname' => [
             'name' => 'GetEntityName',
-            'offset' => "86000000",
-            'return' => 'String'
+            'offset' => '86000000',
+            'return' => 'string'
         ],
 
-        "getdoorstate" => [
+        'getdoorstate' => [
             'name' => 'GetDoorState',
-            'offset' => "96000000",
-            'return' => 'Integer'
+            'offset' => '96000000',
+            'return' => 'integer'
         ],
 
-        "getentity" => [
+        'getentity' => [
             'name' => 'GetEntity',
-            'offset' => "77000000",
+            'offset' => '77000000',
             'return' => 'Entity'
         ],
 
-        "hudtoggleflashflags" => [
+        'hudtoggleflashflags' => [
             'name' => 'HUDToggleFlashFlags',
-            'offset' => "b2020000"
+            'offset' => 'b2020000'
         ],
-        "isfirstpersoncamera" => [
+        'isfirstpersoncamera' => [
             'name' => 'isfirstpersoncamera',
-            'offset' => "88000000"
+            'offset' => '88000000'
         ],
 
-        "iswhitenoisedisplaying" => [
+        'iswhitenoisedisplaying' => [
             'name' => 'IsWhiteNoiseDisplaying',
-            'offset' => "e7020000"
+            'offset' => 'e7020000'
         ],
 
-        "killgametext" => [
+        'killgametext' => [
             'name' => 'KillGameText',
-            'offset' => "08010000"
+            'offset' => '08010000'
         ],
 
-        "killscript" => [
+        'killscript' => [
             'name' => 'KillScript',
-            'offset' => "e5000000"
+            'offset' => 'e5000000'
         ],
 
-        "setdoorstate" => [
+        'setdoorstate' => [
             'name' => 'SetDoorState',
             'offset' => '97000000',
             /**
@@ -646,57 +646,57 @@ class Manhunt2
              * 2: state
              * - DOOR_CLOSING  => 3
              */
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'desc' => ''
         ],
 
-        "setswitchstate" => [
-            'offset' => "95000000"
+        'setswitchstate' => [
+            'offset' => '95000000'
         ],
 
-        "setcurrentlod" => [
-            'offset' => "2d010000"
+        'setcurrentlod' => [
+            'offset' => '2d010000'
         ],
 
-        "setshowhudincutscene" => [
-            'offset' => "86030000"
+        'setshowhudincutscene' => [
+            'offset' => '86030000'
         ],
 
-        "setvector" => [
+        'setvector' => [
             'name' => 'SetVector',
-            'offset' => "84010000"
+            'offset' => '84010000'
         ],
 
-        "setcameraposition" => [
-            'offset' => "92010000"
+        'setcameraposition' => [
+            'offset' => '92010000'
         ],
 
-        "setcameraview" => [
-            'offset' => "8f010000"
+        'setcameraview' => [
+            'offset' => '8f010000'
         ],
 
-        "setzoomlerp" => [
-            'offset' => "b5020000"
+        'setzoomlerp' => [
+            'offset' => 'b5020000'
         ],
 
-        "setlevelgoal" => [
+        'setlevelgoal' => [
             'name' => 'SetLevelGoal',
-            'offset' => "41020000"
+            'offset' => '41020000'
         ],
 
-        "setslidedoorspeed" => [
-            'offset' => "ae010000"
+        'setslidedoorspeed' => [
+            'offset' => 'ae010000'
         ],
 
-        "togglehudflag" => [
-            'offset' => "7f020000"
+        'togglehudflag' => [
+            'offset' => '7f020000'
         ],
 
-        "aiaddentity" => [
-            'offset' => "4d010000"
+        'aiaddentity' => [
+            'offset' => '4d010000'
         ],
 
-        "aisethunteronradar" => [
+        'aisethunteronradar' => [
             'name' => 'aisethunteronradar',
             'offset' => 'a8010000',
             /**
@@ -704,11 +704,11 @@ class Manhunt2
              * 1: ref to me (me[30])
              * 2: boolean
              */
-            'params' => ['String', 'Bollean'],
+            'params' => ['string', 'Bollean'],
             'desc' => 'Set the Hunter visibility on the Players Radar'
         ],
 
-        "setnextlevelbyname" => [
+        'setnextlevelbyname' => [
             'name' => 'SetNextLevelByName',
             'offset' => '4c030000',
             /**
@@ -716,102 +716,102 @@ class Manhunt2
              * 1: string level name
              * - A02_The_Old_House
              */
-            'params' => ['String'],
+            'params' => ['string'],
             'desc' => ''
         ],
 
-        "aisetentityasleader" => [
-            'offset' => "4f010000"
+        'aisetentityasleader' => [
+            'offset' => '4f010000'
         ],
 
-        "aisetleaderinvisible" => [
-            'offset' => "6d020000"
+        'aisetleaderinvisible' => [
+            'offset' => '6d020000'
         ],
 
-        "aiaddleaderenemy" => [
-            'offset' => "54010000"
+        'aiaddleaderenemy' => [
+            'offset' => '54010000'
         ],
 
-        "aientityalwaysenabled" => [
-            'offset' => "bf010000"
+        'aientityalwaysenabled' => [
+            'offset' => 'bf010000'
         ],
 
-        "aiaddsubpackforleader" => [
-            'offset' => "50010000"
+        'aiaddsubpackforleader' => [
+            'offset' => '50010000'
         ],
 
-        "aisetsubpackcombattype" => [
-            'offset' => "82010000"
+        'aisetsubpackcombattype' => [
+            'offset' => '82010000'
         ],
 
-        "aidefinegoalhuntenemy" => [
-            'offset' => "58010000"
+        'aidefinegoalhuntenemy' => [
+            'offset' => '58010000'
         ],
 
-        "aiaddgoalforsubpack" => [
-            'offset' => "56010000"
+        'aiaddgoalforsubpack' => [
+            'offset' => '56010000'
         ],
 
-        "aiaddplayer" => [
-            'offset' => "5b010000"
+        'aiaddplayer' => [
+            'offset' => '5b010000'
         ],
 
-        "hideentity" => [
+        'hideentity' => [
             'name' => 'HideEntity',
-            'offset' => "83000000"
+            'offset' => '83000000'
         ],
-        "setslidedoorajardistance" => [
+        'setslidedoorajardistance' => [
             'name' => 'SetSlideDoorAjarDistance',
-            'offset' => "9b010000"
+            'offset' => '9b010000'
         ],
 
-        "setmaxnumberofrats" => [
-            'offset' => "a8020000"
+        'setmaxnumberofrats' => [
+            'offset' => 'a8020000'
         ],
 
-        "switchlitteron" => [
-            'offset' => "a4020000"
+        'switchlitteron' => [
+            'offset' => 'a4020000'
         ],
 
         /**
          * Note: WriteDebug function is internal splitted!
          */
-        "writedebug" => [
+        'writedebug' => [
             'name' => 'WriteDebug',
-            'offset' => "73000000"
+            'offset' => '73000000'
         ],
 
-        "writedebugobject" => [
+        'writedebugobject' => [
             'name' => 'WriteDebugObject',
-            'offset' => "write_object_73000000"
+            'offset' => 'write_object_73000000'
         ],
-        "writedebugstring" => [
+        'writedebugstring' => [
             'name' => 'WriteDebugString',
-            'offset' => "73000000"
+            'offset' => '73000000'
         ],
 
-        "writedebugreal" => [
+        'writedebugreal' => [
             'name' => 'WriteDebugReal',
-            'offset' => "6f000000"
+            'offset' => '6f000000'
         ],
 
-        "writedebuginteger" => [
+        'writedebuginteger' => [
             'name' => 'WriteDebugInteger',
-            'offset' => "6e000000"
+            'offset' => '6e000000'
         ],
 
-        "writedebugflush" => [
+        'writedebugflush' => [
             'name' => 'WriteDebugFlush',
-            'offset' => "74000000"
+            'offset' => '74000000'
         ],
 
 
-        "setqtmbaseprobability" => [
+        'setqtmbaseprobability' => [
             'name' => 'SetQTMBaseProbability',
-            'offset' => "ac030000"
+            'offset' => 'ac030000'
         ],
 
-        "graphmodifyconnections" => [
+        'graphmodifyconnections' => [
             'name' => 'GraphModifyConnections',
             'offset' => 'e9000000',
             /**
@@ -821,11 +821,11 @@ class Manhunt2
              * - AISCRIPT_GRAPHLINK_ALLOW_NOTHING => 0
              * - AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING => 3
              */
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'desc' => ''
         ],
 
-        "unfreezeentity" => [
+        'unfreezeentity' => [
             'name' => 'UnFreezeEntity',
             'offset' => '38010000',
             /**
@@ -836,7 +836,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "lockentity" => [
+        'lockentity' => [
             'name' => 'LockEntity',
             'offset' => '98000000',
             /**
@@ -847,7 +847,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "entityplayanim" => [
+        'entityplayanim' => [
             'name' => 'EntityPlayAnim',
             'offset' => 'a1010000',
             /**
@@ -858,11 +858,11 @@ class Manhunt2
              * 3: active state?
              * - true
              */
-            'params' => ['Entity', 'String', 'Integer'],
+            'params' => ['Entity', 'string', 'integer'],
             'desc' => ''
         ],
 
-        "setentityscriptsfromentity" => [
+        'setentityscriptsfromentity' => [
             'name' => 'SetEntityScriptsFromEntity',
             'offset' => 'd9010000',
             /**
@@ -873,11 +873,11 @@ class Manhunt2
              * - SLockerC_(O)01
              * - SLockerC_(O)02
              */
-            'params' => ['String', 'String'],
+            'params' => ['string', 'string'],
             'desc' => ''
         ],
 
-        "entityignorecollisions" => [
+        'entityignorecollisions' => [
             'name' => 'EntityIgnoreCollisions',
             'offset' => 'a2020000',
             /**
@@ -887,11 +887,11 @@ class Manhunt2
              * - true
              * - false
              */
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'desc' => ''
         ],
 
-        "aientitycancelanim" => [
+        'aientitycancelanim' => [
             'name' => 'AIEntityCancelAnim',
             'offset' => '17020000',
             /**
@@ -901,11 +901,11 @@ class Manhunt2
              * 2: animation name ?
              * - BAT_INMATE_SMACK_HEAD_ANIM
              */
-            'params' => ['String', 'String'],
+            'params' => ['string', 'string'],
             'desc' => ''
         ],
 
-        "aisetentityidleoverride" => [
+        'aisetentityidleoverride' => [
             'name' => 'AISetEntityIdleOverRide',
             'offset' => 'b5010000',
             /**
@@ -915,11 +915,11 @@ class Manhunt2
              * 2: state 1 boolean
              * 3: state 2 boolean
              */
-            'params' => ['String', 'Boolean', 'Boolean'],
+            'params' => ['string', 'Boolean', 'Boolean'],
             'desc' => ''
         ],
 
-        "setentityinvulnerable" => [
+        'setentityinvulnerable' => [
             'name' => 'SetEntityInvulnerable',
             'offset' => '5e010000',
             /**
@@ -931,7 +931,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "aimakeentityblind" => [
+        'aimakeentityblind' => [
             'name' => 'AIMakeEntityBlind',
             'offset' => '71010000',
             /**
@@ -940,11 +940,11 @@ class Manhunt2
              * - SobbingWoman(hunter)
              * 2: state boolean
              */
-            'params' => ['String', 'Boolean'],
+            'params' => ['string', 'Boolean'],
             'desc' => ''
         ],
 
-        "aimakeentitydeaf" => [
+        'aimakeentitydeaf' => [
             'name' => 'AIMakeEntityDeaf',
             'offset' => '72010000',
             /**
@@ -953,11 +953,11 @@ class Manhunt2
              * - SobbingWoman(hunter)
              * 2: state boolean
              */
-            'params' => ['String', 'Boolean'],
+            'params' => ['string', 'Boolean'],
             'desc' => ''
         ],
 
-        "aiaddhuntertoleadersubpack" => [
+        'aiaddhuntertoleadersubpack' => [
             'name' => 'AIAddHunterToLeaderSubpack',
             'offset' => '52010000',
             /**
@@ -969,11 +969,11 @@ class Manhunt2
              * 3: Entity name
              * - SobbingWoman(hunter)
              */
-            'params' => ['String', 'String', 'String'],
+            'params' => ['string', 'string', 'string'],
             'desc' => ''
         ],
 
-        "playerdropbody" => [
+        'playerdropbody' => [
             'name' => 'PlayerDropBody',
             'offset' => 'b4020000',
             /**
@@ -984,7 +984,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "playerfullbodyanimdone" => [
+        'playerfullbodyanimdone' => [
             'name' => 'PlayerFullBodyAnimDone',
             'offset' => '96020000',
             /**
@@ -995,7 +995,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "enableuserinput" => [
+        'enableuserinput' => [
             'name' => 'EnableUserInput',
             'offset' => 'f5000000',
             /**
@@ -1006,7 +1006,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "showentity" => [
+        'showentity' => [
             'name' => 'ShowEntity',
             'offset' => '82000000',
             /**
@@ -1017,7 +1017,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "cutscenecamerainit" => [
+        'cutscenecamerainit' => [
             'name' => 'CutSceneCameraInit',
             'offset' => '5f030000',
             /**
@@ -1028,7 +1028,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "cutscenecamerasetpos" => [
+        'cutscenecamerasetpos' => [
             'name' => 'CutSceneCameraSetPos',
             'offset' => '5a030000',
             /**
@@ -1042,7 +1042,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "cutscenecamerasettarget" => [
+        'cutscenecamerasettarget' => [
             'name' => 'CutSceneCameraSetTarget',
             'offset' => '5b030000',
             /**
@@ -1056,7 +1056,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "cutscenecamerasetfov" => [
+        'cutscenecamerasetfov' => [
             'name' => 'CutSceneCameraSetFOV',
             'offset' => '5c030000',
             /**
@@ -1068,7 +1068,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "cutscenecamerasetroll" => [
+        'cutscenecamerasetroll' => [
             'name' => 'CutSceneCameraSetRoll',
             'offset' => '5d030000',
             /**
@@ -1080,7 +1080,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "cutscenecamerasethandycam" => [
+        'cutscenecamerasethandycam' => [
             'name' => 'CutSceneCameraSetHandyCam',
             'offset' => '6d030000',
             /**
@@ -1091,7 +1091,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "aidefinegoalgotonodeidle" => [
+        'aidefinegoalgotonodeidle' => [
             'name' => 'AIDefineGoalGotoNodeIdle',
             'offset' => 'b1010000',
             /**
@@ -1108,11 +1108,11 @@ class Manhunt2
              * - AISCRIPT_RUNMOVESPEED => 0
              * 6: state boolean
              */
-            'params' => ['String', 'String', 'Integer', 'String', 'Integer', 'Boolean'],
+            'params' => ['string', 'string', 'integer', 'string', 'integer', 'Boolean'],
             'desc' => ''
         ],
 
-        "aidefinegoalgotonode" => [
+        'aidefinegoalgotonode' => [
             'name' => 'AIDefineGoalGotoNode',
             'offset' => '6f010000',
             /**
@@ -1129,11 +1129,11 @@ class Manhunt2
              * - AISCRIPT_RUNMOVESPEED => 0
              * 6: state boolean
              */
-            'params' => ['String', 'String', 'Integer', 'String', 'Integer', 'Boolean'],
+            'params' => ['string', 'string', 'integer', 'string', 'integer', 'Boolean'],
             'desc' => ''
         ],
 
-        "setpedlockonable" => [
+        'setpedlockonable' => [
             'name' => 'SetPedLockonable',
             'offset' => '97020000',
             /**
@@ -1145,7 +1145,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "moveentity" => [
+        'moveentity' => [
             'name' => 'MoveEntity',
             'offset' => '7d000000',
             /**
@@ -1154,11 +1154,11 @@ class Manhunt2
              * 2: ref to vec3d (3x float)
              * 3: integer
              */
-            'params' => ['Entity', 'vec3d', 'Integer'],
+            'params' => ['Entity', 'vec3d', 'integer'],
             'desc' => ''
         ],
 
-        "setpedorientation" => [
+        'setpedorientation' => [
             'name' => 'SetPedOrientation',
             'offset' => 'b0020000',
             /**
@@ -1167,11 +1167,11 @@ class Manhunt2
              * 2: integer
              * - 10
              */
-            'params' => ['EntityPosition', 'Integer'],
+            'params' => ['EntityPosition', 'integer'],
             'desc' => ''
         ],
 
-        "setmoverstate" => [
+        'setmoverstate' => [
             'name' => 'SetMoverState',
             'offset' => '3a010000',
             /**
@@ -1180,11 +1180,11 @@ class Manhunt2
              * 2: integer
              * - MOVER_FORWARD => 1
              */
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'desc' => ''
         ],
 
-        "aisetidlehomenode" => [
+        'aisetidlehomenode' => [
             'name' => 'AISetIdleHomeNode',
             'offset' => '83010000',
             /**
@@ -1193,11 +1193,11 @@ class Manhunt2
              * 2: string
              * - AMBUSHNODE
              */
-            'params' => ['String', 'String'],
+            'params' => ['string', 'string'],
             'desc' => ''
         ],
 
-        "radarpositionclearentity" => [
+        'radarpositionclearentity' => [
             'name' => 'RadarPositionClearEntity',
             'offset' => 'e1020000',
             /**
@@ -1208,7 +1208,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "createboxtrigger" => [
+        'createboxtrigger' => [
             'name' => 'CreateBoxTrigger',
             'offset' => '28010000',
             /**
@@ -1218,11 +1218,11 @@ class Manhunt2
              * 3: String
              * - triggerOutOfWindow
              */
-            'params' => ['vec3d', 'vec3d', 'String'],
+            'params' => ['vec3d', 'vec3d', 'string'],
             'desc' => ''
         ],
 
-        "removethisscript" => [
+        'removethisscript' => [
             'name' => 'RemoveThisScript',
             'offset' => 'e8000000',
             /**
@@ -1233,7 +1233,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "sethuntermeleetraits" => [
+        'sethuntermeleetraits' => [
             'name' => 'SetHunterMeleeTraits',
             'offset' => '77020000',
             /**
@@ -1242,11 +1242,11 @@ class Manhunt2
              * 2: int
              * - MTT_HOOD_MEDIUM => 2
              */
-            'params' => ['This', 'Integer'],
+            'params' => ['This', 'integer'],
             'desc' => ''
         ],
 
-        "aisethunteridleactionminmaxradius" => [
+        'aisethunteridleactionminmaxradius' => [
             'name' => 'AISetHunterIdleActionMinMaxRadius',
             'offset' => 'a4010000',
             /**
@@ -1260,12 +1260,12 @@ class Manhunt2
              * 4: int
              * 5: float
              */
-            'params' => ['String', 'Integer', 'Integer', 'Integer', 'Integer', 'Float'],
+            'params' => ['string', 'integer', 'integer', 'integer', 'integer', 'Float'],
             'desc' => ''
         ],
 
 
-        "setpeddonotdecay" => [
+        'setpeddonotdecay' => [
             'name' => 'SetPedDoNotDecay',
             'offset' => '6b020000',
             /**
@@ -1277,7 +1277,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "enableuseable" => [
+        'enableuseable' => [
             'name' => 'EnableUseable',
             'offset' => 'e5020000',
             /**
@@ -1289,7 +1289,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "setmoveridleposition" => [
+        'setmoveridleposition' => [
             'name' => 'SetMoverIdlePosition',
             'offset' => '3c010000',
             /**
@@ -1301,7 +1301,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "movemovertoidleposition" => [
+        'movemovertoidleposition' => [
             'name' => 'MoveMoverToIdlePosition',
             'offset' => '3d010000',
             /**
@@ -1313,7 +1313,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "getplayer" => [
+        'getplayer' => [
             'name' => 'GetPlayer',
             'offset' => '8a000000',
             /**
@@ -1326,7 +1326,7 @@ class Manhunt2
         ],
 //
 
-        "setmoverspeed" => [
+        'setmoverspeed' => [
             'name' => 'SetMoverSpeed',
             'offset' => '40010000',
             /**
@@ -1337,7 +1337,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "playaudiooneshotfromentity" => [
+        'playaudiooneshotfromentity' => [
             'name' => 'PlayAudioOneShotFromEntity',
             'offset' => '5c020000',
             /**
@@ -1349,7 +1349,7 @@ class Manhunt2
         ],
 
 
-        "playscriptaudiostreamfromentityauto" => [
+        'playscriptaudiostreamfromentityauto' => [
             'name' => 'PlayScriptAudioStreamFromEntityAuto',
             'offset' => '6b030000',
             /**
@@ -1360,11 +1360,11 @@ class Manhunt2
              * 3: result of GetPlayer
              * 4: integer
              */
-            'params' => ['String', 'Integer', 'GetPlayer', 'Integer'],
+            'params' => ['string', 'integer', 'GetPlayer', 'integer'],
             'desc' => ''
         ],
 
-        "createspheretrigger" => [
+        'createspheretrigger' => [
             'name' => 'CreateSphereTrigger',
             'offset' => 'a3000000',
             /**
@@ -1374,11 +1374,11 @@ class Manhunt2
              * 3: string
              * - triggerVisionCheck
              */
-            'params' => ['vec3d', 'Float', 'String'],
+            'params' => ['vec3d', 'Float', 'string'],
             'desc' => ''
         ],
 
-        "destroyentity" => [
+        'destroyentity' => [
             'name' => 'DestroyEntity',
             'offset' => 'a0020000',
             /**
@@ -1389,19 +1389,19 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "getanimationlength" => [
+        'getanimationlength' => [
             'name' => 'GetAnimationLength',
             'offset' => '49030000',
             /**
              * Parameters
              * 1: string
              */
-            'params' => ['String'],
-            'return' => 'Integer',
+            'params' => ['string'],
+            'return' => 'integer',
             'desc' => ''
         ],
 
-        "unlockentity" => [
+        'unlockentity' => [
             'name' => 'UnLockEntity',
             'offset' => '99000000',
             /**
@@ -1412,7 +1412,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "spawnentitywithdirection" => [
+        'spawnentitywithdirection' => [
             'name' => 'SpawnEntityWithDirection',
             'offset' => '7c000000',
             /**
@@ -1424,11 +1424,11 @@ class Manhunt2
              * - Runner(hunter)
              * 4: Vec3d
              */
-            'params' => ['String', 'vec3d', 'String', 'vec3d'],
+            'params' => ['string', 'vec3d', 'string', 'vec3d'],
             'desc' => ''
         ],
 
-        "getentityposition" => [
+        'getentityposition' => [
             'name' => 'GetEntityPosition',
             'offset' => '78000000',
             /**
@@ -1440,7 +1440,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "setcolourramp" => [
+        'setcolourramp' => [
             'name' => 'SetColourRamp',
             'offset' => 'ab030000',
             /**
@@ -1450,12 +1450,12 @@ class Manhunt2
              * 2: int
              * 3: float
              */
-            'params' => ['String', 'Integer', 'Float'],
+            'params' => ['string', 'integer', 'Float'],
             'return' => 'void',
             'desc' => ''
         ],
 
-        "getambientaudiotrack" => [
+        'getambientaudiotrack' => [
             'name' => 'GetAmbientAudioTrack',
             'offset' => '77030000',
             /**
@@ -1463,11 +1463,11 @@ class Manhunt2
              * 1: none
              */
             'params' => [],
-            'return' => 'Integer',
+            'return' => 'integer',
             'desc' => ''
         ],
 
-        "sethunterhideHealth" => [
+        'sethunterhideHealth' => [
             'name' => 'SetHunterHideHealth',
             'offset' => '2f010000',
             /**
@@ -1475,36 +1475,36 @@ class Manhunt2
              * 1: string[30]
              * 2: int
              */
-            'params' => ['String[]', 'Integer'],
+            'params' => ['String[]', 'integer'],
             'return' => 'void',
             'desc' => ''
         ],
 
-        "isentityalive" => [
+        'isentityalive' => [
             'name' => 'IsEntityAlive',
             'offset' => 'aa010000',
             /**
              * Parameters
              * 1: string
              */
-            'params' => ['String'],
+            'params' => ['string'],
             'return' => 'Boolean',
             'desc' => ''
         ],
 
-        "setmaxscoreforlevel" => [
+        'setmaxscoreforlevel' => [
             'name' => 'SetMaxScoreForLevel',
             'offset' => '59030000',
             /**
              * Parameters
              * 1: integer
              */
-            'params' => ['Integer'],
+            'params' => ['integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "fakehunterdestroyall" => [
+        'fakehunterdestroyall' => [
             'name' => 'FakeHunterDestroyAll',
             'offset' => 'c3030000',
             /**
@@ -1516,7 +1516,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "scripthogprocessorstart" => [
+        'scripthogprocessorstart' => [
             'name' => 'ScriptHogProcessorStart',
             'offset' => '15020000',
             /**
@@ -1528,7 +1528,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "enableaction" => [
+        'enableaction' => [
             'name' => 'EnableAction',
             'offset' => '62030000',
             /**
@@ -1536,12 +1536,12 @@ class Manhunt2
              * 1: Integer
              * 2: state
              */
-            'params' => ["integer", "Boolean"],
+            'params' => ['integer', 'Boolean'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "killthisscript" => [
+        'killthisscript' => [
             'name' => 'KillThisScript',
             'offset' => 'e7000000',
             /**
@@ -1553,7 +1553,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "playerplayfullbodyanim" => [
+        'playerplayfullbodyanim' => [
             'name' => 'PlayerPlayFullBodyAnim',
             'offset' => '94020000',
             /**
@@ -1561,12 +1561,12 @@ class Manhunt2
              * 1: string
              * - ASY_REACTKILL_2
              */
-            'params' => ['String'],
-            'return' => 'Integer',
+            'params' => ['string'],
+            'return' => 'integer',
             'desc' => ''
         ],
 
-        "disableuserinput" => [
+        'disableuserinput' => [
             'name' => 'DisableUserInput',
             'offset' => 'f6000000',
             /**
@@ -1574,12 +1574,12 @@ class Manhunt2
              * 1: string
              * - ASY_REACTKILL_2
              */
-            'params' => ['String'],
-            'return' => 'Integer',
+            'params' => ['string'],
+            'return' => 'integer',
             'desc' => ''
         ],
 
-        "setdamage" => [
+        'setdamage' => [
             'name' => 'SetDamage',
             'offset' => '2f010000',
             /**
@@ -1587,12 +1587,12 @@ class Manhunt2
              * 1: this
              * 2: Integer
              */
-            'params' => ['This', 'Integer'],
+            'params' => ['This', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "aitriggersoundknownlocationnoradar" => [
+        'aitriggersoundknownlocationnoradar' => [
             'name' => 'AITriggerSoundKnownLocationNoRadar',
             'offset' => 'b8020000',
             /**
@@ -1602,12 +1602,12 @@ class Manhunt2
              * 2: Player
              * - GetPlayer
              */
-            'params' => ['String', 'Player'],
-            'return' => 'Integer',
+            'params' => ['string', 'Player'],
+            'return' => 'integer',
             'desc' => ''
         ],
 
-        "spawnmovingentity" => [
+        'spawnmovingentity' => [
             'name' => 'SpawnMovingEntity',
             'offset' => '7a000000',
             /**
@@ -1616,12 +1616,12 @@ class Manhunt2
              * 2: vec3d
              * 4: string script name ?
              */
-            'params' => ['String', 'vec3d', 'String'],
+            'params' => ['string', 'vec3d', 'string'],
             'return' => '',
             'desc' => ''
         ],
 
-        "isplayerinsafezone" => [
+        'isplayerinsafezone' => [
             'name' => 'IsPlayerInSafeZone',
             'offset' => '89020000',
             /**
@@ -1633,7 +1633,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "isplayerrunning" => [
+        'isplayerrunning' => [
             'name' => 'IsPlayerRunning',
             'offset' => 'ee020000',
             /**
@@ -1645,7 +1645,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "isplayersprinting" => [
+        'isplayersprinting' => [
             'name' => 'IsPlayerSprinting',
             'offset' => 'ef020000',
             /**
@@ -1657,7 +1657,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "getpedorientation" => [
+        'getpedorientation' => [
             'name' => 'GetPedOrientation',
             'offset' => '8d030000',
             /**
@@ -1669,7 +1669,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "isgametextdisplaying" => [
+        'isgametextdisplaying' => [
             'name' => 'IsGameTextDisplaying',
             'offset' => '07010000',
             /**
@@ -1682,19 +1682,19 @@ class Manhunt2
         ],
 
 
-        "getlastitempickedup" => [
+        'getlastitempickedup' => [
             'name' => 'GetLastItemPickedUp',
             'offset' => 'c9010000',
             /**
              * Parameters
              * 1: player
              */
-            'params' => ["Player"],
+            'params' => ['Player'],
             'return' => 'Item',
             'desc' => ''
         ],
 
-        "attachtoentity" => [
+        'attachtoentity' => [
             'name' => 'AttachToEntity',
             'offset' => '93000000',
             /**
@@ -1702,12 +1702,12 @@ class Manhunt2
              * 1: this
              * 2: result of GetEntity
              */
-            'params' => ["This", "Entity"],
+            'params' => ['This', 'Entity'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "isnameditemininventory" => [
+        'isnameditemininventory' => [
             'name' => 'IsNamedItemInInventory',
             'offset' => '30010000',
             /**
@@ -1715,12 +1715,12 @@ class Manhunt2
              * 1: Player
              * 2: Integer
              */
-            'params' => ["Player", "Integer"],
+            'params' => ['Player', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "helisetlight" => [
+        'helisetlight' => [
             'name' => 'HeliSetLight',
             'offset' => '31030000',
             /**
@@ -1728,12 +1728,12 @@ class Manhunt2
              * 1: This
              * 2: Boolean
              */
-            'params' => ["This", "Boolean"],
+            'params' => ['This', 'Boolean'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "helisetmovespeed" => [
+        'helisetmovespeed' => [
             'name' => 'HeliSetMoveSpeed',
             'offset' => '3a030000',
             /**
@@ -1741,12 +1741,12 @@ class Manhunt2
              * 1: This
              * 2: Float
              */
-            'params' => ["This", "Float"],
+            'params' => ['This', 'Float'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "insidetrigger" => [
+        'insidetrigger' => [
             'name' => 'InsideTrigger',
             'offset' => 'a5000000',
             /**
@@ -1754,12 +1754,12 @@ class Manhunt2
              * 1: Entity
              * 2: Player
              */
-            'params' => ["Entity", "Player"],
+            'params' => ['Entity', 'Player'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "isplayerpositionknown" => [
+        'isplayerpositionknown' => [
             'name' => 'IsPlayerPositionKnown',
             'offset' => '6e030000',
             /**
@@ -1771,7 +1771,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "isplayerwalking" => [
+        'isplayerwalking' => [
             'name' => 'IsPlayerWalking',
             'offset' => 'ed020000',
             /**
@@ -1783,7 +1783,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "isexecutioninprogress" => [
+        'isexecutioninprogress' => [
             'name' => 'IsExecutionInProgress',
             'offset' => '51020000',
             /**
@@ -1795,13 +1795,13 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "isscriptaudiostreamcompleted" => [
+        'isscriptaudiostreamcompleted' => [
             'name' => 'IsScriptAudioStreamCompleted',
             'offset' => 'cf020000'
 
         ],
 
-        "cutscenecamerastart" => [
+        'cutscenecamerastart' => [
             'name' => 'CutSceneCameraStart',
             'offset' => '5e030000',
             /**
@@ -1814,7 +1814,7 @@ class Manhunt2
         ],
 
 
-        "playscriptaudiostreamauto" => [
+        'playscriptaudiostreamauto' => [
             'name' => 'PlayScriptAudioStreamAuto',
             'offset' => '6a030000',
             /**
@@ -1823,12 +1823,12 @@ class Manhunt2
              * - WACKO3
              * 2: Integer
              */
-            'params' => ['String', 'Integer'],
+            'params' => ['string', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "aientityplayanim" => [
+        'aientityplayanim' => [
             'name' => 'AiEntityPlayAnim',
             'offset' => 'b3010000',
             /**
@@ -1838,12 +1838,12 @@ class Manhunt2
              * - ASY_MELEE_INTRO_CAMERA
              * 3: boolean
              */
-            'params' => ['Entity', 'String', 'Boolean'],
+            'params' => ['Entity', 'string', 'Boolean'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "setstreamlipsyncspeaker" => [
+        'setstreamlipsyncspeaker' => [
             'name' => 'SetStreamLipsyncSpeaker',
             'offset' => 'cf030000',
             /**
@@ -1856,7 +1856,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "aientityplayanimlooped" => [
+        'aientityplayanimlooped' => [
             'name' => 'AIEntityPlayAnimLooped',
             'offset' => 'b4010000',
             /**
@@ -1867,12 +1867,12 @@ class Manhunt2
              * - BRO_FIXVENT_IDLE_3
              * 3: Float
              */
-            'params' => ['String', 'String', 'Float'],
+            'params' => ['string', 'string', 'Float'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "endscriptaudiostream" => [
+        'endscriptaudiostream' => [
             'name' => 'EndScriptAudioStream',
             'offset' => 'ce020000',
             /**
@@ -1884,7 +1884,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "ishunterknockeddown" => [
+        'ishunterknockeddown' => [
             'name' => 'IsHunterKnockedDown',
             'offset' => 'cb030000',
             /**
@@ -1892,12 +1892,12 @@ class Manhunt2
              * 1: String
              * - SobbingWoman(hunter)
              */
-            'params' => ['String'],
+            'params' => ['string'],
             'return' => 'Boolean',
             'desc' => ''
         ],
 
-        "aisetentitystayonpath" => [
+        'aisetentitystayonpath' => [
             'name' => 'AISetEntityStayOnPath',
             'offset' => '4e020000',
             /**
@@ -1905,12 +1905,12 @@ class Manhunt2
              * 1: String
              * 2: Boolean
              */
-            'params' => ['String', 'Boolean'],
+            'params' => ['string', 'Boolean'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "setpedhurtotherpeds" => [
+        'setpedhurtotherpeds' => [
             'name' => 'SetPedHurtOtherPeds',
             'offset' => '1e030000',
             /**
@@ -1918,12 +1918,12 @@ class Manhunt2
              * 1: String
              * 2: Boolean
              */
-            'params' => ['String', 'Boolean'],
+            'params' => ['string', 'Boolean'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "getdamage" => [
+        'getdamage' => [
             'name' => 'GetDamage',
             'offset' => '84000000',
             /**
@@ -1931,20 +1931,20 @@ class Manhunt2
              * 1: Player
              */
             'params' => ['Player'],
-            'return' => 'Integer',
+            'return' => 'integer',
             'desc' => ''
         ],
 
-        "aisethunteridlepatrol" => [
+        'aisethunteridlepatrol' => [
             'name' => 'AISetHunterIdlePatrol',
             'offset' => 'a3010000',
 
-            'params' => ['String', 'Constant', 'Constant', 'Integer', 'Integer', 'String'],
+            'params' => ['string', 'Constant', 'Constant', 'integer', 'integer', 'string'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "deactivatesavepoint" => [
+        'deactivatesavepoint' => [
             'name' => 'DeactivateSavePoint',
             'offset' => '12030000',
 
@@ -1953,7 +1953,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "calcdistancetoentity" => [
+        'calcdistancetoentity' => [
             'name' => 'CalcDistanceToEntity',
             'offset' => '1a030000',
 
@@ -1962,7 +1962,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "getplayerposition" => [
+        'getplayerposition' => [
             'name' => 'GetPlayerPosition',
             'offset' => '8b000000',
 
@@ -1971,33 +1971,33 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "aitriggersound" => [
+        'aitriggersound' => [
             'name' => 'AITriggerSound',
             'offset' => '5d010000',
 
-            'params' => ['String', 'This'],
+            'params' => ['string', 'This'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "aiplaycommunication" => [
+        'aiplaycommunication' => [
             'name' => 'AIPlayCommunication',
             'offset' => 'fe010000',
 
-            'params' => ['String', 'This'],
+            'params' => ['string', 'This'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "setambientaudiotrack" => [
+        'setambientaudiotrack' => [
             'name' => 'SetAmbientAudioTrack',
             'offset' => '75030000',
 
-            'params' => ['String', 'This'],
+            'params' => ['string', 'This'],
             'return' => 'Void',
             'desc' => ''
         ],
-        "iscutsceneinprogress" => [
+        'iscutsceneinprogress' => [
             'name' => 'IsCutSceneInProgress',
             'offset' => 'f5020000',
 
@@ -2005,7 +2005,7 @@ class Manhunt2
             'return' => 'Void',
             'desc' => ''
         ],
-        "setlevelcompleted" => [
+        'setlevelcompleted' => [
             'name' => 'SetLevelCompleted',
             'offset' => '04020000',
 
@@ -2014,7 +2014,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "thislevelbeencompletedalready" => [
+        'thislevelbeencompletedalready' => [
             'name' => 'ThisLevelBeenCompletedAlready',
             'offset' => '04030000',
 
@@ -2023,7 +2023,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "registernonexecutablehunterinlevel" => [
+        'registernonexecutablehunterinlevel' => [
             'name' => 'RegisterNonExecutableHunterInLevel',
             'offset' => 'b1020000',
 
@@ -2032,7 +2032,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "sethuntermute" => [
+        'sethuntermute' => [
             'name' => 'SetHunterMute',
             'offset' => '76030000',
 
@@ -2041,16 +2041,16 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "playaudioloopedfromentity" => [
+        'playaudioloopedfromentity' => [
             'name' => 'PlayAudioLoopedFromEntity',
             'offset' => '5e020000',
 
-            'params' => ['Entity', 'String', 'String', 'Integer', 'Integer'],
+            'params' => ['Entity', 'string', 'string', 'integer', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "triggersavepoint" => [
+        'triggersavepoint' => [
             'name' => 'TriggerSavePoint',
             'offset' => '47030000',
 
@@ -2059,7 +2059,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "clearalllevelgoals" => [
+        'clearalllevelgoals' => [
             'name' => 'ClearAllLevelGoals',
             'offset' => '00030000',
 
@@ -2068,7 +2068,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "setplayerjumpflag" => [
+        'setplayerjumpflag' => [
             'name' => 'SetPlayerJumpFlag',
             'offset' => '24030000',
 
@@ -2077,16 +2077,16 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "aisethunteridleactionminmax" => [
+        'aisethunteridleactionminmax' => [
             'name' => 'AISetHunterIdleActionMinMax',
             'offset' => '80010000',
 
-            'params' => ['String', 'Integer', 'Integer', 'Integer', 'Integer'],
+            'params' => ['string', 'integer', 'integer', 'integer', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "killentity" => [
+        'killentity' => [
             'name' => 'KillEntity',
             'offset' => '80000000',
 
@@ -2095,7 +2095,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "sethunterexecutable" => [
+        'sethunterexecutable' => [
             'name' => 'SetHunterExecutable',
             'offset' => '82020000',
 
@@ -2104,56 +2104,56 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "radarpositionsetentity" => [
+        'radarpositionsetentity' => [
             'name' => 'RadarPositionSetEntity',
             'offset' => 'e0020000',
 
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
-        "setplayerheading" => [
+        'setplayerheading' => [
             'name' => 'SetPlayerHeading',
             'offset' => '80020000',
 
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
-        "sethunterrunspeed" => [
+        'sethunterrunspeed' => [
             'name' => 'SetHunterRunSpeed',
             'offset' => 'f1010000',
 
-            'params' => ['String', 'Float'],
+            'params' => ['string', 'Float'],
             'return' => 'Void',
             'desc' => ''
         ],
-        "triggeraddentityclass" => [
+        'triggeraddentityclass' => [
             'name' => 'TriggerAddEntityClass',
             'offset' => '10020000',
 
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
-        "killentitywithoutanim" => [
+        'killentitywithoutanim' => [
             'name' => 'KillEntityWithoutAnim',
             'offset' => '23030000',
 
-            'params' => ['Entity', 'Integer'],
+            'params' => ['Entity', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
-        "airemovegoalfromsubpack" => [
+        'airemovegoalfromsubpack' => [
             'name' => 'AIRemoveGoalFromSubpack',
             'offset' => '57010000',
 
-            'params' => ['String', 'String', 'String'],
+            'params' => ['string', 'string', 'string'],
             'return' => 'Void',
             'desc' => ''
         ],
 
-        "getcameraposition" => [
+        'getcameraposition' => [
             'name' => 'GetCameraPosition',
             'offset' => '8e010000',
 
@@ -2162,7 +2162,7 @@ class Manhunt2
             'desc' => ''
         ],
 
-        "sethunterhidehealth" => [
+        'sethunterhidehealth' => [
             'name' => 'SetHunterHideHealth',
             'offset' => 'ee010000',
 
@@ -2170,531 +2170,531 @@ class Manhunt2
             'return' => 'vec3d',
             'desc' => ''
         ],
-        "aisetidlepatrolstop" => [
+        'aisetidlepatrolstop' => [
             'name' => 'AISetIdlePatrolStop',
             'offset' => 'a6010000',
 
-            'params' => ['StringArray', 'String', 'Integer', 'Boolean'],
+            'params' => ['StringArray', 'string', 'integer', 'Boolean'],
             'return' => 'vec3d',
             'desc' => ''
         ],
 
         'switchlightoff' => [
             'name' => 'SwitchLightOff',
-            'offset' => "da000000"
+            'offset' => 'da000000'
         ],
 
         'playscriptaudiostreamfromposauto' => [
             'name' => 'PlayScriptAudioStreamFromPosAuto',
-            'offset' => "6c030000"
+            'offset' => '6c030000'
         ],
 
         'airemovehunterfromleadersubpack' => [
             'name' => 'AIRemoveHunterFromLeaderSubpack',
-            'offset' => "53010000"
+            'offset' => '53010000'
         ],
 
         'setplayercontrollable' => [
             'name' => 'SetPlayerControllable',
-            'offset' => "91020000"
+            'offset' => '91020000'
         ],
 
         'setplayergotonode' => [
             'name' => 'SetPlayerGoToNode',
-            'offset' => "93020000"
+            'offset' => '93020000'
         ],
 
 
         'aientitygohomeifidle' => [
             'name' => 'AIEntityGoHomeIfIdle',
-            'offset' => "18020000"
+            'offset' => '18020000'
         ],
 
 
         'aiignoreentityifdead' => [
             'name' => 'AIIgnoreEntityIfDead',
-            'offset' => "4f020000"
+            'offset' => '4f020000'
         ],
 
         'removeentity' => [
             'name' => 'RemoveEntity',
-            'offset' => "81000000"
+            'offset' => '81000000'
         ],
 
         'playscriptaudiostreamfromposautolooped' => [
             'name' => 'PlayScriptAudioStreamFromPosAutoLooped',
-            'offset' => "73030000"
+            'offset' => '73030000'
         ],
 
 
         'isfrisbeespeechcompleted' => [
             'name' => 'IsFrisbeeSpeechCompleted',
-            'offset' => "b0030000"
+            'offset' => 'b0030000'
         ],
 
 
         'spawnentitywithvelocity' => [
             'name' => 'SpawnEntityWithVelocity',
-            'offset' => "a1020000"
+            'offset' => 'a1020000'
         ],
 
         'applyforcetophysicsobject' => [
             'name' => 'ApplyForceToPhysicsObject',
-            'offset' => "98030000"
+            'offset' => '98030000'
         ],
 
         'isplayerwallsquashed' => [
             'name' => 'IsPlayerWallSquashed',
-            'offset' => "e4020000"
+            'offset' => 'e4020000'
         ],
 
         'switchlighton' => [
             'name' => 'SwitchLightOn',
-            'offset' => "db000000"
+            'offset' => 'db000000'
         ],
 
 
         'aiisgoalnameinsubpack' => [
             'name' => 'AIIsGoalNameInSubpack',
-            'offset' => "a5020000"
+            'offset' => 'a5020000'
         ],
 
 
         'aisetentityallowsurprise' => [
             'name' => 'AISetEntityAllowSurprise',
-            'offset' => "6e020000"
+            'offset' => '6e020000'
         ],
 
         'triggerremoveentityclass' => [
             'name' => 'TriggerRemoveEntityClass',
-            'offset' => "11020000"
+            'offset' => '11020000'
         ],
 
 
         'aisetidletalkprobability' => [
             'name' => 'AISetIdleTalkProbability',
-            'offset' => "cc030000"
+            'offset' => 'cc030000'
         ],
 
         'aiisidle' => [
             'name' => 'AIIsIdle',
-            'offset' => "6a010000"
+            'offset' => '6a010000'
         ],
 
         'playerignorethisentity' => [
             'name' => 'PlayerIgnoreThisEntity',
-            'offset' => "8b030000"
+            'offset' => '8b030000'
         ],
 
         'ailookatentity' => [
             'name' => 'AILookAtEntity',
-            'offset' => "fd010000"
+            'offset' => 'fd010000'
         ],
 
 
         'aicancelhunteridleaction' => [
             'name' => 'AICancelHunterIdleAction',
-            'offset' => "81010000"
+            'offset' => '81010000'
         ],
 
 
         'getdropposforplayerpickups' => [
             'name' => 'GetDropPosForPlayerPickups',
-            'offset' => "96030000"
+            'offset' => '96030000'
         ],
 
 
         'aisethunteridleaction' => [
             'name' => 'AISetHunterIdleAction',
-            'offset' => "7f010000"
+            'offset' => '7f010000'
         ],
 
         'lockped' => [
             'name' => 'LockPed',
-            'offset' => "9a020000"
+            'offset' => '9a020000'
         ],
 
 
         'hunteruseswitch' => [
             'name' => 'HunterUseSwitch',
-            'offset' => "ae020000"
+            'offset' => 'ae020000'
         ],
 
 
         'playscriptaudiostreamfromentityautolooped' => [
             'name' => 'PlayScriptAudioStreamFromEntityAutoLooped',
-            'offset' => "72030000"
+            'offset' => '72030000'
         ],
 
 
         'aidefinegoalhidenamedhunter' => [
             'name' => 'AIDefineGoalHideNamedHunter',
-            'offset' => "4b020000"
+            'offset' => '4b020000'
         ],
 
 
         'setentityfade' => [
             'name' => 'SetEntityFade',
-            'offset' => "82030000"
+            'offset' => '82030000'
         ],
 
         'removescript' => [
             'name' => 'RemoveScript',
-            'offset' => "e6000000"
+            'offset' => 'e6000000'
         ],
 
         'isplayercarryingbody' => [
             'name' => 'IsPlayerCarryingBody',
-            'offset' => "b3020000"
+            'offset' => 'b3020000'
         ],
 
 
         'settimer' => [
             'name' => 'SetTimer',
-            'offset' => "d0020000",
+            'offset' => 'd0020000',
             /**
              * Parameters
              * 1: Minutes
              * 2: Seconds
              */
-            'params' => ['Integer', 'Integer'],
+            'params' => ['integer', 'integer'],
             'return' => 'Void',
             'desc' => ''
         ],
 
         'starttimer' => [
             'name' => 'StartTimer',
-            'offset' => "d1020000"
+            'offset' => 'd1020000'
         ],
 
         'stoptimer' => [
             'name' => 'StopTimer',
-            'offset' => "d2020000"
+            'offset' => 'd2020000'
         ],
 
 
         'showtimer' => [
             'name' => 'ShowTimer',
-            'offset' => "d4020000"
+            'offset' => 'd4020000'
         ],
 
         'hidetimer' => [
             'name' => 'HideTimer',
-            'offset' => "d5020000"
+            'offset' => 'd5020000'
         ],
 
         'incrementcounter' => [
             'name' => 'IncrementCounter',
-            'offset' => "fb020000"
+            'offset' => 'fb020000'
         ],
 
         'decreasecounter' => [
             'name' => 'DecreaseCounter',
-            'offset' => "fc020000"
+            'offset' => 'fc020000'
         ],
 
         'showcounter' => [
             'name' => 'ShowCounter',
-            'offset' => "fd020000"
+            'offset' => 'fd020000'
         ],
 
         'stringcat' => [
             'name' => 'StringCat',
-            'offset' => "6c000000"
+            'offset' => '6c000000'
         ],
 
         'integertostring' => [
             'name' => 'IntegerToString',
-            'offset' => "5b020000"
+            'offset' => '5b020000'
         ],
 
         'aientityignoredeadbodies' => [
             'name' => 'AIEntityIgnoreDeadBodies',
-            'offset' => "af020000"
+            'offset' => 'af020000'
         ],
 
         'createinventoryitem' => [
             'name' => 'CreateInventoryItem',
-            'offset' => "ba000000"
+            'offset' => 'ba000000'
         ],
 
         'sethunterdropammo' => [
             'name' => 'SetHunterDropAmmo',
-            'offset' => "d9020000"
+            'offset' => 'd9020000'
         ],
 
         'setqtmlength' => [
             'name' => 'SetQTMLength',
-            'offset' => "ad030000"
+            'offset' => 'ad030000'
         ],
 
         'setqtmpresses' => [
             'name' => 'SetQTMPresses',
-            'offset' => "ae030000"
+            'offset' => 'ae030000'
         ],
 
 
         'setnodeshadow' => [
             'name' => 'SetNodeShadow',
-            'offset' => "a5030000"
+            'offset' => 'a5030000'
         ],
 
         'showtriggers' => [
             'name' => 'ShowTriggers',
-            'offset' => "20010000"
+            'offset' => '20010000'
         ],
 
 
         'createcrawltrigger' => [
             'name' => 'CreateCrawlTrigger',
-            'offset' => "d8030000"
+            'offset' => 'd8030000'
         ],
 
         'aiclearallactiveareaassociations' => [
             'name' => 'AIClearAllActiveAreaAssociations',
-            'offset' => "ba010000"
+            'offset' => 'ba010000'
         ],
 
         'aiassociateoneactiveareawithplayerarea' => [
             'name' => 'AIAssociateOneActiveAreaWithPlayerArea',
-            'offset' => "bb010000"
+            'offset' => 'bb010000'
         ],
 
 
         'getcurrentinventoryitemtype' => [
             'name' => 'GetCurrentInventoryItemType',
-            'offset' => "2a010000"
+            'offset' => '2a010000'
         ],
 
         'aitriggersoundnoradar' => [
             'name' => 'AITriggerSoundNoRadar',
-            'offset' => "b7020000"
+            'offset' => 'b7020000'
         ],
 
 
         'aigethunterlastnodename' => [
             'name' => 'AIGetHunterLastNodeName',
-            'offset' => "77010000",
-            'return' => "String"
+            'offset' => '77010000',
+            'return' => 'string'
         ],
 
         'aidefinegoalguardlookatentity' => [
             'name' => 'AIDefineGoalGuardLookAtEntity',
-            'offset' => "fc010000"
+            'offset' => 'fc010000'
         ],
 
         'huntersetgunaccuracyfar' => [
             'name' => 'HunterSetGunAccuracyFar',
-            'offset' => "d1010000"
+            'offset' => 'd1010000'
         ],
 
 
         'huntersetgunaccuracymid' => [
             'name' => 'HunterSetGunAccuracyMid',
-            'offset' => "4d000000"
+            'offset' => '4d000000'
         ],
 
         'huntersetgunaccuracynear' => [
             'name' => 'HunterSetGunAccuracyNear',
-            'offset' => "d0010000"
+            'offset' => 'd0010000'
         ],
 
 
         'setmoveraccel' => [
             'name' => 'SetMoverAccel',
-            'offset' => "42010000"
+            'offset' => '42010000'
         ],
 
 
         'sethunteraimtarget' => [
             'name' => 'SetHunterAimTarget',
-            'offset' => "49020000"
+            'offset' => '49020000'
         ],
 
         'sethunterhitaccuracy' => [
             'name' => 'SetHunterHitAccuracy',
-            'offset' => "ab010000"
+            'offset' => 'ab010000'
         ],
 
 
         'setjittereffect' => [
             'name' => 'SetJitterEffect',
-            'offset' => "c4030000"
+            'offset' => 'c4030000'
         ],
 
         'aireturnsubpackentityname' => [
             'name' => 'AIReturnSubpackEntityName',
-            'offset' => "ec010000"
+            'offset' => 'ec010000'
         ],
 
         'ainumberinsubpack' => [
             'name' => 'AINumberInSubpack',
-            'offset' => "67010000"
+            'offset' => '67010000'
         ],
 
 
         'seteffectposition' => [
             'name' => 'SetEffectPosition',
-            'offset' => "ab000000"
+            'offset' => 'ab000000'
         ],
 
         'createeffect' => [
             'name' => 'CreateEffect',
-            'offset' => "a9000000"
+            'offset' => 'a9000000'
         ],
 
         'seteffectrgbastart' => [
             'name' => 'SetEffectRGBAStart',
-            'offset' => "61010000"
+            'offset' => '61010000'
         ],
 
         'seteffectrgbaend' => [
             'name' => 'SetEffectRGBAEnd',
-            'offset' => "62010000"
+            'offset' => '62010000'
         ],
 
 
         'seteffectpausecycle' => [
             'name' => 'SetEffectPauseCycle',
-            'offset' => "b9000000"
+            'offset' => 'b9000000'
         ],
 
         'seteffectpauselength' => [
             'name' => 'SetEffectPauseLength',
-            'offset' => "b8000000"
+            'offset' => 'b8000000'
         ],
 
         'seteffectradius' => [
             'name' => 'SetEffectRadius',
-            'offset' => "b6000000"
+            'offset' => 'b6000000'
         ],
 
         'substr' => [
             'name' => 'SubStr',
-            'offset' => "17030000"
+            'offset' => '17030000'
         ],
 
         'setdooropenanglein' => [
             'name' => 'SetDoorOpenAngleIn',
-            'offset' => "d3010000"
+            'offset' => 'd3010000'
         ],
 
         'setdooropenangleout' => [
             'name' => 'SetDoorOpenAngleOut',
-            'offset' => "d4010000"
+            'offset' => 'd4010000'
         ],
 
         'endaudiolooped' => [
             'name' => 'EndAudioLooped',
-            'offset' => "60020000"
+            'offset' => '60020000'
         ],
 
         'playscriptaudiostreamfromentityaux' => [
             'name' => 'PlayScriptAudioStreamFromEntityAux',
-            'offset' => "d0030000"
+            'offset' => 'd0030000'
         ],
 
 
         'airemoveallgoalsfromsubpack' => [
             'name' => 'AIRemoveAllGoalsFromSubpack',
-            'offset' => "9a010000"
+            'offset' => '9a010000'
         ],
 
 
         'sethunterruntime' => [
             'name' => 'SetHunterRunTime',
-            'offset' => "ef010000"
+            'offset' => 'ef010000'
         ],
 
 
         'enablegraphconnection' => [
             'name' => 'EnableGraphConnection',
-            'offset' => "87030000"
+            'offset' => '87030000'
         ],
 
         'setqtmsoundprobabilitymodifier' => [
             'name' => 'SetQTMSoundProbabilityModifier',
-            'offset' => "c7030000"
+            'offset' => 'c7030000'
         ],
 
         'setqtmstaminaprobabilitymodifier' => [
             'name' => 'SetQTMStaminaProbabilityModifier',
-            'offset' => "c6030000"
+            'offset' => 'c6030000'
         ],
 
         'setqtmdeadbodyprobabilitymodifier' => [
             'name' => 'SetQTMDeadBodyProbabilityModifier',
-            'offset' => "c5030000"
+            'offset' => 'c5030000'
         ],
 
 
         'aisethunteridledirection' => [
             'name' => 'AISetHunterIdleDirection',
-            'offset' => "9c010000"
+            'offset' => '9c010000'
         ],
 
 
         'aienableclimbinginidle' => [
             'name' => 'AiEnableClimbingInIdle',
-            'offset' => "ce030000"
+            'offset' => 'ce030000'
         ],
 
 
         'aideletegoaldefinition' => [
             'name' => 'AIDeleteGoalDefinition',
-            'offset' => "df010000"
+            'offset' => 'df010000'
         ],
 
 
         'playaudiooneshotfrompos' => [
             'name' => 'PlayAudioOneShotFromPos',
-            'offset' => "5d020000"
+            'offset' => '5d020000'
         ],
 
 
         'activateenvexec' => [
             'name' => 'ActivateEnvExec',
-            'offset' => "1c030000"
+            'offset' => '1c030000'
         ],
 
         'aitriggersoundlocationknown' => [
             'name' => 'AITriggerSoundLocationKnown',
-            'offset' => "71020000"
+            'offset' => '71020000'
         ],
 
         'aidefinegoalguard' => [
             'name' => 'AIDefineGoalGuard',
-            'offset' => "59010000"
+            'offset' => '59010000'
         ],
 
         'aidefinegoalorbitentity' => [
             'name' => 'AIDefineGoalOrbitEntity',
-            'offset' => "fa010000"
+            'offset' => 'fa010000'
         ],
 
         'aimodifygoalaim' => [
             'name' => 'AIModifyGoalAim',
-            'offset' => "3f020000"
+            'offset' => '3f020000'
         ],
 
         'aistayinhuntenemy' => [
             'name' => 'AIStayInHuntEnemy',
-            'offset' => "66020000"
+            'offset' => '66020000'
         ],
 
         'killsubtitletext' => [
             'name' => 'KillSubtitleText',
-            'offset' => "f6020000"
+            'offset' => 'f6020000'
         ],
 
         'aidefinegoalshootvector' => [
             'name' => 'AIDefineGoalShootVector',
-            'offset' => "6a020000"
+            'offset' => '6a020000'
         ],
 
         'nil' => [
             'name' => 'nil',
-            'offset' => "00000000"
+            'offset' => '00000000'
         ],
 
     ];
