@@ -243,20 +243,8 @@ class T_FUNCTION {
                     throw new \Exception(sprintf('T_FUNCTION: Return type for %s missed', $param['value']));
                 }
 
-                switch ($function['return']){
-                    case 'string':
-                        $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
-                        break;
-                    case 'integer':
-                        $code[] = $getLine($this->getFunction('WriteDebugInteger')['offset']);
-                        break;
-                    case 'real':
-                        $code[] = $getLine($this->getFunction('WriteDebugReal')['offset']);
-                        break;
-                    default:
-                        throw new \Exception(sprintf('T_FUNCTION: Return type %s is unknown', $function['return']));
-                        break;
-                }
+                $code[] = $getLine($this->getFunction('WriteDebug' . ucfirst($function['return']) )['offset']);
+
 
                 break;
             default:
