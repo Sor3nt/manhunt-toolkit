@@ -282,7 +282,7 @@ class Manhunt2
         "getentityview" => [
             'name' => 'GetEntityView',
             'offset' => "93010000",
-            'return' => 'Vec3D'
+            'return' => 'vec3d'
         ],
 
         "freezeentity" => [
@@ -1154,7 +1154,7 @@ class Manhunt2
              * 2: ref to vec3d (3x float)
              * 3: integer
              */
-            'params' => ['Entity', 'Vec3D', 'Integer'],
+            'params' => ['Entity', 'vec3d', 'Integer'],
             'desc' => ''
         ],
 
@@ -1218,7 +1218,7 @@ class Manhunt2
              * 3: String
              * - triggerOutOfWindow
              */
-            'params' => ['Vec3D', 'Vec3D', 'String'],
+            'params' => ['vec3d', 'vec3d', 'String'],
             'desc' => ''
         ],
 
@@ -1297,7 +1297,7 @@ class Manhunt2
              * 1: ref to this
              * 2: vec3D
              */
-            'params' => ['This', 'vec3D'],
+            'params' => ['This', 'vec3d'],
             'desc' => ''
         ],
 
@@ -1309,7 +1309,7 @@ class Manhunt2
              * 1: ref to this
              * 2: vec3D
              */
-            'params' => ['This', 'vec3D'],
+            'params' => ['This', 'vec3d'],
             'desc' => ''
         ],
 
@@ -1374,7 +1374,7 @@ class Manhunt2
              * 3: string
              * - triggerVisionCheck
              */
-            'params' => ['Vec3D', 'Float', 'String'],
+            'params' => ['vec3d', 'Float', 'String'],
             'desc' => ''
         ],
 
@@ -1424,7 +1424,7 @@ class Manhunt2
              * - Runner(hunter)
              * 4: Vec3d
              */
-            'params' => ['String', 'Vec3d', 'String', 'Vec3d'],
+            'params' => ['String', 'vec3d', 'String', 'vec3d'],
             'desc' => ''
         ],
 
@@ -1436,7 +1436,7 @@ class Manhunt2
              * 1: result of getEntity
              */
             'params' => ['Entity'],
-            'return' => 'Vec3D',
+            'return' => 'vec3d',
             'desc' => ''
         ],
 
@@ -1616,7 +1616,7 @@ class Manhunt2
              * 2: vec3d
              * 4: string script name ?
              */
-            'params' => ['String', 'Vec3d', 'String'],
+            'params' => ['String', 'vec3d', 'String'],
             'return' => '',
             'desc' => ''
         ],
@@ -2158,7 +2158,7 @@ class Manhunt2
             'offset' => '8e010000',
 
             'params' => [],
-            'return' => 'Vec3D',
+            'return' => 'vec3d',
             'desc' => ''
         ],
 
@@ -2167,7 +2167,7 @@ class Manhunt2
             'offset' => 'ee010000',
 
             'params' => [],
-            'return' => 'Vec3D',
+            'return' => 'vec3d',
             'desc' => ''
         ],
         "aisetidlepatrolstop" => [
@@ -2175,7 +2175,7 @@ class Manhunt2
             'offset' => 'a6010000',
 
             'params' => ['StringArray', 'String', 'Integer', 'Boolean'],
-            'return' => 'Vec3D',
+            'return' => 'vec3d',
             'desc' => ''
         ],
 

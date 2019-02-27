@@ -454,18 +454,15 @@ class T_FUNCTION {
                  */
                 if (
                     count($forceFloatOrder) > 0 &&
-                    $param['type'] == Token::T_INT
+                    $param['type'] == Token::T_INT &&
+                    $forceFloatOrder[$index] === true
                 ) {
-                    if (count($forceFloatOrder)){
-                        if ($forceFloatOrder[$index] === true){
-                            $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
+                    $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
 
-                            Evaluate::int2float($code, $getLine);
+                    Evaluate::int2float($code, $getLine);
 
-                            Evaluate::regularReturn($code, $getLine);
+                    Evaluate::regularReturn($code, $getLine);
 
-                        }
-                    }
                 }
 
             }
@@ -500,7 +497,7 @@ class T_FUNCTION {
              */
             if (
                 !isset($function['return']) || (
-                    $function['return'] != "Vec3D" &&
+                    $function['return'] != "vec3d" &&
                     $function['return'] != "String"
                 )
             ){
