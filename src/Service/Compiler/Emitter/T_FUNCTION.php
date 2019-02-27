@@ -495,21 +495,18 @@ class T_FUNCTION {
 
         if (isset($node['nested']) && $node['nested'] === true){
 
-            if ($data['game'] == MHT::GAME_MANHUNT){
-                $functionNoReturn = Manhunt::$functionNoReturn;
-            }else{
-                $functionNoReturn = Manhunt2::$functionNoReturn;
-            }
-
-            $functionNoReturn = array_merge($functionNoReturn, ManhuntDefault::$functionNoReturn);
-
+            /**
+             * Mystery: any function who return vec3d or a string do not need a return code.
+             */
             if (
-                //not sure, maybe this is just a fix for a unknown bug
-                !in_array(strtolower($node['value']), $functionNoReturn )
+                !isset($function['return']) || (
+                    $function['return'] != "Vec3D" &&
+                    $function['return'] != "String"
+                )
             ){
-
                 Evaluate::regularReturn($code, $getLine);
             }
+
         }
 
         $this->processArguments($node, $code, $getLine, $emitter);

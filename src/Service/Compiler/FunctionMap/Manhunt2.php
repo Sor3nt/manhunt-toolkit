@@ -16,13 +16,6 @@ class Manhunt2
      */
     public static $functionForceFloar = [];
 
-    public static $functionNoReturn = [
-        'getentityposition',
-        'getcameraposition',
-        'getentityname',
-        'aigethunterlastnodename'
-    ];
-
     public static $functionEventDefinition = [
         '__default__' => '68000000'
     ];
@@ -289,7 +282,7 @@ class Manhunt2
         "getentityview" => [
             'name' => 'GetEntityView',
             'offset' => "93010000",
-            'return' => 'Vec3d'
+            'return' => 'Vec3D'
         ],
 
         "freezeentity" => [
@@ -1443,7 +1436,7 @@ class Manhunt2
              * 1: result of getEntity
              */
             'params' => ['Entity'],
-            'return' => 'Vec3d',
+            'return' => 'Vec3D',
             'desc' => ''
         ],
 

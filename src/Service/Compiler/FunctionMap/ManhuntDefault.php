@@ -22,10 +22,6 @@ class ManhuntDefault {
         'aisethunteridleactionminmaxradius' => [false, false, false, false, false, true]
     ];
 
-    public static $functionNoReturn = [
-        'getentityname'
-    ];
-
     public static $functionEventDefinition = [
         'oncreate' => '00000000',
         'ondestroy' => '01000000',

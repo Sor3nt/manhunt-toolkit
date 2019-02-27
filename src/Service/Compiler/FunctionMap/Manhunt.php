@@ -17,10 +17,6 @@ class Manhunt
     public static $functionForceFloar = [
     ];
 
-    public static $functionNoReturn = [
-        'getentityname'
-    ];
-
     public static $functionEventDefinition = [
         '__default__' => '54000000'
     ];
