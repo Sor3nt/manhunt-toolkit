@@ -50,7 +50,7 @@ class T_CONDITION {
 
                     $var = $data['variables'][ $param1 ];
 
-                    $searchedType = str_replace('level_var ', '', $var['type']);
+                    $searchedType = $var['objectType'];
 
                     if (isset($data['types'][ $searchedType ])){
                         $types = $data['types'][ $searchedType ];
@@ -103,9 +103,10 @@ class T_CONDITION {
                             $data
                         );
 
+
                         if (
-                            substr($mappedTo['type'], 0, 8) == "game_var" ||
-                            substr($mappedTo['type'], 0, 9) == "level_var" ||
+                            $mappedTo['isGameVar'] ||
+                            $mappedTo['isLevelVar'] ||
                             $mappedTo['type'] == "entityptr" ||
                             $mappedTo['type'] == "constant" ||
                             $mappedTo['type'] == "integer" ||
@@ -168,8 +169,7 @@ class T_CONDITION {
 
 
                     if ($isLastIndex && $output == "regular"){
-                        $code[] = $getLine('0f000000', false, $debugMsg . 'regular');
-                        $code[] = $getLine('04000000', false, $debugMsg . 'regular');
+                        Evaluate::findAName($code, $getLine);
 
                     }else if ($output == "string" || $output == "array") {
                         Evaluate::stringReturn($code, $getLine);
@@ -185,7 +185,7 @@ class T_CONDITION {
                 if ($token['operation']['type'] == Token::T_AND) {
 
                     Evaluate::setStatementOperator($token['operation']['type'], $code, $getLine);
-                    Evaluate::setStatementNext($code, $getLine);
+                    Evaluate::findAName($code, $getLine);
                 }
 
                 if ($node['isNot']) Evaluate::setStatementNot($code, $getLine);

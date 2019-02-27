@@ -37,7 +37,7 @@ class T_IF {
                 }
 
                 if ($fullNode['operator'] != false){
-                    Evaluate::setStatementNext($code, $getLine);
+                    Evaluate::findAName($code, $getLine);
                     Evaluate::setStatementOperator($fullNode['operator'], $code, $getLine);
                 }
 
@@ -46,7 +46,7 @@ class T_IF {
                     $fullNode['last'] == true &&
                     $parentOperator !== false
                 ){
-                    Evaluate::setStatementNext($code, $getLine);
+                    Evaluate::findAName($code, $getLine);
                     Evaluate::setStatementOperator($parentOperator, $code, $getLine);
                 }
 

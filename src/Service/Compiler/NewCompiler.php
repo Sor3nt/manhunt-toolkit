@@ -155,7 +155,11 @@ class NewCompiler
             'blockType' => $token['type'],
             'offset' => $this->lineCount - 1,
             'section' => 'script',
-            'type' => 'custom_functions'
+            'type' => 'custom_functions',
+            'objectType' => 'custom_functions',
+            'isArg' => false,
+            'isLevelVar' => false,
+            'isGameVar' => false,
         ];
 
 
@@ -628,9 +632,16 @@ class NewCompiler
 
                     $types[$currentTypeSection][$typeTokens[$current]['value']] = [
                         'type' => 'level_var state',
+                        'objectType' => 'state',
+                        'isArg' => false,
+                        'isLevelVar' => true,
+                        'isGameVar' => false,
+
+
                         'section' => "header",
                         'offset' => Helper::fromIntToHex($offset)
                     ];
+
                     $offset++;
 
                     $current++;
@@ -733,18 +744,26 @@ class NewCompiler
                         $isGameVar = strpos($variableType, 'game_var') !== false;
                         $variableTypeWihtoutLevel = str_replace('level_var ', '', $variableType);
 
+                        $isString = substr($variableTypeWihtoutLevel, 0, 7) == "string[";
+
                         $row = [
                             'section' => $currentSection,
-                            'type' => substr($variableTypeWihtoutLevel, 0, 7) == "string[" ? ($isLevelVar ? 'level_var stringarray' : 'stringarray') : $variableType,
+                            'objectType' => $isString ? 'stringarray' : $variableTypeWihtoutLevel,
+                            'type' =>
+                                $isString ?
+                                    ($isLevelVar ? 'level_var stringarray' : 'stringarray') :
+                                    $variableType,
+
+                            'isArg' => false,
+                            'isLevelVar' => $isLevelVar,
+                            'isGameVar' => $isGameVar,
+
                             'length' => $this->getMemorySizeByType($variableTypeWihtoutLevel),
                             'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false)
                         ];
 
                         if (isset($this->types[$variableTypeWihtoutLevel])) {
 
-                            //todo move to row
-                            $row['isLevelVar'] = $isLevelVar;
-                            $row['isGameVar'] = $isGameVar;
                             $row['abstract'] = 'state';
                         }
                     }
@@ -766,12 +785,14 @@ class NewCompiler
             // loop over the parent variables
             foreach ($parentVariables as $parentVariableName => $parentVariable) {
 
-                // look if we use a parent varoable
+                // look if we use a parent variable
                 foreach ($vars as $headerVariableName => &$headerVariable) {
                     if (
-                        strpos(strtolower($headerVariable['type']), 'level_var') === false &&
-                        strpos(strtolower($headerVariable['type']), 'game_var') === false
+                        $headerVariable['isLevelVar'] === false &&
+                        $headerVariable['isGameVar'] === false
                     ) continue;
+
+
                     if ($parentVariableName != $headerVariableName) continue;
 
                     $headerVariable['offset'] = $parentVariable['offset'];
@@ -902,6 +923,12 @@ class NewCompiler
 
             $var['section'] = 'script';
             $var['type'] = 'constant';
+            $var['objectType'] = 'constant';
+
+            $var['isArg'] = false;
+            $var['isLevelVar'] = false;
+            $var['isGameVar'] = false;
+;
         }
 
         /**
@@ -919,6 +946,10 @@ class NewCompiler
 
             $hardCodedConstant['section'] = 'header';
             $hardCodedConstant['type'] = 'constant';
+            $hardCodedConstant['objectType'] = 'constant';
+            $hardCodedConstant['isArg'] = false;
+            $hardCodedConstant['isLevelVar'] = false;
+            $hardCodedConstant['isGameVar'] = false;
             $constants[$index] = $hardCodedConstant;
         }
 
@@ -1037,13 +1068,20 @@ class NewCompiler
 
                 foreach ($variables as $index => $variable) {
                     $variable = $variable['value'];
+var_dump($variable);
 
                     $row = [
                         'section' => 'script',
                         'order' => $index,
                         'type' => $variableType,
-                        'isArg' => $section == Token::T_DEFINE_SECTION_ARG
+                        'objectType' => $variableType,
+                        'isArg' => $section == Token::T_DEFINE_SECTION_ARG,
+
+                        'isLevelVar' => false,
+                        'isGameVar' => false,
                     ];
+
+
 
                     if (substr($variableType, 0, 7) == "string[") {
                         $row['type'] = 'stringarray';
@@ -1077,7 +1115,11 @@ class NewCompiler
                 $item['section'] = "header";
                 $this->headerVariables[$name] = $item;
                 $item['section'] = "script";
-//                continue;
+                $item['objectType'] = substr($item['type'], 10);
+
+                $item['isArg'] = false;
+                $item['isLevelVar'] = true;
+                $item['isGameVar'] = false;
 
             }else{
                 $blockMemory += $item['size'];

@@ -88,8 +88,7 @@ class Evaluate {
     static public function setIntMathOperator($type, &$code, \Closure $getLine ){
         $debugMsg = sprintf('[setIntMathOperator] ' . $type);
 
-        $code[] = $getLine('0f000000', false, $debugMsg . 'int');
-        $code[] = $getLine('04000000', false, $debugMsg . 'int');
+        self::findAName($code, $getLine);
 
         if ($type == Token::T_ADDITION) {
 
@@ -128,12 +127,6 @@ class Evaluate {
         }
     }
 
-    static public function setStatementNext(&$code, \Closure $getLine ){
-        $code[] = $getLine('0f000000');
-        $code[] = $getLine('04000000');
-
-    }
-
     static public function setStatementOperator($operator, &$code, \Closure $getLine ){
 
         switch ($operator){
@@ -169,8 +162,12 @@ class Evaluate {
             $mapped = [
                 'section' => $originalMap['section'],
                 'type' => 'object',
+                'objectType' => 'object',
                 'object' => $originalMap,
-                'size' => 4
+                'size' => 4,
+                'isArg' => $originalMap['isArg'],
+                'isLevelVar' => $originalMap['isLevelVar'],
+                'isGameVar' => $originalMap['isGameVar'],
             ];
 
             switch ($attribute){
@@ -263,6 +260,14 @@ class Evaluate {
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
+
+    }
+
+    static public function findAName(&$code, \Closure $getLine){
+        $debugMsg = sprintf('[findAName] ');
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
 
     }
 
@@ -361,8 +366,7 @@ class Evaluate {
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
 
-        $code[] = $getLine('0f000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
+        self::findAName($code, $getLine);
         $code[] = $getLine('44000000', false, $debugMsg);
     }
 

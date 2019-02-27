@@ -61,20 +61,20 @@ class T_FUNCTION {
 
                         }else{
 
+
                             if (
-                                $mappedTo['type'] == 'level_var stringarray' ||
-                                $mappedTo['type'] == 'stringarray'
+                                isset($mappedTo['objectType']) &&
+                                $mappedTo['objectType'] == 'stringarray'
                             ){
+
+
                                 Evaluate::stringReturn($code, $getLine);
 
                             }else{
                                 Evaluate::regularReturn($code, $getLine);
 
                             }
-
-
                         }
-
 
                         break;
 
@@ -156,7 +156,7 @@ class T_FUNCTION {
     public function handleWriteDebugCall($node, \Closure $getLine, \Closure $emitter, $data){
 
         $debugMsg = '[T_FUNCTION] handleWriteDebugCall ';
-        $code = [  ];
+        $code = [];
 
         /**
          *
@@ -200,9 +200,7 @@ class T_FUNCTION {
          * generate the needed function call
          */
         switch ($param['type']){
-            case Token::T_INT:
-                $code[] = $getLine($this->getFunction('WriteDebugInteger')['offset']);
-                break;
+
             case Token::T_STRING:
                 $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
                 break;
@@ -212,21 +210,12 @@ class T_FUNCTION {
 
                 switch ($mapping['type']){
                     case 'real':
-                        $code[] = $getLine($this->getFunction('WriteDebugReal')['offset']);
-                        break;
-                    case 'stringarray':
-                        $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
-                        break;
                     case 'integer':
-                    case 'game_var integer':
-                        $code[] = $getLine($this->getFunction('WriteDebugInteger')['offset']);
-                        break;
-                    case 'level_var integer':
-                        $code[] = $getLine($this->getFunction('WriteDebugLevelVarInteger')['offset']);
-                        break;
                     case 'object':
-                        $code[] = $getLine($this->getFunction('WriteDebugObject')['offset']);
+                    case 'stringarray':
+                        $code[] = $getLine($this->getFunction('WriteDebug' . ucfirst($mapping['type']) )['offset']);
                         break;
+
                     case 'procedure':
                         $code[] = $getLine($this->getFunction('WriteDebug')['offset']);
                         break;
@@ -251,7 +240,6 @@ class T_FUNCTION {
                 throw new \Exception(sprintf('T_FUNCTION: Param type %s is unknown', $param['type']));
                 break;
         }
-
 
         // the writedebug call has a secret additional call, a flush command
         if (!isset($node['last']) || $node['last'] === true) {
@@ -359,8 +347,8 @@ class T_FUNCTION {
                     }
 
                     $debugMsg = sprintf('[T_FUNCTION] map: addition %s', $mathValue['value']);
-                    $code[] = $getLine('0f000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
+
+                    Evaluate::findAName($code, $getLine);
 
 
                     $code[] = $getLine('31000000', false, $debugMsg);
@@ -371,7 +359,7 @@ class T_FUNCTION {
 
                     $skipNext = true;
                 }else if ($param['type'] == Token::T_SUBSTRACTION){
-                    throw new \Exception('T_SUBSTRACTION not iplemented');
+                    throw new \Exception('T_SUBSTRACTION not implemented');
                 }else if ($param['type'] == Token::T_MULTIPLY){
 
                     $mathValue = $node['params'][$index + 1];
@@ -383,8 +371,7 @@ class T_FUNCTION {
                     }
 
                     $debugMsg = sprintf('[T_FUNCTION] map: subtraction %s', $mathValue['value']);
-                    $code[] = $getLine('0f000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
+                    Evaluate::findAName($code, $getLine);
 
 
                     $code[] = $getLine('35000000', false, $debugMsg);

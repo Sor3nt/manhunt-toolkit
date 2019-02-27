@@ -785,8 +785,13 @@ class Manhunt2
             'name' => 'WriteDebugObject',
             'offset' => 'write_object_73000000'
         ],
+
         'writedebugstring' => [
             'name' => 'WriteDebugString',
+            'offset' => '73000000'
+        ],
+        'writedebugstringarray' => [
+            'name' => 'writedebugstringarray',
             'offset' => '73000000'
         ],
 

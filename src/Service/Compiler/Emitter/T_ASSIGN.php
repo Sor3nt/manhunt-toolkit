@@ -58,7 +58,7 @@ class T_ASSIGN {
         //so the compiler think its a function...
         if ($leftHand['type'] == Token::T_FUNCTION ){
 
-            $stateVar = str_replace('level_var ', '', $mapped['type']);
+            $stateVar = $mapped['objectType'];
 
             if (isset($data['types'][$stateVar])){
                 $leftHand['target'] = $stateVar;
@@ -123,8 +123,8 @@ class T_ASSIGN {
 
             $code[] = $getLine('35000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);
-            $code[] = $getLine('0f000000', false, $debugMsg);
-            $code[] = $getLine('04000000', false, $debugMsg);
+
+            Evaluate::findAName($code, $getLine);
 
             $code[] = $getLine('31000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);
@@ -204,23 +204,23 @@ class T_ASSIGN {
         ){
             Evaluate::toObject( $code, $getLine);
 
-        }else if ($mapped['type'] == "stringarray"){
+        }else if ($mapped['objectType'] == "stringarray"){
             Evaluate::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
 
-        }else if(substr($mapped['type'], 0, 9) == "level_var") {
+        }else if($mapped['isLevelVar']) {
+
             Evaluate::toLevelVar($mapped['offset'], $code, $getLine);
 
         }else if (
             isset($mapped['abstract']) && $mapped['abstract'] == "state" ||
             isset($node['body'][1]) == true
         ){
-//            Evaluate::toHeader( $mapped['offset'], $code, $getLine);
             Evaluate::fromFinedANameforMeTodoThird($mapped, $code, $getLine);
 
         //regular assignment
         }else if (isset($node['body'][1]) == false){
 
-            if (substr($mapped['type'], 0, 8) == "game_var"){
+            if ($mapped['isGameVar']){
                 Evaluate::toGameVar( $node, $code, $getLine);
             } else {
                 Evaluate::fromFinedANameforMeTodoThird($mapped, $code, $getLine);

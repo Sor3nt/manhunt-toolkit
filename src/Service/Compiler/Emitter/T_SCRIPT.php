@@ -58,6 +58,7 @@ class T_SCRIPT {
 
             Evaluate::regularReturn($code, $getLine);
 
+            //fallback ?
             Evaluate::readIndex(0, $code, $getLine);
 
             $code[$lastLineIndex]->hex = Helper::fromIntToHex(end($code)->lineNumber - 1);
@@ -75,9 +76,6 @@ class T_SCRIPT {
 
 
             $code[] = $getLine('0f030000', false, $debugMsg . 'argument init 2');
-
-//            unset($node['body'][0]);
-
         }
 
         foreach ($node['body'] as $node) {
