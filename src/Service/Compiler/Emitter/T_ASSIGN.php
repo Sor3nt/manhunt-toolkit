@@ -124,7 +124,7 @@ class T_ASSIGN {
             $code[] = $getLine('35000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);
 
-            Evaluate::findAName($code, $getLine);
+            Evaluate::returnCache($code, $getLine);
 
             $code[] = $getLine('31000000', false, $debugMsg);
             $code[] = $getLine('04000000', false, $debugMsg);

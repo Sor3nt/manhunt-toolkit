@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 
@@ -33,7 +34,8 @@ class T_SWITCH {
             $code[] = $getLine('01000000', false, $debugMsg . ' case');
             $code[] = $getLine( self::toIndex($case['index'], $data, $node['switch']), false, $debugMsg . ' case' );
 
-            $code[] = $getLine('3f000000', false, $debugMsg . ' case');
+            Evaluate::setOperation(Token::T_IS_EQUAL, $code, $getLine);
+
             $code[] = $getLine(Helper::fromIntToHex( $calc['cases'][$index] ), false, $debugMsg . ' case');
 
         }

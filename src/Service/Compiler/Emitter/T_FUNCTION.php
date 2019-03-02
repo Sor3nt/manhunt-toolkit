@@ -348,7 +348,7 @@ class T_FUNCTION {
 
                     $debugMsg = sprintf('[T_FUNCTION] map: addition %s', $mathValue['value']);
 
-                    Evaluate::findAName($code, $getLine);
+                    Evaluate::returnCache($code, $getLine);
 
 
                     $code[] = $getLine('31000000', false, $debugMsg);
@@ -371,7 +371,7 @@ class T_FUNCTION {
                     }
 
                     $debugMsg = sprintf('[T_FUNCTION] map: subtraction %s', $mathValue['value']);
-                    Evaluate::findAName($code, $getLine);
+                    Evaluate::returnCache($code, $getLine);
 
 
                     $code[] = $getLine('35000000', false, $debugMsg);

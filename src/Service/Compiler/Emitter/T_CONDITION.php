@@ -160,16 +160,14 @@ class T_CONDITION {
 
                     }
 
-                    //generate the code based on the defined output (above)
-
                     if ($operation['type'] == Token::T_INT && $operation['value'] < 0) {
-
                         Evaluate::negate($operation['type'], $code, $getLine);
                     }
 
 
+                    //todo: die abfrage erscheint mir komisch, es muss ein anderer faktor sein...
                     if ($isLastIndex && $output == "regular"){
-                        Evaluate::findAName($code, $getLine);
+                        Evaluate::returnCache($code, $getLine);
 
                     }else if ($output == "string" || $output == "array") {
                         Evaluate::stringReturn($code, $getLine);
@@ -177,15 +175,12 @@ class T_CONDITION {
                         Evaluate::regularReturn($code, $getLine);
 
                     }
-
-
-
                 }
 
                 if ($token['operation']['type'] == Token::T_AND) {
 
                     Evaluate::setStatementOperator($token['operation']['type'], $code, $getLine);
-                    Evaluate::findAName($code, $getLine);
+                    Evaluate::returnCache($code, $getLine);
                 }
 
                 if ($node['isNot']) Evaluate::setStatementNot($code, $getLine);
@@ -221,14 +216,13 @@ class T_CONDITION {
                     in_array('string', $toHandle) !== false ||
                     in_array(Token::T_STRING, $toHandle) !== false
                 ) {
-                    $code[] = $getLine('49000000', false, '[T_CONDITION] map finalize string');
+                    Evaluate::compareString($code, $getLine);
+
                 }else if (in_array(Token::T_FLOAT, $toHandle) !== false ||in_array('customFunction', $toHandle) !== false ){
-                    $code[] = $getLine('4e000000', false, '[T_CONDITION] map finalize float');
+                    Evaluate::compareFloat($code, $getLine);
 
                 }else{
-                    $code[] = $getLine('23000000', false, '[T_CONDITION] map finalize simple');
-                    $code[] = $getLine('04000000', false, '[T_CONDITION] map finalize simple');
-                    $code[] = $getLine('01000000', false, '[T_CONDITION] map finalize simple');
+                    Evaluate::compareInteger($code, $getLine);
                 }
 
 

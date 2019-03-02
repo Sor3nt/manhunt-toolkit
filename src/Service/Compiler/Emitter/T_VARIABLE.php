@@ -86,6 +86,7 @@ class T_VARIABLE extends TAbstract {
 
             case 'level_var stringarray':
                 Evaluate::fromLevelVarStringArray($mapped, $code, $getLine);
+                Evaluate::readObject($mapped['size'], $code, $getLine);
                 break;
 
             case 'custom_functions':

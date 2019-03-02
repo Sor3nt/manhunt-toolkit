@@ -29,19 +29,51 @@ class Evaluate {
         $code[] = $getLine('4d000000', false, 'integer to float');
     }
 
+
+
+
+    static public function compareString(&$code, \Closure $getLine ){
+        $code[] = $getLine('49000000', false, 'compareString');
+    }
+
+    static public function compareFloat(&$code, \Closure $getLine ){
+        $code[] = $getLine('4e000000', false, 'compareFloat');
+    }
+
+    static public function compareInteger(&$code, \Closure $getLine ){
+        $code[] = $getLine('23000000', false, 'compareInteger');
+        $code[] = $getLine('04000000', false, 'compareInteger');
+        $code[] = $getLine('01000000', false, 'compareInteger');
+    }
+
+
+
+
+
+
     static public function regularReturn(&$code, \Closure $getLine ){
         $code[] = $getLine('10000000', false, 'Return result');
         $code[] = $getLine('01000000', false, 'Return result');
     }
 
-
     static public function stringReturn(&$code, \Closure $getLine ){
-        $code[] = $getLine('10000000', false, 'Return result');
-        $code[] = $getLine('01000000', false, 'Return result');
+
+        self::regularReturn($code, $getLine);
 
         $code[] = $getLine('10000000', false, 'Return result');
         $code[] = $getLine('02000000', false, 'Return result');
     }
+
+    static public function returnCache(&$code, \Closure $getLine){
+        $debugMsg = sprintf('[returnCache] ');
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+    }
+
+
+
+
 
 
     static public function forward(&$code, \Closure $getLine ){
@@ -88,7 +120,7 @@ class Evaluate {
     static public function setIntMathOperator($type, &$code, \Closure $getLine ){
         $debugMsg = sprintf('[setIntMathOperator] ' . $type);
 
-        self::findAName($code, $getLine);
+        self::returnCache($code, $getLine);
 
         if ($type == Token::T_ADDITION) {
 
@@ -218,7 +250,6 @@ class Evaluate {
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
         $code[] = $getLine('1e000000', false, $debugMsg);
 
-        self::readObject($mapped['size'] , $code, $getLine);
     }
 
     static public function toGameVar( $node, &$code, \Closure $getLine){
@@ -252,6 +283,7 @@ class Evaluate {
 
 
 
+    //verwendet t_var vec3d; t_var stringarray; fromObject;  t_string
     static public function fromFineANameforMeTodo($mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromFineANameforMeTodo] ');
 
@@ -263,13 +295,9 @@ class Evaluate {
 
     }
 
-    static public function findAName(&$code, \Closure $getLine){
-        $debugMsg = sprintf('[findAName] ');
-
-        $code[] = $getLine('0f000000', false, $debugMsg);
-        $code[] = $getLine('04000000', false, $debugMsg);
-
-    }
+    // gehört zu der return code familie
+    // wird am ende von conditions verwendet
+    //
 
     static public function fromFinedANameforMeTodoSecond($mapped, &$code, \Closure $getLine){
 
@@ -366,7 +394,7 @@ class Evaluate {
         $code[] = $getLine('0f000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
 
-        self::findAName($code, $getLine);
+        self::returnCache($code, $getLine);
         $code[] = $getLine('44000000', false, $debugMsg);
     }
 
