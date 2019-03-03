@@ -119,21 +119,12 @@ class T_CONDITION {
                         }else if ($mappedTo['type'] == "customFunction") {
                             $output = "customFunction";
 
-                        }else if ($mappedTo['type'] == "stringarray") {
-                            $output = "none";
-
                         }else if ($mappedTo['type'] == "array") {
                             $output = "array";
 
                         }else if (isset($mappedTo['abstract']) && $mappedTo['abstract'] == "state") {
                             $output = "state";
 
-                        }else{
-
-                            throw new \Exception(sprintf(
-                                'T_CONDITION: script config missed for %s',
-                                $mappedTo['type']
-                            ));
                         }
 
                     }else if (
@@ -146,18 +137,6 @@ class T_CONDITION {
 
                     }else if ( $operation['type'] == Token::T_FLOAT ){
                         $output = "float";
-
-                    }else if ( $operation['type'] == Token::T_STRING ){
-
-                        $output = "none";
-
-                    }else{
-
-                        throw new \Exception(sprintf(
-                            'T_CONDITION:  missed for %s',
-                            $operation['type']
-                        ));
-
                     }
 
                     if ($operation['type'] == Token::T_INT && $operation['value'] < 0) {
