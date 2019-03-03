@@ -34,16 +34,7 @@ class T_FUNCTION {
 
             case Token::T_FUNCTION:
             case Token::T_INT:
-                break;
-
             case Token::T_STRING:
-
-                if ($isProcedure == false && $isCustomFunction == false){
-//                    var_dump($code);
-//                    exit;
-//                    Evaluate::stringReturn($code, $getLine);
-                }
-
                 break;
 
             case Token::T_VARIABLE:
@@ -65,7 +56,7 @@ class T_FUNCTION {
                                 $mappedTo['objectType'] == 'stringarray'
                             ){
 
-                                Evaluate::stringReturn($code, $getLine);
+//                                Evaluate::stringReturn($code, $getLine);
 
                             }else{
                                 Evaluate::regularReturn($code, $getLine);
@@ -86,7 +77,7 @@ class T_FUNCTION {
                                 break;
 
                             case 'stringarray':
-                                Evaluate::stringReturn($code, $getLine);
+//                                Evaluate::stringReturn($code, $getLine);
 
                                 break;
 

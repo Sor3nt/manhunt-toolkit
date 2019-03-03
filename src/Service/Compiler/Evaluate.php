@@ -379,7 +379,6 @@ class Evaluate {
 
         self::fromFineANameforMeTodo($mapped, $code, $getLine);
 
-        //TODO: das return gehört hier garnicht hin
         self::regularReturn($code, $getLine);
     }
 

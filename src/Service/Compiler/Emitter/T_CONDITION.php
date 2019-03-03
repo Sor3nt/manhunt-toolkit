@@ -120,7 +120,7 @@ class T_CONDITION {
                             $output = "customFunction";
 
                         }else if ($mappedTo['type'] == "stringarray") {
-                            $output = "string";
+                            $output = "none";
 
                         }else if ($mappedTo['type'] == "array") {
                             $output = "array";
