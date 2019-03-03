@@ -28,11 +28,10 @@ class T_FUNCTION {
         switch ($node['type']){
 
             case Token::T_FUNCTION:
-            case Token::T_INT:
             case Token::T_STRING:
                 break;
 
-
+            case Token::T_INT:
             case Token::T_FLOAT:
             case Token::T_BOOLEAN:
             case Token::T_SELF:
@@ -280,10 +279,6 @@ class T_FUNCTION {
                 ) {
 
                     Evaluate::negate(Token::T_FLOAT, $code, $getLine);
-                    Evaluate::regularReturn($code, $getLine);
-                }else if ($param['type'] == Token::T_INT){
-
-
                     Evaluate::regularReturn($code, $getLine);
                 }
 
