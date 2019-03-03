@@ -107,25 +107,25 @@ class T_VARIABLE extends TAbstract {
 
             case 'level_var state':
             case 'level_var tlevelstate':
+
                 $code = $this->fromLevelVarState($node, $data, $getLine);
 
                 break;
 
             default:
 
-                if(substr($mapped['type'], 0, 9) == "level_var") {
+                if($mapped['isLevelVar']) {
                     Evaluate::fromLevelVar($mapped, $code, $getLine);
-                }else if(substr($mapped['type'], 0, 8) == "game_var") {
+
+                }else if($mapped['isGameVar']) {
                     Evaluate::fromGameVar($mapped, $code, $getLine);
+                }else if($mapped['objectType'] == 'string') {
 
-                }else if ($mapped['section'] == "header"){
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
-
-                }else if ($mapped['section'] == "script" || $mapped['type'] == "procedure"){
-                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
+                    Evaluate::readObject(0, $code, $getLine);
 
                 }else{
-                    throw new \Exception(sprintf('T_VARIABLE: unhandled read '));
+                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                 }
         }
 

@@ -26,16 +26,18 @@ class T_FUNCTION {
     public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
 
         switch ($node['type']){
-            case Token::T_FLOAT:
-            case Token::T_BOOLEAN:
-            case Token::T_SELF:
-                Evaluate::regularReturn($code, $getLine);
-            break;
 
             case Token::T_FUNCTION:
             case Token::T_INT:
             case Token::T_STRING:
                 break;
+
+
+            case Token::T_FLOAT:
+            case Token::T_BOOLEAN:
+            case Token::T_SELF:
+                Evaluate::regularReturn($code, $getLine);
+            break;
 
             case Token::T_VARIABLE:
                 $mappedTo = T_VARIABLE::getMapping(
@@ -45,25 +47,13 @@ class T_FUNCTION {
 
                 switch ($mappedTo['objectType']) {
 
-                    case 'entityptr':
-                    case 'real':
-                    case 'vec3d':
-                    case 'integer':
-                    case 'constant':
-                        Evaluate::regularReturn($code, $getLine);
-                        break;
-
                     case 'stringarray':
-                    case 'level_var stringarray':
-                        break;
                     case 'string':
-
-                        Evaluate::readObject(0, $code, $getLine);
                         break;
 
 
                     default:
-                        throw new \Exception($mappedTo['objectType'] . " Not implemented!");
+                        Evaluate::regularReturn($code, $getLine);
                         break;
                 }
 
