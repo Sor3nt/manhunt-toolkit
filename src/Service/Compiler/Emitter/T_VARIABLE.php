@@ -105,17 +105,21 @@ class T_VARIABLE extends TAbstract {
                 Evaluate::readIndex($mapped['offset'], $code, $getLine);
                 break;
 
-            case 'level_var state':
-            case 'level_var tlevelstate':
-
-                $code = $this->fromLevelVarState($node, $data, $getLine);
-
-                break;
-
             default:
 
                 if($mapped['isLevelVar']) {
-                    Evaluate::fromLevelVar($mapped, $code, $getLine);
+
+                    if (isset($node['target'])){
+                        $variableType = $data['types'][$node['target']];
+                        $mapped = $variableType[ $node['value'] ];
+
+                        Evaluate::readIndex($mapped['offset'], $code, $getLine);
+
+                    }else{
+
+                        Evaluate::fromLevelVar($mapped, $code, $getLine);
+                    }
+
 
                 }else if($mapped['isGameVar']) {
                     Evaluate::fromGameVar($mapped, $code, $getLine);
@@ -141,24 +145,6 @@ class T_VARIABLE extends TAbstract {
         return $result;
     }
 
-
-    private function fromLevelVarState($node, $data, $getLine){
-        $code = [];
-
-        if (!isset($node['target'])){
-            $mapped = $data['combinedVariables'][$node['value']];
-
-            Evaluate::fromLevelVar($mapped, $code, $getLine);
-
-            return $code;
-        }
-
-        $variableType = $data['types'][$node['target']];
-        $mapped = $variableType[ $node['value'] ];
-
-        Evaluate::readIndex($mapped['offset'], $code, $getLine);
-        return $code;
-    }
 
     private function fromObjectAttribute($node, $data, $getLine){
 

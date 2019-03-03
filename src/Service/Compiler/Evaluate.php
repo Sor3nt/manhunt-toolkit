@@ -484,7 +484,7 @@ class Evaluate {
 
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('02000000', false, $debugMsg);
-        $code[] = $getLine( strlen($size) != 8 ? Helper::fromIntToHex($size) : $size, false, $debugMsg );
+        $code[] = $getLine( Helper::fromIntToHex($size), false, $debugMsg );
 
         self::stringReturn($code, $getLine);
     }
