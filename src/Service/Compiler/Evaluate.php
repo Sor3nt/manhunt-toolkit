@@ -34,6 +34,9 @@ class Evaluate {
 
     static public function int2float(&$code, \Closure $getLine ){
         $code[] = $getLine('4d000000', false, 'integer to float');
+
+        self::regularReturn($code, $getLine);
+
     }
 
 
@@ -132,6 +135,10 @@ class Evaluate {
         if ($type == Token::T_ADDITION) {
 
             $code[] = $getLine('31000000', false, $debugMsg . 'int T_ADDITION');
+
+        }else if ($type == Token::T_MULTIPLY){
+            $code[] = $getLine('35000000', false, $debugMsg . 'int T_MULTIPLY');
+            $code[] = $getLine('04000000', false, $debugMsg . 'int T_MULTIPLY');
 
         }else if ($type == Token::T_SUBSTRACTION){
 
@@ -241,6 +248,33 @@ class Evaluate {
         $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
         $code[] = $getLine('04000000', false, $debugMsg);
     }
+
+
+    static public function fromCustomFunction($name, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[fromCustomFunction] ' . $name);
+
+        $code[] = $getLine('10000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+
+        $code[] = $getLine('11000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+        $code[] = $getLine('0a000000', false, $debugMsg);
+
+        $code[] = $getLine('34000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('20000000', false, $debugMsg);
+
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+
+        self::regularReturn($code, $getLine);
+    }
+
 
     static public function fromLevelVar($mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromLevelVar] ');

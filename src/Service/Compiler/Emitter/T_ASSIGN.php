@@ -34,23 +34,8 @@ class T_ASSIGN {
         }
 
 
-        if (isset($data['customData']['customFunctions'][strtolower($node['value'])])){
-            $code[] = $getLine('10000000', false, $debugMsg . 'custom function call ' . strtolower($node['value']));
-            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('11000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('0a000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('34000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('20000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('01000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('04000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('0f000000', false, $debugMsg . 'custom function call');
-            $code[] = $getLine('02000000', false, $debugMsg . 'custom function call');
-
-            Evaluate::regularReturn($code, $getLine);
+        if (isset($data['customData']['customFunctions'][$node['value']])){
+            Evaluate::fromCustomFunction($node['value'], $code, $getLine);
         }
 
         //HACK

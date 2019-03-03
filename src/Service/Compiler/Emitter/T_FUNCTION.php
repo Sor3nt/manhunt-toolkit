@@ -24,17 +24,14 @@ class T_FUNCTION {
     }
 
     public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
-
+//var_dump($node['type']);
         switch ($node['type']){
             case Token::T_FLOAT:
             case Token::T_BOOLEAN:
             case Token::T_SELF:
-            case Token::T_MULTIPLY:
                 Evaluate::regularReturn($code, $getLine);
             break;
 
-
-            case Token::T_ADDITION:
             case Token::T_FUNCTION:
             case Token::T_INT:
                 break;
@@ -42,7 +39,8 @@ class T_FUNCTION {
             case Token::T_STRING:
 
                 if ($isProcedure == false && $isCustomFunction == false){
-
+//                    var_dump($code);
+//                    exit;
                     Evaluate::stringReturn($code, $getLine);
                 }
 
@@ -67,7 +65,6 @@ class T_FUNCTION {
                                 $mappedTo['objectType'] == 'stringarray'
                             ){
 
-
                                 Evaluate::stringReturn($code, $getLine);
 
                             }else{
@@ -79,7 +76,6 @@ class T_FUNCTION {
                         break;
 
                     case 'script':
-                        $debugMsg = sprintf('[T_FUNCTION] finalize: script %s ', $mappedTo['type']);
 
                         switch ($mappedTo['type']) {
 
@@ -89,18 +85,12 @@ class T_FUNCTION {
                                 Evaluate::regularReturn($code, $getLine);
                                 break;
 
-                            case 'customFunction':
-                                $code[] = $getLine('12000000', false, $debugMsg);
-                                $code[] = $getLine('02000000', false, $debugMsg);
-                                break;
-
                             case 'stringarray':
                                 Evaluate::stringReturn($code, $getLine);
 
                                 break;
 
                             case 'procedure':
-                                $debugMsg = sprintf('[T_FUNCTION] finalize: procedure %s ', $mappedTo['valueType']);
 
                                 switch ($mappedTo['valueType']){
                                     case 'string':
@@ -108,9 +98,6 @@ class T_FUNCTION {
                                         Evaluate::readObject(0, $code, $getLine);
 
                                         Evaluate::stringReturn($code, $getLine);
-                                        break;
-                                    case 'real':
-                                        Evaluate::regularReturn($code, $getLine);
                                         break;
 
                                     default:
@@ -200,7 +187,7 @@ class T_FUNCTION {
         switch ($param['type']){
 
             case Token::T_STRING:
-                $code[] = $getLine($this->getFunction('WriteDebugString')['offset']);
+                $code[] = $getLine($this->getFunction('writedebugstring')['offset']);
                 break;
             case Token::T_VARIABLE:
 
@@ -211,11 +198,11 @@ class T_FUNCTION {
                     case 'integer':
                     case 'object':
                     case 'stringarray':
-                        $code[] = $getLine($this->getFunction('WriteDebug' . ucfirst($mapping['type']) )['offset']);
+                        $code[] = $getLine($this->getFunction('writedebug' . $mapping['type'] )['offset']);
                         break;
 
                     case 'procedure':
-                        $code[] = $getLine($this->getFunction('WriteDebug')['offset']);
+                        $code[] = $getLine($this->getFunction('writedebug')['offset']);
                         break;
                     default:
                         throw new \Exception(sprintf('T_VARIABLE: mapping type %s is unknown', $mapping['type']));
@@ -230,7 +217,7 @@ class T_FUNCTION {
                     throw new \Exception(sprintf('T_FUNCTION: Return type for %s missed', $param['value']));
                 }
 
-                $code[] = $getLine($this->getFunction('WriteDebug' . ucfirst($function['return']) )['offset']);
+                $code[] = $getLine($this->getFunction('writedebug' . $function['return'] )['offset']);
 
 
                 break;
@@ -241,15 +228,13 @@ class T_FUNCTION {
 
         // the writedebug call has a secret additional call, a flush command
         if (!isset($node['last']) || $node['last'] === true) {
-            $code[] = $getLine($this->getFunction('WriteDebugFlush')['offset']);
+            $code[] = $getLine($this->getFunction('writedebugflush')['offset']);
         }
 
         return $code;
     }
 
     public function getForceFloat( $functionName ){
-
-        $functionName = strtolower($functionName);
 
         $functionForceFloat = array_merge(Manhunt2::$functionForceFloar, ManhuntDefault::$functionForceFloar);
 
@@ -259,8 +244,6 @@ class T_FUNCTION {
     }
 
     public function getFunction($functionName ){
-
-        $functionName = strtolower($functionName);
 
         if ( !isset($this->functions[$functionName]) ){
             throw new \Exception(sprintf('Unknown function %s', $functionName));
@@ -274,20 +257,11 @@ class T_FUNCTION {
         $debugMsg = '[T_FUNCTION] map ';
         $code = [ ];
 
-        /**
-         * sometimes is the mapping not correct, validate it
-         */
-
         try {
-            $mapping = T_VARIABLE::getMapping($node, $data);
-
-            //todo: why do the variable mapper, map custom functions ?!
-            if ($mapping['type'] != 'custom_functions'){
-                return $emitter([
-                    'type' => Token::T_VARIABLE,
-                    'value' => $node['value']
-                ]);
-            }
+            return $emitter([
+                'type' => Token::T_VARIABLE,
+                'value' => $node['value']
+            ]);
 
         }catch(\Exception $e){
 
@@ -299,7 +273,7 @@ class T_FUNCTION {
         /**
          * Special WriteDebug handling
          */
-        if (strtolower($node['value']) == "writedebug"){
+        if ($node['value'] == "writedebug"){
             return $this->handleWriteDebugCall($node, $getLine, $emitter, $data);
         }
 
@@ -327,16 +301,14 @@ class T_FUNCTION {
         }
 
         if (isset($node['params']) && count($node['params'])){
-            $skipNext = false;
 
             foreach ($node['params'] as $index => $param) {
 
-                if ($skipNext){
-                    $skipNext = false;
-                    continue;
-                }
-
-                if ($param['type'] == Token::T_ADDITION){
+                if (
+                    $param['type'] == Token::T_SUBSTRACTION ||
+                    $param['type'] == Token::T_ADDITION ||
+                    $param['type'] == Token::T_MULTIPLY
+                ){
                     $mathValue = $node['params'][$index + 1];
 
                     foreach ($emitter( $mathValue ) as $line) {
@@ -344,40 +316,11 @@ class T_FUNCTION {
                         $code[] = $line;
                     }
 
-                    $debugMsg = sprintf('[T_FUNCTION] map: addition %s', $mathValue['value']);
-
-                    Evaluate::returnCache($code, $getLine);
-
-
-                    $code[] = $getLine('31000000', false, $debugMsg);
-                    $code[] = $getLine('01000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
+                    Evaluate::setIntMathOperator( $param['type'], $code, $getLine);
 
                     Evaluate::regularReturn($code, $getLine);
 
-                    $skipNext = true;
-                }else if ($param['type'] == Token::T_SUBSTRACTION){
-                    throw new \Exception('T_SUBSTRACTION not implemented');
-                }else if ($param['type'] == Token::T_MULTIPLY){
-
-                    $mathValue = $node['params'][$index + 1];
-
-                    $resultCode = $emitter( $mathValue );
-                    foreach ($resultCode as $line) {
-                        $line->debug = $debugMsg .  ' ' . $line->debug;
-                        $code[] = $line;
-                    }
-
-                    $debugMsg = sprintf('[T_FUNCTION] map: subtraction %s', $mathValue['value']);
-                    Evaluate::returnCache($code, $getLine);
-
-
-                    $code[] = $getLine('35000000', false, $debugMsg);
-                    $code[] = $getLine('04000000', false, $debugMsg);
-
-                    Evaluate::regularReturn($code, $getLine);
-
-                    $skipNext = true;
+                    break;
 
                 }else{
                     $resultCode = $emitter( $param, true, [
@@ -389,9 +332,10 @@ class T_FUNCTION {
                         $line->debug = $debugMsg .  ' ' . $line->debug;
                         $code[] = $line;
                     }
+
+                    $this->finalize($param, $data, $code, $getLine, false, $isProcedure, $isCustomFunction);
                 }
 
-                $this->finalize($param, $data, $code, $getLine, false, $isProcedure, $isCustomFunction);
 
                 /**
                  * When the input value is a negative float
@@ -433,9 +377,6 @@ class T_FUNCTION {
                     $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
 
                     Evaluate::int2float($code, $getLine);
-
-                    Evaluate::regularReturn($code, $getLine);
-
                 }
 
             }
