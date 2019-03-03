@@ -67,7 +67,11 @@ class T_PROCEDURE {
                 foreach ($newVars as $newVar) {
                     $vars[ $newVar ] = [
                         'name' => $newVar,
-                        'valueType' => $varToken['value']
+                        'valueType' => $varToken['value'],
+                        'objectType' => $varToken['value'],
+                        'isArg' => false,
+                        'isLevelVar' => false,
+                        'isGameVar' => false
                     ];
                 }
 

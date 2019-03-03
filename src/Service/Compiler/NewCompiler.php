@@ -1080,10 +1080,9 @@ class NewCompiler
                         'isGameVar' => false,
                     ];
 
-
-
                     if (substr($variableType, 0, 7) == "string[") {
                         $row['type'] = 'stringarray';
+                        $row['objectType'] = 'stringarray';
                     }
 
                     $row['size'] = $this->getMemorySizeByType($variableType);

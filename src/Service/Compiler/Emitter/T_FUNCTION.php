@@ -43,7 +43,7 @@ class T_FUNCTION {
                     $data
                 );
 
-                switch ($mappedTo['type']) {
+                switch ($mappedTo['objectType']) {
 
                     case 'entityptr':
                     case 'real':
@@ -56,25 +56,14 @@ class T_FUNCTION {
                     case 'stringarray':
                     case 'level_var stringarray':
                         break;
+                    case 'string':
 
-                    case 'procedure':
-
-                        switch ($mappedTo['valueType']){
-                            case 'string':
-
-                                Evaluate::readObject(0, $code, $getLine);
-                                break;
-
-                            default:
-                                throw new \Exception($mappedTo['valueType'] . " Not implemented!");
-                                break;
-
-                        }
-
+                        Evaluate::readObject(0, $code, $getLine);
                         break;
 
+
                     default:
-                        throw new \Exception($mappedTo['type'] . " Not implemented!");
+                        throw new \Exception($mappedTo['objectType'] . " Not implemented!");
                         break;
                 }
 
