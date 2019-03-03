@@ -266,25 +266,6 @@ class T_FUNCTION {
 
 
                 /**
-                 * When the input value is a negative float
-                 * we assign the positive value and negate them with this sequence
-                 */
-                if (
-                    $param['type'] == Token::T_FLOAT &&
-                    (
-                        $param['value'] < 0 ||
-                        // -0 cant be detected by php, need the hex value for it
-                        Helper::fromFloatToHex($param['value']) == "00000080"
-                    )
-                ) {
-
-                    Evaluate::negate(Token::T_FLOAT, $code, $getLine);
-                    Evaluate::regularReturn($code, $getLine);
-                }
-
-
-
-                /**
                  * when a function need a float but receive a int instead
                  * we need to tell the engine to convert the int to float
                  */

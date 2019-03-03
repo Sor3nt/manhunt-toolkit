@@ -3,6 +3,7 @@ namespace App\Service\Compiler\Emitter;
 
 
 use App\Service\Compiler\Evaluate;
+use App\Service\Compiler\Token;
 use App\Service\Helper;
 
 class T_FLOAT {
@@ -11,6 +12,7 @@ class T_FLOAT {
 
         $value = (float) $node['value'];
 
+        $negate = $value < 0;
         if ($value < 0) $value = $value * -1;
 
         //todo: i am not sure why but the conversion to hex mess up the long decimal value
@@ -30,6 +32,11 @@ class T_FLOAT {
             $code,
             $getLine
         );
+
+        if ($negate){
+            Evaluate::regularReturn($code, $getLine);
+            Evaluate::negate(Token::T_FLOAT, $code, $getLine);
+        }
 
         return $code;
 
