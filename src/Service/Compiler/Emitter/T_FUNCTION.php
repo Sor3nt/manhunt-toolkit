@@ -104,10 +104,8 @@ class T_FUNCTION {
 
                                 switch ($mappedTo['valueType']){
                                     case 'string':
-                                        $code[] = $getLine('12000000', false, $debugMsg);
-                                        $code[] = $getLine('02000000', false, $debugMsg);
 
-                                        $code[] = $getLine('00000000', false, $debugMsg); // 0 always ?
+                                        Evaluate::readObject(0, $code, $getLine);
 
                                         Evaluate::stringReturn($code, $getLine);
                                         break;
@@ -446,7 +444,7 @@ class T_FUNCTION {
         if ($isProcedure || $isCustomFunction) {
             $procedureOffset = $mappedToBlock['offset'];
 
-            Evaluate::goto($node['value'], $procedureOffset * 4, $code, $getLine);
+            Evaluate::gotoBlock($node['value'], $procedureOffset * 4, $code, $getLine);
 
             return $code;
         }

@@ -99,6 +99,7 @@ class T_IF {
                 $code[] = $getLine('3f000000', false, $debugMsg);
             }
 
+
             $isTrue = [];
 
             $lastNumber = end($code)->lineNumber;
@@ -127,7 +128,6 @@ class T_IF {
             }
 
             // line offset for the IF end
-//            $code[] = $getLine( ($endOffset / 4) . " - " . Helper::fromIntToHex($endOffset) );
             $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1, $debugMsg . 'offset ' . $endOffset );
 
             foreach ($case['isTrue'] as $entry) {

@@ -95,8 +95,7 @@ class T_FOR {
             $code[] = $getLine('00000000', false, $debugMsg);
         }
 
-        $code[] = $getLine('3c000000', false, $debugMsg);
-        $code[] = $getLine(Helper::fromIntToHex($firstLineNumber * 4), false, $debugMsg . '(start line 2)');
+        Evaluate::goto($firstLineNumber * 4, $code, $getLine);
 
         if ($data['game'] == MHT::GAME_MANHUNT) {
             $code[] = $getLine('2e000000', false, $debugMsg);

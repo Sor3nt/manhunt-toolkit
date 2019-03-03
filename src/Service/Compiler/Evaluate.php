@@ -7,7 +7,7 @@ class Evaluate {
 
 //Evaluate::regularReturn($code, $getLine);
 
-    static public function goto($name, $offset, &$code, \Closure $getLine ){
+    static public function gotoBlock($name, $offset, &$code, \Closure $getLine ){
 
         $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $name);
 
@@ -23,6 +23,13 @@ class Evaluate {
         $code[] = $getLine('02000000', false, $debugMsg); //procedure
         $code[] = $getLine('39000000', false, $debugMsg); //procedure
         $code[] = $getLine(Helper::fromIntToHex($offset), false, $debugMsg . ' (offset)');
+    }
+
+    static public function goto($linePos, &$code, \Closure $getLine ){
+        $debugMsg = sprintf('[goto] ');
+        $code[] = $getLine('3c000000', false, $debugMsg);
+        $code[] = $getLine(Helper::fromIntToHex($linePos), false, $debugMsg . 'offset');
+
     }
 
     static public function int2float(&$code, \Closure $getLine ){
@@ -538,5 +545,7 @@ class Evaluate {
         $code[] = $getLine($offset, false, $debugMsg);
 
     }
+
+
 
 }

@@ -13,25 +13,28 @@ class T_VARIABLE extends TAbstract {
     static public function getMapping( $node, $data ){
 
         $value = $node['value'];
-        $valueLower = strtolower($value);
 
         if (
             isset($data['customData']['customFunctions']) &&
-            isset($data['customData']['customFunctions'][ $valueLower ])
+            isset($data['customData']['customFunctions'][ $value ])
         ) {
 
-            $mapped = $data['customData']['blockOffsets'][$valueLower];
+            $mapped = $data['customData']['blockOffsets'][$value];
 
-        }else
-
-            if (isset($data['customData']['procedureVars']) && isset($data['customData']['procedureVars'][ $value ])) {
+        }else if (
+            isset($data['customData']['procedureVars']) &&
+            isset($data['customData']['procedureVars'][ $value ])
+        ) {
             $mapped = $data['customData']['procedureVars'][$value];
 
 
-        }else if (isset($data['customData']['customFunctionVars']) && isset($data['customData']['customFunctionVars'][ $value ])) {
+        }else if (
+            isset($data['customData']['customFunctionVars']) &&
+            isset($data['customData']['customFunctionVars'][ $value ])
+        ) {
             $mapped = $data['customData']['customFunctionVars'][$value];
 
-            //array index access
+        //array index access
         }else if (strpos($value, '[') !== false){
 
             $variableName = explode('[', $value)[0];
@@ -57,6 +60,7 @@ class T_VARIABLE extends TAbstract {
         }else{
             throw new \Exception(sprintf("T_VARIABLE: unable to find variable offset for %s", $value));
         }
+
         return $mapped;
     }
 
@@ -90,7 +94,12 @@ class T_VARIABLE extends TAbstract {
                 break;
 
             case 'custom_functions':
-                $code = $this->fromCustomFunctions($node['value'], $data);
+                Evaluate::gotoBlock(
+                    $node['value'],
+                    $data['customData']['customFunctions'][$node['value']],
+                    $code,
+                    $getLine
+                );
                 break;
 
             case 'constant':
@@ -134,41 +143,20 @@ class T_VARIABLE extends TAbstract {
     }
 
 
-    private function fromCustomFunctions($value, $data){
-        return [
-            //TODO: unknown code sequence... lookup needed
-            '10000000',
-            '04000000',
-            '11000000',
-            '02000000',
-            '00000000',
-            '32000000',
-            '02000000',
-            '1c000000',
-            '10000000',
-            '02000000',
-            '39000000',
-
-            $data['customData']['customFunctions'][strtolower($value)]
-        ];
-    }
-
     private function fromLevelVarState($node, $data, $getLine){
-        if (!isset($node['target'])){
+        $code = [];
 
+        if (!isset($node['target'])){
             $mapped = $data['combinedVariables'][$node['value']];
 
-
-            $code = [];
             Evaluate::fromLevelVar($mapped, $code, $getLine);
 
             return $code;
         }
 
         $variableType = $data['types'][$node['target']];
-        $mapped = $variableType[ strtolower($node['value']) ];
+        $mapped = $variableType[ $node['value'] ];
 
-        $code = [];
         Evaluate::readIndex($mapped['offset'], $code, $getLine);
         return $code;
     }

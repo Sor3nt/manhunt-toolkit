@@ -40,8 +40,7 @@ class T_SWITCH {
 
         }
 
-        $code[] = $getLine('3c000000', false, $debugMsg . ' finalize (1)');
-        $code[] = $getLine(Helper::fromIntToHex( $calc['end'] ), false, $debugMsg . ' offset ' . $calc['end']);
+        Evaluate::goto($calc['end'], $code, $getLine);
 
         foreach ($casesRev as $case) {
 
@@ -53,8 +52,7 @@ class T_SWITCH {
                 }
             }
 
-            $code[] = $getLine('3c000000', false, $debugMsg . ' finalize (2)');
-            $code[] = $getLine(Helper::fromIntToHex( $calc['end'] ), false, $debugMsg . ' offset ' . $calc['end']);
+            Evaluate::goto($calc['end'], $code, $getLine);
 
         }
 
