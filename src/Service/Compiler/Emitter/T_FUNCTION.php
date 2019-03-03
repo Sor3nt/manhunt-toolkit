@@ -43,82 +43,38 @@ class T_FUNCTION {
                     $data
                 );
 
-                switch ($mappedTo['section']) {
-                    case 'header':
+                switch ($mappedTo['type']) {
 
-                        if ($data['game'] == MHT::GAME_MANHUNT && $writeDebug) {
-
-                        }else{
-
-
-                            if (
-                                isset($mappedTo['objectType']) &&
-                                $mappedTo['objectType'] == 'stringarray'
-                            ){
-
-//                                Evaluate::stringReturn($code, $getLine);
-
-                            }else{
-                                Evaluate::regularReturn($code, $getLine);
-
-                            }
-                        }
-
+                    case 'entityptr':
+                    case 'real':
+                    case 'vec3d':
+                    case 'integer':
+                    case 'constant':
+                        Evaluate::regularReturn($code, $getLine);
                         break;
 
-                    case 'script':
+                    case 'stringarray':
+                    case 'level_var stringarray':
+                        break;
 
-                        switch ($mappedTo['type']) {
+                    case 'procedure':
 
-                            case 'entityptr':
-                            case 'vec3d':
-                            case 'integer':
-                                Evaluate::regularReturn($code, $getLine);
+                        switch ($mappedTo['valueType']){
+                            case 'string':
+
+                                Evaluate::readObject(0, $code, $getLine);
                                 break;
 
-                            case 'stringarray':
-//                                Evaluate::stringReturn($code, $getLine);
-
-                                break;
-
-                            case 'procedure':
-
-                                switch ($mappedTo['valueType']){
-                                    case 'string':
-
-                                        Evaluate::readObject(0, $code, $getLine);
-
-                                        Evaluate::stringReturn($code, $getLine);
-                                        break;
-
-                                    default:
-                                        throw new \Exception($mappedTo['valueType'] . " Not implemented!");
-                                        break;
-
-                                }
-
-                                break;
-                            case 'real':
-                                if ($writeDebug == false){
-                                    Evaluate::regularReturn($code, $getLine);
-                                }
-                                break;
-                            case 'constant':
-
-                                if ($mappedTo['valueType'] == "string"){
-                                    Evaluate::stringReturn($code, $getLine);
-                                }else{
-                                    Evaluate::regularReturn($code, $getLine);
-                                }
-                                break;
                             default:
-                                throw new \Exception($mappedTo['type'] . " Not implemented!");
+                                throw new \Exception($mappedTo['valueType'] . " Not implemented!");
                                 break;
+
                         }
 
                         break;
+
                     default:
-                        throw new \Exception($mappedTo['section'] . " Not implemented!");
+                        throw new \Exception($mappedTo['type'] . " Not implemented!");
                         break;
                 }
 

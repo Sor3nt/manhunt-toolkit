@@ -47,7 +47,6 @@ class T_STRING {
             }
 
             Evaluate::readObject($val, $code, $getLine);
-            Evaluate::stringReturn($code, $getLine);
 
         }
 

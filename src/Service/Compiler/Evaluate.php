@@ -486,6 +486,7 @@ class Evaluate {
         $code[] = $getLine('02000000', false, $debugMsg);
         $code[] = $getLine( strlen($size) != 8 ? Helper::fromIntToHex($size) : $size, false, $debugMsg );
 
+        self::stringReturn($code, $getLine);
     }
 
     static public function readPosition($size, &$code, \Closure $getLine){
