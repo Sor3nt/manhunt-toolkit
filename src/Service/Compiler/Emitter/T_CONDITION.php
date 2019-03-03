@@ -139,11 +139,6 @@ class T_CONDITION {
                         $output = "float";
                     }
 
-                    if ($operation['type'] == Token::T_INT && $operation['value'] < 0) {
-                        Evaluate::negate($operation['type'], $code, $getLine);
-                    }
-
-
                     //todo: die abfrage erscheint mir komisch, es muss ein anderer faktor sein...
                     if ($isLastIndex && $output == "regular"){
                         Evaluate::returnCache($code, $getLine);

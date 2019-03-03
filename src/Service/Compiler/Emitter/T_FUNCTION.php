@@ -283,11 +283,6 @@ class T_FUNCTION {
                     Evaluate::regularReturn($code, $getLine);
                 }else if ($param['type'] == Token::T_INT){
 
-                    //todo: hm irgendwie ist das komisch hier
-                    //todo: genauer nochmal anschauen
-                    if ($param['value'] < 0){
-                        Evaluate::negate(Token::T_INT, $code,$getLine);
-                    }
 
                     Evaluate::regularReturn($code, $getLine);
                 }
