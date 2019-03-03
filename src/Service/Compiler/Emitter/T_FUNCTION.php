@@ -24,7 +24,7 @@ class T_FUNCTION {
     }
 
     public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
-//var_dump($node['type']);
+
         switch ($node['type']){
             case Token::T_FLOAT:
             case Token::T_BOOLEAN:
@@ -41,7 +41,7 @@ class T_FUNCTION {
                 if ($isProcedure == false && $isCustomFunction == false){
 //                    var_dump($code);
 //                    exit;
-                    Evaluate::stringReturn($code, $getLine);
+//                    Evaluate::stringReturn($code, $getLine);
                 }
 
                 break;
@@ -186,6 +186,9 @@ class T_FUNCTION {
          */
         switch ($param['type']){
 
+            case Token::T_INT:
+                $code[] = $getLine($this->getFunction('writedebuginteger')['offset']);
+                break;
             case Token::T_STRING:
                 $code[] = $getLine($this->getFunction('writedebugstring')['offset']);
                 break;

@@ -149,7 +149,7 @@ class T_CONDITION {
 
                     }else if ( $operation['type'] == Token::T_STRING ){
 
-                        $output = "string";
+                        $output = "none";
 
                     }else{
 

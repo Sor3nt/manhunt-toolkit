@@ -1068,7 +1068,6 @@ class NewCompiler
 
                 foreach ($variables as $index => $variable) {
                     $variable = $variable['value'];
-var_dump($variable);
 
                     $row = [
                         'section' => 'script',
