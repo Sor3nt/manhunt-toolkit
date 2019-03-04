@@ -1,13 +1,9 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-use App\MHT;
 use App\Service\Compiler\Evaluate;
-use App\Service\Compiler\FunctionMap\Manhunt;
-use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
-use App\Service\Helper;
 
 class T_FUNCTION {
 
@@ -164,8 +160,7 @@ class T_FUNCTION {
 
     public function getForceFloat( $functionName ){
 
-        $functionForceFloat = array_merge(Manhunt2::$functionForceFloar, ManhuntDefault::$functionForceFloar);
-
+        $functionForceFloat = ManhuntDefault::$functionForceFloar;
         if (isset( $functionForceFloat[$functionName] )) return $functionForceFloat[$functionName];
 
         return [];
@@ -248,6 +243,8 @@ class T_FUNCTION {
 
                     Evaluate::regularReturn($code, $getLine);
 
+                    //we need to break here because we read a future index ($index+1)
+                    //since math calc has only 2 params, we need to stop here
                     break;
 
                 }else{
@@ -262,22 +259,24 @@ class T_FUNCTION {
                     }
 
                     $this->finalize($param, $data, $code, $getLine, false, $isProcedure, $isCustomFunction);
+
+
+
+                    /**
+                     * when a function need a float but receive a int instead
+                     * we need to tell the engine to convert the int to float
+                     */
+                    if (
+                        count($forceFloatOrder) > 0 &&
+                        $param['type'] == Token::T_INT &&
+                        $forceFloatOrder[$index] === true
+                    ) {
+                        $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
+
+                        Evaluate::int2float($code, $getLine);
+                    }
                 }
 
-
-                /**
-                 * when a function need a float but receive a int instead
-                 * we need to tell the engine to convert the int to float
-                 */
-                if (
-                    count($forceFloatOrder) > 0 &&
-                    $param['type'] == Token::T_INT &&
-                    $forceFloatOrder[$index] === true
-                ) {
-                    $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
-
-                    Evaluate::int2float($code, $getLine);
-                }
 
             }
         }
