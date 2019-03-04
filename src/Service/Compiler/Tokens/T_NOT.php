@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_NOT {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_NOT {
 
         if ($char == "not " || $char == "not("){
             return [
-                'type' => 'T_NOT',
+                'type' => Token::T_NOT,
                 'value' => "NOT"
             ];
         }

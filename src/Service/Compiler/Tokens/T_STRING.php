@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_STRING {
 
     static public function match( $input, $current, $tokens ){
@@ -25,7 +27,7 @@ class T_STRING {
                 if ($value !== ""){
 
                     return [
-                        'type' => 'T_STRING',
+                        'type' => Token::T_STRING,
                         'value' => '"' . $value . '"'
                     ];
                 }else{

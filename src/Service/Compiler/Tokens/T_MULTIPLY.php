@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_MULTIPLY {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_MULTIPLY {
 
         if ($char == " * "){
             return [
-                'type' => 'T_MULTIPLY',
+                'type' => Token::T_MULTIPLY,
                 'value' => "*"
             ];
         }

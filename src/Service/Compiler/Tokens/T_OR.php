@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_OR {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_OR {
 
         if ($chars == " or "){
             return [
-                'type' => 'T_OR',
+                'type' => Token::T_OR,
                 'value' => "or"
             ];
         }

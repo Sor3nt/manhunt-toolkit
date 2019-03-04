@@ -34,7 +34,7 @@ class T_FUNCTION {
                     }
 
                     return [
-                        'type' => 'T_FUNCTION',
+                        'type' => Token::T_FUNCTION,
                         'value' => $val
                     ];
                 }else{

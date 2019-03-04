@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_SELF {
 
     static public function match( $input, $current, $tokens ){
@@ -13,7 +15,7 @@ class T_SELF {
             if ($lastChar == " " || $lastChar == "," || $lastChar == ")" || $lastChar == ""){
 
                 return [
-                    'type' => 'T_SELF',
+                    'type' => Token::T_SELF,
                     'value' => "this"
                 ];
             }

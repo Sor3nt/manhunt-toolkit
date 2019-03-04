@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_ARRAY {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_ARRAY {
 
         if ($chars == " array"){
             return [
-                'type' => 'T_ARRAY',
+                'type' => Token::T_ARRAY,
                 'value' => "array"
             ];
         }

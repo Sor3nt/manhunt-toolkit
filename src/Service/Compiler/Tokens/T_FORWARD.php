@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_FORWARD {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_FORWARD {
 
         if ($char == "forward;"){
             return [
-                'type' => 'T_FORWARD',
+                'type' => Token::T_FORWARD,
                 'value' => "forward"
             ];
         }

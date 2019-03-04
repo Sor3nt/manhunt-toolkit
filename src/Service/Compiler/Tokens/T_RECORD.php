@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_RECORD {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_RECORD {
 
         if ($chars == " record"){
             return [
-                'type' => 'T_RECORD',
+                'type' => Token::T_RECORD,
                 'value' => "record"
             ];
         }

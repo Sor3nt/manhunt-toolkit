@@ -67,6 +67,7 @@ namespace App\Service\Compiler;
     const T_FLOAT                       = 'T_FLOAT';
     const T_INT                         = 'T_INT';
     const T_STRING                      = 'T_STRING';
+    const T_LEVEL_VAR                   = 'T_LEVEL_VAR';
     const T_NULL                        = 'T_NULL';
     const T_ASSIGN                      = 'T_ASSIGN';
     const T_CONDITION                   = 'T_CONDITION';

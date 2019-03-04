@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_LINEEND {
 
     static public function match( $input, $current, $tokens ){
@@ -10,7 +12,7 @@ class T_LINEEND {
         if ($chars == ";"){
 
             return [
-                'type' => 'T_LINEEND',
+                'type' => Token::T_LINEEND,
                 'value' => ";"
             ];
 

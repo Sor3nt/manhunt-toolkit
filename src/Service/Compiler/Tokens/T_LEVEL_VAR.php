@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_LEVEL_VAR {
 
     static public function match( $input, $current, $tokens ){
@@ -22,12 +24,10 @@ class T_LEVEL_VAR {
             }
 
             return [
-                'type' => 'T_LEVEL_VAR',
+                'type' => Token::T_LEVEL_VAR,
                 'value' => "level_var" . $levelVar
             ];
         }
-
-
 
         return false;
     }

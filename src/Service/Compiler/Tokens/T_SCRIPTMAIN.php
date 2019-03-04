@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_SCRIPTMAIN {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_SCRIPTMAIN {
 
         if ($char == "scriptmain "){
             return [
-                'type' => 'T_SCRIPTMAIN',
+                'type' => Token::T_SCRIPTMAIN,
                 'value' => "scriptmain"
             ];
         }

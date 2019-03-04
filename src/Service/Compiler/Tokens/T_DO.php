@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_DO {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_DO {
 
         if ($chars == " do "){
             return [
-                'type' => 'T_DO',
+                'type' => Token::T_DO,
                 'value' => "do"
             ];
         }

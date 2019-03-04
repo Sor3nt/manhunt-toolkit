@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_AND {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_AND {
 
         if ($chars == " and "){
             return [
-                'type' => 'T_AND',
+                'type' => Token::T_AND,
                 'value' => "and"
             ];
         }

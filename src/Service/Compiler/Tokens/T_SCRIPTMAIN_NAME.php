@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_SCRIPTMAIN_NAME {
 
     static public function match( $input, $current, $tokens ){
@@ -15,7 +17,7 @@ class T_SCRIPTMAIN_NAME {
 
                 if ($char === ";"){
                     return [
-                        'type' => 'T_SCRIPTMAIN_NAME',
+                        'type' => Token::T_SCRIPTMAIN_NAME,
                         'value' => $value
                     ];
                 }else{

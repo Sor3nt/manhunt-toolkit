@@ -2,6 +2,7 @@
 namespace App\Service\Compiler\Tokens;
 
 
+use App\Service\Compiler\Token;
 use App\Service\Helper;
 
 class T_END {
@@ -23,13 +24,13 @@ class T_END {
 
             }else if ($lastChar == " "){
                 return [
-                    'type' => 'T_END_ELSE',
+                    'type' => Token::T_END_ELSE,
                     'value' => "end"
                 ];
             }else if ($lastChar == "."){
 
                 return [
-                    'type' => 'T_END_CODE',
+                    'type' => Token::T_END_CODE,
                     'value' => "end."
                 ];
             }

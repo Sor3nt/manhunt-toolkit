@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_CUSTOM_FUNCTION {
 
     static public function match( $input, $current, $tokens ){
@@ -10,7 +12,7 @@ class T_CUSTOM_FUNCTION {
         if ($char == "function "){
 
             return [
-                'type' => 'T_CUSTOM_FUNCTION',
+                'type' => Token::T_CUSTOM_FUNCTION,
                 'value' => "function"
             ];
         }

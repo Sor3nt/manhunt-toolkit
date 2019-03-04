@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_INT {
 
     static public function match( $input, $current, $tokens ){
@@ -23,7 +25,7 @@ class T_INT {
                 if ($value !== ""){
 
                     return [
-                        'type' => 'T_INT',
+                        'type' => Token::T_INT,
                         'value' => $value
                     ];
                 }else{

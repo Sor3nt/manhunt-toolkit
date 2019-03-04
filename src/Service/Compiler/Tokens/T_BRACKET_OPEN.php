@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_BRACKET_OPEN {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_BRACKET_OPEN {
 
         if ($char == "("){
             return [
-                'type' => 'T_BRACKET_OPEN',
+                'type' => Token::T_BRACKET_OPEN,
                 'value' => "("
             ];
         }

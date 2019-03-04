@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_OF {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_OF {
 
         if ($chars == " of "){
             return [
-                'type' => 'T_OF',
+                'type' => Token::T_OF,
                 'value' => "of"
             ];
         }

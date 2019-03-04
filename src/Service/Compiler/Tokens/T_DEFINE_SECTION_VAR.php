@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_DEFINE_SECTION_VAR {
 
     static public function match( $input, $current, $tokens ){
@@ -9,12 +11,10 @@ class T_DEFINE_SECTION_VAR {
 
         if ($char == "var "){
             return [
-                'type' => 'T_DEFINE_SECTION_VAR',
+                'type' => Token::T_DEFINE_SECTION_VAR,
                 'value' => "var"
             ];
         }
-
-
 
         return false;
     }

@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_DEFINE {
 
     static public function match( $input, $current, $tokens ){
@@ -11,7 +13,7 @@ class T_DEFINE {
         //take sure its not an assignment
         if ($char == ":" && $nextChar != "="){
             return [
-                'type' => 'T_DEFINE',
+                'type' => Token::T_DEFINE,
                 'value' => ":"
             ];
         }

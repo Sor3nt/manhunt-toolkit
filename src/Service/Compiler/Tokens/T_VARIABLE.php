@@ -5,6 +5,7 @@ use App\MHT;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
+use App\Service\Compiler\Token;
 
 class T_VARIABLE {
 
@@ -36,19 +37,19 @@ class T_VARIABLE {
                     if (isset($funtions[ strtolower($value) ])) {
 
                         return [
-                            'type' => 'T_FUNCTION',
+                            'type' => Token::T_FUNCTION,
                             'value' => strtolower($value)
                         ];
 
                     }else if($value == "''"){
                         return [
-                            'type' => 'T_STRING',
+                            'type' => Token::T_STRING,
                             'value' => "''"
                         ];
                     }else{
 
                         return [
-                            'type' => 'T_VARIABLE',
+                            'type' => Token::T_VARIABLE,
                             'value' => strtolower($value)
                         ];
 

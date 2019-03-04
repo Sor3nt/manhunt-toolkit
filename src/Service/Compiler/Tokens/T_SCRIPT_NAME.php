@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_SCRIPT_NAME {
 
     static public function match( $input, $current, $tokens ){
@@ -21,8 +23,6 @@ class T_SCRIPT_NAME {
             return false;
         }
 
-
-
         //todo: this is just a hack because of the whitespace -.-
         $notChar = strtolower(substr($input, $current - 10, 11));
         if (
@@ -32,11 +32,8 @@ class T_SCRIPT_NAME {
                 strtolower(substr($input, $current - 11, 11)) == "callscript "
             )
         ){
-
             return false;
         }
-
-
 
         if ($char == "script "){
 
@@ -46,7 +43,7 @@ class T_SCRIPT_NAME {
 
                 if ($char === ";"){
                     return [
-                        'type' => 'T_SCRIPT_NAME',
+                        'type' => Token::T_SCRIPT_NAME,
                         'value' => $value
                     ];
                 }else{

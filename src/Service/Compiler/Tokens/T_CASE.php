@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_CASE {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_CASE {
 
         if ($chars == "case "){
             return [
-                'type' => 'T_CASE',
+                'type' => Token::T_CASE,
                 'value' => "case"
             ];
         }

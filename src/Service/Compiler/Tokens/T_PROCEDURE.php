@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_PROCEDURE {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_PROCEDURE {
 
         if ($char == "procedure "){
             return [
-                'type' => 'T_PROCEDURE',
+                'type' => Token::T_PROCEDURE,
                 'value' => "procedure"
             ];
         }

@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_WHITESPACE {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_WHITESPACE {
 
         if ($char == " " || $char == "\n" || $char == "\t"){
             return [
-                'type' => 'T_WHITESPACE',
+                'type' => Token::T_WHITESPACE,
                 'value' => " "
             ];
         }

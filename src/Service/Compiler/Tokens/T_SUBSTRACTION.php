@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_SUBSTRACTION {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_SUBSTRACTION {
 
         if ($char == " - "){
             return [
-                'type' => 'T_SUBSTRACTION',
+                'type' => Token::T_SUBSTRACTION,
                 'value' => "-"
             ];
         }

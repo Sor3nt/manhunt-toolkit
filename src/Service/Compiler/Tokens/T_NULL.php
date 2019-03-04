@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_NULL {
 
     static public function match( $input, $current, $tokens ){
@@ -12,7 +14,7 @@ class T_NULL {
 
         if ($char == "nil" && ( $charBefore == "(" || $charBefore == " "  ) && ( $charAfter == ")" || $charAfter == " "  ) ){
             return [
-                'type' => 'T_NULL',
+                'type' => Token::T_NULL,
                 'value' => "NIL"
             ];
         }

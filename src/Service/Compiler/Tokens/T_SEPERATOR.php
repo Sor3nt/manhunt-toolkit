@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_SEPERATOR {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_SEPERATOR {
 
         if ($char == ","){
             return [
-                'type' => 'T_SEPERATOR',
+                'type' => Token::T_SEPERATOR,
                 'value' => ","
             ];
         }

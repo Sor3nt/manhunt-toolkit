@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_IS_SMALLER {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_IS_SMALLER {
 
         if ($char == "<"){
             return [
-                'type' => 'T_IS_SMALLER',
+                'type' => Token::T_IS_SMALLER,
                 'value' => "<"
             ];
         }

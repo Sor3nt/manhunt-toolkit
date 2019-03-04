@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_FLOAT {
 
     static public function match( $input, $current, $tokens ){
@@ -27,7 +29,7 @@ class T_FLOAT {
                     if ($value !== "" && strpos($value, '.') !== false){
 
                         return [
-                            'type' => 'T_FLOAT',
+                            'type' => Token::T_FLOAT,
                             'value' => $value
                         ];
                     }else{

@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_ADDITION {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_ADDITION {
 
         if ($char == "+"){
             return [
-                'type' => 'T_ADDITION',
+                'type' => Token::T_ADDITION,
                 'value' => "+"
             ];
         }

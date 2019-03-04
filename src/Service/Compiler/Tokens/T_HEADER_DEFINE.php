@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_HEADER_DEFINE {
 
     static public function match( $input, $current, $tokens ){
@@ -23,7 +25,7 @@ class T_HEADER_DEFINE {
                 if ($value !== "" &&  substr($line, $offset + 1, 1) == ":" && substr($line, $offset + 2, 1) == " "){
 
                     return [
-                        'type' => 'T_HEADER_DEFINE',
+                        'type' => Token::T_HEADER_DEFINE,
                         'value' => $value
                     ];
                 }else{

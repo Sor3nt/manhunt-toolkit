@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_BEGIN {
 
     static public function match( $input, $current, $tokens ){
@@ -12,7 +14,7 @@ class T_BEGIN {
         if ($chars == "begin" && $lastChars == " "){
 
             return [
-                'type' => 'T_BEGIN',
+                'type' => Token::T_BEGIN,
                 'value' => "begin"
             ];
 

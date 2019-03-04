@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_WHILE {
 
     static public function match( $input, $current, $tokens ){
@@ -13,7 +15,7 @@ class T_WHILE {
 
             if ($lastChar == " " || $lastChar == "("){
                 return [
-                    'type' => 'T_WHILE',
+                    'type' => Token::T_WHILE,
                     'value' => "while"
                 ];
 

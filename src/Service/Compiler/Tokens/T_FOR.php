@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_FOR {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_FOR {
 
         if ($chars == "for "){
             return [
-                'type' => 'T_FOR',
+                'type' => Token::T_FOR,
                 'value' => "for"
             ];
         }

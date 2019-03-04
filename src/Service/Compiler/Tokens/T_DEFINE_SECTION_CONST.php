@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_DEFINE_SECTION_CONST {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_DEFINE_SECTION_CONST {
 
         if ($char == "const "){
             return [
-                'type' => 'T_DEFINE_SECTION_CONST',
+                'type' => Token::T_DEFINE_SECTION_CONST,
                 'value' => "const"
             ];
         }

@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_IF {
 
     static public function match( $input, $current, $tokens ){
@@ -13,7 +15,7 @@ class T_IF {
 
             if ($lastChar == " " || $lastChar == "("){
                 return [
-                    'type' => 'T_IF',
+                    'type' =>Token::T_IF,
                     'value' => "if"
                 ];
 

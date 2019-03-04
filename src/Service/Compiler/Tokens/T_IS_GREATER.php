@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\Tokens;
 
+use App\Service\Compiler\Token;
+
 class T_IS_GREATER {
 
     static public function match( $input, $current, $tokens ){
@@ -9,7 +11,7 @@ class T_IS_GREATER {
 
         if ($char == ">"){
             return [
-                'type' => 'T_IS_GREATER',
+                'type' => Token::T_IS_GREATER,
                 'value' => ">"
             ];
         }
