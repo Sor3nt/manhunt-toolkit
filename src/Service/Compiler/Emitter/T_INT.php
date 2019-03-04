@@ -30,6 +30,14 @@ class T_INT {
             Evaluate::negate(Token::T_INT, $code,$getLine);
         }
 
+        if (
+            isset($data['customData']) &&
+            isset($data['customData']['fromFunction']) &&
+            $data['customData']['fromFunction']
+        ){
+            Evaluate::regularReturn($code, $getLine);
+        }
+
         return $code;
     }
 

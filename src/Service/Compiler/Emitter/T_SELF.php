@@ -15,6 +15,18 @@ class T_SELF {
             $getLine
         );
 
+        if (
+            isset($data['customData']) &&
+            isset($data['customData']['fromFunction']) &&
+            $data['customData']['fromFunction']
+        ){
+            Evaluate::regularReturn($code, $getLine);
+
+        }
+
+//        var_dump($data);
+//        exit;
+
         return $code;
 
     }

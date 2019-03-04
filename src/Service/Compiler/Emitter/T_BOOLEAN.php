@@ -16,6 +16,15 @@ class T_BOOLEAN {
             $getLine
         );
 
+
+        if (
+            isset($data['customData']) &&
+            isset($data['customData']['fromFunction']) &&
+            $data['customData']['fromFunction']
+        ){
+            Evaluate::regularReturn($code, $getLine);
+        }
+
         return $code;
     }
 

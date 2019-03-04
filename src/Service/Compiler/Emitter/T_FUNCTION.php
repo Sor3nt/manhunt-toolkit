@@ -19,20 +19,18 @@ class T_FUNCTION {
         $this->functions = $customData['functions'];
     }
 
-    public function finalize( $node, $data, &$code, \Closure $getLine, $writeDebug = false, $isProcedure = false, $isCustomFunction = false ){
+    public function finalize( $node, $data, &$code, \Closure $getLine){
 
         switch ($node['type']){
 
             case Token::T_FUNCTION:
             case Token::T_STRING:
+            case Token::T_SELF:
+            case Token::T_BOOLEAN:
+            case Token::T_FLOAT:
+            case Token::T_INT:
                 break;
 
-            case Token::T_INT:
-            case Token::T_FLOAT:
-            case Token::T_BOOLEAN:
-            case Token::T_SELF:
-                Evaluate::regularReturn($code, $getLine);
-            break;
 
             case Token::T_VARIABLE:
                 $mappedTo = T_VARIABLE::getMapping(
@@ -42,21 +40,10 @@ class T_FUNCTION {
 
                 switch ($mappedTo['objectType']) {
 
-                    case 'stringarray':
-                    case 'string':
-                    case 'vec3d':
-                        break;
                     case 'constant':
                         Evaluate::regularReturn($code, $getLine);
                         break;
                     case 'integer':
-                        Evaluate::regularReturn($code, $getLine);
-                        break;
-
-
-                    default:
-                        var_dump($mappedTo);
-                        exit;
                         Evaluate::regularReturn($code, $getLine);
                         break;
                 }
@@ -103,13 +90,13 @@ class T_FUNCTION {
         $param = $node['params'][0];
         $param['nested'] = false;
 
-        foreach ($emitter( $param ) as $line){
+        foreach ($emitter( $param, true, ['fromFunction' => true] ) as $line){
             $line->debug = $debugMsg . ' ' . $line->debug;
             $code[] = $line;
         }
 
 
-        $this->finalize($param, $data, $code, $getLine, true);
+        $this->finalize($param, $data, $code, $getLine);
 
         /**
          * generate the needed function call
@@ -258,6 +245,7 @@ class T_FUNCTION {
 
                 }else{
                     $resultCode = $emitter( $param, true, [
+                        'fromFunction' => true,
                         'isProcedure' => $isProcedure,
                         'isCustomFunction' => $isCustomFunction
                     ]);
@@ -267,7 +255,7 @@ class T_FUNCTION {
                         $code[] = $line;
                     }
 
-                    $this->finalize($param, $data, $code, $getLine, false, $isProcedure, $isCustomFunction);
+                    $this->finalize($param, $data, $code, $getLine);
 
 
 
@@ -309,9 +297,8 @@ class T_FUNCTION {
 
 
         /**
-         * when we are inside a nested call, tell the interpreter to return the current value
+         * we are inside a nested call, tell the interpreter to return the current value
          */
-
         if (isset($node['nested']) && $node['nested'] === true){
 
             /**
@@ -325,7 +312,6 @@ class T_FUNCTION {
             ){
                 Evaluate::regularReturn($code, $getLine);
             }
-
         }
 
         $this->processArguments($node, $code, $getLine, $emitter);
