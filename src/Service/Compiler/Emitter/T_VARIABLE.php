@@ -76,6 +76,7 @@ class T_VARIABLE extends TAbstract {
         switch ($mapped['type']){
             case 'vec3d':
                 Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
+                Evaluate::regularReturn($code, $getLine);
                 break;
 
             case 'object':

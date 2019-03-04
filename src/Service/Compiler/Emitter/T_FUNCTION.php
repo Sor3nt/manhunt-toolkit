@@ -44,11 +44,9 @@ class T_FUNCTION {
 
                     case 'stringarray':
                     case 'string':
+                    case 'vec3d':
                         break;
                     case 'constant':
-                        Evaluate::regularReturn($code, $getLine);
-                        break;
-                    case 'vec3d':
                         Evaluate::regularReturn($code, $getLine);
                         break;
                     case 'integer':
