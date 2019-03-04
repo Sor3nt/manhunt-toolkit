@@ -102,8 +102,19 @@ class T_VARIABLE extends TAbstract {
                 );
                 break;
 
+            case 'integer':
+                Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
+                break;
             case 'constant':
                 Evaluate::readIndex($mapped['offset'], $code, $getLine);
+
+                if (
+                    isset($data['customData']) &&
+                    isset($data['customData']['fromFunction']) &&
+                    $data['customData']['fromFunction']
+                ){
+                    Evaluate::regularReturn($code, $getLine);
+                }
                 break;
 
             default:

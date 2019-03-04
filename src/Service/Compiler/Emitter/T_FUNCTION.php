@@ -40,9 +40,6 @@ class T_FUNCTION {
 
                 switch ($mappedTo['objectType']) {
 
-                    case 'constant':
-                        Evaluate::regularReturn($code, $getLine);
-                        break;
                     case 'integer':
                         Evaluate::regularReturn($code, $getLine);
                         break;
