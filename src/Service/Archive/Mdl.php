@@ -98,7 +98,7 @@ class Mdl extends Archive {
 
 //                RootBoneName = readstring f
                 $boneName = $binary->getString();
-var_dump($boneName, "\n");
+                var_dump($boneName, "\n");
 
                 if ($boneName == ""){
                     die("todo");
@@ -154,7 +154,7 @@ var_dump($boneName, "\n");
                         $objectOffset = $binary->consume(4, NBinary::INT_32);
 
 //                        ReadModel f ObjectOffset BoneArray
-                        $this->readModel($binary, $objectOffset, $boneArray);
+                        $this->readModel($binary, $objectOffset, $objectParentBoneOffset, $boneArray);
 
 //                        append MeshParentArray ObjectParentBoneOffset
                         $meshParentArray[] = $objectParentBoneOffset;
@@ -197,8 +197,32 @@ var_dump($boneName, "\n");
         return false;
     }
 
+    /*
+     *
+     *  fn ReadColorARGB f = (
+  colA = (readbyte f #unsigned)--/ 255.0
+  colR = (readbyte f #unsigned)--/ 255.0
+  colG = (readbyte f #unsigned)--/ 255.0
+  colB = (readbyte f #unsigned)--/ 255.0
+  return (color colR colG colB colA)
+ )
 
-    public function readModel(NBinary $binary, $start, $boneArray){
+     */
+
+    public function ReadColorARGBOutputAsRgba( NBinary $binary ){
+        $a = $binary->consume(4, NBinary::INT_32);
+        $r = $binary->consume(4, NBinary::INT_32);
+        $g = $binary->consume(4, NBinary::INT_32);
+        $b = $binary->consume(4, NBinary::INT_32);
+
+        return [
+            $r, $g, $b, $a
+        ];
+
+    }
+
+
+    public function readModel(NBinary $binary, $start, $objectParentBoneOffset, $boneArray){
 //        Weight_array = #(#(),#())
         $weightArray = [ [], [] ];
 //        Vert_array = #()
@@ -241,13 +265,18 @@ var_dump($boneName, "\n");
 //
 //        --WII
 //	  OldVert_array=#()
-//        $oldVertArray = [];
+        $oldVertArray = [];
 
 //    oldCPV_Array = #()
+        $oldCpvArray = [];
 //    OldFace_array=#()
+        $oldFaceArray = [];
 //    vert_Normal_datas = #()
+        $vertNormalDatas = [];
 //    MatID_faceArray=#()
+        $matIdFaceArray = [];
 //    UV2Face_Array = #()
+        $Uv2FaceArray = [];
 //
 //        fseek f start #seek_set
         $binary->current = $start;
@@ -277,95 +306,185 @@ var_dump($boneName, "\n");
         for( $i = 0; $i < $numTexture; $i++){
 
 //        textureNameOffset = readlong f #unsigned
+            $textureNameOffset = $binary->consume(4, NBinary::INT_32);
 //        mtl = standardmaterial diffuse:(ReadColorARGB f) specular:(ReadColorARGB f)
+            $mtl = [
+                'diffuse' => $this->ReadColorARGBOutputAsRgba( $binary ),
+                'specular' => $this->ReadColorARGBOutputAsRgba( $binary ),
+                'diffusemap' => []
+
+            ];
 //        nextoffset = ftell f
+            $nextOffset = $binary->current;
 //        fseek f textureNameOffset #Seek_set
+            $binary->current = $textureNameOffset;
 //        TextureName = ReadString f
+            $textureName = $binary->getString();
 //        filename = (getFilenamePath fname) + TextureName + imagetype --".dds"
 //        mtl.diffusemap = bitmaptexture filename:(filename) name:(TextureName)
 //        append MaterialArray[1] mtl
+            $materialArray[0][] = $mtl;
 //        append MaterialArray[2] TextureName
+            $materialArray[1][] = $textureName;
+
 //        fseek f nextoffset #seek_set
+            $binary->current = $nextOffset;
 //    )
         }
 //
 //
 //	if numTexture > 1 then
 //    (
+
 //        mm = multimaterial numsubs:numTexture
 //		mm.materialList= MaterialArray[1]
 //	)
+
 //
 //    fseek f (start+32) #seek_set
+        $binary->current = $start + 32;
 //    platform = ""
+        $platform = "";
 //    platformFlag = readlong f #unsigned
+        $platformFlag = $binary->consume(4, NBinary::INT_32);
+
 //    if platformFlag == 0x45d454 then platform = "PC"
+        if ($platformFlag == 0x45d454){
+            $platform = "PC";
+        }else{
+
 //    else
 //    (
 //    fseek f (start+80) #seek_set
+            $binary->current = $start + 80;
 //        platformFlag = readlong f #unsigned
+            $platformFlag = $binary->consume(4, NBinary::INT_32);
 //        if platformFlag == 0x50533244 then platform = "PS2" --0x50533244= PS2D/D2SP
+            if ($platformFlag == 0x50533244){
+                $platform = "PS2";
 //        else
 //        (
+            }else{
+
 //        platform = "PSP"
+                $platform = "PSP";
 //        )
+            }
 //    )
+        }
 //
 //	num = 1
+        $num = 0;
 //	mloop = true
+        $mloop = true;
 //	do
+        do{
+
 //        (
 //		if ( ObjectParentBoneOffset == BoneArray[3][num]) then
 //        (
+            if ($objectParentBoneOffset == $boneArray[2][$num]){
+
+                $parentBone = $boneArray[2][$num];
 //            ParentBone = BoneArray[2][num]
 //			mloop = false
+                $mloop = false;
 //		)
+            }
 //		num+=1
+            $num += 1;
 //	)while mloop
+        }while($mloop);
 //
 //
 //        fseek f (start+8) #seek_set
 //    fseek f 36 #seek_cur
+        $binary->current = $start + 8 + 36;
 //
 //    numMaterialID = readlong f #unsigned
+        $numMaterialId = $binary->consume(4, NBinary::INT_32);
 //    numFaceIndex = readlong f #unsigned
+        $numFaceIndex = $binary->consume(4, NBinary::INT_32);
 //    fseek f 16 #seek_cur--skip boundingSphereXYZ&Radius
+        $binary->current += 16;
 //    fseek f 12 #seek_cur--skip boundingSphereScale
+        $binary->current += 12;
 //    numVertex = readlong f #unsigned
+        $numVertex = $binary->consume(4, NBinary::INT_32);
 //    fseek f 12 #seek_cur
+        $binary->current += 12;
 //
 //    PerVertexElementSize = readlong f
+        $perVertexElementSize = $binary->consume(4, NBinary::INT_32);
 //    fseek f 44 #seek_cur
+        $binary->current += 44;
 //    VertexElementType = readlong f #unsigned
+        $vertexElementType = $binary->consume(4, NBinary::INT_32);
 //
 //    fseek f 32  #seek_cur
+        $binary->current += 32;
 //
 //    for i = 1 to numMaterialID do
+        for ($i = 0; $i < $numMaterialId; $i++){
 //        (
 //        fseek f 24 #seek_cur -- skip 6 floats
+            $binary->current += 24;
+
 //        partNumFace = (readshort f #unsigned / 3) -- ��Ҫ����3����Ϊ��������������������������
+            $partNumFace = $binary->consume(4, NBinary::INT_32) / 3;
+
 //        append MatIDArray[1] partNumFace
+            $matIdArray[0][] = $partNumFace;
 //        matID = readshort f #unsigned + 1
+            $matId = $binary->consume(4, NBinary::INT_32);
 //        append MatIDArray[2] matID
+            $matIdArray[1] = $matId;
 //        StartFaceID = (readshort f #unsigned /3)
+            $startFaceID = $binary->consume(4, NBinary::INT_32) / 3;
+
 //        append MatIDArray[3] StartFaceID
+            $matIdArray[2][] = $startFaceID;
 //        readshort f --skip unknown
+            $binary->consume(4, NBinary::INT_32)
+
 //        fseek f 12 #seek_cur --skip 12 bytes zero
+            $binary->current += 12;
 //    )
+        }
 //    for i = 1 to numFaceIndex / 3 do (
+        for ($i = 0; $i < $numFaceIndex / 3; $i++){
+
 //    f1 = (readshort f #unsigned) + 1
+            $f1 = $binary->consume(4, NBinary::INT_32) + 1;
 //        f2 = (readshort f #unsigned) + 1
+            $f2 = $binary->consume(4, NBinary::INT_32) + 1;
 //        f3 = (readshort f #unsigned) + 1
+            $f3 = $binary->consume(4, NBinary::INT_32) + 1;
 //        append Face_array [f1,f2,f3]
+
+            $faceArray[] = [ $f1, $f2, $f3];
 //    )
+        }
 //
 //    VertexElementType = bit.shift VertexElementType -8
+        $vertexElementType = $vertexElementType >> -8;
+        var_dump("keine ahnung 1 ", $vertexElementType);
 //    skinDataFlag = bit.get VertexElementType 5
+        $skinDataFlag = $vertexElementType | 5;
+        var_dump("keine ahnung 2 ", $skinDataFlag);
+
 //    numUV = bit.and VertexElementType 0xf
+        $numUV = $vertexElementType & 0xf;
+        var_dump("keine ahnung 2 ", $skinDataFlag);
 //    for i = 1 to numVertex do (
+        for($i = 0; $i < $numVertex; $i++){
+
 //    vx = readfloat f
+            $vx = $binary->consume(4, NBinary::INT_32);
 //        vy = readfloat f
+            $vy = $binary->consume(4, NBinary::INT_32);
 //        vz = readfloat f
+            $vz = $binary->consume(4, NBinary::INT_32);
 //
 //        transVert =((transMatrix [vx,vy,vz])*parentBone.transform).pos
 //        append Vert_array [transVert.x,transVert.y,transVert.z]
@@ -455,6 +574,7 @@ var_dump($boneName, "\n");
 //            )
 //        )
 //    )
+        }
 //
 //    newFaceArray =#()
 //    newNormalArray=#()
@@ -645,33 +765,7 @@ var_dump($boneName, "\n");
 //		)
 //	)
 //
-//	if (autoskin == true)and (skinDataFlag == true) then
-//        (
-//            DisableSceneRedraw()
-//			max modify mode
-//			select msh
-//			skinMod = skin ()
-//			addModifier msh skinMod
-//			subobjectLevel = 1
-//			msh.skin.bone_Limit = 4
-//			dmy = dummy name:"AnimationData"  ishidden:true
-//			dmy.transform = (matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0])
-//			--BoneArray[2][1].parent = dmy
-//			for k = 1 to BoneArray[2].count do
-//                (
-//                    skinOps.addBone skinMod  BoneArray[2][k] 0
-//
-//			)
-//			delete dmy
-//			modPanel.setCurrentObject skinMod
-//			for i = 1 to newSkinArray.count do (
-//            w = newSkinArray[i]
-//				skinOps.ReplaceVertexWeights skinMod i w.boneids w.weights
-//			)
-//			max select none
-//			EnableSceneRedraw()
-//
-//	)
+
     }
 
 
@@ -715,7 +809,7 @@ var_dump($boneName, "\n");
             }
 
             var_dump($boneHierarchyLevelDataOffset);
-exit;
+            exit;
         }
 
         for($i = 0; $i < count($boneArray[0]); $i++){
@@ -726,12 +820,12 @@ exit;
 
                         $boneArray[1][$i]['parent'] = $boneArray[1][$m];
 
-					    $boneArray[1][$i]['transform'] = $this->multiplyMatrix3(
-					        $boneArray[3][$i],
+                        $boneArray[1][$i]['transform'] = $this->multiplyMatrix3(
+                            $boneArray[3][$i],
                             $boneArray[1][$i]['parent']['transform']
                         );
 
-					    break 2;
+                        break 2;
                     }
                 }
             }

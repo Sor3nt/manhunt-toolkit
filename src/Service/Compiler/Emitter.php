@@ -30,8 +30,6 @@ class Emitter {
         'T_IF' => Emitter\T_IF::class,
         'T_SELF' => Emitter\T_SELF::class,
         'T_FLOAT' => Emitter\T_FLOAT::class,
-        'T_IS_EQUAL' => Emitter\T_IS_EQUAL::class,
-        'T_IS_NOT_EQUAL' => Emitter\T_IS_NOT_EQUAL::class,
         'T_STRING' => Emitter\T_STRING::class,
         'T_FUNCTION' => Emitter\T_FUNCTION::class,
         'T_VARIABLE' => Emitter\T_VARIABLE::class,

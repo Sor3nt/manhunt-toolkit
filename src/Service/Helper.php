@@ -10,6 +10,17 @@ use App\Service\Compiler\Token;
 
 class Helper{
 
+    //some types are equal to other types. we do not need to duplicate the logic
+    static function getAliasForType( $type ){
+        return str_replace([
+            'entityptr',
+            'real'
+        ],[
+            'integer',
+            'integer'
+        ], $type);
+    }
+
     static function calcTypeSize( $types, $addString4Bytes = false ){
 
         $size = 0;

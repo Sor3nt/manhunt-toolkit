@@ -46,6 +46,7 @@ class T_VARIABLE {
                             'value' => "''"
                         ];
                     }else{
+
                         return [
                             'type' => 'T_VARIABLE',
                             'value' => strtolower($value)

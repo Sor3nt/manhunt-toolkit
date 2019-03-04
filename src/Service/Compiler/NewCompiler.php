@@ -160,6 +160,9 @@ class NewCompiler
             'isArg' => false,
             'isLevelVar' => false,
             'isGameVar' => false,
+
+            'origin' => 'NewCompiler::processBlock'
+
         ];
 
 
@@ -616,7 +619,9 @@ class NewCompiler
                         'section' => "header",
                         'index' => $index,
                         'size' => $this->getMemorySizeByType($usedType),
-                        'offset' => Helper::fromIntToHex($offset)
+                        'offset' => Helper::fromIntToHex($offset),
+
+                        'origin' => 'NewCompiler::getTypes'
                     ];
 
 //                    //todo.. ka ob das stimmt...
@@ -637,9 +642,10 @@ class NewCompiler
                         'isLevelVar' => true,
                         'isGameVar' => false,
 
-
                         'section' => "header",
-                        'offset' => Helper::fromIntToHex($offset)
+                        'offset' => Helper::fromIntToHex($offset),
+
+                        'origin' => 'NewCompiler::getTypes'
                     ];
 
                     $offset++;
@@ -723,12 +729,15 @@ class NewCompiler
                         $row = [
                             'section' => 'header',
                             'type' => 'array',
+                            'objectType' => 'array',
                             'from' => $tokens[$current + 2]['from'],
                             'to' => $tokens[$current + 2]['to'],
                             'ofVar' => $tokens[$current + 2]['ofVar'],
 
                             'length' => $tokens[$current + 2]['to'],
-                            'size' => $tokens[$current + 2]['to']
+                            'size' => $tokens[$current + 2]['to'],
+
+                            'origin' => 'NewCompiler::getHeaderVariables'
                         ];
 
 
@@ -759,7 +768,9 @@ class NewCompiler
                             'isGameVar' => $isGameVar,
 
                             'length' => $this->getMemorySizeByType($variableTypeWihtoutLevel),
-                            'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false)
+                            'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false),
+
+                            'origin' => 'NewCompiler::getHeaderVariables'
                         ];
 
                         if (isset($this->types[$variableTypeWihtoutLevel])) {
@@ -924,6 +935,7 @@ class NewCompiler
             $var['section'] = 'script';
             $var['type'] = 'constant';
             $var['objectType'] = 'constant';
+            $var['origin'] = 'NewCompiler::getConstants_dynamic';
 
             $var['isArg'] = false;
             $var['isLevelVar'] = false;
@@ -947,6 +959,7 @@ class NewCompiler
             $hardCodedConstant['section'] = 'header';
             $hardCodedConstant['type'] = 'constant';
             $hardCodedConstant['objectType'] = 'constant';
+            $hardCodedConstant['origin'] = 'NewCompiler::getConstants_hardcoded';
             $hardCodedConstant['isArg'] = false;
             $hardCodedConstant['isLevelVar'] = false;
             $hardCodedConstant['isGameVar'] = false;
@@ -1066,6 +1079,7 @@ class NewCompiler
 
                 $variableType = strtolower($tokens[$current]['value']);
 
+
                 foreach ($variables as $index => $variable) {
                     $variable = $variable['value'];
 
@@ -1073,12 +1087,14 @@ class NewCompiler
                         'section' => 'script',
                         'order' => $index,
                         'type' => $variableType,
-                        'objectType' => $variableType,
+                        'objectType' => Helper::getAliasForType($variableType),
                         'isArg' => $section == Token::T_DEFINE_SECTION_ARG,
 
+                        'origin' => 'NewCompiler::getScriptVar',
                         'isLevelVar' => false,
                         'isGameVar' => false,
                     ];
+
 
                     if (substr($variableType, 0, 7) == "string[") {
                         $row['type'] = 'stringarray';
@@ -1283,9 +1299,6 @@ class NewCompiler
             if (strtolower($varType) == "tlevelstate") $varType = "tLevelState";
             if ($varType == "stringarray") $varType = "string";
 
-            if ($varType == "entityptr"){
-                $varType = "integer";
-            }
 
             /**
              * todo: not important, the type should say tLevelState but its messed up by the state handling

@@ -107,12 +107,11 @@ class T_CONDITION {
                         if (
                             $mappedTo['isGameVar'] ||
                             $mappedTo['isLevelVar'] ||
-                            $mappedTo['type'] == "entityptr" ||
-                            $mappedTo['type'] == "constant" ||
-                            $mappedTo['type'] == "integer" ||
-                            $mappedTo['type'] == "boolean" ||
-                            $mappedTo['type'] == "mhfxptr" ||
-                            $mappedTo['type'] == "object"
+                            $mappedTo['objectType'] == "constant" ||
+                            $mappedTo['objectType'] == "integer" ||
+                            $mappedTo['objectType'] == "boolean" ||
+                            $mappedTo['objectType'] == "mhfxptr" ||
+                            $mappedTo['objectType'] == "object"
                         ) {
                             $output = "regular";
 
