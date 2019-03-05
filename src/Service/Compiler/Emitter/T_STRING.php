@@ -46,7 +46,7 @@ class T_STRING {
 
             }
 
-            Evaluate::readObject($val, $code, $getLine);
+            Evaluate::readStringPosition($val, $code, $getLine);
 
         }
 

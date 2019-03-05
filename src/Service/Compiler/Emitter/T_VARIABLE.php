@@ -85,12 +85,12 @@ class T_VARIABLE extends TAbstract {
 
             case 'stringarray':
                 Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
-                Evaluate::readObject($mapped['size'], $code, $getLine);
+                Evaluate::readStringPosition($mapped['size'], $code, $getLine);
                 break;
 
             case 'level_var stringarray':
                 Evaluate::fromLevelVarStringArray($mapped, $code, $getLine);
-                Evaluate::readObject($mapped['size'], $code, $getLine);
+                Evaluate::readStringPosition($mapped['size'], $code, $getLine);
                 break;
 
             case 'custom_functions':
@@ -138,7 +138,7 @@ class T_VARIABLE extends TAbstract {
                 }else if($mapped['objectType'] == 'string') {
 
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
-                    Evaluate::readObject(0, $code, $getLine);
+                    Evaluate::readStringPosition(0, $code, $getLine);
 
                 }else{
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);

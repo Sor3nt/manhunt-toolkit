@@ -452,13 +452,10 @@ class Evaluate {
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
 
-        //define the length
         self::readPosition($size, $code, $getLine);
 
-        //forward the result
         self::forward($code, $getLine);
 
-        // save result
         $code[] = $getLine('10000000', false, $debugMsg);
         $code[] = $getLine('03000000', false, $debugMsg);
         $code[] = $getLine('48000000', false, $debugMsg);
@@ -480,7 +477,7 @@ class Evaluate {
 
     }
 
-    static public function readObject($size, &$code, \Closure $getLine){
+    static public function readStringPosition($size, &$code, \Closure $getLine){
         $debugMsg = sprintf('[readObject] ' . $size);
 
         $code[] = $getLine('12000000', false, $debugMsg);
