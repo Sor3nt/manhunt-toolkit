@@ -75,15 +75,15 @@ class T_VARIABLE extends TAbstract {
         $code = [];
 
         switch ($mapped['type']){
-            case Token::D_VEC3D:
+            case Token::T_VEC3D:
                 Evaluate::fromObject($mapped, $code, $getLine);
                 break;
 
-            case 'object':
+            case Token::T_OBJECT:
                 $code = $this->fromObjectAttribute($node, $data, $getLine);
                 break;
 
-            case Token::D_STRING_ARRAY:
+            case Token::T_STRING_ARRAY:
                 Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
                 Evaluate::readStringPosition($mapped['size'], $code, $getLine);
                 break;
@@ -102,10 +102,10 @@ class T_VARIABLE extends TAbstract {
                 );
                 break;
 
-            case Token::D_INTEGER:
+            case Token::T_INT:
                 Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                 break;
-            case Token::D_CONSTANT_INTEGER:
+            case Token::T_CONSTANT_INTEGER:
                 Evaluate::readIndex($mapped['offset'], $code, $getLine);
 
                 if (
@@ -136,11 +136,11 @@ class T_VARIABLE extends TAbstract {
                 }else if($mapped['isGameVar']) {
                     Evaluate::fromGameVar($mapped, $code, $getLine);
 
-                }else if($mapped['objectType'] == 'real') {
+                }else if($mapped['objectType'] == Token::T_REAL) {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
 
-                }else if($mapped['objectType'] == 'string') {
+                }else if($mapped['objectType'] == Token::T_STRING) {
 
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::readStringPosition(0, $code, $getLine);

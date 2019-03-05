@@ -39,7 +39,7 @@ class T_FUNCTION {
 
                     Evaluate::stringReturn($code, $getLine);
                     break;
-                case Token::D_INTEGER:
+                case Token::T_INT:
                     Evaluate::regularReturn($code, $getLine);
                     break;
             }
@@ -109,10 +109,10 @@ class T_FUNCTION {
                 $mapping = T_VARIABLE::getMapping($param, $data);
 
                 switch ($mapping['type']){
-                    case 'real':
-                    case Token::D_INTEGER:
+                    case Token::T_REAL:
+                    case Token::T_INT:
                     case 'object':
-                    case Token::D_STRING_ARRAY:
+                    case Token::T_STRING_ARRAY:
                         $code[] = $getLine($this->getFunction('writedebug' . $mapping['type'] )['offset']);
                         break;
 
@@ -276,22 +276,8 @@ class T_FUNCTION {
         if ($isProcedure || $isCustomFunction) {
             $procedureOffset = $mappedToBlock['offset'];
 
-//            Evaluate::gotoBlock($node['value'], $procedureOffset * 4, $code, $getLine);
+            Evaluate::gotoBlock($node['value'], $procedureOffset * 4, $code, $getLine);
 
-            $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $node['value']);
-
-            $code[] = $getLine('10000000', false, $debugMsg); //procedure
-            $code[] = $getLine('04000000', false, $debugMsg); //procedure
-            $code[] = $getLine('11000000', false, $debugMsg); //procedure
-            $code[] = $getLine('02000000', false, $debugMsg); //procedure
-            $code[] = $getLine('00000000', false, $debugMsg); //procedure
-            $code[] = $getLine('32000000', false, $debugMsg); //procedure
-            $code[] = $getLine('02000000', false, $debugMsg); //procedure
-            $code[] = $getLine('1c000000', false, $debugMsg); //procedure
-            $code[] = $getLine('10000000', false, $debugMsg); //procedure
-            $code[] = $getLine('02000000', false, $debugMsg); //procedure
-            $code[] = $getLine('39000000', false, $debugMsg); //procedure
-            $code[] = $getLine(Helper::fromIntToHex($procedureOffset * 4), false, $debugMsg . ' (offset)'); //procedure offset
             return $code;
         }
 
@@ -315,7 +301,7 @@ class T_FUNCTION {
              */
             if (
                 !isset($function['return']) || (
-                    $function['return'] != Token::D_VEC3D &&
+                    $function['return'] != Token::T_VEC3D &&
                     $function['return'] != "string"
                 )
             ){

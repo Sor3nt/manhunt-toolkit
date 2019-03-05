@@ -88,7 +88,7 @@ class T_CONDITION {
                             throw new \Exception(sprintf('No return value configured for %s', $operation['value']));
                         }
 
-                        if ($funcMappedTo['return'] != 'string') $output = "regular";
+                        if ($funcMappedTo['return'] != Token::T_STRING) $output = "regular";
 
                     }else if ($operation['type'] == Token::T_VARIABLE){
                         $mappedTo = T_VARIABLE::getMapping(
@@ -100,8 +100,8 @@ class T_CONDITION {
                         if (
                             $mappedTo['isGameVar'] ||
                             $mappedTo['isLevelVar'] ||
-                            $mappedTo['objectType'] == Token::D_CONSTANT_INTEGER ||
-                            $mappedTo['objectType'] == Token::D_INTEGER ||
+                            $mappedTo['objectType'] == Token::T_CONSTANT_INTEGER ||
+                            $mappedTo['objectType'] == Token::T_INT ||
                             $mappedTo['objectType'] == "boolean" ||
                             $mappedTo['objectType'] == "mhfxptr" ||
                             $mappedTo['objectType'] == "object"
@@ -176,8 +176,7 @@ class T_CONDITION {
                 }
 
                 if (
-                    in_array(Token::D_STRING_ARRAY, $toHandle) !== false ||
-                    in_array('string', $toHandle) !== false ||
+                    in_array(Token::T_STRING_ARRAY, $toHandle) !== false ||
                     in_array(Token::T_STRING, $toHandle) !== false
                 ) {
                     Evaluate::compareString($code, $getLine);

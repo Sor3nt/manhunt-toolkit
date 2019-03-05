@@ -757,10 +757,10 @@ class NewCompiler
 
                         $row = [
                             'section' => $currentSection,
-                            'objectType' => $isString ? Token::D_STRING_ARRAY : $variableTypeWihtoutLevel,
+                            'objectType' => $isString ? Token::T_STRING_ARRAY : $variableTypeWihtoutLevel,
                             'type' =>
                                 $isString ?
-                                    ($isLevelVar ? 'level_var stringarray' : Token::D_STRING_ARRAY) :
+                                    ($isLevelVar ? 'level_var stringarray' : Token::T_STRING_ARRAY) :
                                     $variableType,
 
                             'isArg' => false,
@@ -1097,8 +1097,8 @@ class NewCompiler
 
 
                     if (substr($variableType, 0, 7) == "string[") {
-                        $row['type'] = Token::D_STRING_ARRAY;
-                        $row['objectType'] = Token::D_STRING_ARRAY;
+                        $row['type'] = Token::T_STRING_ARRAY;
+                        $row['objectType'] = Token::T_STRING_ARRAY;
                     }
 
                     $row['size'] = $this->getMemorySizeByType($variableType);
@@ -1295,7 +1295,7 @@ class NewCompiler
                 }
             }
 
-            if ($varType == Token::D_STRING_ARRAY) $varType = "string";
+            if ($varType == Token::T_STRING_ARRAY) $varType = "string";
 
 
             /**

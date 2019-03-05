@@ -3,10 +3,14 @@ namespace App\Service\Compiler;
 
  class Token {
 
-    const D_VEC3D                       = "vec3d";
-    const D_INTEGER                     = "integer";
-    const D_STRING_ARRAY                = "stringarray";
-    const D_CONSTANT_INTEGER            = "constant";
+    const T_OBJECT                      = "object";
+    const T_REAL                        = "real";
+    const T_VEC3D                       = "vec3d";
+    const T_STRING_ARRAY                = "stringarray";
+    const T_CONSTANT_INTEGER            = "constant";
+    const T_INT                         = 'integer';
+    const T_STRING                      = 'string';
+    const T_FLOAT                       = 'float';
 
     const T_BOOLEAN                     = 'T_BOOLEAN';
     const T_ARRAY                       = 'T_ARRAY';
@@ -69,9 +73,6 @@ namespace App\Service\Compiler;
     const T_END_ELSE                    = 'T_END_ELSE';
     const T_END_CODE                    = 'T_END_CODE';
     const T_DO                          = 'T_DO';
-    const T_FLOAT                       = 'T_FLOAT';
-    const T_INT                         = 'T_INT';
-    const T_STRING                      = 'T_STRING';
     const T_LEVEL_VAR                   = 'T_LEVEL_VAR';
     const T_NULL                        = 'T_NULL';
     const T_ASSIGN                      = 'T_ASSIGN';
