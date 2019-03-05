@@ -71,6 +71,7 @@ class T_ASSIGN {
             $ofVarSize = 4;
 
             switch ($mapped['ofVar']){
+                case 'integer':
                 case 'boolean':
 
                     Evaluate::readIndex((int) $indexName, $code, $getLine);

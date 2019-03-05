@@ -21,35 +21,21 @@ class T_FUNCTION {
 
     public function finalize( $node, $data, &$code, \Closure $getLine){
 
-        switch ($node['type']){
 
-            case Token::T_FUNCTION:
-            case Token::T_STRING:
-            case Token::T_SELF:
-            case Token::T_BOOLEAN:
-            case Token::T_FLOAT:
-            case Token::T_INT:
-                break;
+        if ($node['type'] == Token::T_VARIABLE){
+            $mappedTo = T_VARIABLE::getMapping(
+                $node,
+                $data
+            );
 
+            switch ($mappedTo['objectType']) {
 
-            case Token::T_VARIABLE:
-                $mappedTo = T_VARIABLE::getMapping(
-                    $node,
-                    $data
-                );
-
-                switch ($mappedTo['objectType']) {
-
-                    case Token::D_INTEGER:
-                        Evaluate::regularReturn($code, $getLine);
-                        break;
-                }
-
-                break;
-            default:
-                throw new \Exception($node['type'] . " Not implemented!");
-                break;
+                case Token::D_INTEGER:
+                    Evaluate::regularReturn($code, $getLine);
+                    break;
+            }
         }
+
     }
 
     public function handleWriteDebugCall($node, \Closure $getLine, \Closure $emitter, $data){
