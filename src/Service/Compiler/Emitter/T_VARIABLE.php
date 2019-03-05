@@ -83,7 +83,7 @@ class T_VARIABLE extends TAbstract {
                 $code = $this->fromObjectAttribute($node, $data, $getLine);
                 break;
 
-            case 'stringarray':
+            case Token::D_STRING_ARRAY:
                 Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
                 Evaluate::readStringPosition($mapped['size'], $code, $getLine);
                 break;

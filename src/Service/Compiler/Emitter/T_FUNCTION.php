@@ -114,7 +114,7 @@ class T_FUNCTION {
                     case 'real':
                     case Token::D_INTEGER:
                     case 'object':
-                    case 'stringarray':
+                    case Token::D_STRING_ARRAY:
                         $code[] = $getLine($this->getFunction('writedebug' . $mapping['type'] )['offset']);
                         break;
 

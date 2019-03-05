@@ -178,7 +178,7 @@ class T_CONDITION {
                 }
 
                 if (
-                    in_array('stringarray', $toHandle) !== false ||
+                    in_array(Token::D_STRING_ARRAY, $toHandle) !== false ||
                     in_array('string', $toHandle) !== false ||
                     in_array(Token::T_STRING, $toHandle) !== false
                 ) {

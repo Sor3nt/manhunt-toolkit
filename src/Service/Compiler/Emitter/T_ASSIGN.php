@@ -177,7 +177,7 @@ class T_ASSIGN {
         ){
             Evaluate::toObject( $code, $getLine);
 
-        }else if ($mapped['objectType'] == "stringarray"){
+        }else if ($mapped['objectType'] == Token::D_STRING_ARRAY){
             Evaluate::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
 
         }else if($mapped['isGameVar']) {
