@@ -6,6 +6,7 @@ use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Line;
+use App\Service\Compiler\Token;
 use App\Service\Helper;
 
 class T_VARIABLE extends TAbstract {
@@ -74,7 +75,7 @@ class T_VARIABLE extends TAbstract {
         $code = [];
 
         switch ($mapped['type']){
-            case 'vec3d':
+            case Token::T_VEC3D:
                 Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
                 Evaluate::regularReturn($code, $getLine);
                 break;

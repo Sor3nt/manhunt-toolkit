@@ -55,7 +55,7 @@ class T_ASSIGN {
 
         if ($rightHandNewMapped && isset($rightHandNewMapped['isArg']) && $rightHandNewMapped['isArg']) {
 
-        }else if ($mapped['type'] == "vec3d"){
+        }else if ($mapped['type'] == Token::T_VEC3D){
             Evaluate::fromObject($mapped, $code, $getLine);
 
         }else if($mapped['type'] == "object"){
@@ -180,7 +180,7 @@ class T_ASSIGN {
         /*
          * Assign TO variable handling
          */
-        if ($mapped['type'] == "vec3d") {
+        if ($mapped['type'] == Token::T_VEC3D) {
             Evaluate::toVec3D($code, $getLine);
         }else if (
             $mapped['type'] == "object" ||

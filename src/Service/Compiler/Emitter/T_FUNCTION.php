@@ -303,7 +303,7 @@ class T_FUNCTION {
              */
             if (
                 !isset($function['return']) || (
-                    $function['return'] != "vec3d" &&
+                    $function['return'] != Token::T_VEC3D &&
                     $function['return'] != "string"
                 )
             ){
