@@ -1,7 +1,6 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
@@ -27,17 +26,12 @@ class T_FLOAT {
 
         $code = [];
 
-        Evaluate::readIndex(
-            $hex,
-            $code,
-            $getLine
-        );
+        Evaluate::readIndex($hex, $code, $getLine);
 
         if ($negate){
             Evaluate::regularReturn($code, $getLine);
             Evaluate::negate(Token::T_FLOAT, $code, $getLine);
         }
-
 
         if (
             isset($data['customData']) &&
@@ -47,9 +41,6 @@ class T_FLOAT {
             Evaluate::regularReturn($code, $getLine);
         }
 
-
         return $code;
-
     }
-
 }

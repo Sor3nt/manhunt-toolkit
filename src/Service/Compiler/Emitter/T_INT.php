@@ -1,11 +1,8 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
-
-
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\Token;
-use App\Service\Helper;
 
 class T_INT {
 
@@ -14,21 +11,13 @@ class T_INT {
         $value = (int) $node['value'];
 
         $negate = $value < 0;
-        if ($value < 0){
-            $value = $value * -1;
-        }
+        if ($value < 0) $value = $value * -1;
 
         $code = [];
 
-        Evaluate::readIndex(
-            $value,
-            $code,
-            $getLine
-        );
+        Evaluate::readIndex($value, $code, $getLine);
 
-        if ($negate){
-            Evaluate::negate(Token::T_INT, $code,$getLine);
-        }
+        if ($negate) Evaluate::negate(Token::T_INT, $code,$getLine);
 
         if (
             isset($data['customData']) &&
