@@ -227,10 +227,8 @@ class T_FUNCTION {
                 ){
                     $mathValue = $node['params'][$index + 1];
 
-                    foreach ($emitter( $mathValue ) as $line) {
-                        $line->debug = $debugMsg .  ' ' . $line->debug;
-                        $code[] = $line;
-                    }
+                    Evaluate::emit($mathValue, $code, $emitter, $debugMsg);
+
 
                     Evaluate::setIntMathOperator( $param['type'], $code, $getLine);
 
@@ -327,11 +325,8 @@ class T_FUNCTION {
 
             Evaluate::regularReturn($code, $getLine);
 
-            $resultCode = $emitter( $argument );
-            foreach ($resultCode as $line) {
-                $line->debug = $debugMsg .  ' ' . $line->debug;
-                $code[] = $line;
-            }
+            Evaluate::emit($argument, $code, $emitter, $debugMsg);
+
 
             Evaluate::regularReturn($code, $getLine);
 

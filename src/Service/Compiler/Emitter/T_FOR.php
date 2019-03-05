@@ -22,10 +22,7 @@ class T_FOR {
 
         $firstLineNumber = end($code)->lineNumber;
 
-        foreach ($emitter($node['end']) as $item) {
-            $item->debug = $debugMsg . ' ' . $item->debug;
-            $code[] = $item;
-        }
+        Evaluate::emit($node['end'], $code, $emitter, $debugMsg);
 
         Evaluate::storeInteger($incrementVarMapped, $code, $getLine);
 
@@ -60,10 +57,8 @@ class T_FOR {
         $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1, false, $debugMsg . '(end line)' );
 
         foreach ($node['params'] as $entry) {
-            foreach ($emitter($entry) as $singleLine){
-                $singleLine->debug = $debugMsg . ' params ' . $singleLine->debug;
-                $code[] = $singleLine;
-            }
+            Evaluate::emit($entry, $code, $emitter, $debugMsg . ' params ');
+
         }
 
         if (

@@ -93,16 +93,7 @@ class T_CUSTOM_FUNCTION {
         }
 
         foreach ($node['body'] as $innerNode) {
-            $resultCode = $emitter( $innerNode, true, [ 'customFunctionVars' => $vars ] );
-
-            if (is_null($resultCode)){
-                throw new \Exception('Return was null, a emitter missed a return statement ?');
-            }
-
-            foreach ($resultCode as $line) {
-                $line->debug = $debugMsg . ' ' . $line->debug;
-                $code[] = $line;
-            }
+            Evaluate::emit($innerNode, $code, $emitter, $debugMsg);
         }
 
         Evaluate::fromFinedANameforMeTodoSecond([

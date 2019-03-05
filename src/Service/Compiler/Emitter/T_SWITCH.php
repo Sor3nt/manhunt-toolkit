@@ -14,11 +14,7 @@ class T_SWITCH {
         $code = [];
 
         //evaluate the switch variable
-        $result = $emitter($node['switch']);
-        foreach ($result as $item) {
-            $item->debug = '[T_SWITCH] map: ' . $item->debug;
-            $code[] = $item;
-        }
+        Evaluate::emit($node['switch'], $code, $emitter, $debugMsg);
 
         $forceLineNumber = end($code)->lineNumber + 1;
 
@@ -45,11 +41,8 @@ class T_SWITCH {
         foreach ($casesRev as $case) {
 
             foreach ($case['body'] as $bodyNode) {
-                $result = $emitter($bodyNode);
-                foreach ($result as $item) {
-                    $item->debug = '[T_SWITCH] map: ' . $item->debug;
-                    $code[] = $item;
-                }
+
+                Evaluate::emit($bodyNode, $code, $emitter, '[T_SWITCH] map: ');
             }
 
             Evaluate::goto($calc['end'], $code, $getLine);

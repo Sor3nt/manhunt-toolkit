@@ -28,10 +28,7 @@ class T_CONDITION {
                     $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
                 }
 
-                foreach ($emitter($token['params'][0]) as $item){
-                    $item->debug = $debugMsg . ' ' . $item->debug;
-                    $code[] = $item;
-                }
+                Evaluate::emit($token['params'][0], $code, $emitter, $debugMsg);
 
                 if ($node['isNot'] || $node['isOuterNot']){
                     Evaluate::setStatementNot($code, $getLine);
@@ -75,11 +72,7 @@ class T_CONDITION {
 
                     $debugMsg = sprintf('[T_CONDITION] map: type ');
 
-                    foreach ($emitter($operation) as $item){
-                        $item->debug = $debugMsg . ' ' . $item->debug;
-                        $code[] = $item;
-                    }
-
+                    Evaluate::emit($operation, $code, $emitter, $debugMsg);
 
                     /**
                      * We need for the parameters a special return code, depend on the used type

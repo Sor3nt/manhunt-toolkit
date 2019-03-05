@@ -80,16 +80,8 @@ class T_SCRIPT {
 
         foreach ($node['body'] as $node) {
 
-            $resultCode = $emitter( $node );
+            Evaluate::emit($node, $code, $emitter, $debugMsg);
 
-            if (is_null($resultCode)){
-                throw new \Exception('Return was null, a emitter missed a return statement ?');
-            }
-
-            foreach ($resultCode as $line) {
-                $line->debug = $debugMsg . ' ' . $line->debug;
-                $code[] = $line;
-            }
         }
 
         /**
