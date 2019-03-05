@@ -100,7 +100,7 @@ class T_CONDITION {
                         if (
                             $mappedTo['isGameVar'] ||
                             $mappedTo['isLevelVar'] ||
-                            $mappedTo['objectType'] == "constant" ||
+                            $mappedTo['objectType'] == Token::D_CONSTANT_INTEGER ||
                             $mappedTo['objectType'] == Token::D_INTEGER ||
                             $mappedTo['objectType'] == "boolean" ||
                             $mappedTo['objectType'] == "mhfxptr" ||
@@ -135,8 +135,6 @@ class T_CONDITION {
                     if ($isLastIndex && $output == "regular"){
                         Evaluate::returnCache($code, $getLine);
 
-                    }else if ($output == "string" || $output == "array") {
-                        Evaluate::stringReturn($code, $getLine);
                     }else if($output !== "none"){
                         Evaluate::regularReturn($code, $getLine);
 

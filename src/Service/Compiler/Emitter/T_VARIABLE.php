@@ -105,7 +105,7 @@ class T_VARIABLE extends TAbstract {
             case Token::D_INTEGER:
                 Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                 break;
-            case 'constant':
+            case Token::D_CONSTANT_INTEGER:
                 Evaluate::readIndex($mapped['offset'], $code, $getLine);
 
                 if (

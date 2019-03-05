@@ -478,7 +478,7 @@ class Evaluate {
     }
 
     static public function readStringPosition($size, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[readObject] ' . $size);
+        $debugMsg = sprintf('[readStringPosition] ' . $size);
 
         $code[] = $getLine('12000000', false, $debugMsg);
         $code[] = $getLine('02000000', false, $debugMsg);

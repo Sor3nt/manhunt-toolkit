@@ -6,6 +6,7 @@ namespace App\Service\Compiler;
     const D_VEC3D                       = "vec3d";
     const D_INTEGER                     = "integer";
     const D_STRING_ARRAY                = "stringarray";
+    const D_CONSTANT_INTEGER            = "constant";
 
     const T_BOOLEAN                     = 'T_BOOLEAN';
     const T_ARRAY                       = 'T_ARRAY';
