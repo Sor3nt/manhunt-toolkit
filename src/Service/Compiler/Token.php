@@ -3,6 +3,8 @@ namespace App\Service\Compiler;
 
  class Token {
 
+    const T_VEC3D                       = "vec3d";
+
     const T_BOOLEAN                     = 'T_BOOLEAN';
     const T_ARRAY                       = 'T_ARRAY';
     const T_RECORD                      = 'T_RECORD';
