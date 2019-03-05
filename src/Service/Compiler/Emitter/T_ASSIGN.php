@@ -119,8 +119,6 @@ class T_ASSIGN {
 
             if ($mappedRecord['index'] > 0){
                 Evaluate::fromAttribute($mappedRecord, $code, $getLine);
-
-                Evaluate::regularReturn($code, $getLine);
             }
 
         }
@@ -128,26 +126,19 @@ class T_ASSIGN {
         /**
          * Evaluate the left hand
          */
-        foreach ($emitter($leftHand) as $item){
-            $item->debug = $debugMsg . ' ' . $item->debug;
-            $code[] = $item;
-        }
+        Evaluate::emit($leftHand, $code, $emitter, $debugMsg);
 
-        //we do here some math...
-        if (isset($node['body'][1]) && isset($node['body'][2])){
+        //we do here some math. [token] [operator] [token]
+        if (count($node['body']) == 3){
 
-            $rightHand = $node['body'][2];
-            $operator = $node['body'][1];
+            list(, $operator, $rightHand) = $node['body'];
 
             Evaluate::regularReturn($code, $getLine);
 
             /**
              * Evaluate the right hand
              */
-            foreach ($emitter($rightHand) as $item){
-                $item->debug = $debugMsg . ' ' . $item->debug;
-                $code[] = $item;
-            }
+            Evaluate::emit($rightHand, $code, $emitter, $debugMsg);
 
             if ($rightHand['type'] == Token::T_INT) {
                 Evaluate::setIntMathOperator($operator['type'], $code, $getLine);
@@ -164,10 +155,7 @@ class T_ASSIGN {
 
                 $rightMapped = T_VARIABLE::getMapping($rightHand, $data);
 
-                foreach ($emitter($rightMapped) as $item){
-                    $item->debug = $debugMsg . ' function/variable ' . $item->debug;
-                    $code[] = $item;
-                }
+                Evaluate::emit($rightMapped, $code, $emitter, $debugMsg . ' function/variable ');
 
                 //todo: int math missed
                 Evaluate::setFloatMathOperator($operator['type'], $code, $getLine);

@@ -586,7 +586,13 @@ class Evaluate {
         $code[] = '01000000';
         $code[] = '04000000';
         $code[] = '02000000';
+    }
 
 
+    static public function emit( $tokens, &$code, \Closure $emitter, $debugMsg = ""){
+        foreach ($emitter($tokens) as $item){
+            $item->debug = $debugMsg . ' ' . $item->debug;
+            $code[] = $item;
+        }
     }
 }
