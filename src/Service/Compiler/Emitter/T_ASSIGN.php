@@ -192,26 +192,14 @@ class T_ASSIGN {
         }else if ($mapped['objectType'] == "stringarray"){
             Evaluate::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
 
-        }else if($mapped['isLevelVar']) {
+        }else if($mapped['isGameVar']) {
+            Evaluate::toGameVar( $node, $code, $getLine);
 
+        }else if($mapped['isLevelVar']) {
             Evaluate::toLevelVar($mapped['offset'], $code, $getLine);
 
-        }else if (
-            isset($mapped['abstract']) && $mapped['abstract'] == "state" ||
-            isset($node['body'][1]) == true
-        ){
-            Evaluate::fromFinedANameforMeTodoThird($mapped, $code, $getLine);
-
-        //regular assignment
-        }else if (isset($node['body'][1]) == false){
-
-            if ($mapped['isGameVar']){
-                Evaluate::toGameVar( $node, $code, $getLine);
-            } else {
-                Evaluate::fromFinedANameforMeTodoThird($mapped, $code, $getLine);
-            }
-        }else{
-            throw new \Exception(sprintf('T_ASSIGN: unhandled assignment '));
+        }else {
+            Evaluate::toNumeric($mapped, $code, $getLine);
         }
 
         return $code;

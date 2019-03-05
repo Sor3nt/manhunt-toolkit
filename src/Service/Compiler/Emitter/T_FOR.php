@@ -17,7 +17,7 @@ class T_FOR {
 
         Evaluate::readIndex($node['start']['value'], $code, $getLine);
 
-        Evaluate::fromFinedANameforMeTodoThird($incrementVarMapped, $code, $getLine);
+        Evaluate::toNumeric($incrementVarMapped, $code, $getLine);
 
 
         $firstLineNumber = end($code)->lineNumber;
