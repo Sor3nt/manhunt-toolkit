@@ -108,7 +108,7 @@ class T_CONDITION {
                             $mappedTo['isGameVar'] ||
                             $mappedTo['isLevelVar'] ||
                             $mappedTo['objectType'] == "constant" ||
-                            $mappedTo['objectType'] == "integer" ||
+                            $mappedTo['objectType'] == Token::D_INTEGER ||
                             $mappedTo['objectType'] == "boolean" ||
                             $mappedTo['objectType'] == "mhfxptr" ||
                             $mappedTo['objectType'] == "object"

@@ -75,9 +75,8 @@ class T_VARIABLE extends TAbstract {
         $code = [];
 
         switch ($mapped['type']){
-            case Token::T_VEC3D:
-                Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
-                Evaluate::regularReturn($code, $getLine);
+            case Token::D_VEC3D:
+                Evaluate::fromObject($mapped, $code, $getLine);
                 break;
 
             case 'object':
@@ -103,7 +102,7 @@ class T_VARIABLE extends TAbstract {
                 );
                 break;
 
-            case 'integer':
+            case Token::D_INTEGER:
                 Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                 break;
             case 'constant':
@@ -172,12 +171,8 @@ class T_VARIABLE extends TAbstract {
         }
 
         //TODO: unknown code sequence... lookup needed
-        $code[] = '0f000000';
-        $code[] = '02000000';
-        $code[] = '18000000';
-        $code[] = '01000000';
-        $code[] = '04000000';
-        $code[] = '02000000';
+
+        Evaluate::variableObjectUnknownCommand($code, $getLine);
 
         return $code;
 

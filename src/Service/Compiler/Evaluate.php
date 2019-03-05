@@ -582,5 +582,14 @@ class Evaluate {
     }
 
 
+    static public function variableObjectUnknownCommand( &$code, \Closure $getLine){
+        $code[] = '0f000000';
+        $code[] = '02000000';
+        $code[] = '18000000';
+        $code[] = '01000000';
+        $code[] = '04000000';
+        $code[] = '02000000';
 
+
+    }
 }

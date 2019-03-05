@@ -40,7 +40,7 @@ class T_FUNCTION {
 
                 switch ($mappedTo['objectType']) {
 
-                    case 'integer':
+                    case Token::D_INTEGER:
                         Evaluate::regularReturn($code, $getLine);
                         break;
                 }
@@ -112,7 +112,7 @@ class T_FUNCTION {
 
                 switch ($mapping['type']){
                     case 'real':
-                    case 'integer':
+                    case Token::D_INTEGER:
                     case 'object':
                     case 'stringarray':
                         $code[] = $getLine($this->getFunction('writedebug' . $mapping['type'] )['offset']);
@@ -303,7 +303,7 @@ class T_FUNCTION {
              */
             if (
                 !isset($function['return']) || (
-                    $function['return'] != Token::T_VEC3D &&
+                    $function['return'] != Token::D_VEC3D &&
                     $function['return'] != "string"
                 )
             ){
