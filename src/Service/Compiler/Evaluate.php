@@ -239,17 +239,6 @@ class Evaluate {
 
 
 
-
-    static public function toLevelVar( $offset, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] toLevelVar ');
-
-        $code[] = $getLine('1a000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
-        $code[] = $getLine('04000000', false, $debugMsg);
-    }
-
-
     static public function fromCustomFunction($name, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromCustomFunction] ' . $name);
 
@@ -293,22 +282,6 @@ class Evaluate {
 
     }
 
-    static public function toGameVar( $node, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[T_ASSIGN] toGameVar ');
-
-        $code[] = $getLine('1d000000', false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-
-        //todo hier muss der offset verbaut werden
-        if ($node['value'] == "willie_game_int"){
-            $code[] = $getLine('30000000', false, $debugMsg . 'right offset missed');
-        }else{
-            $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed');
-        }
-
-        $code[] = $getLine('04000000', false, $debugMsg);
-
-    }
 
     static public function fromGameVar($mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromGameVar] ');
@@ -352,7 +325,7 @@ class Evaluate {
 
     }
 
-    static public function fromFinedANameforMeTodoSecondAgain($mapped, &$code, \Closure $getLine){
+    static public function storeInteger($mapped, &$code, \Closure $getLine){
 
         $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
 
@@ -364,16 +337,6 @@ class Evaluate {
 
     }
 
-    static public function fromFinedANameforMeTodoThird($mapped, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
-
-        $code[] = $getLine($mapped['section'] == "header" ? '16000000' : '15000000');
-
-        $code[] = $getLine('04000000', false, $debugMsg);
-        $code[] = $getLine($mapped['offset'], false, $debugMsg);
-        $code[] = $getLine('01000000', false, $debugMsg);
-
-    }
 
     static public function fromObject($mapped, &$code, \Closure $getLine){
 
@@ -414,6 +377,46 @@ class Evaluate {
     }
 
 
+
+
+
+
+    static public function toLevelVar( $offset, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toLevelVar ');
+
+        $code[] = $getLine('1a000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine( $offset, false, $debugMsg . 'offset' );
+        $code[] = $getLine('04000000', false, $debugMsg);
+    }
+
+    static public function toGameVar( $node, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toGameVar ');
+
+        $code[] = $getLine('1d000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+
+        //todo hier muss der offset verbaut werden
+        if ($node['value'] == "willie_game_int"){
+            $code[] = $getLine('30000000', false, $debugMsg . 'right offset missed');
+        }else{
+            $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed');
+        }
+
+        $code[] = $getLine('04000000', false, $debugMsg);
+
+    }
+
+    static public function toNumeric($mapped, &$code, \Closure $getLine){
+        $debugMsg = sprintf('[toNumeric] ');
+
+        $code[] = $getLine($mapped['section'] == "header" ? '16000000' : '15000000');
+
+        $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+    }
+
     static public function toObject( &$code, \Closure $getLine){
         $debugMsg = sprintf('[T_ASSIGN] toObject ');
 
@@ -435,11 +438,9 @@ class Evaluate {
         $code[] = $getLine('01000000', false, $debugMsg);
 
         self::returnCache($code, $getLine);
+
         $code[] = $getLine('44000000', false, $debugMsg);
     }
-
-
-
 
     static public function toHeaderStringArray( $offset, $size, &$code, \Closure $getLine){
 

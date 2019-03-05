@@ -1295,8 +1295,6 @@ class NewCompiler
                 }
             }
 
-
-            if (strtolower($varType) == "tlevelstate") $varType = "tLevelState";
             if ($varType == "stringarray") $varType = "string";
 
 
