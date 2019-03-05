@@ -316,6 +316,7 @@ class Evaluate {
     static public function fromFinedANameforMeTodoSecond($mapped, &$code, \Closure $getLine){
 
         $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
+//        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ' . $mapped['type']);
 
         $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
 

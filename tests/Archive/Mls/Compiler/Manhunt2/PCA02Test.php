@@ -26,6 +26,19 @@ class PCA02Test extends KernelTestCase
         $levelScriptCompiled = $compiler->parse($mhls[0]['SRCE'], false, 'mh2');
 
 
+
+        if ($mhls[0]['CODE'] != $levelScriptCompiled['CODE']){
+            foreach ($mhls[0]['CODE'] as $index => $item) {
+                if ($levelScriptCompiled['CODE'][$index] == $item){
+                    echo ($index + 1) . '->' . $item . " " . $levelScriptCompiled['CODE'][$index]->debug . "\n";
+                }else{
+                    echo "MISMATCH need |" . $item . "| got |" . $levelScriptCompiled['CODE'][$index] . " " . $levelScriptCompiled['CODE'][$index]->debug . "|\n";
+                }
+            }
+            exit;
+        }
+
+
         foreach ($levelScriptCompiled as $index => $section) {
 
             //only used inside the compiler
@@ -54,36 +67,30 @@ class PCA02Test extends KernelTestCase
                 $index . " Mismatch"
             );
         }
-return;
-        $test = 58; // operator not found
-//        $test = 68; // unable to handle T_ASSIGN
-//        $test = 82; // T_VARIABLE: unable to find variable offset for bLockerTutDisplayed
-//        $test = 83; // T_VARIABLE: unable to find variable offset for bLockerTutDisplayed
-//        $test = 94;
-//        $test = 97;
+
+        $test = 4; // operator not found
 
 
 //        $test = 37;
-        for($i = 0; $i < 2 ; $i++){
-//        for($i = $test; $i < $test+1 ; $i++){
+//        for($i = 0; $i < 2 ; $i++){
+        for($i = $test; $i < $test+1 ; $i++){
             $testScript = $mhls[$i];
 
             //compile a other script based on the levelscript
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, 'mh2');
 
 
-
             if ($testScript['CODE'] != $compiled['CODE']){
                 foreach ($testScript['CODE'] as $index => $item) {
                     if ($compiled['CODE'][$index] == $item){
-                        echo ($index + 1) . '->' . $item . "\n";
+                        echo ($index + 1) . '->' . $item . " " . $compiled['CODE'][$index]->debug . "\n";
                     }else{
-                        echo "MISMATCH need |" . $item . "| got |" . $compiled['CODE'][$index] . "|\n";
+                        echo "MISMATCH need |" . $item . "| got |" . $compiled['CODE'][$index] . " " . $compiled['CODE'][$index]->debug . "|\n";
                     }
                 }
                 exit;
             }
-//exit;
+
             $this->assertEquals(
                 $testScript['CODE'],
                 $compiled['CODE']

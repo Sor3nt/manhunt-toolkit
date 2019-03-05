@@ -135,6 +135,11 @@ class T_VARIABLE extends TAbstract {
 
                 }else if($mapped['isGameVar']) {
                     Evaluate::fromGameVar($mapped, $code, $getLine);
+
+                }else if($mapped['objectType'] == 'real') {
+                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
+                    Evaluate::regularReturn($code, $getLine);
+
                 }else if($mapped['objectType'] == 'string') {
 
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);

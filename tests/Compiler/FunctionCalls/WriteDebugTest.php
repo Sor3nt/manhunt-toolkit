@@ -149,9 +149,9 @@ class WriteDebugTest extends KernelTestCase
         if ($compiled['CODE'] != $expected){
             foreach ($compiled['CODE'] as $index => $item) {
                 if ($expected[$index] == $item){
-                    echo ($index + 1) . '->' . $item . "\n";
+                    echo ($index + 1) . '->' . $item . " " . $item->debug . "\n";
                 }else{
-                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . "\n";
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . " " . $compiled['CODE'][$index]->debug . "\n";
                 }
             }
             exit;
