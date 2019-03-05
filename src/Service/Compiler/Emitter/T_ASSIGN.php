@@ -186,7 +186,6 @@ class T_ASSIGN {
 
         }else if($mapped['isLevelVar']) {
             Evaluate::toLevelVar($mapped['offset'], $code, $getLine);
-
         }else {
             Evaluate::toNumeric($mapped, $code, $getLine);
         }

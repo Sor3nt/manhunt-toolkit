@@ -4,6 +4,7 @@ namespace App\Service\Compiler\Emitter;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
+use App\Service\Helper;
 
 class T_FUNCTION {
 
@@ -30,10 +31,21 @@ class T_FUNCTION {
 
             switch ($mappedTo['objectType']) {
 
+                case 'customFunction':
+
+                    $code[] = $getLine('12000000', false, '');
+                    $code[] = $getLine('02000000', false, '');
+                    $code[] = $getLine('00000000', false, '');
+
+                    Evaluate::stringReturn($code, $getLine);
+                    break;
                 case Token::D_INTEGER:
                     Evaluate::regularReturn($code, $getLine);
                     break;
             }
+
+
+
         }
 
     }
@@ -159,27 +171,6 @@ class T_FUNCTION {
         $debugMsg = '[T_FUNCTION] map ';
         $code = [ ];
 
-        try {
-            return $emitter([
-                'type' => Token::T_VARIABLE,
-                'value' => $node['value']
-            ]);
-
-        }catch(\Exception $e){
-
-            if (strpos($e->getMessage(), 'unable to find variable') == false){
-                throw $e;
-            }
-        }
-
-        /**
-         * Special WriteDebug handling
-         */
-        if ($node['value'] == "writedebug"){
-            return $this->handleWriteDebugCall($node, $getLine, $emitter, $data);
-        }
-
-        $forceFloatOrder = $this->getForceFloat($node['value']);
 
         $isProcedure = false;
         $isCustomFunction = false;
@@ -199,8 +190,31 @@ class T_FUNCTION {
                     $isCustomFunction = true;
                     break;
             }
+        }else{
+            try {
+                return $emitter([
+                    'type' => Token::T_VARIABLE,
+                    'value' => $node['value']
+                ]);
 
+            }catch(\Exception $e){
+
+                if (strpos($e->getMessage(), 'unable to find variable') == false){
+                    throw $e;
+                }
+            }
         }
+
+
+        /**
+         * Special WriteDebug handling
+         */
+        if ($node['value'] == "writedebug"){
+            return $this->handleWriteDebugCall($node, $getLine, $emitter, $data);
+        }
+
+        $forceFloatOrder = $this->getForceFloat($node['value']);
+
 
         if (isset($node['params']) && count($node['params'])){
 
@@ -262,8 +276,22 @@ class T_FUNCTION {
         if ($isProcedure || $isCustomFunction) {
             $procedureOffset = $mappedToBlock['offset'];
 
-            Evaluate::gotoBlock($node['value'], $procedureOffset * 4, $code, $getLine);
+//            Evaluate::gotoBlock($node['value'], $procedureOffset * 4, $code, $getLine);
 
+            $debugMsg = sprintf('[T_FUNCTION] map: call procedure/customFunction %s', $node['value']);
+
+            $code[] = $getLine('10000000', false, $debugMsg); //procedure
+            $code[] = $getLine('04000000', false, $debugMsg); //procedure
+            $code[] = $getLine('11000000', false, $debugMsg); //procedure
+            $code[] = $getLine('02000000', false, $debugMsg); //procedure
+            $code[] = $getLine('00000000', false, $debugMsg); //procedure
+            $code[] = $getLine('32000000', false, $debugMsg); //procedure
+            $code[] = $getLine('02000000', false, $debugMsg); //procedure
+            $code[] = $getLine('1c000000', false, $debugMsg); //procedure
+            $code[] = $getLine('10000000', false, $debugMsg); //procedure
+            $code[] = $getLine('02000000', false, $debugMsg); //procedure
+            $code[] = $getLine('39000000', false, $debugMsg); //procedure
+            $code[] = $getLine(Helper::fromIntToHex($procedureOffset * 4), false, $debugMsg . ' (offset)'); //procedure offset
             return $code;
         }
 

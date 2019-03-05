@@ -320,8 +320,15 @@ class Evaluate {
 
     static public function fromFinedANameforMeTodoSecond($mapped, &$code, \Closure $getLine){
 
-        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
-//        $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ' . $mapped['type']);
+        if (isset($mapped['name'])){
+            $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ' . $mapped['name']);
+
+        }else if (isset($mapped['type'])){
+            $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ' . $mapped['type']);
+
+        }else{
+            $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
+        }
 
         $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
 

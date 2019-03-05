@@ -21,6 +21,7 @@ class T_CUSTOM_FUNCTION {
         /**
          * generate the needed bytes for the script
          */
+
         $sum = 0;
         foreach ($data['variables'] as $variable) {
 
@@ -45,7 +46,6 @@ class T_CUSTOM_FUNCTION {
         $varCurrent = 0;
         $vars = [];
         if (isset($node['vars'])){
-
             while ($varCurrent < count($node['vars'])) {
                 $varToken = $node['vars'][$varCurrent];
 
@@ -87,11 +87,27 @@ class T_CUSTOM_FUNCTION {
                 $var['offset'] = substr(Helper::fromIntToHex($varOffset),0, 8);
                 $var['section'] = 'script';
                 $var['type'] = 'customFunction';
+                $var['objectType'] = 'customFunction';
+                $var['isLevelVar'] = false;
+                $var['isGameVar'] = false;
+                $var['isArg'] = false;
                 $varOffset -= 4;
             }
         }
 
-        Evaluate::emitBlock($node['body'], $code, $emitter, $debugMsg);
+        foreach ($node['body'] as $innerNode) {
+            $resultCode = $emitter( $innerNode, true, [ 'customFunctionVars' => $vars ] );
+
+            if (is_null($resultCode)){
+                throw new \Exception('Return was null, a emitter missed a return statement ?');
+            }
+
+            foreach ($resultCode as $line) {
+                $line->debug = $debugMsg . ' ' . $line->debug;
+                $code[] = $line;
+            }
+        }
+
 
         Evaluate::fromFinedANameforMeTodoSecond([
             'section' => 'script',
