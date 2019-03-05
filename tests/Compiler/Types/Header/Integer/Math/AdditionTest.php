@@ -55,7 +55,7 @@ class AdditionTest extends KernelTestCase
             '04000000', //unknown
 
 
-            '15000000', //unknown
+            '16000000', //unknown
             '04000000', //unknown
             '00000000', //unknown
             '01000000', //unknown
@@ -77,9 +77,9 @@ class AdditionTest extends KernelTestCase
         if ($compiled['CODE'] != $expected){
             foreach ($compiled['CODE'] as $index => $item) {
                 if ($expected[$index] == $item){
-                    echo ($index + 1) . '->' . $item . "\n";
+                    echo ($index + 1) . '->' . $item . " " . $item->debug . "\n";
                 }else{
-                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . "\n";
+                    echo "MISSMATCH need " . $expected[$index] . " got " . $compiled['CODE'][$index] . " " . $compiled['CODE'][$index]->debug . "\n";
                 }
             }
             exit;

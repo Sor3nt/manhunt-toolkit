@@ -58,7 +58,8 @@ class SubstractionTest extends KernelTestCase
             '11000000', //unknown
             '01000000', //unknown
             '04000000', //unknown
-            '15000000', //unknown
+
+            '16000000', //unknown
             '04000000', //unknown
             '00000000', //unknown
             '01000000', //unknown

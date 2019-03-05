@@ -134,25 +134,30 @@ class Evaluate {
 
         if ($type == Token::T_ADDITION) {
 
-            $code[] = $getLine('31000000', false, $debugMsg . 'int T_ADDITION');
+            $code[] = $getLine('31000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
 
         }else if ($type == Token::T_MULTIPLY){
-            $code[] = $getLine('35000000', false, $debugMsg . 'int T_MULTIPLY');
-            $code[] = $getLine('04000000', false, $debugMsg . 'int T_MULTIPLY');
+            $code[] = $getLine('35000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg);
+
+            self::regularReturn($code, $getLine);
 
         }else if ($type == Token::T_SUBSTRACTION){
 
-            $code[] = $getLine('33000000', false, $debugMsg . 'int T_SUBSTRACTION');
+            $code[] = $getLine('33000000', false, $debugMsg);
 
-            $code[] = $getLine('04000000', false, $debugMsg . 'int T_SUBSTRACTION');
-            $code[] = $getLine('01000000', false, $debugMsg . 'int T_SUBSTRACTION');
-            $code[] = $getLine('11000000', false, $debugMsg . 'int T_SUBSTRACTION');
+            $code[] = $getLine('04000000', false, $debugMsg);
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('11000000', false, $debugMsg);
+
+            $code[] = $getLine('01000000', false, $debugMsg);
+            $code[] = $getLine('04000000', false, $debugMsg );
         }else{
             throw new \Exception(sprintf('setIntMathOperator: operator not supported: %s', $type));
         }
 
-        $code[] = $getLine('01000000', false, $debugMsg . 'operation end');
-        $code[] = $getLine('04000000', false, $debugMsg . 'operation end');
 
     }
 
