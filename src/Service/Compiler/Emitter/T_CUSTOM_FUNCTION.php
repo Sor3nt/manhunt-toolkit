@@ -92,9 +92,7 @@ class T_CUSTOM_FUNCTION {
             }
         }
 
-        foreach ($node['body'] as $innerNode) {
-            Evaluate::emit($innerNode, $code, $emitter, $debugMsg);
-        }
+        Evaluate::emitBlock($node['body'], $code, $emitter, $debugMsg);
 
         Evaluate::fromFinedANameforMeTodoSecond([
             'section' => 'script',

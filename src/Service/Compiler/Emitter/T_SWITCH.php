@@ -39,14 +39,9 @@ class T_SWITCH {
         Evaluate::goto($calc['end'], $code, $getLine);
 
         foreach ($casesRev as $case) {
-
-            foreach ($case['body'] as $bodyNode) {
-
-                Evaluate::emit($bodyNode, $code, $emitter, '[T_SWITCH] map: ');
-            }
+            Evaluate::emitBlock($case['body'], $code, $emitter, '[T_SWITCH] map: ');
 
             Evaluate::goto($calc['end'], $code, $getLine);
-
         }
 
         return $code;

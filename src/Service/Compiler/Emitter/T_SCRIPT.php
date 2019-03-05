@@ -78,11 +78,7 @@ class T_SCRIPT {
             $code[] = $getLine('0f030000', false, $debugMsg . 'argument init 2');
         }
 
-        foreach ($node['body'] as $node) {
-
-            Evaluate::emit($node, $code, $emitter, $debugMsg);
-
-        }
+        Evaluate::emitBlock($node['body'], $code, $emitter, $debugMsg);
 
         /**
          * Create script end sequence

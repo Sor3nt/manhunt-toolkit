@@ -56,10 +56,7 @@ class T_FOR {
         // line offset for the IF end
         $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1, false, $debugMsg . '(end line)' );
 
-        foreach ($node['params'] as $entry) {
-            Evaluate::emit($entry, $code, $emitter, $debugMsg . ' params ');
-
-        }
+        Evaluate::emitBlock($node['params'], $code, $emitter, $debugMsg . ' params ');
 
         if (
             $data['game'] == MHT::GAME_MANHUNT

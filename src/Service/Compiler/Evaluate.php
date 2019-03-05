@@ -589,8 +589,14 @@ class Evaluate {
     }
 
 
-    static public function emit( $tokens, &$code, \Closure $emitter, $debugMsg = ""){
-        foreach ($emitter($tokens) as $item){
+    static public function emitBlock( $tokens, &$code, \Closure $emitter, $debugMsg = ""){
+        foreach ($tokens as $bodyNode) {
+            self::emit($bodyNode, $code, $emitter, '[T_SWITCH] map: ');
+        }
+    }
+
+    static public function emit( $token, &$code, \Closure $emitter, $debugMsg = ""){
+        foreach ($emitter($token) as $item){
             $item->debug = $debugMsg . ' ' . $item->debug;
             $code[] = $item;
         }
