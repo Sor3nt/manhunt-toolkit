@@ -591,7 +591,7 @@ class Evaluate {
 
     static public function emitBlock( $tokens, &$code, \Closure $emitter, $debugMsg = ""){
         foreach ($tokens as $bodyNode) {
-            self::emit($bodyNode, $code, $emitter, '[T_SWITCH] map: ');
+            self::emit($bodyNode, $code, $emitter, $debugMsg);
         }
     }
 

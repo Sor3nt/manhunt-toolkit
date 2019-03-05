@@ -50,9 +50,8 @@ class T_SCRIPT {
             $code[] = $getLine('00000000', false, $debugMsg . 'argument init');
             $code[] = $getLine('3f000000', false, $debugMsg . 'argument init');
             $code[] = $getLine('__END_OFFSET__', false, $debugMsg . 'argument end offset');
-//
+
             $lastLineIndex = count($code) - 1;
-//
 
             Evaluate::readIndex(0, $code, $getLine);
 
@@ -65,15 +64,12 @@ class T_SCRIPT {
 
             Evaluate::regularReturn($code, $getLine);
 
-
             $code[] = $getLine('0a030000', false, $debugMsg . 'argument init');
 
-
-            $code[] = $getLine('15000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('04000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('04000000', false, $debugMsg . 'argument init');
-            $code[] = $getLine('01000000', false, $debugMsg . 'argument init');
-
+            Evaluate::toNumeric([
+                'section' => 'script',
+                'offset' => '04000000'
+            ],$code, $getLine);
 
             $code[] = $getLine('0f030000', false, $debugMsg . 'argument init 2');
         }
