@@ -12,7 +12,7 @@ class Mls extends Archive {
 
     public $name = 'Levelscript';
 
-    public static $supported = 'mls';
+    public static $supported = ['mls', 'scc'];
 
     /**
      * @param $pathFilename
