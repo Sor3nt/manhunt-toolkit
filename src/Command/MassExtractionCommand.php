@@ -20,12 +20,17 @@ class MassExtractionCommand extends Command
     {
         $this->setDescription('Search and extract any supported file');
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
+        $this->addArgument('type', InputArgument::OPTIONAL, 'file type');
+
+        $this->addOption('flat');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
         $folder = realpath($input->getArgument('folder'));
+        $type = $input->getArgument('type');
+        $flat = $input->getOption('flat');
 
         $path = pathinfo($folder);
 
@@ -39,19 +44,28 @@ class MassExtractionCommand extends Command
         $resources = new Resources();
 
         $finder = new Finder();
-        $finder
-            ->name('/\.bin/i')
-            ->name('/\.col/i')
-            ->name('/\.dff/i')
-            ->name('/\.glg/i')
-            ->name('/\.gxt/i')
-            ->name('/\.ifp/i')
-            ->name('/\.inst/i')
-            ->name('/\.pak/i')
-            ->name('/\.tex/i')
-            ->name('/\.mls/i')
-            ->files()
-            ->in($folder);
+        if ( $type == null){
+            $finder
+                ->name('/\.bin/i')
+                ->name('/\.col/i')
+                ->name('/\.dff/i')
+                ->name('/\.glg/i')
+                ->name('/\.gxt/i')
+                ->name('/\.ifp/i')
+                ->name('/\.inst/i')
+                ->name('/\.pak/i')
+                ->name('/\.tex/i')
+                ->name('/\.mls/i')
+                ->files()
+                ->in($folder);
+        }else{
+            $finder
+                ->name('/\.' . $type . '/i')
+
+                ->files()
+                ->in($folder);
+        }
+
 
         foreach ($finder as $file) {
 
@@ -71,9 +85,16 @@ class MassExtractionCommand extends Command
 
             $originalExtension = $file->getExtension();
 
-            //prepare output folder
-            $outputTo = $outputFolder . '/' . $file->getRelativePath();
-            @mkdir($outputTo, 0777, true);
+            if ($flat){
+                //prepare output folder
+                $outputTo = $outputFolder . '/' . str_replace('/', '_', $file->getRelativePath());
+
+            }else{
+                //prepare output folder
+                $outputTo = $outputFolder . '/' . $file->getRelativePath();
+                @mkdir($outputTo, 0777, true);
+            }
+
 
             $results = $handler->unpack($resource->getInput(), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
 
@@ -88,10 +109,20 @@ class MassExtractionCommand extends Command
                     //we loop through dataset not a fileset
                     if ( is_numeric($relativeFilename) ){
 
-                        file_put_contents(
-                            $outputTo . '/' . $file->getFilename() . '.json',
-                            \json_encode($results, JSON_PRETTY_PRINT)
-                        );
+                        if ($flat) {
+
+                            file_put_contents(
+                                $outputTo . '_' . $file->getFilename() . '.json',
+                                \json_encode($results, JSON_PRETTY_PRINT)
+                            );
+                        }else{
+
+
+                            file_put_contents(
+                                $outputTo . '/' . $file->getFilename() . '.json',
+                                \json_encode($results, JSON_PRETTY_PRINT)
+                            );
+                        }
 
                         if (json_last_error() !== 0){
                             var_dump($results);
@@ -105,8 +136,12 @@ class MassExtractionCommand extends Command
                     }else{
                         $pathInfo = pathinfo($relativeFilename);
 
-                        $outputDir = $outputTo . '/' . str_replace('.', '#', $file->getFilename()) . '/' . $pathInfo['dirname'];
-                        @mkdir($outputDir, 0777, true);
+                        if ($flat) {
+                            $outputDir = $outputTo . '/' . str_replace('.', '#', $file->getFilename()) . '_' . $pathInfo['dirname'];
+                        }else{
+                            $outputDir = $outputTo . '/' . str_replace('.', '#', $file->getFilename()) . '/' . $pathInfo['dirname'];
+                            @mkdir($outputDir, 0777, true);
+                        }
 
                         if (isset($pathInfo['extension'])) {
                             $extension = ''; // we keep the extension from the given filename
@@ -122,7 +157,13 @@ class MassExtractionCommand extends Command
                         }
 
 
-                        file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
+
+                        if ($flat) {
+                            file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
+                        }else{
+                            file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
+
+                        }
                     }
 
                 }
@@ -130,10 +171,18 @@ class MassExtractionCommand extends Command
 
             }else{
 
-                file_put_contents(
-                    $outputTo . '/' . $file->getFilename(),
-                    $results
-                );
+                if ($flat) {
+                    file_put_contents(
+                        $outputTo . '_' . $file->getFilename(),
+                        $results
+                    );
+                }else{
+                    file_put_contents(
+                        $outputTo . '/' . $file->getFilename(),
+                        $results
+                    );
+
+                }
 
             }
 

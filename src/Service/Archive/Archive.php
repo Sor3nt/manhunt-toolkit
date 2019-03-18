@@ -65,6 +65,9 @@ abstract class Archive {
 
                 //filename match
                 if (in_array(strtolower($pathInfo['basename']), static::$supported)) return true;
+
+                //Extension match
+                if (in_array(strtolower($pathInfo['extension']), static::$supported)) return true;
             }
         }
 

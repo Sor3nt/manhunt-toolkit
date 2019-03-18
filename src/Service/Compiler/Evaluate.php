@@ -173,6 +173,8 @@ class Evaluate {
             $code[] = $getLine('51000000', false, $debugMsg);
         }else if ($type == Token::T_MULTIPLY) {
             $code[] = $getLine('52000000', false, $debugMsg);
+        }else if ($type == Token::T_DIVISION) {
+            $code[] = $getLine('53000000', false, $debugMsg);
         }else{
             throw new \Exception('divide not implemented');
         }

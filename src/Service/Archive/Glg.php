@@ -7,7 +7,7 @@ use App\Service\NBinary;
 class Glg extends Archive {
     public $name = 'Settings File';
 
-    public static $supported = 'glg';
+    public static $supported = ['glg', 'ini'];
 
     /**
      * @param $pathFilename
@@ -53,11 +53,14 @@ class Glg extends Archive {
                 if (empty($singleOption)) continue;
 
                 if (strpos($singleOption, ' ') !== false){
-                    preg_match('/(.*)\s(.*)/i', $singleOption, $singleOptionRow);
+
+                    $attr = substr($singleOption, 0 ,strpos($singleOption, ' '));
+                    $value = substr($singleOption, strpos($singleOption, ' ') + 1);
+
 
                     $options[] = [
-                        'attr' => $singleOptionRow[1],
-                        'value' => $singleOptionRow[2],
+                        'attr' => $attr,
+                        'value' => $value
                     ];
                 }else{
                     $options[] = [

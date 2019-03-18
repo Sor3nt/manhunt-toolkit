@@ -73,6 +73,19 @@ class NBinary{
 
     }
 
+
+    public function overwrite($bytes, $type){
+        $add = $this->pack($bytes, $type);
+
+        $neededLength = mb_strlen($add, '8bit');
+
+        $before = substr($this->hex, 0, $this->current * 2);
+        $after = substr($this->hex, ($this->current + $neededLength) * 2);
+
+        $this->hex = $before . bin2hex($add) . $after;
+        $this->binary = hex2bin($this->hex);
+    }
+
     public function write($bytes, $type){
         $add = $this->pack($bytes, $type);
         $this->binary .= $add;

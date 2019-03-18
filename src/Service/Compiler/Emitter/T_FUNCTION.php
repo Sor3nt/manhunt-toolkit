@@ -302,7 +302,7 @@ class T_FUNCTION {
             if (
                 !isset($function['return']) || (
                     $function['return'] != Token::T_VEC3D &&
-                    $function['return'] != "string"
+                    $function['return'] != Token::T_STRING
                 )
             ){
                 Evaluate::regularReturn($code, $getLine);
