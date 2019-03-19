@@ -16,7 +16,7 @@ class Manhunt2Exe {
 
     private $patches = [
         'noJitter' => [ [ '915944' => ['84' => '85'] ] ],
-        'whitenoise' => [ [ '2527659' => ['a0a9aa4040' => '0000000000'] ] ],
+//        'whitenoise' => [ [ '2527659' => ['a0a9aa4040' => '0000000000'] ] ],
 
         //Credits: Ermaccer
         'sixtyFrames' => [ [ '53923' => ['2841' => '5682'] ] ],
@@ -41,12 +41,17 @@ class Manhunt2Exe {
         ],
 
 
-        'funky' => [
+        'funMode' => [
             [
                 //set the variable to 0x20 to activate the mode
                 '1503344' => ['c3cccccccccccccc' => 'c60540be760020c3'],
+
+                //blood to flowers
+                '2828005' => ['01' => '00'],
+
             ]
         ],
+
 
         'skipMenuSpecial' => [
             [
