@@ -17,6 +17,7 @@ class Extract {
             $result = [];
 
             $entryIndex = $this->parseEntryIndex($binary);
+
             $entry = $this->parseEntry($binary);
             $bone = $this->parseBone($binary);
 
@@ -66,13 +67,40 @@ class Extract {
 
             if ($entryIndex['nextEntryIndexOffset'] != 0x20){
                 $binary->current = $entryIndex['nextEntryIndexOffset'];
-                $results[] = $result;
             }
+
+            $results[] = $result;
         }while($entryIndex['nextEntryIndexOffset'] != 0x20);
 
-        return $results;
+
+        $table = $this->parseTable($binary, $mdlHeader);
+
+        return $this->convertEntriesToSingleMdl( $results );
     }
 
+    public function convertEntriesToSingleMdl( $mdls ){
+        $build = new Build();
+
+        $singleMdls = [];
+
+        foreach ($mdls as $mdl) {
+            $singleMdls[] = $build->build([$mdl]);
+        }
+
+        return $singleMdls;
+    }
+
+
+    private function parseTable(NBinary $binary, $mdlHeader ){
+        $binary->current = $mdlHeader['offsetTable'];
+
+        $offsets = [];
+        for($i = 0; $i < $mdlHeader['numTable']; $i++){
+            $offsets[] = $binary->consume(4, NBinary::INT_32);
+        }
+
+        return $offsets;
+    }
 
     private function parseBoneTransDataIndex(NBinary $binary, $boneTransDataIndexOffset ){
 
@@ -108,7 +136,6 @@ class Extract {
 
             $binary->current = $material['TexNameOffset'];
             $material['TexName'] = $binary->getString();
-
             $materials[] = $material;
 
             $binary->current = $nextMaterialOffset;
@@ -122,8 +149,8 @@ class Extract {
             'MaterialOffset' => $binary->consume(4, NBinary::INT_32),
             'NumMaterials' => $binary->consume(4, NBinary::INT_32),
             'BoneTransDataIndexOffset' => $binary->consume(4, NBinary::INT_32),
-            'unknown' => $binary->consume(4, NBinary::FLOAT_32),
-            'unknown2' => $binary->consume(4, NBinary::INT_32),
+            'unknown' => $binary->consume(4, NBinary::HEX),
+            'unknown2' => $binary->consume(4, NBinary::HEX),
             'Position' => $binary->consume(12, NBinary::HEX),
             'modelChunkFlag' => $binary->consume(4, NBinary::INT_32),
             'modelChunkSize' => $binary->consume(4, NBinary::INT_32),
@@ -243,7 +270,7 @@ class Extract {
             'z' => $binary->consume(2, NBinary::INT_16),
         ];
 
-        $binary->current += $binary->current % 4;
+        $binary->current += 2;
 
         return $data;
 
@@ -281,7 +308,8 @@ class Extract {
             'objectOffset' => $binary->consume(4, NBinary::INT_32),
             'rootEntryOffset' => $binary->consume(4, NBinary::INT_32),
             'zero' => $binary->consume(4, NBinary::INT_32),
-            'unknown' => $binary->consume(4, NBinary::INT_32)//always  0x3
+            'unknown' => $binary->consume(4, NBinary::INT_32),//always  0x3
+            'unknown2' => $binary->consume(4, NBinary::INT_32)
         ];
 
     }
@@ -295,6 +323,7 @@ class Extract {
         $animationDataIndexOffset = $binary->consume(4, NBinary::INT_32);
 
         $boneName = $binary->consume(40, NBinary::HEX);
+
         $matrix4X4_ParentChild = $binary->consume(16 * 4, NBinary::HEX);
         $matrix4X4_WorldPos = $binary->consume(16 * 4, NBinary::HEX);
 
@@ -306,7 +335,9 @@ class Extract {
             $binary->current = $subBoneOffset;
 
             $subBone = $this->parseBone($binary);
-        }else if ($nextBrotherBoneOffset != 0){
+        }
+
+        if ($nextBrotherBoneOffset != 0){
 
             $binary->current = $nextBrotherBoneOffset;
             $nextBrotherBone = $this->parseBone($binary);
@@ -316,6 +347,8 @@ class Extract {
             $binary->current = $animationDataIndexOffset;
 
             $animationDataIndex = $this->parseAnimationDataIndex($binary);
+
+
         }
 
         return [
@@ -427,7 +460,9 @@ class Extract {
             'offsetTable' => $binary->consume(4, NBinary::INT_32),
             'offsetTable2' => $binary->consume(4, NBinary::INT_32),
             'numTable' => $binary->consume(4, NBinary::INT_32),
-            'firstEntryIndexOffset' => $binary->consume(4, NBinary::INT_32, 8), // skip 8 zero
+            'zero1' => $binary->consume(4, NBinary::INT_32),
+            'zero2' => $binary->consume(4, NBinary::INT_32),
+            'firstEntryIndexOffset' => $binary->consume(4, NBinary::INT_32),
             'lastEntryIndexOffset' => $binary->consume(4, NBinary::INT_32),
             'unknown' => $binary->consume(8, NBinary::HEX)
         ];

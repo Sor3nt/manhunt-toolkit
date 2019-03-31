@@ -90,6 +90,7 @@ class NBinary{
         $add = $this->pack($bytes, $type);
         $this->binary .= $add;
         $this->hex .= bin2hex($add);
+        $this->current = strlen($this->hex) / 2;
     }
 
     public function unpack($data, $type){
@@ -225,6 +226,7 @@ class NBinary{
     public function concat( NBinary $binary){
         $this->binary .= $binary->binary;
         $this->hex .= bin2hex($binary->binary);
+        $this->current = strlen($this->hex) / 2;
 
     }
 }
