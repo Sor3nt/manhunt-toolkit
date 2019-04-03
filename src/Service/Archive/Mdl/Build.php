@@ -267,7 +267,6 @@ class Build {
     private function createBone(NBinary $binary, $data, $rootBoneOffset, $parentBoneOffset = 0 ){
 
         $possibleNextParentBoneOffset = $binary->current;
-        var_dump($data['parentBoneOffset'] == $parentBoneOffset);
 
         $binary->write($data['unknown'], NBinary::HEX);
 
@@ -279,9 +278,7 @@ class Build {
         //nextBrotherBoneOffset (will be overwritten when needed)
         $binary->write(0, NBinary::INT_32);
 
-        $parentBoneOffsetPosition = $binary->current;
-        $binary->write($data['parentBoneOffset'], NBinary::INT_32);
-
+        $binary->write($parentBoneOffset, NBinary::INT_32);
         $binary->write($rootBoneOffset, NBinary::INT_32);
 
         //subBoneOffset
@@ -304,23 +301,14 @@ class Build {
         $binary->write($data['matrix4X4_WorldPos'], NBinary::HEX);
 
         if ($data['subBone'] !== false) {
-
-//            $this->offsets[$parentBoneOffsetPosition] = $possibleNextParentBoneOffset;
-            echo "SUB";
-//            var_dump("subBone ? " . $binary->current . "  " . $binary->unpack(hex2bin($data['boneName']), NBinary::STRING));
-//            var_dump($data['parentBoneOffset'] . ' ' . $binary->current);
-
             $this->createBone($binary, $data['subBone'], $rootBoneOffset, $possibleNextParentBoneOffset);
         }
 
         if ($data['nextBrotherBone'] !== false){
 
             $this->offsets[$nextBrotherBoneOffsetPosition] = $binary->current;
-//            var_dump($binary->current . " need " . $nextNeed);
-//            var_dump("nextBrotherBone ? " . $binary->current . "  " . $binary->unpack(hex2bin($data['boneName']), NBinary::STRING));
-            $this->createBone($binary, $data['nextBrotherBone'], $rootBoneOffset, $parentBoneOffset);
 
-            //$nextBrotherBoneOffsetPosition
+            $this->createBone($binary, $data['nextBrotherBone'], $rootBoneOffset, $parentBoneOffset);
         }
 
         if ($data['animationDataIndex'] !== false) {
