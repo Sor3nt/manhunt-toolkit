@@ -5,9 +5,6 @@ use App\Service\NBinary;
 
 class Build {
 
-    private $nextObjectOffsetPosition;
-
-
     private $offsets = [];
 
     public function build( $mdls ){
@@ -58,19 +55,21 @@ class Build {
 
                     $binary->write(0, NBinary::INT_32);
 
+                    $materialOffset = false;
                     if ($object['materials'] !== false){
-                        $this->createMaterials($binary, $object['materials']);
+                        $materialOffset = $this->createMaterials($binary, $object['materials']);
                     }else{
                         $binary->write(0, NBinary::INT_32);
                     }
 
+                    $boneTrabsDataOffset = false;
                     if ($object['boneTransDataIndex']){
-                        $this->createBoneTransDataIndex($binary, $object['boneTransDataIndex']);
+                        $boneTrabsDataOffset = $this->createBoneTransDataIndex($binary, $object['boneTransDataIndex']);
                     }
 
                     $this->offsets[$objectOffsetPosition] = $binary->current;
 
-                    $this->createObject($binary, $object['object']);
+                    $this->createObject($binary, $object['object'], $materialOffset, $object['materials'], $boneTrabsDataOffset);
 
                     //save objectInfo nextOffset
                     if (count($mdl['objects']) - 1 == $index){
@@ -107,9 +106,13 @@ class Build {
 
 
     private function createBoneTransDataIndex(NBinary $binary, $boneTransDataIndex ){
-        $binary->write($boneTransDataIndex['numBone'], NBinary::INT_32);
-        $binary->write($boneTransDataIndex['BoneTransDataOffset'], NBinary::INT_32);
 
+        $boneTrabsDataOffset = $binary->current;
+
+        $binary->write($boneTransDataIndex['numBone'], NBinary::INT_32);
+
+        //BoneTransDataOffset
+        $binary->write($binary->current + 12, NBinary::INT_32);
 
         $binary->write($binary->getPadding("\x00", 16), NBinary::BINARY);
 
@@ -117,10 +120,13 @@ class Build {
             $binary->write($matrix, NBinary::HEX);
         }
 
+        return $boneTrabsDataOffset;
     }
 
 
     private function createMaterials(NBinary $binary, $materials ){
+        $materialOffset = $binary->current;
+
         foreach ($materials as $material) {
             $binary->write($material['TexNameOffset'], NBinary::INT_32);
             $binary->write($material['Color_ARGB1'], NBinary::HEX);
@@ -129,14 +135,21 @@ class Build {
 
         $binary->write($binary->getPadding("\x00", 16), NBinary::BINARY);
 
-
+        return $materialOffset;
     }
 
-    private function createObject(NBinary $binary, $object ){
+    private function createObject(NBinary $binary, $object, $materialOffset, $materials, $boneTransDataOffset ){
 
-        $binary->write($object['MaterialOffset'], NBinary::INT_32);
-        $binary->write($object['NumMaterials'], NBinary::INT_32);
-        $binary->write($object['BoneTransDataIndexOffset'], NBinary::INT_32);
+        $binary->write($materialOffset, NBinary::INT_32);
+
+        //NumMaterials
+        $binary->write(count($materials), NBinary::INT_32);
+
+        if ($boneTransDataOffset == false){
+            $binary->write(0, NBinary::INT_32);
+        }else{
+            $binary->write($boneTransDataOffset, NBinary::INT_32);
+        }
 
         $binary->write($object['unknown'], NBinary::HEX);
         $binary->write($object['unknown2'], NBinary::HEX);
@@ -148,7 +161,8 @@ class Build {
 
         $binary->write($object['zero'], NBinary::INT_32);
 
-        $binary->write($object['numMaterialIDs'], NBinary::INT_32);
+        //numMaterialIDs
+        $binary->write(count($materials), NBinary::INT_32);
         $binary->write($object['numFaceIndex'], NBinary::INT_32);
 
         $binary->write($object['boundingSphereXYZ'], NBinary::HEX);
@@ -320,28 +334,42 @@ class Build {
 
             $this->offsets[$animationDataIndexOffsetPosition] = $binary->current;
 
-            $this->createAnimationDataIndex($binary, $data['animationDataIndex']);
+            $this->createAnimationDataIndex($binary, $data['animationDataIndex'], $rootBoneOffset);
         }
 
     }
 
 
-    private function createAnimationDataIndex(NBinary $binary, $animationDataIndex ){
+    private function createAnimationDataIndex(NBinary $binary, $animationDataIndex, $rootBoneOffset ){
 
         $binary->write($animationDataIndex['numBone'], NBinary::INT_32);
         $binary->write($animationDataIndex['unknown'], NBinary::INT_32);
-        $binary->write($animationDataIndex['rootBoneOffset'], NBinary::INT_32);
-        $binary->write($animationDataIndex['animationDataOffset'], NBinary::INT_32);
-        $binary->write($animationDataIndex['boneTransformOffset'], NBinary::INT_32);
+
+
+//        exit;
+
+        $binary->write($rootBoneOffset, NBinary::INT_32);
+
+        //animationDataOffset
+        $animationDataOffsetPosition = $binary->current;
+        $binary->write(0, NBinary::INT_32);
+
+
+        //boneTransformOffset
+        $boneTransformOffsetPosition = $binary->current;
+        $binary->write(0, NBinary::INT_32);
+
         $binary->write($animationDataIndex['zero'], NBinary::INT_32);
+
+        $this->offsets[$animationDataOffsetPosition] = $binary->current;
 
         if (count($animationDataIndex['animationData'])){
             foreach ($animationDataIndex['animationData'] as $data) {
-                $animationData = $this->parseAnimationData($data);
-                $binary->concat($animationData);
+                $this->parseAnimationData($binary, $data);
             }
         }
 
+        $this->offsets[$boneTransformOffsetPosition] = $binary->current;
         if (count($animationDataIndex['boneTransform'])){
             foreach ($animationDataIndex['boneTransform'] as $boneTransform) {
                 $binary->write($boneTransform, NBinary::HEX);
@@ -350,12 +378,11 @@ class Build {
         }
     }
 
-    private function parseAnimationData($animationData ){
-        $binary = new NBinary();
+    private function parseAnimationData(NBinary $binary, $animationData ){
         $binary->write($animationData['animationBoneId'], NBinary::INT_16);
         $binary->write($animationData['boneType'], NBinary::INT_16);
         $binary->write($animationData['BoneOffset'], NBinary::INT_32);
-        return $binary;
+
     }
 
 
