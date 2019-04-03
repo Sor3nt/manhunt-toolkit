@@ -36,7 +36,7 @@ class Extract {
                         'boneTransDataIndex' => false,
                     ];
 
-                    $objectInfo = $this->parseObjectInfo($binary);
+                    $objectInfo = $this->parseObjectInfo($bone, $binary);
 
                     $binary->current = $objectInfo['objectOffset'];
 
@@ -299,9 +299,19 @@ class Extract {
 
     }
 
-    private function parseObjectInfo(NBinary $binary ){
+    private function getParentBoneId($bone, $offset){
+        foreach ($this->createBonesOffsets as $index => $createBonesOffset) {
+            if ($createBonesOffset == $offset) return $index;
+        }
 
-        return [
+        die("getParentBoneId not found... bug :( ");
+        return false;
+
+    }
+
+    private function parseObjectInfo($bone, NBinary $binary ){
+
+        $data = [
             'nextObjectInfoOffset' => $binary->consume(4, NBinary::INT_32),
             'prevObjectInfoOffset' => $binary->consume(4, NBinary::INT_32),
             'objectParentBoneOffset' => $binary->consume(4, NBinary::INT_32),
@@ -312,9 +322,19 @@ class Extract {
             'unknown2' => $binary->consume(4, NBinary::INT_32)
         ];
 
+        $parentBoneId = $this->getParentBoneId($bone, $data['objectParentBoneOffset']);
+
+
+        $data['objectParentBoneIndex'] = $parentBoneId;
+
+        return $data;
+
     }
 
-    private function parseBone(NBinary $binary ){
+    private $createBonesOffsets = [];
+    private function parseBone(NBinary $binary, &$index = 0 ){
+        $this->createBonesOffsets[$index] = $binary->current;
+
         $unknown = $binary->consume(4, NBinary::HEX);
         $nextBrotherBoneOffset = $binary->consume(4, NBinary::INT_32);
         $parentBoneOffset = $binary->consume(4, NBinary::INT_32);
@@ -334,13 +354,15 @@ class Extract {
 
             $binary->current = $subBoneOffset;
 
-            $subBone = $this->parseBone($binary);
+            $index++;
+            $subBone = $this->parseBone($binary, $index);
         }
 
         if ($nextBrotherBoneOffset != 0){
 
             $binary->current = $nextBrotherBoneOffset;
-            $nextBrotherBone = $this->parseBone($binary);
+            $index++;
+            $nextBrotherBone = $this->parseBone($binary, $index);
         }
 
         if ($animationDataIndexOffset != 0){
