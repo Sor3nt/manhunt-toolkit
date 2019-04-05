@@ -74,7 +74,8 @@ class Extract {
 
 
         $table = $this->parseTable($binary, $mdlHeader);
-
+//var_dump(\json_encode($table));
+//exit;
         return $this->convertEntriesToSingleMdl( $results );
     }
 
