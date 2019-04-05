@@ -37,9 +37,7 @@ class Mdl extends Archive {
         }
 
         $extractor = new Extract();
-        $results = $extractor->get($binary);
-var_dump("end");
-exit;
+        return $extractor->get($binary);
 
     }
 

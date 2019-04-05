@@ -12,15 +12,24 @@ class Build {
 
         $binary = new NBinary();
 
-        $this->createMdlHeader($binary, $mdls, 134504);
+        $this->createMdlHeader($binary);
 
         $allTexNameOffsetPositions = [];
+        $fistMdlEntryOffset = 0;
         $fistMdlObjectEntryOffset = 0;
+        $lastMdlObjectEntryOffset = 0;
 
         foreach ($mdls as $mdlIndex => $mdl) {
 
-            $this->createEntryIndex($binary);
+            if ($mdlIndex == 0){
+                $fistMdlEntryOffset = $binary->current;
+            }
 
+            if ($mdlIndex == count($mdls) - 1){
+                $lastMdlObjectEntryOffset = $binary->current;
+            }
+
+            $this->createEntryIndex($binary);
             $objectInfoFirstEntryOffset = $binary->current + 20;
 
             $rootEntryOffset = $binary->current;
@@ -123,10 +132,27 @@ class Build {
             $binary->write($allTexNameOffsetPosition['name'] . "\x00", NBinary::BINARY);
         }
 
+
+        //update table position
+        $this->offsets[12] = $binary->current;
+        $this->offsets[16] = $binary->current;
+
+        //update table entry count
+        $this->offsets[20] = count($this->offsetTable);
+
+        //update first entry
+        $this->offsets[32] = $fistMdlEntryOffset;
+
+        //update last entry
+        $this->offsets[36] = $lastMdlObjectEntryOffset;
+
         //generate offset table
         foreach ($this->offsetTable as $offset) {
             $binary->write($offset, NBinary::INT_32);
         }
+
+        //update file size
+        $this->offsets[8] = $binary->current;
 
         //correct offsets
         foreach ($this->offsets as $offset => $value) {
@@ -135,9 +161,9 @@ class Build {
         }
 
 
-        file_put_contents("test.mdl", $binary->binary);
-        exit;
-//        return $binary->binary;
+//        file_put_contents("test.mdl", $binary->binary);
+//        exit;
+        return $binary->binary;
 
     }
 
@@ -323,9 +349,6 @@ class Build {
     private function createBone(NBinary $binary, $data, $rootBoneOffset, $parentBoneOffset = 0, &$index = 0 ){
 
 
-
-
-
         $this->createBonesOffsets[$index] = $binary->current;
 
         $possibleNextParentBoneOffset = $binary->current;
@@ -455,7 +478,7 @@ class Build {
     private function createEntryIndex( NBinary $binary ){
 
         //nextEntryIndexOffset, apply dummy value for now
-        //TODO
+        //point to the header FirstEntryIndexOffset
         $this->offsetTable[] = $binary->current;
         $binary->write(32, NBinary::INT_32);
 
@@ -475,37 +498,38 @@ class Build {
         $binary->write(0, NBinary::INT_32);
     }
 
-    public function createMdlHeader(NBinary $binary, $mdls, $fileSize){
+    public function createMdlHeader(NBinary $binary){
 
         //fourCC
         $binary->write("PMLC", NBinary::BINARY);
 
-        //const
+        //const, always 1
         $binary->write(1, NBinary::INT_32);
 
-//        //file size, apply dummy value for now
-        $binary->write($fileSize, NBinary::INT_32);
-//
-//        //offsetTable, apply dummy value for now
-        $binary->write(133784, NBinary::INT_32);
-//
-//        //offsetTable2, apply dummy value for now
-        $binary->write(133784, NBinary::INT_32);
-//
-//        //numTable, apply dummy value for now
-        $binary->write(180, NBinary::INT_32);
+        //file size
+        $binary->write(0, NBinary::INT_32);
+
+        //offsetTable
+        $binary->write(0, NBinary::INT_32);
+
+        //offsetTable2, same as offsetTable
+        $binary->write(0, NBinary::INT_32);
+
+        //numTable
+        $binary->write(0, NBinary::INT_32);
 
         $binary->write(0, NBinary::INT_32);
         $binary->write(0, NBinary::INT_32);
 
+        //FirstEntryIndexOffset
         $this->offsetTable[] = $binary->current;
+        $binary->write(0, NBinary::INT_32);
 
-        $binary->write(48, NBinary::INT_32);
-
+        //LastEntryIndexOffset
         $this->offsetTable[] = $binary->current;
+        $binary->write(0, NBinary::INT_32);
 
-        $binary->write(48, NBinary::INT_32);
-
+        //padding
         $binary->write(0, NBinary::INT_32);
         $binary->write(0, NBinary::INT_32);
 

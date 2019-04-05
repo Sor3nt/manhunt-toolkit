@@ -73,7 +73,7 @@ class Extract {
         }while($entryIndex['nextEntryIndexOffset'] != 0x20);
 
 
-        $table = $this->parseTable($binary, $mdlHeader);
+//        $table = $this->parseTable($binary, $mdlHeader);
 //var_dump(\json_encode($table));
 //exit;
         return $this->convertEntriesToSingleMdl( $results );
@@ -84,24 +84,24 @@ class Extract {
 
         $singleMdls = [];
 
-        foreach ($mdls as $mdl) {
-            $singleMdls[] = $build->build([$mdl]);
+        foreach ($mdls as $index => $mdl) {
+            $singleMdls['bla' . $index . '.mdl'] = $build->build([$mdl]);
         }
 
         return $singleMdls;
     }
 
-
-    private function parseTable(NBinary $binary, $mdlHeader ){
-        $binary->current = $mdlHeader['offsetTable'];
-
-        $offsets = [];
-        for($i = 0; $i < $mdlHeader['numTable']; $i++){
-            $offsets[] = $binary->consume(4, NBinary::INT_32);
-        }
-
-        return $offsets;
-    }
+//
+//    private function parseTable(NBinary $binary, $mdlHeader ){
+//        $binary->current = $mdlHeader['offsetTable'];
+//
+//        $offsets = [];
+//        for($i = 0; $i < $mdlHeader['numTable']; $i++){
+//            $offsets[] = $binary->consume(4, NBinary::INT_32);
+//        }
+//
+//        return $offsets;
+//    }
 
     private function parseBoneTransDataIndex(NBinary $binary, $boneTransDataIndexOffset ){
 
