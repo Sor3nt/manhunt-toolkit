@@ -166,6 +166,13 @@ class UnpackCommand extends Command
 
 
         $output->writeln(sprintf("\nExtracted to %s",  $outputTo));
+        $output->writeln(sprintf("\nUsed Memory %s",  $this->convertMemoryUsage(memory_get_usage())));
+    }
+
+    private function convertMemoryUsage($size)
+    {
+        $unit=array('b','kb','mb','gb','tb','pb');
+        return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
     }
 
 }
