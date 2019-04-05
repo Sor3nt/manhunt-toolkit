@@ -40,40 +40,27 @@ class Build {
                 $startOfObjectInfo = false;
 
                 foreach ($mdl['objects'] as $index => $object) {
-//                    var_dump($binary->current);
-
                     $prevStartOfObjectInfo = $startOfObjectInfo;
                     $startOfObjectInfo = $binary->current;
 
                     $objectInfo = $object['objectInfo'];
 
-
-
                     if (count($mdl['objects']) - 1 == $index){
-
                         if ($fistMdlObjectEntryOffset == $binary->current){
-                            //wenn next gleich first ist, kein offset
-                            var_dump($objectInfo['nextObjectInfoOffset']);
-
                             $this->offsetTable[] = $binary->current;
-
                         }
                     }
 
                     $binary->write(0, NBinary::INT_32); // nextObjectInfoOffset
 
-
                     $this->offsetTable[] = $binary->current;
-
                     $binary->write(0, NBinary::INT_32); // prevObjectInfoOffset
 
                     $this->offsetTable[] = $binary->current;
-
                     $binary->write(
                         $this->createBonesOffsets[ $objectInfo['objectParentBoneIndex'] ],
                         NBinary::INT_32
                     );
-
 
                     $this->offsetTable[] = $binary->current;
                     $objectOffsetPosition = $binary->current;
@@ -81,7 +68,6 @@ class Build {
 
                     $this->offsetTable[] = $binary->current;
                     $binary->write($rootEntryOffset, NBinary::INT_32);
-
 
                     $binary->write($objectInfo['zero'], NBinary::INT_32);
                     $binary->write($objectInfo['unknown'], NBinary::INT_32);
@@ -94,19 +80,16 @@ class Build {
 
                         foreach ($texNameOffsetPositions as $texNameOffsetPosition) {
                             $allTexNameOffsetPositions[] = $texNameOffsetPosition;
-
                         }
+
                     }else{
                         $binary->write(0, NBinary::INT_32);
                     }
-
-
 
                     $boneTrabsDataOffset = false;
                     if ($object['boneTransDataIndex']){
                         $boneTrabsDataOffset = $this->createBoneTransDataIndex($binary, $object['boneTransDataIndex']);
                     }
-
 
                     $this->offsets[$objectOffsetPosition] = $binary->current;
 
@@ -140,23 +123,16 @@ class Build {
             $binary->write($allTexNameOffsetPosition['name'] . "\x00", NBinary::BINARY);
         }
 
-
-//        var_dump($allTexNameOffsetPositions);
-//        exit;
-
-
+        //generate offset table
         foreach ($this->offsetTable as $offset) {
             $binary->write($offset, NBinary::INT_32);
-
         }
 
-
-//        var_dump($binary->current);
+        //correct offsets
         foreach ($this->offsets as $offset => $value) {
             $binary->current = $offset;
             $binary->overwrite($value, NBinary::INT_32);
         }
-
 
 
         file_put_contents("test.mdl", $binary->binary);
@@ -344,7 +320,7 @@ class Build {
     }
 
     private $createBonesOffsets = [];
-    private function createBone(NBinary $binary, $data, $rootBoneOffset, $parentBoneOffset = 0, &$index = 0, $fromNext= false, $fromSub = false ){
+    private function createBone(NBinary $binary, $data, $rootBoneOffset, $parentBoneOffset = 0, &$index = 0 ){
 
 
 
@@ -367,16 +343,13 @@ class Build {
         $binary->write(0, NBinary::INT_32);
 
         if ($index > 0){
-            echo "11 -> " . ($binary->current ) . " parent " . $parentBoneOffset ." root ". $rootBoneOffset . " index: " .$index  . "\n";
             $this->offsetTable[] = $binary->current;
-
         }
 
         $binary->write($parentBoneOffset, NBinary::INT_32);
 
         $this->offsetTable[] = $binary->current;
         $binary->write($rootBoneOffset, NBinary::INT_32);
-
 
         //subBoneOffset
         if ($data['subBone'] !== false) {
@@ -401,7 +374,7 @@ class Build {
 
         if ($data['subBone'] !== false) {
             $index++;
-            $this->createBone($binary, $data['subBone'], $rootBoneOffset, $possibleNextParentBoneOffset, $index, false, true);
+            $this->createBone($binary, $data['subBone'], $rootBoneOffset, $possibleNextParentBoneOffset, $index);
         }
 
         if ($data['nextBrotherBone'] !== false){
@@ -409,7 +382,7 @@ class Build {
             $this->offsets[$nextBrotherBoneOffsetPosition] = $binary->current;
 
             $index++;
-            $this->createBone($binary, $data['nextBrotherBone'], $rootBoneOffset, $parentBoneOffset, $index, true, false);
+            $this->createBone($binary, $data['nextBrotherBone'], $rootBoneOffset, $parentBoneOffset, $index);
         }
 
         if ($data['animationDataIndex'] !== false) {
@@ -418,11 +391,8 @@ class Build {
 
             $this->createAnimationDataIndex($binary, $data['animationDataIndex'], $rootBoneOffset);
             $this->offsetTable[] = $binary->current;
-
         }
-
     }
-
 
     private function createAnimationDataIndex(NBinary $binary, $animationDataIndex, $rootBoneOffset ){
 
@@ -436,7 +406,6 @@ class Build {
         $this->offsetTable[] = $binary->current;
         $animationDataOffsetPosition = $binary->current;
         $binary->write(0, NBinary::INT_32);
-
 
         //boneTransformOffset
         $this->offsetTable[] = $binary->current;
@@ -456,7 +425,6 @@ class Build {
                 //BoneOffset
                 $this->offsetTable[] = $binary->current;
                 $binary->write($this->createBonesOffsets[ $index ], NBinary::INT_32);
-
             }
         }
 
@@ -467,9 +435,7 @@ class Build {
 
             }
         }
-
     }
-
 
     private function createEntry(NBinary $binary, $mdl ){
         $this->offsetTable[] = $binary->current;
