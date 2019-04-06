@@ -42,7 +42,6 @@ class Extract {
 
                     $objectInfo = $this->parseObjectInfo($bone, $binary);
                     $binary->current = $objectInfo['objectOffset'];
-
                     $object = $this->parseObject($binary);
 
                     $objectRow['objectInfo'] = $objectInfo;
@@ -56,6 +55,9 @@ class Extract {
                     }
 
                     if ($object['BoneTransDataIndexOffset'] != 0){
+
+
+                        $binary->current = $object['BoneTransDataIndexOffset'];
 
                         $boneTransDataIndex = $this->parseBoneTransDataIndex($binary, $object['BoneTransDataIndexOffset']);
                         $objectRow['boneTransDataIndex'] = $boneTransDataIndex;
@@ -79,11 +81,11 @@ class Extract {
     }
 
     public function convertEntriesToSingleMdl( $mdls ){
-        $build = new Build();
 
         $singleMdls = [];
 
         foreach ($mdls as $index => $mdl) {
+            $build = new Build();
             $singleMdls[(new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
         }
 
@@ -324,14 +326,25 @@ class Extract {
         $this->createBonesOffsets[$index] = $binary->current;
 
         $unknown = $binary->consume(4, NBinary::HEX);
-
+//        sleep(1);
+//        echo ".";
+//
+//        var_dump("at " . $binary->current);
         $nextBrotherBoneOffset = $binary->consume(4, NBinary::INT_32);
+//        var_dump("get " . $nextBrotherBoneOffset, "\n\n");
         $parentBoneOffset = $binary->consume(4, NBinary::INT_32);
         $rootBoneOffset = $binary->consume(4, NBinary::INT_32);
         $subBoneOffset = $binary->consume(4, NBinary::INT_32);
+
+
+
+
         $animationDataIndexOffset = $binary->consume(4, NBinary::INT_32);
 
         $boneName = $binary->consume(40, NBinary::HEX);
+
+
+
 
         $matrix4X4_ParentChild = $binary->consume(16 * 4, NBinary::HEX);
         $matrix4X4_WorldPos = $binary->consume(16 * 4, NBinary::HEX);
@@ -342,7 +355,7 @@ class Extract {
 
 
         if ($subBoneOffset != 0) {
-
+//var_dump("sub");
             $binary->current = $subBoneOffset;
 
             $index++;
@@ -351,6 +364,7 @@ class Extract {
         }
 
         if ($nextBrotherBoneOffset != 0){
+//            var_dump("next", $nextBrotherBoneOffset);
 //            var_dump($nextBrotherBoneOffset);
 //            exit;
             $binary->current = $nextBrotherBoneOffset;
@@ -397,12 +411,16 @@ class Extract {
 
 
         if ($result['animationDataOffset'] != 0){
+            $binary->current = $result['animationDataOffset'];
+
             for($i = 0; $i < $result['numBone']; $i++){
                 $result['animationData'][] = $this->parseAnimationData($binary);
             }
         }
 
         if ($result['boneTransformOffset'] != 0){
+            $binary->current = $result['boneTransformOffset'];
+
             for($i = 0; $i < $result['numBone']; $i++){
                 $result['boneTransform'][] = $binary->consume(4 * 8, NBinary::HEX);
             }
