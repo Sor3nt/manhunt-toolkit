@@ -8,7 +8,11 @@ class Build {
     private $offsets = [];
     private $offsetTable = [];
 
-    public function build( $mdls ){
+    /**
+     * @param $mdls
+     * @return null|string
+     */
+    public function build( $mdls, $debug = false ){
 
         $binary = new NBinary();
 
@@ -19,7 +23,22 @@ class Build {
         $fistMdlObjectEntryOffset = 0;
         $lastMdlObjectEntryOffset = 0;
 
+
+        $lastMdlOffsetPosition = false;
+
+        $mdlEntryOffset = 32;
+
         foreach ($mdls as $mdlIndex => $mdl) {
+            if($debug){
+                echo "p";
+            }
+
+            if ($lastMdlOffsetPosition){
+                $this->offsets[$lastMdlOffsetPosition] = $binary->current;
+            }
+
+            $lastMdlEntryOffset = $mdlEntryOffset;
+            $mdlEntryOffset = $binary->current;
 
             if ($mdlIndex == 0){
                 $fistMdlEntryOffset = $binary->current;
@@ -29,7 +48,44 @@ class Build {
                 $lastMdlObjectEntryOffset = $binary->current;
             }
 
-            $this->createEntryIndex($binary);
+//            $this->createEntryIndex($binary);
+
+            //nextEntryIndexOffset, apply dummy value for now
+            //point to the header FirstEntryIndexOffset
+            $this->offsetTable[] = $binary->current;
+            $lastMdlOffsetPosition = $binary->current;
+
+            //set per default to 32 because single mdls will never overwrite the value
+            $binary->write(32, NBinary::INT_32);
+
+            //prevEntryIndexOffset, apply dummy value for now
+            //TODO
+
+            $this->offsetTable[] = $binary->current;
+//            if ($mdlIndex == 0){
+//                $binary->write(32, NBinary::INT_32);
+//            }else{
+                $binary->write($lastMdlEntryOffset, NBinary::INT_32);
+
+//            }
+
+
+            //$entryOffset
+            $this->offsetTable[] = $binary->current;
+            $binary->write($binary->current + 8, NBinary::INT_32);
+
+
+            //zero
+            $binary->write(0, NBinary::INT_32);
+
+
+
+
+
+
+
+
+
             $objectInfoFirstEntryOffset = $binary->current + 20;
 
             $rootEntryOffset = $binary->current;
@@ -40,9 +96,13 @@ class Build {
 
             $firstObjectInfoOffsetPosition = 0;
             $lastObjectInfoOffsetPosition = 0;
+
+
             $this->createEntry($binary, $mdl, $firstObjectInfoOffsetPosition, $lastObjectInfoOffsetPosition);
 
+
             $rootBoneOffset = $binary->current;
+
 
             $this->createBone($binary, $mdl['bone'], $rootBoneOffset);
 
@@ -54,25 +114,29 @@ class Build {
 
                 foreach ($mdl['objects'] as $index => $object) {
 
-
                     if (count($mdl['objects']) - 1 == $index){
                         $this->offsets[ $lastObjectInfoOffsetPosition ] = $binary->current;
                     }
 
 
-                    $prevStartOfObjectInfo = $startOfObjectInfo;
-                    $startOfObjectInfo = $binary->current;
 
                     $objectInfo = $object['objectInfo'];
 
-                    if (count($mdl['objects']) - 1 == $index){
-                        if ($fistMdlObjectEntryOffset == $binary->current){
-                            $this->offsetTable[] = $binary->current;
-                        }
-                    }
+//                    if (count($mdl['objects']) - 1 == $index){
+//                        if ($fistMdlObjectEntryOffset == $binary->current){
+//                            $this->offsetTable[] = $binary->current;
+//                        }
+//                    }
+//
+//
+//                    if ($objectInfo['nextObjectInfoOffset'] == $objectInfo['prevObjectInfoOffset']){
+//                        $this->offsetTable[] = $binary->current;
+//                    }
 
+                    $prevStartOfObjectInfo = $startOfObjectInfo;
+                    $startOfObjectInfo = $binary->current;
 
-                    if ($objectInfo['nextObjectInfoOffset'] == $objectInfo['prevObjectInfoOffset']){
+                    if (end($this->offsetTable) != $binary->current){
                         $this->offsetTable[] = $binary->current;
                     }
 
@@ -114,6 +178,7 @@ class Build {
 
 
 
+
                     $boneTrabsDataOffset = false;
                     if ($object['boneTransDataIndex']){
                         $boneTrabsDataOffset = $this->createBoneTransDataIndex($binary, $object['boneTransDataIndex']);
@@ -124,12 +189,13 @@ class Build {
 
                     $this->createObject($binary, $object['object'], $materialOffset, $object['materials'], $boneTrabsDataOffset);
 
+
                     //save objectInfo nextOffset
                     if (count($mdl['objects']) - 1 == $index){
                         $this->offsets[$startOfObjectInfo] = $objectInfoFirstEntryOffset;
 
                     }else{
-                        $this->offsetTable[] = $binary->current;
+//                        $this->offsetTable[] = $binary->current;
                         $this->offsets[$startOfObjectInfo] = $binary->current;
                     }
 
@@ -156,7 +222,6 @@ class Build {
         }
         $binary->write($binary->getPadding("\x00", 4), NBinary::BINARY);
 
-
         //update table position
         $this->offsets[12] = $binary->current;
         $this->offsets[16] = $binary->current;
@@ -178,11 +243,16 @@ class Build {
         //update file size
         $this->offsets[8] = $binary->current;
 
+
         //correct offsets
-        foreach ($this->offsets as $offset => $value) {
-            $binary->current = $offset;
-            $binary->overwrite($value, NBinary::INT_32);
-        }
+        $binary->overwriteBatch($this->offsets, NBinary::INT_32);
+//        foreach ($this->offsets as $offset => $value) {
+//            if($debug){
+//                echo $offset . " ";
+//            }
+//            $binary->current = $offset;
+//            $binary->overwrite($value, NBinary::INT_32);
+//        }
 
 
 //        file_put_contents("test.mdl", $binary->binary);
@@ -207,6 +277,7 @@ class Build {
         foreach ($boneTransDataIndex['matrix'] as $matrix) {
             $binary->write($matrix, NBinary::HEX);
         }
+
 
         return $boneTrabsDataOffset;
     }
@@ -481,12 +552,16 @@ class Build {
                 $binary->write($boneTransform, NBinary::HEX);
 
             }
+
+            $binary->write($binary->getPadding("\x00", 16), NBinary::BINARY);
+
         }
     }
 
     private function createEntry(NBinary $binary, $mdl, &$firstObjectInfoOffsetPosition, &$lastObjectInfoOffsetPosition ){
         $this->offsetTable[] = $binary->current;
 
+        //exit;
         //entry rootBoneOffset
         $binary->write($binary->current + 32, NBinary::INT_32);
         $binary->write($mdl['entry']['zero3'], NBinary::HEX);
@@ -506,25 +581,6 @@ class Build {
 
     private function createEntryIndex( NBinary $binary ){
 
-        //nextEntryIndexOffset, apply dummy value for now
-        //point to the header FirstEntryIndexOffset
-        $this->offsetTable[] = $binary->current;
-        $binary->write(32, NBinary::INT_32);
-
-        //prevEntryIndexOffset, apply dummy value for now
-        //TODO
-
-        $this->offsetTable[] = $binary->current;
-        $binary->write(32, NBinary::INT_32);
-
-
-        //$entryOffset
-        $this->offsetTable[] = $binary->current;
-        $binary->write($binary->current + 8, NBinary::INT_32);
-
-
-        //zero
-        $binary->write(0, NBinary::INT_32);
     }
 
     public function createMdlHeader(NBinary $binary){

@@ -77,7 +77,7 @@ class Extract {
             $results[] = $result;
         }while($entryIndex['nextEntryIndexOffset'] != 0x20);
 
-        return $this->convertEntriesToSingleMdl( $results );
+        return $results;
     }
 
     public function convertEntriesToSingleMdl( $mdls ){
@@ -86,7 +86,7 @@ class Extract {
 
         foreach ($mdls as $index => $mdl) {
             $build = new Build();
-            $singleMdls[(new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+            $singleMdls[$index . '#' . (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
         }
 
         return $singleMdls;

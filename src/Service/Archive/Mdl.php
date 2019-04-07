@@ -2,8 +2,11 @@
 namespace App\Service\Archive;
 
 use App\MHT;
+use App\Service\Archive\Mdl\Build;
 use App\Service\Archive\Mdl\Extract;
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Mdl extends Archive {
     public $name = 'Model File';
@@ -21,11 +24,50 @@ class Mdl extends Archive {
      * @return bool
      */
     public static function canPack( $pathFilename, $input, $game, $platform ){
+
+
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            $ext = strtolower($file->getExtension());
+
+            if ($ext == "mdl") return true;
+        }
+
         return false;
     }
 
+
+    private function prepareData( Finder $finder ){
+        $extractor = new Extract();
+
+        $mdls = [];
+        $finder->sort(function(SplFileInfo $a, SplFileInfo$b ){
+
+            $a = (int) explode('#', $a->getFileName())[0];
+            $b = (int) explode('#', $b->getFileName())[0];
+            return $a > $b;
+        });
+        foreach ($finder as $file) {
+            $binary = new NBinary($file->getContents());
+            $mdls[] = current($extractor->get($binary));
+            echo ".";
+        }
+
+        return $mdls;
+    }
+
+
     public function pack( $pathFilename, $game, $platform ){
-        return false;
+
+        $mdls = $this->prepareData($pathFilename);
+
+        $build = new Build();
+
+        $binary = $build->build($mdls, true);
+//var_dump(strlen($binary));
+//exit;
+        return $binary;
     }
 
     public function unpack(NBinary $binary, $game, $platform){
@@ -37,7 +79,8 @@ class Mdl extends Archive {
         }
 
         $extractor = new Extract();
-        return $extractor->get($binary);
+        $data = $extractor->get($binary);
+        return $extractor->convertEntriesToSingleMdl( $data );
 
     }
 

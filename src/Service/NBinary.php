@@ -74,6 +74,27 @@ class NBinary{
     }
 
 
+    public function overwriteBatch($positions, $type){
+
+        foreach ($positions as $offset => $bytes) {
+            $this->current = $offset;
+
+            $add = $this->pack($bytes, $type);
+
+//            $add = bin2hex($add);
+            $this->binary = substr_replace($this->binary, $add, $this->current, mb_strlen($add, '8bit'));
+//
+//
+//            $neededLength = mb_strlen($add, '8bit');
+//
+//            $before = substr($this->hex, 0, $this->current * 2);
+//            $after = substr($this->hex, ($this->current + $neededLength) * 2);
+//
+//            $this->hex = $before . bin2hex($add) . $after;
+echo ".";
+        }
+        $this->hex = bin2hex($this->binary);
+    }
     public function overwrite($bytes, $type){
         $add = $this->pack($bytes, $type);
 
