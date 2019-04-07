@@ -47,27 +47,44 @@ class Ifp extends Archive
         return false;
     }
 
+    public function unpackDetectGamePlatform( NBinary $binary ){
+
+        $binary->current = 4;
+        $numBlock = $binary->consume(4, NBinary::INT_32);
+
+        if ($numBlock > 10000) {
+            $binary->current = 0;
+            return [ MHT::GAME_MANHUNT_2, MHT::PLATFORM_WII];
+        }
+
+        $firstBlock = $binary->range(0, 111);
+
+        $binary->current = 0;
+
+        if (strpos($firstBlock, 'SEQT')) {
+            return [ MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC];
+        }else if (strpos($firstBlock, 'SEQU')){
+            return [ MHT::GAME_MANHUNT, MHT::PLATFORM_PC];
+        }
+
+        throw new \Exception('Unable to detect the game, wrong file ?!');
+    }
+
     public function unpack(NBinary $binary, $game, $platform)
     {
 
-        if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
-        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
+        list($game, $platform) = $this->unpackDetectGamePlatform($binary);
 
         /**
          * ROOT (ANCT)
          */
         $headerType = $binary->consume(4, NBinary::STRING);
-        $numBlock = $binary->consume(4, NBinary::INT_32);
 
-        if ($numBlock > 10000) {
-            $game = MHT::GAME_MANHUNT_2;
-            $platform = MHT::PLATFORM_WII;
-
-            $binary->current -= 4;
+        if ($platform == MHT::PLATFORM_WII){
             $binary->numericBigEndian = true;
-
-            $numBlock = $binary->consume(4, NBinary::INT_32);
         }
+
+        $numBlock = $binary->consume(4, NBinary::INT_32);
 
         if ($headerType !== "ANCT")
             throw new \Exception(sprintf('Expected ANCT got: %s', $headerType));
