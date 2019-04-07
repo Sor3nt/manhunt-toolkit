@@ -2,6 +2,7 @@
 namespace App\Tests\Archive\Mdl\Manhunt2;
 
 use App\MHT;
+use App\Service\NBinary;
 use App\Tests\Archive\Archive;
 
 class PcTest extends Archive
@@ -24,8 +25,10 @@ class PcTest extends Archive
             MHT::PLATFORM_PC
         );
 
+        $binary = new NBinary(file_get_contents($testFolder . "/modelspc.mdl"));
+
         $this->assertEquals(
-            md5(file_get_contents($testFolder . "/modelspc.mdl")),
+            md5($binary->binary),
             md5(file_get_contents($outputFolder . "/modelspc.mdl"))
         );
 
