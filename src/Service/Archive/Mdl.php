@@ -64,9 +64,8 @@ class Mdl extends Archive {
 
         $build = new Build();
 
-        $binary = $build->build($mdls, true);
-//var_dump(strlen($binary));
-//exit;
+        $binary = $build->build($mdls);
+
         return $binary;
     }
 

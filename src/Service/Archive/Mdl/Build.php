@@ -12,26 +12,22 @@ class Build {
      * @param $mdls
      * @return null|string
      */
-    public function build( $mdls, $debug = false ){
+    public function build( $mdls ){
 
         $binary = new NBinary();
 
         $this->createMdlHeader($binary);
 
         $allTexNameOffsetPositions = [];
-        $fistMdlEntryOffset = 0;
-        $fistMdlObjectEntryOffset = 0;
-        $lastMdlObjectEntryOffset = 0;
 
+        $fistMdlEntryOffset = 0;
+        $lastMdlObjectEntryOffset = 0;
 
         $lastMdlOffsetPosition = false;
 
         $mdlEntryOffset = 32;
 
         foreach ($mdls as $mdlIndex => $mdl) {
-            if($debug){
-                echo "p";
-            }
 
             if ($lastMdlOffsetPosition){
                 $this->offsets[$lastMdlOffsetPosition] = $binary->current;
@@ -48,8 +44,6 @@ class Build {
                 $lastMdlObjectEntryOffset = $binary->current;
             }
 
-//            $this->createEntryIndex($binary);
-
             //nextEntryIndexOffset, apply dummy value for now
             //point to the header FirstEntryIndexOffset
             $this->offsetTable[] = $binary->current;
@@ -59,50 +53,26 @@ class Build {
             $binary->write(32, NBinary::INT_32);
 
             //prevEntryIndexOffset, apply dummy value for now
-            //TODO
-
             $this->offsetTable[] = $binary->current;
-//            if ($mdlIndex == 0){
-//                $binary->write(32, NBinary::INT_32);
-//            }else{
-                $binary->write($lastMdlEntryOffset, NBinary::INT_32);
-
-//            }
-
+            $binary->write($lastMdlEntryOffset, NBinary::INT_32);
 
             //$entryOffset
             $this->offsetTable[] = $binary->current;
             $binary->write($binary->current + 8, NBinary::INT_32);
 
-
-            //zero
+            //zero (actual padding?)
             $binary->write(0, NBinary::INT_32);
-
-
-
-
-
-
-
-
 
             $objectInfoFirstEntryOffset = $binary->current + 20;
 
             $rootEntryOffset = $binary->current;
 
-            if ($mdlIndex == 0){
-                $fistMdlObjectEntryOffset = $binary->current + 20;
-            }
-
             $firstObjectInfoOffsetPosition = 0;
             $lastObjectInfoOffsetPosition = 0;
 
-
             $this->createEntry($binary, $mdl, $firstObjectInfoOffsetPosition, $lastObjectInfoOffsetPosition);
 
-
             $rootBoneOffset = $binary->current;
-
 
             $this->createBone($binary, $mdl['bone'], $rootBoneOffset);
 
@@ -118,24 +88,12 @@ class Build {
                         $this->offsets[ $lastObjectInfoOffsetPosition ] = $binary->current;
                     }
 
-
-
                     $objectInfo = $object['objectInfo'];
-
-//                    if (count($mdl['objects']) - 1 == $index){
-//                        if ($fistMdlObjectEntryOffset == $binary->current){
-//                            $this->offsetTable[] = $binary->current;
-//                        }
-//                    }
-//
-//
-//                    if ($objectInfo['nextObjectInfoOffset'] == $objectInfo['prevObjectInfoOffset']){
-//                        $this->offsetTable[] = $binary->current;
-//                    }
 
                     $prevStartOfObjectInfo = $startOfObjectInfo;
                     $startOfObjectInfo = $binary->current;
 
+                    //its a hack...
                     if (end($this->offsetTable) != $binary->current){
                         $this->offsetTable[] = $binary->current;
                     }
@@ -176,9 +134,6 @@ class Build {
                         $binary->write(0, NBinary::INT_32);
                     }
 
-
-
-
                     $boneTrabsDataOffset = false;
                     if ($object['boneTransDataIndex']){
                         $boneTrabsDataOffset = $this->createBoneTransDataIndex($binary, $object['boneTransDataIndex']);
@@ -193,9 +148,7 @@ class Build {
                     //save objectInfo nextOffset
                     if (count($mdl['objects']) - 1 == $index){
                         $this->offsets[$startOfObjectInfo] = $objectInfoFirstEntryOffset;
-
                     }else{
-//                        $this->offsetTable[] = $binary->current;
                         $this->offsets[$startOfObjectInfo] = $binary->current;
                     }
 
@@ -205,12 +158,8 @@ class Build {
                     }else{
                         $this->offsets[$startOfObjectInfo + 4] = $prevStartOfObjectInfo;
                     }
-
                 }
-
             }
-
-
         }
 
         $binary->write($binary->getPadding("\x00", 16), NBinary::BINARY);
@@ -220,6 +169,7 @@ class Build {
             $this->offsets[ $allTexNameOffsetPosition['position'] ] = $binary->current;
             $binary->write($allTexNameOffsetPosition['name'] . "\x00", NBinary::BINARY);
         }
+
         $binary->write($binary->getPadding("\x00", 4), NBinary::BINARY);
 
         //update table position
@@ -246,17 +196,7 @@ class Build {
 
         //correct offsets
         $binary->overwriteBatch($this->offsets, NBinary::INT_32);
-//        foreach ($this->offsets as $offset => $value) {
-//            if($debug){
-//                echo $offset . " ";
-//            }
-//            $binary->current = $offset;
-//            $binary->overwrite($value, NBinary::INT_32);
-//        }
 
-
-//        file_put_contents("test.mdl", $binary->binary);
-//        exit;
         return $binary->binary;
 
     }
@@ -561,8 +501,6 @@ class Build {
     private function createEntry(NBinary $binary, $mdl, &$firstObjectInfoOffsetPosition, &$lastObjectInfoOffsetPosition ){
         $this->offsetTable[] = $binary->current;
 
-        //exit;
-        //entry rootBoneOffset
         $binary->write($binary->current + 32, NBinary::INT_32);
         $binary->write($mdl['entry']['zero3'], NBinary::HEX);
         $binary->write($mdl['entry']['unknown'], NBinary::HEX);
@@ -577,10 +515,6 @@ class Build {
         $binary->write($mdl['entry']['lastObjectInfoOffset'], NBinary::INT_32);
 
         $binary->write($mdl['entry']['zero'], NBinary::INT_32);
-    }
-
-    private function createEntryIndex( NBinary $binary ){
-
     }
 
     public function createMdlHeader(NBinary $binary){
