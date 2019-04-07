@@ -1,13 +1,13 @@
 # Manhunt Toolkit
 
 > A free and open source toolkit to quickly modify Rockstar`s game Manhunt.
-
+> Developed for the [Manhunt Modding](https://www.dixmor-hospital.com/) Community Dixmor-Hospital.
 ## Installation
 
 
 **Requirements**
 
-You need PHP 7.0 or newer to run MHT.
+You need PHP 7.2 or newer to run MHT.
 
 **How to install PHP on Windows**
 
@@ -100,9 +100,10 @@ $ mht mass:extraction --help
 * Execution animations \[PC, PS2, PSP, WII\] (strmanim.bin)
 * Settings files \[PC\] (*.glg)
 * Entity Positions \[PC, PS2, PSP, WII\] (*.inst)
-* Level script code \[PC\] (*.mls)
+* Level script code \[PC\] (*.mls) (Mh2 A01 only at this point)
 * Texture extracting \[PC\] (*.tex)
 * Translations \[PC, PS2, PSP, WII\] (*.gxt)
+* Models \[PC\] (*.mdl)
 
  
  
