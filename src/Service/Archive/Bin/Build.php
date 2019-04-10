@@ -41,6 +41,8 @@ class Build {
                          'redLevelExec'
                      ] as $index => $section) {
 
+                if (!isset($execution[$section])) continue;
+
                 $prepared['executions'][$id][$section] = $ifp->packAnimation($execution[$section], $game, $platform)->hex;
                 $prepared['executions'][$id][$section . 'Offset'] = $offsetStart;
                 $size = strlen($prepared['executions'][$id][$section]) / 2;

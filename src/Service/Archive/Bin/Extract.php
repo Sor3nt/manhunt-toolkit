@@ -69,7 +69,8 @@ class Extract {
                 $anpk = new NBinary($anpk);
                 $anpk->numericBigEndian = $binary->numericBigEndian;
 
-                $targetFileName = "executions/" . $index . "#ExecutionId_" . $execution['executionId'] . '/' . $section;
+                $targetFileName = "executions/ExecutionId_" . $execution['executionId'] . '/' . $section;
+//                $targetFileName = "executions/" . $index . "#ExecutionId_" . $execution['executionId'] . '/' . $section;
 
                 $animations = $this->extractAnimations(
                     $anpk,
@@ -104,7 +105,8 @@ class Extract {
             $anpk = new NBinary($anpk);
             $anpk->numericBigEndian = $binary->numericBigEndian;
 
-            $targetFileName = "envExecutions/" . $index . "#ExecutionId_" . $envExecution['executionId'];
+            $targetFileName = "envExecutions/ExecutionId_" . $envExecution['executionId'];
+//            $targetFileName = "envExecutions/" . $index . "#ExecutionId_" . $envExecution['executionId'];
 
             $animations = $this->extractAnimations(
                 $anpk,

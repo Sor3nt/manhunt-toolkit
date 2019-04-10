@@ -105,9 +105,9 @@ class Bin extends Archive {
                 $executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ][$fileName] = \json_decode($file->getContents(), true);
 
                 //sort the results (thats only to reach the 100% by recompiling original game files)
-                uksort($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ], function($a, $b){
-                    return explode("#", $a)[0] > explode("#", $b)[0];
-                });
+//                uksort($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ], function($a, $b){
+//                    return explode("#", $a)[0] > explode("#", $b)[0];
+//                });
 
             }else{
                 $fileName = explode('.', $pathSplit[2])[0];
@@ -115,20 +115,20 @@ class Bin extends Archive {
                 $executionSections[$usedSection][ $pathSplit[1] ][$fileName] = \json_decode($file->getContents(), true);
 
                 //sort the results (thats only to reach the 100% by recompiling original game files)
-                uksort($executionSections[$usedSection][ $pathSplit[1] ], function($a, $b){
-                    return explode("#", $a)[0] > explode("#", $b)[0];
-                });
+//                uksort($executionSections[$usedSection][ $pathSplit[1] ], function($a, $b){
+//                    return explode("#", $a)[0] > explode("#", $b)[0];
+//                });
             }
         }
 
         //sort the results (thats only to reach the 100% by recompiling original game files)
-        uksort($executionSections['executions'], function($a, $b){
-            return explode("#", $a)[0] > explode("#", $b)[0];
-        });
-
-        uksort($executionSections['envExecutions'], function($a, $b){
-            return explode("#", $a)[0] > explode("#", $b)[0];
-        });
+//        uksort($executionSections['executions'], function($a, $b){
+//            return explode("#", $a)[0] > explode("#", $b)[0];
+//        });
+//
+//        uksort($executionSections['envExecutions'], function($a, $b){
+//            return explode("#", $a)[0] > explode("#", $b)[0];
+//        });
 
         return $executionSections;
     }

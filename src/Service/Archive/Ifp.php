@@ -24,10 +24,11 @@ class Ifp extends Archive
 
         foreach ($input as $file) {
             $relPath = strtolower($file->getRelativePath());
-            if (strpos($relPath, "#") == false) return false;
+//            if (strpos($relPath, "#") == false) return false;
 
-            $category = explode("#", $relPath)[1];
-
+//            $category = explode("#", $relPath)[1];
+            $category = $relPath;
+//var_dump("ifp.php cat test", $category);
             switch (strtolower($category)){
 
                 case 'bookends':
@@ -124,7 +125,8 @@ class Ifp extends Archive
             /**
              * Animation Pack Entries
              */
-            $path = $count . "#" . $blockName;
+            $path = $blockName;
+//            $path = $count . "#" . $blockName;
             $animations = $this->extractAnimation($animationCount, $binary, $game, $platform);
 
             foreach ($animations as $animationFilename => $animation) {
@@ -319,8 +321,9 @@ class Ifp extends Archive
             $animations[] = $resultAnimation;
 
 
-            $results[ $count . "#" . $animationName ] = $resultAnimation;
-//            file_put_contents($outputTo . $count . "#" . $animationName . ".json", \json_encode($resultAnimation, JSON_PRETTY_PRINT));
+            $results[ $animationName ] = $resultAnimation;
+//            $results[ $count . "#" . $animationName ] = $resultAnimation;
+
 
             $animationCount--;
             $count++;
@@ -517,15 +520,15 @@ class Ifp extends Archive
             $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
         }
 
-        uksort($ifp, function($a, $b){
-            return explode("#", $a)[0] > explode("#", $b)[0];
-        });
-
-        foreach ($ifp as &$item) {
-            uksort($item, function($a, $b){
-                return explode("#", $a)[0] > explode("#", $b)[0];
-            });
-        }
+//        uksort($ifp, function($a, $b){
+//            return explode("#", $a)[0] > explode("#", $b)[0];
+//        });
+//
+//        foreach ($ifp as &$item) {
+//            uksort($item, function($a, $b){
+//                return explode("#", $a)[0] > explode("#", $b)[0];
+//            });
+//        }
 
         return $ifp;
     }
@@ -556,7 +559,8 @@ class Ifp extends Archive
             /*
              * Add the length of the Block name and the block name itself
              */
-            $blockName = explode("#", $blockName)[1] . "\x00";
+//            $blockName = explode("#", $blockName)[1] . "\x00";
+            $blockName .= "\x00";
 
             $binary->write(strlen($blockName), NBinary::INT_32);
             $binary->write($blockName, NBinary::STRING);
@@ -596,7 +600,7 @@ class Ifp extends Archive
             /*
              * Add the length of the Animation name and the Animation name itself
              */
-            $animationName = explode("#", $animationName)[1];
+//            $animationName = explode("#", $animationName)[1];
             $animationName = explode(".json", $animationName)[0];
             $animationName .= "\x00";
 
@@ -706,7 +710,7 @@ class Ifp extends Archive
                             $portAnimationToManhunt2 &&
                             ($boneId == 1057 || $boneId == 1003)
                         ){
-                            //clavicle right and clavicle left, cash is heigher as daniel so fix the first value
+                            //clavicle right and clavicle left, cash has a different calvicle position
                             $singleChunkBinary->write(intval(0.1318359375 * 2048), NBinary::INT_16);
                             $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
                             $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
@@ -730,6 +734,7 @@ class Ifp extends Archive
                     //use frameTimeCount instead
                     if (!isset($bone['frames']['lastFrameTime'])){
 
+                        //todo: sollte das nicht die anzajl der frames durch 30 sein ?!
                         $chunkBinary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
                     }else{
                         $chunkBinary->write($bone['frames']['lastFrameTime'] / 30, NBinary::FLOAT_32);

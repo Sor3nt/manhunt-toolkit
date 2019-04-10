@@ -86,7 +86,7 @@ class Extract {
 
         foreach ($mdls as $index => $mdl) {
             $build = new Build();
-            $singleMdls[$index . '#' . (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+            $singleMdls[ (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
         }
 
         return $singleMdls;

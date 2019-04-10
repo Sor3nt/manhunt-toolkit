@@ -36,7 +36,33 @@ class Manhunt2Exe {
         'globalExecutionFile' => [
             [
 
+//                // move the pointer to get more space
+//                '1598421' => ['686c856600' => 'dc967500'],
+//
+//
+//                //rename "/global/cash_pc.tex /glo" to "../global/exec_anim.bin "
+//                '2498936' => [
+//                    '2f676c6f62616c2f636173685f70632e746578002f676c6f' =>
+//                    '2e2e2f676c6f62616c2f657865635f616e696d2e62696e00'
+//                ],
+
+
                 '2524524' => ['7374726d616e696d5f70632e62696e' => '2e2e2f737472616e696d5f2e62696e']
+            ]
+        ],
+
+
+        'globalAnimationFile' => [
+            [
+                // move the pointer to get more space
+                '2764564' => ['20246600' => '14246600'],
+
+                //rename "AllAnims_pc allanim" to "../global/all_anim"
+                '2499604' => [
+                        '416c6c416e696d735f706300616c6c616e696d'
+                    =>
+                        '2e2e2f676c6f62616c2f616c6c5f616e696d00'
+                ]
             ]
         ],
 
