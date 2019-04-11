@@ -96,15 +96,22 @@ class Build {
                 $data .= Helper::fromIntToHex($exectionId);
 
 
-                if (isset($execution['jumpExecutionOffset'])){
+                if (!isset($execution['Offset'])){
                     foreach ([
                                  'jumpExecution',
                                  'whiteLevelExec',
                                  'yellowLevelExec',
                                  'redLevelExec'
                              ] as $section) {
-                        $data .= Helper::fromIntToHex($execution[$section . 'Offset'], false);
-                        $data .= Helper::fromIntToHex($execution[$section . 'Size'], false);
+
+                        if (!isset($execution[$section . 'Offset'])) {
+                            $data .= Helper::fromIntToHex(0, false);
+                            $data .= Helper::fromIntToHex(0, false);
+                        }else{
+                            $data .= Helper::fromIntToHex($execution[$section . 'Offset'], false);
+                            $data .= Helper::fromIntToHex($execution[$section . 'Size'], false);
+
+                        }
 
                     }
                 }else{
@@ -126,13 +133,16 @@ class Build {
 
             foreach ($executionType as $exectionId => $execution) {
 
-                if (isset($execution['jumpExecutionOffset'])){
+                if (!isset($execution['animation'])){
                     foreach ([
                                  'jumpExecution',
                                  'whiteLevelExec',
                                  'yellowLevelExec',
                                  'redLevelExec'
                              ] as $section) {
+
+                        if (!isset($execution[$section])) continue;
+
                         $data .= $execution[$section];
 
                         $data .= str_repeat('00', $execution[$section . 'Missed']);
