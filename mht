@@ -7,16 +7,63 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
+//if ($argc == 2){
+//
+//    if (file_exists($argv[1]) && !is_dir($argv[1])){
+//        $application->add(new \App\Command\UnpackCommand());
+//
+//        $input = new \Symfony\Component\Console\Input\ArrayInput([
+//            'command' => 'archive:unpack',
+//            'file' => $argv[1]
+//        ]);
+//
+//        $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+//        $application->run($input, $output);
+//
+//    }else if (is_dir($argv[1])){
+//
+//        $application->add(new \App\Command\PackCommand());
+//
+//        $input = new \Symfony\Component\Console\Input\ArrayInput([
+//            'command' => 'archive:pack',
+//            'file' => $argv[1]
+//        ]);
+//
+//        $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+//        $application->run($input, $output);
+//
+//    }else{
+//
+////basic commands
+//        $application->add(new \App\Command\PackCommand());
+//        $application->add(new \App\Command\UnpackCommand());
+//
+////extraction helper
+//        $application->add(new \App\Command\MassExtractMlsCommand());
+//        $application->add(new \App\Command\MassExtractionCommand());
+//
+////mls compiler helper
+//        $application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
+//        $application->add(new \App\Command\GenerateEventsCommand());
+//
+//        $application->run();
+//    }
+//
+//}else{
+
+
 //basic commands
-$application->add(new \App\Command\PackCommand());
-$application->add(new \App\Command\UnpackCommand());
+    $application->add(new \App\Command\PackCommand());
+    $application->add(new \App\Command\UnpackCommand());
 
 //extraction helper
-$application->add(new \App\Command\MassExtractMlsCommand());
-$application->add(new \App\Command\MassExtractionCommand());
+    $application->add(new \App\Command\MassExtractionCommand());
 
 //mls compiler helper
-$application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
-$application->add(new \App\Command\GenerateEventsCommand());
+    $application->add(new \App\Command\BytecodeExplainCommand(new \App\Service\BytecodeExplain()));
+    $application->add(new \App\Command\GenerateEventsCommand());
+    $application->add(new \App\Command\AnalyseAnimationsCommand());
+    $application->add(new \App\Command\GenrateBestAnimationsCommand());
 
-$application->run();
+    $application->run();
+//}

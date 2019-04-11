@@ -70,7 +70,7 @@ class MassExtractionCommand extends Command
         foreach ($finder as $file) {
 
             try{
-                $resource = $resources->load($file, MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
+                $resource = $resources->load($file, MHT::GAME_AUTO, MHT::GAME_AUTO);
 
             }catch(\Exception $e) {
 //                $output->writeln('Not supported ' . $file->getRelativePathname());
