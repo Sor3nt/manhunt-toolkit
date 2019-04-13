@@ -1,7 +1,6 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Bytecode\Helper;
 use App\Service\NBinary;
 
 class Col extends Archive {
@@ -29,32 +28,6 @@ class Col extends Archive {
         return false;
     }
 
-    private function toString( $hex ){
-        $hex = str_replace('00', '', $hex);
-        return hex2bin($hex);
-    }
-
-    private function toInt( $hex ){
-        return (int) current(unpack("L", hex2bin($hex)));
-    }
-
-    private function toFloat( $hex ){
-        return (float) current(unpack("f", hex2bin($hex)));
-    }
-
-    private function toInt8($hex){
-        return is_int($hex) ? pack("c", $hex) :  current(unpack("c", hex2bin($hex)));
-    }
-
-
-    private function substr(&$hex, $start, $end){
-
-        $result = substr($hex, $start * 2, $end * 2);
-        $hex = substr($hex, $end * 2);
-        return $result;
-
-    }
-
     /**
      * @param NBinary $binary
      * @param $game
@@ -63,88 +36,57 @@ class Col extends Archive {
      */
     public function unpack(NBinary $binary, $game, $platform){
 
-        $data = $binary->hex;
-
-        $entryCount = $this->toInt($this->substr($data, 0, 4));
+        $entryCount = $binary->consume(4, NBinary::INT_32);
 
         $results = [];
 
         while ($entryCount > 0){
 
-            $result = [];
+            $name = $binary->getString();
 
-            $name = $this->substr($data, 0, mb_strpos(hex2bin($data), "\x00"));
-            $name = $this->toString($name);
+            $result = [
+                'name' => $name,
+                'center' => $binary->readXYZ(),
+                'radius' => $binary->consume(4, NBinary::FLOAT_32),
+                'min' => $binary->readXYZ(),
+                'max' => $binary->readXYZ()
+            ];
 
-            $result['name'] = $name;
-
-            $misssed = 4 - strlen($name) % 4;
-            $this->substr($data, 0, $misssed);
-
-            $x = $this->toFloat(Helper::toBigEndian($this->substr($data, 0, 4)));
-            $y = $this->toFloat(Helper::toBigEndian($this->substr($data, 0, 4)));
-            $z = $this->toFloat(Helper::toBigEndian($this->substr($data, 0, 4)));
-
-            $result['center'] = [$x, $y, $z];
-            $result['radius'] = $this->toFloat($this->substr($data, 0, 4));
-
-            foreach (['min', 'max'] as $section) {
-                $x = $this->toFloat($this->substr($data, 0, 4));
-                $y = $this->toFloat($this->substr($data, 0, 4));
-                $z = $this->toFloat($this->substr($data, 0, 4));
-
-                $result[$section] = [$x, $y, $z];
-            }
-
-
-            $spheresCount = $this->toInt($this->substr($data, 0, 4));
+            $spheresCount = $binary->consume(4, NBinary::INT_32);
 
             $result['spheres'] = [];
             if ($spheresCount > 0){
 
-
-                $spheres = [];
                 while($spheresCount > 0){
 
                     $sphere = [];
-
-                    $x = $this->toFloat($this->substr($data, 0, 4));
-                    $y = $this->toFloat($this->substr($data, 0, 4));
-                    $z = $this->toFloat($this->substr($data, 0, 4));
-
-                    $sphere['center'] = [$x, $y, $z];
-                    $sphere['radius'] = $this->toFloat($this->substr($data, 0, 4));
+                    $sphere['center'] = $binary->readXYZ();
+                    $sphere['radius'] = $binary->consume(4, NBinary::FLOAT_32);
 
                     $sphere['surface'] = [
-                        'material' => $this->toInt8($this->substr($data, 0, 1)),
-                        'flag' => $this->toInt8($this->substr($data, 0, 1)),
-                        'brightness' => $this->toInt8($this->substr($data, 0, 1)),
-                        'light' => $this->toInt8($this->substr($data, 0, 1))
+                        'material' => $binary->consume(1, NBinary::INT_8),
+                        'flag' => $binary->consume(1, NBinary::INT_8),
+                        'brightness' => $binary->consume(1, NBinary::INT_8),
+                        'light' => $binary->consume(1, NBinary::INT_8),
                     ];
 
+                    $result['spheres'][] = $sphere;
                     $spheresCount--;
                 }
 
-                $result['spheres'] = $spheres;
             }
 
-
-
-            $linesCount = $this->toInt($this->substr($data, 0, 4));
+            $linesCount = $binary->consume(4, NBinary::INT_32);
 
             $result['lines'] = [];
             if ($linesCount > 0){
-
 
                 $lines = [];
                 while($linesCount > 0){
                     $linePack = [];
                     for ($i = 0; $i < 2; $i++){
-                        $x = $this->toFloat($this->substr($data, 0, 4));
-                        $y = $this->toFloat($this->substr($data, 0, 4));
-                        $z = $this->toFloat($this->substr($data, 0, 4));
 
-                        $linePack[] = [$x, $y, $z];
+                        $linePack[] = $binary->readXYZ();
 
                     }
 
@@ -156,7 +98,7 @@ class Col extends Archive {
             }
 
 
-            $boxesCount = $this->toInt($this->substr($data, 0, 4));
+            $boxesCount = $binary->consume(4, NBinary::INT_32);
 
             $result['boxes'] = [];
             if ($boxesCount > 0){
@@ -164,47 +106,8 @@ class Col extends Archive {
                 die("boxesCount todo");
             }
 
-
-            $vertexCount = $this->toInt($this->substr($data, 0, 4));
-
-            $result['verticals'] = [];
-            if ($vertexCount > 0){
-
-                $verticals = [];
-                while($vertexCount > 0){
-                    $x = $this->toFloat($this->substr($data, 0, 4));
-                    $y = $this->toFloat($this->substr($data, 0, 4));
-                    $z = $this->toFloat($this->substr($data, 0, 4));
-
-                    $verticals[] = [$x, $y, $z];
-
-                    $vertexCount--;
-                }
-
-                $result['verticals'] = $verticals;
-
-            }
-
-
-            $facesCount = $this->toInt($this->substr($data, 0, 4));
-
-            $result['faces'] = [];
-            if ($facesCount > 0){
-
-                $faces = [];
-                while($facesCount > 0){
-                    $unknown1 = $this->toInt($this->substr($data, 0, 4));
-                    $unknown2 = $this->toInt($this->substr($data, 0, 4));
-                    $unknown3 = $this->toInt($this->substr($data, 0, 4));
-
-                    $faces[] = [$unknown1, $unknown2, $unknown3];
-
-                    $facesCount--;
-                }
-
-                $result['faces'] = $faces;
-
-            }
+            $result['verticals'] = $this->parseSimpleBlock($binary);
+            $result['faces']     = $this->parseSimpleBlock($binary);
 
             $results[] = $result;
 
@@ -215,62 +118,92 @@ class Col extends Archive {
     }
 
     /**
-     * @param $records
+     * @param NBinary $binary
+     * @return array
+     */
+    public function parseSimpleBlock( NBinary $binary){
+
+        $count = $binary->consume(4, NBinary::INT_32);
+
+        if ($count > 0){
+            $values = [];
+            while($count > 0){
+
+                $values[] = $binary->readXYZ();
+
+                $count--;
+            }
+
+            return $values;
+        }
+
+        return [];
+    }
+
+    /**
+     * @param NBinary $binary
      * @param $game
      * @param $platform
+     * @return null|string
      */
-    public function pack( $records, $game, $platform ){
+    public function pack( $binary, $game, $platform ){
 
-        $data = "";
-        $data .= Helper::fromIntToHex(count($records));
+        $records = \json_decode($binary->binary, true);
+
+        $binary = new NBinary();
+        $binary->write(count($records), NBinary::INT_32);
 
         foreach ($records as $record) {
 
-            $name = current(unpack("H*", $record['name'])) . "00";
-            $name .= str_repeat('70', (4 - strlen($name) % 4) / 2);
-            $data .= $name;
+            $binary->write($record['name'] . "\x00", NBinary::BINARY);
+            $binary->write($binary->getPadding("\x70"), NBinary::BINARY);
+//return $binary->binary;
 
+            //bounds
+            $binary->writeXYZ($record['center']);
+            $binary->write($record['radius'], NBinary::FLOAT_32);
+            $binary->writeXYZ($record['min']);
+            $binary->writeXYZ($record['max']);
 
-            $data .= Helper::toLittleEndian(Helper::fromFloatToHex( $record['center'][0] ));
-            $data .= Helper::toLittleEndian(Helper::fromFloatToHex( $record['center'][1] ));
-            $data .= Helper::toLittleEndian(Helper::fromFloatToHex( $record['center'][2] ));
+            $binary->write(count($record['spheres']), NBinary::INT_32);
 
-            $data .= Helper::fromFloatToHex( $record['radius'] );
-
-            $data .= Helper::fromFloatToHex( $record['min'][0] );
-            $data .= Helper::fromFloatToHex( $record['min'][1] );
-            $data .= Helper::fromFloatToHex( $record['min'][2] );
-
-            $data .= Helper::fromFloatToHex( $record['max'][0] );
-            $data .= Helper::fromFloatToHex( $record['max'][1] );
-            $data .= Helper::fromFloatToHex( $record['max'][2] );
-
-
-            $data .= Helper::fromFloatToHex( count($record['spheres']) );
             foreach ($record['spheres'] as $sphere) {
 
-                $data .= Helper::fromFloatToHex( $sphere['center'][0] );
-                $data .= Helper::fromFloatToHex( $sphere['center'][1] );
-                $data .= Helper::fromFloatToHex( $sphere['center'][2] );
+                $binary->writeXYZ($sphere['center']);
+                $binary->write($sphere['radius'], NBinary::FLOAT_32);
 
-                $data .= Helper::fromFloatToHex( $sphere['radius'] );
-
-                $data .= $this->toInt8($sphere['surface']['material'] );
-                $data .= $this->toInt8($sphere['surface']['flag'] );
-                $data .= $this->toInt8($sphere['surface']['brightness'] );
-                $data .= $this->toInt8($sphere['surface']['light'] );
+                $binary->write($sphere['surface']['material'], NBinary::INT_8);
+                $binary->write($sphere['surface']['flag'], NBinary::INT_8);
+                $binary->write($sphere['surface']['brightness'], NBinary::INT_8);
+                $binary->write($sphere['surface']['light'], NBinary::INT_8);
             }
 
-            var_dump($data);
+            $binary->write(count($record['lines']), NBinary::INT_32);
+            foreach ($record['lines'] as $linePack) {
+                foreach ($linePack as $line) {
+                    $binary->writeXYZ($line);
+                }
+            }
 
+            $binary->write(count($record['boxes']), NBinary::INT_32);
 
-//            var_dump($data);
-            exit;
+            if (count($record['boxes']) > 0){
+                die("box todo");
+            }
+
+            $binary->write(count($record['verticals']), NBinary::INT_32);
+            foreach ($record['verticals'] as $vertical) {
+                $binary->writeXYZ($vertical);
+            }
+
+            $binary->write(count($record['faces']), NBinary::INT_32);
+            foreach ($record['faces'] as $face) {
+                $binary->writeXYZ($face);
+            }
 
         }
 
-
-
+        return $binary->binary;
     }
 
 }

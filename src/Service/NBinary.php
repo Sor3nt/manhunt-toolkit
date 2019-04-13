@@ -231,6 +231,20 @@ echo ".";
 
     }
 
+    public function readXYZ( $len = 4, $type = NBinary::FLOAT_32){
+        return [
+            $this->consume($len, $type),
+            $this->consume($len, $type),
+            $this->consume($len, $type)
+        ];
+    }
+
+    public function writeXYZ($xyz, $type = NBinary::FLOAT_32){
+        $this->write($xyz[0], $type);
+        $this->write($xyz[1], $type);
+        $this->write($xyz[2], $type);
+    }
+
     public function consume( $bytes, $type, $skip = 0){
 
         $this->current += $skip;
