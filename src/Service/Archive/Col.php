@@ -2,6 +2,7 @@
 namespace App\Service\Archive;
 
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
 class Col extends Archive {
     public $name = 'Collision Matrix';
@@ -17,13 +18,14 @@ class Col extends Archive {
      */
     public static function canPack( $pathFilename, $input, $game, $platform ){
 
-        if (!$input instanceof NBinary) return false;
+        if (!$input instanceof Finder) return false;
 
-        if (
-            (strpos($input->binary, "min") !== false) &&
-            (strpos($input->binary, "max") !== false) &&
-            (strpos($input->binary, "center") !== false)
-        ) return true;
+        foreach ($input as $file) {
+            $ext = strtolower($file->getExtension());
+            if ($ext !== "json") return false;
+
+            return strpos($file->getContents(), 'center') !== false && strpos($file->getContents(), 'radius') !== false && strpos($file->getContents(), 'min') !== false && strpos($file->getContents(), 'max') !== false;
+        }
 
         return false;
     }
@@ -109,7 +111,7 @@ class Col extends Archive {
             $result['verticals'] = $this->parseSimpleBlock($binary);
             $result['faces']     = $this->parseSimpleBlock($binary);
 
-            $results[] = $result;
+            $results[$name . '.json'] = $result;
 
             $entryCount--;
         }
@@ -129,7 +131,7 @@ class Col extends Archive {
             $values = [];
             while($count > 0){
 
-                $values[] = $binary->readXYZ();
+                $values[] = $binary->readXYZ(4, NBinary::INT_32);
 
                 $count--;
             }
@@ -141,66 +143,69 @@ class Col extends Archive {
     }
 
     /**
-     * @param NBinary $binary
+     * @param Finder $pathFilename
      * @param $game
      * @param $platform
      * @return null|string
      */
-    public function pack( $binary, $game, $platform ){
-
-        $records = \json_decode($binary->binary, true);
+    public function pack( $pathFilename, $game, $platform ){
 
         $binary = new NBinary();
-        $binary->write(count($records), NBinary::INT_32);
+        $binary->write($pathFilename->count(), NBinary::INT_32);
 
-        foreach ($records as $record) {
+        foreach ($pathFilename as $file) {
+            $record = \json_decode($file->getContents(), true);
 
-            $binary->write($record['name'] . "\x00", NBinary::BINARY);
-            $binary->write($binary->getPadding("\x70"), NBinary::BINARY);
-//return $binary->binary;
 
-            //bounds
-            $binary->writeXYZ($record['center']);
-            $binary->write($record['radius'], NBinary::FLOAT_32);
-            $binary->writeXYZ($record['min']);
-            $binary->writeXYZ($record['max']);
+//            foreach ($records as $record) {
 
-            $binary->write(count($record['spheres']), NBinary::INT_32);
+                $binary->write($record['name'] . "\x00", NBinary::BINARY);
+                $binary->write($binary->getPadding("\x70"), NBinary::BINARY);
+    //return $binary->binary;
 
-            foreach ($record['spheres'] as $sphere) {
+                //bounds
+                $binary->writeXYZ($record['center']);
+                $binary->write($record['radius'], NBinary::FLOAT_32);
+                $binary->writeXYZ($record['min']);
+                $binary->writeXYZ($record['max']);
 
-                $binary->writeXYZ($sphere['center']);
-                $binary->write($sphere['radius'], NBinary::FLOAT_32);
+                $binary->write(count($record['spheres']), NBinary::INT_32);
 
-                $binary->write($sphere['surface']['material'], NBinary::INT_8);
-                $binary->write($sphere['surface']['flag'], NBinary::INT_8);
-                $binary->write($sphere['surface']['brightness'], NBinary::INT_8);
-                $binary->write($sphere['surface']['light'], NBinary::INT_8);
-            }
+                foreach ($record['spheres'] as $sphere) {
 
-            $binary->write(count($record['lines']), NBinary::INT_32);
-            foreach ($record['lines'] as $linePack) {
-                foreach ($linePack as $line) {
-                    $binary->writeXYZ($line);
+                    $binary->writeXYZ($sphere['center']);
+                    $binary->write($sphere['radius'], NBinary::FLOAT_32);
+
+                    $binary->write($sphere['surface']['material'], NBinary::INT_8);
+                    $binary->write($sphere['surface']['flag'], NBinary::INT_8);
+                    $binary->write($sphere['surface']['brightness'], NBinary::INT_8);
+                    $binary->write($sphere['surface']['light'], NBinary::INT_8);
                 }
-            }
 
-            $binary->write(count($record['boxes']), NBinary::INT_32);
+                $binary->write(count($record['lines']), NBinary::INT_32);
+                foreach ($record['lines'] as $linePack) {
+                    foreach ($linePack as $line) {
+                        $binary->writeXYZ($line);
+                    }
+                }
 
-            if (count($record['boxes']) > 0){
-                die("box todo");
-            }
+                $binary->write(count($record['boxes']), NBinary::INT_32);
 
-            $binary->write(count($record['verticals']), NBinary::INT_32);
-            foreach ($record['verticals'] as $vertical) {
-                $binary->writeXYZ($vertical);
-            }
+                if (count($record['boxes']) > 0){
+                    die("box todo");
+                }
 
-            $binary->write(count($record['faces']), NBinary::INT_32);
-            foreach ($record['faces'] as $face) {
-                $binary->writeXYZ($face);
-            }
+                $binary->write(count($record['verticals']), NBinary::INT_32);
+                foreach ($record['verticals'] as $vertical) {
+                    $binary->writeXYZ($vertical);
+                }
 
+                $binary->write(count($record['faces']), NBinary::INT_32);
+                foreach ($record['faces'] as $face) {
+                    $binary->writeXYZ($face, NBinary::INT_32);
+                }
+
+//            }
         }
 
         return $binary->binary;

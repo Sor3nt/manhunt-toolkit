@@ -4,6 +4,7 @@ namespace App\Service\Archive;
 use App\Service\Archive\Inst\Build;
 use App\Service\Archive\Inst\Extract;
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
 class Inst extends Archive {
 
@@ -17,6 +18,7 @@ class Inst extends Archive {
         'entinst.bin'
     ];
 
+
     /**
      * @param $pathFilename
      * @param $input
@@ -25,14 +27,18 @@ class Inst extends Archive {
      * @return bool
      */
     public static function canPack( $pathFilename, $input, $game, $platform ){
-        if (!$input instanceof NBinary) return false;
 
-        if (
-            strpos($input->binary, 'record') !== false &&
-            strpos($input->binary, 'internalName') !== false &&
-            strpos($input->binary, 'entityClass') !== false
-        )
-            return true;
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            $ext = strtolower($file->getExtension());
+            if ($ext !== "json") return false;
+
+            $content = $file->getContents();
+            return strpos($content, 'record') !== false &&
+                strpos($content, 'internalName') !== false &&
+                strpos($content, 'entityClass') !== false;
+        }
 
         return false;
     }
@@ -48,15 +54,14 @@ class Inst extends Archive {
     }
 
     /**
-     * @param $records
+     * @param Finder $pathFilename
      * @param $game
      * @param $platform
      * @return null|string
      */
-    public function pack( $records, $game, $platform){
+    public function pack( $pathFilename, $game, $platform){
 
-        $records = \json_decode($records->binary, true);
-        return (new Build())->build( $records, $game, $platform );
+        return (new Build())->build( $pathFilename, $game, $platform );
     }
 
 

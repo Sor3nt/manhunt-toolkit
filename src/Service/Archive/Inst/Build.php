@@ -4,21 +4,24 @@ namespace App\Service\Archive\Inst;
 
 use App\MHT;
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
 class Build {
 
-    public function build( $records, $game, $platform ){
+    public function build( Finder $pathFilename, $game, $platform ){
 
+        // append record count
         $binary = new NBinary();
 
         if ($platform == MHT::PLATFORM_WII) $binary->numericBigEndian = true;
 
-
-        // append record count
-        $binary->write(count($records), NBinary::INT_32);
+        $binary->write($pathFilename->count(), NBinary::INT_32);
 
         $recordBin = [];
-        foreach ($records as $index => $record) {
+        foreach ($pathFilename as $file) {
+            $record = \json_decode($file->getContents(), true);
+
+//        foreach ($records as $index => $record) {
             /*
              * Append GlgRecord name
              */
@@ -66,6 +69,9 @@ class Build {
 
                 if (isset($parameter['parameterId'])){
 
+                    if($parameter['parameterId'] == "envExecution") $parameter['parameterId'] = "8bc3259e";
+                    if($parameter['parameterId'] == "weapon") $parameter['parameterId'] = "ea6cf6cf";
+
                     $entry->write($parameter['parameterId'], NBinary::HEX);
 
                     $entry->write($parameter['type'], NBinary::BINARY);
@@ -78,6 +84,11 @@ class Build {
                             break;
                         case 'boo':
                         case 'int':
+                            if($parameter['parameterId'] == "ea6cf6cf"){  //weapon
+                                if ($parameter['value'] == "nightstick") $parameter['value'] = 9;
+                                if ($parameter['value'] == "syringe") $parameter['value'] = 17;
+                            }
+
                             $entry->write($parameter['value'], NBinary::INT_32);
                             break;
                         case 'str':

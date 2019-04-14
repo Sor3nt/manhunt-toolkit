@@ -1,40 +1,26 @@
 <?php
 namespace App\Service\Archive;
 
-use App\Bytecode\Helper;
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
 class Grf extends Archive {
-    public $name = 'Unknown...';
+    public $name = 'AI Map Path';
 
     public static $supported = 'grf';
 
 
-    private function toString( $hex ){
-        $hex = str_replace('00', '', $hex);
-        return hex2bin($hex);
-    }
+    /**
+     * @param $pathFilename
+     * @param $input
+     * @param $game
+     * @param $platform
+     * @return bool
+     */
+    public static function canPack( $pathFilename, $input, $game, $platform ){
 
-    private function toInt( $hex ){
-        return (int) current(unpack("L", hex2bin($hex)));
-    }
 
-    private function toFloat( $hex ){
-        return (float) current(unpack("f", hex2bin($hex)));
-    }
-
-    private function substr(&$hex, $start, $end){
-
-        $result = substr($hex, $start * 2, $end * 2);
-        $hex = substr($hex, $end * 2);
-        return $result;
-    }
-
-    private function mbSubstr(&$hex, $start, $end){
-
-        $result = mb_substr($hex, $start, $end );
-        $hex = mb_substr($hex, $end);
-        return $result;
+        return false;
     }
 
     /**
@@ -42,356 +28,117 @@ class Grf extends Archive {
      * @param $game
      * @param $platform
      * @return array
-     * @throws \Exception
      */
     public function unpack(NBinary $binary, $game, $platform){
 
-        $entry = strtolower($binary->hex);
+        $fourCC = $binary->consume(4, NBinary::BINARY);
+        $const = $binary->consume(4, NBinary::INT_32);
 
-        $headerType = $this->toString($this->substr($entry, 0, 4));
+        $entryCount = $binary->consume(4, NBinary::INT_32);
+        $entries = [];
 
-        //version
-        $this->toInt($this->substr($entry, 0, 4));
+        for($i = 0; $i < $entryCount; $i++){
 
-        if ($headerType !== "GNIA")
-            throw new \Exception(sprintf('Expected GNIA got: %s', $headerType));
+            $name = $binary->getString();
+            $type = $binary->consume(4, NBinary::INT_32);
 
-        $entries = $this->toInt($this->substr($entry, 0, 4));
 
-        $results = [
-            'block1' => [],
-            'block2' => [],
-            'block3' => []
-        ];
+            $position = $binary->readXYZ();
 
-        while($entries > 0){
-            $result = [];
+            $always3f = $binary->consume(4, NBinary::FLOAT_32);
 
-            $entry = hex2bin($entry);
-            $name = $this->mbSubstr($entry, 0, mb_strpos($entry, "\x00"));
-            $entry = bin2hex($entry);
+            $commandName = $binary->getString();
 
-            $result['name'] = $name;
-            if (trim($result['name']) == "") throw new \Exception(sprintf('Name not found, parsing invalid'));
+            $zero = $binary->consume(4, NBinary::INT_32);
 
-            //we have full 4-bytes just remove the last 00
-            if (strlen($name) + 1 == 4){
-                $this->substr($entry, 0, 1);
-            }else{
-                $missed = 4 - strlen($name) % 4;
-                $this->substr($entry, 0, $missed);
+
+            $unknownCount = $binary->consume(4, NBinary::INT_32);
+            $unknown = [];
+            for($x = 0; $x < $unknownCount; $x++){
+                $unknown[] = $binary->consume(4, NBinary::INT_32);
             }
 
-            $repeatingNameId = $this->toInt($this->substr($entry, 0, 4));
-            $result['repeatingNameId'] = $repeatingNameId;
+            $unknownMatrixCount = $binary->consume(4, NBinary::INT_32);
+            $unknownMatrix = [];
+            for($x = 0; $x < $unknownMatrixCount; $x++){
+                $unknownMatrix[] = $binary->readXYZ(4, NBinary::INT_32);
+            }
 
-            $xOrNull = $this->substr($entry, 0, 4);
+            $unknownNumber = $binary->consume(4, NBinary::INT_32);
+            $zero2 = $binary->consume(4, NBinary::INT_32);
 
-            if ($xOrNull != "00000000"){
+//            if ($unknownNumber != 0) var_dump($unknownMatrix, $unknownNumber, "\n");
 
-                $positions = [];
+            //todo hack, something is wrong....
+            $isZero = $binary->consume(4, NBinary::INT_32);
 
-                $x = $xOrNull;
-                while(substr($entry, 0, 8) != "0000003f"){
-                    $positions[] = [
-                        'x' => $x !== false ? $this->toFloat($x) : $this->toFloat($this->substr($entry, 0, 4)),
-                        'y' => $this->toFloat($this->substr($entry, 0, 4)),
-                        'z' => $this->toFloat($this->substr($entry, 0, 4)),
+            if ($isZero != 0){
+                $binary->current -= 4;
+            }
+
+            $entries[] = [
+                'name' => $name,
+                'commandName' => $commandName,
+                'unknownNumber' => $unknownNumber,
+                'type' => $type,
+                'xyz' => $position,
+                'unknown' => $unknown,
+                'unknownMatrix' => $unknownMatrix,
+            ];
+
+        }
+
+
+        $offsetCount = $binary->consume(4, NBinary::INT_32);
+        $offsets = [];
+        for($i = 0; $i < $offsetCount; $i++){
+            $offset = [
+                'name' => $binary->getString(),
+                'entries' => []
+            ];
+
+            $entryCount = $binary->consume(4, NBinary::INT_32);
+            for($x = 0; $x < $entryCount; $x++){
+                $index = $binary->consume(4, NBinary::INT_32);
+                $entry = $entries[$index - 1];
+
+                foreach ($entry['unknownMatrix'] as &$matrix) {
+                    $matrix[0] = [
+                        'index' => $index - 1,
+                        'type' => $entries[$matrix[0] - 1]['type'],
+                        'xyz' => $entries[$matrix[0] - 1]['xyz']
+
                     ];
-
-                    $x = false;
                 }
 
-                $result['positions'] = $positions;
-
+                $offset['entries'][] = $entry;
             }
 
-            //remove the position ending sequence 0000003f
-            $entry = substr($entry, 8);
-
-            /**
-             * 3 cases:
-             * 1: nothing, here is the end
-             * 2: 00707070, no name but parameters
-             * 3: TEXT, label/name ending with 00
-             */
-
-            $entry = hex2bin($entry);
-            $name2 = $this->mbSubstr($entry, 0, mb_strpos($entry, "\x00"));
-            $entry = bin2hex($entry);
-
-            $flags = [];
-
-            //we have no second name
-            if (strlen($name2) == 0){
-                //remove the 00707070
-                $test = $this->substr($entry, 0, 4);
-                if ($test != "00707070") throw new \Exception(sprintf('Excepted 00707070 and got %s', $test));
-
-                //remove the 00000000
-                $test = $this->substr($entry, 0, 4);
-                if ($test != "00000000") throw new \Exception(sprintf('Excepted 00000000 and got %s', $test));
-
-                //remove the 00000000
-                $unknownId2 = $this->substr($entry, 0, 4);
-
-                if ($unknownId2 != "00000000"){
-
-                    if ($unknownId2 != "01000000") throw new \Exception(sprintf('Excepted 01000000 and got %s', $test));
-
-//                    $result['unknownId2'] = $unknownId2;
-                    $result['unknown'] = $this->substr($entry, 0, 4);
-                }
-
-            }else{
-
-                $result['action'] = $name2;
-                $missed = 4 - strlen($name2) % 4;
-                $this->substr($entry, 0, $missed );
-
-                //remove the 00000000
-                $test = $this->substr($entry, 0, 4);
-                if ($test != "00000000") throw new \Exception(sprintf('Excepted 00000000 and got %s', $test));
-
-                $unknownId2 = $this->substr($entry, 0, 4);
-
-                if ($unknownId2 != "00000000"){
-                    $result['unknownFlag2'] = $this->substr($entry, 0, 4);
-                }
-
-            }
-
-            $flagCount = $this->toInt($this->substr($entry, 0, 4));
-
-            while($flagCount > 0){
-
-
-                $flag = [
-                    'key' => $this->substr($entry, 0, 4),
-                    'active' => $this->substr($entry, 0, 4)
-                ];
-
-                $end = $this->substr($entry, 0, 4);
-                if ($end !== "00000000" && $end !== "01000000"){
-                    throw new \Exception(sprintf('Excepted 00000000 git %s', $end));
-                }
-
-                if ($end == "01000000"){
-                    $flag['additional'] = $this->substr($entry, 0, 4);
-                }
-
-                $flags[] = $flag;
-
-                $flagCount--;
-            }
-
-            if (count($flags)){
-
-                $result['flags'] = $flags;
-
-                //skip flag ending sequence
-                $entry = substr($entry, 8);
-                $entry = substr($entry, 8);
-
-            }
-
-            $results['block1'][] = $result;
-
-            $entries--;
+            $offsets[] = $offset;
         }
 
-        $nextBlockCount = $this->toInt($this->substr($entry, 0, 4));
 
-        while($nextBlockCount > 0){
-
-            $result = [];
-
-            $entry = hex2bin($entry);
-            $name = $this->mbSubstr($entry, 0, mb_strpos($entry, "\x00"));
-            $entry = bin2hex($entry);
-
-            $result['name'] = $name;
-
-            //we have full 4-bytes just remove the last 00
-            if (strlen($name) + 1 == 4){
-                $this->substr($entry, 0, 1);
-            }else{
-                $missed = 4 - strlen($name) % 4;
-                $this->substr($entry, 0, $missed);
-            }
-
-            $flagCount = $this->toInt($this->substr($entry, 0, 4));
-
-            $flags = [];
-            while($flagCount > 0){
-                $flags[] = $this->substr($entry, 0, 4);
-                $flagCount--;
-            }
-
-            $result['flags'] = $flags;
-
-            $results['block2'][] = $result;
-
-            $nextBlockCount--;
-        }
-
-        $nextBlockCount = $this->toInt($this->substr($entry, 0, 4));
-
-        while($nextBlockCount > 0){
-            $entry = hex2bin($entry);
-            $name = $this->mbSubstr($entry, 0, mb_strpos($entry, "\x00"));
-            $entry = bin2hex($entry);
-
-            //we have full 4-bytes just remove the last 00
-            if (strlen($name) + 1 == 4){
-                $this->substr($entry, 0, 1);
-            }else{
-                $missed = 4 - strlen($name) % 4;
-                $this->substr($entry, 0, $missed);
-            }
-
-            $results['block3'][] = $name;
-
-            $nextBlockCount--;
-        }
-
-        if ($entry != ""){
-            throw new \Exception('Remained content found, parsing is not valid!');
+        $results = [];
+        foreach ($offsets as $offset) {
+            $results[ $offset['name'] . '.json' ] = $offset;
         }
 
         return $results;
-
     }
+
 
     /**
-     * @param $record
+     * @param Finder $pathFilename
      * @param $game
      * @param $platform
-     * @return mixed|string
+     * @return null|string
      */
-    public function pack( $record, $game, $platform ){
+    public function pack( $pathFilename, $game, $platform ){
+
+        $binary = new NBinary();
+        $binary->write($pathFilename->count(), NBinary::INT_32);
 
 
-        $data = current(unpack("H*", "GNIA"));
-        $data .= Helper::fromIntToHex(1);
-
-        $data .= Helper::fromIntToHex(count($record['block1']));
-
-        foreach ($record['block1'] as $entry) {
-
-            /**
-             * Generate the NAME
-             */
-
-            $data .= $this->packString($entry['name']);
-
-
-            // count up the name usage
-//            if (!isset($nameIndex[$name])) $nameIndex[$name] = -1;
-//            $nameIndex[$name]++;
-
-//            $data .= Helper::fromIntToHex($nameIndex[$name]);
-            $data .= Helper::fromIntToHex($entry['repeatingNameId']);
-
-
-            /**
-             * Generate the POSITIONS
-             */
-            foreach ($entry['positions'] as $position) {
-                $data .= Helper::fromFloatToHex($position['x']);
-                $data .= Helper::fromFloatToHex($position['y']);
-                $data .= Helper::fromFloatToHex($position['z']);
-            }
-
-            $data .= "0000003f";
-
-            /**
-             * Generate the ACTION
-             */
-
-            if (isset($entry['action'])){
-
-                $data .= $this->packString($entry['action']);
-                $data .= "00000000";
-
-                if (isset($entry['unknownFlag2'])){
-                    //todo: ggf falsch, kommt von $unknownId2
-                    $data .= "01000000";
-
-                    $data .= $entry['unknownFlag2'];
-                }else{
-                    $data .= "00000000";
-                }
-
-            }else{
-                $data .= "00707070";
-                $data .= "00000000";
-
-                if (isset($entry['unknown'])){
-                    $data .= "01000000";
-                    $data .= $entry['unknown'];
-                }else{
-                    $data .= "00000000";
-                }
-            }
-
-            /**
-             * Generate the FLAGS
-             */
-
-            $data .= Helper::fromIntToHex(count($entry['flags']));
-
-            if (count($entry['flags'])){
-                foreach ($entry['flags'] as $flag) {
-                    $data .= $flag['key'];
-                    $data .= $flag['active'];
-
-                    if (isset($flag['additional'])){
-                        $data .= "01000000";
-                        $data .= $flag['additional'];
-                    }else{
-                        $data .= "00000000";
-                    }
-                }
-
-                $data .= "00000000";
-                $data .= "00000000";
-            }
-        }
-
-        $data .= Helper::fromIntToHex(count($record['block2']));
-
-        foreach ($record['block2'] as $entry) {
-
-            $data .= $this->packString($entry['name']);
-            $data .= Helper::fromIntToHex(count($entry['flags']));
-
-            foreach ($entry['flags'] as $flag) {
-                $data .= $flag;
-            }
-        }
-
-        $data .= Helper::fromIntToHex(count($record['block3']));
-
-        foreach ($record['block3'] as $entry) {
-            $data .= $this->packString($entry);
-        }
-
-        return $data;
-
+        return $binary->binary;
     }
-
-    private function packString($string){
-        $string = current(unpack("H*", $string)) . '00';
-
-        //add padding
-        $missed = 4 - (strlen($string) / 2) % 4;
-
-        if ($missed > 0 && $missed < 4 ){
-            $string .= str_repeat('70', $missed);
-        }
-
-        return $string;
-    }
-
 }

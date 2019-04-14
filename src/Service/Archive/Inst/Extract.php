@@ -33,7 +33,9 @@ class Extract {
 
             $block->numericBigEndian = $binary->numericBigEndian;
 
-            $records[] = $this->parseRecord( $block, $game );
+            $record = $this->parseRecord( $block, $game );
+
+            $records[$record['internalName'] . '.json'] = $record;
         }
 
         return $records;
@@ -112,6 +114,11 @@ class Extract {
 
                 $parameterId = $binary->consume(4, NBinary::HEX);
 
+
+                if($parameterId == "8bc3259e") $parameterId = "envExecution";
+                if($parameterId == "ea6cf6cf") $parameterId = "weapon";
+
+
                 $type = $binary->consume(4, NBinary::STRING);
 
                 // float, boolean, integer are always 4-byte long
@@ -121,10 +128,19 @@ class Extract {
                         $value = $binary->consume(4, NBinary::FLOAT_32);
                         break;
                     case 'boo':
-                    case 'int':
                         $value = $binary->consume(4, NBinary::INT_32);
                         break;
+                    case 'int':
+                        $value = $binary->consume(4, NBinary::INT_32);
+
+                        if($parameterId == "weapon"){
+                            if ($value == 9) $value = "nightstick";
+                            if ($value == 17) $value = "syringe";
+                        }
+
+                        break;
                     case 'str':
+
 
                         $value = $binary->getString();
 
