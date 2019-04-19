@@ -15,7 +15,6 @@ class Extract {
 
 
         if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
-        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
 
 
         if ($platform == MHT::PLATFORM_AUTO){
@@ -28,6 +27,7 @@ class Extract {
             }
 
         }
+
 
         $numExec = $binary->consume(4, NBinary::INT_32);
         $numEnvExec = $binary->consume(4, NBinary::INT_32);

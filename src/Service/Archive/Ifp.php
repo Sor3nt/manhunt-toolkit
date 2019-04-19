@@ -74,7 +74,7 @@ class Ifp extends Archive
     public function unpack(NBinary $binary, $game, $platform)
     {
 
-        list($game, $platform) = $this->unpackDetectGamePlatform($binary);
+        if ($game == MHT::GAME_AUTO) list($game, $platform) = $this->unpackDetectGamePlatform($binary);
 
         /**
          * ROOT (ANCT)
@@ -219,6 +219,10 @@ class Ifp extends Archive
             //pecTime
             $unknown5 = $binary->consume(4, NBinary::HEX);
 
+            //stupid quick hack... todo
+            if ($unknown5 == "40400000") $unknown5 = "00004040";
+
+
             //eachEntrySize
             $binary->consume(4, NBinary::INT_32);
             $numEntry = $binary->consume(4, NBinary::INT_32);
@@ -286,6 +290,9 @@ class Ifp extends Archive
                         ],
                         'unknown5' => $binary->consume(40, NBinary::HEX)
                     ];
+
+
+                    if ($entry['unknown3'] == "00000001") $entry['unknown3'] = "01000000";
 
 
                     if (str_replace('00', '', $entry['CommandName']) !== ''){
@@ -365,7 +372,12 @@ class Ifp extends Archive
             $frameType = $binary->consume(1, NBinary::INT_8);
             $frames = $binary->consume(2, NBinary::INT_16);
 
-            $startTime = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+            if ($platform == MHT::PLATFORM_WII){
+                $startTime = $binary->consume(2, NBinary::INT_16);
+            }else{
+                $startTime = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+
+            }
             $startTime = ($startTime / 2048) * 30;
 
             $resultBone = [
@@ -435,7 +447,12 @@ class Ifp extends Archive
                 if ($index == 0 && $frameType == 3) {
                     $curTime = 0;
                 } else {
-                    $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+                    if ($platform == MHT::PLATFORM_WII) {
+                        $time = $binary->consume(2, NBinary::INT_16);
+                    }else{
+                        $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+
+                    }
 
                     $resultFrame['time'] = $time / 2048 * 30;
                     $curTime = $resultFrame['time'];
@@ -477,22 +494,44 @@ class Ifp extends Archive
 
             if ($frameType < 3) {
 
-                $resultFrame['quat'] = [
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                ];
+                if ($platform == MHT::PLATFORM_WII){
+                    $resultFrame['quat'] = [
+                        $binary->readSwitchedInt16() / 2048,
+                        $binary->readSwitchedInt16() / 2048,
+                        $binary->readSwitchedInt16() / 2048,
+                        $binary->readSwitchedInt16() / 2048
+                    ];
+
+                }else{
+
+                    $resultFrame['quat'] = [
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                    ];
+                }
+
 
             }
 
             if ($frameType > 1) {
 
-                $resultFrame['position'] = [
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                ];
+                if ($platform == MHT::PLATFORM_WII){
+                    $resultFrame['position'] = [
+                        $binary->readSwitchedInt16() / 2048,
+                        $binary->readSwitchedInt16() / 2048,
+                        $binary->readSwitchedInt16() / 2048
+                    ];
+
+                }else{
+
+                    $resultFrame['position'] = [
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048
+                    ];
+                }
             }
 
             $resultFrames['frames'][] = $resultFrame;

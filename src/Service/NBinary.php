@@ -59,6 +59,15 @@ class NBinary{
         }
     }
 
+    public function readSwitchedInt16(){
+        $this->numericBigEndian = !$this->numericBigEndian;
+        $hex = $this->consume(2, NBinary::HEX);
+        $hex = implode('',array_reverse(str_split($hex, 2)));
+        $result = $this->unpack(hex2bin($hex), NBinary::INT_16);
+        $this->numericBigEndian = !$this->numericBigEndian;
+        return $result;
+    }
+
     public function range( $fromOffset, $toOffset, $absolutePosition = false ){
 
         if ($absolutePosition == false){

@@ -49,8 +49,6 @@ class Bin extends Archive {
         //force to Manhunt 2 since Manhunt 1 did not use this
         $game = MHT::GAME_MANHUNT_2;
 
-        if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
-
         return (new Extract())->get($binary, $game, $platform);
     }
 
