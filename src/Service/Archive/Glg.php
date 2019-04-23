@@ -2,6 +2,7 @@
 namespace App\Service\Archive;
 
 use App\MHT;
+use App\Service\Archive\Glg\EntityTypeData;
 use App\Service\NBinary;
 
 class Glg extends Archive {
@@ -21,6 +22,55 @@ class Glg extends Archive {
     }
 
     public function unpack(NBinary $binary, $game, $platform){
+
+        $contentAsLower = strtolower($binary->binary);
+
+        if (
+            strpos($contentAsLower, 'record') !== false &&
+            strpos($contentAsLower, 'class') !== false &&
+            strpos($contentAsLower, 'model') !== false
+        ){
+
+            $ecs = (new EntityTypeData())->parse($binary);
+
+            $results = [];
+
+            foreach ($ecs as $name => $ec) {
+
+                switch ($ec->class){
+                    case MHT::EC_PLAYER: $results[ 'Player/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_MOVER: $results[ 'Movers/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_WEAPON: $results[ 'Weapons/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_BASIC: $results[ 'Basic/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_SWITCH: $results[ 'Switches/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_USEABLE: $results[ 'Useable/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_SHOT: $results[ 'Shots/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_TRIGGER: $results[ 'Triggers/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_COLLECTABLE: $results[ 'Collectables/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_PEDHEAD: $results[ 'Hunters/Heads/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_SLIDEDOOR: $results[ 'Doors/Sliding/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_DOOR: $results[ 'Doors/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_RESPONDER: $results[ 'Responders/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_ENTITYSOUND: $results[ 'Sounds/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_HUNTER:
+
+                        //todo, lookup the PED with the right option...
+                        if ($ec->get('head') == "no_hed"){
+                            $results[ 'Hunters/BodyWithHead/' . $ec->get('model') ] = $ec;
+
+                        }else{
+                            $results[ 'Hunters/Body/' . $ec->get('model') . '_' . $ec->get('head') ] = $ec;
+                        }
+
+                        break;
+                    case MHT::EC_ENTITYLIGHT: $results[ 'Lights/' . $ec->get('model') ] = $ec; break;
+
+                }
+            }
+
+            return $results;
+
+        }
 
         //it is already unzipped via NBinary
         return $binary->binary;

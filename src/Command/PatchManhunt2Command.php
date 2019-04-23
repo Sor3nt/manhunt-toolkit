@@ -28,6 +28,7 @@ class PatchManhunt2Command extends Command
     {
         $this
             ->addArgument('exe', InputArgument::REQUIRED, 'manhunt2.exe location')
+            ->setDescription('Manhunt2.exe Patcher, enable / disable game features')
         ;
     }
 

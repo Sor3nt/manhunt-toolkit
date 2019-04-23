@@ -12,4 +12,23 @@ class MHT{
     const PLATFORM_PSP      = 'psp';
     const PLATFORM_XBOX     = 'xbox';
     const PLATFORM_WII      = 'wii';
+
+
+    const EC_BASIC      = 'EC_BASIC';
+    const EC_ENTITYLIGHT      = 'EC_ENTITYLIGHT';
+    const EC_HUNTER      = 'EC_HUNTER';
+    const EC_PEDHEAD      = 'EC_PEDHEAD';
+    const EC_SLIDEDOOR      = 'EC_SLIDEDOOR';
+    const EC_DOOR      = 'EC_DOOR';
+    const EC_WEAPON      = 'EC_WEAPON';
+    const EC_RESPONDER      = 'EC_RESPONDER';
+    const EC_ENTITYSOUND      = 'EC_ENTITYSOUND';
+    const EC_SWITCH      = 'EC_SWITCH';
+    const EC_COLLECTABLE      = 'EC_COLLECTABLE';
+    const EC_TRIGGER      = 'EC_TRIGGER';
+    const EC_SHOT      = 'EC_SHOT';
+    const EC_PLAYER      = 'EC_PLAYER';
+    const EC_MOVER      = 'EC_MOVER';
+    const EC_USEABLE      = 'EC_USEABLE';
+
 }

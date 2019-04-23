@@ -55,6 +55,7 @@ $application = new Application();
 //basic commands
     $application->add(new \App\Command\PackCommand());
     $application->add(new \App\Command\UnpackCommand());
+    $application->add(new \App\Command\PatchManhunt2Command(new \App\Service\Archive\Manhunt2Exe()));
 
 //extraction helper
     $application->add(new \App\Command\MassExtractionCommand());
