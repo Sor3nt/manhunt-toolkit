@@ -797,9 +797,53 @@ class Ifp extends Archive
             }
 
             if ($portAnimationToManhunt2){
+                $binary->write(count($animation['entry']), NBinary::INT_32);
+
+                foreach ($animation['entry'] as $entry) {
+
+                    $binary->write($entry['time'], NBinary::FLOAT_32);
+                    $binary->write($entry['unknown'], NBinary::HEX);
+                    $binary->write($entry['unknown2'], NBinary::HEX);
+
+//                    if ($game == MHT::GAME_MANHUNT_2) {
+
+//                    $commandName = current(unpack("H*", $entry['CommandName']));
+//                    $missed = 128 - strlen($commandName) % 128;
+
+                        $binary->write("", NBinary::STRING);
+
+                        $dummy = \json_decode('{"unknownCommandRemain": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"}', true);
+                        //NOTE: this is just garbage, not needed but included to reach 100%
+                        $binary->write($dummy['unknownCommandRemain'], NBinary::STRING);
+//                    $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
+//                    }
+
+                    $binary->write($entry['unknown4'], NBinary::HEX);
+
+
+
+
+                    $binary->write($entry['unknown6'], NBinary::FLOAT_32);
+
+//                $particleName = current(unpack("H*", $entry['particleName']));
+//                $missed = 16 - strlen($particleName) % 16;
+
+                    $binary->write($entry['particleName'], NBinary::STRING);
+
+                    //NOTE: this is just garbage, not needed but included to reach 100%
+                    $binary->write($entry['unknownParticleName'], NBinary::STRING);
+//                $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
+
+                    foreach ($entry['particlePosition'] as $pPos) {
+                        $binary->write($pPos, NBinary::FLOAT_32);
+                    }
+
+                    $binary->write('00000000000000000000000000000000000000000000000000000000000000000000000000000000', NBinary::HEX);
+//                    $binary->write($entry['unknown5'], NBinary::HEX);
+                }
 
                 // we can not port the effects right now.... just remove them
-                $binary->write(0, NBinary::INT_32);
+//                $binary->write(0, NBinary::INT_32);
 
             }else{
                 $binary->write(count($animation['entry']), NBinary::INT_32);
