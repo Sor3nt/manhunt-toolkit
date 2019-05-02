@@ -1246,10 +1246,10 @@ class NewCompiler
                 substr($varType, 0, 9) == "level_var" ||
                 substr($varType, 0, 8) == "game_var"
             ) {
-
                 $isGameVar = substr($varType, 0, 8) == "game_var";
                 $varType = substr($varType, $isGameVar ? 9 : 10);
-
+//var_dump($sectionCode);
+//exit;
                 foreach ($sectionCode as $index => $code) {
                     if ($code == $variable['offset']) {
                         $occur[] = $index * 4;
@@ -1306,7 +1306,12 @@ class NewCompiler
             }
 
             if ($this->game == MHT::GAME_MANHUNT){
+
                 if ($varType == "integer"){
+                    $varType = "boolean";
+                }
+
+                if ($varType == "vec3d"){
                     $varType = "boolean";
                 }
             }

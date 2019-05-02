@@ -22,6 +22,21 @@ class Manhunt
     ];
 
     public static $constants = [
+        'difficulty_easy' => [
+            'offset' => 'difficulty_easy'
+        ],
+        'aispeech_d1v1_trf_hoods_level_start' => [
+            'offset' => '27000000'
+        ],
+        'aiscript_idle_standstill' => [
+            'offset' => '02000000'
+        ],
+        'aiscript_runmovespeed' => [
+            'offset' => 'aiscript_runmovespeed'
+        ],
+        'hud_stamina' => [
+            'offset' => '08000000'
+        ],
         'CT_TRIPWIRE' => [
             'offset' => '01000000'
         ],
@@ -635,6 +650,7 @@ class Manhunt
         'aidefinegoalguarddirection' => [
             'name' => 'aidefinegoalguarddirection',
             'offset' => 'af010000',
+
         ],
 
         'aiguardmodifyshootoutsideradius' => [
@@ -895,10 +911,158 @@ class Manhunt
             'return' => 'Void',
             'desc' => ''
         ],
+
+
         'setvector' => [
             'name' => 'SetVector',
             'offset' => '83010000'
         ],
+
+
+        'aiassociateoneactiveareawithplayerarea' => [
+            'name' => 'aiassociateoneactiveareawithplayerarea',
+            'offset' => 'ba010000'
+        ],
+
+
+        'aidefinegoalgotonodeidle' => [
+            'name' => 'aidefinegoalgotonodeidle',
+            'offset' => 'b0010000'
+        ],
+
+        'aisethunteridleactionminmax' => [
+            'name' => 'aisethunteridleactionminmax',
+            'offset' => '7f010000'
+        ],
+
+        'setpedskintextureid' => [
+            'name' => 'setpedskintextureid',
+            'offset' => '9e010000'
+        ],
+
+        'aimakeentityblind' => [
+            'name' => 'aimakeentityblind',
+            'offset' => '70010000'
+        ],
+
+        'aimakeentitydeaf' => [
+            'name' => 'aimakeentitydeaf',
+            'offset' => '71010000'
+        ],
+
+        'sethunterruntime' => [
+            'name' => 'sethunterruntime',
+            'offset' => 'ee010000'
+        ],
+
+        'aicancelhunteridleaction' => [
+            'name' => 'aicancelhunteridleaction',
+            'offset' => '80010000'
+        ],
+
+        'assert' => [
+            'name' => 'assert',
+            'offset' => '6b000000'
+        ],
+
+        'setgametextteletype' => [
+            'name' => 'setgametextteletype',
+            'offset' => '08010000'
+        ],
+
+        'setgametextboxposition' => [
+            'name' => 'setgametextboxposition',
+            'offset' => '0b010000'
+        ],
+
+
+        'setgametextdisplaytime' => [
+            'name' => 'setgametextdisplaytime',
+            'offset' => '0c010000'
+        ],
+
+
+
+        'setgametextboxsize' => [
+            'name' => 'setgametextboxsize',
+            'offset' => '0a010000'
+        ],
+        'createlinetrigger' => [
+            'name' => 'createlinetrigger',
+            'offset' => '26010000'
+        ],
+
+        'playdirectorspeech' => [
+            'name' => 'playdirectorspeech',
+            'offset' => '79020000'
+        ],
+
+        'handcamsetactive' => [
+            'name' => 'handcamsetactive',
+            'offset' => 'ea010000'
+        ],
+
+
+        'playsplinefiledefault' => [
+            'name' => 'playsplinefiledefault',
+            'offset' => 'c9010000'
+        ],
+
+        'issplineplaying' => [
+            'name' => 'issplineplaying',
+            'offset' => 'cd010000'
+        ],
+
+        'whitenoisesetval' => [
+            'name' => 'whitenoisesetval',
+            'offset' => 'd9020000'
+        ],
+
+
+        'handcamsetall' => [
+            'name' => 'handcamsetall',
+            'offset' => 'e4010000'
+        ],
+
+        'setzoomlerp' => [
+            'name' => 'setzoomlerp',
+            'offset' => 'b2020000'
+        ],
+
+        'setplayerheading' => [
+            'name' => 'setplayerheading',
+            'offset' => '7d020000'
+        ],
+
+        'drawhud' => [
+            'name' => 'drawhud',
+            'offset' => 'd4020000'
+        ],
+
+        'handcamsetalleffects' => [
+            'name' => 'handcamsetalleffects',
+            'offset' => '77020000'
+        ],
+
+
+        'thislevelbeencompletedalready' => [
+            'name' => 'thislevelbeencompletedalready',
+            'offset' => '02030000'
+        ],
+
+
+        'togglehudflag' => [
+            'name' => 'togglehudflag',
+            'offset' => '7c020000'
+        ],
+
+        'getdifficultylevel' => [
+            'name' => 'getdifficultylevel',
+            'offset' => '9c020000',
+            'return' => 'integer'
+        ],
+
+
         'moveentity' => [
             'name' => 'MoveEntity',
             'offset' => '7c000000',

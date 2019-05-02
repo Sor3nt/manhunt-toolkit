@@ -19,8 +19,16 @@ class ManhuntDefault {
         'setcolourramp' => [false, false, true],
         'setpedorientation' => [false, true],
         'setvector' => [false, true, true, true],
-        'aisethunteridleactionminmaxradius' => [false, false, false, false, false, true]
-    ];
+        'aisethunteridleactionminmaxradius' => [false, false, false, false, false, true],
+        'aidefinegoalguarddirection' => [false, false, false, true, true, false, false],
+        'sethunterruntime' => [false, true],
+        'setdooropenanglein' => [false, true],
+        'setdooropenangleout' => [false, true],
+        'setzoomlerp' => [true, true, true],
+        'setplayerheading' => [true],
+        'handcamsetall' => [false, true, true, true, true],
+
+];
 
     public static $functionEventDefinition = [
         'oncreate' => '00000000',

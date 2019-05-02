@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 use App\Service\Compiler\Token;
@@ -268,7 +269,10 @@ class T_FUNCTION {
                     ) {
                         $debugMsg = sprintf('[T_FUNCTION] map: convert int to float %s', $param['value']);
 
-                        Evaluate::int2float($code, $getLine);
+//                        if($data['game'] == MHT::GAME_MANHUNT_2){
+
+                            Evaluate::int2float($code, $getLine);
+//                        }
                     }
                 }
 

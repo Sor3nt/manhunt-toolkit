@@ -13,9 +13,6 @@ class T_WHILE {
 
         $firstLine = $resultCode[0]->lineNumber - 1;
         $firstLine *= 4;
-        if ($data['game'] == MHT::GAME_MANHUNT){
-            $firstLine += 12;
-        }
 
         foreach ($resultCode as $line) {
             $line->debug = '[T_WHILE] map ' . $line->debug;

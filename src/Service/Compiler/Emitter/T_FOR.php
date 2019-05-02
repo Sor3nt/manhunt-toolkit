@@ -31,7 +31,13 @@ class T_FOR {
         $code[] = $getLine('02000000', false, $debugMsg);
         $code[] = $getLine('41000000', false, $debugMsg);
 
-        $startLineNumber = end($code)->lineNumber + 3;
+
+        $startLineNumber = end($code)->lineNumber;
+
+        if ($data['game'] == MHT::GAME_MANHUNT_2){
+            $startLineNumber += 3;
+        }
+
         $code[] = $getLine(Helper::fromIntToHex($startLineNumber * 4), false, $debugMsg . ' (start line 1)');
 
         $code[] = $getLine('3c000000', false, $debugMsg);
