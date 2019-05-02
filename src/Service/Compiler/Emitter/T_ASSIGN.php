@@ -56,14 +56,14 @@ class T_ASSIGN {
         if ($rightHandNewMapped && isset($rightHandNewMapped['isArg']) && $rightHandNewMapped['isArg']) {
 
         }else if ($mapped['type'] == Token::T_VEC3D){
-            Evaluate::fromObject($mapped, $code, $getLine);
+            Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
 
         }else if($mapped['type'] == "object"){
-            Evaluate::fromObjectAttribute($mapped, $code, $getLine);
+            Evaluate::fromObjectAttribute($mapped, $code, $getLine, $node['value']);
 
         }else if($mapped['type'] == "array"){
 
-            Evaluate::fromObject($mapped, $code, $getLine);
+            Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
 
             $indexName = explode('[', $node['value'])[1];
             $indexName = explode(']', $indexName)[0];

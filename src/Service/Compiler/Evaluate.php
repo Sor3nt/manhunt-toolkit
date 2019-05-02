@@ -305,14 +305,14 @@ class Evaluate {
 
 
     //verwendet t_var vec3d; t_var stringarray; fromObject;  t_string
-    static public function fromFineANameforMeTodo($mapped, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[fromFineANameforMeTodo] ');
+    static public function readData($mapped, &$code, \Closure $getLine, $value = ""){
+        $debugMsg = sprintf('[readData] ');
 
-        $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000');
+        $code[] = $getLine($mapped['section'] == "header" ? '21000000' : '22000000', false, $debugMsg . " from " . $mapped['section']);
 
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
-        $code[] = $getLine($mapped['offset'], false, $debugMsg);
+        $code[] = $getLine($mapped['offset'], false, $debugMsg . ' value ' . $value);
 
     }
 
@@ -353,9 +353,9 @@ class Evaluate {
     }
 
 
-    static public function fromObject($mapped, &$code, \Closure $getLine){
+    static public function fromObject($mapped, &$code, \Closure $getLine, $name = ""){
 
-        self::fromFineANameforMeTodo($mapped, $code, $getLine);
+        self::readData($mapped, $code, $getLine, $name);
 
         self::regularReturn($code, $getLine);
     }
@@ -378,12 +378,12 @@ class Evaluate {
     /**
      * @deprecated
      */
-    static public function fromObjectAttribute($mapped, &$code, \Closure $getLine){
+    static public function fromObjectAttribute($mapped, &$code, \Closure $getLine, $name = ""){
 
         self::fromObject([
             'offset' => $mapped['object']['offset'],
             'section' => $mapped['section']
-        ], $code, $getLine);
+        ], $code, $getLine, $name);
 
         if ($mapped['offset'] != $mapped['object']['offset']){
 

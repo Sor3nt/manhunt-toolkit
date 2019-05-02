@@ -30,10 +30,10 @@ class T_STRING {
 
         $code = [];
 
-        Evaluate::fromFineANameforMeTodo([
+        Evaluate::readData([
             'section' => "header",
             'offset' => $offset
-        ], $code, $getLine);
+        ], $code, $getLine, $value);
 
         if ($isProcedure || $isCustomFunction){
             Evaluate::regularReturn($code, $getLine);

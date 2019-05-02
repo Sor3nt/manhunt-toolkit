@@ -22,7 +22,10 @@ class T_FLOAT {
         $hex = Helper::fromFloatToHex( $value );
 
         //replace -0 with 0
-        if ($hex == '00000080') $hex = '00000000';
+        if ($hex == '00000080'){
+            $negate = true;
+            $hex = '00000000';
+        }
 
         $code = [];
 

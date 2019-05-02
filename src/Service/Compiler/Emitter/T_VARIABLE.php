@@ -76,7 +76,7 @@ class T_VARIABLE extends TAbstract {
 
         switch ($mapped['type']){
             case Token::T_VEC3D:
-                Evaluate::fromObject($mapped, $code, $getLine);
+                Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
                 break;
 
             case Token::T_OBJECT:
@@ -84,7 +84,7 @@ class T_VARIABLE extends TAbstract {
                 break;
 
             case Token::T_STRING_ARRAY:
-                Evaluate::fromFineANameforMeTodo($mapped, $code, $getLine);
+                Evaluate::readData($mapped, $code, $getLine, $node['value']);
                 Evaluate::readStringPosition($mapped['size'], $code, $getLine);
                 break;
 
@@ -170,9 +170,9 @@ class T_VARIABLE extends TAbstract {
         $code = [];
 
         if ($mapped['offset'] !== $mapped['object']['offset']) {
-            Evaluate::fromObjectAttribute($mapped, $code, $getLine);
+            Evaluate::fromObjectAttribute($mapped, $code, $getLine, $node['value']);
         }else{
-            Evaluate::fromObject($mapped, $code, $getLine);
+            Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
         }
 
         //TODO: unknown code sequence... lookup needed

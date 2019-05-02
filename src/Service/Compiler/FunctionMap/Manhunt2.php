@@ -2378,6 +2378,11 @@ class Manhunt2
             'name' => 'StopTimer',
             'offset' => 'd2020000'
         ],
+//
+//        'incrementtimer' => [
+//            'name' => 'IncrementTimer',
+//            'offset' => 'd3020000'
+//        ],
 
 
         'showtimer' => [
