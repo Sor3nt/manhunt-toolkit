@@ -22,6 +22,7 @@ class T_IF {
                 }
             }
 
+
             if (count($case['condition'])){
                 $firstNode = $case['condition'][0];
                 $lastNode = end($case['condition']);
@@ -66,7 +67,6 @@ class T_IF {
                 }
 
             }
-
             $parsedConditions = [];
             $innerCurrent = 0;
             $innerTokens = $case['condition'];
@@ -104,6 +104,7 @@ class T_IF {
             $parsedIsTrue = [];
             $innerCurrent = 0;
             $innerTokens = $case['isTrue'];
+
 
             while($innerCurrent < count($innerTokens)){
                 list($innerCurrent, $tree) = $parseToken($innerTokens, $innerCurrent);
@@ -179,6 +180,7 @@ class T_IF {
          */
         if ($shortStatement){
 
+
             while ($current < count($tokens)) {
                 $token = $tokens[$current];
 
@@ -209,7 +211,7 @@ class T_IF {
                             // +0 : just return given one
                             return [$current, $node];
 
-                        //short else
+                            //short else
                         }else if (
                             $tokens[$current + 1]['type'] == Token::T_ELSE
                         ) {
@@ -240,6 +242,9 @@ class T_IF {
 
                 $current++;
             }
+
+
+
 
             /**
              * parse regular true code
@@ -455,7 +460,8 @@ class T_IF {
                 }
 
                 if ($opertation == false){
-                    throw new \Exception('operator not found');
+                    var_dump($tokens);
+                    throw new \Exception('T_IF: operator not found');
                 }
                 $innerTokens = array_values($innerTokens);
                 $innerCurrent = 0;

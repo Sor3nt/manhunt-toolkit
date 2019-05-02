@@ -25,8 +25,11 @@ class ManhuntDefault {
         'setdooropenanglein' => [false, true],
         'setdooropenangleout' => [false, true],
         'setzoomlerp' => [true, true, true],
+        'setdooroverrideangle' => [false, true],
+        'camerastoplookatentity' => [false, true],
         'setplayerheading' => [true],
         'handcamsetall' => [false, true, true, true, true],
+        'cameraforcelookatentity' => [false, false, false, false, true],
 
 ];
 

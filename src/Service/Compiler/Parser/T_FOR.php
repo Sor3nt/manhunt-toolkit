@@ -365,7 +365,7 @@ class T_FOR {
 
                 if ($opertation == false){
 
-                    throw new \Exception('operator not found');
+                    throw new \Exception('T_FOR: operator not found');
                 }
                 $tokens = array_values($tokens);
                 $current = 0;

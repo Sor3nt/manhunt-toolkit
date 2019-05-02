@@ -22,6 +22,28 @@ class Manhunt
     ];
 
     public static $constants = [
+        'aispeech_d1v1_trf_hoods_carpark' => [
+            'offset' => '2a000000'
+        ],
+        'hud_health' => [
+            'offset' => '04000000'
+        ],
+        'hud_map' => [
+            'offset' => '01000000'
+        ],
+
+        'hud_inventory' => [
+            'offset' => '10000000'
+        ],
+
+        'ct_bag' => [
+            'offset' => '3a000000'
+        ],
+
+        'hud_all_on' => [
+            'offset' => 'ff000000'
+        ],
+
         'difficulty_easy' => [
             'offset' => 'difficulty_easy'
         ],
@@ -737,7 +759,8 @@ class Manhunt
         ],
         'getentityposition' => [
             'name' => 'getentityposition',
-            'offset' => '77000000'
+            'offset' => '77000000',
+            'return' => 'vec3d'
         ],
         'setdooropenanglein' => [
             'name' => 'setdooropenanglein',
@@ -1054,6 +1077,66 @@ class Manhunt
         'togglehudflag' => [
             'name' => 'togglehudflag',
             'offset' => '7c020000'
+        ],
+
+        'getplayer' => [
+            'name' => 'getplayer',
+            'offset' => '89000000'
+        ],
+
+        'insidetrigger' => [
+            'name' => 'insidetrigger',
+            'offset' => 'a4000000'
+        ],
+
+        'enteredtrigger' => [
+            'name' => 'enteredtrigger',
+            'offset' => 'a3000000'
+        ],
+
+        'handcamsetothereffects' => [
+            'name' => 'handcamsetothereffects',
+            'offset' => '76020000'
+        ],
+
+        'cameraforcelookatentity' => [
+            'name' => 'cameraforcelookatentity',
+            'offset' => '23020000'
+        ],
+
+        'camerastoplookatentity' => [
+            'name' => 'camerastoplookatentity',
+            'offset' => '24020000'
+        ],
+
+        'markcutsceneasplayed' => [
+            'name' => 'markcutsceneasplayed',
+            'offset' => '00030000'
+        ],
+        'clearlevelgoal' => [
+            'name' => 'clearlevelgoal',
+            'offset' => '3f020000'
+        ],
+        'removethisscript' => [
+            'name' => 'removethisscript',
+            'offset' => 'e7000000'
+        ],
+
+        'sethudflag' => [
+            'name' => 'sethudflag',
+            'offset' => '7b020000'
+        ],
+
+        'isnameditemininventory' => [
+            'name' => 'isnameditemininventory',
+            'offset' => '2f010000',
+            'return' => 'boolean'
+        ],
+
+        'hascutscenebeenplayed' => [
+            'name' => 'hascutscenebeenplayed',
+            'offset' => '01030000',
+            'return' => 'boolean'
         ],
 
         'getdifficultylevel' => [
