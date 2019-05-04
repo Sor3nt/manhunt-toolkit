@@ -28,6 +28,7 @@ class T_CONDITION {
                     $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
                 }
 
+
                 Evaluate::emit($token['params'][0], $code, $emitter, $debugMsg);
 
                 if ($node['isNot'] || $node['isOuterNot']){
@@ -104,6 +105,7 @@ class T_CONDITION {
                             $mappedTo['objectType'] == Token::T_INT ||
                             $mappedTo['objectType'] == "boolean" ||
                             $mappedTo['objectType'] == "mhfxptr" ||
+                            $mappedTo['objectType'] == "ecollectabletype" ||
                             $mappedTo['objectType'] == "object"
                         ) {
                             $output = "regular";

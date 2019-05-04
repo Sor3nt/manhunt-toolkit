@@ -99,36 +99,8 @@ class T_IF {
                 $code[] = $getLine('3f000000', false, $debugMsg);
             }
 
-
-            $isTrue = [];
-
-            $lastNumber = end($code)->lineNumber;
-            //pre generate the bytecode (only for calculation)
-
-            foreach ($case['isTrue'] as $entry) {
-                $codes = $emitter($entry, false, [ 'isWhile' => $isWhile ]);
-                foreach ($codes as $singleLine) {
-                    $singleLine->debug = $debugMsg . ' '. $singleLine->debug;
-                    $isTrue[] = $singleLine;
-                }
-            }
-
-
-            $endOffset = ($lastNumber + count($isTrue) + 1) * 4;
-
-            if ($isWhile) $endOffset = $endOffset + 8;
-
-            if (isset($case['next'])){
-
-                if ($case['next'] == Token::T_ELSE ) {
-                    $endOffset += 8;
-                }else if ($case['next'] == Token::T_IF ){
-                    $endOffset += 8;
-                }
-            }
-
-            // line offset for the IF end
-            $code[] = $getLine( Helper::fromIntToHex($endOffset), $lastNumber + 1, $debugMsg . 'offset ' . $endOffset );
+            $code[] = $getLine( 'START_OFFSET', false, $debugMsg . 'offset ' );
+            $offsetIndex = count($code) - 1;
 
             foreach ($case['isTrue'] as $entry) {
                 $codes = $emitter($entry, true, [ 'isWhile' => $isWhile ]);
@@ -137,6 +109,23 @@ class T_IF {
                     $code[] = $singleLine;
                 }
             }
+
+
+            $endOffset = (end($code)->lineNumber) * 4;
+
+            if (
+                $isWhile ||
+                (
+                    isset($case['next']) &&
+                    ($case['next'] == Token::T_ELSE ||  $case['next'] == Token::T_IF)
+                )
+            ){
+                //add the return value size (0x10 0x01)
+                $endOffset += 8;
+            }
+
+            $code[$offsetIndex]->hex = Helper::fromIntToHex($endOffset);
+            $code[$offsetIndex]->debug = $debugMsg . ' '. $code[$offsetIndex]->debug . ' line ' . (end($code)->lineNumber);
 
             if (isset($case['next'])) {
 

@@ -114,7 +114,7 @@ class Parser {
         return $ast;
     }
 
-    private function parseToken($tokens, $current) {
+    public function parseToken($tokens, $current) {
 
         if (!isset($tokens[$current])) return [$current, false];
 

@@ -252,7 +252,7 @@ class Extract {
 
                     default:
                         $objectType = $valueType;
-                        var_dump($entry['name'], $objectType);
+//                        var_dump($entry['name'], $objectType);
 //                        throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType));
 //                    break;
                 }

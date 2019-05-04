@@ -2,6 +2,10 @@
 namespace App\Service\Compiler;
 
 use App\MHT;
+use App\Service\Compiler\Autocorrection\LineEnd\Assign;
+use App\Service\Compiler\Autocorrection\LineEnd\FunctionCall;
+use App\Service\Compiler\Autocorrection\Statements\Condition;
+use App\Service\Compiler\Autocorrection\Statements\Short;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
@@ -45,225 +49,21 @@ class NewCompiler
     private $game;
     private $platform;
 
-    private function specialPrepareManhunt1JuryTurf( $source ){
-
-        if (strpos($source, "Trigger_04		:	et_name") !== false){
-
-            $source = str_replace(
-                'if not ThisLevelBeenCompletedAlready then',
-                'if not ThisLevelBeenCompletedAlready then begin',
-                $source
-            );
-
-            $source = str_replace(
-                'if ThisLevelBeenCompletedAlready then',
-                'end; if ThisLevelBeenCompletedAlready then',
-                $source
-            );
-        }
+    private function autocorrect( $tokens ){
 
 
-        if (
-            strpos($source, "Trigger_08		:	et_name;") !== false ||
-            strpos($source, "Trigger_06		:	et_name;") !== false
-        ){
+        $tokens = (new Assign())->autocorrect($tokens);
+        $tokens = (new FunctionCall())->autocorrect($tokens);
+        $tokens = (new Condition())->autocorrectConditionBrackets($tokens);
+//
+//        $tokens = (new Short())->convertShortToFull($tokens);
 
-            $source = str_replace(
-                'if not ThisLevelBeenCompletedAlready then',
-                'if not ThisLevelBeenCompletedAlready then begin',
-                $source
-            );
-
-            $source = str_replace(
-                'removethisscript;',
-                'end; removethisscript;',
-                $source
-            );
-        }
-
-
-        if (strpos($source, "Trigger_08		:	et_name;") !== false){
-
-            $source = str_replace(
-                'if not ThisLevelBeenCompletedAlready then',
-                'if not ThisLevelBeenCompletedAlready then begin',
-                $source
-            );
-
-            $source = str_replace(
-                'removethisscript;',
-                'end; removethisscript;',
-                $source
-            );
-        }
-
-        return $source;
-
+        return $tokens;
     }
 
-    public function getIfCondition( $current, $tokens ){
-        $results = [];
-
-        $result = [];
-
-        while($current < count($tokens)){
-            $token = $tokens[$current];
-
-            $current++;
-
-            if (
-                $token['type'] == Token::T_OR ||
-                $token['type'] == Token::T_AND
-            ){
-                $results[] = $result;
-                $result = [];
-
-            }
-
-
-            //we reach the statement end
-            if ($token['type'] == Token::T_THEN){
-                $results[] = $result;
-                return [$current, $results];
-            }
-
-            $result[] = $token;
-
-        }
-
-        throw new \Exception('getIfCondition failed');
-    }
-
-    public function fixCondition( $condition ){
-
-        $firstToken = $condition[0];
-        $lastToken = end($condition);
-
-        $result = [];
-
-        $isAndOr =  $firstToken['type'] == Token::T_AND ||
-                    $firstToken['type'] == Token::T_OR;
-
-        $wrapFirst = $isAndOr;
-        if ($firstToken['type'] == Token::T_FUNCTION) $wrapFirst = false;
-
-        if ($isAndOr){
-            $result[] = $firstToken;
-            $firstToken = $condition[1];
-        }
-
-        if (
-            (
-                $firstToken['type'] != Token::T_BRACKET_OPEN &&
-                $lastToken['type'] != Token::T_BRACKET_CLOSE
-            ) || (
-                $firstToken['type'] == Token::T_FUNCTION
-            )
-        ){
-
-            $result[] = [
-                'type' => Token::T_BRACKET_OPEN,
-                'value' => '('
-            ];
-
-            foreach ($condition as $index => $item) {
-                //skip entry , we dont want wrap OR and AND
-                if ($wrapFirst && $index == 0) continue;
-
-                $result[] = $item;
-            }
-
-            $result[] = [
-                'type' => Token::T_BRACKET_CLOSE,
-                'value' => ')'
-            ];
-
-
-        }else{
-
-            //we have already brackets, yay
-            //just resturn the original
-            return $condition;
-        }
-
-
-        return $result;
-    }
-
-    public function fixIfStatements( $tokens ){
-
-//        $tokenizer = new Tokenizer('mh2');
-//        $tokens = $tokenizer->run($source);
-
-        $current = 0;
-
-        $result = [];
-        while($current < count($tokens)){
-            $token = $tokens[$current];
-            $current++;
-
-            if ($token['type'] == Token::T_IF){
-                $result[] = $token;
-
-                list($current, $conditions) = $this->getIfCondition( $current, $tokens );
-
-                foreach ($conditions as &$condition) {
-
-                    $condition = $this->fixCondition( $condition );
-                    foreach ($condition as $item) {
-                        $result[] = $item;
-                    }
-                }
-
-                $result[] = [
-                    'type' => Token::T_THEN,
-                    'value' => 'then'
-                ];
-
-                continue;
-
-            }else{
-
-                $result[] = $token;
-            }
-
-        }
-
-        return $result;
-    }
 
     public function __construct($source, $parentScript = false, $game, $platform)
     {
-
-
-
-
-//        $input = "\n\nremovescript;\nif ThisLevelBeenCompletedAlready then begin end;\n";
-//        $input = "\n\nremovescript;\nif not ThisLevelBeenCompletedAlready then begin end;\n";
-//        $input = "\n\nremovescript;\nif a = b then begin end;\n";
-//        $input = "\n\nremovescript;\nif a = b and b = b then begin end;\n";
-//        $input = "\n\nremovescript;\nif InsideTrigger(this, GetPlayer) OR EnteredTrigger(this, GetPlayer) then begin end;\n";
-//        $input = "\n\nremovescript;\nif (InsideTrigger(this, GetPlayer)) OR EnteredTrigger(this, GetPlayer) then begin end;\n";
-//
-//
-//        $tokens = $this->fixIfStatements($input);
-//        echo "\n";
-//        foreach ($tokens as $token) {
-//            echo $token['value'] . ' ';
-//        }
-////        var_dump($this->fixIfStatements($input));
-//        exit;
-//
-
-
-
-
-
-
-
-
-
-
 
         $this->game = $game;
         $this->platform = $platform;
@@ -271,12 +71,14 @@ class NewCompiler
         $this->untouchedSource = $source;
 
         // cleanup the source code
-        $source = $this->specialPrepareManhunt1JuryTurf($source);
         $source = $this->prepare($source);
         $tokenizer = new Tokenizer($game);
         $tokens = $tokenizer->run($source);
-        $tokens = $this->fixIfStatements($tokens);
 
+
+        $tokens = $this->autocorrect($tokens);
+//var_dump($tokens);
+//exit;
         $this->parentScript = $parentScript;
 
         $this->types = $this->getTypes($tokens);
@@ -296,7 +98,6 @@ class NewCompiler
         // parse the token list to a ast
         $parser = new Parser();
         $this->ast = $parser->toAST($tokens);
-
         $this->stringsForScript = $this->getStrings4Script();
 
         /**
@@ -331,7 +132,6 @@ class NewCompiler
                 $code = $this->processBlock($token);
                 foreach ($code as $line) {
                     $result[] = $line;
-//                    $result[] = $line->hex;
                 }
 
             }
@@ -678,16 +478,12 @@ class NewCompiler
     {
 
         $source = str_replace([
-            "/100",
+            "if ( EnteredTrigger(this, GetPlayer) OR InsideTrigger(this, GetPlayer) ) then",
             "}}",
-            "if(",
-            "while(",
             "PLAYING  TWITCH",
         ], [
-            "/ 100",
+            "if ( EnteredTrigger(this, GetPlayer) ) OR ( InsideTrigger(this, GetPlayer) ) then",
             "}",
-            "if (",
-            "while (",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
 
         ], $source);
@@ -697,9 +493,7 @@ class NewCompiler
         $source = preg_replace("/\s+/", ' ', $source);
 
         // remove comments / unused code
-
         $source = preg_replace("/\{.*?\}/m", "", $source);
-//        $source = preg_replace("/({([^{^}])*)*{([^{^}])*}(([^{^}])*})*/m", "", $source);
 
         if (preg_last_error() == PREG_JIT_STACKLIMIT_ERROR) {
             die("PHP7 issue, pls disable pcre.jit=0 in your php.ini");
@@ -1145,7 +939,7 @@ class NewCompiler
             $var['isArg'] = false;
             $var['isLevelVar'] = false;
             $var['isGameVar'] = false;
-;
+            ;
         }
 
         /**

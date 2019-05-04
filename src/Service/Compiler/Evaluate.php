@@ -327,6 +327,18 @@ class Evaluate {
 
         }else if (isset($mapped['type'])){
             $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ' . $mapped['type']);
+//
+//            if ($mapped['type'] == "ecollectabletype"){
+//
+//
+//                $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
+//
+//                $code[] = $getLine('01000000', false, $debugMsg);
+//                $code[] = $getLine('04000000', false, $debugMsg);
+//                $code[] = $getLine($mapped['offset'], false, $debugMsg);
+//                return;
+//                var_dump($mapped);
+//            }
 
         }else{
             $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');

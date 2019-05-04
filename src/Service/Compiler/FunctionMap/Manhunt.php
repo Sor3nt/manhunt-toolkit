@@ -25,8 +25,44 @@ class Manhunt
         'aispeech_d1v1_trf_hoods_carpark' => [
             'offset' => '2a000000'
         ],
+
+        'aispeech_d1v1_trf_hoods_mall_entrance' => [
+            'offset' => '2c000000'
+        ],
+
+        'aispeech_d1v1_brn_first_execution' => [
+            'offset' => '28000000'
+        ],
+
+        'aiscript_veryhighpriority' => [
+            'offset' => 'aiscript_veryhighpriority'
+        ],
+
+        'aispeech_d1v1_trf_hoods_gladiator_court' => [
+            'offset' => '29000000'
+        ],
+
+        'hud_man' => [
+            'offset' => '02000000'
+        ],
+
+        'ct_shard' => [
+            'offset' => '13000000'
+        ],
+
+        'hud_all_off' => [
+            'offset' => 'hud_all_off'
+        ],
+
+        'mtt_training' => [
+            'offset' => 'mtt_training'
+        ],
+
         'hud_health' => [
             'offset' => '04000000'
+        ],
+        'col_hunter' => [
+            'offset' => '10000000'
         ],
         'hud_map' => [
             'offset' => '01000000'
@@ -698,7 +734,8 @@ class Manhunt
 
         'isentityalive' => [
             'name' => 'isentityalive',
-            'offset' => 'a9010000'
+            'offset' => 'a9010000',
+            'return' => 'Boolean'
         ],
 
         'setentityscriptsfromentity' => [
@@ -1070,13 +1107,19 @@ class Manhunt
 
         'thislevelbeencompletedalready' => [
             'name' => 'thislevelbeencompletedalready',
-            'offset' => '02030000'
+            'offset' => '02030000',
+            'return' => 'Boolean'
         ],
 
 
         'togglehudflag' => [
             'name' => 'togglehudflag',
             'offset' => '7c020000'
+        ],
+
+        'airemovehunterfromleadersubpack' => [
+            'name' => 'airemovehunterfromleadersubpack',
+            'offset' => '52010000'
         ],
 
         'getplayer' => [
@@ -1122,9 +1165,54 @@ class Manhunt
             'offset' => 'e7000000'
         ],
 
+        'sethuntermeleetraits' => [
+            'name' => 'sethuntermeleetraits',
+            'offset' => '74020000'
+        ],
+
+        'aisetentityallowsurprise' => [
+            'name' => 'aisetentityallowsurprise',
+            'offset' => '6b020000'
+        ],
+
+        'aientityplayanim' => [
+            'name' => 'aientityplayanim',
+            'offset' => 'b2010000'
+        ],
+
         'sethudflag' => [
             'name' => 'sethudflag',
             'offset' => '7b020000'
+        ],
+
+        'setplayerstatusflash' => [
+            'name' => 'setplayerstatusflash',
+            'offset' => 'e8020000'
+        ],
+
+        'lefttrigger' => [
+            'name' => 'lefttrigger',
+            'offset' => 'a5000000'
+        ],
+
+        'killsubtitletext' => [
+            'name' => 'killsubtitletext',
+            'offset' => 'f4020000'
+        ],
+
+        'setlevelcompleted' => [
+            'name' => 'setlevelcompleted',
+            'offset' => '01020000'
+        ],
+
+        'setdamage' => [
+            'name' => 'setdamage',
+            'offset' => '2e010000'
+        ],
+
+        'getlastitempickedup' => [
+            'name' => 'getlastitempickedup',
+            'offset' => 'c8010000'
         ],
 
         'isnameditemininventory' => [
@@ -1136,6 +1224,18 @@ class Manhunt
         'hascutscenebeenplayed' => [
             'name' => 'hascutscenebeenplayed',
             'offset' => '01030000',
+            'return' => 'boolean'
+        ],
+
+        'isgametextdisplaying' => [
+            'name' => 'isgametextdisplaying',
+            'offset' => '06010000',
+            'return' => 'boolean'
+        ],
+
+        'iscutsceneinprogress' => [
+            'name' => 'iscutsceneinprogress',
+            'offset' => 'f3020000',
             'return' => 'boolean'
         ],
 
