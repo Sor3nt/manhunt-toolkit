@@ -159,11 +159,12 @@ class Short {
                     $result[] = $tokens[$current];
                     $current++;
 
-                    if ($this->isIFShortStatement($current, $tokens)){
-                        list($current, $untilBlockEnd) = $this->getUntilLineEnd($current, $tokens);
-                    }else{
+//                    if ($this->isIFShortStatement($current, $tokens)){
+//
+//                        list($current, $untilBlockEnd) = $this->getUntilLineEnd($current, $tokens);
+//                    }else{
                         list($current, $untilBlockEnd) = $this->getIfTrue($current, $tokens);
-                    }
+//                    }
 
                     foreach ($untilBlockEnd as $item) {
                         $result[] = $item;

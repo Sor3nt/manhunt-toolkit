@@ -56,8 +56,14 @@ class NewCompiler
         $tokens = (new FunctionCall())->autocorrect($tokens);
         $tokens = (new Condition())->autocorrectConditionBrackets($tokens);
 //
-//        $tokens = (new Short())->convertShortToFull($tokens);
-
+        $tokens = (new Short())->convertShortToFull($tokens);
+//
+//
+//        foreach ($tokens as $token) {
+//            echo $token['value'] . " ";
+//        }
+//var_dump($tokens);
+//exit;
         return $tokens;
     }
 

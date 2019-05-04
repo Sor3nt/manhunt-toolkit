@@ -9,7 +9,6 @@ class T_IF {
     static public function map( $tokens, $current, \Closure $parseToken ){
 
         list($current, $nodes) =  self::parseIfStatement($tokens, $current, $parseToken);
-
         // Todo: wrap code into a function
         foreach ($nodes['cases'] as $index => &$case) {
 
@@ -180,7 +179,6 @@ class T_IF {
          */
         if ($shortStatement){
 
-
             while ($current < count($tokens)) {
                 $token = $tokens[$current];
 
@@ -256,7 +254,7 @@ class T_IF {
             while ($current < count($tokens)) {
                 $token = $tokens[$current];
 
-                if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO) {
+                if ($token['type'] == Token::T_THEN || $token['type'] == Token::T_DO || $token['type'] == Token::T_ELSE) {
 
                     if ($tokens[$current + 1]['type'] == Token::T_BEGIN) {
                         $deep++;
@@ -307,6 +305,7 @@ class T_IF {
 
                 }else if (
                     $token['type'] == Token::T_IF_END ||
+                    $token['type'] == Token::T_END_ELSE ||
                     $token['type'] == Token::T_FOR_END ||
                     $token['type'] == Token::T_WHILE_END
                 ) {

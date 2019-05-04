@@ -16,6 +16,28 @@ class Helper{
         ], $type);
     }
 
+    static function isTokenEndToken($token){
+        switch ($token['type']){
+            case Token::T_END:
+            case Token::T_END_ELSE:
+            case Token::T_SCRIPT_END:
+            case Token::T_END_CODE:
+            case Token::T_PROCEDURE_END:
+            case Token::T_IF_END:
+            case Token::T_CASE_END:
+            case Token::T_FOR_END:
+            case Token::T_SWITCH_END:
+            case Token::T_CUSTOM_FUNCTION_END:
+            case Token::T_WHILE_END:
+            case Token::T_END:
+                return true;
+                break;
+        }
+
+        return false;
+
+    }
+
     static function calcTypeSize( $types, $addString4Bytes = false ){
 
         $size = 0;
