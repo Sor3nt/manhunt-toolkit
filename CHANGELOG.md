@@ -10,6 +10,7 @@
 * Fix game/platform detection for animation files
 * Remove some old commands
 * Change INST Output to single files
+* Add new GLG handler (alpha, only unpack)
 
 **2019-01-27**: **v0.6.0** Release:
 * Fix MLS Compiler (MH2 A01 100% Support)
