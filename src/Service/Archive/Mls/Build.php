@@ -2,6 +2,7 @@
 namespace App\Service\Archive\Mls;
 
 
+use App\MHT;
 use App\Service\Helper;
 
 class Build {
@@ -41,7 +42,7 @@ class Build {
             $scriptCode .= $this->buildSMEM( $records );
             $scriptCode .= $this->buildDebug( $records );
             $scriptCode .= $this->buildDMEM( $records );
-            $scriptCode .= $this->buildSTAB( $records );
+            $scriptCode .= $this->buildSTAB( $records, $game );
 
             $mls .= $this->buildLabelSizeData("MHSC", $scriptCode);
         }
@@ -221,7 +222,7 @@ class Build {
      * @return string
      * @throws \Exception
      */
-    private function buildSTAB( $records ){
+    private function buildSTAB( $records, $game ){
 
         if (!isset($records['STAB']) || count($records['STAB']) == 0) return "";
 
@@ -248,51 +249,66 @@ class Build {
                 $stabCode .= hex2bin($record['hierarchieType']);
             }
 
-            switch ($record['objectType']){
+            if ($game == MHT::GAME_MANHUNT){
 
-                case 'integer':
-                    $stabCode .= "\x00\x00\x00\x00";
-                    break;
-                case 'level_var boolean':
-                    $stabCode .= "\x01\x00\x00\x00";
-                    break;
-                case 'game_var real':
-                    $stabCode .= "\x02\x00\x00\x00";
-                    break;
-                case 'boolean':
-                    $stabCode .= "\x03\x00\x00\x00";
-                    break;
-                case 'real': //is this correct ?
-                case 'level_var integer':
-                    $stabCode .= "\x04\x00\x00\x00";
-                    break;
-                case 'string':
-                    $stabCode .= "\x05\x00\x00\x00";
-                    break;
-                case 'vec3d':
-                    $stabCode .= "\x06\x00\x00\x00";
-                    break;
-                case 'game_var integer':
-                    $stabCode .= "\x07\x00\x00\x00";
-                    break;
-//                case 'level_var tlevelstate':
-                case 'tLevelState':
-                    $stabCode .= "\x08\x00\x00\x00";
-                    break;
-//                case 'unknown 0a':
-//                    $stabCode .= "\x0a\x00\x00\x00";
-//                    break;
-//                case 'unknown fe':
-//                    $stabCode .= "\xfe\xff\xff\xff";
-//                    break;
-//                case 'unknown ff':
-//                    $stabCode .= "\xff\xff\xff\xff";
-//                    break;
-                default:
-                    $stabCode .= hex2bin($record['objectType']);
-//                    throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));
-//                    break;
+                switch ($record['objectType']){
+//
+                    case 'boolean':
+                        $stabCode .= "\x01\x00\x00\x00";
+                        break;
+//
+                    default:
+                        $stabCode .= hex2bin($record['objectType']);
+//
+                }
+            }else{
 
+                switch ($record['objectType']){
+
+                    case 'integer':
+                        $stabCode .= "\x00\x00\x00\x00";
+                        break;
+                    case 'level_var boolean':
+                        $stabCode .= "\x01\x00\x00\x00";
+                        break;
+                    case 'game_var real':
+                        $stabCode .= "\x02\x00\x00\x00";
+                        break;
+                    case 'boolean':
+                        $stabCode .= "\x03\x00\x00\x00";
+                        break;
+                    case 'real': //is this correct ?
+                    case 'level_var integer':
+                        $stabCode .= "\x04\x00\x00\x00";
+                        break;
+                    case 'string':
+                        $stabCode .= "\x05\x00\x00\x00";
+                        break;
+                    case 'vec3d':
+                        $stabCode .= "\x06\x00\x00\x00";
+                        break;
+                    case 'game_var integer':
+                        $stabCode .= "\x07\x00\x00\x00";
+                        break;
+    //                case 'level_var tlevelstate':
+                    case 'tLevelState':
+                        $stabCode .= "\x08\x00\x00\x00";
+                        break;
+    //                case 'unknown 0a':
+    //                    $stabCode .= "\x0a\x00\x00\x00";
+    //                    break;
+    //                case 'unknown fe':
+    //                    $stabCode .= "\xfe\xff\xff\xff";
+    //                    break;
+    //                case 'unknown ff':
+    //                    $stabCode .= "\xff\xff\xff\xff";
+    //                    break;
+                    default:
+                        $stabCode .= hex2bin($record['objectType']);
+    //                    throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));
+    //                    break;
+
+                }
             }
 
             if (count($record['occurrences']) ){

@@ -107,50 +107,56 @@ class PCTest extends KernelTestCase
                 $compiled['CODE']
             );
 
-//            foreach ($compiled as $index => $section) {
-//
-//                //only used inside the compiler
-//                if ($index == "extra") continue;
-//
-//                //memory is not correct but works...
-//                if ($index == "DMEM") continue;
-//                if ($index == "SMEM") continue;
-//
-//                //we do not generate the LINE (debug stuff)
-//                if ($index == "LINE") continue;
-//                if ($index == "STAB" && count($section) == 0) continue;
-//
-//                if ($index == "DATA"){
-//
-//                    if (!isset($testScript[$index])){
-//
-//                        if (
-//                            count($section['const']) == 0 &&
-//                            count($section['strings']) == 0
-//                        ){
-//                            continue;
-//                        }
-//                    }
-//
-//                    if ($testScript[$index] != $section){
-//                        unset($testScript[$index]['byteReserved']);
-//
-//                    }
-//                }
-//
-//                if ($index == "STAB"){
-//                    foreach ($testScript[$index] as &$mhl) {
-//                        unset($mhl['nameGarbage']);
-//                    }
-//                }
-//
-//
-//                $this->assertEquals(
-//                    $testScript[$index],
-//                    $section,
-//                    $index . " Mismatch " . $testScript['ENTT']['name']
-//                );
-//            }
+            foreach ($compiled as $index => $section) {
+
+                //only used inside the compiler
+                if ($index == "extra") continue;
+
+                //memory is not correct but works...
+                if ($index == "DMEM") continue;
+                if ($index == "SMEM") continue;
+
+                //we do not generate the LINE (debug stuff)
+                if ($index == "LINE") continue;
+                if ($index == "STAB" && count($section) == 0) continue;
+
+                if ($index == "DATA"){
+
+                    if (!isset($testScript[$index])){
+
+                        if (
+                            count($section['const']) == 0 &&
+                            count($section['strings']) == 0
+                        ){
+                            continue;
+                        }
+                    }
+
+                    if ($testScript[$index] != $section){
+                        unset($testScript[$index]['byteReserved']);
+
+                    }
+                }
+
+                if ($index == "STAB"){
+                    foreach ($testScript[$index] as &$mhl) {
+                        unset($mhl['nameGarbage']);
+                    }
+                }
+
+                if ($testScript[$index] != $section){
+
+                    var_dump($testScript[$index]);
+                    var_dump($section);
+                }
+
+                $this->assertEquals(
+                    $testScript[$index],
+                    $section,
+                    $index . " Mismatch " . $testScript['ENTT']['name']
+                );
+
+            }
 
         }
     }

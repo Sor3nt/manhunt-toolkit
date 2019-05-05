@@ -225,10 +225,10 @@ class Extract {
              *
              * - 4-bytes defined at (byte offset from CODE) or ffffffff
              * - 4-bytes size
-             * - 4-bytes hierarchie access type; 01000000 - header variable; 02000000 - header + script var; ffffffff - a global variable
+             * - 4-bytes hierarchie access type; 01000000 - header variable; 02000000 - header + script var; ffffffff - a global variable (MH2 only)
              * - 4-bytes Value Type (int,bool,float, string, tLevelState ....)
              * - 4-bytes Occurrence/Usage Count
-             * - [4-bytes ... ] byte offset of the occurred call in CODE section (MH2 only)
+             * - [4-bytes ... ] byte offset of the occurred call in CODE section
              */
             $section2 = $data->substr(0, $this->game == MHT::GAME_MANHUNT ? 16 : 20, $data)->split(4);
 
@@ -245,6 +245,7 @@ class Extract {
             }
 
             if ($this->game == MHT::GAME_MANHUNT){
+
                 switch ($valueType) {
                     case "01000000";
                         $objectType = "boolean";
@@ -252,11 +253,10 @@ class Extract {
 
                     default:
                         $objectType = $valueType;
-//                        var_dump($entry['name'], $objectType);
 //                        throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType));
-//                    break;
+                    break;
                 }
-                }else{
+            }else{
                 switch ($valueType){
                     case "00000000";
                         $objectType = "integer";
@@ -317,9 +317,10 @@ class Extract {
 
 
                     default:
+
                         $objectType = $valueType;
-//                    var_dump($entry['name']);
-//                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));
+
+                        //                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));
 //                    break;
 
                 }

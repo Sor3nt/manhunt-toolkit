@@ -13,7 +13,6 @@ use App\Service\Helper;
 
 class NewCompiler
 {
-
     private $parentScript = false;
 
     protected $types = [];
@@ -31,7 +30,6 @@ class NewCompiler
 
     protected $procedures = [];
     protected $customFunction = [];
-
 
     protected $memoryOffset = 0;
     protected $blockOffsets = [];
@@ -51,19 +49,11 @@ class NewCompiler
 
     private function autocorrect( $tokens ){
 
-
         $tokens = (new Assign())->autocorrect($tokens);
         $tokens = (new FunctionCall())->autocorrect($tokens);
         $tokens = (new Condition())->autocorrectConditionBrackets($tokens);
-//
         $tokens = (new Short())->convertShortToFull($tokens);
-//
-//
-//        foreach ($tokens as $token) {
-//            echo $token['value'] . " ";
-//        }
-//var_dump($tokens);
-//exit;
+
         return $tokens;
     }
 
@@ -81,10 +71,9 @@ class NewCompiler
         $tokenizer = new Tokenizer($game);
         $tokens = $tokenizer->run($source);
 
-
+        //fix some developer mistakes
         $tokens = $this->autocorrect($tokens);
-//var_dump($tokens);
-//exit;
+
         $this->parentScript = $parentScript;
 
         $this->types = $this->getTypes($tokens);
@@ -95,7 +84,6 @@ class NewCompiler
          *
          * TODO: try to solve this inside the tokenizer/parser
          */
-        $tokens = $tokenizer->fixShortStatementMissedLineEnd($tokens);
         $tokens = $tokenizer->fixProcedureEndCall($tokens);
         $tokens = $tokenizer->fixCustomFunctionEndCall($tokens);
         $tokens = $tokenizer->fixTypeMapping($tokens, $this->types);
@@ -127,6 +115,8 @@ class NewCompiler
     {
 
         $result = [];
+        $resultPerBlock = [];
+
 
         foreach ($this->ast["body"] as $token) {
 
@@ -135,9 +125,11 @@ class NewCompiler
                 $token['type'] == Token::T_PROCEDURE ||
                 $token['type'] == Token::T_CUSTOM_FUNCTION
             ) {
-                $code = $this->processBlock($token);
+                $code = $this->processBlock($token, $token['value']);
+                $resultPerBlock[$token['value']] = [];
                 foreach ($code as $line) {
                     $result[] = $line;
+                    $resultPerBlock[$token['value']][] = $line;
                 }
 
             }
@@ -149,8 +141,8 @@ class NewCompiler
             ],
             'CODE' => $result,
             'DATA' => $this->generateDATA($this->stringsForScript),
-            'STAB' => $this->generateSTAB($this->headerVariables, $result, $this->variablesOverAllScripts),
-            'SCPT' => $this->generateSCPT('mh2'),
+            'STAB' => $this->generateSTAB($this->headerVariables, $result, $resultPerBlock, $this->variablesOverAllScripts),
+            'SCPT' => $this->generateSCPT(),
             'ENTT' => $this->generateEntity(),
             'SRCE' => $this->untouchedSource,
 
@@ -166,7 +158,7 @@ class NewCompiler
      *
      */
 
-    private function processBlock($token)
+    private function processBlock($token, $blockName)
     {
 
 
@@ -199,8 +191,8 @@ class NewCompiler
         }
         // OLD CODE; DO REFACTOR
 
-        $scriptArg = $this->getScriptVar($token['body'], Token::T_DEFINE_SECTION_ARG);
-        $scriptVar = array_merge($scriptArg, $this->getScriptVar($token['body']));
+        $scriptArg = $this->getScriptVar($token['body'], Token::T_DEFINE_SECTION_ARG, $blockName);
+        $scriptVar = array_merge($scriptArg, $this->getScriptVar($token['body'], Token::T_DEFINE_SECTION_VAR, $blockName));
 
         /**
          * Translate Token AST to Bytecode
@@ -1032,9 +1024,8 @@ class NewCompiler
         return $strings4Scripts;
     }
 
-    private function getScriptVar($tokens, $section = Token::T_DEFINE_SECTION_VAR)
+    private function getScriptVar($tokens, $section = Token::T_DEFINE_SECTION_VAR, $scriptName = "")
     {
-
         $originalTokens = $tokens;
 
         $otherTokens = [];
@@ -1094,9 +1085,9 @@ class NewCompiler
                         'type' => $variableType,
                         'objectType' => Helper::getAliasForType($variableType),
                         'isArg' => $section == Token::T_DEFINE_SECTION_ARG,
-
+                        'fromScript' => $scriptName,
                         'origin' => 'NewCompiler::getScriptVar',
-                        'isLevelVar' => false,
+                        'isLevelVar' => substr($variableType, 0, 9) == "level_var",
                         'isGameVar' => false,
                     ];
 
@@ -1149,7 +1140,7 @@ class NewCompiler
             }
 
             $scriptVarFinal[$name] = $item;
-            $this->variablesOverAllScripts[$name] = $item;
+            $this->variablesOverAllScripts[] = [$name,$item];
         }
 
 
@@ -1173,7 +1164,7 @@ class NewCompiler
      * generate MLS blocks
      */
 
-    private function generateSCPT($game)
+    private function generateSCPT()
     {
 
         $scpt = [];
@@ -1233,8 +1224,95 @@ class NewCompiler
         return $result;
     }
 
-    private function generateSTAB($headerVariables, $sectionCode, $variablesOverAllScripts)
+    private function generateSTABNew($headerVariables, $sectionCode, $codePerBlock, $variablesOverAllScripts){
+
+        $results = [];
+
+        $memoryForDoubleEntries = 0;
+
+        foreach ($headerVariables as $name => $variable) {
+
+            $result = [
+                'name' => strtolower($name),
+                'offset' => $variable['isLevelVar'] ? 'ffffffff' : $variable['offset'],
+                'size' => $variable['isLevelVar'] ? 'ffffffff' : $variable['size'],
+                'objectType' => $variable['isLevelVar'] ? 'ffffffff' : 'boolean',
+                'occurrences' => []
+            ];
+
+            if ($variable['isGameVar']){
+                $result['objectType'] = "feffffff";
+            }
+//
+//            if( isset($variablesOverAllScript['fromScript'])){
+//
+//            }
+
+            $generateOccurrences = true;
+            $occurrencesAlreadyProcessed = [];
+            foreach ($variablesOverAllScripts as $variablesOverAllScript) {
+                list($varScriptName, $variablesOverAllScript) = $variablesOverAllScript;
+                if ($varScriptName == $name) {
+
+//
+//                    if( isset($variablesOverAllScript['fromScript'])){
+//                        $occurrencesPerBlock[]
+//
+//                    }
+//
+//
+//                    var_dump($variablesOverAllScript);
+//                    exit;
+//                    $occurrencesPerBlock[]
+
+
+                    if (in_array($name, $occurrencesAlreadyProcessed) == false){
+                        $occurrencesAlreadyProcessed[] = $name;
+                        foreach ($sectionCode as $index => $code) {
+                            if ($code == $variable['offset'] && $sectionCode[$index - 1] != "3c000000") {
+                                $result['occurrences'][] = $index * 4;
+                            }
+                        }
+
+                    }else{
+                        $results[] = $result;
+                        $result['occurrences'] = [];
+                    }
+
+                    $generateOccurrences = false;
+
+                }
+            }
+//var_dump("\n\n", $variablesOverAllScripts);
+            if ($variable['isLevelVar'] && $generateOccurrences){
+
+
+                foreach ($sectionCode as $index => $code) {
+                    if ($code == $variable['offset'] && $sectionCode[$index - 1] != "3c000000") {
+                        $result['occurrences'][] = $index * 4;
+                    }
+                }
+
+            }
+
+
+            $results[] = $result;
+        }
+
+        usort($results, function ($a, $b) {
+            return $a['name'] > $b['name'];
+        });
+
+        return $results;
+
+    }
+
+    private function generateSTAB($headerVariables, $sectionCode, $codePerBlock, $variablesOverAllScripts)
     {
+
+        if ($this->game == MHT::GAME_MANHUNT){
+            return $this->generateSTABNew($headerVariables, $sectionCode, $codePerBlock, $variablesOverAllScripts);
+        }
 
         $result = [];
 
@@ -1253,15 +1331,12 @@ class NewCompiler
             ) {
                 $isGameVar = substr($varType, 0, 8) == "game_var";
                 $varType = substr($varType, $isGameVar ? 9 : 10);
-//var_dump($sectionCode);
-//exit;
+
                 foreach ($sectionCode as $index => $code) {
                     if ($code == $variable['offset']) {
                         $occur[] = $index * 4;
                     }
-//                    var_dump($variable['offset'], $name, $occur);
-//                    var_dump($variable);
-//                    exit;
+
                 }
 
                 if ($isGameVar){
@@ -1276,7 +1351,9 @@ class NewCompiler
             /**
              * when the variable is defined inside the HEADER and also in one or multiple scripts, we need to give him the 02 sequence
              */
-            foreach ($variablesOverAllScripts as $varScriptName => $variablesOverAllScript) {
+            foreach ($variablesOverAllScripts as $variablesOverAllScript) {
+                list($varScriptName, $variablesOverAllScript) = $variablesOverAllScript;
+
                 if ($varScriptName == $name) {
 
                     if (isset($variable['isLevelVarFromScript']) && $variable['isLevelVarFromScript'] == true){
@@ -1312,13 +1389,20 @@ class NewCompiler
 
             if ($this->game == MHT::GAME_MANHUNT){
 
-                if ($varType == "integer"){
+//                if ($varType == "integer"){
                     $varType = "boolean";
-                }
+//                }
+//
+//                if ($varType == "vec3d"){
+//                var_dump("->" . $variable['offset']);
 
-                if ($varType == "vec3d"){
+                if ($variable['offset'] == "ffffffff"){
+                    $varType = "ffffffff";
+
+                }else{
                     $varType = "boolean";
                 }
+//                }
             }
 
             $row = [
@@ -1341,6 +1425,15 @@ class NewCompiler
             }
 
             $result[] = $row;
+
+            if ($this->game == MHT::GAME_MANHUNT && $variable['size'] == "ffffffff"){
+//                $row['occurrences'] = [];
+//                $result[] = $row;
+
+//                var_dump($variablesOverAllScripts);
+
+            }
+
         }
         usort($result, function ($a, $b) {
             return $a['name'] > $b['name'];

@@ -16,6 +16,7 @@ class Helper{
         ], $type);
     }
 
+
     static function isTokenEndToken($token){
         switch ($token['type']){
             case Token::T_END:
