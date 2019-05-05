@@ -25,7 +25,7 @@ You need PHP 7.2 or newer to run MHT.
 
 * Call the magic installer
 ```
-curl -s https://php-osx.liip.ch/install.sh | bash -s 7.1
+curl -s https://php-osx.liip.ch/install.sh | bash -s 7.2
 ```
 
 **Install MHT stable release on Windows**
@@ -110,13 +110,9 @@ $ mht mass:extraction --help
  
 > The MLS file contains the level logic, it define what the player can do and how the level interact with the elements.
 >
-> After unpacking a MLS File you will receive 2 folders, **Supported** and **Unsupported**.
-> * Any files inside the **Supported** folder are free editable
-> * The files inside **Unsupported** are not compatible with the compiler.
->
 > The compiler is in a **early state** but works already very well.
 >
-> ***Please note that the current compiler only works with Manhunt 2!***
+> ***Please note that the current compiler only work with the first level from Manhunt 1 and 2!***
 >
 >You can find some documented code examples here: https://github.com/Sor3nt/manhunt-toolkit/tree/master/tests/Resources/Examples
 
