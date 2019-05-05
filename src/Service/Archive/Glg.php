@@ -38,32 +38,38 @@ class Glg extends Archive {
             foreach ($ecs as $name => $ec) {
 
                 switch ($ec->class){
-                    case MHT::EC_PLAYER: $results[ 'Player/' . $ec->get('model') ] = $ec; break;
-                    case MHT::EC_MOVER: $results[ 'Movers/' . $ec->get('model') ] = $ec; break;
-                    case MHT::EC_WEAPON: $results[ 'Weapons/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_PLAYER: $results[ 'Player/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_MOVER: $results[ 'Movers/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_WEAPON: $results[ 'Weapons/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_BASIC: $results[ 'Basic/' . $ec->get('name') ] = $ec; break;
-                    case MHT::EC_SWITCH: $results[ 'Switches/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_SWITCH: $results[ 'Switches/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_USEABLE: $results[ 'Useable/' . $ec->get('name') ] = $ec; break;
-                    case MHT::EC_SHOT: $results[ 'Shots/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_SHOT: $results[ 'Shots/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_TRIGGER: $results[ 'Triggers/' . $ec->get('name') ] = $ec; break;
-                    case MHT::EC_COLLECTABLE: $results[ 'Collectables/' . $ec->get('model') ] = $ec; break;
-                    case MHT::EC_PEDHEAD: $results[ 'Hunters/Heads/' . $ec->get('model') ] = $ec; break;
-                    case MHT::EC_SLIDEDOOR: $results[ 'Doors/Sliding/' . $ec->get('model') ] = $ec; break;
-                    case MHT::EC_DOOR: $results[ 'Doors/' . $ec->get('model') ] = $ec; break;
-                    case MHT::EC_RESPONDER: $results[ 'Responders/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_COLLECTABLE: $results[ 'Collectables/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_PEDHEAD: $results[ 'Hunters/Heads/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_SLIDEDOOR: $results[ 'Doors/Sliding/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_DOOR: $results[ 'Doors/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_RESPONDER: $results[ 'Responders/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_ENTITYSOUND: $results[ 'Sounds/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_ENVIRONMENTAL_EXECUTION: $results[ 'EnvExecution/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_HUNTER:
 
                         //todo, lookup the PED with the right option...
                         if ($ec->get('head') == "no_hed"){
-                            $results[ 'Hunters/BodyWithHead/' . $ec->get('model') ] = $ec;
+                            $results[ 'Hunters/BodyWithHead/' . $ec->get('name') ] = $ec;
 
                         }else{
-                            $results[ 'Hunters/Body/' . $ec->get('model') . '_' . $ec->get('head') ] = $ec;
+                            $results[ 'Hunters/Body/' . $ec->get('name') . '_' . $ec->get('head') ] = $ec;
                         }
 
                         break;
-                    case MHT::EC_ENTITYLIGHT: $results[ 'Lights/' . $ec->get('model') ] = $ec; break;
+                    case MHT::EC_ENTITYLIGHT: $results[ 'Lights/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_HELICOPTER:
+                    case 'other': $results[ 'Others/' . $ec->get('name') ] = $ec; break;
+
+                    default:
+                        die("unknown class " . $ec->class);
 
                 }
             }
@@ -100,7 +106,9 @@ class Glg extends Archive {
 
             foreach ($optionsRaw as $singleOption) {
                 $singleOption = trim($singleOption);
+
                 if (empty($singleOption)) continue;
+                if (substr($singleOption, 0, 1) == "#") continue;
 
                 if (strpos($singleOption, ' ') !== false){
 

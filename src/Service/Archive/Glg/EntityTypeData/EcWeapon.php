@@ -37,6 +37,8 @@ class EcWeapon {
         'SHELL_VEL_RAND' => null,
         'SHELL_SPIN' => null,
         'SHELL_RADIUS' => null,
+        'SHELL_MODEL' => null,
+        'SHELL_RAND_DELAY' => null,
         'SHELL_EJECT_DELAY_RELOAD' => null,
         'GROUND_ROTATION_EULER' => null,
         'GROUND_TRANSLATION' => null,
@@ -55,7 +57,20 @@ class EcWeapon {
         'DESTRUCT_AFTER_NUM_USES' => null,
         'DESTRUCT_EFFECT' => null,
         'DESTRUCT_SOUND' => null,
+        'TORCH_LIGHT_POS' => null,
+        'TORCH_LIGHT_ORIEN' => null,
 
+        'HEAD_CHOP_CORPSE' => null,
+        'FLARE_LIFETIME' => null,
+        'FLARE_FADEOUT_TIME' => null,
+        'FLARE_STICK_TIME' => null,
+        'FLARE_SHOT_FX' => null,
+        'FLARE_BURN_FX' => null,
+        'FLARE_SPEED' => null,
+        'MODEL_USE_ANIM' => null,
+
+        'TORCH_LIGHT' => false,
+        'SHELLS_FIRED' => false,
         'TRANSPARENT' => false,
         'LOD_DISTANCE' => [],
         'LOD_INFO' => [],
@@ -74,6 +89,18 @@ class EcWeapon {
         'EXECUTE_MODEL_ANIM' => null,
         'EXECUTE_DIE_POSE_FACES_DOWN' => false,
         'EXECUTE_HEAD_EXPLODE_TIME' => false,
+        'EXECUTE_HEAD_SEVER_TIME' => false,
+        'EXECUTE_SHOT' => false,
+        'EXECUTE_RUBBLE' => false,
+        'GORE_EFFECT_EXEC_1_MODEL' => false,
+        'GORE_EFFECT_EXEC_1_PHASE_1' => false,
+        'GORE_EFFECT_EXEC_1_PHASE_2' => false,
+        'GORE_EFFECT_EXEC_2_MODEL' => false,
+        'GORE_EFFECT_EXEC_2_PHASE_1' => false,
+        'GORE_EFFECT_EXEC_2_PHASE_2' => false,
+        'GORE_EFFECT_EXEC_3_MODEL' => false,
+        'GORE_EFFECT_EXEC_3_PHASE_1' => false,
+        'GORE_EFFECT_EXEC_3_PHASE_2' => false,
         'NEXT_EXECUTION' => false
     ];
 
@@ -100,6 +127,10 @@ class EcWeapon {
                 } else if (is_array($this->map[$entry['attr']])) {
                     $this->map[$entry['attr']][] = $entry['value'];
                 } else {
+                    if (!isset($entry['value'])){
+                        var_dump($entry);
+                        exit;
+                    }
                     $this->map[$entry['attr']] = $entry['value'];
                 }
             }else if (array_key_exists($entry['attr'] , $executionMap)){
@@ -191,6 +222,7 @@ class EcWeapon {
             if (isset($execution[$name])) return $execution[$name];
 
         }
+        if ($name == "NAME") return $this->name;
         return false;
     }
 }

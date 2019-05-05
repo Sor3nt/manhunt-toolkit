@@ -8,13 +8,5 @@ class EcEntitySound extends Ec {
     public $class           = MHT::EC_ENTITYSOUND;
     public $name            = null;
 
-    protected $map = [
-        'CLASS' => true,
-        'MODEL' => null,
-
-        'LOD_DATA' => [],
-
-        'LOCKED' => false,
-    ];
 
 }

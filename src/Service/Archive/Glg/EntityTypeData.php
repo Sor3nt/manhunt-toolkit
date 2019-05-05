@@ -9,8 +9,11 @@ use App\Service\Archive\Glg\EntityTypeData\EcCollectable;
 use App\Service\Archive\Glg\EntityTypeData\EcDoor;
 use App\Service\Archive\Glg\EntityTypeData\EcEntityLight;
 use App\Service\Archive\Glg\EntityTypeData\EcEntitySound;
+use App\Service\Archive\Glg\EntityTypeData\EcEnvironmentalExecution;
+use App\Service\Archive\Glg\EntityTypeData\EcHelicopter;
 use App\Service\Archive\Glg\EntityTypeData\EcHunter;
 use App\Service\Archive\Glg\EntityTypeData\EcMover;
+use App\Service\Archive\Glg\EntityTypeData\EcOther;
 use App\Service\Archive\Glg\EntityTypeData\EcPedHead;
 use App\Service\Archive\Glg\EntityTypeData\EcPlayer;
 use App\Service\Archive\Glg\EntityTypeData\EcResponder;
@@ -109,10 +112,23 @@ class EntityTypeData {
                     $types[] = new EcUseable( $name, $record );
                     break;
 
+                case MHT::EC_ENVIRONMENTAL_EXECUTION:
+                    $types[] = new EcEnvironmentalExecution( $name, $record );
+                    break;
+
+                case MHT::EC_HELICOPTER:
+                    $types[] = new EcHelicopter( $name, $record );
+                    break;
+
+                case '':
+                    $types[] = new EcOther( $name, $record );
+                    break;
+
 
                 default:
                     var_dump($record);
-                    var_dump($class . " not implemented");
+                    var_dump($class);
+                    var_dump(" not implemented");
                     exit;
                     break;
             }
