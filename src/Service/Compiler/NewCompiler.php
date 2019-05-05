@@ -147,14 +147,28 @@ class NewCompiler
             'STAB' => $this->generateSTAB($this->headerVariables, $result, $resultPerBlock, $this->variablesOverAllScripts),
             'SCPT' => $this->generateSCPT(),
             'ENTT' => $this->generateEntity(),
+            'LINE' => $this->generateLine($result),
             'SRCE' => $this->untouchedSource,
 
             //todo: value did not match...
             'SMEM' => 78596,
             'DMEM' => 78596,
-            'LINE' => []
+//            'LINE' => []
 
         ];
+    }
+
+    public function generateLine($code){
+
+        if ($this->game == MHT::GAME_MANHUNT_2) return [];
+
+        $result = [];
+
+        foreach ($code as $item) {
+            $result[] = '00000000';
+        }
+
+        return $result;
     }
 
     /**

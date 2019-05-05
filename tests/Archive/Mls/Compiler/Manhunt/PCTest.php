@@ -13,13 +13,10 @@ class PCTest extends KernelTestCase
     {
         echo "\n* MLS: Testing Manhunt 1 PC (compile) ==> ";
 
-//        return true;
-
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
 
         $resource = $resources->load('/Archive/Mls/Manhunt1/PC/jury_turf.mls', MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
-//        $resource = $resources->load('/Archive/Mls/Manhunt1/PC/asylum.mls', MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
         $handler = $resource->getHandler();
 
         $mhls = $handler->unpack( $resource->getInput(), MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
@@ -27,12 +24,6 @@ class PCTest extends KernelTestCase
         // compile levelscript
         $compiler = new Compiler();
         $levelScriptCompiled = $compiler->parse($mhls[0]['SRCE'], false, MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
-//
-//
-//        $this->assertEquals(
-//            $mhls[0]['CODE'],
-//            $levelScriptCompiled['CODE']
-//        );
 
         if ($mhls[0]['CODE'] != $levelScriptCompiled['CODE']){
             foreach ($mhls[0]['CODE'] as $index => $item) {
@@ -44,9 +35,6 @@ class PCTest extends KernelTestCase
             }
             exit;
         }
-
-
-
 
         foreach ($levelScriptCompiled as $index => $section) {
 
@@ -77,18 +65,13 @@ class PCTest extends KernelTestCase
             );
         }
 
-        //4 == falsche T_END zuordnung
-        //5 == if statement ? klammern ?
-
-
         for($i = 1; $i < count($mhls) ; $i ++){
 
             $testScript = $mhls[$i];
 
-            var_dump($testScript['ENTT']['name'], $i);
+//            var_dump($testScript['ENTT']['name'], $i);
 
             //compile a other script based on the levelscript
-//            $compiled = $compiler->parse($testScript['SRCE'], false, MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
 
             if ($testScript['CODE'] != $compiled['CODE']){
@@ -144,11 +127,6 @@ class PCTest extends KernelTestCase
                     }
                 }
 
-                if ($testScript[$index] != $section){
-
-                    var_dump($testScript[$index]);
-                    var_dump($section);
-                }
 
                 $this->assertEquals(
                     $testScript[$index],

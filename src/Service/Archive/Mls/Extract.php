@@ -368,7 +368,7 @@ class Extract {
         $lines = $line->split(4);
         $dbug['LINE'] = [];
         foreach ($lines as $line) {
-            $dbug['LINE'][] = $line->toInt();
+            $dbug['LINE'][] = $line->toHex();
         }
 
         list(,$trce) = $this->getLabelSizeData( $data, $data);

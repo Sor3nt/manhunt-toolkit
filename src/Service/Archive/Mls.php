@@ -125,7 +125,7 @@ class Mls extends Archive {
 
             $compiler = new Compiler();
             try{
-                throw new \Exception("t");
+//                throw new \Exception("t");
 
                 $compiled = $compiler->parse($mhsc['SRCE'], $levelScript, $game, $platform);
 
