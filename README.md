@@ -94,16 +94,17 @@ $ mht mass:extraction --help
 * Entity Positions \[PC, PS2, XBOX\] (*.inst)
 * Data container \[PC, PS2, XBOX\] (ManHunt.pak)
 * Translations \[PC, PS2, XBOX\] (*.gxt)
+* Level script code \[PC\] (*.mls) (Born Again only at this point)
 
 ### Manhunt 2
 * Enitity and Character animations \[PC, PS2, PSP, WII\] (allanims.ifp)
 * Execution animations \[PC, PS2, PSP, WII\] (strmanim.bin)
 * Settings files \[PC\] (*.glg)
 * Entity Positions \[PC, PS2, PSP, WII\] (*.inst)
-* Level script code \[PC\] (*.mls) (Mh2 A01 only at this point)
+* Level script code \[PC\] (*.mls) (Escape Asylum only at this point)
 * Texture extracting \[PC\] (*.tex)
 * Translations \[PC, PS2, PSP, WII\] (*.gxt)
-* Models \[PC\] (*.mdl)
+* Models \[PC\] (*.mdl, at least A01)
 
  
  

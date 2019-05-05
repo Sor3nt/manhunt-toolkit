@@ -1,4 +1,15 @@
 #Changelog
+**2019-05-01**: **v0.7.0** Release:
+* Extend MLS Compiler Supports now MH1 Born Again
+* Autoset memory_limit to -1
+* Add MDL Alpha Support. (MH2 PC)
+* Add Command for mass extraction of MH files.
+* Add Command to analyse animation data (Generate a comparison csv)
+* Add Command to generate a animation file based on the previous table
+* Fix some animation file packing errors.
+* Fix game/platform detection for animation files
+* Remove some old commands
+* Change INST Output to single files
 
 **2019-01-27**: **v0.6.0** Release:
 * Fix MLS Compiler (MH2 A01 100% Support)

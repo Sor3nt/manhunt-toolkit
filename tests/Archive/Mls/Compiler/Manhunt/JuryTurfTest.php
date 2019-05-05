@@ -6,7 +6,7 @@ use App\Service\Compiler\Compiler;
 use App\Service\Resources;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class PCTest extends KernelTestCase
+class JuryTurfTest extends KernelTestCase
 {
 
     public function testLevelScript()
