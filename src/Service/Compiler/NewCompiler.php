@@ -135,9 +135,6 @@ class NewCompiler
             }
         }
 
-//        var_dump($result);
-//        exit;
-
         return [
             'extra' => [
                 'headerVariables' => $this->headerVariables
@@ -148,12 +145,12 @@ class NewCompiler
             'SCPT' => $this->generateSCPT(),
             'ENTT' => $this->generateEntity(),
             'LINE' => $this->generateLine($result),
+            'TRCE' => ['00000000'],
             'SRCE' => $this->untouchedSource,
 
             //todo: value did not match...
             'SMEM' => 78596,
             'DMEM' => 78596,
-//            'LINE' => []
 
         ];
     }
