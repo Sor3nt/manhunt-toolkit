@@ -84,7 +84,7 @@ class Mls extends Archive {
             if (!isset($script['CODE'])){
                 $compiler = new Compiler();
                 $name = $script['NAME']['name'];
-                $script = $compiler->parse($script['SRCE'], $levelScriptCompiled);
+                $script = $compiler->parse($script['SRCE'], $levelScriptCompiled, $game, $platform);
                 $script['NAME'] = [ 'name' => $name];
             }
         }
@@ -125,7 +125,7 @@ class Mls extends Archive {
 
             $compiler = new Compiler();
             try{
-//                throw new \Exception("t");
+                throw new \Exception("t");
 
                 $compiled = $compiler->parse($mhsc['SRCE'], $levelScript, $game, $platform);
 
@@ -146,7 +146,7 @@ class Mls extends Archive {
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
-//                $results[ 'not-supported/' . $index . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
+                $results[ 'not-supported/' . $index . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
 //                $results[ 'not-supported/' . $index . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.scpt' ] = $mhsc['SCPT'];
                 $results[ 'not-supported/' . $index . "#" . $scriptName . '.smem' ] = $mhsc['SMEM'];

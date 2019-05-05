@@ -295,7 +295,7 @@ class T_FUNCTION {
 
         $debugMsg = sprintf('[T_FUNCTION] map: call function %s', $node['value']);
 
-        $code[] = $getLine($function['offset'], false, $debugMsg);
+        $code[] = $getLine($function['offset'], false, $debugMsg, true);
 
 
         /**

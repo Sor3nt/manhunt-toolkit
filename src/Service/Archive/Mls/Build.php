@@ -4,6 +4,7 @@ namespace App\Service\Archive\Mls;
 
 use App\MHT;
 use App\Service\Helper;
+use App\Service\NBinary;
 
 class Build {
 
@@ -22,6 +23,7 @@ class Build {
         $levelScriptRecords = false;
 
         foreach ($scripts as $index => $records) {
+
             if ($records['ENTT']['type'] == "levelscript"){
                 $levelScriptRecords = $records;
                 break;
@@ -38,7 +40,7 @@ class Build {
             $scriptCode .= $this->buildNAME( $records );
             $scriptCode .= $this->buildENTT( $records );
             $scriptCode .= $this->buildCODE( $records );
-            $scriptCode .= $this->buildDATA( $records, $levelScriptRecords );
+            $scriptCode .= $this->buildDATA( $records, $levelScriptRecords, $game );
             $scriptCode .= $this->buildSMEM( $records );
             $scriptCode .= $this->buildDebug( $records );
             $scriptCode .= $this->buildDMEM( $records );
@@ -103,7 +105,7 @@ class Build {
         return $this->buildLabelSizeData("CODE", hex2bin(implode("", $records['CODE'])));
     }
 
-    private function buildDATA( $records, $levelScriptRecords ){
+    private function buildDATA( $records, $levelScriptRecords, $game ){
 
         if (!isset($records['DATA'])) return "";
 
@@ -143,12 +145,23 @@ class Build {
 
         foreach ($records['DATA']['strings'] as $name) {
 
+            $nName = new NBinary();
+            $oName = $name;
+
             $name = current(unpack("H*", $name)) . "00";
             $nameLength = strlen($name);
 
             // add NAME size (its always / max 16)
-            $dataCodeTmp = Helper::pad($name, 8, false, 'da');
-            $dataCode .= (Helper::pad($dataCodeTmp , $nameLength +  (8 - $nameLength % 8), false, 'da'));
+            if ($game == MHT::GAME_MANHUNT_2){
+                $dataCodeTmp = Helper::pad($name, 8, false, 'da');
+                $dataCode .= (Helper::pad($dataCodeTmp , $nameLength +  (8 - $nameLength % 8), false, 'da'));
+
+            }else{
+
+                $nName->write($oName . "\x00", NBinary::STRING);
+                $nName->write($nName->getPadding(), NBinary::BINARY);
+                $dataCode .= $nName->hex;
+            }
         }
 
 
@@ -208,6 +221,8 @@ class Build {
 
         if (isset($records['LINE']) && count($records['LINE']))
             $data .= $this->buildLabelSizeData('LINE', hex2bin( implode('', $records['LINE'])) );
+//        else
+//            $data .= $this->buildLabelSizeData('LINE', hex2bin( implode('', [])) );
 
         if (isset($records['TRCE']))
             $data .= $this->buildLabelSizeData('TRCE', hex2bin( implode('', $records['TRCE'])) );

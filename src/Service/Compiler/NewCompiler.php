@@ -135,6 +135,9 @@ class NewCompiler
             }
         }
 
+//        var_dump($result);
+//        exit;
+
         return [
             'extra' => [
                 'headerVariables' => $this->headerVariables
@@ -1228,8 +1231,6 @@ class NewCompiler
 
         $results = [];
 
-        $memoryForDoubleEntries = 0;
-
         foreach ($headerVariables as $name => $variable) {
 
             $result = [
@@ -1243,27 +1244,12 @@ class NewCompiler
             if ($variable['isGameVar']){
                 $result['objectType'] = "feffffff";
             }
-//
-//            if( isset($variablesOverAllScript['fromScript'])){
-//
-//            }
 
             $generateOccurrences = true;
             $occurrencesAlreadyProcessed = [];
             foreach ($variablesOverAllScripts as $variablesOverAllScript) {
                 list($varScriptName, $variablesOverAllScript) = $variablesOverAllScript;
                 if ($varScriptName == $name) {
-
-//
-//                    if( isset($variablesOverAllScript['fromScript'])){
-//                        $occurrencesPerBlock[]
-//
-//                    }
-//
-//
-//                    var_dump($variablesOverAllScript);
-//                    exit;
-//                    $occurrencesPerBlock[]
 
 
                     if (in_array($name, $occurrencesAlreadyProcessed) == false){
@@ -1283,7 +1269,7 @@ class NewCompiler
 
                 }
             }
-//var_dump("\n\n", $variablesOverAllScripts);
+
             if ($variable['isLevelVar'] && $generateOccurrences){
 
 
@@ -1310,6 +1296,7 @@ class NewCompiler
     private function generateSTAB($headerVariables, $sectionCode, $codePerBlock, $variablesOverAllScripts)
     {
 
+        //Todo umbauen auch für mh2
         if ($this->game == MHT::GAME_MANHUNT){
             return $this->generateSTABNew($headerVariables, $sectionCode, $codePerBlock, $variablesOverAllScripts);
         }
@@ -1426,14 +1413,6 @@ class NewCompiler
 
             $result[] = $row;
 
-            if ($this->game == MHT::GAME_MANHUNT && $variable['size'] == "ffffffff"){
-//                $row['occurrences'] = [];
-//                $result[] = $row;
-
-//                var_dump($variablesOverAllScripts);
-
-            }
-
         }
         usort($result, function ($a, $b) {
             return $a['name'] > $b['name'];
@@ -1459,9 +1438,13 @@ class NewCompiler
 
             if ($token['type'] == Token::T_DEFINE_SECTION_ENTITY) {
 
+                $type = "other";
+                if ($tokens[$current + 3]['value'] == "et_level") $type = "levelscript";
+                if ($scriptName == "levelscript") $type = "levelscript";
+
                 return [
                     'name' => strtolower($tokens[$current + 1]['value']),
-                    'type' => $scriptName == "levelscript" ? "levelscript" : "other"
+                    'type' => $type
                 ];
             }
 

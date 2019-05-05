@@ -143,9 +143,17 @@ class Extract {
         //skip the type
         $data->substr(0, 4, $name);
 
+        $type = "other";
+        //mh2
+        if ($levelName['name'] == "levelscript") $type = "levelscript";
+
+        //mh1
+        if ($levelName['name'] == "levelscripts") $type = "levelscript";
+
+
         return [
             'name' => $name->toString(),
-            'type' => $levelName['name'] == "levelscript" ? "levelscript" : "other"
+            'type' => $type
         ];
 
     }
@@ -360,7 +368,7 @@ class Extract {
         $lines = $line->split(4);
         $dbug['LINE'] = [];
         foreach ($lines as $line) {
-            $dbug['LINE'][] = $line->toHex();
+            $dbug['LINE'][] = $line->toInt();
         }
 
         list(,$trce) = $this->getLabelSizeData( $data, $data);

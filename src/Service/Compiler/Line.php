@@ -4,13 +4,15 @@ namespace App\Service\Compiler;
 class Line {
 
     public $lineNumber = 0;
+    public $debugLine = 0;
     public $hex = "";
     public $debug = "";
 
-    public function __construct($hex, $lineNumber, $debug) {
+    public function __construct($hex, $lineNumber, $debug, $debugLineNext = 0) {
         $this->hex = $hex;
         $this->lineNumber = $lineNumber;
         $this->debug = $debug;
+        $this->debugLine = $debugLineNext;
     }
 
     public function __toString(){
