@@ -157,6 +157,7 @@ class Parser {
             case Token::T_IS_EQUAL :
             case Token::T_IS_NOT_EQUAL :
             case Token::T_IS_GREATER_EQUAL :
+            case Token::T_IS_SMALLER_EQUAL :
             case Token::T_IS_SMALLER :
             case Token::T_IS_GREATER :
             case Token::T_STRING:

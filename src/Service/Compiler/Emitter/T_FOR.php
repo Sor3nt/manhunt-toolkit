@@ -34,9 +34,9 @@ class T_FOR {
 
         $startLineNumber = end($code)->lineNumber;
 
-        if ($data['game'] == MHT::GAME_MANHUNT_2){
+//        if ($data['game'] == MHT::GAME_MANHUNT_2){
             $startLineNumber += 3;
-        }
+//        }
 
         $code[] = $getLine(Helper::fromIntToHex($startLineNumber * 4), false, $debugMsg . ' (start line 1)');
 

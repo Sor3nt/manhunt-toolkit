@@ -22,6 +22,108 @@ class Manhunt
     ];
 
     public static $constants = [
+
+        'voice_hooded3voice2' => [
+            'offset' => '05000000'
+        ],
+
+        'aispeech_h3v2_uni_long_pain' => [
+            'offset' => '02000000'
+        ],
+
+        'aispeech_h1v1_uni_long_pain' => [
+            'offset' => 'aispeech_h1v1_uni_long_pain'
+        ],
+
+        'aispeech_h2v1_der_laughter' => [
+            'offset' => '27000000'
+        ],
+
+        'ct_brick_half' => [
+            'offset' => '38000000'
+        ],
+
+        'ct_w_baseball_bat' => [
+            'offset' => '23000000'
+        ],
+
+        'mtt_defensive_hard' => [
+            'offset' => 'mtt_defensive_hard'
+        ],
+
+        'aiscript_idle_moveanims' => [
+            'offset' => '04000000'
+        ],
+
+        'aiscript_idle_speech' => [
+            'offset' => '03000000'
+        ],
+
+        'aispeech_h2v1_uni_long_pain' => [
+            'offset' => '01000000'
+        ],
+
+        'aispeech_h1v1_der_urinating' => [
+            'offset' => '25000000'
+        ],
+        'voice_hooded1voice1' => [
+            'offset' => 'voice_hooded1voice1'
+        ],
+        'ct_small_bat' => [
+            'offset' => '21000000'
+        ],
+        'aispeech_d1v1_der_exit' => [
+            'offset' => '34000000'
+        ],
+        'aispeech_d1v1_der_crowbar' => [
+            'offset' => '32000000'
+        ],
+
+        'scripted_track_pdoor' => [
+            'offset' => 'scripted_track_pdoor'
+        ],
+
+        'aispeech_d1v1_der_level_start' => [
+            'offset' => '2f000000'
+        ],
+
+        'map_color_blue' => [
+            'offset' => '06000000'
+        ],
+
+
+        'sfx_script_slot_zip' => [
+            'offset' => 'ea360000'
+        ],
+
+        'sfx_script_slot_piss' => [
+            'offset' => 'e9360000'
+        ],
+
+
+        'voice_hooded2voice1' => [
+            'offset' => '02000000'
+        ],
+
+
+        'scripted_track_direct' => [
+            'offset' => 'scripted_track_direct'
+        ],
+
+        'voice_piggsy1voice1' => [
+            'offset' => 'voice_piggsy1voice1'
+        ],
+
+        'searchreqid_runtoinvestigate' => [
+            'offset' => 'searchreqid_runtoinvestigate'
+        ],
+        'searchreqid_negativechase' => [
+            'offset' => 'searchreqid_negativechase'
+        ],
+        'weather_clear' => [
+            'offset' => 'weather_clear'
+        ],
+
         'aispeech_d1v1_trf_hoods_carpark' => [
             'offset' => '2a000000'
         ],
@@ -580,6 +682,11 @@ class Manhunt
             'offset' => '48010000',
         ],
 
+        'loadscriptaudioslot' => [
+            'name' => 'loadscriptaudioslot',
+            'offset' => 'be020000',
+        ],
+
 
         'removeentity' => [
             'name' => 'removeentity',
@@ -613,11 +720,30 @@ class Manhunt
         'aiisgoalnameinsubpack' => [
             'name' => 'aiisgoalnameinsubpack',
             'offset' => 'a2020000',
+            'return' => 'Boolean'
         ],
 
         'setdooropenangleout' => [
             'name' => 'setdooropenangleout',
             'offset' => 'd3010000',
+        ],
+        'killeffect' => [
+            'name' => 'killeffect',
+            'offset' => 'a9000000',
+        ],
+        'removescript' => [
+            'name' => 'removescript',
+            'offset' => 'e5000000',
+        ],
+
+        'aientitycancelanim' => [
+            'name' => 'aientitycancelanim',
+            'offset' => '14020000',
+        ],
+
+        'endscriptaudioslotlooped' => [
+            'name' => 'endscriptaudioslotlooped',
+            'offset' => 'c4020000',
         ],
 
         'unlockentity' => [
@@ -857,6 +983,11 @@ class Manhunt
             'offset' => '8b020000'
         ],
 
+        'setdirectorspeechtime' => [
+            'name' => 'setdirectorspeechtime',
+            'offset' => 'dc020000'
+        ],
+
         'hudtoggleflashflags' => [
             'name' => 'HUDToggleFlashFlags',
             'offset' => 'af020000',
@@ -914,9 +1045,15 @@ class Manhunt
             'params' => ['string'],
             'desc' => ''
         ],
+
         'createinventoryitem' => [
             'name' => 'CreateInventoryItem',
             'offset' => 'b9000000',
+        ],
+
+        'aisethunteridleaction' => [
+            'name' => 'aisethunteridleaction',
+            'offset' => '7e010000',
         ],
 
         'ispadbuttonpressed' => [
@@ -1035,10 +1172,30 @@ class Manhunt
             'offset' => '0b010000'
         ],
 
+        'aisetsubpacksearchparams' => [
+            'name' => 'aisetsubpacksearchparams',
+            'offset' => 'aisetsubpacksearchparams'
+        ],
+
 
         'setgametextdisplaytime' => [
             'name' => 'setgametextdisplaytime',
             'offset' => '0c010000'
+        ],
+
+        'loadfrontendaudiostream' => [
+            'name' => 'loadfrontendaudiostream',
+            'offset' => 'loadfrontendaudiostream'
+        ],
+
+        'showentity' => [
+            'name' => 'showentity',
+            'offset' => 'showentity'
+        ],
+
+        'setpedorientation' => [
+            'name' => 'setpedorientation',
+            'offset' => 'setpedorientation'
         ],
 
 
@@ -1142,6 +1299,11 @@ class Manhunt
             'offset' => '76020000'
         ],
 
+        'aisetsubpackfollowthrough' => [
+            'name' => 'aisetsubpackfollowthrough',
+            'offset' => 'e2010000'
+        ],
+
         'cameraforcelookatentity' => [
             'name' => 'cameraforcelookatentity',
             'offset' => '23020000'
@@ -1150,6 +1312,47 @@ class Manhunt
         'camerastoplookatentity' => [
             'name' => 'camerastoplookatentity',
             'offset' => '24020000'
+        ],
+
+        'newparticleeffect' => [
+            'name' => 'newparticleeffect',
+            'offset' => 'a7000000'
+        ],
+
+        'getentitymatrix' => [
+            'name' => 'getentitymatrix',
+            'offset' => '0e010000'
+        ],
+
+        'attacheffecttomatrix' => [
+            'name' => 'attacheffecttomatrix',
+            'offset' => '0f010000'
+        ],
+
+        'seteffectposition' => [
+            'name' => 'seteffectposition',
+            'offset' => 'aa000000'
+        ],
+
+        'seteffectdirection' => [
+            'name' => 'seteffectdirection',
+            'offset' => 'ab000000'
+        ],
+
+        'createeffect' => [
+            'name' => 'createeffect',
+            'offset' => 'a8000000'
+        ],
+
+        'playscriptaudioslotloopedfromentity' => [
+            'name' => 'playscriptaudioslotloopedfromentity',
+            'offset' => 'c2020000'
+        ],
+
+        'aiisidle' => [
+            'name' => 'aiisidle',
+            'offset' => '69010000',
+            'return' => 'Boolean'
         ],
 
         'markcutsceneasplayed' => [
@@ -1210,6 +1413,101 @@ class Manhunt
             'offset' => '2e010000'
         ],
 
+        'forceweathertype' => [
+            'name' => 'forceweathertype',
+            'offset' => 'forceweathertype'
+        ],
+
+        'aidefinegoalgotoentity' => [
+            'name' => 'aidefinegoalgotoentity',
+            'offset' => 'aidefinegoalgotoentity'
+        ],
+
+        'initareas' => [
+            'name' => 'initareas',
+            'offset' => 'initareas'
+        ],
+
+        'switchlitteron' => [
+            'name' => 'switchlitteron',
+            'offset' => 'a1020000'
+        ],
+
+        'setpedlockonable' => [
+            'name' => 'setpedlockonable',
+            'offset' => '94020000'
+        ],
+
+        'aiassociatetwoactiveareaswithplayerarea' => [
+            'name' => 'aiassociatetwoactiveareaswithplayerarea',
+            'offset' => 'bb010000'
+        ],
+
+
+        'setgametextttypedisplaytime' => [
+            'name' => 'setgametextttypedisplaytime',
+            'offset' => 'setgametextttypedisplaytime'
+        ],
+
+        'aidefinegoalhideunnamedhunters' => [
+            'name' => 'aidefinegoalhideunnamedhunters',
+            'offset' => 'aidefinegoalhideunnamedhunters'
+        ],
+
+        'aidefinegoalgotoentityidle' => [
+            'name' => 'aidefinegoalgotoentityidle',
+            'offset' => 'aidefinegoalgotoentityidle'
+        ],
+
+        'aidefinegoalgotovector' => [
+            'name' => 'aidefinegoalgotovector',
+            'offset' => 'aidefinegoalgotovector'
+        ],
+
+        'aidefinegoalguard' => [
+            'name' => 'aidefinegoalguard',
+            'offset' => 'aidefinegoalguard'
+        ],
+       'getdamage' => [
+            'name' => 'getdamage',
+            'offset' => 'getdamage'
+        ],
+
+        'hideentity' => [
+            'name' => 'hideentity',
+            'offset' => 'hideentity'
+        ],
+
+        'aitriggersoundnoradar' => [
+            'name' => 'aitriggersoundnoradar',
+            'offset' => 'b4020000'
+        ],
+
+        'aientityspecificspeechanim' => [
+            'name' => 'aientityspecificspeechanim',
+            'offset' => '98020000'
+        ],
+
+        'aidefinegoalguardlookatentity' => [
+            'name' => 'aidefinegoalguardlookatentity',
+            'offset' => 'aidefinegoalguardlookatentity'
+        ],
+
+        'aisetsearchparams' => [
+            'name' => 'aisetsearchparams',
+            'offset' => 'aisetsearchparams'
+        ],
+
+        'aidefinegoalmeleeattackvector' => [
+            'name' => 'aidefinegoalmeleeattackvector',
+            'offset' => 'aidefinegoalmeleeattackvector'
+        ],
+
+        'radarpositionsetentity' => [
+            'name' => 'radarpositionsetentity',
+            'offset' => 'de020000'
+        ],
+
         'getlastitempickedup' => [
             'name' => 'getlastitempickedup',
             'offset' => 'c8010000'
@@ -1239,9 +1537,27 @@ class Manhunt
             'return' => 'boolean'
         ],
 
+        'isplayersneaking' => [
+            'name' => 'isplayersneaking',
+            'offset' => 'ea020000',
+            'return' => 'boolean'
+        ],
+
+        'isplayerwalking' => [
+            'name' => 'isplayerwalking',
+            'offset' => 'eb020000',
+            'return' => 'boolean'
+        ],
+
         'getdifficultylevel' => [
             'name' => 'getdifficultylevel',
             'offset' => '9c020000',
+            'return' => 'integer'
+        ],
+
+        'randnum' => [
+            'name' => 'randnum',
+            'offset' => '69000000',
             'return' => 'integer'
         ],
 

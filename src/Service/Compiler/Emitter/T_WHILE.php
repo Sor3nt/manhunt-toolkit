@@ -10,8 +10,13 @@ class T_WHILE {
 
         $code = [];
         $resultCode = T_IF::map($node, $getLine,$emitter, $data, true );
-
         $firstLine = $resultCode[0]->lineNumber - 1;
+
+        //mh1 special boolean handling...
+        if ($resultCode[2] == "7d000000"){
+            $firstLine += 3;
+        }
+
         $firstLine *= 4;
 
         foreach ($resultCode as $line) {

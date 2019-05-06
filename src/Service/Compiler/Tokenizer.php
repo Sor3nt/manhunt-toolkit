@@ -35,6 +35,7 @@ use App\Service\Compiler\Tokens\T_IS_GREATER;
 use App\Service\Compiler\Tokens\T_IS_GREATER_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_NOT_EQUAL;
 use App\Service\Compiler\Tokens\T_IS_SMALLER;
+use App\Service\Compiler\Tokens\T_IS_SMALLER_EQUAL;
 use App\Service\Compiler\Tokens\T_LEVEL_VAR;
 use App\Service\Compiler\Tokens\T_LINEEND;
 use App\Service\Compiler\Tokens\T_MULTIPLY;
@@ -131,6 +132,7 @@ class Tokenizer {
         T_IS_NOT_EQUAL::class,
         T_IS_GREATER_EQUAL::class,
         T_IS_GREATER::class,
+        T_IS_SMALLER_EQUAL::class,
         T_IS_SMALLER::class,
         T_IS_EQUAL::class,
 

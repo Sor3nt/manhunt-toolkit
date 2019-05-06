@@ -115,6 +115,9 @@ class Evaluate {
             case Token::T_IS_SMALLER:
                 $code[] = $getLine('3d000000', false, $debugMsg);
                 break;
+            case Token::T_IS_SMALLER_EQUAL:
+                $code[] = $getLine('3e000000', false, $debugMsg);
+                break;
             case Token::T_IS_GREATER:
                 $code[] = $getLine('42000000', false, $debugMsg);
                 break;
