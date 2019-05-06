@@ -492,10 +492,12 @@ class NewCompiler
         $source = str_replace([
             "if ( EnteredTrigger(this, GetPlayer) OR InsideTrigger(this, GetPlayer) ) then",
             "}}",
+            "huntpacklimit+1",
             "PLAYING  TWITCH",
         ], [
             "if ( EnteredTrigger(this, GetPlayer) ) OR ( InsideTrigger(this, GetPlayer) ) then",
             "}",
+            "huntpacklimit + 1",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
 
         ], $source);
@@ -1252,6 +1254,7 @@ class NewCompiler
                 'occurrences' => []
             ];
 
+
             if ($variable['isGameVar']){
                 $result['objectType'] = "feffffff";
             }
@@ -1271,6 +1274,13 @@ class NewCompiler
                             }
                         }
 
+
+//                        if(count($result['occurrences'])){
+//                            if ($variable['objectType'] == Token::T_VEC3D){
+//                                $result['objectType'] = Token::T_VEC3D;
+//                            }
+//                        }
+
                     }else{
                         $results[] = $result;
                         $result['occurrences'] = [];
@@ -1280,6 +1290,8 @@ class NewCompiler
 
                 }
             }
+
+
 
             if ($variable['isLevelVar'] && $generateOccurrences){
 

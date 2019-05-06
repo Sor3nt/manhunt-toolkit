@@ -27,7 +27,10 @@ class ManhuntDefault {
         'setzoomlerp' => [true, true, true],
         'setdooroverrideangle' => [false, true],
         'camerastoplookatentity' => [false, true],
+        'aidefinegoalhidenamedhunter' => [false, false, false, false, true, false],
         'setplayerheading' => [true],
+        'aientityplayanimlooped' => [false, false, true],
+        'aidefinegoalbebuddy' => [false, false, false, true],
         'handcamsetall' => [false, true, true, true, true],
         'cameraforcelookatentity' => [false, false, false, false, true],
 

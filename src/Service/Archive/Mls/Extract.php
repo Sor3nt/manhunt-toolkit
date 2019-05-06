@@ -259,6 +259,10 @@ class Extract {
                         $objectType = "boolean";
                         break;
 
+                    case "02000000";
+                        $objectType = "vec3d";
+                        break;
+
                     default:
                         $objectType = $valueType;
 //                        throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType));

@@ -271,6 +271,9 @@ class Build {
                     case 'boolean':
                         $stabCode .= "\x01\x00\x00\x00";
                         break;
+                    case 'vec3d':
+                        $stabCode .= "\x02\x00\x00\x00";
+                        break;
 //
                     default:
                         $stabCode .= hex2bin($record['objectType']);

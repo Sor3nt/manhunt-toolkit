@@ -23,8 +23,93 @@ class Manhunt
 
     public static $constants = [
 
+        'aispeech_d1v1_drk_church2_start' => [
+            'offset' => 'aispeech_d1v1_drk_church2_start'
+        ],
+
+        'speechtype_all' => [
+            'offset' => '20000000'
+        ],
+
+        'weather_thunderstorm' => [
+            'offset' => '03000000'
+        ],
+
+        'ct_y_first_aid' => [
+            'offset' => '0a000000'
+        ],
+
+        'ct_sawnoff' => [
+            'offset' => '32000000'
+        ],
+
+        'aispeech_d1v1_sou_grizzly_bear' => [
+            'offset' => '49000000'
+        ],
+
+        'door_opening' => [
+            'offset' => '01000000'
+        ],
+
+
+        'ct_tranq_rifle' => [
+            'offset' => '31000000'
+        ],
+
+
+        'aispeech_d1v1_sou_tranq_guy' => [
+            'offset' => '4a000000'
+        ],
+
+
+        'sfx_script_slot_crane_stop' => [
+            'offset' => 'f5360000'
+        ],
+
+
+        'aispeech_d1v1_sou_zoo_start' => [
+            'offset' => '47000000'
+        ],
+        'aispeech_d1v1_skn_crane' => [
+            'offset' => '42000000'
+        ],
+
+
+        'aispeech_d1v1_bod_bait' => [
+            'offset' => '4c000000'
+        ],
+
+
+        'aispeech_d1v1_bod_zoo_2_start' => [
+            'offset' => '4b000000'
+        ],
+
+        'sfx_script_slot_crane_start' => [
+            'offset' => 'f4360000'
+        ],
+
+        'sfx_script_slot_fuse_blow' => [
+            'offset' => 'eb360000'
+        ],
+
         'voice_hooded3voice2' => [
             'offset' => '05000000'
+        ],
+
+        'aispeech_d1v1_wht_scrapyard_1_start' => [
+            'offset' => '38000000'
+        ],
+
+        'sfx_f_e1v1_scripted_zoo2_1' => [
+            'offset' => '43340000'
+        ],
+
+        'aiscript_idle_standanims' => [
+            'offset' => '05000000'
+        ],
+
+        'sfx_f_e1v1_scripted_zoo2_2' => [
+            'offset' => '44340000'
         ],
 
         'aispeech_h3v2_uni_long_pain' => [
@@ -39,6 +124,26 @@ class Manhunt
             'offset' => '27000000'
         ],
 
+        'aispeech_d1v1_sou_second_section' => [
+            'offset' => '48000000'
+        ],
+
+        'voice_skinz1voice2' => [
+            'offset' => '14000000'
+        ],
+
+        'voice_innocent1voice1' => [
+            'offset' => '06000000'
+        ],
+
+        'mtt_grappler' => [
+            'offset' => '16000000'
+        ],
+
+        'ct_crowbar' => [
+            'offset' => '1a000000'
+        ],
+
         'ct_brick_half' => [
             'offset' => '38000000'
         ],
@@ -47,8 +152,20 @@ class Manhunt
             'offset' => '23000000'
         ],
 
+        'voice_skinz3voice1' => [
+            'offset' => '17000000'
+        ],
+
+        'voice_skinz2voice2' => [
+            'offset' => '16000000'
+        ],
+
         'mtt_defensive_hard' => [
             'offset' => 'mtt_defensive_hard'
+        ],
+
+        'ct_knife' => [
+            'offset' => '12000000'
         ],
 
         'aiscript_idle_moveanims' => [
@@ -101,6 +218,15 @@ class Manhunt
         ],
 
 
+        'map_color_green' => [
+            'offset' => '05000000'
+        ],
+
+        'aispeech_d1v1_skn_scrap_2_start' => [
+            'offset' => '3f000000'
+        ],
+
+
         'voice_hooded2voice1' => [
             'offset' => '02000000'
         ],
@@ -121,7 +247,7 @@ class Manhunt
             'offset' => 'searchreqid_negativechase'
         ],
         'weather_clear' => [
-            'offset' => 'weather_clear'
+            'offset' => '05000000'
         ],
 
         'aispeech_d1v1_trf_hoods_carpark' => [
@@ -196,288 +322,6 @@ class Manhunt
         ],
         'hud_stamina' => [
             'offset' => '08000000'
-        ],
-        'CT_TRIPWIRE' => [
-            'offset' => '01000000'
-        ],
-        'CT_GASOLINE' => [
-            'offset' => '02000000'
-        ],
-        'CT_WATER' => [
-            'offset' => '03000000'
-        ],
-        'CT_LIGHTER' => [
-            'offset' => '04000000'
-        ],
-        'CT_CASH' => [
-            'offset' => '05000000'
-        ],
-        'CT_TORCH' => [
-            'offset' => '06000000'
-        ],
-        'CT_N_NIGHTVISION' => [
-            'offset' => '07000000'
-        ],
-        'CT_PAINKILLERS' => [
-            'offset' => '08000000'
-        ],
-        'CT_G_FIRST_AID' => [
-            'offset' => '09000000'
-        ],
-        'CT_Y_FIRST_AID' => [
-            'offset' => '0A000000'
-        ],
-        'CT_SPEED_BOOST' => [
-            'offset' => '0B000000'
-        ],
-        'CT_STRENGHT_BOOST' => [
-            'offset' => '0C000000'
-        ],
-        'CT_SHOOTING_BOOST' => [
-            'offset' => '0D000000'
-        ],
-        'CT_REFLEXES_BOOST' => [
-            'offset' => '0E000000'
-        ],
-        'CT_HEALTH_BOOST' => [
-            'offset' => '0F000000'
-        ],
-        'CT_FISTS' => [
-            'offset' => '12000000'
-        ],
-        'CT_KNIFE' => [
-            'offset' => '13000000'
-        ],
-        'CT_SHARD' => [
-            'offset' => '13000000'
-        ],
-        'CT_BROKEN_BOTTLE' => [
-            'offset' => '14000000'
-        ],
-        'CT_JURYBLADES' => [
-            'offset' => '15000000'
-        ],
-        'CT_BOTTLE' => [
-            'offset' => '16000000'
-        ],
-        'CT_PIPE' => [
-            'offset' => '17000000'
-        ],
-        'CT_CLEAVER' => [
-            'offset' => '18000000'
-        ],
-        'CT_WOODEN_BAR' => [
-            'offset' => '19000000'
-        ],
-        'CT_CROWBAR' => [
-            'offset' => '1A000000'
-        ],
-        'CT_AXE' => [
-            'offset' => '1E000000'
-        ],
-        'CT_ICEPICK' => [
-            'offset' => '1F000000'
-        ],
-        'CT_MACHETE' => [
-            'offset' => '20000000'
-        ],
-        'CT_SMALL_BAT' => [
-            'offset' => '21000000'
-        ],
-        'CT_BASEBALL_BAT' => [
-            'offset' => '22000000'
-        ],
-        'CT_W_BASEBALL_BAT' => [
-            'offset' => '23000000'
-        ],
-        'CT_FIRE_AXE' => [
-            'offset' => '24000000'
-        ],
-        'CT_BASEBALL_BAT_BLADES' => [
-            'offset' => '26000000'
-        ],
-        'CT_6SHOOTER' => [
-            'offset' => '27000000'
-        ],
-        'CT_GLOCK' => [
-            'offset' => '28000000'
-        ],
-        'CT_GLOCK_SILENCED' => [
-            'offset' => '29000000'
-        ],
-        'CT_GLOCK_TORCH' => [
-            'offset' => '2A000000'
-        ],
-        'CT_UZI' => [
-            'offset' => '2B000000'
-        ],
-        'CT_SHOTGUN' => [
-            'offset' => '2C000000'
-        ],
-        'CT_SHOTGUN_TORCH' => [
-            'offset' => '2D000000'
-        ],
-        'CT_COLT_COMMANDO' => [
-            'offset' => '2F000000'
-        ],
-        'CT_DESERT_EAGLE' => [
-            'offset' => '2E000000'
-        ],
-        'CT_SNIPER_RIFLE' => [
-            'offset' => '30000000'
-        ],
-        'CT_SNIPER_RIFLE_SILENCED' => [
-            'offset' => '30000000'
-        ],
-        'CT_TRANQ_RIFLE' => [
-            'offset' => '31000000'
-        ],
-        'CT_SAWNOFF' => [
-            'offset' => '32000000'
-        ],
-        'CT_GRENADE' => [
-            'offset' => '33000000'
-        ],
-        'CT_MOLOTOV' => [
-            'offset' => '34000000'
-        ],
-        'CT_EXPMOLOTOV' => [
-            'offset' => '35000000'
-        ],
-        'CT_TEAR_GAS' => [
-            'offset' => '36000000'
-        ],
-        'CT_FLASH' => [
-            'offset' => '37000000'
-        ],
-        'CT_BRICK_HALF' => [
-            'offset' => '38000000'
-        ],
-        'CT_FIREWORK' => [
-            'offset' => '39000000'
-        ],
-        'CT_CAN' => [
-            'offset' => '5B000000'
-        ],
-        'CT_RAG' => [
-            'offset' => '3B000000'
-        ],
-        'CT_CHLORINE' => [
-            'offset' => '3B000000'
-        ],
-        'CT_METHS' => [
-            'offset' => '3B000000'
-        ],
-        'CT_HCC' => [
-            'offset' => '3E000000'
-        ],
-        'CT_D_BEER_GUY' => [
-            'offset' => '3F000000'
-        ],
-        'CT_D_MERC_LEAD' => [
-            'offset' => '40000000'
-        ],
-        'CT_D_SMILEY' => [
-            'offset' => '41000000'
-        ],
-        'CT_D_HUNTLORD' => [
-            'offset' => '42000000'
-        ],
-        'CT_CANE' => [
-            'offset' => '1D000000'
-        ],
-        'CT_NIGHTSTICK' => [
-            'offset' => '1C000000'
-        ],
-        'CT_K_DUST' => [
-            'offset' => '11000000'
-        ],
-        'CT_E_L_SIGHT' => [
-            'offset' => '43000000'
-        ],
-        'CT_S_SILENCER' => [
-            'offset' => '44000000'
-        ],
-        'CT_RADIO' => [
-            'offset' => '45000000'
-        ],
-        'CT_BAR_KEY' => [
-            'offset' => '46000000'
-        ],
-        'CT_SYARD_COMB' => [
-            'offset' => '47000000'
-        ],
-        'CT_CAMERA' => [
-            'offset' => '48000000'
-        ],
-        'CT_BODY_P1' => [
-            'offset' => '49000000'
-        ],
-        'CT_BODY_P2' => [
-            'offset' => '4A000000'
-        ],
-        'CT_PREC_KEY' => [
-            'offset' => '4B000000'
-        ],
-        'CT_PREC_DOCS' => [
-            'offset' => '4C000000'
-        ],
-        //  for hunters!
-        'CT_CHAINSAW' => [
-            'offset' => '58000000'
-        ],
-        'CT_CHAINSAW_PLAYER' => [
-            'offset' => '6C000000'
-        ],
-        'CT_BAG' => [
-            'offset' => '3A000000'
-        ],
-        'CT_WIRE' => [
-            'offset' => '5A000000'
-        ],
-        'CT_WOODEN_SPIKE' => [
-            'offset' => '5C000000'
-        ],
-        'CT_PIGSY_WIRE' => [
-            'offset' => '5F000000'
-        ],
-        'CT_PIGSY_SHARD' => [
-            'offset' => '5E000000'
-        ],
-        'CT_PIGSY_SPIKE' => [
-            'offset' => '60000000'
-        ],
-        'CT_HAMMER' => [
-            'offset' => '61000000'
-        ],
-        'CT_KEY' => [
-            'offset' => '53000000'
-        ],
-        'CT_NAILGUN' => [
-            'offset' => '59000000'
-        ],
-        'CT_HANDYCAM' => [
-            'offset' => '6E000000'
-        ],
-        // Ammo
-        'CT_AMMO_NAILS' => [
-            'offset' => '66000000'
-        ],
-        'CT_AMMO_SHOTGUN' => [
-            'offset' => '67000000'
-        ],
-        'CT_AMMO_PISTOL' => [
-            'offset' => '68000000'
-        ],
-        'CT_AMMO_MGUN' => [
-            'offset' => '69000000'
-        ],
-        'CT_AMMO_TRANQ' => [
-            'offset' => '6A000000'
-        ],
-
-        'CT_NO_ITEM' => [
-            'offset' => '6F000000'
         ],
 
         'aiscript_mediumpriority' => [
@@ -1070,10 +914,22 @@ class Manhunt
             'name' => 'AISetEntityAsLeader',
             'offset' => '4e010000'
         ],
+
+        'setplayercontrollable' => [
+            'name' => 'setplayercontrollable',
+            'offset' => '8e020000'
+        ],
+
         'aiaddleaderenemy' => [
             'name' => 'AIAddLeaderEnemy',
             'offset' => '53010000'
         ],
+
+        'setplayergotonode' => [
+            'name' => 'setplayergotonode',
+            'offset' => '90020000'
+        ],
+
         'aientityalwaysenabled' => [
             'name' => 'AIEntityAlwaysEnabled',
             'offset' => 'be010000'
@@ -1089,6 +945,10 @@ class Manhunt
         'aisethunteronradar' => [
             'name' => 'AISetHunterOnRadar',
             'offset' => 'a7010000'
+        ],
+        'setslidedoorajardistance' => [
+            'name' => 'setslidedoorajardistance',
+            'offset' => '9a010000'
         ],
         'aisetsubpackcombattype' => [
             'name' => 'AISetSubpackCombatType',
@@ -1147,6 +1007,11 @@ class Manhunt
             'offset' => '71010000'
         ],
 
+        'aimodifygoalaim' => [
+            'name' => 'aimodifygoalaim',
+            'offset' => '3c020000'
+        ],
+
         'sethunterruntime' => [
             'name' => 'sethunterruntime',
             'offset' => 'ee010000'
@@ -1165,6 +1030,16 @@ class Manhunt
         'setgametextteletype' => [
             'name' => 'setgametextteletype',
             'offset' => '08010000'
+        ],
+
+        'aiplaycommunication' => [
+            'name' => 'aiplaycommunication',
+            'offset' => 'fb010000'
+        ],
+
+        'aicutsceneallentitiesenable' => [
+            'name' => 'aicutsceneallentitiesenable',
+            'offset' => 'a7020000'
         ],
 
         'setgametextboxposition' => [
@@ -1193,6 +1068,12 @@ class Manhunt
             'offset' => 'showentity'
         ],
 
+        'aiisenemyinsight' => [
+            'name' => 'aiisenemyinsight',
+            'offset' => '74010000',
+            'return' => 'Boolean'
+        ],
+
         'setpedorientation' => [
             'name' => 'setpedorientation',
             'offset' => 'setpedorientation'
@@ -1212,6 +1093,51 @@ class Manhunt
         'playdirectorspeech' => [
             'name' => 'playdirectorspeech',
             'offset' => '79020000'
+        ],
+
+        'aidefinegoalgotoentitystayonpath' => [
+            'name' => 'aidefinegoalgotoentitystayonpath',
+            'offset' => 'f3010000'
+        ],
+
+
+        'setslidedoorspeed' => [
+            'name' => 'setslidedoorspeed',
+            'offset' => 'ad010000'
+        ],
+
+        'aidefinegoalbebuddy' => [
+            'name' => 'aidefinegoalbebuddy',
+            'offset' => 'aidefinegoalbebuddy'
+        ],
+
+        'aisetentitystayonpath' => [
+            'name' => 'aisetentitystayonpath',
+            'offset' => '4b020000'
+        ],
+
+        'attachtoentity' => [
+            'name' => 'attachtoentity',
+            'offset' => '92000000'
+        ],
+
+        'setbasketbrawlspecialflag' => [
+            'name' => 'setbasketbrawlspecialflag',
+            'offset' => 'ff020000'
+        ],
+
+        'spawnentitywithdirection' => [
+            'name' => 'spawnentitywithdirection',
+            'offset' => '7b000000'
+        ],
+
+        'setcounter' => [
+            'name' => 'setcounter',
+            'offset' => 'f7020000'
+        ],
+        'sethunterdropammo' => [
+            'name' => 'sethunterdropammo',
+            'offset' => 'd7020000'
         ],
 
         'handcamsetactive' => [
@@ -1269,6 +1195,40 @@ class Manhunt
         ],
 
 
+        'aitriggersound' => [
+            'name' => 'aitriggersound',
+            'offset' => '5c010000'
+        ],
+
+        'aimodifygoalcrouch' => [
+            'name' => 'aimodifygoalcrouch',
+            'offset' => 'aimodifygoalcrouch'
+        ],
+        'setweaponammo' => [
+            'name' => 'setweaponammo',
+            'offset' => '69020000'
+        ],
+
+        'aisetbuddyfollow' => [
+            'name' => 'aisetbuddyfollow',
+            'offset' => 'aisetbuddyfollow'
+        ],
+
+        'aisethunteridledirection' => [
+            'name' => 'aisethunteridledirection',
+            'offset' => '9b010000'
+        ],
+
+        'scripthogprocessorend' => [
+            'name' => 'scripthogprocessorend',
+            'offset' => 'scripthogprocessorend'
+        ],
+
+        'scripthogprocessorstart' => [
+            'name' => 'scripthogprocessorstart',
+            'offset' => 'scripthogprocessorstart'
+        ],
+
         'togglehudflag' => [
             'name' => 'togglehudflag',
             'offset' => '7c020000'
@@ -1299,6 +1259,11 @@ class Manhunt
             'offset' => '76020000'
         ],
 
+        'aisetspeechtypes' => [
+            'name' => 'aisetspeechtypes',
+            'offset' => '00020000'
+        ],
+
         'aisetsubpackfollowthrough' => [
             'name' => 'aisetsubpackfollowthrough',
             'offset' => 'e2010000'
@@ -1312,6 +1277,21 @@ class Manhunt
         'camerastoplookatentity' => [
             'name' => 'camerastoplookatentity',
             'offset' => '24020000'
+        ],
+
+        'aisethunterashostage' => [
+            'name' => 'aisethunterashostage',
+            'offset' => 'd5020000'
+        ],
+
+        'lockped' => [
+            'name' => 'lockped',
+            'offset' => '97020000'
+        ],
+
+        'aientityignoredeadbodies' => [
+            'name' => 'aientityignoredeadbodies',
+            'offset' => 'ac020000'
         ],
 
         'newparticleeffect' => [
@@ -1334,9 +1314,24 @@ class Manhunt
             'offset' => 'aa000000'
         ],
 
+        'enableuseable' => [
+            'name' => 'enableuseable',
+            'offset' => 'e3020000'
+        ],
+
         'seteffectdirection' => [
             'name' => 'seteffectdirection',
             'offset' => 'ab000000'
+        ],
+
+        'aientityplayanimlooped' => [
+            'name' => 'aientityplayanimlooped',
+            'offset' => 'b3010000'
+        ],
+
+        'sethunterexecutable' => [
+            'name' => 'sethunterexecutable',
+            'offset' => '7f020000'
         ],
 
         'createeffect' => [
@@ -1408,6 +1403,21 @@ class Manhunt
             'offset' => '01020000'
         ],
 
+        'aidefinegoalshootvector' => [
+            'name' => 'aidefinegoalshootvector',
+            'offset' => '67020000'
+        ],
+
+        'radarpositionclearentity' => [
+            'name' => 'radarpositionclearentity',
+            'offset' => 'df020000'
+        ],
+
+        'setcurrentlod' => [
+            'name' => 'setcurrentlod',
+            'offset' => '2c010000'
+        ],
+
         'setdamage' => [
             'name' => 'setdamage',
             'offset' => '2e010000'
@@ -1415,12 +1425,37 @@ class Manhunt
 
         'forceweathertype' => [
             'name' => 'forceweathertype',
-            'offset' => 'forceweathertype'
+            'offset' => 'a3020000'
         ],
 
         'aidefinegoalgotoentity' => [
             'name' => 'aidefinegoalgotoentity',
-            'offset' => 'aidefinegoalgotoentity'
+            'offset' => 'd6010000'
+        ],
+
+        'aidefinegoalgotonodestayonpath' => [
+            'name' => 'aidefinegoalgotonodestayonpath',
+            'offset' => 'ef010000'
+        ],
+
+        'showtriggers' => [
+            'name' => 'showtriggers',
+            'offset' => '1f010000'
+        ],
+
+        'aidefinegoalorbitentity' => [
+            'name' => 'aidefinegoalorbitentity',
+            'offset' => 'f7010000'
+        ],
+
+        'aidefinegoalseekcoverbackwards' => [
+            'name' => 'aidefinegoalseekcoverbackwards',
+            'offset' => 'fe010000'
+        ],
+
+        'aidefinegoalhidenamedhunter' => [
+            'name' => 'aidefinegoalhidenamedhunter',
+            'offset' => '48020000'
         ],
 
         'initareas' => [
@@ -1466,16 +1501,16 @@ class Manhunt
 
         'aidefinegoalguard' => [
             'name' => 'aidefinegoalguard',
-            'offset' => 'aidefinegoalguard'
+            'offset' => '58010000'
         ],
        'getdamage' => [
             'name' => 'getdamage',
-            'offset' => 'getdamage'
+            'offset' => '83000000'
         ],
 
         'hideentity' => [
             'name' => 'hideentity',
-            'offset' => 'hideentity'
+            'offset' => '82000000'
         ],
 
         'aitriggersoundnoradar' => [
@@ -1490,12 +1525,12 @@ class Manhunt
 
         'aidefinegoalguardlookatentity' => [
             'name' => 'aidefinegoalguardlookatentity',
-            'offset' => 'aidefinegoalguardlookatentity'
+            'offset' => 'f9010000'
         ],
 
         'aisetsearchparams' => [
             'name' => 'aisetsearchparams',
-            'offset' => 'aisetsearchparams'
+            'offset' => '96010000'
         ],
 
         'aidefinegoalmeleeattackvector' => [
