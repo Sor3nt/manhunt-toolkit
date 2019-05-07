@@ -29,6 +29,9 @@ class Manhunt
             'offset' => 'aispeech_d1v1_drk_church2_start'
         ],
 
+        'ct_colt_commando' => [
+            'offset' => 'ct_colt_commando'
+        ],
         'speechtype_all' => [
             'offset' => '20000000'
         ],
@@ -1464,6 +1467,11 @@ class Manhunt
         'incrementcounter' => [
             'name' => 'incrementcounter',
             'offset' => 'f9020000'
+        ],
+
+        'spawnentitywithvelocity' => [
+            'name' => 'spawnentitywithvelocity',
+            'offset' => 'spawnentitywithvelocity'
         ],
 
         'getentityname' => [

@@ -48,10 +48,14 @@ class T_FOR {
         if ($tokens[$current]['type'] == Token::T_INT) {
             $node['end'] = $tokens[$current];
             $current++;
+        }else if ($tokens[$current]['type'] == Token::T_VARIABLE) {
+            $node['end'] = $tokens[$current];
+            $current++;
         }else if ($tokens[$current]['type'] == Token::T_FUNCTION){
             list($current, $functionTree)= $parseToken($tokens, $current);
             $node['end'] = $functionTree;
         }else{
+            var_dump($tokens[$current]['type']);
             throw new \Exception('T_FOR: Unable to handle type 4');
         }
 
