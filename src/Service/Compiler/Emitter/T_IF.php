@@ -20,7 +20,7 @@ class T_IF {
             if ($node['type'] == Token::T_BRACKET_OPEN){
                 $result = self::handleBracketOpen($node['params'], $node, $fullNode['operator'],  $getLine, $emitter, $isWhile);
                 foreach ($result as $item) {
-                    $item->debug = $debugMsg . ' '. $item->debug;
+                    $item->debug = $debugMsg . ' _eval_1_ '. $item->debug;
                     $code[] = $item;
                 }
 
@@ -32,7 +32,7 @@ class T_IF {
 
                 $result = $emitter($node, true, [ 'isWhile' => $isWhile ]);
                 foreach ($result as $item) {
-                    $item->debug = $debugMsg . ' '. $item->debug;
+                    $item->debug = $debugMsg . ' _eval_2_ '. $item->debug;
                     $code[] = $item;
                 }
 
@@ -78,7 +78,7 @@ class T_IF {
                     if ($condition['type'] == Token::T_BRACKET_OPEN){
                         $result =  self::handleBracketOpen($condition['params'], $condition, false, $getLine, $emitter, $isWhile);
                         foreach ($result as $item) {
-                            $item->debug = $debugMsg . ' '. $item->debug;
+                            $item->debug = $debugMsg . ' _eval_3_ '. $item->debug;
                             $code[] = $item;
                         }
 

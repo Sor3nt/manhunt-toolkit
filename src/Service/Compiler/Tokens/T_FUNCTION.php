@@ -25,6 +25,14 @@ class T_FUNCTION {
                 if ($char == ";" || $char == "("){
                     $val = strtolower(trim($value));
 
+                    //BAD HACK TODO
+                    if ($val == "pnewentity"){
+                        return [
+                            'type' => Token::T_VARIABLE,
+                            'value' => $val
+                        ];
+                    }
+
                     if ($val == "nil"){
                         return [
                             'type' => Token::T_NIL,

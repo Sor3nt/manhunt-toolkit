@@ -172,7 +172,6 @@ class T_FUNCTION {
         $debugMsg = '[T_FUNCTION] map ';
         $code = [ ];
 
-
         $isProcedure = false;
         $isCustomFunction = false;
 

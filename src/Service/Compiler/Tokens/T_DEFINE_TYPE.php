@@ -22,7 +22,7 @@ class T_DEFINE_TYPE {
                     if ($char === ";" || $char === ")") {
                             return [
                                 'type' => Token::T_DEFINE_TYPE,
-                                'value' => $value
+                                'value' => trim($value)
                             ];
                     }else if ($char === "]"){
 

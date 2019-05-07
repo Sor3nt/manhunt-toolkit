@@ -110,11 +110,19 @@ class T_CONDITION {
                         ) {
                             $output = "regular";
 
+                        }else if (
+                            isset($mappedTo['valueType']) && $mappedTo['valueType'] == "string"
+                        ) {
+                            $output = "none";
+
                         }else if ($mappedTo['type'] == "customFunction") {
                             $output = "customFunction";
 
                         }else if ($mappedTo['type'] == "array") {
                             $output = "array";
+
+//                        }else if ($mappedTo['type'] == "array") {
+//                            $output = "array";
 
                         }else if (isset($mappedTo['abstract']) && $mappedTo['abstract'] == "state") {
                             $output = "state";

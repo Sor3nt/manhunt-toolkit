@@ -62,7 +62,7 @@ class Evaluate {
 
 
     static public function regularReturn(&$code, \Closure $getLine ){
-        $code[] = $getLine('10000000', false, 'Return result');
+        $code[] = $getLine('10000000', false, 'Return result ' . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
         $code[] = $getLine('01000000', false, 'Return result');
     }
 

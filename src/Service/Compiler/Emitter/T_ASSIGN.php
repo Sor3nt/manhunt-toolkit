@@ -58,6 +58,9 @@ class T_ASSIGN {
         }else if ($mapped['type'] == Token::T_VEC3D){
             Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
 
+//        }else if ($mapped['type'] == 'entityptr'){
+//            Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
+
         }else if($mapped['type'] == "object"){
             Evaluate::fromObjectAttribute($mapped, $code, $getLine, $node['value']);
 
@@ -127,7 +130,8 @@ class T_ASSIGN {
         /**
          * Evaluate the left hand
          */
-        Evaluate::emit($leftHand, $code, $emitter, $debugMsg);
+
+        Evaluate::emit($leftHand, $code, $emitter, $debugMsg );
 
         //we do here some math. [token] [operator] [token]
         if (count($node['body']) == 3){

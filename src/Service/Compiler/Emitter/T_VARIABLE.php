@@ -144,6 +144,12 @@ class T_VARIABLE extends TAbstract {
 
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::readStringPosition(0, $code, $getLine);
+                }else if(
+                    array_key_exists('valueType', $mapped) &&
+                    $mapped['valueType'] == Token::T_STRING) {
+
+                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
+                    Evaluate::readStringPosition(0, $code, $getLine);
                 }else if($mapped['objectType'] == 'matrixptr') {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
