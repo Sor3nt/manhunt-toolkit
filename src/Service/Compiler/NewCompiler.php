@@ -102,6 +102,7 @@ class NewCompiler
         $this->headerVariables = $this->getHeaderVariables($tokens);
 
         $this->procedures = $this->searchScriptType(Token::T_PROCEDURE);
+
         $this->customFunction = $this->searchScriptType(Token::T_CUSTOM_FUNCTION);
 
 
@@ -208,6 +209,12 @@ class NewCompiler
         $scriptArg = $this->getScriptVar($token['body'], Token::T_DEFINE_SECTION_ARG, $blockName);
         $scriptVar = array_merge($scriptArg, $this->getScriptVar($token['body'], Token::T_DEFINE_SECTION_VAR, $blockName));
 
+
+
+        $combinedStrings = $this->headerStrings;
+        if (isset($this->stringsForScript[$scriptName])){
+            $combinedStrings = array_merge($this->stringsForScript[$scriptName], $this->headerStrings);
+        }
         /**
          * Translate Token AST to Bytecode
          */
@@ -215,7 +222,7 @@ class NewCompiler
 
             array_merge($this->combinedVariables, $scriptVar),
 
-            array_merge($this->stringsForScript[$scriptName], $this->headerStrings),
+            $combinedStrings,
 
             $scriptVar,
             $this->types,

@@ -44,9 +44,6 @@ class T_FUNCTION {
                     Evaluate::regularReturn($code, $getLine);
                     break;
             }
-
-
-
         }
 
     }

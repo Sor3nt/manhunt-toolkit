@@ -24,7 +24,7 @@ class T_FOR {
             $current++;
 
         }else{
-            throw new \Exception('T_FOR: Unable to handle type');
+            throw new \Exception('T_FOR: Unable to handle type 1');
         }
 
 
@@ -32,14 +32,14 @@ class T_FOR {
         if ($tokens[$current]['type'] == Token::T_ASSIGN){
             $current++;
         }else{
-            throw new \Exception('T_FOR: Unable to handle type');
+            throw new \Exception('T_FOR: Unable to handle type 2');
         }
 
         if ($tokens[$current]['type'] == Token::T_INT){
             $node['start'] = $tokens[$current];
             $current++;
         }else{
-            throw new \Exception('T_FOR: Unable to handle type');
+            throw new \Exception('T_FOR: Unable to handle type 3');
         }
 
         //skip T_TO
@@ -52,7 +52,7 @@ class T_FOR {
             list($current, $functionTree)= $parseToken($tokens, $current);
             $node['end'] = $functionTree;
         }else{
-            throw new \Exception('T_FOR: Unable to handle type');
+            throw new \Exception('T_FOR: Unable to handle type 4');
         }
 
         //skip T_DO

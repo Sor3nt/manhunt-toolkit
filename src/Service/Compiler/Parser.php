@@ -88,9 +88,13 @@ class Parser {
                 foreach ($ast['body'] as $index => $tokenInner) {
                     if (
                         isset($token['section']) &&
-                        $tokenInner['type'] == $token['section'] &&
-                        $tokenInner['value'] == $token['to']
+                        $tokenInner['type'] == $token['section']
+                        &&
+                        //todo why do i need a trim ?!
+                        trim($tokenInner['value']) == $token['to']
                     ){
+
+                        $tokenInner['value'] = trim($tokenInner['value']);
 
                         $tokenInner['vars'] = $token['params'];
 

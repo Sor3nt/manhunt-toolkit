@@ -1,6 +1,8 @@
 <?php
 namespace App\Service\Compiler\FunctionMap;
 
+use App\Service\Compiler\Token;
+
 class Manhunt
 {
 
@@ -1458,9 +1460,16 @@ class Manhunt
             'offset' => '48020000'
         ],
 
-        'initareas' => [
-            'name' => 'initareas',
-            'offset' => 'initareas'
+
+        'incrementcounter' => [
+            'name' => 'incrementcounter',
+            'offset' => 'f9020000'
+        ],
+
+        'getentityname' => [
+            'name' => 'getentityname',
+            'offset' => '85000000',
+            'return' => Token::T_STRING
         ],
 
         'switchlitteron' => [
@@ -1481,12 +1490,21 @@ class Manhunt
 
         'setgametextttypedisplaytime' => [
             'name' => 'setgametextttypedisplaytime',
-            'offset' => 'setgametextttypedisplaytime'
+            'offset' => '0d010000'
         ],
 
         'aidefinegoalhideunnamedhunters' => [
             'name' => 'aidefinegoalhideunnamedhunters',
             'offset' => 'aidefinegoalhideunnamedhunters'
+        ],
+
+        'inittriggers' => [
+            'name' => 'inittriggers',
+            'offset' => 'inittriggers'
+        ],
+        'initgametext' => [
+            'name' => 'initgametext',
+            'offset' => 'initgametext'
         ],
 
         'aidefinegoalgotoentityidle' => [
