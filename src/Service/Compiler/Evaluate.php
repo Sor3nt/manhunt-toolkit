@@ -61,9 +61,9 @@ class Evaluate {
 
 
 
-    static public function regularReturn(&$code, \Closure $getLine ){
+    static public function regularReturn(&$code, \Closure $getLine, $msg = "" ){
         $code[] = $getLine('10000000', false, 'Return result ' . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
-        $code[] = $getLine('01000000', false, 'Return result');
+        $code[] = $getLine('01000000', false, 'Return result' . $msg);
     }
 
     static public function stringReturn(&$code, \Closure $getLine ){
@@ -179,7 +179,7 @@ class Evaluate {
         }else if ($type == Token::T_DIVISION) {
             $code[] = $getLine('53000000', false, $debugMsg);
         }else{
-            throw new \Exception('divide not implemented');
+            throw new \Exception( $type . ' not implemented');
         }
     }
 
@@ -349,7 +349,7 @@ class Evaluate {
 
         $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
 
-        $code[] = $getLine('01000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine($mapped['offset'], false, $debugMsg);
 

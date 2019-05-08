@@ -119,7 +119,7 @@ class T_VARIABLE extends TAbstract {
 
             default:
 
-                if($mapped['isLevelVar']) {
+                if(isset($mapped['isLevelVar']) && $mapped['isLevelVar']) {
 
                     if (isset($node['target'])){
                         $variableType = $data['types'][$node['target']];
@@ -133,9 +133,14 @@ class T_VARIABLE extends TAbstract {
                     }
 
 
-                }else if($mapped['isGameVar']) {
+                }else if(isset($mapped['isGameVar']) && $mapped['isGameVar']) {
                     Evaluate::fromGameVar($mapped, $code, $getLine);
 
+
+
+                    /*
+                     * TODO: cleanup this block ... all the same
+                     */
                 }else if($mapped['objectType'] == Token::T_REAL) {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
@@ -157,7 +162,14 @@ class T_VARIABLE extends TAbstract {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
 
+                }else if($mapped['objectType'] == 'entityptr') {
+                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
+                    Evaluate::regularReturn($code, $getLine);
+
                 }else{
+//                    var_dump($mapped);
+//                    exit;
+
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                 }
         }

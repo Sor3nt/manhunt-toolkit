@@ -215,6 +215,7 @@ class NewCompiler
         if (isset($this->stringsForScript[$scriptName])){
             $combinedStrings = array_merge($this->stringsForScript[$scriptName], $this->headerStrings);
         }
+
         /**
          * Translate Token AST to Bytecode
          */
@@ -819,8 +820,8 @@ class NewCompiler
                 // look if we use a parent variable
                 foreach ($vars as $headerVariableName => &$headerVariable) {
                     if (
-                        $headerVariable['isLevelVar'] === false &&
-                        $headerVariable['isGameVar'] === false
+                        (isset($headerVariable['isLevelVar']) && $headerVariable['isLevelVar'] === false) &&
+                        (isset($headerVariable['isGameVar']) && $headerVariable['isGameVar'] === false)
                     ) continue;
 
 
@@ -1173,10 +1174,12 @@ class NewCompiler
 
                 if ($this->isVariableInUse($originalTokens, $_name)) {
                     if (!isset($scriptVarFinal[$_name])) {
+
                         $scriptVarFinal[$_name] = $_item;
                     }
                 }
             }
+
         }
 
         return $scriptVarFinal;
@@ -1368,11 +1371,13 @@ class NewCompiler
             /**
              * when the variable is defined inside the HEADER and also in one or multiple scripts, we need to give him the 02 sequence
              */
+            $doubleCheck = [];
             foreach ($variablesOverAllScripts as $variablesOverAllScript) {
                 list($varScriptName, $variablesOverAllScript) = $variablesOverAllScript;
 
-                if ($varScriptName == $name) {
+                if (in_array($name, $doubleCheck)) continue;
 
+                if ($varScriptName == $name) {
                     if (isset($variable['isLevelVarFromScript']) && $variable['isLevelVarFromScript'] == true){
 
                         unset($variable['isLevelVarFromScript']);
@@ -1385,16 +1390,15 @@ class NewCompiler
 
                         $hierarchieType = '02000000';
                         $variable['offset'] = Helper::fromIntToHex($memoryForDoubleEntries);
-
                         $memoryForDoubleEntries += Helper::calcTypeSize([$variable]);
-
-
                     }
 
+                    $doubleCheck[] = $name;
                 }
             }
 
             if ($varType == Token::T_STRING_ARRAY) $varType = "string";
+            if ($varType == "entityptr") $varType = "integer";
 
 
             /**
@@ -1406,20 +1410,12 @@ class NewCompiler
 
             if ($this->game == MHT::GAME_MANHUNT){
 
-//                if ($varType == "integer"){
-                    $varType = "boolean";
-//                }
-//
-//                if ($varType == "vec3d"){
-//                var_dump("->" . $variable['offset']);
-
                 if ($variable['offset'] == "ffffffff"){
                     $varType = "ffffffff";
 
                 }else{
                     $varType = "boolean";
                 }
-//                }
             }
 
             $row = [

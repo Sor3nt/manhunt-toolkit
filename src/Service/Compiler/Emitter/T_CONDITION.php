@@ -99,8 +99,8 @@ class T_CONDITION {
 
 
                         if (
-                            $mappedTo['isGameVar'] ||
-                            $mappedTo['isLevelVar'] ||
+                        (isset($mappedTo['isGameVar']) && $mappedTo['isGameVar']) ||
+                        (isset($mappedTo['isLevelVar']) && $mappedTo['isLevelVar']) ||
                             $mappedTo['objectType'] == Token::T_CONSTANT_INTEGER ||
                             $mappedTo['objectType'] == Token::T_INT ||
                             $mappedTo['objectType'] == "boolean" ||

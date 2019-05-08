@@ -10,6 +10,7 @@ class T_ASSIGN {
 
     static public function map( $node, \Closure $getLine, \Closure $emitter, $data ){
 
+
         $debugMsg = sprintf('[T_ASSIGN] map ' . $node['value']);
 
         $code = [];
@@ -168,6 +169,12 @@ class T_ASSIGN {
             }else{
                 throw new \Exception(sprintf('T_ASSIGN: rightHand operator not supported: %s', $rightHand['type']));
             }
+        }else if ($node['body'][0]['type'] == Token::T_BRACKET_OPEN){
+            $result = self::handleBracketOpen($node['body'], $getLine, $emitter);
+            foreach ($result as $item) {
+                $item->debug = $debugMsg . ' _eval_3_ '. $item->debug;
+                $code[] = $item;
+            }
         }
 
         /*
@@ -194,6 +201,77 @@ class T_ASSIGN {
             Evaluate::toNumeric($mapped, $code, $getLine);
         }
 
+        return $code;
+    }
+
+    static function handleBracketOpen($params, \Closure $getLine, \Closure $emitter, $operator = false, $nested = false ){
+        $debugMsg = "[T_ASSIGN] handleBracketOpen ";
+
+        $code = [];
+
+        $current = 0;
+
+        $lastOperation = false;
+
+
+        while($current < count($params)) {
+            $node = $params[$current];
+
+            if ($node['type'] == Token::T_BRACKET_OPEN) {
+
+
+                $result = self::handleBracketOpen($node['params'], $getLine, $emitter, $operator, $node['nested']);
+                foreach ($result as $item) {
+                    $item->debug = $debugMsg . ' _eval_1_ ' . $item->debug;
+                    $code[] = $item;
+                }
+
+
+                if($current + 1 != count($params)){
+//                    var_dump($node);
+                    Evaluate::regularReturn($code, $getLine);
+                }
+
+//                if(isset($params[$current ])) var_dump($params[$current ]);
+
+            }else{
+
+                if (
+                    $node['type'] == Token::T_MULTIPLY ||
+                    $node['type'] == Token::T_ADDITION
+                ){
+                    $lastOperation = $node;
+
+                }
+
+                $result = $emitter($node, true, [ ]);
+                foreach ($result as $item) {
+                    $item->debug = $debugMsg . ' _eval_2_ '. $item->debug;
+                    $code[] = $item;
+                }
+
+                //todo: looks like a hack.... *g*
+
+//                var_dump($node, $nested, "\n\n");
+
+                if ($node['type'] == Token::T_MULTIPLY) {
+
+                    Evaluate::regularReturn($code, $getLine, $debugMsg . ' inner ');
+
+                }
+
+            }
+            $current++;
+        }
+
+        if ($lastOperation !== false ){
+
+            Evaluate::setFloatMathOperator($lastOperation['type'], $code, $getLine);
+        }
+
+
+
+//            var_dump($lastOperation);
         return $code;
     }
 }
