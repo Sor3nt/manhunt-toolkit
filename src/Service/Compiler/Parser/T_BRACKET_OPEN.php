@@ -18,6 +18,10 @@ class T_BRACKET_OPEN {
         if (isset($tokens[$current - 1])){
             if ($tokens[$current - 1]['type'] == Token::T_AND) $operator = Token::T_AND;
             if ($tokens[$current - 1]['type'] == Token::T_OR) $operator = Token::T_OR;
+            if ($tokens[$current - 1]['type'] == Token::T_MULTIPLY) $operator = Token::T_MULTIPLY;
+            if ($tokens[$current - 1]['type'] == Token::T_ADDITION) $operator = Token::T_ADDITION;
+            if ($tokens[$current - 1]['type'] == Token::T_DIVISION) $operator = Token::T_DIVISION;
+            if ($tokens[$current - 1]['type'] == Token::T_SUBSTRACTION) $operator = Token::T_SUBSTRACTION;
             if ($tokens[$current - 1]['type'] == Token::T_NOT) $isNot = true;
         }
 

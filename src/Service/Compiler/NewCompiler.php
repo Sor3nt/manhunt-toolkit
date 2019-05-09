@@ -500,11 +500,13 @@ class NewCompiler
         $source = str_replace([
             "if ( EnteredTrigger(this, GetPlayer) OR InsideTrigger(this, GetPlayer) ) then",
             "}}",
+            "spot.y := (pos.y + 0.5);",
             "huntpacklimit+1",
             "PLAYING  TWITCH",
         ], [
             "if ( EnteredTrigger(this, GetPlayer) ) OR ( InsideTrigger(this, GetPlayer) ) then",
             "}",
+            "spot.y := pos.y + 0.5;",
             "huntpacklimit + 1",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
 

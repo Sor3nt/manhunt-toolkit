@@ -340,6 +340,9 @@ class T_FUNCTION {
 
             }
         }
+
+        $code[] = $getLine('0e030000', false, $debugMsg . ' END?');
+
     }
 
 }

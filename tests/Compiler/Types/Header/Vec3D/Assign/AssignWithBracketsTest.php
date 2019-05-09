@@ -126,7 +126,7 @@ class AssignWithBracketsTest extends KernelTestCase
         $compiler = new Compiler();
         $compiled = $compiler->parse($script);
 
-        if ($compiled['CODE'] != $expected){
+//        if ($compiled['CODE'] != $expected){
             $index = 0;
             foreach ($compiled['CODE'] as $index => $item) {
                 if (!isset($expected[$index])){
@@ -143,7 +143,7 @@ class AssignWithBracketsTest extends KernelTestCase
             }
 
             exit;
-        }
+//        }
 
 
         $this->assertEquals($compiled['CODE'], $expected, 'The bytecode is not correct');

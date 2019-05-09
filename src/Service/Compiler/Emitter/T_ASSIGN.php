@@ -229,7 +229,7 @@ class T_ASSIGN {
 
                 if($current + 1 != count($params)){
 //                    var_dump($node);
-                    Evaluate::regularReturn($code, $getLine);
+                    Evaluate::regularReturn($code, $getLine, ' after ');
                 }
 
 //                if(isset($params[$current ])) var_dump($params[$current ]);

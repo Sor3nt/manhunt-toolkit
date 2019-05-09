@@ -164,11 +164,14 @@ class Evaluate {
 
     }
 
-    static public function setFloatMathOperator($type, &$code, \Closure $getLine ){
+    static public function setFloatMathOperator($type, &$code, \Closure $getLine, $noReturn = false ){
         $debugMsg = sprintf('[T_ASSIGN] setFloatMathOperator ' . $type);
 
-        //TODO: das return gehört hier garnicht hin, oder ?!
-        self::regularReturn($code, $getLine);
+
+        if ($noReturn == false){
+            //TODO: das return gehört hier garnicht hin, oder ?!
+            self::regularReturn($code, $getLine);
+        }
 
         if ($type == Token::T_ADDITION) {
             $code[] = $getLine('50000000', false, $debugMsg);
@@ -406,11 +409,6 @@ class Evaluate {
         }
     }
 
-
-
-
-
-
     static public function toLevelVar( $offset, &$code, \Closure $getLine){
         $debugMsg = sprintf('[T_ASSIGN] toLevelVar ');
 
@@ -438,7 +436,8 @@ class Evaluate {
     }
 
     static public function toNumeric($mapped, &$code, \Closure $getLine){
-        $debugMsg = sprintf('[toNumeric] ');
+//        var_dump($mapped);
+        $debugMsg = sprintf('[toNumeric] ' . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
 
         $code[] = $getLine($mapped['section'] == "header" ? '16000000' : '15000000');
 
