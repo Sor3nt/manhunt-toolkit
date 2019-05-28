@@ -114,7 +114,7 @@ class Gxt extends Archive {
                 'key'    => $binary->consume($game == MHT::GAME_MANHUNT ? 8 : 12, NBinary::STRING)
             ];
 
-            if ($game == MHT::GAME_MANHUNT_2){
+            if ($game == MHT::GAME_MANHUNT_2 && $platform != MHT::PLATFORM_PS2 && $platform != MHT::PLATFORM_PSP){
                 $entry['id'] = $binary->consume(4,  NBinary::INT_32);
             }
 
