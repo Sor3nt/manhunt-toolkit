@@ -46,7 +46,6 @@ class ManhuntDefault {
         'onveryhighsighting' => '06000000',
         'onmediumsighting' => '08000000',
         'onhunterenterarea' => '09000000',
-        'onpickupinventoryitem' => '0b000000',
         'onhunterreachednode' => '1b000000',
         'onhighsightingorabove' => '1c000000',
         'onmediumsightingorabove' => '1d000000',
@@ -68,7 +67,7 @@ class ManhuntDefault {
         'onverylowsightingorabove' => '29000000',
         'onhighhearingorabove' => '31000000',
         'onmediumhearing' => '32000000',
-        'onmediumhearingorabove' => '33000000',
+        'onmediumhearingorabove' => '33000  000',
         'onlowhearing' => '34000000',
         'onlowhearingorabove' => '35000000',
         'onverylowhearingorabove' => '37000000',
@@ -82,13 +81,33 @@ class ManhuntDefault {
         'onqtmfailed' => '67000000',
 
         'onhighsighting' => '07000000',
-        'onplayerenterarea' => '0a000000',
+
+
+        'onplayerenterarea' => '0a000000', // int 10
+        'onpickupinventoryitem' => '0b000000', //int 11
+        'onstartburning' => '0c000000', //int 12
+        'onstopburning' => '0d000000', //int 13
+
+
+        'onstartexploding' => '10000000', // int 16
+        'onstartignitin' => '11000000', // int 17
+        'onstopigniting' => '12000000', // int 18
+        //onbeingshot
+        //onstartelectrocuting
+        //onstopelectrocuting
+        //onfriendenteringbuddyradius
+        //onfriendleavingbuddyradius
+
+
+        //Onstartstunned
+        //Onstopstunned
+
+
         'onlevelsave' => '0d000000',
         'onstartbeinggrappled' => '3f000000',
         'onentityusedswitch' => '4b000000',
         'onguardidle' => '4c000000',
         'ontimerended' => '4d000000',
-        'onstartexploding' => '10000000',
         'onfriendleavingbuddyradius' => '17000000',
         'onuseableanimfinished' => '41000000',
         'onreloadweapon' => '47000000',

@@ -24,21 +24,423 @@ class Manhunt2
 
     public static $constants = [
 
+        'ct_torch' => [
+            'offset' => '06000000'
+        ],
+        'ct_knife' => [
+            'offset' => '12000000'
+        ],
+        'ct_shard' => [
+            'offset' => '13000000'
+        ],
+        'ct_broken_bottle' => [
+            'offset' => '14000000'
+        ],
+        'ct_bottle' => [
+            'offset' => '16000000'
+        ],
+        'ct_pipe' => [
+            'offset' => '17000000'
+        ],
+        'ct_cleaver' => [
+            'offset' => '18000000'
+        ],
+        'ct_wooden_bar' => [
+            'offset' => '19000000'
+        ],
+        'ct_crowbar' => [
+            'offset' => '1a000000'
+        ],
+        'ct_sickle' => [
+            'offset' => '1b000000'
+        ],
+        'ct_axe' => [
+            'offset' => '1e000000'
+        ],
+        'ct_icepick' => [
+            'offset' => '1f000000'
+        ],
+        'ct_machete' => [
+            'offset' => '20000000'
+        ],
+        'ct_small_bat' => [
+            'offset' => '21000000'
+        ],
+        'ct_pliers' => [
+            'offset' => '22000000'
+        ],
+        'ct_baseball_bat' => [
+            'offset' => '23000000'
+        ],
+        'ct_shovel' => [
+            'offset' => '72000000'
+        ],
+        'ct_w_baseball_bat' => [
+            'offset' => '24000000'
+        ],
+        'ct_baseball_bat_blades' => [
+            'offset' => '27000000'
+        ],
+        'ct_fire_axe' => [
+            'offset' => '25000000'
+        ],
+        'ct_chainsaw' => [
+            'offset' => '5a000000'
+        ],
+        'ct_nailgun' => [
+            'offset' => '5b000000'
+        ],
+        'ct_6shooter' => [
+            'offset' => '28000000'
+        ],
+        'ct_glock' => [
+            'offset' => '29000000'
+        ],
+        'ct_glock_silenced' => [
+            'offset' => '2a000000'
+        ],
+        'ct_glock_torch' => [
+            'offset' => '2b000000'
+        ],
+        'ct_uzi' => [
+            'offset' => '2c000000'
+        ],
+        'ct_uzi_torch' => [
+            'offset' => '2d000000'
+        ],
+        'ct_shotgun' => [
+            'offset' => '2e000000'
+        ],
+        'ct_shotgun_torch' => [
+            'offset' => '2f000000'
+        ],
+        'ct_desert_eagle' => [
+            'offset' => '30000000'
+        ],
+        'ct_tranq_rifle' => [
+            'offset' => '33000000'
+        ],
+        'ct_sawnoff' => [
+            'offset' => '34000000'
+        ],
+        'ct_colt_commando' => [
+            'offset' => '31000000'
+        ],
+        'ct_grenade' => [
+            'offset' => '35000000'
+        ],
+        'ct_tripwire' => [
+            'offset' => '1000000'
+        ],
+        'ct_tear_gas' => [
+            'offset' => '38000000'
+        ],
+        'ct_flash' => [
+            'offset' => '39000000'
+        ],
+        'ct_gasoline' => [
+            'offset' => '02000000'
+        ],
+        'ct_water' => [
+            'offset' => '03000000'
+        ],
+        'ct_lighter' => [
+            'offset' => '04000000'
+        ],
+        'ct_fists' => [
+            'offset' => '10000000'
+        ],
+        'ct_molotov' => [
+            'offset' => '36000000'
+        ],
+        'ct_expmolotov' => [
+            'offset' => '37000000'
+        ],
+        'ct_firework' => [
+            'offset' => '3b000000'
+        ],
+        'ct_brick_half' => [
+            'offset' => '3a000000'
+        ],
+        'ct_can' => [
+            'offset' => '5d000000'
+        ],
+        'ct_rag' => [
+            'offset' => '3d000000'
+        ],
+        'ct_chlorine' => [
+            'offset' => '3e000000'
+        ],
+        'ct_meths' => [
+            'offset' => '3f000000'
+        ],
+        'ct_hcc' => [
+            'offset' => '40000000'
+        ],
+        'ct_cash' => [
+            'offset' => '05000000'
+        ],
+        'ct_d_beer_guy' => [
+            'offset' => '41000000'
+        ],
+        'ct_d_merc_leader' => [
+            'offset' => '42000000'
+        ],
+        'ct_d_smiley' => [
+            'offset' => '43000000'
+        ],
+        'ct_d_huntlord' => [
+            'offset' => '44000000'
+        ],
+        'ct_cane' => [
+            'offset' => '1d000000'
+        ],
+        'ct_nightstick' => [
+            'offset' => '1c000000'
+        ],
+        'ct_k_dust' => [
+            'offset' => '11000000'
+        ],
+        'ct_e_l_sight' => [
+            'offset' => '45000000'
+        ],
+        'ct_s_silencer' => [
+            'offset' => '46000000'
+        ],
+        'ct_radio' => [
+            'offset' => '47000000'
+        ],
+        'ct_bar_key' => [
+            'offset' => '48000000'
+        ],
+        'ct_syard_comb' => [
+            'offset' => '49000000'
+        ],
+        'ct_camera' => [
+            'offset' => '4a000000'
+        ],
+        'ct_body_p1' => [
+            'offset' => '4b000000'
+        ],
+        'ct_body_p2' => [
+            'offset' => '4c000000'
+        ],
+        'ct_prec_key' => [
+            'offset' => '4d000000'
+        ],
+        'ct_prec_card' => [
+            'offset' => '4e000000'
+        ],
+        'ct_prec_docs' => [
+            'offset' => '4f000000'
+        ],
+        'ct_pharm_hand' => [
+            'offset' => '50000000'
+        ],
+        'ct_est_g_key' => [
+            'offset' => '51000000'
+        ],
+        'ct_est_a_key' => [
+            'offset' => '52000000'
+        ],
+        'ct_doll' => [
+            'offset' => '53000000'
+        ],
+        'ct_n_vision' => [
+            'offset' => '07000000'
+        ],
+        'ct_painkillers' => [
+            'offset' => '08000000'
+        ],
+        'ct_g_first_aid' => [
+            'offset' => '09000000'
+        ],
+        'ct_y_first_aid' => [
+            'offset' => '10000000'
+        ],
+        'ct_speed_boost' => [
+            'offset' => '0b000000'
+        ],
+        'ct_strength_boost' => [
+            'offset' => '0c000000'
+        ],
+        'ct_shooting_boost' => [
+            'offset' => '0d000000'
+        ],
+        'ct_reflexes_boost' => [
+            'offset' => '0e000000'
+        ],
+        'ct_health_boost' => [
+            'offset' => '0f000000'
+        ],
+        'ct_antidote' => [
+            'offset' => '54000000'
+        ],
+        'ct_juryblades' => [
+            'offset' => '15000000'
+        ],
+        'ct_hockey_stick' => [
+            'offset' => '26000000'
+        ],
+        'ct_bag' => [
+            'offset' => '3c000000'
+        ],
+        'ct_wire' => [
+            'offset' => '5c000000'
+        ],
+        'ct_wooden_spike' => [
+            'offset' => '5e000000'
+        ],
+        'ct_pigsy_wire' => [
+            'offset' => '61000000'
+        ],
+        'ct_pigsy_shard' => [
+            'offset' => '60000000'
+        ],
+        'ct_pigsy_spike' => [
+            'offset' => '62000000'
+        ],
+        'ct_hammer' => [
+            'offset' => '99000000'
+        ],
+        'ct_doll_1' => [
+            'offset' => '10000000'
+        ],
+        'ct_doll_2' => [
+            'offset' => '65000000'
+        ],
+        'ct_doll_3' => [
+            'offset' => '66000000'
+        ],
+        'ct_head' => [
+            'offset' => '67000000'
+        ],
+        'ct_key' => [
+            'offset' => '55000000'
+        ],
+        'ct_dvtape' => [
+            'offset' => '6f000000'
+        ],
+        'ct_handycam' => [
+            'offset' => '70000000'
+        ],
+        'ct_ammo_nails' => [
+            'offset' => '68000000'
+        ],
+        'ct_ammo_shotgun' => [
+            'offset' => '69000000'
+        ],
+        'ct_ammo_pistol' => [
+            'offset' => '6a000000'
+        ],
+        'ct_ammo_mgun' => [
+            'offset' => '6b000000'
+        ],
+        'ct_ammo_tranq' => [
+            'offset' => '6c000000'
+        ],
+        'ct_ammo_sniper' => [
+            'offset' => '6d000000'
+        ],
+        'ct_chainsaw_player' => [
+            'offset' => '6e000000'
+        ],
+        'ct_syringe' => [
+            'offset' => '71000000'
+        ],
+        'ct_sledgehammer' => [
+            'offset' => '73000000'
+        ],
+        'ct_stunprod' => [
+            'offset' => '74000000'
+        ],
+        'ct_pen' => [
+            'offset' => '75000000'
+        ],
+        'ct_acid_bottle' => [
+            'offset' => '76000000'
+        ],
+        'ct_1h_firearm' => [
+            'offset' => '77000000'
+        ],
+        'ct_2h_firearm' => [
+            'offset' => '78000000'
+        ],
+        'ct_cut_throat_razor' => [
+            'offset' => '79000000'
+        ],
+        'ct_blowtorch' => [
+            'offset' => '7a000000'
+        ],
+        'ct_mace' => [
+            'offset' => '7b000000'
+        ],
+        'ct_hedge_trimmer' => [
+            'offset' => '7c000000'
+        ],
+        'ct_metal_hook' => [
+            'offset' => '7d000000'
+        ],
+        'ct_circular_saw' => [
+            'offset' => '7e000000'
+        ],
+        'ct_cash_bundle' => [
+            'offset' => '8c000000'
+        ],
+        'ct_matchbook' => [
+            'offset' => '8e000000'
+        ],
+        'ct_noose' => [
+            'offset' => '81000000'
+        ],
+        'ct_camera_weapon' => [
+            'offset' => '82000000'
+        ],
+        'ct_porn' => [
+            'offset' => '8d000000'
+        ],
+        'ct_flaregun' => [
+            'offset' => '7f000000'
+        ],
+        'ct_ammo_flares' => [
+            'offset' => '80000000'
+        ],
+        'ct_crossbow' => [
+            'offset' => '83000000'
+        ],
+        'ct_ammo_crossbow' => [
+            'offset' => '84000000'
+        ],
+        'ct_ammo_arrow' => [
+            'offset' => '85000000'
+        ],
+        'ct_newspaper' => [
+            'offset' => '86000000'
+        ],
+        'ct_milkbottle' => [
+            'offset' => '87000000'
+        ],
+        'ct_dildo' => [
+            'offset' => '88000000'
+        ],
+        'ct_katana' => [
+            'offset' => '89000000'
+        ],
+        'ct_hacksaw' => [
+            'offset' => '8a000000'
+        ],
+        'ct_golfball' => [
+            'offset' => '8f000000'
+        ],
+
+
+
+
+
         'arm_invulnerable' => [
             'offset' => '04000000'
         ],
 
-        'ct_pliers' => [
-            'offset' => '22000000'
-        ],
-
-        'ct_uzi' => [
-            'offset' => '2c000000'
-        ],
-
-        'ct_shotgun' => [
-            'offset' => '2e000000'
-        ],
 
         'col_shot' => [
             'offset' => '00800000'
@@ -50,21 +452,6 @@ class Manhunt2
 
         'map_color_person' => [
             'offset' => '16000000'
-        ],
-        'ct_syringe' => [
-            'offset' => '71000000'
-        ],
-
-        'ct_glock' => [
-            'offset' => '29000000'
-        ],
-
-        'ct_head' => [
-            'offset' => '67000000'
-        ],
-
-        'ct_g_first_aid' => [
-            'offset' => '09000000'
         ],
 
         'mover_accel_fast' => [
@@ -211,9 +598,6 @@ class Manhunt2
             'offset' => '03000000'
         ],
 
-        'ct_crossbow' => [
-            'offset' => '83000000'
-        ],
 
         'useable_on' => [
             'offset' => '01000000'
@@ -2475,7 +2859,8 @@ class Manhunt2
 
         'getcurrentinventoryitemtype' => [
             'name' => 'GetCurrentInventoryItemType',
-            'offset' => '2a010000'
+            'offset' => '2a010000',
+            'return' => 'Boolean'
         ],
 
         'aitriggersoundnoradar' => [
