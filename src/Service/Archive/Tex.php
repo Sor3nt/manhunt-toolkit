@@ -4,6 +4,12 @@ namespace App\Service\Archive;
 use App\MHT;
 use App\Service\NBinary;
 
+/**
+ * Class Tex
+ * Todos:
+ * - Add MipMap Support (do we need this ? maybe for packing ?)
+ * - Add Alpha handling
+ */
 class Tex extends Archive {
 
     public $name = 'Textures';
@@ -118,11 +124,14 @@ class Tex extends Archive {
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
 
-            if ($texture['mipMapCount'] > 1){
-                throw new \Exception('MipMap handler missed');
-            }
+
+            //            if ($texture['mipMapCount'] > 1){
+//                throw new \Exception('MipMap handler missed');
+//            }
+
 
             list($filename, $bmp) = $this->convertToBmp($texture);
+
             $textures[$filename] = $bmp;
 
             $currentOffset = $texture['nextOffset'];

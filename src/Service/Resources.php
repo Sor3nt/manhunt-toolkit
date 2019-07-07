@@ -18,6 +18,7 @@ use App\Service\Archive\Mdl;
 use App\Service\Archive\Mls;
 use App\Service\Archive\Pak;
 use App\Service\Archive\Tex;
+use App\Service\Archive\Txd;
 use Symfony\Component\Finder\Finder;
 
 class Resources
@@ -29,7 +30,7 @@ class Resources
     private $archives = [
         Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class,
-        Pak::class,     Glg::class,     Mdl::class,     Bsp::class
+        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     Txd::class
     ];
 
 
