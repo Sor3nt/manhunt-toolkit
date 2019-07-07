@@ -8,7 +8,6 @@ use Symfony\Component\Finder\Finder;
 class Txd extends Archive {
     public $name = 'Textures (PS2)';
 
-//    public static $supported = 'tex';
     public static $supported = 'txd';
 
     private $ps2;
@@ -46,8 +45,6 @@ class Txd extends Archive {
     ];
 
 
-
-
     private function parseHeader( NBinary &$binary ){
 
         return [
@@ -62,7 +59,6 @@ class Txd extends Archive {
             'firstOffset'       => $binary->consume(4,  NBinary::INT_32),
             'lastTOffset'       => $binary->consume(4,  NBinary::INT_32)
         ];
-
 
     }
 
@@ -86,17 +82,16 @@ class Txd extends Archive {
             'dataOffset'        => $binary->consume(4,  NBinary::INT_32),
             'paletteOffset'     => $binary->consume(4,  NBinary::INT_32)
         ];
-//
-
 
         $texture['name'] = $binary->unpack($texture['name'], NBinary::STRING);
 
         $binary->jumpTo($texture['paletteOffset']);
-        $texture['palette'] = $binary->consume($this->ps2->getPaletteSize($texture['rasterFormat']), NBinary::BINARY);
+
+        $texture['palette'] = $binary->consume($this->ps2->getPaletteSize($texture['rasterFormat'], $texture['bitPerPixel']), NBinary::BINARY);
 
         $binary->jumpTo($texture['dataOffset']);
         $texture['data'] = $binary->consume(
-            $this->ps2->getRasterSize($texture['rasterFormat'], $texture['width'], $texture['height']),
+            $this->ps2->getRasterSize($texture['rasterFormat'], $texture['width'], $texture['height'], $texture['bitPerPixel']),
             NBinary::BINARY
         );
 
@@ -181,37 +176,22 @@ class Txd extends Archive {
     }
 
     public function unpack(NBinary $binary, $game, $platform){
-        var_dump("\n");
+
         $header = $this->parseHeader($binary);
         $currentOffset = $header['firstOffset'];
 
         $textures = [];
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
-//
-//            if($texture['name'] != "Lurebag" ){
-//                $currentOffset = $texture['nextOffset'];
-//
-//                $header['numTextures']--;
-//                continue;
-//            }
-//var_dump($texture);
-//            exit;
-//            file_put_contents('eh.hm', $texture['data'] . $texture['palette']);
-//            exit;
-
 
             $bmpRgba = $this->ps2->convertToRgba($texture);
 
-
-
             $image = $this->ps2->saveImage($bmpRgba, $texture['width'],$texture['height']);
 
-var_dump($texture['name']);
             $textures[$texture['name'] . '.png'] = $image;
-//
+
             $currentOffset = $texture['nextOffset'];
-//
+
             $header['numTextures']--;
         }
 

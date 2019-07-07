@@ -61,38 +61,43 @@ class Ps2 extends Image {
         return $result;
     }
 
-    public function getPaletteSize( $format ){
-        switch ($format){
-            case "20000000":
-                return 64;
-            case "40000000":
-                return 64;
-            case "80000000":
-                return 1024;
-            case "00010000":
-                return 1024;
-            default:
-                throw new \Exception(sprintf("Unknown raster format %s", $format));
-                break;
-        }
+    public function getPaletteSize( $format, $bpp ){
+
+
+        if ($format == "00010000" && $bpp == 8) return 1024;
+        if ($format == "10000000" && $bpp == 8) return 1024;
+        if ($format == "20000000" && $bpp == 8) return 1024;
+        if ($format == "40000000" && $bpp == 8) return 1024;
+        if ($format == "80000000" && $bpp == 8) return 1024;
+        if ($format == "80000000" && $bpp == 4) return 1024;
+
+
+        if ($format == "08000000" && $bpp == 4) return 64;
+        if ($format == "10000000" && $bpp == 4) return 64;
+        if ($format == "20000000" && $bpp == 4) return 64;
+        if ($format == "40000000" && $bpp == 4) return 64;
+        if ($format == "00010000" && $bpp == 4) return 64;
+
+        throw new \Exception(sprintf("Unknown palette format %s bpp: %s", $format, $bpp));
+
 
     }
 
-    public function getRasterSize( $format, $width, $height ){
-        switch ($format){
-            case "20000000":
-                return ($width * $height) / 2;
-            case "40000000":
-                return ($width * $height) / 2;
-            case "80000000":
-                return ($width * $height);
-            case "00010000":
-                return ($width * $height);
-            default:
-                throw new \Exception(sprintf("Unknown raster format %s", $format));
-                break;
-        }
+    public function getRasterSize( $format, $width, $height, $bpp ){
 
+        if ($format == "80000000" && $bpp == 8) return $width * $height;
+        if ($format == "08000000" && $bpp == 4) return ($width * $height) / 2;
+        if ($format == "10000000" && $bpp == 4) return ($width * $height) / 2;
+        if ($format == "80000000" && $bpp == 4) return ($width * $height) / 2;
+        if ($format == "00010000" && $bpp == 8) return $width * $height;
+        if ($format == "20000000" && $bpp == 4) return ($width * $height) / 2;
+        if ($format == "00010000" && $bpp == 4) return $width * $height;
+        if ($format == "40000000" && $bpp == 4) return ($width * $height) / 2;
+        if ($format == "40000000" && $bpp == 8) return $width * $height;
+        if ($format == "20000000" && $bpp == 8) return $width * $height;
+        if ($format == "10000000" && $bpp == 8) return $width * $height;
+
+        throw new \Exception(sprintf("Unknown raster format %s bpp: %s", $format, $bpp));
     }
 
 
@@ -134,363 +139,57 @@ class Ps2 extends Image {
 
     private function paletteUnswizzle($palette){
 
-        // I know its a ugly solution but it works for now....
+        //Rulset:
+        /*
+         * 1. first 8 colors stay
+         *
+         * 2. next 8 colors are twisted with the followed 8 colors
+         * 3. 16 colors stay
+         *
+         * 4. goto step 2
+         */
+
+        $newPalette = [];
+
+        $palChunks = array_chunk($palette, 8);
+
+        $current = 0;
+        $swapCount = 2;
+
+        while($current < count($palChunks)){
+
+            $chunk = $palChunks[$current];
+
+            if ($current == 0){
+                $newPalette[] = $chunk;
+                $current++;
+                $swapCount = 2;
+                continue;
+            }
+
+
+            if ($swapCount == 2){
+                $newPalette[] = $palChunks[$current + 1];;
+                $newPalette[] = $palChunks[$current];
+                $current++;
+                $swapCount = 0;
+            }else{
+                $newPalette[] = $chunk;
+                $swapCount++;
+            }
+
+            $current++;
+        }
+
+        $finalPalette = [];
+        foreach ($newPalette as $chunk) {
+            foreach ($chunk as $rgba) {
+                $finalPalette[] = $rgba;
+            }
+        }
+
+        return $finalPalette;
 
-        return [
-
-
-            $palette[0],
-            $palette[1],
-            $palette[2],
-            $palette[3],
-            $palette[4],
-            $palette[5],
-            $palette[6],
-            $palette[7],
-
-
-            $palette[16],
-            $palette[17],
-            $palette[18],
-            $palette[19],
-            $palette[20],
-            $palette[21],
-            $palette[22],
-            $palette[23],
-
-
-            $palette[8],
-            $palette[9],
-            $palette[10],
-            $palette[11],
-            $palette[12],
-            $palette[13],
-            $palette[14],
-            $palette[15],
-
-
-
-
-
-            $palette[24],
-            $palette[25],
-            $palette[26],
-            $palette[27],
-            $palette[28],
-            $palette[29],
-            $palette[30],
-            $palette[31],
-
-
-
-            $palette[32],
-            $palette[33],
-            $palette[34],
-            $palette[35],
-            $palette[36],
-            $palette[37],
-            $palette[38],
-            $palette[39],
-
-
-
-
-
-            $palette[48],
-            $palette[49],
-            $palette[50],
-            $palette[51],
-            $palette[52],
-            $palette[53],
-            $palette[54],
-            $palette[55],
-
-
-
-            $palette[40],
-            $palette[41],
-            $palette[42],
-            $palette[43],
-            $palette[44],
-            $palette[45],
-            $palette[46],
-            $palette[47],
-
-            $palette[56],
-            $palette[57],
-            $palette[58],
-            $palette[59],
-            $palette[60],
-            $palette[61],
-            $palette[62],
-            $palette[63],
-
-
-
-            $palette[64],
-            $palette[65],
-            $palette[66],
-            $palette[67],
-            $palette[68],
-            $palette[69],
-            $palette[70],
-            $palette[71],
-
-
-
-
-            $palette[80],
-            $palette[81],
-            $palette[82],
-            $palette[83],
-            $palette[84],
-            $palette[85],
-            $palette[86],
-            $palette[87],
-
-
-
-            $palette[72],
-            $palette[73],
-            $palette[74],
-            $palette[75],
-            $palette[76],
-            $palette[77],
-            $palette[78],
-            $palette[79],
-
-
-            $palette[88],
-            $palette[89],
-            $palette[90],
-            $palette[91],
-            $palette[92],
-            $palette[93],
-            $palette[94],
-            $palette[95],
-
-
-
-            $palette[96],
-            $palette[97],
-            $palette[98],
-            $palette[99],
-            $palette[100],
-            $palette[101],
-            $palette[102],
-            $palette[103],
-
-
-
-            $palette[112],
-            $palette[113],
-            $palette[114],
-            $palette[115],
-            $palette[116],
-            $palette[117],
-            $palette[118],
-            $palette[119],
-
-
-            $palette[104],
-            $palette[105],
-            $palette[106],
-            $palette[107],
-            $palette[108],
-            $palette[109],
-            $palette[110],
-            $palette[111],
-
-
-
-
-            $palette[120],
-            $palette[121],
-            $palette[122],
-            $palette[123],
-            $palette[124],
-            $palette[125],
-            $palette[126],
-            $palette[127],
-
-
-
-            $palette[128],
-            $palette[129],
-            $palette[130],
-            $palette[131],
-            $palette[132],
-            $palette[133],
-            $palette[134],
-            $palette[135],
-
-
-
-
-            $palette[144],
-            $palette[145],
-            $palette[146],
-            $palette[147],
-            $palette[148],
-            $palette[149],
-            $palette[150],
-            $palette[151],
-
-            $palette[136],
-            $palette[137],
-            $palette[138],
-            $palette[139],
-            $palette[140],
-            $palette[141],
-            $palette[142],
-            $palette[143],
-
-
-
-
-            $palette[152],
-            $palette[153],
-            $palette[154],
-            $palette[155],
-            $palette[156],
-            $palette[157],
-            $palette[158],
-            $palette[159],
-
-
-
-            $palette[160],
-            $palette[161],
-            $palette[162],
-            $palette[163],
-            $palette[164],
-            $palette[165],
-            $palette[166],
-            $palette[167],
-
-
-
-
-            $palette[176],
-            $palette[177],
-            $palette[178],
-            $palette[179],
-            $palette[180],
-            $palette[181],
-            $palette[182],
-            $palette[183],
-
-
-
-            $palette[168],
-            $palette[169],
-            $palette[170],
-            $palette[171],
-            $palette[172],
-            $palette[173],
-            $palette[174],
-            $palette[175],
-
-
-            $palette[184],
-            $palette[185],
-            $palette[186],
-            $palette[187],
-            $palette[188],
-            $palette[189],
-            $palette[190],
-            $palette[191],
-
-
-
-            $palette[192],
-            $palette[193],
-            $palette[194],
-            $palette[195],
-            $palette[196],
-            $palette[197],
-            $palette[198],
-            $palette[199],
-
-
-
-
-            $palette[208],
-            $palette[209],
-            $palette[210],
-            $palette[211],
-            $palette[212],
-            $palette[213],
-            $palette[214],
-            $palette[215],
-
-
-
-            $palette[200],
-            $palette[201],
-            $palette[202],
-            $palette[203],
-            $palette[204],
-            $palette[205],
-            $palette[206],
-            $palette[207],
-
-
-            $palette[216],
-            $palette[217],
-            $palette[218],
-            $palette[219],
-            $palette[220],
-            $palette[221],
-            $palette[222],
-            $palette[223],
-
-
-
-            $palette[224],
-            $palette[225],
-            $palette[226],
-            $palette[227],
-            $palette[228],
-            $palette[229],
-            $palette[230],
-            $palette[231],
-
-
-
-
-            $palette[240],
-            $palette[241],
-            $palette[242],
-            $palette[243],
-            $palette[244],
-            $palette[245],
-            $palette[246],
-            $palette[247],
-
-
-
-            $palette[232],
-            $palette[233],
-            $palette[234],
-            $palette[235],
-            $palette[236],
-            $palette[237],
-            $palette[238],
-            $palette[239],
-
-
-            $palette[248],
-            $palette[249],
-            $palette[250],
-            $palette[251],
-            $palette[252],
-            $palette[253],
-            $palette[254],
-            $palette[255],
-
-
-        ];
     }
 
 
@@ -534,6 +233,7 @@ class Ps2 extends Image {
 
         while ($colors->remain()) {
             $dst = [];
+
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //r
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //g
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //b

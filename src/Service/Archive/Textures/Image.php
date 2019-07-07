@@ -8,11 +8,12 @@ class Image {
     public function saveImage($data, $width, $height){
 
         $img = imagecreatetruecolor($width, $height);
+        imagesavealpha($img, true);
 
         $x = 0;
         $y = 0;
         foreach ($data as $rgba) {
-//            $color =  imagecolorallocatealpha($img,$rgba[0],$rgba[1],$rgba[2],255 - $rgba[3]);
+//            $color =  imagecolorallocatealpha($img,$rgba[0],$rgba[1],$rgba[2],$rgba[3]);
             $color =  imagecolorallocate($img,$rgba[0],$rgba[1],$rgba[2]);
             imagesetpixel($img,$x,$y,$color);
 
