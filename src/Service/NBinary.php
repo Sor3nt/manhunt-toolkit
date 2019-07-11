@@ -53,8 +53,10 @@ class NBinary{
 
     public function jumpTo( $offset, $absolutePosition = true ){
         if ($absolutePosition == false){
+            if ($offset > $this->length()) die("jump to not possible, out of range");
             $this->current += $offset;
         }else{
+            if ($offset > $this->length()) die("jump to not possible, out of range");
             $this->current = $offset;
         }
     }

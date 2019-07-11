@@ -8,7 +8,6 @@ use App\Service\Archive\Bsp;
 use App\Service\Archive\Col;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
-use App\Service\Archive\Fsb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
 use App\Service\Archive\Gxt;
@@ -18,7 +17,8 @@ use App\Service\Archive\Mdl;
 use App\Service\Archive\Mls;
 use App\Service\Archive\Pak;
 use App\Service\Archive\Tex;
-use App\Service\Archive\Txd;
+use App\Service\Archive\TxdPlaystation;
+use App\Service\Archive\TxdWii;
 use Symfony\Component\Finder\Finder;
 
 class Resources
@@ -30,7 +30,7 @@ class Resources
     private $archives = [
         Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class,
-        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     Txd::class
+        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class
     ];
 
 

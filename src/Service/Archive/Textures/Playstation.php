@@ -1,9 +1,10 @@
 <?php
 namespace App\Service\Archive\Textures;
 
+use App\MHT;
 use App\Service\NBinary;
 
-class Ps2 extends Image {
+class Playstation extends Image {
 
 
     private $alphaEncodingTable = [
@@ -39,7 +40,50 @@ class Ps2 extends Image {
 
     ];
 
-    private function unswizzle( $texture, $bmpRgba ){
+
+
+    private function unswizzlePsp($texture, $bmpRgba, $as4Bit = false ){
+
+        if ($texture['width'] <= 16) return $bmpRgba;
+
+        $BlockWidth = $as4Bit ? 32 : 16;
+        $BlockHeight = 8;
+        $BlockSize = $BlockHeight * $BlockWidth;
+
+        $start = 0;
+        $end = count($bmpRgba);
+
+        $unswizzled = [];
+        foreach ($bmpRgba as $item) {
+            $unswizzled[] = [0,0,0,0];
+        }
+        $swizzled = $bmpRgba;
+
+        $size = $end - $start;
+        $blockCount = $size / $BlockSize;
+        $blocksPerRow = $texture['width'] / $BlockWidth;
+
+
+        for ($block = 0; $block < $blockCount; ++$block)
+        {
+            $by = (int) ($block / $blocksPerRow) * $BlockHeight;
+            $bx = (int) ($block % $blocksPerRow) * $BlockWidth;
+
+            for ($y = 0; $y < $BlockHeight; $y++)
+            {
+
+                for ($x = 0; $x < $BlockWidth; $x++)
+                {
+                    $unswizzled[$start + ($by + $y) * $texture['width'] + $bx + $x] =
+                        $swizzled[$start + $block * $BlockSize + $y * $BlockWidth + $x];
+                }
+            }
+        }
+
+        return $unswizzled;
+    }
+
+    private function unswizzlePs2($texture, $bmpRgba ){
 
         $result = [];
 
@@ -101,10 +145,11 @@ class Ps2 extends Image {
     }
 
 
-    public function convertToRgba($texture ){
-
+    public function convertToRgba($texture, $platform ){
 
         $palette = $this->decode32ColorsToRGBA( new NBinary($texture['palette']));
+
+        $is4Bit = $texture['bitPerPixel'] == 4;
 
         if ($texture['bitPerPixel'] == 4) {
 
@@ -113,15 +158,17 @@ class Ps2 extends Image {
                 ($texture['width'] * $texture['height']),
                 $palette
             );
+
         }else if ($texture['bitPerPixel'] == 8){
 
-            $palette = $this->paletteUnswizzle($palette);
+            if ($platform == MHT::PLATFORM_PS2) {
+                $palette = $this->paletteUnswizzle($palette);
+            }
 
             $bmpRgba = $this->convertIndexed8ToRGBA(
                 $texture['data'],
                 $palette
             );
-
 
         }else{
             throw new \Exception(sprintf("Unknown bitPerPixel format %s", $texture['bitPerPixel']));
@@ -129,7 +176,13 @@ class Ps2 extends Image {
 
         if ($texture['rasterFormat'] == "00010000" && $texture['bitPerPixel'] == 4) {
         }else{
-            $bmpRgba = $this->unswizzle($texture, $bmpRgba);
+            if ($platform == MHT::PLATFORM_PS2) {
+                $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
+            }else if ($platform == MHT::PLATFORM_PSP){
+                $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+
+
+            }
 
         }
 
