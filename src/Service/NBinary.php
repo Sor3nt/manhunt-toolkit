@@ -53,10 +53,10 @@ class NBinary{
 
     public function jumpTo( $offset, $absolutePosition = true ){
         if ($absolutePosition == false){
-            if ($offset > $this->length()) die("jump to not possible, out of range");
+            if ($offset > $this->length()) die("jump to not possible, out of range => " . $offset . " max: " . $this->length());
             $this->current += $offset;
         }else{
-            if ($offset > $this->length()) die("jump to not possible, out of range");
+            if ($offset > $this->length()) die("jump to not possible, out of range => " . $offset . " max: " . $this->length());
             $this->current = $offset;
         }
     }
@@ -275,4 +275,11 @@ echo ".";
         $this->current = strlen($this->hex) / 2;
 
     }
+
+    public function getFromPos($offset, $size, $type){
+        $this->jumpTo($offset);
+        return $this->consume($size, $type);
+
+    }
+
 }

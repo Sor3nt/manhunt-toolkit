@@ -65,8 +65,11 @@ class TxdPlaystation extends Archive {
             'unknown11'             => $binary->consume(4,  NBinary::INT_32),
             'unknown12'             => $binary->consume(4,  NBinary::INT_32),
 
+
             'dataOffset'        => $binary->consume(4,  NBinary::INT_32),
-            'paletteOffset'     => $binary->consume(4,  NBinary::INT_32)
+            'paletteOffset'     => $binary->consume(4,  NBinary::INT_32),
+
+
         ];
 
         $texture['name'] = $binary->unpack($texture['name'], NBinary::STRING);
@@ -99,15 +102,16 @@ class TxdPlaystation extends Archive {
         $textures = [];
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
-
-//            if ($texture['name'] != "Dedhed1_128"){
 //
+//            if ($texture['name'] != "FE_start_eye"){
+//
+//            echo md5($texture['data']). "\t" . $texture['height']. "\t" . $texture['bitPerPixel']. "\t" . $texture['rasterFormat']  . " " . $texture['name'] . "\n";
 //                $currentOffset = $texture['nextOffset'];
 //
 //                $header['numTextures']--;
+//
 //                continue;
 //            }
-//
 
 
             $bmpRgba = $this->playstation->convertToRgba($texture, $platform);

@@ -8,6 +8,7 @@ use App\Service\Resources;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -22,6 +23,22 @@ class MassExtractionCommand extends Command
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
         $this->addArgument('type', InputArgument::OPTIONAL, 'file type');
 
+        $this->addOption(
+            'game',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'mh1 or mh2?',
+            MHT::GAME_AUTO
+        );
+
+        $this->addOption(
+            'platform',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'pc,ps2,psp,wii,xbox?',
+            MHT::PLATFORM_AUTO
+        );
+
         $this->addOption('flat');
     }
 
@@ -31,6 +48,10 @@ class MassExtractionCommand extends Command
         $folder = realpath($input->getArgument('folder'));
         $type = $input->getArgument('type');
         $flat = $input->getOption('flat');
+
+        $game = $input->getOption('game');
+        $platform = $input->getOption('platform');
+
 
         $path = pathinfo($folder);
 
@@ -55,12 +76,13 @@ class MassExtractionCommand extends Command
                 ->name('/\.inst/i')
                 ->name('/\.pak/i')
                 ->name('/\.tex/i')
+                ->name('/\.txd/i')
                 ->name('/\.mls/i')
                 ->files()
                 ->in($folder);
         }else{
             $finder
-                ->name('/\.' . $type . '/i')
+                ->name('/' . $type . '/i')
 
                 ->files()
                 ->in($folder);
@@ -70,7 +92,7 @@ class MassExtractionCommand extends Command
         foreach ($finder as $file) {
 
             try{
-                $resource = $resources->load($file, MHT::GAME_AUTO, MHT::GAME_AUTO);
+                $resource = $resources->load($file, $game, $platform);
 
             }catch(\Exception $e) {
 //                $output->writeln('Not supported ' . $file->getRelativePathname());
@@ -96,10 +118,10 @@ class MassExtractionCommand extends Command
             }
 
 
-            $results = $handler->unpack($resource->getInput(), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
+            $results = $handler->unpack($resource->getInput(), $game, $platform);
 
             if ($handler instanceof Mls){
-                $results = $handler->getValidatedResults( $results, MHT::GAME_AUTO, MHT::PLATFORM_AUTO );
+                $results = $handler->getValidatedResults( $results, $game, $platform );
             }
 
             if (is_array($results)){
@@ -137,7 +159,9 @@ class MassExtractionCommand extends Command
                         $pathInfo = pathinfo($relativeFilename);
 
                         if ($flat) {
-                            $outputDir = $outputTo . '/' . str_replace('.', '#', $file->getFilename()) . '_' . $pathInfo['dirname'];
+                            $outputDir = $outputTo . '_' . str_replace('.', '#', $file->getFilename()) . '_' . $pathInfo['dirname'];
+                            @mkdir($outputTo, 0777, true);
+
                         }else{
                             $outputDir = $outputTo . '/' . str_replace('.', '#', $file->getFilename()) . '/' . $pathInfo['dirname'];
                             @mkdir($outputDir, 0777, true);

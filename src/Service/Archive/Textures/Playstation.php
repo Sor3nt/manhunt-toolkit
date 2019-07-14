@@ -112,8 +112,10 @@ class Playstation extends Image {
         if ($format == "10000000" && $bpp == 8) return 1024;
         if ($format == "20000000" && $bpp == 8) return 1024;
         if ($format == "40000000" && $bpp == 8) return 1024;
+        if ($format == "80000000" && $bpp == 32) return 1024;
         if ($format == "80000000" && $bpp == 8) return 1024;
         if ($format == "80000000" && $bpp == 4) return 1024;
+        if ($format == "00010000" && $bpp == 32) return 1024;
 
 
         if ($format == "08000000" && $bpp == 4) return 64;
@@ -121,6 +123,7 @@ class Playstation extends Image {
         if ($format == "20000000" && $bpp == 4) return 64;
         if ($format == "40000000" && $bpp == 4) return 64;
         if ($format == "00010000" && $bpp == 4) return 64;
+        if ($format == "00020000" && $bpp == 8) return 1024;
 
         throw new \Exception(sprintf("Unknown palette format %s bpp: %s", $format, $bpp));
 
@@ -129,6 +132,7 @@ class Playstation extends Image {
 
     public function getRasterSize( $format, $width, $height, $bpp ){
 
+        if ($format == "80000000" && $bpp == 32) return $width * $height;
         if ($format == "80000000" && $bpp == 8) return $width * $height;
         if ($format == "08000000" && $bpp == 4) return ($width * $height) / 2;
         if ($format == "10000000" && $bpp == 4) return ($width * $height) / 2;
@@ -140,6 +144,8 @@ class Playstation extends Image {
         if ($format == "40000000" && $bpp == 8) return $width * $height;
         if ($format == "20000000" && $bpp == 8) return $width * $height;
         if ($format == "10000000" && $bpp == 8) return $width * $height;
+        if ($format == "00010000" && $bpp == 32) return $width * $height;
+        if ($format == "00020000" && $bpp == 8) return $width * $height;
 
         throw new \Exception(sprintf("Unknown raster format %s bpp: %s", $format, $bpp));
     }
@@ -170,20 +176,72 @@ class Playstation extends Image {
                 $palette
             );
 
+        }else if ($texture['bitPerPixel'] == 32){
+
+            $bmpRgba = $this->decode32ColorsToRGBA( new NBinary($texture['data']));
+//
+//            $bmpRgba = $this->convertIndexed4ToRGBA(
+//                $texture['data'],
+//                ($texture['width'] * $texture['height']),
+//                $palette
+//            );
+
         }else{
             throw new \Exception(sprintf("Unknown bitPerPixel format %s", $texture['bitPerPixel']));
         }
 
-        if ($texture['rasterFormat'] == "00010000" && $texture['bitPerPixel'] == 4) {
-        }else{
-            if ($platform == MHT::PLATFORM_PS2) {
+//        if ($texture['rasterFormat'] == "00010000" && $texture['bitPerPixel'] == 4) {
+//
+//            if ($texture['width'] != $texture['height']){
+//                if ($platform == MHT::PLATFORM_PSP){
+//                    $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+//
+//
+//                }
+//            }
+//
+//        }else if ($texture['rasterFormat'] == "00020000" && $texture['bitPerPixel'] == 8) {
+//
+//            if ($texture['width'] != $texture['height']){
+//                if ($platform == MHT::PLATFORM_PSP){
+//                    $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+//
+//
+//                }
+//            }
+//        }else{
+
+
+        $md5 = md5($texture['data']);
+        switch ($md5){
+
+            //hack, unable to detect the swizzeling
+            case '25cbd659d3c5ff9e10e36e5cecf01bf3': // PS2 GUI.TXD => FE_MH2_logo
+            case 'db8f4b030f8c8ccd979c957bd6b89d27': // PS2 GUI.TXD => FE_episodesel_layer03_bw
+            case '77f7b2d96e6cbf5fa6e71e517a8b1101': // PS2 GUI.TXD => FE_start_layer01
+
                 $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
-            }else if ($platform == MHT::PLATFORM_PSP){
-                $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+                break;
+
+            case '39d042d97234f80b2ae2ff99ea207e10': // PS2 GUI.TXD => FE_mainmenu_layer03_bw
+            case '3838f53d5f570bdcc94515d33e15752a': // PS2 GUI.TXD => FE_mainmenu_layer03
+            case 'b6142f8e07ae1ce5fc503caecab82156': // PS2 GUI.TXD => FE_start_eye
+            case '1b7861be62680d9d524a648f4c894238': // PS2 GUI.TXD => FE_settings_layer03
+            case '34fa5e116f93cc1d0ede383f246d5566': // PS2 GUI.TXD => FE_settings_layer03_bw
+            case '75a5a22f967df72914f6003f1e116501': // PS2 GUI.TXD => FE_start_layer02
+            case 'bca6577c3bafa7d98bf7762c9d503d0a': // PS2 TITLE.TXD => legal
+            break;
+
+            default:
+
+                    if ($platform == MHT::PLATFORM_PS2) {
+                        $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
+                    }else if ($platform == MHT::PLATFORM_PSP){
+                        $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+                    }
 
 
-            }
-
+                break;
         }
 
         return $bmpRgba;
@@ -192,7 +250,7 @@ class Playstation extends Image {
 
     private function paletteUnswizzle($palette){
 
-        //Rulset:
+        //Ruleset:
         /*
          * 1. first 8 colors stay
          *

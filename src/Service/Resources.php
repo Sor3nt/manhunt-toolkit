@@ -30,7 +30,7 @@ class Resources
     private $archives = [
         Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class,
-        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class
+        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class
     ];
 
 
