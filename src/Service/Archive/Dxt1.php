@@ -25,6 +25,44 @@ class Dxt1
 
         $binary = new NBinary($data);
 
+        if ($height4 == 0){
+            $h = 0;
+            for ($w = 0; $w < $width4; $w++) {
+
+                $firstVal = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+                $secondVal = $binary->consume(2, NBinary::LITTLE_U_INT_16);
+
+                $colorValues = $this->interpolateColorValues($firstVal, $secondVal, true);
+
+                $colorIndices = $binary->consume(4, NBinary::LITTLE_U_INT_32);
+
+                for ($y = 0; $y < 4; $y++) {
+                    for ($x = 0; $x < 4; $x++) {
+                        $pixelIndex = (3 - $x) + ($y * 4);
+                        $rgbaIndex = ($h * 4 + 3 - $y) * $width * 4 + ($w * 4 + $x) * 4;
+                        $colorIndex = ($colorIndices >> (2 * (15 - $pixelIndex))) & 0x03;
+
+                        if ($returnAs == "rgba"){
+                            $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4];
+                            $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 1];
+                            $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 2];
+                            $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4 + 3];
+
+                        }else if ($returnAs == "abgr"){
+                            $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4 + 3];
+                            $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 2];
+                            $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 1];
+                            $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4];
+
+                        }else{
+                            throw new \Exception('Unknown RGBa Order');
+                        }
+                    }
+                }
+
+            }
+        }
+
         for ($h = 0; $h < $height4; $h++) {
             for ($w = 0; $w < $width4; $w++) {
 

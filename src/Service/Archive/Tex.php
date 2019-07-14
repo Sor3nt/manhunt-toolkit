@@ -78,24 +78,46 @@ class Tex extends Archive {
     public function convertToBmp( $texture ){
         $ddsHandler = new Dds();
         $bmpHandler = new Bmp();
-
         $ddsDecoded = $ddsHandler->unpack( new NBinary($texture['data']), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
 
         if($ddsDecoded['format'] == "DXT1") {
             $dxtHandler = new Dxt1();
+
+
+            //decode the DXT Texture
+            $bmpRgba = $dxtHandler->decode(
+                $ddsDecoded['data'],
+                $ddsDecoded['width'],
+                $ddsDecoded['height'],
+                'abgr'
+            );
+
+
         }else if($ddsDecoded['format'] == "DXT5"){
             $dxtHandler = new Dxt5();
+
+
+            //decode the DXT Texture
+            $bmpRgba = $dxtHandler->decode(
+                $ddsDecoded['data'],
+                $ddsDecoded['width'],
+                $ddsDecoded['height'],
+                'abgr'
+            );
+
+        }else if($ddsDecoded['format'] == ""){
+
+            $data = new NBinary($ddsDecoded['data']);
+            $bmpRgba = [];
+            while($data->remain()){
+                $bmpRgba[] = $data->consume(1, NBinary::U_INT_8);
+            }
+
         }else{
+
+            var_dump($ddsDecoded, $texture);
             throw new \Exception('Format not implemented: ' . $ddsDecoded['format']);
         }
-
-        //decode the DXT Texture
-        $bmpRgba = $dxtHandler->decode(
-            $ddsDecoded['data'],
-            $ddsDecoded['width'],
-            $ddsDecoded['height'],
-            'abgr'
-        );
 
         //Convert the RGBa values into a Bitmap
         $bmpImage = $bmpHandler->encode(
@@ -128,6 +150,22 @@ class Tex extends Archive {
             //            if ($texture['mipMapCount'] > 1){
 //                throw new \Exception('MipMap handler missed');
 //            }
+
+
+            if ($texture['width'] <= 2 && $texture['height'] <= 2){
+                $currentOffset = $texture['nextOffset'];
+
+                $header['numTextures']--;
+                continue;
+            }
+
+//if($texture['name'] != "clear"){
+//
+//    continue;
+//}
+//
+//            var_dump($texture);
+
 
 
             list($filename, $bmp) = $this->convertToBmp($texture);

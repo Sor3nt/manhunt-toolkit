@@ -74,9 +74,13 @@ class TxdPlaystation extends Archive {
 
         $texture['name'] = $binary->unpack($texture['name'], NBinary::STRING);
 
-        $binary->jumpTo($texture['paletteOffset']);
+        $texture['palette'] = false;
 
-        $texture['palette'] = $binary->consume($this->playstation->getPaletteSize($texture['rasterFormat'], $texture['bitPerPixel']), NBinary::BINARY);
+        if ($texture['paletteOffset'] > 0){
+            $binary->jumpTo($texture['paletteOffset']);
+
+            $texture['palette'] = $binary->consume($this->playstation->getPaletteSize($texture['rasterFormat'], $texture['bitPerPixel']), NBinary::BINARY);
+        }
 
         $binary->jumpTo($texture['dataOffset']);
         $texture['data'] = $binary->consume(
@@ -104,7 +108,8 @@ class TxdPlaystation extends Archive {
             $texture = $this->parseTexture($currentOffset, $binary);
 //
 //            if ($texture['name'] != "FE_start_eye"){
-//
+//vd
+//            var_dump($texture);
 //            echo md5($texture['data']). "\t" . $texture['height']. "\t" . $texture['bitPerPixel']. "\t" . $texture['rasterFormat']  . " " . $texture['name'] . "\n";
 //                $currentOffset = $texture['nextOffset'];
 //

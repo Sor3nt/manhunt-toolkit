@@ -39,7 +39,18 @@ class MassExtractionCommand extends Command
             MHT::PLATFORM_AUTO
         );
 
-        $this->addOption('flat');
+        $this->addOption(
+            'no-duplicates',
+            null,
+            InputOption::VALUE_NONE,
+            'Keep only unique items'
+        );
+
+        $this->addOption('flat',
+            null,
+            InputOption::VALUE_NONE,
+            'Flat the output'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -48,10 +59,15 @@ class MassExtractionCommand extends Command
         $folder = realpath($input->getArgument('folder'));
         $type = $input->getArgument('type');
         $flat = $input->getOption('flat');
-
         $game = $input->getOption('game');
         $platform = $input->getOption('platform');
+        $noDuplicates = $input->getOption('no-duplicates');
 
+
+        if ($noDuplicates && $flat == false){
+            $output->writeln("Option 'no-duplicates' can only be used with the option '--flat'");
+            exit;
+        }
 
         $path = pathinfo($folder);
 
@@ -87,6 +103,11 @@ class MassExtractionCommand extends Command
                 ->files()
                 ->in($folder);
         }
+
+        $md5ByFile = [];
+
+
+        $output->writeln(sprintf("Mass Extraction for %s files", $finder->count()));
 
 
         foreach ($finder as $file) {
@@ -127,6 +148,7 @@ class MassExtractionCommand extends Command
             if (is_array($results)){
 
                 foreach ($results as $relativeFilename => $data) {
+
 
                     //we loop through dataset not a fileset
                     if ( is_numeric($relativeFilename) ){
@@ -183,6 +205,9 @@ class MassExtractionCommand extends Command
 
 
                         if ($flat) {
+                            $md5 = md5($data);
+                            if (!isset($md5ByFile[$md5])) $md5ByFile[$md5] = [];
+                            $md5ByFile[$md5][] = $outputDir . '_' . $pathInfo['basename'] . $extension;
                             file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
                         }else{
                             file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
@@ -209,6 +234,27 @@ class MassExtractionCommand extends Command
                 }
 
             }
+
+        }
+
+        if ($noDuplicates == true){
+            $deleted = 0;
+            $output->write("Delete duplicated files ");
+            foreach ($md5ByFile as $entries) {
+                if (count($entries) > 1){
+                    array_pop($entries);
+                    foreach ($entries as $entry) {
+                        $output->write(".");
+                        unlink($entry);
+                        $deleted++;
+                    }
+                }
+            }
+
+            $output->write("\n");
+            $output->writeln(sprintf("%s files deleted", $deleted));
+            $output->writeln(sprintf("%s files keep", count($md5ByFile)));
+
 
         }
 
