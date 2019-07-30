@@ -17,9 +17,9 @@ class Build {
 
         $binary->write($pathFilename->count(), NBinary::INT_32);
 
-//        $pathFilename->sort(function($a,$b){
-//            return (int)$a->getFilename() > (int)$b->getFilename();
-//        });
+        $pathFilename->sort(function($a,$b){
+            return (int)$a->getFilename() > (int)$b->getFilename();
+        });
 
         $recordBin = [];
         foreach ($pathFilename as $file) {

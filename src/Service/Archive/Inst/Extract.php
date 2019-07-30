@@ -35,8 +35,8 @@ class Extract {
 
             $record = $this->parseRecord( $block, $game );
 
-//            $records[($i + 1) . '.json'] = $record;
-            $records[$record['internalName'] . '.json'] = $record;
+            $records[($i + 1) . "#" .$record['internalName'] . '.json'] = $record;
+//            $records[$record['internalName'] . '.json'] = $record;
         }
 
         return $records;
