@@ -17,8 +17,13 @@ class Build {
 
         $binary->write($pathFilename->count(), NBinary::INT_32);
 
+//        $pathFilename->sort(function($a,$b){
+//            return (int)$a->getFilename() > (int)$b->getFilename();
+//        });
+
         $recordBin = [];
         foreach ($pathFilename as $file) {
+
             $record = \json_decode($file->getContents(), true);
 
 //        foreach ($records as $index => $record) {
@@ -48,10 +53,29 @@ class Build {
             /*
              * Append rotation
              */
-            $entry->write( $record['rotation']['x'], NBinary::FLOAT_32 );
-            $entry->write( $record['rotation']['y'], NBinary::FLOAT_32 );
-            $entry->write( $record['rotation']['z'], NBinary::FLOAT_32 );
-            $entry->write( $record['rotation']['w'], NBinary::FLOAT_32 );
+            if ($record['rotation']['x'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['rotation']['x'], NBinary::FLOAT_32 );
+            }
+
+            if ($record['rotation']['y'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['rotation']['y'], NBinary::FLOAT_32 );
+            }
+
+            if ($record['rotation']['z'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['rotation']['z'], NBinary::FLOAT_32 );
+            }
+
+            if ($record['rotation']['w'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['rotation']['w'], NBinary::FLOAT_32 );
+            }
 
             /*
              * Append entity class

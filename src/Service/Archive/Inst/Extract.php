@@ -26,7 +26,7 @@ class Extract {
         //extract every record
         $records = [];
 
-        foreach ($sizes as $size) {
+        foreach ($sizes as $i => $size) {
             $size = $binary->unpack(hex2bin($size), NBinary::INT_32);
 
             $block = new NBinary( $binary->consume($size, NBinary::BINARY) );
@@ -35,6 +35,7 @@ class Extract {
 
             $record = $this->parseRecord( $block, $game );
 
+//            $records[($i + 1) . '.json'] = $record;
             $records[$record['internalName'] . '.json'] = $record;
         }
 
@@ -64,10 +65,37 @@ class Extract {
         $z = $binary->consume(4, NBinary::FLOAT_32);
 
 
-        $rotationX = $binary->consume(4, NBinary::FLOAT_32);
-        $rotationY = $binary->consume(4, NBinary::FLOAT_32);
-        $rotationZ = $binary->consume(4, NBinary::FLOAT_32);
-        $rotationW = $binary->consume(4, NBinary::FLOAT_32);
+        $rotationX = $binary->consume(4, NBinary::BINARY);
+        $rotationY = $binary->consume(4, NBinary::BINARY);
+        $rotationZ = $binary->consume(4, NBinary::BINARY);
+        $rotationW = $binary->consume(4, NBinary::BINARY);
+
+
+        if ($rotationX == "\x00\x00\x00\x80"){
+            $rotationX = "-0";
+        }else{
+            $rotationX = $binary->unpack($rotationX, NBinary::FLOAT_32);
+        }
+
+        if ($rotationY == "\x00\x00\x00\x80"){
+            $rotationY = "-0";
+        }else{
+            $rotationY = $binary->unpack($rotationY, NBinary::FLOAT_32);
+        }
+
+
+        if ($rotationZ == "\x00\x00\x00\x80"){
+            $rotationZ = "-0";
+        }else{
+            $rotationZ = $binary->unpack($rotationZ, NBinary::FLOAT_32);
+        }
+
+        if ($rotationW == "\x00\x00\x00\x80"){
+            $rotationW = "-0";
+        }else{
+            $rotationW = $binary->unpack($rotationW, NBinary::FLOAT_32);
+        }
+
 
         /**
          * Find the entity class
