@@ -162,8 +162,37 @@ class Extract {
                         $value = $binary->consume(4, NBinary::INT_32);
 
                         if($parameterId == "weapon"){
-                            if ($value == 9) $value = "nightstick";
-                            if ($value == 17) $value = "syringe";
+
+                            switch($value){
+                                case 0: $value = "pipe"; break;
+                                case 1: $value = "cleaver"; break;
+                                case 2: $value = "wooden baseball bat"; break;
+                                case 3: $value = "knife"; break;
+                                case 4: $value = "baseball bat 1"; break;
+                                case 5: $value = "baseball bat 2"; break;
+                                case 6: $value = "not defined"; break;
+                                case 7: $value = "crowbar"; break;
+                                case 8: $value = "small bat"; break;
+                                case 9: $value = "nightstick"; break;
+                                case 10: $value = "axe"; break;
+                                case 11: $value = "icepick"; break;
+                                case 12: $value = "machete"; break;
+                                case 13: $value = "sickle"; break;
+                                case 14: $value = "baseball bat 3"; break;
+                                case 15: $value = "spiked Bat"; break;
+                                case 16: $value = "chainsaw"; break;
+                                case 17: $value = "syringe"; break;
+                                case 18: $value = "shovel"; break;
+                                case 19: $value = "sledgehammer"; break;
+                                case 20: $value = "stunprod"; break;
+                                case 21: $value = "pen"; break;
+                                case 22: $value = "acid bottle"; break;
+                                case 23: $value = "1h firearm"; break;
+                                case 24: $value = "2h firearm"; break;
+                                case 25: $value = "razor"; break;
+                                case 26: $value = "blowtorch"; break;
+                            }
+
                         }
 
                         break;

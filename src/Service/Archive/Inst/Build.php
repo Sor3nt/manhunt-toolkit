@@ -109,8 +109,37 @@ class Build {
                         case 'boo':
                         case 'int':
                             if($parameter['parameterId'] == "ea6cf6cf"){  //weapon
-                                if ($parameter['value'] == "nightstick") $parameter['value'] = 9;
-                                if ($parameter['value'] == "syringe") $parameter['value'] = 17;
+
+
+                                switch(strtolower($parameter['value'])){
+                                    case "pipe": $parameter['value'] = 0; break;
+                                    case "cleaver": $parameter['value'] = 1; break;
+                                    case "wooden baseball bat": $parameter['value'] = 2; break;
+                                    case "knife": $parameter['value'] = 3; break;
+                                    case "baseball bat 1": $parameter['value'] = 4; break;
+                                    case "baseball bat 2": $parameter['value'] = 5; break;
+                                    case "not defined": $parameter['value'] = 6; break;
+                                    case "crowbar": $parameter['value'] = 7; break;
+                                    case "small bat": $parameter['value'] = 8; break;
+                                    case "nightstick": $parameter['value'] = 9; break;
+                                    case "axe": $parameter['value'] = 10; break;
+                                    case "icepick": $parameter['value'] = 11; break;
+                                    case "machete": $parameter['value'] = 12; break;
+                                    case "sickle": $parameter['value'] = 13; break;
+                                    case "baseball bat 3": $parameter['value'] = 14; break;
+                                    case "spiked bat": $parameter['value'] = 15; break;
+                                    case "chainsaw": $parameter['value'] = 16; break;
+                                    case "syringe": $parameter['value'] = 17; break;
+                                    case "shovel": $parameter['value'] = 18; break;
+                                    case "sledgehammer": $parameter['value'] = 19; break;
+                                    case "stunprod": $parameter['value'] = 20; break;
+                                    case "pen": $parameter['value'] = 21; break;
+                                    case "acid bottle": $parameter['value'] = 22; break;
+                                    case "1h firearm": $parameter['value'] = 23; break;
+                                    case "2h firearm": $parameter['value'] = 24; break;
+                                    case "razor": $parameter['value'] = 25; break;
+                                    case "blowtorch": $parameter['value'] = 26; break;
+                                }
                             }
 
                             $entry->write($parameter['value'], NBinary::INT_32);
