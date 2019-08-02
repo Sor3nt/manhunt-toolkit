@@ -633,6 +633,7 @@ class Ifp extends Archive
         foreach ($animations as $animationName => $animation) {
 
             $portAnimationToManhunt2 = false;
+            $portAnimationToManhunt1 = false;
 
             $binary->write("NAME", NBinary::STRING);
 
@@ -720,6 +721,13 @@ class Ifp extends Archive
                         $portAnimationToManhunt2 = true;
                     }
 
+                    if (
+                        $game == MHT::GAME_MANHUNT_1 &&
+                        isset($bone['frames']['lastFrameTime'])
+                    ) {
+                        $portAnimationToManhunt1 = true;
+                    }
+
                     if ($bone['frameType'] < 3) {
 
                         if (
@@ -731,6 +739,16 @@ class Ifp extends Archive
                             $singleChunkBinary->write(intval(0.8232421875 * 2048), NBinary::INT_16);
                             $singleChunkBinary->write(intval(-1.01513671875 * 2048), NBinary::INT_16);
                             $singleChunkBinary->write(intval(1.1416015625 * 2048), NBinary::INT_16);
+
+                        }else if (
+                            $portAnimationToManhunt1 &&
+                            $boneId == 1094
+                        ) {
+                            //Spine(0) is in someway twisted, for now just use another mh1 spine values
+                            $singleChunkBinary->write(intval(0.001953125 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval(0.09521484375 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval(0.04150390625 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval(1.9970703125 * 2048), NBinary::INT_16);
 
                         }else{
                             $singleChunkBinary->write(intval($frame['quat'][0] * 2048), NBinary::INT_16);
@@ -748,9 +766,17 @@ class Ifp extends Archive
                         if (
                             $portAnimationToManhunt2 &&
                             ($boneId == 1057 || $boneId == 1003)
-                        ){
+                        ) {
                             //clavicle right and clavicle left, cash has a different calvicle position
                             $singleChunkBinary->write(intval(0.1318359375 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                        }else if (
+                            $portAnimationToManhunt1 &&
+                            ($boneId == 1057 || $boneId == 1003)
+                        ){
+                            //clavicle right and clavicle left, daniel has a different calvicle position
+                            $singleChunkBinary->write(intval(-0.0283203125 * 2048), NBinary::INT_16);
                             $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
                             $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
 
@@ -796,7 +822,7 @@ class Ifp extends Archive
                 $binary->write(64, NBinary::INT_32);
             }
 
-            if ($portAnimationToManhunt2){
+            if ($portAnimationToManhunt2) {
                 $binary->write(count($animation['entry']), NBinary::INT_32);
 
                 foreach ($animation['entry'] as $entry) {
@@ -810,17 +836,15 @@ class Ifp extends Archive
 //                    $commandName = current(unpack("H*", $entry['CommandName']));
 //                    $missed = 128 - strlen($commandName) % 128;
 
-                        $binary->write("", NBinary::STRING);
+                    $binary->write("", NBinary::STRING);
 
-                        $dummy = \json_decode('{"unknownCommandRemain": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"}', true);
-                        //NOTE: this is just garbage, not needed but included to reach 100%
-                        $binary->write($dummy['unknownCommandRemain'], NBinary::STRING);
+                    $dummy = \json_decode('{"unknownCommandRemain": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"}', true);
+                    //NOTE: this is just garbage, not needed but included to reach 100%
+                    $binary->write($dummy['unknownCommandRemain'], NBinary::STRING);
 //                    $binary->write(str_repeat("\x00", $missed / 2), NBinary::BINARY);
 //                    }
 
                     $binary->write($entry['unknown4'], NBinary::HEX);
-
-
 
 
                     $binary->write($entry['unknown6'], NBinary::FLOAT_32);
@@ -844,7 +868,8 @@ class Ifp extends Archive
 
                 // we can not port the effects right now.... just remove them
 //                $binary->write(0, NBinary::INT_32);
-
+            }else if ($portAnimationToManhunt1){
+                $binary->write(0, NBinary::INT_32);
             }else{
                 $binary->write(count($animation['entry']), NBinary::INT_32);
 
