@@ -109,7 +109,7 @@ class Col extends Archive {
             }
 
             $result['verticals'] = $this->parseSimpleBlock($binary);
-            $result['faces']     = $this->parseSimpleBlock($binary);
+            $result['faces']     = $this->parseSimpleBlock($binary, NBinary::INT_32);
 
             $results[$name . '.json'] = $result;
 
@@ -119,25 +119,32 @@ class Col extends Archive {
         return $results;
     }
 
+    public function swapEndianness($hex) {
+        return implode('', array_reverse(str_split($hex, 2)));
+    }
+
     /**
      * @param NBinary $binary
      * @return array
      */
-    public function parseSimpleBlock( NBinary $binary){
+    public function parseSimpleBlock( NBinary $binary, $format = NBinary::FLOAT_32){
 
         $count = $binary->consume(4, NBinary::INT_32);
+
+        //$binary->numericBigEndian = true;
 
         if ($count > 0){
             $values = [];
             while($count > 0){
 
-                $values[] = $binary->readXYZ(4, NBinary::INT_32);
+                $values[] = $binary->readXYZ(4, $format);
 
                 $count--;
             }
 
             return $values;
         }
+        $binary->numericBigEndian = false;
 
         return [];
     }
@@ -149,6 +156,8 @@ class Col extends Archive {
      * @return null|string
      */
     public function pack( $pathFilename, $game, $platform ){
+
+        $pathFilename = $pathFilename->sortByName();
 
         $binary = new NBinary();
         $binary->write($pathFilename->count(), NBinary::INT_32);
