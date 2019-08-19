@@ -722,7 +722,7 @@ class Ifp extends Archive
                     }
 
                     if (
-                        $game == MHT::GAME_MANHUNT_1 &&
+                        $game == MHT::GAME_MANHUNT &&
                         isset($bone['frames']['lastFrameTime'])
                     ) {
                         $portAnimationToManhunt1 = true;
