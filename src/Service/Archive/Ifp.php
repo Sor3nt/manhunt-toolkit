@@ -807,10 +807,10 @@ class Ifp extends Archive
                         $chunkBinary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
                     }else{
 
-//                        if ($bone['frames']['lastFrameTime'] > $fixedFrameTimeCount ){
-//                            echo sprintf("\nAutocorrect %s, set duration to %s (instead of %s)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
-//                            $fixedFrameTimeCount = $bone['frames']['lastFrameTime'];
-//                        }
+                        if ($bone['frames']['lastFrameTime'] > $fixedFrameTimeCount ){
+                            echo sprintf("\nAutocorrect %s, set duration to %s (instead of %s)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
+                            $fixedFrameTimeCount = $bone['frames']['lastFrameTime'];
+                        }
 
                         $chunkBinary->write($bone['frames']['lastFrameTime'] / 30, NBinary::FLOAT_32);
                     }
