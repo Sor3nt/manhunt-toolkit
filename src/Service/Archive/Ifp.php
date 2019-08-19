@@ -632,6 +632,8 @@ class Ifp extends Archive
 
         foreach ($animations as $animationName => $animation) {
 
+            if ($animation == null) continue;
+
             $portAnimationToManhunt2 = false;
             $portAnimationToManhunt1 = false;
 
@@ -654,6 +656,8 @@ class Ifp extends Archive
             $chunkBinary->numericBigEndian = $binary->numericBigEndian;
 
             $chunkSize = 0;
+
+            $fixedFrameTimeCount = $animation['frameTimeCount'];
 
             foreach ($animation['bones'] as $bone) {
 
@@ -802,13 +806,19 @@ class Ifp extends Archive
                         //todo: sollte das nicht die anzajl der frames durch 30 sein ?!
                         $chunkBinary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
                     }else{
+
+                        if ($bone['frames']['lastFrameTime'] > $fixedFrameTimeCount ){
+                            echo sprintf("\nAutocorrect %s, set duration to %s (instead of %s)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
+                            $fixedFrameTimeCount = $bone['frames']['lastFrameTime'];
+                        }
+
                         $chunkBinary->write($bone['frames']['lastFrameTime'] / 30, NBinary::FLOAT_32);
                     }
                 }
             }
 
             $binary->write($chunkSize / 2, NBinary::INT_32);
-            $binary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
+            $binary->write($fixedFrameTimeCount / 30, NBinary::FLOAT_32);
             $binary->concat($chunkBinary);
 
             //headerSize
