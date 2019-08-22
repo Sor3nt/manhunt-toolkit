@@ -172,35 +172,18 @@ class Ifp extends Archive
             $numberOfBones = bin2hex($binary->get(4));
 
             if (strpos(strtolower($numberOfBones), 'ff') !== false) {
-
                 $platform = MHT::PLATFORM_PS2;
-
-                $numberOfBones = substr($numberOfBones, 0, 2);
-                if (strlen($numberOfBones) == 2) {
-                    $binary->consume(4, NBinary::BINARY);
-                    $numberOfBones = $binary->unpack(hex2bin($numberOfBones), NBinary::INT_8) * -1;
-                } else {
-
-                    die("PS2 error");
-                }
+                $numberOfBones = $binary->consume(4, NBinary::INT_16) * -1;
 
             } else {
+                $platform = MHT::PLATFORM_PC;
                 $numberOfBones = $binary->consume(4, NBinary::INT_32);
             }
 
             $chunkSize = $binary->consume(4, NBinary::INT_32);
+
+            //MH2 PC (ps2 has the value short before the bones)
             $frameTimeCount = $binary->consume(4, NBinary::FLOAT_32);
-
-            if ($game == MHT::GAME_MANHUNT_2 && $platform == MHT::PLATFORM_PS2) {
-
-                $frameTimeCount = (string)$frameTimeCount;
-                if (strlen($frameTimeCount) > 15) {
-                    $frameTimeCount = (float)substr($frameTimeCount, 0, -5);
-                } else {
-
-                    die("PS2 error");
-                }
-            }
 
             $resultAnimation = [
                 'frameTimeCount' => $frameTimeCount * 30,
@@ -209,7 +192,12 @@ class Ifp extends Archive
             /**
              * Sequences
              */
-            $bones = $this->extractBones($numberOfBones, $binary, $chunkSize, $game, $platform);
+            list($bones, $ps2FrameTimeCount) = $this->extractBones($numberOfBones, $binary, $chunkSize, $game, $platform, $animationName);
+
+            //ps2 correction
+            if ($ps2FrameTimeCount !== false){
+                $resultAnimation['frameTimeCount'] = $ps2FrameTimeCount * 30;
+            }
 
             $resultAnimation['bones'] = $bones;
 
@@ -339,9 +327,10 @@ class Ifp extends Archive
         return $results;
     }
 
-    private function extractBones($numberOfBones, NBinary $binary, $chunkSize = null, $game, $platform)
+    private function extractBones($numberOfBones, NBinary $binary, $chunkSize = null, $game, $platform, $animationName)
     {
 
+        $frameTimeCount = false;
         $bones = [];
 
         if ($game == MHT::GAME_MANHUNT_2 && $platform == MHT::PLATFORM_PS2) {
@@ -353,8 +342,9 @@ class Ifp extends Archive
             $binary = new NBinary($zlibData);
 
             //unknown ps2 values
-            $binary->consume(4, NBinary::HEX);
-            $binary->consume(4, NBinary::HEX);
+            $unknown = $binary->consume(4, NBinary::FLOAT_32);
+
+            $frameTimeCount = $binary->consume(4, NBinary::FLOAT_32);
         }
 
         while ($numberOfBones > 0) {
@@ -426,7 +416,7 @@ class Ifp extends Archive
             $numberOfBones--;
         }
 
-        return $bones;
+        return [$bones, $frameTimeCount];
     }
 
     private function extractFrames($startTime, $frames, $frameType, NBinary $binary, $game, $platform)
