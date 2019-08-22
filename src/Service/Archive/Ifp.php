@@ -649,6 +649,12 @@ class Ifp extends Archive
             $binary->write(strlen($animationName), NBinary::INT_32);
             $binary->write($animationName, NBinary::STRING);
 
+
+            if (isset($animation['raw'])){
+                $binary->write($animation['raw'], NBinary::HEX);
+                continue;
+            }
+
             $binary->write(count($animation['bones']), NBinary::INT_32);
 
 
