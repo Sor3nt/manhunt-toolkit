@@ -143,8 +143,21 @@ class Extract {
                 $parameterId = $binary->consume(4, NBinary::HEX);
 
 
-                if($parameterId == "8bc3259e") $parameterId = "envExecution";
+                if($parameterId == "8bc3259e") $parameterId = "envExecName";
+                if($parameterId == "37e5d5b0") $parameterId = "envExecEntityAnim";
                 if($parameterId == "ea6cf6cf") $parameterId = "weapon";
+                if($parameterId == "4ecdbb56") $parameterId = "envExecTriggerRadius";
+                if($parameterId == "7eccb959") $parameterId = "envExecHunterStartY";
+                if($parameterId == "7cccb959") $parameterId = "envExecHunterStartX";
+                if($parameterId == "c3c9378d") $parameterId = "envExecHunterStartRotation";
+                if($parameterId == "7571a36a") $parameterId = "envExecPlayerStartY";
+                if($parameterId == "7371a36a") $parameterId = "envExecPlayerStartX";
+                if($parameterId == "da2b7576") $parameterId = "envExecPlayerStartRotation";
+                if($parameterId == "dc2b7576") $parameterId = "envExecPlayerStartRotation2";
+                if($parameterId == "ff0d4afc") $parameterId = "envExecType";
+                if($parameterId == "7471a36a") $parameterId = "envExecUnknown";
+                if($parameterId == "162691c2") $parameterId = "envExecUnknown2";
+                if($parameterId == "7dccb959") $parameterId = "envExecUnknown3";
 
 
                 $type = $binary->consume(4, NBinary::STRING);

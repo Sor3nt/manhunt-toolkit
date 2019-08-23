@@ -93,8 +93,21 @@ class Build {
 
                 if (isset($parameter['parameterId'])){
 
-                    if($parameter['parameterId'] == "envExecution") $parameter['parameterId'] = "8bc3259e";
+                    if($parameter['parameterId'] == "envExecName") $parameter['parameterId'] = "8bc3259e";
+                    if($parameter['parameterId'] == "envExecEntityAnim") $parameter['parameterId'] = "37e5d5b0";
                     if($parameter['parameterId'] == "weapon") $parameter['parameterId'] = "ea6cf6cf";
+                    if($parameter['parameterId'] == "envExecTriggerRadius") $parameter['parameterId'] = "4ecdbb56";
+                    if($parameter['parameterId'] == "envExecHunterStartY") $parameter['parameterId'] = "7eccb959";
+                    if($parameter['parameterId'] == "envExecHunterStartX") $parameter['parameterId'] = "7cccb959";
+                    if($parameter['parameterId'] == "envExecHunterStartRotation") $parameter['parameterId'] = "c3c9378d";
+                    if($parameter['parameterId'] == "envExecPlayerStartRotation") $parameter['parameterId'] = "da2b7576";
+                    if($parameter['parameterId'] == "envExecPlayerStartRotation2") $parameter['parameterId'] = "dc2b7576";
+                    if($parameter['parameterId'] == "envExecPlayerStartY") $parameter['parameterId'] = "7571a36a";
+                    if($parameter['parameterId'] == "envExecPlayerStartX") $parameter['parameterId'] = "7371a36a";
+                    if($parameter['parameterId'] == "envExecType") $parameter['parameterId'] = "ff0d4afc";
+                    if($parameter['parameterId'] == "envExecUnknown") $parameter['parameterId'] = "7471a36a";
+                    if($parameter['parameterId'] == "envExecUnknown2") $parameter['parameterId'] = "162691c2";
+                    if($parameter['parameterId'] == "envExecUnknown3") $parameter['parameterId'] = "7dccb959";
 
                     $entry->write($parameter['parameterId'], NBinary::HEX);
 
