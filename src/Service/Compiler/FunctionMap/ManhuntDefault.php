@@ -67,7 +67,7 @@ class ManhuntDefault {
         'onverylowsightingorabove' => '29000000',
         'onhighhearingorabove' => '31000000',
         'onmediumhearing' => '32000000',
-        'onmediumhearingorabove' => '33000  000',
+        'onmediumhearingorabove' => '33000000',
         'onlowhearing' => '34000000',
         'onlowhearingorabove' => '35000000',
         'onverylowhearingorabove' => '37000000',
