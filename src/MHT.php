@@ -27,6 +27,7 @@ class MHT{
     const EC_COLLECTABLE      = 'EC_COLLECTABLE';
     const EC_TRIGGER      = 'EC_TRIGGER';
     const EC_SHOT      = 'EC_SHOT';
+    const EC_CROPS      = 'EC_CROPS';
     const EC_PLAYER      = 'EC_PLAYER';
     const EC_MOVER      = 'EC_MOVER';
     const EC_USEABLE      = 'EC_USEABLE';

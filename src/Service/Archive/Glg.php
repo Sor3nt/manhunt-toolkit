@@ -39,6 +39,7 @@ class Glg extends Archive {
 
                 switch ($ec->class){
                     case MHT::EC_PLAYER: $results[ 'Player/' . $ec->get('name') ] = $ec; break;
+                    case MHT::EC_CROPS: $results[ 'Crops/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_MOVER: $results[ 'Movers/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_WEAPON: $results[ 'Weapons/' . $ec->get('name') ] = $ec; break;
                     case MHT::EC_BASIC: $results[ 'Basic/' . $ec->get('name') ] = $ec; break;

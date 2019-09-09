@@ -102,7 +102,7 @@ class NBinary{
 //            $after = substr($this->hex, ($this->current + $neededLength) * 2);
 //
 //            $this->hex = $before . bin2hex($add) . $after;
-echo ".";
+//echo ".";
         }
         $this->hex = bin2hex($this->binary);
     }
@@ -268,6 +268,41 @@ echo ".";
         }
 
         return [$x, $y, $z];
+    }
+
+    public function readXYZW( $len = 4, $type = NBinary::FLOAT_32){
+
+        $x = $this->consume($len, NBinary::BINARY);
+        $y = $this->consume($len, NBinary::BINARY);
+        $z = $this->consume($len, NBinary::BINARY);
+        $w = $this->consume($len, NBinary::BINARY);
+
+        if ($x === "\x00\x00\x00\x80"){
+            $x = "-0";
+        }else{
+            $x = $this->unpack($x, $type);
+        }
+
+        if ($y === "\x00\x00\x00\x80"){
+            $y = "-0";
+        }else{
+            $y = $this->unpack($y, $type);
+        }
+
+
+        if ($z === "\x00\x00\x00\x80"){
+            $z = "-0";
+        }else{
+            $z = $this->unpack($z, $type);
+        }
+
+        if ($w === "\x00\x00\x00\x80"){
+            $w = "-0";
+        }else{
+            $w = $this->unpack($w, $type);
+        }
+
+        return [$x, $y, $z, $w];
     }
 
     public function writeXYZ($xyz, $type = NBinary::FLOAT_32){

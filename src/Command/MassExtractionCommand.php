@@ -207,7 +207,8 @@ class MassExtractionCommand extends Command
                         if ($flat) {
                             $md5 = md5($data);
                             if (!isset($md5ByFile[$md5])) $md5ByFile[$md5] = [];
-                            $md5ByFile[$md5][] = $outputDir . '_' . $pathInfo['basename'] . $extension;
+                            var_dump($pathInfo['basename'] . $extension);
+                            $md5ByFile[$md5][] = $outputDir ;
                             file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
                         }else{
                             file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);

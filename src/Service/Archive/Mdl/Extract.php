@@ -6,6 +6,28 @@ use App\Service\NBinary;
 
 class Extract {
 
+    public function getTextureNames(NBinary $binary){
+        $data = $this->get($binary);
+
+        $textures = [];
+
+        foreach ($data as $mdl){
+            foreach ($mdl['objects'] as $object){
+                if (isset($object['materials'])){
+
+                    foreach ($object['materials'] as $material) {
+
+                        $textures[] = $material['TexName'];
+                    }
+
+
+                }
+            }
+        }
+
+        return $textures;
+    }
+
     public function get( NBinary $binary ){
 
         $mdlHeader = $this->parseMdlHeader($binary);

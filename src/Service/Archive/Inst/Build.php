@@ -106,8 +106,11 @@ class Build {
                     if($parameter['parameterId'] == "envExecPlayerStartX") $parameter['parameterId'] = "7371a36a";
                     if($parameter['parameterId'] == "envExecType") $parameter['parameterId'] = "ff0d4afc";
                     if($parameter['parameterId'] == "envExecUnknown") $parameter['parameterId'] = "7471a36a";
-                    if($parameter['parameterId'] == "envExecUnknown2") $parameter['parameterId'] = "162691c2";
                     if($parameter['parameterId'] == "envExecUnknown3") $parameter['parameterId'] = "7dccb959";
+
+
+                    if($parameter['parameterId'] == "envExecUnknown2") $parameter['parameterId'] = "162691c2";
+                    if($parameter['parameterId'] == "envExecId") $parameter['parameterId'] = "162691c2";
 
                     $entry->write($parameter['parameterId'], NBinary::HEX);
 

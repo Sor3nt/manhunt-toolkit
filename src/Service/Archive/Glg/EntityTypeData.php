@@ -6,6 +6,7 @@ use App\MHT;
 use App\Service\Archive\Glg\EntityTypeData\Ec;
 use App\Service\Archive\Glg\EntityTypeData\EcBasic;
 use App\Service\Archive\Glg\EntityTypeData\EcCollectable;
+use App\Service\Archive\Glg\EntityTypeData\EcCrops;
 use App\Service\Archive\Glg\EntityTypeData\EcDoor;
 use App\Service\Archive\Glg\EntityTypeData\EcEntityLight;
 use App\Service\Archive\Glg\EntityTypeData\EcEntitySound;
@@ -55,6 +56,10 @@ class EntityTypeData {
 
                 case MHT::EC_HUNTER:
                     $types[] = new EcHunter( $name, $record );
+                    break;
+
+                case MHT::EC_CROPS:
+                    $types[] = new EcCrops( $name, $record );
                     break;
 
 

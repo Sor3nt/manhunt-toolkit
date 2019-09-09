@@ -9,16 +9,16 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
-class PackCommand extends Command
+class BuildCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('archive:pack')
-            ->setAliases(['pack', 'compress'])
-            ->setDescription('Pack a source file/folder')
-            ->addArgument('file', InputArgument::REQUIRED, 'File or folder.')
+            ->setName('build')
+            ->setDescription('Search for buildable files and build them')
+            ->addArgument('folder', InputArgument::REQUIRED, 'folder to search (recursive).')
             ->addOption(
                 'game',
                 null,
@@ -41,7 +41,7 @@ class PackCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $file = realpath($input->getArgument('file'));
+        $folder = realpath($input->getArgument('folder'));
         $game = $input->getOption('game');
         $platform = $input->getOption('platform');
 
@@ -63,24 +63,49 @@ class PackCommand extends Command
             }
         }
 
-        $outputTo = str_replace('#','.', $file);
-        $outputTo = str_replace('.json','', $outputTo);
+        $finder = new Finder();
+        $finder
+            ->name('/#mls/i')
+//            ->contains('/#mls/i')
 
-        //load the resource
-        $resources = new Resources();
-        $resource = $resources->load($file, $game, $platform);
+            ->directories()
+            ->in($folder);
 
-        $handler = $resource->getHandler();
 
-        $output->writeln( sprintf('Identify as %s ', $handler->name));
-        $output->write( sprintf('Processing %s ', $file));
+        $output->writeln(sprintf("Build  %s folder(s)", $finder->count()));
 
-        $result = $handler->pack( $resource->getInput(), $game, $platform );
+        $this->processFile($finder, $game, $platform, $output);
 
-        file_put_contents($outputTo, $result);
 
-        $output->writeln(sprintf("\nPacked to %s",  $outputTo));
 
+
+
+
+        $output->writeln(sprintf("\nProcess done."));
+
+    }
+
+    private function processFile(Finder $finder, $game, $platform, OutputInterface $output){
+
+        foreach ($finder as $file) {
+
+            $outputTo = str_replace('#','.', $file);
+            $outputTo = str_replace('.json','', $outputTo);
+
+
+            //load the resource
+            $resources = new Resources();
+            $resource = $resources->load($file, $game, $platform);
+
+            $handler = $resource->getHandler();
+
+//            $output->writeln( sprintf('Identify as %s ', $handler->name));
+            $output->writeln( sprintf('Processing %s ', $file));
+
+            $result = $handler->pack( $resource->getInput(), $game, $platform );
+
+            file_put_contents($outputTo, $result);
+        }
     }
 
 }

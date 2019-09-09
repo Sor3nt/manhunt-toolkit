@@ -198,6 +198,8 @@ class Ec {
         'DESTROY_WHEN_USED' => false,
         'TURN_OFF_COLLISIONS' => false,
         'INTERUPTABLE' => false,
+        'WIND_UP' => false,
+        'EXECUTIONS_FAIL' => false,
         'SWITCH_MODEL' => false,
     ];
 
