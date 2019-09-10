@@ -66,13 +66,13 @@ class BuildCommand extends Command
         $finder = new Finder();
         $finder
             ->name('/#mls/i')
-//            ->contains('/#mls/i')
+            ->name('/#inst/i')
 
             ->directories()
             ->in($folder);
 
 
-        $output->writeln(sprintf("Build  %s folder(s)", $finder->count()));
+        $output->writeln(sprintf("Build %s folder(s)", $finder->count()));
 
         $this->processFile($finder, $game, $platform, $output);
 

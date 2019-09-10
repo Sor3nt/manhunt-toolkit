@@ -65,6 +65,9 @@ $application = new Application();
     $application->add(new \App\Command\GenerateEventsCommand());
     $application->add(new \App\Command\AnalyseAnimationsCommand());
     $application->add(new \App\Command\GenrateBestAnimationsCommand());
+    $application->add(new \App\Command\RemoveDuplicatesCommand());
+    $application->add(new \App\Command\GetCommand());
+    $application->add(new \App\Command\BuildCommand());
 
     $application->run();
 //}
