@@ -26,8 +26,8 @@ class Ifp extends Archive
             $relPath = strtolower($file->getRelativePath());
 //            if (strpos($relPath, "#") == false) return false;
 
-//            $category = explode("#", $relPath)[1];
-            $category = $relPath;
+            $category = explode("#", $relPath)[1];
+//            $category = $relPath;
 //var_dump("ifp.php cat test", $category);
             switch (strtolower($category)){
 
@@ -126,7 +126,7 @@ class Ifp extends Archive
              * Animation Pack Entries
              */
             $path = $blockName;
-//            $path = $count . "#" . $blockName;
+            $path = $count . "#" . $blockName;
             $animations = $this->extractAnimation($animationCount, $binary, $game, $platform);
 
             foreach ($animations as $animationFilename => $animation) {
@@ -316,8 +316,8 @@ class Ifp extends Archive
             $animations[] = $resultAnimation;
 
 
-            $results[ $animationName ] = $resultAnimation;
-//            $results[ $count . "#" . $animationName ] = $resultAnimation;
+//            $results[ $animationName ] = $resultAnimation;
+            $results[ $count . "#" . $animationName ] = $resultAnimation;
 
 
             $animationCount--;
@@ -549,15 +549,15 @@ class Ifp extends Archive
             $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
         }
 
-//        uksort($ifp, function($a, $b){
-//            return explode("#", $a)[0] > explode("#", $b)[0];
-//        });
-//
-//        foreach ($ifp as &$item) {
-//            uksort($item, function($a, $b){
-//                return explode("#", $a)[0] > explode("#", $b)[0];
-//            });
-//        }
+        uksort($ifp, function($a, $b){
+            return explode("#", $a)[0] > explode("#", $b)[0];
+        });
+
+        foreach ($ifp as &$item) {
+            uksort($item, function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+        }
 
         return $ifp;
     }
@@ -588,8 +588,8 @@ class Ifp extends Archive
             /*
              * Add the length of the Block name and the block name itself
              */
-//            $blockName = explode("#", $blockName)[1] . "\x00";
-            $blockName .= "\x00";
+            $blockName = explode("#", $blockName)[1] . "\x00";
+//            $blockName .= "\x00";
 
             $binary->write(strlen($blockName), NBinary::INT_32);
             $binary->write($blockName, NBinary::STRING);
@@ -632,7 +632,7 @@ class Ifp extends Archive
             /*
              * Add the length of the Animation name and the Animation name itself
              */
-//            $animationName = explode("#", $animationName)[1];
+            $animationName = explode("#", $animationName)[1];
             $animationName = explode(".json", $animationName)[0];
             $animationName .= "\x00";
 
