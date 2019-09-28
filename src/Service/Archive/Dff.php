@@ -6,7 +6,7 @@ use Symfony\Component\Finder\Finder;
 
 class Dff extends Archive {
 
-    public $name = '3D Models';
+    public $name = '3D Models (Manhunt 1)';
 
     public static $supported = 'dff';
 
