@@ -4,6 +4,7 @@ namespace App\Service\Archive;
 use App\MHT;
 use App\Service\Archive\Glg\EntityTypeData;
 use App\Service\NBinary;
+use Symfony\Component\Finder\Finder;
 
 class Glg extends Archive {
     public $name = 'Settings File';
@@ -18,6 +19,12 @@ class Glg extends Archive {
      * @return bool
      */
     public static function canPack( $pathFilename, $input, $game, $platform ){
+        if (!$input instanceof Finder) return false;
+
+        foreach ($input as $file) {
+            if (strpos($file->getFilename(), ".glg") !== false) return true;
+        }
+
         return false;
     }
 
@@ -91,7 +98,16 @@ class Glg extends Archive {
      */
     public function pack( $records, $game, $platform ){
 
-        return false;
+        $result = [];
+
+        /** @var Finder $records */
+        foreach ($records as $record) {
+
+            $result[] = $record->getContents();
+        }
+
+
+        return implode("\n", $result) . "\n";
     }
 
     public function convertRecords( $text ){
