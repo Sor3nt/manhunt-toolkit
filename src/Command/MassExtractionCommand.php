@@ -22,6 +22,7 @@ class MassExtractionCommand extends Command
         $this->setDescription('Search and extract any supported file');
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
         $this->addArgument('type', InputArgument::OPTIONAL, 'file type');
+        $this->addOption('only-unzip', null, null, 'Will only unzip the file');
 
         $this->addOption(
             'game',
@@ -70,9 +71,8 @@ class MassExtractionCommand extends Command
         }
 
         $path = pathinfo($folder);
-
         //prepare output folder
-        $outputTo = $path['dirname'] . '/export';
+        $outputTo = $path['dirname'] . "/" . $path['basename'] . '/export';
         @mkdir($outputTo, 0777, true);
         $outputFolder = realpath($outputTo);
 
@@ -114,6 +114,21 @@ class MassExtractionCommand extends Command
 
             try{
                 $resource = $resources->load($file, $game, $platform);
+
+                if ($input->getOption('only-unzip')){
+                    //prepare output folder
+                    $outputTo = $outputFolder . '/' . $file->getRelativePath();
+                    @mkdir($outputTo, 0777, true);
+
+                    file_put_contents(
+                        $outputTo.  "/" . $file->getFilename(),
+                        $resource->getInput()->binary
+                    );
+
+                    $output->writeln(sprintf("Saved to %s.",  $outputTo));
+                    continue;
+                }
+
 
             }catch(\Exception $e) {
 //                $output->writeln('Not supported ' . $file->getRelativePathname());
