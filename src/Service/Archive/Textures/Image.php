@@ -25,7 +25,7 @@ class Image {
         }
 
         ob_start();
-        imagejpeg($img, null, 100);
+        imagepng($img, null, 100);
         return ob_get_clean();
     }
 
