@@ -24,7 +24,7 @@ class Ifp extends Archive
 
         foreach ($input as $file) {
             $relPath = strtolower($file->getRelativePath());
-//            if (strpos($relPath, "#") == false) return false;
+            if (strpos($relPath, "#") == false) return false;
 
             $category = explode("#", $relPath)[1];
 //            $category = $relPath;
@@ -819,6 +819,11 @@ class Ifp extends Archive
 
             //headerSize
             $binary->write(16, NBinary::INT_32);
+
+            if (!isset($animation['unknown5'])){
+                $animation['unknown5'] = "00004040";
+            }
+
             $binary->write($animation['unknown5'], NBinary::HEX);
 
             //eachEntrySize
@@ -877,6 +882,8 @@ class Ifp extends Archive
             }else if ($portAnimationToManhunt1){
                 $binary->write(0, NBinary::INT_32);
             }else{
+                if (!isset($animation['entry'])) $animation['entry'] = [];
+
                 $binary->write(count($animation['entry']), NBinary::INT_32);
 
                 foreach ($animation['entry'] as $entry) {
