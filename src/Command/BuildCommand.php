@@ -41,7 +41,7 @@ class BuildCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $folder = realpath($input->getArgument('folder'));
+        $targetFolder = realpath($input->getArgument('folder'));
         $game = $input->getOption('game');
         $platform = $input->getOption('platform');
 
@@ -69,12 +69,32 @@ class BuildCommand extends Command
             ->name('/#inst/i')
 
             ->directories()
-            ->in($folder);
+            ->in($targetFolder);
 
 
         $output->writeln(sprintf("Build %s folder(s)", $finder->count()));
 
         $this->processFile($finder, $game, $platform, $output);
+
+
+        $fileFinder = new Finder();
+        $fileFinder
+            ->name('/\.json/i');
+
+        foreach ($finder as $folder) {
+
+            $fileFinder->exclude($folder->getRelativePathname());
+
+        }
+
+
+        $fileFinder->files()
+            ->in($targetFolder);
+
+
+        $output->writeln(sprintf("Build %s file(s)", $fileFinder->count()));
+
+        $this->processFile($fileFinder, $game, $platform, $output);
 
 
 
