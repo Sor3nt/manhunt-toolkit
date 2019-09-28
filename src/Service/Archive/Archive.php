@@ -10,6 +10,7 @@ abstract class Archive {
 
     public static $supported = null;
     public static $validationMap = null;
+    public static $inValidationMap = null;
 
     abstract public function pack( $data, $game, $platform );
     abstract public function unpack( NBinary $binary, $game, $platform );
@@ -85,6 +86,23 @@ abstract class Archive {
             $binary->jumpTo(0);
 
             return $valid == count(static::$validationMap);
+        }
+
+
+        if (is_array(static::$inValidationMap)){
+            $invalid = 0;
+            foreach (static::$inValidationMap as $map) {
+                list($offset, $bytes, $type, $matchTo) = $map;
+
+                $binary->jumpTo($offset);
+                $result = $binary->consume($bytes, $type);
+
+                if (in_array($result, $matchTo) === false) $invalid++;
+            }
+
+            $binary->jumpTo(0);
+
+            return $invalid == count(static::$inValidationMap);
         }
 
         return false;
