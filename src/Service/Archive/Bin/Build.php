@@ -6,6 +6,7 @@ use App\Service\Archive\Ifp;
 use App\Service\Helper;
 
 class Build {
+    public $keepOrder = false;
 
 
     /**
@@ -23,6 +24,7 @@ class Build {
         $offsetStart = 2048;
 
         $ifp = new Ifp();
+        $ifp->keepOrder = $this->keepOrder;
 
         $prepared = [
             'executions' => [],

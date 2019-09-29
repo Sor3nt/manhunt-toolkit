@@ -10,6 +10,7 @@ use Symfony\Component\Finder\Finder;
 class Bin extends Archive {
     public $name = 'Execution Animations';
 
+    public $keepOrder = false;
 
     public static $validationMap = [
         [0, 4, NBinary::HEX, ['01000000', '00000001']]
@@ -103,9 +104,12 @@ class Bin extends Archive {
                 $executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ][$fileName] = \json_decode($file->getContents(), true);
 
                 //sort the results (thats only to reach the 100% by recompiling original game files)
-//                uksort($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ], function($a, $b){
-//                    return explode("#", $a)[0] > explode("#", $b)[0];
-//                });
+                if (strpos($fileName, "#") !== false){
+                    $this->keepOrder = true;
+                    uksort($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ], function($a, $b){
+                        return explode("#", $a)[0] > explode("#", $b)[0];
+                    });
+                }
 
             }else{
                 $fileName = explode('.', $pathSplit[2])[0];
@@ -113,20 +117,27 @@ class Bin extends Archive {
                 $executionSections[$usedSection][ $pathSplit[1] ][$fileName] = \json_decode($file->getContents(), true);
 
                 //sort the results (thats only to reach the 100% by recompiling original game files)
-//                uksort($executionSections[$usedSection][ $pathSplit[1] ], function($a, $b){
-//                    return explode("#", $a)[0] > explode("#", $b)[0];
-//                });
+                if (strpos($fileName, "#") !== false) {
+                    $this->keepOrder = true;
+                    uksort($executionSections[$usedSection][$pathSplit[1]], function ($a, $b) {
+                        return explode("#", $a)[0] > explode("#", $b)[0];
+                    });
+                }
             }
         }
 
         //sort the results (thats only to reach the 100% by recompiling original game files)
-//        uksort($executionSections['executions'], function($a, $b){
-//            return explode("#", $a)[0] > explode("#", $b)[0];
-//        });
-//
-//        uksort($executionSections['envExecutions'], function($a, $b){
-//            return explode("#", $a)[0] > explode("#", $b)[0];
-//        });
+
+        if ($this->keepOrder){
+            uksort($executionSections['executions'], function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+
+            uksort($executionSections['envExecutions'], function($a, $b){
+                return explode("#", $a)[0] > explode("#", $b)[0];
+            });
+
+        }
 
         return $executionSections;
     }

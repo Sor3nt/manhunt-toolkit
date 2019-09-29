@@ -8,6 +8,9 @@ use App\Service\NBinary;
 class Extract {
 
 
+    public $keepOrder = false;
+
+
 
     public function get( NBinary $binary, $game, $platform ){
 
@@ -26,6 +29,8 @@ class Extract {
                 $platform = MHT::PLATFORM_PC;
             }
 
+        }else if ($platform == MHT::PLATFORM_WII){
+            $binary->numericBigEndian = true;
         }
 
 
@@ -69,8 +74,11 @@ class Extract {
                 $anpk = new NBinary($anpk);
                 $anpk->numericBigEndian = $binary->numericBigEndian;
 
-                $targetFileName = "executions/ExecutionId_" . $execution['executionId'] . '/' . $section;
-//                $targetFileName = "executions/" . $index . "#ExecutionId_" . $execution['executionId'] . '/' . $section;
+                if ($this->keepOrder){
+                    $targetFileName = "executions/" . $index . "#ExecutionId_" . $execution['executionId'] . '/' . $section;
+                }else{
+                    $targetFileName = "executions/ExecutionId_" . $execution['executionId'] . '/' . $section;
+                }
 
                 $animations = $this->extractAnimations(
                     $anpk,
@@ -105,8 +113,11 @@ class Extract {
             $anpk = new NBinary($anpk);
             $anpk->numericBigEndian = $binary->numericBigEndian;
 
-            $targetFileName = "envExecutions/ExecutionId_" . $envExecution['executionId'];
-//            $targetFileName = "envExecutions/" . $index . "#ExecutionId_" . $envExecution['executionId'];
+            if ($this->keepOrder){
+                $targetFileName = "envExecutions/" . $index . "#ExecutionId_" . $envExecution['executionId'];
+            }else{
+                $targetFileName = "envExecutions/ExecutionId_" . $envExecution['executionId'];
+            }
 
             $animations = $this->extractAnimations(
                 $anpk,
@@ -143,7 +154,10 @@ class Extract {
                 sprintf('Expected ANPK got: %s', $headerType)
             );
 
-        return (new Ifp())->extractAnimation(
+        $ifp = new Ifp();
+        $ifp->keepOrder = $this->keepOrder;
+
+        return $ifp->extractAnimation(
             $animationCount,
             $binary,
             $game,
