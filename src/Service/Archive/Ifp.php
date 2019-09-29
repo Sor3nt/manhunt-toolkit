@@ -11,6 +11,8 @@ class Ifp extends Archive
 
     public static $supported = 'ifp';
 
+    public $keepOrder = true;
+
     /**
      * @param $pathFilename
      * @param $input
@@ -24,11 +26,13 @@ class Ifp extends Archive
 
         foreach ($input as $file) {
             $relPath = strtolower($file->getRelativePath());
-            if (strpos($relPath, "#") == false) return false;
 
-            $category = explode("#", $relPath)[1];
-//            $category = $relPath;
-//var_dump("ifp.php cat test", $category);
+            if (strpos($relPath, "#") !== false){
+                $category = explode("#", $relPath)[1];
+            }else{
+                $category = $relPath;
+            }
+
             switch (strtolower($category)){
 
                 case 'bookends':
@@ -125,8 +129,13 @@ class Ifp extends Archive
             /**
              * Animation Pack Entries
              */
-            $path = $blockName;
-            $path = $count . "#" . $blockName;
+
+            if ($this->keepOrder){
+                $path = $count . "#" . $blockName;
+            }else{
+                $path = $blockName;
+            }
+
             $animations = $this->extractAnimation($animationCount, $binary, $game, $platform);
 
             foreach ($animations as $animationFilename => $animation) {
@@ -176,7 +185,7 @@ class Ifp extends Archive
                 $numberOfBones = $binary->consume(4, NBinary::INT_16) * -1;
 
             } else {
-                $platform = MHT::PLATFORM_PC;
+                if ($platform == MHT::PLATFORM_AUTO) $platform = MHT::PLATFORM_PC;
                 $numberOfBones = $binary->consume(4, NBinary::INT_32);
             }
 
@@ -316,9 +325,11 @@ class Ifp extends Archive
             $animations[] = $resultAnimation;
 
 
-//            $results[ $animationName ] = $resultAnimation;
-            $results[ $count . "#" . $animationName ] = $resultAnimation;
-
+            if ($this->keepOrder){
+                $results[ $count . "#" . $animationName ] = $resultAnimation;
+            }else{
+                $results[ $animationName ] = $resultAnimation;
+            }
 
             $animationCount--;
             $count++;
@@ -540,24 +551,32 @@ class Ifp extends Archive
     private function prepareData( Finder $finder ){
         $ifp = [];
 
+
+        $lastFolder = "";
         foreach ($finder as $file) {
 
             $folder = $file->getPathInfo()->getFilename();
+            $lastFolder = $folder;
 
             if (!isset($ifp[$folder])) $ifp[$folder] = [];
 
             $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
         }
 
-        uksort($ifp, function($a, $b){
-            return explode("#", $a)[0] > explode("#", $b)[0];
-        });
+        if (strpos($lastFolder, "#") !== false){
 
-        foreach ($ifp as &$item) {
-            uksort($item, function($a, $b){
+            uksort($ifp, function($a, $b){
                 return explode("#", $a)[0] > explode("#", $b)[0];
             });
+
+            foreach ($ifp as &$item) {
+                uksort($item, function($a, $b){
+                    return explode("#", $a)[0] > explode("#", $b)[0];
+                });
+            }
+
         }
+
 
         return $ifp;
     }
@@ -588,8 +607,11 @@ class Ifp extends Archive
             /*
              * Add the length of the Block name and the block name itself
              */
-            $blockName = explode("#", $blockName)[1] . "\x00";
-//            $blockName .= "\x00";
+            if (strpos($blockName, "#") !== false){
+                $blockName = explode("#", $blockName)[1];
+            }
+
+            $blockName .= "\x00";
 
             $binary->write(strlen($blockName), NBinary::INT_32);
             $binary->write($blockName, NBinary::STRING);
@@ -632,7 +654,11 @@ class Ifp extends Archive
             /*
              * Add the length of the Animation name and the Animation name itself
              */
-            $animationName = explode("#", $animationName)[1];
+
+            if (strpos($animationName, "#") !== false){
+                $animationName = explode("#", $animationName)[1];
+            }
+
             $animationName = explode(".json", $animationName)[0];
             $animationName .= "\x00";
 
