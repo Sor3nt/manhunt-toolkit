@@ -69,6 +69,7 @@ $application = new Application();
     $application->add(new \App\Command\GetCommand());
     $application->add(new \App\Command\BuildCommand());
     $application->add(new \App\Command\FindUnusedCommand());
+    $application->add(new \App\Command\GenerateGlobalFileCommand());
 
     $application->run();
 //}
