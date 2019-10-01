@@ -24,7 +24,6 @@ class FindUnusedCommand extends Command
     {
         $this->setDescription('Search unused stuff');
         $this->addArgument('folder', InputArgument::REQUIRED, 'Folder to search');
-        $this->addArgument('type', InputArgument::OPTIONAL, 'file type');
 
         $this->addOption(
             'game',
@@ -48,7 +47,6 @@ class FindUnusedCommand extends Command
     {
 
         $folder = realpath($input->getArgument('folder'));
-        $type = $input->getArgument('type');
 
         $game = $input->getOption('game');
         $platform = $input->getOption('platform');
@@ -72,13 +70,13 @@ class FindUnusedCommand extends Command
 
             if (count($unusedModels)){
 
-                $output->writeln(sprintf("Found %s unused Models in %s", count($unusedModels), $level->getRelativePath(). '/modelspc.mdl'));
-                $output->writeln("=> " . implode("\n=> ", $unusedModels));
+                $output->writeln(sprintf("Found %s unused Models in %s", count($unusedModels), $level->getRelativePathname()));
+                $output->writeln("=> " . implode("\n=> ", $unusedModels) . "\n");
 
             }
         }
 
-        $output->write("\nDone.\n");
+        $output->writeln("Done.");
     }
 
     private function getUnusedModels($folder, $game, $platform ){
@@ -118,10 +116,6 @@ class FindUnusedCommand extends Command
 
             if ($model = $record->get('MODEL')){
                 $usedModels[] = $model;
-            }
-
-            if ($head = $record->get('HEAD')){
-                $usedModels[] = $head;
             }
         }
 
