@@ -1,4 +1,17 @@
 #Changelog
+**2019-10-01**: **v0.8.0** Release:
+* Fix Wii and Ps2 Animation reader (IFP)
+* Extend INST parameter mapping
+* MLS fixes for MH1 and MH2 + MH1 Der2 support.
+* Translation fixes fpr psp and ps2 (GXT)
+* Texture support added for PC, PSP and PS2 (Unpack only)
+* New command to generate code highlighter (phpstorm) (mht generate:syntax)
+* Add feature to allow porting MH1 animation to MH2 (experimental)
+* Collision handler fixes
+* Add command to generate global files (mht generate:global)
+* Add command to find unused Models (mht find:unused)
+* New GLG/INI Handler
+
 **2019-05-01**: **v0.7.0** Release:
 * Extend MLS Compiler Supports now MH1 Born Again
 * Autoset memory_limit to -1

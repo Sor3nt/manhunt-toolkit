@@ -9,7 +9,7 @@ use Symfony\Component\Finder\Finder;
 class Glg extends Archive {
     public $name = 'Settings File';
 
-    public static $supported = ['glg', 'ini'];
+    public static $supported = ['glg', 'ini', 'json'];
 
     /**
      * @param $pathFilename
