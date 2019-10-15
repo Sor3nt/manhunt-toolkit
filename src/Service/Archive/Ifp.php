@@ -400,10 +400,13 @@ class Ifp extends Archive
 
             if ($frameType == 3) {
 
-                $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
-                $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
-                $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
-                $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
+                $resultBone['direction'] = [
+                    $binary->consume(2, NBinary::INT_16) / 2048,
+                    $binary->consume(2, NBinary::INT_16) / 2048,
+                    $binary->consume(2, NBinary::INT_16) / 2048,
+                    $binary->consume(2, NBinary::INT_16) / 2048
+                ];
+
             }else if($frameType < 3 && $startTime == 0){
                 //back to starttime
                 $binary->current -= 2;
@@ -699,10 +702,10 @@ class Ifp extends Archive
                 $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::LITTLE_U_INT_16);
 
                 if ($bone['frameType'] == 3) {
-                    $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
-                    $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
-                    $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
-                    $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
+                    $singleChunkBinary->write($bone['direction'][0] * 2048, NBinary::INT_16);
+                    $singleChunkBinary->write($bone['direction'][1] * 2048, NBinary::INT_16);
+                    $singleChunkBinary->write($bone['direction'][2] * 2048, NBinary::INT_16);
+                    $singleChunkBinary->write($bone['direction'][3] * 2048, NBinary::INT_16);
                 }
 
                 $onlyFirstTime = true;
