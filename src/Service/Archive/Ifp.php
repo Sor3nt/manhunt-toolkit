@@ -400,12 +400,24 @@ class Ifp extends Archive
 
             if ($frameType == 3) {
 
-                $resultBone['direction'] = [
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048,
-                    $binary->consume(2, NBinary::INT_16) / 2048
-                ];
+                if (isset($resultBone['direction'])){
+                    $resultBone['direction'] = [
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / 2048
+                    ];
+
+                //fallback for older mht exports
+                }else{
+                    $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
+                    $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
+                    $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
+                    $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
+
+                }
+
+
 
             }else if($frameType < 3 && $startTime == 0){
                 //back to starttime
