@@ -54,8 +54,9 @@ class Dxt1
                             $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 1];
                             $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4];
 
+
                         }else{
-                            throw new \Exception('Unknown RGBa Order');
+                            throw new \Exception('Unknown RGBa Order ' . $returnAs);
                         }
                     }
                 }
@@ -100,6 +101,72 @@ class Dxt1
         }
 
         return $rgba;
+    }
+
+    public function decodeWii($data, $width, $height, $returnAs = "rgba")
+    {
+
+        $rgba = [];
+
+        $height4 = floor($height / 4);
+        $width4 = floor($width / 4);
+
+        $binary = new NBinary($data);
+
+        for ($h = 0; $h < $height4; $h++) {
+            for ($w = 0; $w < $width4; $w++) {
+
+                $firstVal = $binary->consume(2, NBinary::BIG_U_INT_16);
+                $secondVal = $binary->consume(2, NBinary::BIG_U_INT_16);
+
+                $colorValues = $this->interpolateColorValues($firstVal, $secondVal, true);
+
+                $colorIndices = $binary->consume(4, NBinary::LITTLE_U_INT_32);
+
+                for ($y = 0; $y < 4; $y++) {
+                    for ($x = 0; $x < 4; $x++) {
+                        $pixelIndex = (3 - $x) + ($y * 4);
+                        $rgbaIndex = ($h * 4 + 3 - $y) * $width * 4 + ($w * 4 + $x) * 4;
+                        $colorIndex = ($colorIndices >> (2 * (15 - $pixelIndex))) & 0x03;
+                        $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4 + 3];
+                        $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 2];
+                        $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 1];
+                        $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4];
+                    }
+                }
+            }
+        }
+
+        /**
+         * Flip 4x4 blocks
+         */
+        $rgbaNew = [];
+        $rgbaBlocks = [];
+
+        ksort($rgba);
+
+        $pixels = array_chunk($rgba, 4);
+        $current = 0;
+        while ($current < count($pixels)){
+
+            $rgbaBlocks[] = $pixels[$current + 3];
+            $rgbaBlocks[] = $pixels[$current + 2];
+            $rgbaBlocks[] = $pixels[$current + 1];
+
+            $rgbaBlocks[] = $pixels[$current];
+
+            $current += 4;
+        }
+
+        foreach ($rgbaBlocks as $rgbaBlock) {
+
+            foreach ($rgbaBlock as $item) {
+                $rgbaNew[] = $item;
+
+            }
+        }
+
+        return $rgbaNew;
     }
 
 
