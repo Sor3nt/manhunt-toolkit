@@ -2,6 +2,7 @@
 namespace App\Service\Archive;
 
 use App\MHT;
+use App\Service\Archive\Textures\Image;
 use App\Service\Archive\Textures\Playstation;
 use App\Service\Archive\Textures\Ps2;
 use App\Service\NBinary;
@@ -110,6 +111,8 @@ class TxdWii extends Archive {
         if ($numTexHeaders == 2){
             $unknown1a = $binary->consume(4,  NBinary::INT_32);
             $unknown1b = $binary->consume(4,  NBinary::INT_32);
+
+            //TODO ALPHA CHANNELS
         }
 
         $width = $binary->consume(2,  NBinary::INT_16);
@@ -137,6 +140,8 @@ class TxdWii extends Archive {
         $header = $this->parseHeader($binary);
         $currentOffset = $header['firstOffset'];
 
+        $imageHandler = new Image();
+
         $textures = [];
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
@@ -155,22 +160,23 @@ class TxdWii extends Archive {
             $bmpHandler = new Bmp();
 
             //Convert the RGBa values into a Bitmap
-            $bmpImage = $bmpHandler->encode(
-                $bmpRgba,
-                $texture['width'],
-                $texture['height']
-            );
+//            $bmpImage = $bmpHandler->encode(
+//                $bmpRgba,
+//                $texture['width'],
+//                $texture['height']
+//            );
+//
+//
+//            file_put_contents("test.bmp", $bmpImage);
+//            echo "test done";
+//            exit;
+//
 
 
-            file_put_contents("test.bmp", $bmpImage);
-            echo "test done";
-            exit;
+//            $bmpRgba = $this->convertToRgba($texture);
 
-
-
-            $bmpRgba = $this->convertToRgba($texture);
-
-            $image = $this->ps2->saveImage($bmpRgba, $texture['width'],$texture['height']);
+//            $bmpRgba = $imageHandler->convertToRgba($texture, $platform);
+            $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
 
             $textures[$texture['name'] . '.png'] = $image;
 

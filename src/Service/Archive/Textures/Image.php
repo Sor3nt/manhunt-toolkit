@@ -5,6 +5,32 @@ use App\Service\NBinary;
 
 class Image {
 
+    public function saveRGBAImage($data, $width, $height){
+
+        $img = imagecreatetruecolor($width, $height);
+        imagesavealpha($img, true);
+
+        $data = array_chunk($data, 4);
+
+        $x = 0;
+        $y = 0;
+        foreach ($data as $rgba) {
+//            $color =  imagecolorallocatealpha($img,$rgba[0],$rgba[1],$rgba[2],$rgba[3]);
+            $color =  imagecolorallocate($img,$rgba[3],$rgba[2],$rgba[1]);
+            imagesetpixel($img,$x,$y,$color);
+
+            $x++;
+            if ($x >= $width){
+                $x = 0;
+                $y++;
+            }
+        }
+
+        ob_start();
+        imagepng($img, null, 9);
+        return ob_get_clean();
+    }
+
     public function saveImage($data, $width, $height){
 
         $img = imagecreatetruecolor($width, $height);
@@ -25,7 +51,7 @@ class Image {
         }
 
         ob_start();
-        imagepng($img, null, 100);
+        imagepng($img, null, 9);
         return ob_get_clean();
     }
 
