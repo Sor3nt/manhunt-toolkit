@@ -1635,7 +1635,28 @@ class Manhunt
             'params' => ['Entity', 'vec3d', 'integer'],
             'desc' => ''
         ],
+ // scriptMH
+ 	   'pushmessage' => [
+            'name' => 'pushmessage',
+            'offset' => 'e9030000'
+        ],
+	   'writememory' => [
+            'name' => 'writememory',
+            'offset' => 'ea030000'
+        ],
+		'readmemory' => [
+            'name' => 'readmemory',
+            'offset' => 'eb030000',
+			'return' => 'integer'
+        ],
+		'keyhit' => [
+            'name' => 'keyhit',
+            'offset' => 'ec030000',
+			'return' => 'integer'
+        ],
+	 
     ];
+
 
 //
 
