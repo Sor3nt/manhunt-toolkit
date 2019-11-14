@@ -471,12 +471,17 @@ class Evaluate {
         $code[] = $getLine('44000000', false, $debugMsg);
     }
 
-    static public function toHeaderStringArray( $offset, $size, &$code, \Closure $getLine){
+    static public function toHeaderStringArray($mapped, $offset, $size, &$code, \Closure $getLine){
 
         $debugMsg = sprintf('[T_ASSIGN] toHeaderStringArray ');
 
         //define target offset
-        $code[] = $getLine('21000000', false, $debugMsg);
+        if (isset($mapped['fromScript']) && $mapped['fromScript'] == "SpawnHunterAtSpawnPointWithWeapon_Name_Type_Pack"){
+            $code[] = $getLine('22000000', false, $debugMsg );
+
+        }else{
+            $code[] = $getLine('21000000', false, $debugMsg  );
+        }
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine( $offset, false, $debugMsg . 'offset' );

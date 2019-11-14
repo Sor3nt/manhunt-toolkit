@@ -21,7 +21,8 @@ class T_CONDITION {
 
                 if (
                     $data['game'] == MHT::GAME_MANHUNT &&
-                    $token['params'][0]['type'] == Token::T_BOOLEAN
+                    $token['params'][0]['type'] == Token::T_BOOLEAN &&
+                    $data['customData']['isWhile'] == false
                 ){
                     Evaluate::regularReturn($code, $getLine);
 

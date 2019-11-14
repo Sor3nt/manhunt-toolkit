@@ -34,9 +34,13 @@ class T_FUNCTION {
 
                 case 'customFunction':
 
-                    $code[] = $getLine('12000000', false, '');
-                    $code[] = $getLine('02000000', false, '');
-                    $code[] = $getLine('00000000', false, '');
+                    if (isset($mappedTo['offset'])){
+                        return;
+                    }
+
+                    $code[] = $getLine('12000000', false, ' [T_FUNCTION] finalize ' . $node['value']);
+                    $code[] = $getLine('02000000', false, ' [T_FUNCTION] finalize ' . $node['value']);
+                    $code[] = $getLine('00000000', false, ' [T_FUNCTION] finalize ' . $node['value']);
 
                     Evaluate::stringReturn($code, $getLine);
                     break;

@@ -233,7 +233,7 @@ class T_FOR {
 
         }
 
-        throw new \Exception('Parser: parseIfStatement unable to handle');
+        throw new \Exception('Parser: parseIfStatement unable to handle (for)');
     }
 
 

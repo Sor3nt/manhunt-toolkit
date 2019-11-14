@@ -56,7 +56,8 @@ class T_FOR {
         }
 
         //todo: why 9 ? why 6 ?
-        $gameOffset = $data['game'] == MHT::GAME_MANHUNT ? 9 : 6;
+//        $gameOffset = $data['game'] == MHT::GAME_MANHUNT ? 9 : 6;
+        $gameOffset = 6;
         $endOffset = ($lastNumber + count($isTrue) + $gameOffset ) * 4;
 
         // line offset for the IF end
@@ -65,7 +66,8 @@ class T_FOR {
         Evaluate::emitBlock($node['params'], $code, $emitter, $debugMsg . ' params ');
 
         if (
-            $data['game'] == MHT::GAME_MANHUNT
+            $data['game'] == MHT::GAME_MANHUNT &&
+            $data['customData']['isWhile'] == false
         ){
             Evaluate::regularReturn($code, $getLine);
             $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
@@ -79,7 +81,18 @@ class T_FOR {
 
                 $code[] = $getLine('10000000', false, $debugMsg);
             }else{
-                $code[] = $getLine('00000000', false, $debugMsg);
+
+                if (isset($data['combinedVariables'][$node['end']['value']])){
+                    $mapped = $data['combinedVariables'][$node['end']['value']];
+
+                    //hack hack hack, i dont know why...
+                    $offset = Helper::fromHexToInt($mapped['offset']) - 4;
+
+                    $code[] = $getLine(Helper::fromIntToHex($offset), false, $debugMsg . $node['end']['value'] . " HACK !!");
+
+                }else{
+                    $code[] = $getLine('00000000', false, $debugMsg );
+                }
             }
 
             Evaluate::goto($firstLineNumber * 4, $code, $getLine);
@@ -107,7 +120,20 @@ class T_FOR {
         if ($node['end']['type'] == Token::T_FUNCTION){
             $code[] = $getLine('10000000', false, $debugMsg . '(function return)');
         }else{
-            $code[] = $getLine('00000000', false, $debugMsg . '(NO function return)');
+
+
+            if (isset($data['combinedVariables'][$node['end']['value']])){
+                $mapped = $data['combinedVariables'][$node['end']['value']];
+
+                //hack hack hack, i dont know why...
+                $offset = Helper::fromHexToInt($mapped['offset']) - 4;
+
+                $code[] = $getLine(Helper::fromIntToHex($offset), false, $debugMsg . $node['end']['value'] . " HACK !!");
+
+            }else {
+
+                $code[] = $getLine('00000000', false, $debugMsg . '(NO function return)');
+            }
         }
 
 

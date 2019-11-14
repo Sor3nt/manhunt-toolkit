@@ -105,9 +105,7 @@ class NewCompiler
 
         $this->customFunction = $this->searchScriptType(Token::T_CUSTOM_FUNCTION);
 
-
         $this->combine();
-
 
         $this->tokens = $tokens;
     }
@@ -524,9 +522,15 @@ class NewCompiler
         }
 
         $source = str_replace([
+            "while bCycle do if IsPadButtonPressed(PAD_SQUARE) then begin bCycle := FALSE; end;",
+            "while bCycle do if IsPadButtonPressed(PAD_TRIANGLE) then begin bCycle := FALSE; end;",
+            "while bCycle do if IsPadButtonPressed(PAD_CIRCLE) then begin bCycle := FALSE; end;",
             "PLAYING__TWITCH",
             "end end",
         ], [
+            "while bCycle do begin if IsPadButtonPressed(PAD_SQUARE) then begin bCycle := FALSE; end; end;",
+            "while bCycle do begin if IsPadButtonPressed(PAD_TRIANGLE) then begin bCycle := FALSE; end; end;",
+            "while bCycle do begin if IsPadButtonPressed(PAD_CIRCLE) then begin bCycle := FALSE; end; end;",
             "PLAYING  TWITCH",
             "end; end",
         ], $source);
@@ -790,7 +794,7 @@ class NewCompiler
                             'isLevelVar' => $isLevelVar,
                             'isGameVar' => $isGameVar,
 
-                            'length' => $this->getMemorySizeByType($variableTypeWihtoutLevel),
+                            'length' => $this->getMemorySizeByType($variableTypeWihtoutLevel, $this->game == MHT::GAME_MANHUNT_2),
                             'size' => $this->getMemorySizeByType($variableTypeWihtoutLevel, false),
 
                             'origin' => 'NewCompiler::getHeaderVariables'
@@ -1118,12 +1122,19 @@ class NewCompiler
                     ];
 
 
+                    $add4Byte = true;
+
                     if (substr($variableType, 0, 7) == "string[") {
                         $row['type'] = Token::T_STRING_ARRAY;
                         $row['objectType'] = Token::T_STRING_ARRAY;
+
+                        if ($this->game == MHT::GAME_MANHUNT){
+                            $add4Byte = false;
+                        }
+
                     }
 
-                    $row['size'] = $this->getMemorySizeByType($variableType);
+                    $row['size'] = $this->getMemorySizeByType($variableType, $add4Byte);
 
                     $vars[$variable] = $row;
                 }

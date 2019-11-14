@@ -29,8 +29,14 @@ class Manhunt
             'offset' => 'aispeech_d1v1_drk_church2_start'
         ],
 
+        'ct_baseball_bat' => [
+            'offset' => '22000000'
+        ],
+        'ct_nailgun' => [
+            'offset' => '59000000'
+        ],
         'ct_colt_commando' => [
-            'offset' => 'ct_colt_commando'
+            'offset' => '2f000000'
         ],
         'speechtype_all' => [
             'offset' => '20000000'
@@ -395,6 +401,15 @@ class Manhunt
         'aiscript_idle_wandersearch' => [
             'offset' => '00000000'
         ],
+        'pad_square' => [
+            'offset' => '08000000'
+        ],
+        'pad_triangle' => [
+            'offset' => '01000000'
+        ],
+        'pad_circle' => [
+            'offset' => '02000000'
+        ],
 
     ];
 
@@ -419,6 +434,12 @@ class Manhunt
             'name' => 'getplayerlevelrestarts',
             'offset' => '89020000',
             'return' => 'integer'
+
+        ],
+
+        'showcounter' => [
+            'name' => 'showcounter',
+            'offset' => 'fb020000'
 
         ],
 
@@ -1471,7 +1492,7 @@ class Manhunt
 
         'spawnentitywithvelocity' => [
             'name' => 'spawnentitywithvelocity',
-            'offset' => 'spawnentitywithvelocity'
+            'offset' => '9e020000'
         ],
 
         'getentityname' => [

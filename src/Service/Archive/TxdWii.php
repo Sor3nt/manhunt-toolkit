@@ -47,19 +47,30 @@ class TxdWii extends Archive {
 
     private function parseHeader( NBinary &$binary ){
 
-        return [
+        $header =  [
             'magic'             => $binary->consume(4,  NBinary::STRING),
             'constNumber'       => $binary->consume(4,  NBinary::INT_32),
             'fileSize'          => $binary->consume(4,  NBinary::INT_32),
             'indexTableOffset'  => $binary->consume(4,  NBinary::INT_32),
             'indexTableOffset2' => $binary->consume(4,  NBinary::INT_32),
             'numIndex'          => $binary->consume(4,  NBinary::INT_32),
-            'unknown'           => $binary->consume(8,  NBinary::HEX),
-            'numTextures'       => $binary->consume(4,  NBinary::INT_32),
-            'firstOffset'       => $binary->consume(4,  NBinary::INT_32),
-            'lastTOffset'       => $binary->consume(4,  NBinary::INT_32)
+            'unknown'           => $binary->consume(8,  NBinary::HEX)
         ];
 
+
+        $binary->numericBigEndian = false;
+        $header['numTextures'] = $binary->consume(4,  NBinary::INT_32);
+        $binary->numericBigEndian = true;
+
+        if ($header['numTextures'] > 10000){
+            $binary->current -= 4;
+            $header['numTextures'] = $binary->consume(4,  NBinary::INT_32);
+        }
+
+        $header['firstOffset'] = $binary->consume(4,  NBinary::INT_32);
+        $header['lastTOffset'] = $binary->consume(4,  NBinary::INT_32);
+
+        return $header;
     }
 
     private function parseTexture( $startOffset, NBinary $binary ){
@@ -88,10 +99,15 @@ class TxdWii extends Archive {
 
         $texture['name'] = $binary->unpack($texture['name'], NBinary::STRING);
 
+        if ($texture['name'] == ""){
+            return false;
+        }
+
         $binary->numericBigEndian = true;
         $texture['dataOffset'] = $binary->consume(4,  NBinary::INT_32);
         $binary->numericBigEndian = false;
 
+//var_dump($texture['dataOffset']);
         $texture['unknown3'] = $binary->consume(4,  NBinary::INT_32);
         $texture['dataSize'] = $binary->consume(4,  NBinary::INT_32);
         $texture['empty'] = $binary->consume(20,  NBinary::HEX);
@@ -115,8 +131,8 @@ class TxdWii extends Archive {
             //TODO ALPHA CHANNELS
         }
 
-        $width = $binary->consume(2,  NBinary::INT_16);
         $height = $binary->consume(2,  NBinary::INT_16);
+        $width = $binary->consume(2,  NBinary::INT_16);
 
         $texture['width'] = $width;
         $texture['height'] = $height;
@@ -146,9 +162,50 @@ class TxdWii extends Archive {
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
 
+            if ($texture == false) continue;
+
             $dxtHandler = new Dxt1();
 
             $texture['data'] = $this->unswizzleWii($texture, $texture['data']);
+
+//            if ($texture['name'] == "FE_execramps"){
+//
+//
+//                $bmpRgba = $dxtHandler->decodeWii(
+//                    $texture['data'],
+//                    $texture['width'],
+//                    $texture['height'],
+//                    'abgr'
+//                );
+//
+//                $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
+//                $textures[$texture['name'] . '.png'] = $image;
+//
+//                return $textures;
+//
+//                var_dump($bmpRgba);
+//                exit;
+//                $data = new NBinary($texture['data']);
+//
+//                $bmpRgba = [];
+//                while($data->remain()){
+//                    $bmpRgba[] = 0;
+//                    $bmpRgba[] = 0;
+//                    $bmpRgba[] = 0;
+//                    $bmpRgba[] = $data->consume(2, NBinary::U_INT_8);
+//                }
+//
+//
+//                $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
+//
+//                $textures[$texture['name'] . '.png'] = $image;
+//
+//                return $textures;
+//            }else{
+//                $currentOffset = $texture['nextOffset'];
+//                $header['numTextures']--;
+//                continue;
+//            }
 
             $bmpRgba = $dxtHandler->decodeWii(
                 $texture['data'],
@@ -157,25 +214,7 @@ class TxdWii extends Archive {
                 'abgr'
             );
 
-            $bmpHandler = new Bmp();
 
-            //Convert the RGBa values into a Bitmap
-//            $bmpImage = $bmpHandler->encode(
-//                $bmpRgba,
-//                $texture['width'],
-//                $texture['height']
-//            );
-//
-//
-//            file_put_contents("test.bmp", $bmpImage);
-//            echo "test done";
-//            exit;
-//
-
-
-//            $bmpRgba = $this->convertToRgba($texture);
-
-//            $bmpRgba = $imageHandler->convertToRgba($texture, $platform);
             $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
 
             $textures[$texture['name'] . '.png'] = $image;

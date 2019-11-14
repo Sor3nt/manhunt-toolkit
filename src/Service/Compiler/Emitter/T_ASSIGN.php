@@ -190,7 +190,7 @@ class T_ASSIGN {
             Evaluate::toObject( $code, $getLine);
 
         }else if ($mapped['objectType'] == Token::T_STRING_ARRAY){
-            Evaluate::toHeaderStringArray( $mapped['offset'], $mapped['size'], $code, $getLine);
+            Evaluate::toHeaderStringArray($mapped, $mapped['offset'], $mapped['size'], $code, $getLine);
 
         }else if($mapped['isGameVar']) {
             Evaluate::toGameVar( $node, $code, $getLine);

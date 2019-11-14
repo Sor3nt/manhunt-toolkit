@@ -325,7 +325,7 @@ class T_IF {
 
         }
 
-        throw new \Exception('Parser: parseIfStatement unable to handle');
+        throw new \Exception('Parser: parseIfStatement unable to handle (if)');
     }
 
 
