@@ -140,16 +140,15 @@ class Extract {
 
         /** @var Binary $name */
 
+//        exit;
         //skip the type
-        $data->substr(0, 4, $name);
+        $type = $data->substr(0, 4, $name);
 
-        $type = "other";
-        //mh2
-        if ($levelName['name'] == "levelscript") $type = "levelscript";
-
-        //mh1
-        if ($levelName['name'] == "levelscripts") $type = "levelscript";
-
+        if($type->toHex() == "02000000"){
+            $type = "levelscript";
+        }else{
+            $type = "other";
+        }
 
         return [
             'name' => $name->toString(),

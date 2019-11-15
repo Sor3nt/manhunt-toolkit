@@ -172,6 +172,7 @@ class Parser {
             case Token::T_NOT:
             case Token::T_FORWARD:
             case Token::T_ADDITION:
+            case Token::T_DEVISION:
             case Token::T_SUBSTRACTION:
             case Token::T_MULTIPLY:
             case Token::T_OR:

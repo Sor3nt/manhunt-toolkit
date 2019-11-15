@@ -134,7 +134,7 @@ class T_IF {
     static public function parseIfStatement( $tokens, $current, \Closure $parseToken ){
 
         $token = $tokens[$current];
-
+$a = $tokens;
         $node = [
             'type' => $token['type'],
             'value' => $token['value'],
@@ -376,7 +376,6 @@ class T_IF {
      * @throws \Exception
      */
     static function remapCondition( &$tokens, $isOuterNot = false ){
-
         foreach ($tokens as $current => $token) {
 
             // this can happend because of the unset calls

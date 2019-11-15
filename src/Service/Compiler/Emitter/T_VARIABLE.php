@@ -134,7 +134,7 @@ class T_VARIABLE extends TAbstract {
 
 
                 }else if(isset($mapped['isGameVar']) && $mapped['isGameVar']) {
-                    Evaluate::fromGameVar($mapped, $code, $getLine);
+                    Evaluate::fromGameVar($node, $mapped, $code, $getLine);
 
 
 

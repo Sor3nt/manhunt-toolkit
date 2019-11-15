@@ -25,6 +25,28 @@ class Manhunt
 
     public static $constants = [
 
+        'aispeech_d1v1_prs_screw_killed' => [
+            'offset' => '90000000'
+        ],
+
+        'aispeech_d1v1_prs_fine_shooting' => [
+            'offset' => '91000000'
+        ],
+
+        'ct_shotgun' => [
+            'offset' => '2c000000'
+        ],
+        'ct_machete' => [
+            'offset' => '20000000'
+        ],
+        'voice_monkey1voice1' => [
+            'offset' => '2c000000'
+        ],
+
+        'aispeech_m1v1_uni_long_pain' => [
+            'offset' => 'aispeech_m1v1_uni_long_pain'
+        ],
+
         'aispeech_d1v1_drk_church2_start' => [
             'offset' => 'aispeech_d1v1_drk_church2_start'
         ],
@@ -365,6 +387,9 @@ class Manhunt
         'combattypeid_open_melee' => [
             'offset' => '03000000'
         ],
+        'door_closing' => [
+            'offset' => 'door_closing'
+        ],
         'col_basic' => [
             'offset' => '01000000'
         ],
@@ -440,6 +465,12 @@ class Manhunt
         'showcounter' => [
             'name' => 'showcounter',
             'offset' => 'fb020000'
+
+        ],
+
+        'aiignoreentityifdead' => [
+            'name' => 'aiignoreentityifdead',
+            'offset' => '4c020000'
 
         ],
 
@@ -992,7 +1023,7 @@ class Manhunt
             'offset' => '8a000000',
 
             'params' => [],
-            'return' => 'Void',
+            'return' => 'vec3d',
             'desc' => ''
         ],
 
@@ -1301,6 +1332,16 @@ class Manhunt
             'offset' => '23020000'
         ],
 
+        'aitriggersoundknownlocationnoradar' => [
+            'name' => 'aitriggersoundknownlocationnoradar',
+            'offset' => 'b5020000'
+        ],
+
+        'killscript' => [
+            'name' => 'killscript',
+            'offset' => 'e4000000'
+        ],
+
         'camerastoplookatentity' => [
             'name' => 'camerastoplookatentity',
             'offset' => '24020000'
@@ -1324,6 +1365,10 @@ class Manhunt
         'newparticleeffect' => [
             'name' => 'newparticleeffect',
             'offset' => 'a7000000'
+        ],
+        'killthisscript' => [
+            'name' => 'killthisscript',
+            'offset' => 'e6000000'
         ],
 
         'getentitymatrix' => [
@@ -1500,6 +1545,27 @@ class Manhunt
             'name' => 'getentityname',
             'offset' => '85000000',
             'return' => Token::T_STRING
+        ],
+
+        'gethunterareaname' => [
+            'name' => 'gethunterareaname',
+            'offset' => '1e010000',
+            'return' => Token::T_STRING
+        ],
+
+        'airemoveallgoalsfromsubpack' => [
+            'name' => 'airemoveallgoalsfromsubpack',
+            'offset' => '99010000'
+        ],
+
+        'setpeddecayinstantly' => [
+            'name' => 'setpeddecayinstantly',
+            'offset' => '78020000'
+        ],
+
+        'getswitchstate' => [
+            'name' => 'getswitchstate',
+            'offset' => 'getswitchstate'
         ],
 
         'switchlitteron' => [

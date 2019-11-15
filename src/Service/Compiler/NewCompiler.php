@@ -92,13 +92,14 @@ class NewCompiler
         // parse the token list to a ast
         $parser = new Parser();
         $this->ast = $parser->toAST($tokens);
+//var_dump($this->ast );
+//exit;
         $this->stringsForScript = $this->getStrings4Script();
 
         /**
          * Replace the FORWARD order with the actual script/function or procedure code
          */
         $this->ast = $parser->handleForward($this->ast);
-
         $this->headerVariables = $this->getHeaderVariables($tokens);
 
         $this->procedures = $this->searchScriptType(Token::T_PROCEDURE);
@@ -501,12 +502,14 @@ class NewCompiler
             "spot.y := (pos.y + 0.5);",
             "huntpacklimit+1",
             "PLAYING  TWITCH",
+            "iPlayerHealth*30",
         ], [
             "if ( EnteredTrigger(this, GetPlayer) ) OR ( InsideTrigger(this, GetPlayer) ) then",
             "}",
             "spot.y := pos.y + 0.5;",
             "huntpacklimit + 1",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
+            "iPlayerHealth * 30",
 
         ], $source);
 
@@ -527,12 +530,16 @@ class NewCompiler
             "while bCycle do if IsPadButtonPressed(PAD_CIRCLE) then begin bCycle := FALSE; end;",
             "PLAYING__TWITCH",
             "end end",
+            "status=1",
+            "193.380859", // is stored as 7f614143 (193.380844) but 7f614143 is actual 193.380859 (80614143)
         ], [
             "while bCycle do begin if IsPadButtonPressed(PAD_SQUARE) then begin bCycle := FALSE; end; end;",
             "while bCycle do begin if IsPadButtonPressed(PAD_TRIANGLE) then begin bCycle := FALSE; end; end;",
             "while bCycle do begin if IsPadButtonPressed(PAD_CIRCLE) then begin bCycle := FALSE; end; end;",
             "PLAYING  TWITCH",
             "end; end",
+            "status = 1",
+            "193.380844"
         ], $source);
 
         // replace line ends with new lines
@@ -1476,7 +1483,6 @@ class NewCompiler
             $token = $tokens[$current];
 
             if ($token['type'] == Token::T_DEFINE_SECTION_ENTITY) {
-
                 $type = "other";
                 if ($tokens[$current + 3]['value'] == "et_level") $type = "levelscript";
                 if ($scriptName == "levelscript") $type = "levelscript";

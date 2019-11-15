@@ -21,6 +21,7 @@ use App\Service\Compiler\Tokens\T_DEFINE_SECTION_ENTITY;
 use App\Service\Compiler\Tokens\T_DEFINE_TYPE;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_VAR;
 use App\Service\Compiler\Tokens\T_DEFINE_SECTION_TYPE;
+use App\Service\Compiler\Tokens\T_DIVISION;
 use App\Service\Compiler\Tokens\T_DO;
 use App\Service\Compiler\Tokens\T_END;
 use App\Service\Compiler\Tokens\T_ELSE;
@@ -71,6 +72,7 @@ class Tokenizer {
          * DO NOT CHANGE THIS ORDERS, i warned you
          *
          */
+        T_DIVISION::class,
 
         T_STRING::class,
         T_WHITESPACE::class,

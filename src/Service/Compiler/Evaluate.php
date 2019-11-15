@@ -296,12 +296,16 @@ class Evaluate {
     }
 
 
-    static public function fromGameVar($mapped, &$code, \Closure $getLine){
+    static public function fromGameVar($node, $mapped, &$code, \Closure $getLine){
         $debugMsg = sprintf('[fromGameVar] ');
         $code[] = $getLine('1e000000', false, $debugMsg);
 //        $code[] = $getLine($mapped['offset'], false, $debugMsg);
         //todo hier muss der offset verbaut werden
-        $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed');
+        if ($node['value'] == "willie_game_int"){
+            $code[] = $getLine('30000000', false, $debugMsg . 'right offset missed 4');
+        }else{
+            $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed 3');
+        }
         $code[] = $getLine('04000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
     }
@@ -426,9 +430,9 @@ class Evaluate {
 
         //todo hier muss der offset verbaut werden
         if ($node['value'] == "willie_game_int"){
-            $code[] = $getLine('30000000', false, $debugMsg . 'right offset missed');
+            $code[] = $getLine('30000000', false, $debugMsg . 'right offset missed 1');
         }else{
-            $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed');
+            $code[] = $getLine('34000000', false, $debugMsg . 'right offset missed 2');
         }
 
         $code[] = $getLine('04000000', false, $debugMsg);

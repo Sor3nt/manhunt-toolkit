@@ -36,14 +36,12 @@ class T_PROCEDURE {
             Evaluate::reserveBytes($sum, $code, $getLine);
         }
 
-
         /**
          * parse out the parameters
          */
         $varCurrent = 0;
         $vars = [];
         if (isset($node['vars'])){
-
             while ($varCurrent < count($node['vars'])) {
                 $varToken = $node['vars'][$varCurrent];
 

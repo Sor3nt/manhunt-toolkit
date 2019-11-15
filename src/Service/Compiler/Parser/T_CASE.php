@@ -64,6 +64,12 @@ class T_CASE {
                     $innerCurrent = 0;
                     $innerTokens = $case['body'];
 
+                    if ($tokens[$current]['type'] == Token::T_IF_END){
+                        $innerTokens[] = $tokens[$current];
+                        $current++;
+                    }
+//var_dump($innerTokens);
+//exit;
                     $case['body'] = [];
                     while($innerCurrent < count($innerTokens)){
 

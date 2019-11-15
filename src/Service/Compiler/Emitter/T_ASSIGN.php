@@ -155,11 +155,30 @@ class T_ASSIGN {
 
 
             }else if (
-                $rightHand['type'] == Token::T_FUNCTION ||
+                $rightHand['type'] == Token::T_FUNCTION
+            ){
+
+                if ($leftHand['type'] == Token::T_VARIABLE){
+                    $leftMapped = T_VARIABLE::getMapping($leftHand, $data);
+
+                    if ($leftMapped['type'] == Token::T_INT){
+                        Evaluate::setIntMathOperator($operator['type'], $code, $getLine);
+
+                    }else{
+                        Evaluate::setFloatMathOperator($operator['type'], $code, $getLine);
+
+                    }
+                }
+
+            }else if (
                 $rightHand['type'] == Token::T_VARIABLE
             ){
 
-                $rightMapped = T_VARIABLE::getMapping($rightHand, $data);
+//                try {
+                    $rightMapped = T_VARIABLE::getMapping($rightHand, $data);
+//                }catch(\Exception $e) {
+//                    $rightMapped = $rightHand;
+//                }
 
                 Evaluate::emit($rightMapped, $code, $emitter, $debugMsg . ' function/variable ');
 

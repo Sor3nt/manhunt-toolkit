@@ -22,6 +22,7 @@ namespace App\Service\Compiler;
     const T_TO                          = 'T_TO';
     const T_FOR                         = 'T_FOR';
     const T_MULTIPLY                    = 'T_MULTIPLY';
+    const T_DEVISION                    = 'T_DEVISION';
     const T_DIVISION                    = 'T_DIVISION';
     const T_STATE                       = 'T_STATE';
     const T_IF_END                      = 'T_IF_END';
