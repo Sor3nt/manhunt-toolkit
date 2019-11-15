@@ -1,32 +1,29 @@
 <?php
-namespace App\Tests\Archive\Mls\Compiler\Manhunt2;
+namespace App\Tests\Archive\Mls\Compiler\Manhunt;
 
 use App\MHT;
 use App\Service\Compiler\Compiler;
 use App\Service\Resources;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class PCA02Test extends KernelTestCase
+class Bonus1Test extends KernelTestCase
 {
 
     public function testLevelScript()
     {
-        return true;
-        echo "\n* MLS: Testing Manhunt 2 PC (compile) TODO ==> ";
+        echo "\n* MLS: Testing Manhunt 1 PC (compile Bonus1) ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
 
-        $resource = $resources->load('/Archive/Mls/Manhunt2/PC/A02_The_Old_House.mls', MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
+        $resource = $resources->load('/Archive/Mls/Manhunt1/PC/bonus1.mls', MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
         $handler = $resource->getHandler();
 
-        $mhls = $handler->unpack( $resource->getInput(), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
+        $mhls = $handler->unpack( $resource->getInput(), MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
 
         // compile levelscript
         $compiler = new Compiler();
-        $levelScriptCompiled = $compiler->parse($mhls[0]['SRCE'], false, 'mh2');
-
-
+        $levelScriptCompiled = $compiler->parse($mhls[0]['SRCE'], false, MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
 
         if ($mhls[0]['CODE'] != $levelScriptCompiled['CODE']){
             foreach ($mhls[0]['CODE'] as $index => $item) {
@@ -38,7 +35,6 @@ class PCA02Test extends KernelTestCase
             }
             exit;
         }
-
 
         foreach ($levelScriptCompiled as $index => $section) {
 
@@ -57,6 +53,8 @@ class PCA02Test extends KernelTestCase
             }
 
             if ($index == "STAB"){
+                if (!isset($mhls[0][$index]) && count($section) == 0) continue;
+
                 foreach ($mhls[0][$index] as &$mhl) {
                     unset($mhl['nameGarbage']);
                 }
@@ -69,17 +67,14 @@ class PCA02Test extends KernelTestCase
             );
         }
 
-        $test = 4; // operator not found
+        for($i = 1; $i < count($mhls) ; $i ++){
 
-
-//        $test = 37;
-//        for($i = 0; $i < 2 ; $i++){
-        for($i = $test; $i < $test+1 ; $i++){
             $testScript = $mhls[$i];
 
-            //compile a other script based on the levelscript
-            $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, 'mh2');
+//            var_dump($testScript['ENTT']['name'], $i);
 
+            //compile a other script based on the levelscript
+            $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
 
             if ($testScript['CODE'] != $compiled['CODE']){
                 foreach ($testScript['CODE'] as $index => $item) {
@@ -97,31 +92,51 @@ class PCA02Test extends KernelTestCase
                 $compiled['CODE']
             );
 
-//            foreach ($compiled as $index => $section) {
-//
-//                //only used inside the compiler
-//                if ($index == "extra") continue;
-//
-//                //memory is not correct but works...
-//                if ($index == "DMEM") continue;
-//                if ($index == "SMEM") continue;
-//
-//                //we do not generate the LINE (debug stuff)
-//                if ($index == "LINE") continue;
-//                if ($index == "STAB" && count($section) == 0) continue;
-//
-//                if ($index == "DATA"){
-//                    if ($testScript[$index] != $section){
-////                        var_dump(bin2hex($testScript[$index][0]), $section);
-//                    }
-//                }
-//
-//                $this->assertEquals(
-//                    $testScript[$index],
-//                    $section,
-//                    $index . " Mismatch " . $testScript['NAME']
-//                );
-//            }
+            foreach ($compiled as $index => $section) {
+
+                //only used inside the compiler
+                if ($index == "extra") continue;
+
+                //memory is not correct but works...
+                if ($index == "DMEM") continue;
+                if ($index == "SMEM") continue;
+
+                //we do not generate the LINE (debug stuff)
+                if ($index == "LINE") continue;
+                if ($index == "STAB" && count($section) == 0) continue;
+
+                if ($index == "DATA"){
+
+                    if (!isset($testScript[$index])){
+
+                        if (
+                            count($section['const']) == 0 &&
+                            count($section['strings']) == 0
+                        ){
+                            continue;
+                        }
+                    }
+
+                    if ($testScript[$index] != $section){
+                        unset($testScript[$index]['byteReserved']);
+
+                    }
+                }
+
+                if ($index == "STAB"){
+                    foreach ($testScript[$index] as &$mhl) {
+                        unset($mhl['nameGarbage']);
+                    }
+                }
+
+
+                $this->assertEquals(
+                    $testScript[$index],
+                    $section,
+                    $index . " Mismatch " . $testScript['ENTT']['name']
+                );
+
+            }
 
         }
     }

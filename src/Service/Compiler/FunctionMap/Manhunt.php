@@ -821,7 +821,8 @@ class Manhunt
         ],
         'rotateentityleft' => [
             'name' => 'rotateentityleft',
-            'offset' => '4d000000'
+            'offset' => '4d000000',
+            'return' => 'Boolean'
         ],
         'setmaxnumberofrats' => [
             'name' => 'setmaxnumberofrats',

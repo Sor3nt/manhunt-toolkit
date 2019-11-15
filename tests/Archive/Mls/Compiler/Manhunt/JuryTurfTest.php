@@ -11,7 +11,7 @@ class JuryTurfTest extends KernelTestCase
 
     public function testLevelScript()
     {
-        echo "\n* MLS: Testing Manhunt 1 PC (compile) ==> ";
+        echo "\n* MLS: Testing Manhunt 1 PC (compile JuryTurf) ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";

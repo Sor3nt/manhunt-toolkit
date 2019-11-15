@@ -19,17 +19,6 @@ class T_CONDITION {
 
             if (count($token['params']) == 1){
 
-                if (
-                    $data['game'] == MHT::GAME_MANHUNT &&
-                    $token['params'][0]['type'] == Token::T_BOOLEAN &&
-                    $data['customData']['isWhile'] == false
-                ){
-                    Evaluate::regularReturn($code, $getLine);
-
-                    $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
-                }
-
-
                 Evaluate::emit($token['params'][0], $code, $emitter, $debugMsg);
 
                 if ($node['isNot'] || $node['isOuterNot']){

@@ -298,6 +298,11 @@ class T_FUNCTION {
         $code[] = $getLine($function['offset'], false, $debugMsg, true);
 
 
+        if ($data['game'] == MHT::GAME_MANHUNT && $node['value'] == "rotateentityleft"){
+            Evaluate::regularReturn($code, $getLine);
+            $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
+        }
+
         /**
          * we are inside a nested call, tell the interpreter to return the current value
          */

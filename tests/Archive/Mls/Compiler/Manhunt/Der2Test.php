@@ -11,7 +11,7 @@ class Der2Test extends KernelTestCase
 
     public function testLevelScript()
     {
-        echo "\n* MLS: Testing Manhunt 1 PC (compile) ==> ";
+        echo "\n* MLS: Testing Manhunt 1 PC (compile Der2) ==> ";
 
         $resources = new Resources();
         $resources->workDirectory = explode("/tests/", __DIR__)[0] . "/tests/Resources";
@@ -69,7 +69,7 @@ class Der2Test extends KernelTestCase
 
             $testScript = $mhls[$i];
 
-            var_dump($testScript['ENTT']['name'], $i);
+//            var_dump($testScript['ENTT']['name'], $i);
 
             //compile a other script based on the levelscript
             $compiled = $compiler->parse($testScript['SRCE'], $levelScriptCompiled, MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
