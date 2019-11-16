@@ -304,6 +304,15 @@ class T_FUNCTION {
 
         $debugMsg = sprintf('[T_FUNCTION] map: call function %s', $node['value']);
 
+
+        if ($data['game'] == MHT::GAME_MANHUNT && $node['value'] == "createinventoryitem"){
+
+            //eine var braucht ein return ein direktes boolean nicht....
+            if (end($node['params'])['type'] == Token::T_VARIABLE){
+                Evaluate::regularReturn($code, $getLine);
+            }
+        }
+
         $code[] = $getLine($function['offset'], false, $debugMsg, true);
 
 

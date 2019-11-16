@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Compiler\Emitter;
 
+use App\MHT;
 use App\Service\Compiler\Evaluate;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
@@ -167,10 +168,6 @@ class T_VARIABLE extends TAbstract {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
 
-//                }else if($mapped['objectType'] == 'boolean') {
-//
-//                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
-//                    Evaluate::regularReturn($code, $getLine);
                 }else if($mapped['objectType'] == 'entityptr') {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);

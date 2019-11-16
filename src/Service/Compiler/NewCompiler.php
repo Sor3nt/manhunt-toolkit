@@ -498,6 +498,7 @@ class NewCompiler
 
         $source = str_replace([
             "if ( EnteredTrigger(this, GetPlayer) OR InsideTrigger(this, GetPlayer) ) then",
+            "If CPlayed=0 THEN",
             "}}",
             "spot.y := (pos.y + 0.5);",
             "huntpacklimit+1",
@@ -507,6 +508,7 @@ class NewCompiler
             "IF(InsideTrigger(this, pPlayer) OR EnteredTrigger(this, pPlayer)) THEN",
         ], [
             "if ( EnteredTrigger(this, GetPlayer) ) OR ( InsideTrigger(this, GetPlayer) ) then",
+            "If (CPlayed = 0) THEN",
             "}",
             "spot.y := pos.y + 0.5;",
             "huntpacklimit + 1",
@@ -535,6 +537,7 @@ class NewCompiler
             "PLAYING__TWITCH",
             "end end",
             "status=1",
+            "end; RemoveThisScript end;",
             "193.380859", // is stored as 7f614143 (193.380844) but 7f614143 is actual 193.380859 (80614143)
         ], [
             "while bCycle do begin if IsPadButtonPressed(PAD_SQUARE) then begin bCycle := FALSE; end; end;",
@@ -543,6 +546,7 @@ class NewCompiler
             "PLAYING  TWITCH",
             "end; end",
             "status = 1",
+            "end; RemoveThisScript; end;",
             "193.380844"
         ], $source);
 
