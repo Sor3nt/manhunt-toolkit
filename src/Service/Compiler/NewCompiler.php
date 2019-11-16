@@ -1309,6 +1309,8 @@ class NewCompiler
                 if ($varScriptName == $name) {
 
 
+                    if ($variablesOverAllScript['isLevelVar'] == false) continue;
+
                     if (in_array($name, $occurrencesAlreadyProcessed) == false){
                         $occurrencesAlreadyProcessed[] = $name;
                         foreach ($sectionCode as $index => $code) {
@@ -1316,13 +1318,6 @@ class NewCompiler
                                 $result['occurrences'][] = $index * 4;
                             }
                         }
-
-
-//                        if(count($result['occurrences'])){
-//                            if ($variable['objectType'] == Token::T_VEC3D){
-//                                $result['objectType'] = Token::T_VEC3D;
-//                            }
-//                        }
 
                     }else{
                         $results[] = $result;
