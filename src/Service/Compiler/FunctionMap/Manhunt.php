@@ -103,6 +103,9 @@ class Manhunt
         'aispeech_d1v1_sou_zoo_start' => [
             'offset' => '47000000'
         ],
+        'ct_key' => [
+            'offset' => '53000000'
+        ],
         'aispeech_d1v1_skn_crane' => [
             'offset' => '42000000'
         ],
@@ -110,6 +113,11 @@ class Manhunt
 
         'aispeech_d1v1_bod_bait' => [
             'offset' => '4c000000'
+        ],
+
+
+        'aispeech_b1v1_prs_get_me_out' => [
+            'offset' => '56000000'
         ],
 
 
@@ -125,8 +133,16 @@ class Manhunt
             'offset' => 'eb360000'
         ],
 
+        'ct_sniper_rifle' => [
+            'offset' => '30000000'
+        ],
+
         'voice_hooded3voice2' => [
             'offset' => '05000000'
+        ],
+
+        'voice_cerberus1voice1' => [
+            'offset' => '25000000'
         ],
 
         'aispeech_d1v1_wht_scrapyard_1_start' => [
@@ -204,6 +220,17 @@ class Manhunt
         'aiscript_idle_moveanims' => [
             'offset' => '04000000'
         ],
+        'voice_bunny1voice1' => [
+            'offset' => '28000000'
+        ],
+
+        'aispeech_b1v1_prs_cash_die' => [
+            'offset' => '55000000'
+        ],
+
+        'aispeech_d1v1_prs_fake_ending' => [
+            'offset' => '94000000'
+        ],
 
         'aiscript_idle_speech' => [
             'offset' => '03000000'
@@ -257,6 +284,10 @@ class Manhunt
 
         'aispeech_d1v1_skn_scrap_2_start' => [
             'offset' => '3f000000'
+        ],
+
+        'aispeech_c1v1_prs_getcover' => [
+            'offset' => '57000000'
         ],
 
 
@@ -333,6 +364,10 @@ class Manhunt
             'offset' => '10000000'
         ],
 
+        'sfx_switch_lever_up' => [
+            'offset' => '00010000'
+        ],
+
         'ct_bag' => [
             'offset' => '3a000000'
         ],
@@ -388,7 +423,7 @@ class Manhunt
             'offset' => '03000000'
         ],
         'door_closing' => [
-            'offset' => 'door_closing'
+            'offset' => '03000000'
         ],
         'col_basic' => [
             'offset' => '01000000'
@@ -539,6 +574,26 @@ class Manhunt
         ],
 
 
+        'airemoveleaderenemy' => [
+            'name' => 'airemoveleaderenemy',
+            'offset' => '54010000',
+        ],
+
+
+        'isplayersprinting' => [
+            'name' => 'isplayersprinting',
+            'offset' => 'ed020000',
+            'return' => 'Boolean'
+        ],
+
+
+        'isplayerrunning' => [
+            'name' => 'isplayerrunning',
+            'offset' => 'ec020000',
+            'return' => 'Boolean'
+        ],
+
+
         'sethunterhidehealth' => [
             'name' => 'sethunterhidehealth',
             'offset' => 'ed010000',
@@ -581,6 +636,11 @@ class Manhunt
         'cutsceneend' => [
             'name' => 'cutsceneend',
             'offset' => '48010000',
+        ],
+
+        'enableuserinput' => [
+            'name' => 'enableuserinput',
+            'offset' => 'f4000000',
         ],
 
         'loadscriptaudioslot' => [
@@ -647,9 +707,51 @@ class Manhunt
             'offset' => 'c4020000',
         ],
 
+        'aideletegoaldefinition' => [
+            'name' => 'aideletegoaldefinition',
+            'offset' => 'de010000',
+        ],
+
         'unlockentity' => [
             'name' => 'unlockentity',
             'offset' => '98000000',
+        ],
+
+        'seteffectrgbastart' => [
+            'name' => 'seteffectrgbastart',
+            'offset' => '60010000',
+        ],
+
+
+        'addammotoinventoryweapon' => [
+            'name' => 'addammotoinventoryweapon',
+            'offset' => '28010000',
+        ],
+
+        'seteffectrgbaend' => [
+            'name' => 'seteffectrgbaend',
+            'offset' => '61010000',
+        ],
+
+        'seteffectpausecycle' => [
+            'name' => 'seteffectpausecycle',
+            'offset' => 'b8000000',
+        ],
+
+        'seteffectpauselength' => [
+            'name' => 'seteffectpauselength',
+            'offset' => 'b7000000',
+        ],
+
+        'seteffectradius' => [
+            'name' => 'seteffectradius',
+            'offset' => 'b5000000',
+        ],
+
+
+        'playaudiooneshotfromentity' => [
+            'name' => 'playaudiooneshotfromentity',
+            'offset' => '59020000',
         ],
 
 
@@ -951,6 +1053,7 @@ class Manhunt
         'createinventoryitem' => [
             'name' => 'CreateInventoryItem',
             'offset' => 'b9000000',
+            'return' => 'Boolean'
         ],
 
         'aisethunteridleaction' => [
@@ -1565,7 +1668,7 @@ class Manhunt
 
         'getswitchstate' => [
             'name' => 'getswitchstate',
-            'offset' => 'getswitchstate'
+            'offset' => '93000000'
         ],
 
         'switchlitteron' => [

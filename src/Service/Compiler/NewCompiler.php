@@ -503,6 +503,8 @@ class NewCompiler
             "huntpacklimit+1",
             "PLAYING  TWITCH",
             "iPlayerHealth*30",
+            ")=",
+            "IF(InsideTrigger(this, pPlayer) OR EnteredTrigger(this, pPlayer)) THEN",
         ], [
             "if ( EnteredTrigger(this, GetPlayer) ) OR ( InsideTrigger(this, GetPlayer) ) then",
             "}",
@@ -510,6 +512,8 @@ class NewCompiler
             "huntpacklimit + 1",
             "PLAYING__TWITCH",  // we replace this because the next operation will remove the whitespaces
             "iPlayerHealth * 30",
+            ") =",
+            "IF(InsideTrigger(this, pPlayer)) OR (EnteredTrigger(this, pPlayer)) THEN",
 
         ], $source);
 
@@ -1252,7 +1256,7 @@ class NewCompiler
 
             foreach ($this->constants as $constant) {
                 if ($constant['section'] == "script"){
-                    $result['const'][] = (int) $constant['value'];
+                    $result['const'][] = strpos($constant['value'], ".") !== false ? (float) $constant['value'] : (int) $constant['value'];
                 }
             }
         }
@@ -1284,6 +1288,15 @@ class NewCompiler
                 'occurrences' => []
             ];
 
+
+
+            if($variable['objectType'] == "rgbaint"){
+                $result['objectType'] = "vec3d";
+
+                if (strtolower($name) == "rgbastart"){
+                    $result['offset'] = "00000000";
+                }
+            }
 
             if ($variable['isGameVar']){
                 $result['objectType'] = "feffffff";

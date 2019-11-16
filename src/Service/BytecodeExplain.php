@@ -2,12 +2,14 @@
 namespace App\Service;
 
 use App\Bytecode\Helper;
+use App\MHT;
 use App\Service\Compiler\FunctionMap\Manhunt;
 use App\Service\Compiler\FunctionMap\Manhunt2;
 use App\Service\Compiler\FunctionMap\ManhuntDefault;
 
 class BytecodeExplain {
 
+    private $game = MHT::GAME_MANHUNT_2;
 
     private $mapping = [
 
@@ -339,8 +341,9 @@ class BytecodeExplain {
 
     ];
 
-    public function explain( $content ){
+    public function explain( $content, $game, $plaform ){
 
+        $this->game = $game;
 //        $content = new Binary( implode("", explode("\n", $content)), true);
 //        $lines = $content->split(4);
 
@@ -1142,12 +1145,12 @@ class BytecodeExplain {
     private function mapFunctionCalls(array $lines, &$result ){
         /** @var Binary[] $lines */
 
-        $funtions = Manhunt2::$functions;
-        if (GAME == "mh1") $funtions = Manhunt::$functions;
+        $functions = Manhunt2::$functions;
+        if ($this->game == MHT::GAME_MANHUNT) $functions = Manhunt::$functions;
 
-        $funtions = array_merge($funtions, ManhuntDefault::$functions);
+        $functions = array_merge($functions, ManhuntDefault::$functions);
 
-        foreach ($funtions as $functionName => $functionBinary){
+        foreach ($functions as $functionName => $functionBinary){
 
             if (is_array($functionBinary)){
                 if(isset($functionBinary['name'])) $functionName = $functionBinary['name'];

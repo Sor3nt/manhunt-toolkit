@@ -206,7 +206,14 @@ class T_ASSIGN {
             $mapped['type'] == "custom_functions" ||
             $mapped['type'] == "array"
         ){
-            Evaluate::toObject( $code, $getLine);
+
+            if (isset($mapped['object']) && $mapped['object']['type'] == "rgbaint"){
+                Evaluate::toRgbaInt( $code, $getLine);
+
+            }else{
+                Evaluate::toObject( $code, $getLine);
+
+            }
 
         }else if ($mapped['objectType'] == Token::T_STRING_ARRAY){
             Evaluate::toHeaderStringArray($mapped, $mapped['offset'], $mapped['size'], $code, $getLine);

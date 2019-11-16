@@ -459,7 +459,7 @@ $a = $tokens;
                 }
 
                 if ($opertation == false){
-//                    var_dump($tokens);
+                    var_dump($tokens);
                     throw new \Exception('T_IF: operator not found');
                 }
                 $innerTokens = array_values($innerTokens);

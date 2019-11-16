@@ -216,7 +216,38 @@ class Evaluate {
         }
         $originalMap = $data['combinedVariables'][$originalObject];
 
-        if (strtolower($originalMap['type']) == "vec3d"){
+        if (strtolower($originalMap['type']) == "rgbaint") {
+
+            $mapped = [
+                'section' => $originalMap['section'],
+                'type' => 'object',
+                'objectType' => 'object',
+                'object' => $originalMap,
+                'size' => 4,
+                'isArg' => $originalMap['isArg'],
+                'isLevelVar' => $originalMap['isLevelVar'],
+                'isGameVar' => $originalMap['isGameVar'],
+            ];
+
+            switch ($attribute){
+                case 'red':
+                    $mapped['offset'] = $originalMap['offset'];
+                    break;
+                case 'green':
+                    $mapped['offset'] = '01000000';
+                    break;
+                case 'blue':
+                    $mapped['offset'] = '02000000';
+                    break;
+                case 'alpha':
+                    $mapped['offset'] = '03000000';
+                    break;
+            }
+
+            return $mapped;
+
+
+        }else if (strtolower($originalMap['type']) == "vec3d"){
 
             $mapped = [
                 'section' => $originalMap['section'],
@@ -354,6 +385,8 @@ class Evaluate {
             $debugMsg = sprintf('[fromFinedANameforMeTodoSecond] ');
         }
 
+
+
         $code[] = $getLine($mapped['section'] == "header" ? '14000000' : '13000000');
 
         $code[] = $getLine('01000000', false, $debugMsg . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
@@ -458,6 +491,18 @@ class Evaluate {
 
         $code[] = $getLine('17000000', false, $debugMsg);
         $code[] = $getLine('04000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg);
+    }
+
+    static public function toRgbaInt( &$code, \Closure $getLine){
+        $debugMsg = sprintf('[T_ASSIGN] toRgbaInt ');
+
+        $code[] = $getLine('0f000000', false, $debugMsg);
+        $code[] = $getLine('02000000', false, $debugMsg);
+
+        $code[] = $getLine('17000000', false, $debugMsg);
+        $code[] = $getLine('01000000', false, $debugMsg . ' offset?');
         $code[] = $getLine('02000000', false, $debugMsg);
         $code[] = $getLine('01000000', false, $debugMsg);
     }

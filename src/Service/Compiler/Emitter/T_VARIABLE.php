@@ -78,7 +78,6 @@ class T_VARIABLE extends TAbstract {
             case Token::T_VEC3D:
                 Evaluate::fromObject($mapped, $code, $getLine, $node['value']);
                 break;
-
             case Token::T_OBJECT:
                 $code = $this->fromObjectAttribute($node, $data, $getLine);
                 break;
@@ -141,6 +140,12 @@ class T_VARIABLE extends TAbstract {
                     /*
                      * TODO: cleanup this block ... all the same
                      */
+                }else if($mapped['objectType'] == "rgbaint") {
+                    Evaluate::readData($mapped, $code, $getLine, $node['value']);
+                    Evaluate::regularReturn($code, $getLine);
+//                    Evaluate::readStringPosition($mapped['size'], $code, $getLine);
+
+
                 }else if($mapped['objectType'] == Token::T_REAL) {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
@@ -162,6 +167,10 @@ class T_VARIABLE extends TAbstract {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);
 
+//                }else if($mapped['objectType'] == 'boolean') {
+//
+//                    Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
+//                    Evaluate::regularReturn($code, $getLine);
                 }else if($mapped['objectType'] == 'entityptr') {
                     Evaluate::fromFinedANameforMeTodoSecond($mapped, $code, $getLine);
                     Evaluate::regularReturn($code, $getLine);

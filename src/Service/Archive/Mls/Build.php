@@ -140,7 +140,12 @@ class Build {
         $dataCode = "";
 
         foreach ($records['DATA']['const'] as $const) {
-            $dataCode .= Helper::fromIntToHex($const);
+
+            if (is_float($const)){
+                $dataCode .= Helper::fromFloatToHex($const);
+            }else{
+                $dataCode .= Helper::fromIntToHex($const);
+            }
         }
 
         foreach ($records['DATA']['strings'] as $name) {

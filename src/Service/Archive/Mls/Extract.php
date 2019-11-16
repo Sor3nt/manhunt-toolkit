@@ -65,6 +65,9 @@ class Extract {
         ];
     }
 
+    /** @var Binary */
+    private $dataRaw;
+
     private function parse(Binary $remain ){
         /** @var Binary $code */
         /** @var Binary $sectionCode */
@@ -90,8 +93,12 @@ class Extract {
                     $results['SRCE'] = $dbug['SRCE'];
                     $results['LINE'] = $dbug['LINE'];
                     $results['TRCE'] = $dbug['TRCE'];
+                    if (isset($results['DATA'])) $results['DATA'] = $this->reparseDATA($results);
+//                    if (isset($results['DATA'])) $this->reparseDATA($results);
+
+
                     break;
-                case 'DATA': $results['DATA'] = $this->parseDATA($data); break;
+                case 'DATA': $results['DATA'] = $this->parseDATA($data, $results); break;
                 case 'STAB': $results['STAB'] = $this->parseSTAB($data); break;
 
                 default:
@@ -169,9 +176,51 @@ class Extract {
         return $result;
     }
 
-    private function parseDATA( Binary $data ){
+    private function getConstBySource($srce){
+
+        preg_match('/const\s+/i', $srce, $match);
+        if (count($match)){
+
+            $srcLower = strtolower($srce);
+
+            $raw = explode("const", $srcLower)[1];
+            $raw = explode("var", $raw)[0];
+
+            if (strpos($raw, "type") !== false){
+                $raw = explode("type", $raw)[0];
+            }
+
+
+            $split = explode("=", $raw);
+            unset($split[0]);
+
+            $numbers = [];
+            foreach ($split as $item) {
+                $item = trim($item);
+                $number = explode(";", $item)[0];
+
+                $number = strpos($number, ".") !== false ? (float) $number : (int) $number;
+
+                $numbers[] = $number;
+            }
+
+
+            return $numbers;
+        }
+
+        return [];
+    }
+
+    private function reparseDATA( $results ){
+        return $this->parseDATA($this->dataRaw, $results);
+
+    }
+
+    private function parseDATA( Binary $data, $results ){
 
         $binary = new NBinary($data->toBinary());
+
+        $this->dataRaw = new Binary($data->toBinary());
 
         $result = [
             'const' => [],
@@ -180,9 +229,43 @@ class Extract {
         ];
 
         //consume constants
-        while($binary->get(2, 2) == "\x00\x00"){
-            $result['const'][] = $binary->consume(4, NBinary::INT_32);
+
+        $count = 0;
+        if (isset($results['SRCE'])){
+            $constEntries = $this->getConstBySource($results['SRCE']);
+
+            foreach ($constEntries as $constEntry) {
+
+                $number = $binary->consume(4,
+                    is_float($constEntry) ? NBinary::FLOAT_32 :
+                    NBinary::INT_32
+                );
+
+                if (is_float($number)){
+
+                    if (Helper::fromFloatToHex($number) == "cdcc4c3d"){
+                        $number = 0.05;
+                    }
+
+                }
+
+                $result['const'][] = $number;
+
+
+            }
+
+        }else{
+
+//        for ($i = 0; $i < $count; $i++){
+            while($binary->get(2, 2) == "\x00\x00"){
+                $result['const'][] = $binary->consume(4, NBinary::INT_32);
+            }
         }
+
+//
+//        while($binary->get(2, 2) == "\x00\x00"){
+//            $result['const'][] = $binary->consume(4, NBinary::INT_32);
+//        }
 
         //consume strings
         while ($binary->get(1) != "\xda"  && $binary->remain() > 0 ){
@@ -379,4 +462,5 @@ class Extract {
 
         return $dbug;
     }
+
 }

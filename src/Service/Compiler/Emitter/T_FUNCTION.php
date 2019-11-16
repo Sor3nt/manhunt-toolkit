@@ -21,7 +21,7 @@ class T_FUNCTION {
         $this->functions = $customData['functions'];
     }
 
-    public function finalize( $node, $data, &$code, \Closure $getLine){
+    public function finalize( $node, $data, &$code, \Closure $getLine, $isLast = null){
 
 
         if ($node['type'] == Token::T_VARIABLE){
@@ -44,8 +44,14 @@ class T_FUNCTION {
 
                     Evaluate::stringReturn($code, $getLine);
                     break;
+
                 case Token::T_INT:
-                    Evaluate::regularReturn($code, $getLine);
+
+                    if ($isLast === true){
+
+                    }else{
+                        Evaluate::regularReturn($code, $getLine);
+                    }
                     break;
             }
         }
@@ -56,6 +62,8 @@ class T_FUNCTION {
 
         $debugMsg = '[T_FUNCTION] handleWriteDebugCall ';
         $code = [];
+
+        $oNode = $node;
 
         /**
          *
@@ -69,6 +77,7 @@ class T_FUNCTION {
                 $singleParam = $node;
                 $singleParam['params'] = [$param];
                 $singleParam['last'] = $index == count($node['params']) - 1;
+
 
                 $result = $this->handleWriteDebugCall($singleParam, $getLine, $emitter, $data);
 
@@ -93,7 +102,7 @@ class T_FUNCTION {
         }
 
 
-        $this->finalize($param, $data, $code, $getLine);
+        $this->finalize($param, $data, $code, $getLine, isset($oNode['last']) ? isset($oNode['last']) : null);
 
         /**
          * generate the needed function call
@@ -298,7 +307,10 @@ class T_FUNCTION {
         $code[] = $getLine($function['offset'], false, $debugMsg, true);
 
 
-        if ($data['game'] == MHT::GAME_MANHUNT && $node['value'] == "rotateentityleft"){
+        if (
+        ($data['game'] == MHT::GAME_MANHUNT && $node['value'] == "rotateentityleft")
+
+        ){
             Evaluate::regularReturn($code, $getLine);
             $code[] = $getLine('7d000000', false, $debugMsg . 'mh1 boolean special');
         }
