@@ -458,6 +458,10 @@ class Manhunt
             'offset' => '02000000'
         ],
 
+        'aispeech_k1v2_scrap2_fuse' => [
+            'offset' => '65000000'
+        ],
+
         'combattypeid_open' => [
             'offset' => '01000000'
         ],

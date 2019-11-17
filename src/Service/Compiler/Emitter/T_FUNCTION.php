@@ -126,6 +126,7 @@ class T_FUNCTION {
                     case Token::T_STRING_ARRAY:
                         $code[] = $getLine($this->getFunction('writedebug' . $mapping['type'] )['offset']);
                         break;
+                    case 'level_var integer':
                     case 'game_var integer':
                         $code[] = $getLine($this->getFunction('writedebuginteger' )['offset']);
                         break;

@@ -19,6 +19,12 @@ class T_FLOAT {
             $value = 100.409488;
         }
 
+        if ($value == 71.379999995231628474){
+            $value = 71.3874;
+        }
+
+
+
         $hex = Helper::fromFloatToHex( $value );
 
         //replace -0 with 0

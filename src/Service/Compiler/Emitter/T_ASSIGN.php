@@ -134,6 +134,18 @@ class T_ASSIGN {
 
         Evaluate::emit($leftHand, $code, $emitter, $debugMsg );
 
+        $assignToMap = T_VARIABLE::getMapping($node, $data);
+
+        // T_REAL only accept floats and need a convertion when a int is given
+        if ($assignToMap['objectType'] == Token::T_REAL){
+
+            if ($node['body'][0]['type'] == Token::T_INT){
+                Evaluate::regularReturn($code, $getLine);
+                $code[] = $getLine('4d000000', false, 'Convert int to float');
+
+            }
+        }
+
         //we do here some math. [token] [operator] [token]
         if (count($node['body']) == 3){
 

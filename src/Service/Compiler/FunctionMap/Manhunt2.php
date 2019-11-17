@@ -24,6 +24,12 @@ class Manhunt2
 
     public static $constants = [
 
+        'ct_sniper_rifle' => [
+            'offset' => '32000000'
+        ],
+        'weather_rainy' => [
+            'offset' => '02000000'
+        ],
         'ct_torch' => [
             'offset' => '06000000'
         ],
@@ -496,6 +502,9 @@ class Manhunt2
 
         'map_color_location' => [
             'offset' => '14000000'
+        ],
+        'map_color_green' => [
+            'offset' => 'map_color_green'
         ],
 
         'map_color_hunter_idle' => [
@@ -2633,6 +2642,10 @@ class Manhunt2
             'name' => 'ApplyForceToPhysicsObject',
             'offset' => '98030000'
         ],
+        'addammotoinventoryweapon' => [
+            'name' => 'addammotoinventoryweapon',
+            'offset' => '29010000'
+        ],
 
         'isplayerwallsquashed' => [
             'name' => 'IsPlayerWallSquashed',
@@ -2732,6 +2745,10 @@ class Manhunt2
         'removescript' => [
             'name' => 'RemoveScript',
             'offset' => 'e6000000'
+        ],
+        'sethearingactivationradius' => [
+            'name' => 'sethearingactivationradius',
+            'offset' => '97030000'
         ],
 
         'isplayercarryingbody' => [
@@ -2888,12 +2905,12 @@ class Manhunt2
 
         'huntersetgunaccuracymid' => [
             'name' => 'HunterSetGunAccuracyMid',
-            'offset' => '4d000000'
+            'offset' => 'd0010000'
         ],
 
         'huntersetgunaccuracynear' => [
             'name' => 'HunterSetGunAccuracyNear',
-            'offset' => 'd0010000'
+            'offset' => 'cf010000'
         ],
 
 
@@ -2956,6 +2973,11 @@ class Manhunt2
             'offset' => 'b9000000'
         ],
 
+        'aidefinegoalguarddirection' => [
+            'name' => 'aidefinegoalguarddirection',
+            'offset' => 'aidefinegoalguarddirection'
+        ],
+
         'seteffectpauselength' => [
             'name' => 'SetEffectPauseLength',
             'offset' => 'b8000000'
@@ -2969,6 +2991,11 @@ class Manhunt2
         'substr' => [
             'name' => 'SubStr',
             'offset' => '17030000'
+        ],
+
+        'forceweathertype' => [
+            'name' => 'forceweathertype',
+            'offset' => 'a6020000'
         ],
 
         'setdooropenanglein' => [
@@ -3087,6 +3114,21 @@ class Manhunt2
         'aidefinegoalshootvector' => [
             'name' => 'AIDefineGoalShootVector',
             'offset' => '6a020000'
+        ],
+
+        'hidefakehunter' => [
+            'name' => 'hidefakehunter',
+            'offset' => 'hidefakehunter'
+        ],
+
+
+        'showfakehunter' => [
+            'name' => 'showfakehunter',
+            'offset' => 'showfakehunter'
+        ],
+        'subtractvectors' => [
+            'name' => 'subtractvectors',
+            'offset' => 'subtractvectors'
         ],
 
         'nil' => [

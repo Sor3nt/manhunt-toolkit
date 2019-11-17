@@ -46,7 +46,16 @@ class T_STRING {
 
             }
 
-            Evaluate::readStringPosition($val, $code, $getLine);
+
+            if (isset($data['customData']['procedureVars'])){
+                Evaluate::readProcedureStringPosition($val, $code, $getLine);
+
+            }else{
+                Evaluate::readStringPosition($val, $code, $getLine);
+
+            }
+
+
 
         }
 
