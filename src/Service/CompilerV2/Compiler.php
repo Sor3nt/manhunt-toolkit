@@ -112,11 +112,45 @@ class Compiler
         }
 
 
-//        var_dump($associated);
-//        exit;
-        //TODO FORWARD HANDLING
+        /**
+         * Handle FORWARD command
+         *
+         * procedure InitAI; FORWARD;
+         */
 
+        /**
+         * Split association between forward commands and script blocks
+         *
+         * @var Associations[] $needForward
+         */
+        $needForward = [];
+        $associationRearranged = [];
         foreach ($associated as $association) {
+            if ($association->type == Tokens::T_FORWARD){
+                $needForward[] = $association;
+            }else{
+                $associationRearranged[] = $association;
+            }
+        }
+
+        /**
+         * Search the forwards and move them to the top
+         */
+        foreach (array_reverse($needForward) as $toForward) {
+            foreach ($associationRearranged as $index => $association) {
+                if ($toForward->value == $association->value){
+                    Helper::moveArrayIndexToTop($associationRearranged, $index);
+                    breaK;
+                }
+
+            }
+        }
+
+        // Fix the indices.
+        $associationRearranged = array_values($associationRearranged);
+
+
+        foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
 
@@ -255,6 +289,7 @@ class Compiler
     public function getScriptSize($scriptName){
         $size = 0;
         $variables = $this->getVariablesByScriptName($scriptName);
+
         foreach ($variables as $variable) {
             $size += $variable['size'];
         }

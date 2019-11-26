@@ -25,6 +25,42 @@ class Evaluate{
         
         switch ($association->type){
             
+            case Tokens::T_PROCEDURE:
+                $this->msg = sprintf("Initialize Custom Function %s", $association->value);
+                $this->add('10000000');
+                $this->add('0a000000');
+                $this->add('11000000');
+                $this->add('0a000000');
+                $this->add('09000000');
+
+//                $returnSize = 0;
+//                if ($association->return !== null)
+//                    $returnSize = $compiler->calcSize($association->return);
+//
+//
+                $scriptSize = $compiler->getScriptSize($association->value);
+                if ($scriptSize > 0){
+                    $this->msg = sprintf("Reserve Memory %s", $scriptSize);
+
+                    $this->add('34000000');
+                    $this->add('09000000');
+                    $this->add(Helper::fromIntToHex($scriptSize), sprintf('Reserve %s bytes', $scriptSize));
+                }
+
+                foreach ($association->childs as $condition) {
+                    new Evaluate($this->compiler, $condition);
+                }
+
+                $this->msg = sprintf("Closing Custom Function %s", $association->value);
+                $this->add('11000000');
+                $this->add('09000000');
+                $this->add('0a000000');
+                $this->add('0f000000');
+                $this->add('0a000000');
+                $this->add('3a000000');
+                $this->add('04000000', 'Offset (todo)');
+
+                break;
             case Tokens::T_SCRIPT:
 
                 $this->msg = sprintf("Initialize Script %s", $association->value);

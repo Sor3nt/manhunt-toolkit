@@ -264,7 +264,7 @@ class Associations
 
                     // regular body content
                 } else {
-                    $this->type = Tokens::T_CUSTOM_FUNCTION;
+                    $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
                     $compiler->currentScriptName = $this->value;
 
@@ -273,7 +273,7 @@ class Associations
                 }
 
                 $compiler->addCustomFunction($this->value);
-                $compiler->addVariable($this->value, Tokens::T_RETURN);
+//                $compiler->addVariable($this->value, Tokens::T_RETURN);
 
 
                 break;
