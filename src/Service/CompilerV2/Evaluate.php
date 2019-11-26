@@ -58,7 +58,10 @@ class Evaluate{
                 $this->add('0f000000');
                 $this->add('0a000000');
                 $this->add('3a000000');
-                $this->add('04000000', 'Offset (todo)');
+
+                $variables = $compiler->getVariablesByScriptName($association->value);
+
+                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Reserve Pointer Offsets');
 
                 break;
             case Tokens::T_SCRIPT:
@@ -400,24 +403,57 @@ class Evaluate{
 
                 break;
             case Tokens::T_FUNCTION:
+
                 foreach ($association->childs as $param) {
 
 
                     if ($param->varType == "string") {
                         // move the internal pointer to the offset
-                        $this->add($param->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $param->section);
-                        $this->add('04000000', 'Read String');
-                        $this->add('01000000', 'Read String');
-                        $this->add(Helper::fromIntToHex($param->offset), 'Offset');
 
-                        //then read the given size
-                        $this->add('12000000', 'Read String');
-                        $this->add('02000000', 'Read String');
-                        $this->add(Helper::fromIntToHex($param->size), "Size of " . $param->size);
+                        if (in_array($param->section, ['header', 'script']) !== false){
+                            $this->add($param->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $param->section);
+                            $this->add('04000000', 'Read String');
+                            $this->add('01000000', 'Read String');
+                            $this->add(Helper::fromIntToHex($param->offset), 'Offset');
+
+                            //then read the given size
+                            $this->add('12000000', 'Read String');
+                            $this->add('02000000', 'Read String');
+                            $this->add(Helper::fromIntToHex($param->sizeWithoutPad4), "Size of " . $param->sizeWithoutPad4);
+
+                        }else{
+                            //custom parameter
+                            $this->add('13000000', 'Read String from Section ' . $param->section);
+                            $this->add('01000000', 'Read String');
+                            $this->add('04000000', 'Read String');
+                            $this->add(substr(Helper::fromIntToHex($param->offset),0, 8), 'Offset');
+
+                            //then read the given size
+                            $this->add('12000000', 'Read String');
+                            $this->add('02000000', 'Read String');
+                            $this->add('00000000', "Offset / Size (todo)");
+
+                        }
+
                     }
 
-
                     new Evaluate($this->compiler, $param);
+
+                    if ($association->isProcedure === true) continue;
+
+
+                    if($param->type == Tokens::T_STRING){
+                        $stringIndex = substr($param->value, 4);
+                        $string = $compiler->strings[$stringIndex];
+
+                        $this->msg = sprintf("Read String %s", $param->value);
+
+                        $this->add('12000000');
+                        $this->add('02000000');
+                        $this->add(Helper::fromIntToHex($string['size']), "Length");
+
+                    }
+
 
                     //we need to return the result after any math operation
                     if ($param->math !== false){
@@ -442,6 +478,24 @@ class Evaluate{
 
 
                 $this->msg = sprintf("Call Function %s", $association->value);
+                if ($association->isProcedure === true){
+                    $this->add('10000000');
+                    $this->add('01000000');
+
+                    $this->add('10000000');
+                    $this->add('04000000');
+                    $this->add('11000000');
+                    $this->add('02000000');
+                    $this->add('00000000');
+                    $this->add('32000000');
+                    $this->add('02000000');
+                    $this->add('1c000000');
+                    $this->add('10000000');
+                    $this->add('02000000');
+                    $this->add('39000000');
+
+                }
+
                 $this->add($association->offset);
 
                 break;
@@ -543,7 +597,6 @@ class Evaluate{
                 $stringIndex = substr($association->value, 4);
                 $string = $compiler->strings[$stringIndex];
 
-
                 $this->msg = sprintf("Move String Pointer to %s", $string['offset']);
 
                 $this->add('21000000');
@@ -551,12 +604,12 @@ class Evaluate{
                 $this->add('01000000');
 
                 $this->add(Helper::fromIntToHex($string['offset']), 'Offset');
-
-                $this->msg = sprintf("Read String %s", $string['value']);
-
-                $this->add('12000000');
-                $this->add('02000000');
-                $this->add(Helper::fromIntToHex($string['size']), "Length");
+//
+//                $this->msg = sprintf("Read String %s", $string['value']);
+//
+//                $this->add('12000000');
+//                $this->add('02000000');
+//                $this->add(Helper::fromIntToHex($string['size']), "Length");
 
                 break;
             default:

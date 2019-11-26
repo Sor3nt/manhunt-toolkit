@@ -18,6 +18,7 @@ class Associations
     public $math = false;
 
     public $size = null;
+    public $sizeWithoutPad4 = null;
     public $offset = null;
     public $varType = null;
     public $section = null;
@@ -31,6 +32,8 @@ class Associations
     public $operator = null;
     public $operatorValue = null;
     public $statementOperator = null;
+    public $isCustomFunction = null;
+    public $isProcedure = null;
 
     public $cases = [];
 
@@ -46,6 +49,7 @@ class Associations
         if ($this->assign !== false) $debug['assign'] = $this->assign;
         if ($this->math !== false) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
+        if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
         if ($this->varType !== null) $debug['varType'] = $this->varType;
         if ($this->section !== null) $debug['section'] = $this->section;
@@ -57,6 +61,8 @@ class Associations
         if ($this->operator !== null) $debug['operator'] = $this->operator;
         if ($this->operatorValue !== null) $debug['operatorValue'] = $this->operatorValue;
         if ($this->statementOperator !== null) $debug['statementOperator'] = $this->statementOperator;
+        if ($this->isCustomFunction !== null) $debug['isCustomFunction'] = $this->isCustomFunction;
+        if ($this->isProcedure !== null) $debug['isProcedure'] = $this->isProcedure;
 
         return $debug;
     }
@@ -90,6 +96,7 @@ class Associations
 
             $this->offset = $variable['offset'];
             $this->size = $variable['size'];
+            $this->sizeWithoutPad4 = $variable['sizeWithoutPad4'];
             $this->varType = $variable['type'];
             $this->section = $variable['section'];
 
@@ -147,6 +154,11 @@ class Associations
             $this->type = Tokens::T_FUNCTION;
             $this->value = $function['name'];
             $this->offset = $function['offset'];
+
+            if (isset($function['type'])){
+                $this->isCustomFunction = $function['type'] == Tokens::T_CUSTOM_FUNCTION;
+                $this->isProcedure = $function['type'] == Tokens::T_PROCEDURE;
+            }
             $this->return = !isset($function['return']) ? null : $function['return'];
 
             if ($compiler->getToken() == "(") {
@@ -249,7 +261,8 @@ class Associations
 
                 //we have params
                 if ($compiler->consumeIfTrue("(")) {
-                    $this->consumeParameters($compiler, $compiler->currentSection);
+                    $compiler->currentScriptName = $this->value;
+                    $this->consumeParameters($compiler, $this->value);
                 }
 
                 // Return type
@@ -266,13 +279,11 @@ class Associations
                 } else {
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
-                    $compiler->currentScriptName = $this->value;
-
                     $this->childs = $this->associateUntil($compiler, Tokens::T_END);
 
                 }
 
-                $compiler->addCustomFunction($this->value);
+                $compiler->addCustomFunction($this->value, Tokens::T_PROCEDURE);
 //                $compiler->addVariable($this->value, Tokens::T_RETURN);
 
 

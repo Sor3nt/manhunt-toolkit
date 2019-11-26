@@ -30,6 +30,8 @@ class Compiler
     public $offsetString = 0;
     public $offsetGlobalVariable = 0;
     public $offsetScriptVariable = 0;
+    public $offsetProcedureVariable = -12;
+    public $offsetProcedureScripts = 0;
 
     public function __construct($source, $game, $platform, $parentScript = false)
     {
@@ -201,9 +203,10 @@ class Compiler
 
     public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null ){
 
-        var_dump("Add Variable: " . $name);
+        var_dump("Add Variable: " . $name . ' to section ' . $section);
 
         if (is_null($size)) $size = $this->calcSize($type);
+        $sizeWithoutPad4 = $size;
 
         if ($section == "header"){
 
@@ -211,19 +214,30 @@ class Compiler
 
             if ($size % 4 != 0) $size += $size % 4;
             $this->offsetGlobalVariable += $size;
-        }else{
+        }else if ($section == "script"){
             $this->offsetScriptVariable += $size;
 
             $offset = $this->offsetScriptVariable;
 
-            if ($size % 4 != 0) $size += $size % 4;
-            $this->offsetScriptVariable += $size;
+            if ($size % 4 != 0) $this->offsetScriptVariable += $size % 4;
+        }else{
+            /**
+             * We process some custom_function / procedure variables
+             *
+             * the start of the offset is -12 and any size will be subtracted from the offset
+             *
+             * looks like it is a 4 byte pointer
+             */
+
+            $offset = $this->offsetProcedureVariable;
+            $this->offsetProcedureVariable -= 4;
         }
 
         $this->variables[strtolower($name) . '_' . $this->currentSection] = [
             'name' => strtolower($name),
             'type' => $type,
             'size' => $size,
+            'sizeWithoutPad4' => $sizeWithoutPad4,
             'offset' => $offset,
             'section' => $section,
             'scriptName' => $this->currentScriptName
@@ -268,12 +282,16 @@ class Compiler
 
     }
 
-    public function addCustomFunction( $name, $offset = null ){
+    public function addCustomFunction( $name, $type = Tokens::T_CUSTOM_FUNCTION ){
+
         $this->gameClass->functions[strtolower($name)] = [
             'name' => strtolower($name),
-            'offset' => $offset,
-            'type' => Tokens::T_CUSTOM_FUNCTION
+            'offset' => $this->offsetProcedureScripts,
+            'type' => $type
         ];
+
+        $this->offsetProcedureScripts += 4;
+
     }
 
     public function getVariablesByScriptName($scriptName){
@@ -291,6 +309,10 @@ class Compiler
         $variables = $this->getVariablesByScriptName($scriptName);
 
         foreach ($variables as $variable) {
+
+            //is this equal, it mean we process a parameter not a regular variable
+            if ($variable['section'] == $variable['scriptName']) continue;
+
             $size += $variable['size'];
         }
 

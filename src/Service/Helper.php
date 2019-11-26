@@ -5,6 +5,12 @@ use App\Service\Compiler\Token;
 
 class Helper{
 
+    static function moveArrayIndexToTop(&$array, $key) {
+        $temp = array($key => $array[$key]);
+        unset($array[$key]);
+        $array = $temp + $array;
+    }
+
     //some types are equal to other types. we do not need to duplicate the logic
     static function getAliasForType( $type ){
         return str_replace([
