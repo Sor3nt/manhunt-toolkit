@@ -242,20 +242,17 @@ class Evaluate{
                             $this->add('01000000', 'Not');
                         }
 
-//                        var_dump($condition);
-//                        exit;
                         if ($condition->operatorValue == null) continue;
+
                         new Evaluate($this->compiler, $condition->operatorValue);
 
-                        //HACK
 
-//                        var_dump($condition);
                         if ($compareWith == "integer") {
-                            $this->add('0f000000', "HACK");
-                            $this->add('04000000', "HACK");
-                        }
 
-                        //HACK
+                            //abschluss von integer / const und wohl auch boolean
+                            $this->add('0f000000', "Return Temp Result");
+                            $this->add('04000000', "Return Temp Result");
+                        }
 
 
 //                        if ($condition->statementOperator == Tokens::T_AND){
@@ -268,10 +265,28 @@ class Evaluate{
                             $this->add('01000000');
                             $this->add('01000000');
 
-                            if ($condition->operator == Tokens::T_IS_NOT_EQUAL){
-                                $this->add('40000000');
-                            }else{
-                                $this->add('3f000000');
+                            switch ($condition->operator){
+                                case Tokens::T_IS_EQUAL:
+                                    $this->add('3f000000');
+                                    break;
+                                case Tokens::T_IS_NOT_EQUAL:
+                                    $this->add('40000000');
+                                    break;
+                                case Tokens::T_IS_SMALLER:
+                                    $this->add('3d000000');
+                                    break;
+                                case Tokens::T_IS_SMALLER_EQUAL:
+                                    $this->add('3e000000');
+                                    break;
+                                case Tokens::T_IS_GREATER:
+                                    $this->add('42000000');
+                                    break;
+                                case Tokens::T_IS_GREATER_EQUAL:
+                                    $this->add('41000000');
+                                    break;
+                                default:
+                                    throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operator));
+                                    break;
                             }
 
                             $offset = count($compiler->codes);
@@ -291,57 +306,7 @@ class Evaluate{
                                 $this->add('01000000', "return current condition");
 
                             }
-//                        }
-//
-//
 
-
-////
-//                        if ($compareWith == "string"){
-//                            $this->add('49000000', 'Compare string');
-//                        }else if ($compareWith == "float"){
-//                            $this->add('4e000000', 'Compare float');
-//
-//                        }else{
-//                            $this->add('23000000', 'Compare Int/Boolean/Const');
-//                            $this->add('04000000', 'Compare Int/Boolean/Const');
-//                            $this->add('01000000', 'Compare Int/Boolean/Const');
-//                        }
-//
-
-//                        $this->add('12000000', '');
-//                        $this->add('01000000', '');
-//                        $this->add('01000000', '');
-//
-//
-//
-//                        if ($condition->statementOperator){
-//
-//
-//                            switch ($condition->operatorValue){
-//                                case Tokens::T_IS_EQUAL:
-//                                    $this->add('3f000000');
-//                                    break;
-//                                case Tokens::T_IS_NOT_EQUAL:
-//                                    $this->add('40000000');
-//                                    break;
-//                                case Tokens::T_IS_SMALLER:
-//                                    $this->add('3d000000');
-//                                    break;
-//                                case Tokens::T_IS_SMALLER_EQUAL:
-//                                    $this->add('3e000000');
-//                                    break;
-//                                case Tokens::T_IS_GREATER:
-//                                    $this->add('42000000');
-//                                    break;
-//                                case Tokens::T_IS_GREATER_EQUAL:
-//                                    $this->add('41000000');
-//                                    break;
-//                                default:
-//                                    throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operatorValue));
-//                                    break;
-//                            }
-//
                             if ($condition->statementOperator ){
                                 switch ($condition->statementOperator){
 
@@ -366,15 +331,6 @@ class Evaluate{
 
 
                             }
-//
-//
-//
-//                        }
-//
-//                        if ($conditionIndex + 1 != count($case->condition)) {
-//                            $this->add('10000000', 'return ');
-//                            $this->add('01000000', 'return');
-//                        }
 
                     }
 
@@ -385,12 +341,10 @@ class Evaluate{
 
                     $offset = count($compiler->codes);
                     $this->add('OFFSET', "Offset");
-//var_dump($case);
-//exit;
+
                     foreach ($case->onTrue as $item) {
                         new Evaluate($this->compiler, $item);
                     }
-
 
                     if (count($association->cases) != $index + 1){
                         $this->add('3c000000');
