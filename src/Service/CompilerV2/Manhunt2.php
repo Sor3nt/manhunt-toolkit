@@ -3134,7 +3134,8 @@ class Manhunt2 extends ManhuntDefault
 
         'nil' => [
             'name' => 'nil',
-            'offset' => '00000000'
+            'offset' => '00000000',
+            'return' => "void"
         ],
 
     ];

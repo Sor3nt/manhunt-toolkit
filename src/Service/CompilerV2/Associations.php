@@ -335,7 +335,7 @@ class Associations
 
                     $case->onTrue = [];
                     if ($compiler->consumeIfTrue("begin")) {
-                        $case->onTrue[] = $this->associateUntil($compiler, Tokens::T_END);
+                        $case->onTrue = $this->associateUntil($compiler, Tokens::T_END);
                     } else {
                         $case->onTrue[] = new Associations($compiler);
                     }
@@ -392,61 +392,73 @@ class Associations
 
 
 
-                    foreach ($conditions as $condition) {
-                        if ($condition->type === Tokens::T_CONDITION){
+                    foreach ($conditions as $conditionRaw) {
 
-                            /**
-                             * We have a regular statement
-                             *
-                             * if (GetDoorState(entity) <> DOOR_CLOSED) then
-                             */
-                            if (count($condition->childs) == 3){
+                        $conditionReGrouped = [$conditionRaw];
+                        if (
+                            $conditionRaw->type === Tokens::T_CONDITION &&
+                            count($conditionRaw->childs) < 3
+                        ){
+                            $conditionReGrouped = $conditionRaw->childs;
+                        }
+
+                        foreach ($conditionReGrouped as $condition) {
+
+                            if ($condition->type === Tokens::T_CONDITION){
+
+                                /**
+                                 * We have a regular statement
+                                 *
+                                 * if (GetDoorState(entity) <> DOOR_CLOSED) then
+                                 */
+                                if (count($condition->childs) == 3){
+                                    list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($condition->childs);
+
+                                    $newCondition = new Associations();
+                                    $newCondition->type = Tokens::T_CONDITION;
+                                    $newCondition->childs = [$firstChild];
+                                    $newCondition->isNot = $nextNot;
+                                    $newCondition->statementOperator = $nextOperator;
+                                    $newCondition->operator = $operator;
+                                    $newCondition->operatorValue = $operatorValue;
+
+                                    $conditionsRearranged[] = $newCondition;
+
+                                    $nextNot = null;
+                                    $nextOperator = null;
+
+                                }else{
+                                    var_dump($condition);
+                                    throw new \Exception("IF Statement with not 3 childs");
+                                }
+                            }else if ($condition->type == Tokens::T_NOT){
+                                    $nextNot = true;
+                                    continue;
+                            }else if ($condition->type == Tokens::T_AND){
+                                    $nextOperator = $condition->type;
+                                    continue;
+                            }else if ($condition->type == Tokens::T_OR){
+                                    $nextOperator = $condition->type;
+                                    continue;
+
+                            }else{
+
+                                /**
+                                 * We have a single value statement
+                                 *
+                                 * If IsPlayerWalking then
+                                 */
                                 $newCondition = new Associations();
                                 $newCondition->type = Tokens::T_CONDITION;
+                                $newCondition->childs = [$condition];
                                 $newCondition->isNot = $nextNot;
                                 $newCondition->statementOperator = $nextOperator;
-
-                                list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($condition->childs);
-
-                                $newCondition->childs = [$firstChild];
-                                $newCondition->operator = $operator;
-                                $newCondition->operatorValue = $operatorValue;
 
                                 $conditionsRearranged[] = $newCondition;
 
                                 $nextNot = null;
                                 $nextOperator = null;
-
-                            }else{
-                                throw new \Exception("IF Statement with not 3 childs");
                             }
-                        }else if ($condition->type == Tokens::T_NOT){
-                                $nextNot = true;
-                                continue;
-                        }else if ($condition->type == Tokens::T_AND){
-                                $nextOperator = $condition->type;
-                                continue;
-                        }else if ($condition->type == Tokens::T_OR){
-                                $nextOperator = $condition->type;
-                                continue;
-
-                        }else{
-
-                            /**
-                             * We have a single value statement
-                             *
-                             * If IsPlayerWalking then
-                             */
-                            $newCondition = new Associations();
-                            $newCondition->type = Tokens::T_CONDITION;
-                            $newCondition->childs = [$condition];
-                            $newCondition->isNot = $nextNot;
-                            $newCondition->statementOperator = $nextOperator;
-
-                            $conditionsRearranged[] = $newCondition;
-
-                            $nextNot = null;
-                            $nextOperator = null;
                         }
 
                     }

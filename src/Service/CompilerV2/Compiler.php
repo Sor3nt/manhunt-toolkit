@@ -113,7 +113,6 @@ class Compiler
             $associated[] = $association;
         }
 
-
         /**
          * Handle FORWARD command
          *

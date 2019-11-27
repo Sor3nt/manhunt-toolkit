@@ -98,39 +98,32 @@ class Evaluate{
 
                 break;
 
+            case Tokens::T_STATE:
+                $this->msg = sprintf("Read STATE %s", $association->value);
+                $this->add('12000000');
+                $this->add('01000000');
+                $this->add(Helper::fromFloatToHex($association->value), "Offset");
+
+//                var_dump($association);
+//                exit;
+                break;
             case Tokens::T_VARIABLE:
                 $this->msg = sprintf("Use Variable %s", $association->value);
 
 
-//                if ($association->varType == "integer"){
-//                    $this->msg = sprintf("Read Integer %s", $association->value);
-//
-//                    $this->add($association->section == "header" ? '14000000' : '13000000');
-//                    $this->add('01000000');
-//                    $this->add('04000000');
-//                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-//
-//                    $this->add('10000000', 'Return');
-//                    $this->add('01000000', 'Return');
-//
-//                }else
-                    if ($association->varType == "vec3d") {
-                    $this->add($association->section == "header" ? '21000000' : '22000000', 'Section ' . $association->section);
-                    $this->add('04000000');
-                    $this->add('01000000');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-
-                    $this->add('10000000', 'Return');
-                    $this->add('01000000', 'Return');
-                    //
-                }
 
                 if ($association->assign !== false){
+                    if ($association->varType == "vec3d") {
+                        $this->add($association->section == "header" ? '21000000' : '22000000', 'Section ' . $association->section);
+                        $this->add('04000000');
+                        $this->add('01000000');
+                        $this->add(Helper::fromIntToHex($association->offset), 'Offset');
 
+                        $this->add('10000000', 'Return');
+                        $this->add('01000000', 'Return');
+                    }
 
-//                    $this->msg = sprintf("Assign to %s", $association->value);
                     new Evaluate($this->compiler, $association->assign);
-
                     $this->msg = sprintf("Assign to Variable %s", $association->value);
 
                     if (
@@ -148,6 +141,12 @@ class Evaluate{
                         $this->add('04000000');
                         $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                         $this->add('01000000');
+                    }else if ($association->assign->type == Tokens::T_STATE){
+                        $this->add('16000000');
+                        $this->add('04000000');
+                        $this->add(Helper::fromIntToHex($association->assign->offset), 'Offset');
+                        $this->add('01000000');
+
                     }else if ($association->varType == "vec3d"){
                         $this->add('12000000');
                         $this->add('03000000');
@@ -159,19 +158,16 @@ class Evaluate{
                         $this->add('44000000');
 
                     }else{
-                        throw new \Exception(sprintf("Assign type %s not implemented", $association->varType));
+//                        var_dump($association);
+//                        throw new \Exception(sprintf("Assign type %s not implemented", $association->varType));
                     }
-
-
                 }
 
 
                 if ($association->math !== false){
 
-//var_dump($association);
-//exit;
                     $this->msg = sprintf("Variable %s Math Operation ", $association->value);
-//
+
                     if ($association->varType == "integer"){
                         $this->add($association->section == "header" ? '14000000' : '13000000', 'Read Variable');
                         $this->add('01000000', 'Read Integer');
@@ -212,12 +208,11 @@ class Evaluate{
 
 
                 break;
-            case Tokens::T_IS_EQUAL:
-                $this->add('T_IS_EQUAL');
-
-                break;
+            case Tokens::T_DO:
             case Tokens::T_IF:
                 $this->msg = sprintf("IF Statement ");
+
+                $startOffset = count($compiler->codes);
 //var_dump($association);
 //exit;
                 $endOffsets = [];
@@ -234,7 +229,7 @@ class Evaluate{
                         if ($firstEntry->type == Tokens::T_FUNCTION) {
 
                             if ($firstEntry->return == null) {
-                                throw new \Exception(sprintf("No Return type available for function %s", $condition->value));
+                                throw new \Exception(sprintf("No Return type available for function ->%s<-", $condition->value));
                             }
 
                             $compareWith = $firstEntry->return;
@@ -378,6 +373,7 @@ class Evaluate{
                     $this->add('00000000');
                     $this->add('3f000000');
 
+//                    $endOffsets[] = count($compiler->codes);
                     $offset = count($compiler->codes);
                     $this->add('OFFSET', "Offset");
 
@@ -386,11 +382,18 @@ class Evaluate{
                     }
 
                     if (count($association->cases) != $index + 1){
-                        $this->add('3c000000');
+                        $this->add('3c000000', 'Jump to');
 
                         $endOffsets[] = count($compiler->codes);
                         $this->add('END OFFSET', "End Offset");
 
+                    /**
+                     * The While do loops jumps back to start
+                     */
+                    }else if ($association->type == Tokens::T_DO ){
+                        $this->add('3c000000', 'Jump to ' . ($startOffset * 4));
+
+                        $this->add(Helper::fromIntToHex($startOffset * 4), "start Offset");
                     }
 
                     $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
@@ -407,7 +410,9 @@ class Evaluate{
                 foreach ($association->childs as $param) {
 
 
+//                    $this->movePointer($param);
                     if ($param->varType == "string") {
+
                         // move the internal pointer to the offset
 
                         if (in_array($param->section, ['header', 'script']) !== false){
@@ -439,6 +444,10 @@ class Evaluate{
 
                     new Evaluate($this->compiler, $param);
 
+
+                    /**
+                     * i guess the procedure need only the pointer and not the actual value
+                     */
                     if ($association->isProcedure === true) continue;
 
 
@@ -562,7 +571,8 @@ class Evaluate{
                 break;
 
             case Tokens::T_CASE:
-                $this->msg = sprintf("Case %s", $association->value);
+
+//                $this->msg = sprintf("Case %s", $association->value);
                 foreach ($association->onTrue as $condition) {
                     new Evaluate($this->compiler, $condition);
                 }
@@ -628,5 +638,68 @@ class Evaluate{
             'code' => $code,
             'msg' => $msg
         ];
+    }
+
+
+    private function getTypeByAssociation( Associations $variable ){
+
+        if ($variable->type == Tokens::T_VARIABLE){
+            return $variable->varType;
+        }
+
+        if ($variable->type == Tokens::T_STRING) return 'string';
+        if ($variable->type == Tokens::T_CONSTANT) return 'integer';
+        if ($variable->type == Tokens::T_BOOLEAN) return 'integer';
+        if ($variable->type == Tokens::T_INT) return 'integer';
+        if ($variable->type == Tokens::T_FLOAT) return 'float';
+
+        die ("cant convert");
+    }
+
+    private function movePointer( Associations $association ){
+
+        $type = $this->getTypeByAssociation( $association );
+var_dump($association->section);
+        switch ($type){
+            case 'string':
+
+
+                if (in_array($association->section, ['header', 'script']) !== false){
+                    $this->add($association->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $association->section);
+                    $this->add('04000000', 'Read String');
+                    $this->add('01000000', 'Read String');
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+
+                    //then read the given size
+                    $this->add('12000000', 'Read String');
+                    $this->add('02000000', 'Read String');
+                    $this->add(Helper::fromIntToHex($association->sizeWithoutPad4), "Size of " . $association->sizeWithoutPad4);
+
+                }else{
+                    //custom parameter
+                    $this->add('13000000', 'Read String from Section ' . $association->section);
+                    $this->add('01000000', 'Read String');
+                    $this->add('04000000', 'Read String');
+                    $this->add(substr(Helper::fromIntToHex($association->offset),0, 8), 'Offset');
+
+                    //then read the given size
+                    $this->add('12000000', 'Read String');
+                    $this->add('02000000', 'Read String');
+                    $this->add('00000000', "Offset / Size (todo)");
+
+                }
+
+                break;
+
+        }
+    }
+
+    private function readData($type ){
+
+        switch ($type){
+            case 'string':
+                break;
+
+        }
     }
 }
