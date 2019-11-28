@@ -219,6 +219,8 @@ class Evaluate{
                 $endOffsets = [];
                 foreach ($association->cases as $index => $case) {
 
+                    $isLastCase = count($association->cases) == $index+1;
+
                     $compareAgainst = false;
 
                     //apply the condition
@@ -247,8 +249,6 @@ class Evaluate{
                             $this->add('04000000', 'Read Integer Variable');
                             $this->add(Helper::fromIntToHex($firstEntry->offset), 'Offset');
 
-                            $this->add('10000000', 'Return Integer Variable');
-                            $this->add('01000000', 'Return Integer Variable');
 
                         }else if ($firstEntry->varType == "boolean"){
 
@@ -256,9 +256,6 @@ class Evaluate{
                             $this->add('01000000', 'Read Boolean Variable');
                             $this->add('04000000', 'Read Boolean Variable');
                             $this->add(Helper::fromIntToHex($firstEntry->offset), 'Offset');
-
-                            $this->add('10000000', 'Return Boolean Variable');
-                            $this->add('01000000', 'Return Boolean Variable');
                         }
 
 
@@ -268,20 +265,6 @@ class Evaluate{
 
 
 
-                        if (count($case->condition) > 1){
-//                            var_dump($case->condition);
-//                            exit;
-                            if ($compareWith !== "integer") {
-
-                                $this->add('0f000000', "return 0f 04");
-                                $this->add('04000000', "return 0f 04");
-
-                            } else {
-                                $this->add('10000000', 'Return Condition');
-                                $this->add('01000000', 'Return Condition');
-                            }
-                        }
-
                         if ($case->isNot !== null || $condition->isNot !== null){
                             $this->add('29000000', 'Not');
                             $this->add('01000000', 'Not');
@@ -290,92 +273,93 @@ class Evaluate{
 
                         if ($condition->operatorValue == null) continue;
 
+                        $this->add('10000000', 'Return Condition test');
+                        $this->add('01000000', 'Return Condition test');
+
+
+
                         new Evaluate($this->compiler, $condition->operatorValue);
 
-                        if ($compareWith == "integer" || $compareWith == "boolean") {
 
-                            //abschluss von integer / const und wohl auch boolean
-                            $this->add('0f000000', "Return Temp Result");
-                            $this->add('04000000', "Return Temp Result");
+                        $this->add('0f000000', "Return last case");
+                        $this->add('04000000', "Return last case");
+//
+
+
+                        $this->add('23000000');
+                        $this->add('04000000');
+                        $this->add('01000000');
+
+                        $this->add('12000000');
+                        $this->add('01000000');
+                        $this->add('01000000');
+
+                        switch ($condition->operator){
+                            case Tokens::T_IS_EQUAL:
+                                $this->add('3f000000');
+                                break;
+                            case Tokens::T_IS_NOT_EQUAL:
+                                $this->add('40000000');
+                                break;
+                            case Tokens::T_IS_SMALLER:
+                                $this->add('3d000000');
+                                break;
+                            case Tokens::T_IS_SMALLER_EQUAL:
+                                $this->add('3e000000');
+                                break;
+                            case Tokens::T_IS_GREATER:
+                                $this->add('42000000');
+                                break;
+                            case Tokens::T_IS_GREATER_EQUAL:
+                                $this->add('41000000');
+                                break;
+                            default:
+                                throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operator));
+                                break;
                         }
 
+                        $offset = count($compiler->codes);
+                        $this->add('OFFSET', 'Offset');
 
-//                        if ($condition->statementOperator == Tokens::T_AND){
+                        $this->add('33000000');
+                        $this->add('01000000');
+                        $this->add('01000000');
 
-                            $this->add('23000000');
-                            $this->add('04000000');
-                            $this->add('01000000');
+                        $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
 
-                            $this->add('12000000');
-                            $this->add('01000000');
-                            $this->add('01000000');
+                        if ($conditionIndex > 0){
+                            $this->add('0f000000', "return 0f 04 (operator)");
+                            $this->add('04000000', "return 0f 04 (operator)");
+                        }else if (count($case->condition) > 1){
+                            $this->add('10000000', "return current condition");
+                            $this->add('01000000', "return current condition");
 
-                            switch ($condition->operator){
-                                case Tokens::T_IS_EQUAL:
-                                    $this->add('3f000000');
+                        }
+
+                        if ($condition->statementOperator ){
+                            switch ($condition->statementOperator){
+
+                                case Tokens::T_OR:
+                                    $this->add('27000000', 'OR');
                                     break;
-                                case Tokens::T_IS_NOT_EQUAL:
-                                    $this->add('40000000');
-                                    break;
-                                case Tokens::T_IS_SMALLER:
-                                    $this->add('3d000000');
-                                    break;
-                                case Tokens::T_IS_SMALLER_EQUAL:
-                                    $this->add('3e000000');
-                                    break;
-                                case Tokens::T_IS_GREATER:
-                                    $this->add('42000000');
-                                    break;
-                                case Tokens::T_IS_GREATER_EQUAL:
-                                    $this->add('41000000');
+                                case Tokens::T_AND:
+                                    $this->add('25000000', 'AND');
                                     break;
                                 default:
-                                    throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operator));
+                                    throw new \Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $condition->statementOperator));
                                     break;
                             }
 
-                            $offset = count($compiler->codes);
-                            $this->add('OFFSET', 'Offset');
+                            $this->add('01000000', 'Next Condition ');
+                            $this->add('04000000', 'Next Condition');
 
-                            $this->add('33000000');
-                            $this->add('01000000');
-                            $this->add('01000000');
-
-                            $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-
-                            if ($conditionIndex > 0){
-                                $this->add('0f000000', "return 0f 04 (operator)");
-                                $this->add('04000000', "return 0f 04 (operator)");
-                            }else if (count($case->condition) > 1){
-                                $this->add('10000000', "return current condition");
-                                $this->add('01000000', "return current condition");
-
+                            if ($conditionIndex + 1 != count($case->condition)) {
+                                $this->add('10000000', 'return ');
+                                $this->add('01000000', 'return');
                             }
 
-                            if ($condition->statementOperator ){
-                                switch ($condition->statementOperator){
 
-                                    case Tokens::T_OR:
-                                        $this->add('27000000', 'OR');
-                                        break;
-                                    case Tokens::T_AND:
-                                        $this->add('25000000', 'AND');
-                                        break;
-                                    default:
-                                        throw new \Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $condition->statementOperator));
-                                        break;
-                                }
-
-                                $this->add('01000000', 'Next Condition ');
-                                $this->add('04000000', 'Next Condition');
-
-                                if ($conditionIndex + 1 != count($case->condition)) {
-                                    $this->add('10000000', 'return ');
-                                    $this->add('01000000', 'return');
-                                }
-
-
-                            }
+                        }
 
                     }
 
@@ -384,7 +368,6 @@ class Evaluate{
                     $this->add('00000000');
                     $this->add('3f000000');
 
-//                    $endOffsets[] = count($compiler->codes);
                     $offset = count($compiler->codes);
                     $this->add('OFFSET', "Offset");
 
