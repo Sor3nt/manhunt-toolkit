@@ -113,6 +113,7 @@ class Associations
 
                     $state = $compiler->getState($this->varType, $stateName);
 
+                    $this->varType = "state";
                     $this->assign = new Associations();
                     $this->assign->type = Tokens::T_STATE;
                     $this->assign->value = $stateName;

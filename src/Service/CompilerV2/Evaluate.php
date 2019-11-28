@@ -105,13 +105,9 @@ class Evaluate{
                 $this->add('01000000');
                 $this->add(Helper::fromFloatToHex($association->value), "Offset");
 
-//                var_dump($association);
-//                exit;
                 break;
             case Tokens::T_VARIABLE:
-                $this->msg = sprintf("Use Variable %s", $association->value);
-
-
+                $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
 
                 if ($association->assign !== false){
                     if ($association->varType == "vec3d") {
@@ -128,6 +124,8 @@ class Evaluate{
                     $this->msg = sprintf("Assign to Variable %s", $association->value);
 
                     if (
+                        $association->varType == "state" ||
+                        $association->varType == "entityptr" ||
                         $association->varType == "integer" ||
                         $association->varType == "boolean"
                     ) {
@@ -135,17 +133,6 @@ class Evaluate{
                         $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
                         $this->add('04000000');
                         $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                        $this->add('01000000');
-
-                    }else if ($association->varType == "entityptr"){
-                        $this->add('15000000');
-                        $this->add('04000000');
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                        $this->add('01000000');
-                    }else if ($association->assign->type == Tokens::T_STATE){
-                        $this->add('16000000');
-                        $this->add('04000000');
-                        $this->add(Helper::fromIntToHex($association->assign->offset), 'Offset');
                         $this->add('01000000');
 
                     }else if ($association->varType == "vec3d"){
@@ -157,10 +144,6 @@ class Evaluate{
                         $this->add('0f000000');
                         $this->add('04000000');
                         $this->add('44000000');
-
-                    }else{
-//                        var_dump($association);
-//                        throw new \Exception(sprintf("Assign type %s not implemented", $association->varType));
                     }
                 }
 
