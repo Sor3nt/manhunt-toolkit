@@ -91,6 +91,7 @@ class Associations
                 $compiler->current++;
             }
 
+//            $this->type = "var_" . $variable['type'];
             $this->type = Tokens::T_VARIABLE;
             $this->value = $variable['name'];
 
