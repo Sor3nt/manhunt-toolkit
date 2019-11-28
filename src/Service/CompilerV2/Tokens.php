@@ -98,6 +98,8 @@ namespace App\Service\CompilerV2;
     const T_AND                         = 'T_AND';
     const T_NIL                         = 'T_NIL';
     const T_FUNCTION                    = 'T_FUNCTION';
+    const T_FUNCTION_WRITE_DEBUG                    = 'T_FUNCTION_WRITE_DEBUG';
+    const T_FUNCTION_WRITE_DEBUG_PARAM                    = 'T_FUNCTION_WRITE_DEBUG_PARAM';
     const T_VARIABLE                    = 'T_VARIABLE';
     const T_ENTITY_DEFINE               = 'T_ENTITY_DEFINE';
     const T_IF_VARIABLE                 = 'T_IF_VARIABLE';

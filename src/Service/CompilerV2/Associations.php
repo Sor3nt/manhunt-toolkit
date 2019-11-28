@@ -258,10 +258,10 @@ class Associations
             case 'function':
 
                 $this->value = $compiler->consume();
+                $compiler->currentScriptName = $this->value;
 
                 //we have params
                 if ($compiler->consumeIfTrue("(")) {
-                    $compiler->currentScriptName = $this->value;
                     $this->consumeParameters($compiler, $this->value);
                 }
 
@@ -376,7 +376,31 @@ class Associations
                  *
                  * if randFlash = 0 then
                  */
-                if (count($conditions) == 3 && $conditions[0]->type != Tokens::T_CONDITION){
+                if (count($conditions) == 3 && $conditions[0]->type != Tokens::T_CONDITION) {
+                    $newCondition = new Associations();
+                    $newCondition->type = Tokens::T_CONDITION;
+//                    $newCondition->isNot = $nextNot;
+//                    $newCondition->statementOperator = $nextOperator;
+                    list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
+                    $newCondition->childs = [$firstChild];
+                    $newCondition->operator = $operator;
+                    $newCondition->operatorValue = $operatorValue;
+
+                    $conditionsRearranged[] = $newCondition;
+
+                /**
+                 * strange Wrapped statement
+                 *
+                 * if (sleep(100)) <> NIL then
+                 */
+                }else if (
+                    count($conditions) == 3 &&
+                    $conditions[0]->type == Tokens::T_CONDITION &&
+                    count($conditions[0]->childs) == 1
+                ){
+
+                    $conditions[0] = $conditions[0]->childs[0];
+
                     $newCondition = new Associations();
                     $newCondition->type = Tokens::T_CONDITION;
 //                    $newCondition->isNot = $nextNot;
@@ -389,8 +413,6 @@ class Associations
                     $conditionsRearranged[] = $newCondition;
 
                 }else{
-
-
 
                     foreach ($conditions as $conditionRaw) {
 
@@ -518,11 +540,18 @@ class Associations
              */
             case 'true':
                 $this->type = Tokens::T_BOOLEAN;
+                $this->varType = 'boolean';
                 $this->value = true;
                 break;
             case 'false':
                 $this->type = Tokens::T_BOOLEAN;
+                $this->varType = 'boolean';
                 $this->value = false;
+                break;
+
+            case 'nil':
+                $this->type = Tokens::T_INT;
+                $this->value = 0;
                 break;
 
 

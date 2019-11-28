@@ -39,6 +39,7 @@ class Evaluate{
 //
 //
                 $scriptSize = $compiler->getScriptSize($association->value);
+
                 if ($scriptSize > 0){
                     $this->msg = sprintf("Reserve Memory %s", $scriptSize);
 
@@ -227,8 +228,8 @@ class Evaluate{
                         $firstEntry = $condition->childs[0];
 
                         if ($firstEntry->type == Tokens::T_FUNCTION) {
-
                             if ($firstEntry->return == null) {
+                                var_dump($firstEntry);
                                 throw new \Exception(sprintf("No Return type available for function ->%s<-", $condition->value));
                             }
 
@@ -248,7 +249,18 @@ class Evaluate{
 
                             $this->add('10000000', 'Return Integer Variable');
                             $this->add('01000000', 'Return Integer Variable');
+
+                        }else if ($firstEntry->varType == "boolean"){
+
+                            $this->add($firstEntry->section == "header" ? '14000000' : '13000000', 'Read Integer');
+                            $this->add('01000000', 'Read Boolean Variable');
+                            $this->add('04000000', 'Read Boolean Variable');
+                            $this->add(Helper::fromIntToHex($firstEntry->offset), 'Offset');
+
+                            $this->add('10000000', 'Return Boolean Variable');
+                            $this->add('01000000', 'Return Boolean Variable');
                         }
+
 
                         foreach ($condition->childs as $child) {
                             new Evaluate($this->compiler, $child);
@@ -280,8 +292,7 @@ class Evaluate{
 
                         new Evaluate($this->compiler, $condition->operatorValue);
 
-
-                        if ($compareWith == "integer") {
+                        if ($compareWith == "integer" || $compareWith == "boolean") {
 
                             //abschluss von integer / const und wohl auch boolean
                             $this->add('0f000000', "Return Temp Result");
@@ -405,7 +416,36 @@ class Evaluate{
                 }
 
                 break;
+
             case Tokens::T_FUNCTION:
+
+                /**
+                 * A special handler for writedebug calls
+                 *
+                 * any writedebug accept countless parameters and need to be seperated
+                 * into single calls
+                 *
+                 * writedebug('here1', 'here2');
+                 *
+                 * need to be split into
+                 *
+                 * WriteDebug('here1');
+                 * WriteDebug('here2');
+                 * WriteDebugFlush();
+                 */
+                if (
+                    strtolower($association->value) == "writedebug" &&
+                    count($association->childs) > 1
+                ){
+
+                    foreach ($association->childs as $index => $param) {
+                        $clone = clone $association;
+                        $clone->childs[] = $param;
+
+                        new Evaluate($compiler, $clone);
+                    }
+                    break;
+                }
 
                 foreach ($association->childs as $param) {
 
@@ -488,6 +528,7 @@ class Evaluate{
 
                 $this->msg = sprintf("Call Function %s", $association->value);
                 if ($association->isProcedure === true){
+//                    $this->add('01000000', 'uhm right?');
                     $this->add('10000000');
                     $this->add('01000000');
 
@@ -505,7 +546,20 @@ class Evaluate{
 
                 }
 
-                $this->add($association->offset);
+
+                if (strtolower($association->value) == "writedebug"){
+                    $param = $association->childs[0];
+                    if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
+                        $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
+                    }else{
+                        throw new \Exception("Unknown WriteDebug function for " . $param->varType);
+                    }
+
+                    $this->add($writeDebugFunction['offset'], "Offset");
+                    $this->add('74000000');
+                }else{
+                    $this->add($association->offset, "Offset");
+                }
 
                 break;
 
@@ -580,10 +634,28 @@ class Evaluate{
 
                 break;
             case Tokens::T_FLOAT:
+
+                $negate = false;
+                if ($association->value < 0){
+                    $negate = true;
+                    $association->value = $association->value * -1;
+                }
+
+
                 $this->msg = sprintf("Read Float %s", $association->value);
                 $this->add('12000000');
                 $this->add('01000000');
                 $this->add(Helper::fromFloatToHex($association->value), "Offset");
+
+                if ($negate){
+                    $this->add('10000000');
+                    $this->add('01000000');
+
+                    $this->add('4f000000', 'Negate Float');
+                    $this->add('32000000', 'Negate Float');
+                    $this->add('09000000', 'Negate Float');
+                    $this->add('04000000', 'Negate Float');
+                }
 
                 break;
 
@@ -594,9 +666,23 @@ class Evaluate{
                 $this->add($compiler->gameClass->getConstant($association->value)['offset'], "Offset");
                 break;
 
-            case Tokens::T_INT:
+//            case Tokens::T_NIL:
+//                $this->msg = sprintf("Read NIL");
+//                $this->add('12000000');
+//                $this->add('01000000');
+//                $this->add('00000000');
+//
+//                break;
+
             case Tokens::T_BOOLEAN:
-                $this->msg = sprintf("Read Integer/Boolean %s", (int)$association->value);
+//                $this->msg = sprintf("Read Boolean %s", (int)$association->value);
+//                $this->add('14000000');
+                $this->add('12000000');
+                $this->add('01000000');
+                $this->add(Helper::fromIntToHex((int)$association->value), 'Boolean ' . (int)$association->value);
+                break;
+            case Tokens::T_INT:
+                $this->msg = sprintf("Read Integer %s", (int)$association->value);
                 $this->add('12000000');
                 $this->add('01000000');
                 $this->add(Helper::fromIntToHex((int)$association->value), 'Offset');
@@ -621,6 +707,9 @@ class Evaluate{
 //                $this->add('02000000');
 //                $this->add(Helper::fromIntToHex($string['size']), "Length");
 
+                break;
+
+            case Tokens::T_IS_NOT_EQUAL:
                 break;
             default:
                 throw new \Exception(sprintf("Unable to evaluate %s ", $association->type));

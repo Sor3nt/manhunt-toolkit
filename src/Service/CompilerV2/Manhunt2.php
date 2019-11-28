@@ -991,7 +991,8 @@ class Manhunt2 extends ManhuntDefault
 
         'frisbeespeechisfinished' => [
             'name' => 'FrisbeeSpeechIsFinished',
-            'offset' => '69030000'
+            'offset' => '69030000',
+            'return' => 'integer'
         ],
 
         'getentityname' => [
@@ -2198,7 +2199,8 @@ class Manhunt2 extends ManhuntDefault
 
         'isscriptaudiostreamcompleted' => [
             'name' => 'IsScriptAudioStreamCompleted',
-            'offset' => 'cf020000'
+            'offset' => 'cf020000',
+            'return' => 'integer'
 
         ],
 
@@ -3132,11 +3134,11 @@ class Manhunt2 extends ManhuntDefault
             'offset' => 'subtractvectors'
         ],
 
-        'nil' => [
-            'name' => 'nil',
-            'offset' => '00000000',
-            'return' => "void"
-        ],
+//        'nil' => [
+//            'name' => 'nil',
+//            'offset' => '00000000',
+//            'return' => "void"
+//        ],
 
     ];
 }
