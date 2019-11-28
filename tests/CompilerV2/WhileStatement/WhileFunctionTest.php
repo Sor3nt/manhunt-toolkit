@@ -1,35 +1,31 @@
 <?php
-namespace App\Tests\CompilerV2\Assign\Header;
+namespace App\Tests\CompilerV2\WhileStatement;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignIntegerMathAddition extends KernelTestCase
+class WhileFunctionTest extends KernelTestCase
 {
 
     public function test()
     {
 
-
         $script = "
             scriptmain LevelScript;
-
+            
             entity
                 A01_Escape_Asylum : et_level;
 
-            var
-                animLength : integer;
-
             script OnCreate;
-                begin
-                    animLength := animLength + 1500;
-                end;
-            end.
 
+                begin
+                    while IsPlayerWalking do sleep(1500);
+                end;
+
+            end.
         ";
 
         $expected = [
-
             // script start
             '10000000',
             '0a000000',
@@ -37,27 +33,21 @@ class AssignIntegerMathAddition extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '14000000', //read from script var
-            '01000000', //read from script var
-            '04000000', //read from script var
-            '00000000', //Offset
+            'ed020000', //IsPlayerWalking call
+            '24000000', //statement (core 2)
+            '01000000', //statement (core 2)
+            '00000000', //statement (core 2)
+            '3f000000', //statement (line offset)
+            '4c000000', //Offset in byte
+            '12000000', //parameter (read simple type (int/float...))
+            '01000000', //parameter (read simple type (int/float...))
+            'dc050000', //value 1500
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '12000000', //parameter (temp int)
-            '01000000', //parameter (temp int)
-            'dc050000', //value 1500
-            '0f000000', //parameter (temp int)
-            '04000000', //parameter (temp int)
+            '6a000000', //sleep Call
 
-            '31000000', //unknown
-            '01000000', //unknown
-            '04000000', //unknown
-
-
-            '16000000', //unknown
-            '04000000', //unknown
-            '00000000', //unknown
-            '01000000', //unknown
+            '3c000000', //line offset
+            '14000000', //unknown
 
             // script end
             '11000000',
@@ -66,8 +56,7 @@ class AssignIntegerMathAddition extends KernelTestCase
             '0f000000',
             '0a000000',
             '3b000000',
-            '00000000',
-
+            '00000000'
         ];
 
         $compiler = new \App\Service\CompilerV2\Compiler($script, MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC, false);
@@ -77,13 +66,8 @@ class AssignIntegerMathAddition extends KernelTestCase
 
             foreach ($compiled['CODE'] as $index => $newCode) {
 
-                if (!isset($expected[$index])){
-                    echo "To much code generated";
-                    exit;
-                }
-
                 if ($expected[$index] == $newCode['code']){
-                    echo $newCode['code'] . ' -> ' . $newCode['msg'] . "\n";
+                    echo $index . " " . $newCode['code'] . ' -> ' . $newCode['msg'] . "\n";
 
                 }else{
                     echo "MISMATCH: Need: " . $expected[$index] . ' Got: ' . $newCode['code'] . ' -> ' . $newCode['msg']. "\n";

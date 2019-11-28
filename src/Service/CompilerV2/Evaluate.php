@@ -132,33 +132,13 @@ class Evaluate{
                     }
 
                     /**
-                     * Block 2: Read leftHand
+                     * Block 2: Write to leftHand
                      */
 
                     $this->msg = sprintf("Assign to Variable %s", $association->value);
 
-                    if (
-                        $association->varType == "state" ||
-                        $association->varType == "entityptr" ||
-                        $association->varType == "integer" ||
-                        $association->varType == "boolean"
-                    ) {
+                    $this->writeData($association, $association->varType);
 
-                        $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
-                        $this->add('04000000');
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                        $this->add('01000000');
-
-                    }else if ($association->varType == "vec3d"){
-                        $this->add('12000000');
-                        $this->add('03000000');
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                        $this->add('0f000000');
-                        $this->add('01000000');
-                        $this->add('0f000000');
-                        $this->add('04000000');
-                        $this->add('44000000');
-                    }
                 }
 
 
@@ -715,6 +695,32 @@ var_dump($association->section);
         if ($association->type == Tokens::T_STATE) return 'state';
         if ($association->type == Tokens::T_CONSTANT) return 'constant';
         throw new \Exception("Unable to resolve type " . $association->type);
+    }
+
+    private function writeData($association, $type ){
+        switch ($type) {
+            case 'state':
+            case 'entityptr':
+            case 'integer':
+            case 'boolean':
+                $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
+                $this->add('04000000');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('01000000');
+                break;
+            case 'vec3d':
+                $this->add('12000000');
+                $this->add('03000000');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('0f000000');
+                $this->add('01000000');
+                $this->add('0f000000');
+                $this->add('04000000');
+                $this->add('44000000');
+                break;
+
+        }
+
     }
 
     /**

@@ -33,6 +33,7 @@ class IfFunctionShortTest extends KernelTestCase
             '09000000',
 
             'ed020000', //IsPlayerWalking call
+
             '24000000', //statement (core 2)
             '01000000', //statement (core 2)
             '00000000', //statement (core 2)

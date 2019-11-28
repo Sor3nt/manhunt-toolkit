@@ -45,7 +45,8 @@ class AssignVec3dTest extends KernelTestCase
             '22000000', //unknown
             '04000000', //unknown
             '01000000', //unknown
-            '0c000000', //unknown
+            '0c000000', //offset
+
             '10000000', //nested call return result
             '01000000', //nested call return result
 
