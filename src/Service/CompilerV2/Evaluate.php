@@ -3,10 +3,10 @@
 namespace App\Service\CompilerV2;
 
 use App\Service\Helper;
+use Exception;
 
 class Evaluate{
-    
-    
+
     public $msg = "";
 
     /** @var Compiler */
@@ -16,7 +16,7 @@ class Evaluate{
      * Evaluate constructor.
      * @param Compiler $compiler
      * @param Associations $association
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct( Compiler $compiler, Associations $association )
     {
@@ -33,11 +33,6 @@ class Evaluate{
                 $this->add('0a000000');
                 $this->add('09000000');
 
-//                $returnSize = 0;
-//                if ($association->return !== null)
-//                    $returnSize = $compiler->calcSize($association->return);
-//
-//
                 $scriptSize = $compiler->getScriptSize($association->value);
 
                 if ($scriptSize > 0){
@@ -65,8 +60,8 @@ class Evaluate{
                 $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Reserve Pointer Offsets');
 
                 break;
-            case Tokens::T_SCRIPT:
 
+            case Tokens::T_SCRIPT:
                 $this->msg = sprintf("Initialize Script %s", $association->value);
                 $this->add('10000000');
                 $this->add('0a000000');
@@ -98,14 +93,7 @@ class Evaluate{
                 $this->add('00000000');
 
                 break;
-//
-//            case Tokens::T_STATE:
-//                $this->msg = sprintf("Read STATE %s", $association->value);
-//                $this->add('12000000');
-//                $this->add('01000000');
-//                $this->add(Helper::fromFloatToHex($association->value), "Offset");
 
-//                break;
             case Tokens::T_VARIABLE:
                 $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
 
@@ -138,9 +126,7 @@ class Evaluate{
                     $this->msg = sprintf("Assign to Variable %s", $association->value);
 
                     $this->writeData($association, $association->varType);
-
                 }
-
 
                 if ($association->math !== false){
 
@@ -176,10 +162,9 @@ class Evaluate{
                     }else if ($association->math->type == Tokens::T_DIVISION){
                         $this->add('T_DIVISION');
                     }else{
-                        throw new \Exception("Math-Type not implemented " . $association->math->type);
+                        throw new Exception("Math-Type not implemented " . $association->math->type);
                     }
                 }
-
 
                 break;
             case Tokens::T_DO:
@@ -191,9 +176,7 @@ class Evaluate{
                 $endOffsets = [];
                 foreach ($association->cases as $index => $case) {
 
-                    $isLastCase = count($association->cases) == $index+1;
-
-                    //apply the condition
+                     //apply the condition
                     /** @var Associations $condition */
                     foreach ($case->condition as $conditionIndex => $condition) {
 
@@ -201,11 +184,9 @@ class Evaluate{
 
                         $this->getPointer($firstEntry, $firstEntry->varType);
 
-
                         foreach ($condition->childs as $child) {
                             new Evaluate($this->compiler, $child);
                         }
-
 
                         if ($case->isNot !== null || $condition->isNot !== null){
                             $this->add('29000000', 'Not');
@@ -218,15 +199,10 @@ class Evaluate{
                         $this->add('10000000', 'Return Condition test');
                         $this->add('01000000', 'Return Condition test');
 
-
-
                         new Evaluate($this->compiler, $condition->operatorValue);
-
 
                         $this->add('0f000000', "Return last case");
                         $this->add('04000000', "Return last case");
-//
-
 
                         $this->add('23000000');
                         $this->add('04000000');
@@ -256,7 +232,7 @@ class Evaluate{
                                 $this->add('41000000');
                                 break;
                             default:
-                                throw new \Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operator));
+                                throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operator));
                                 break;
                         }
 
@@ -275,7 +251,6 @@ class Evaluate{
                         }else if (count($case->condition) > 1){
                             $this->add('10000000', "return current condition");
                             $this->add('01000000', "return current condition");
-
                         }
 
                         if ($condition->statementOperator ){
@@ -288,7 +263,7 @@ class Evaluate{
                                     $this->add('25000000', 'AND');
                                     break;
                                 default:
-                                    throw new \Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $condition->statementOperator));
+                                    throw new Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $condition->statementOperator));
                                     break;
                             }
 
@@ -299,10 +274,7 @@ class Evaluate{
                                 $this->add('10000000', 'return ');
                                 $this->add('01000000', 'return');
                             }
-
-
                         }
-
                     }
 
                     $this->add('24000000');
@@ -333,7 +305,6 @@ class Evaluate{
                     }
 
                     $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-
                 }
 
                 foreach ($endOffsets as $offset) {
@@ -374,47 +345,17 @@ class Evaluate{
 
                 foreach ($association->childs as $param) {
 
-
-//                    $this->movePointer($param);
                     if ($param->varType == "string") {
-
                         // move the internal pointer to the offset
-
-                        if (in_array($param->section, ['header', 'script']) !== false){
-                            $this->add($param->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $param->section);
-                            $this->add('04000000', 'Read String');
-                            $this->add('01000000', 'Read String');
-                            $this->add(Helper::fromIntToHex($param->offset), 'Offset');
-
-                            //then read the given size
-                            $this->add('12000000', 'Read String');
-                            $this->add('02000000', 'Read String');
-                            $this->add(Helper::fromIntToHex($param->sizeWithoutPad4), "Size of " . $param->sizeWithoutPad4);
-
-                        }else{
-                            //custom parameter
-                            $this->add('13000000', 'Read String from Section ' . $param->section);
-                            $this->add('01000000', 'Read String');
-                            $this->add('04000000', 'Read String');
-                            $this->add(substr(Helper::fromIntToHex($param->offset),0, 8), 'Offset');
-
-                            //then read the given size
-                            $this->add('12000000', 'Read String');
-                            $this->add('02000000', 'Read String');
-                            $this->add('00000000', "Offset / Size (todo)");
-
-                        }
-
+                        $this->movePointer($param);
                     }
 
                     new Evaluate($this->compiler, $param);
-
 
                     /**
                      * i guess the procedure need only the pointer and not the actual value
                      */
                     if ($association->isProcedure === true) continue;
-
 
                     if($param->type == Tokens::T_STRING){
                         $stringIndex = substr($param->value, 4);
@@ -425,9 +366,7 @@ class Evaluate{
                         $this->add('12000000');
                         $this->add('02000000');
                         $this->add(Helper::fromIntToHex($string['size']), "Length");
-
                     }
-
 
                     //we need to return the result after any math operation
                     if ($param->math !== false){
@@ -450,10 +389,9 @@ class Evaluate{
                     }
                 }
 
-
                 $this->msg = sprintf("Call Function %s", $association->value);
                 if ($association->isProcedure === true){
-//                    $this->add('01000000', 'uhm right?');
+
                     $this->add('10000000');
                     $this->add('01000000');
 
@@ -468,7 +406,6 @@ class Evaluate{
                     $this->add('10000000');
                     $this->add('02000000');
                     $this->add('39000000');
-
                 }
 
 
@@ -477,7 +414,7 @@ class Evaluate{
                     if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
                         $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
                     }else{
-                        throw new \Exception("Unknown WriteDebug function for " . $param->varType);
+                        throw new Exception("Unknown WriteDebug function for " . $param->varType);
                     }
 
                     $this->add($writeDebugFunction['offset'], "Offset");
@@ -499,12 +436,8 @@ class Evaluate{
                 $caseStartOffsets = [];
                 $caseEndOffsets = [];
 
-                if ($caseVariable->varType == "integer") {
-                    $this->add($association->section == "header" ? '14000000' : '13000000', 'Section ' . $association->section);
-                    $this->add('01000000');
-                    $this->add('04000000');
-
-                    $this->add(Helper::fromIntToHex($caseVariable->offset), 'Offset');
+                if ($caseVariable->type !== Tokens::T_FUNCTION) {
+                    $this->getPointer($caseVariable, $caseVariable->varType);
                 }
 
 
@@ -566,17 +499,14 @@ class Evaluate{
                 break;
             case Tokens::T_CASE:
 
-
                 foreach ($association->onTrue as $condition) {
                     new Evaluate($this->compiler, $condition);
                 }
 
                 break;
 
-            case Tokens::T_IS_NOT_EQUAL:
-                break;
             default:
-                throw new \Exception(sprintf("Unable to evaluate %s ", $association->type));
+                throw new Exception(sprintf("Unable to evaluate %s ", $association->type));
         }
     }
 
@@ -612,7 +542,7 @@ class Evaluate{
     private function movePointer( Associations $association ){
 
         $type = $this->getTypeByAssociation( $association );
-var_dump($association->section);
+
         switch ($type){
             case 'string':
 
@@ -650,7 +580,7 @@ var_dump($association->section);
     /**
      * @param Associations $association
      * @return bool|mixed|string|null
-     * @throws \Exception
+     * @throws Exception
      */
     private function getVarType(Associations $association){
         if ($association->type == Tokens::T_BOOLEAN) return 'boolean';
@@ -659,7 +589,7 @@ var_dump($association->section);
         if ($association->type == Tokens::T_STRING) return 'string';
         if ($association->type == Tokens::T_STATE) return 'state';
         if ($association->type == Tokens::T_CONSTANT) return 'constant';
-        throw new \Exception("Unable to resolve type " . $association->type);
+        throw new Exception("Unable to resolve type " . $association->type);
     }
 
     private function writeData($association, $type ){
@@ -709,7 +639,7 @@ var_dump($association->section);
     /**
      * @param $association
      * @param $type
-     * @throws \Exception
+     * @throws Exception
      */
     private function readData($association, $type ){
 
@@ -782,7 +712,7 @@ var_dump($association->section);
                 break;
 
             default:
-                throw new \Exception(sprintf("ReadData unknown type %s", $type));
+                throw new Exception(sprintf("ReadData unknown type %s", $type));
         }
     }
 }
