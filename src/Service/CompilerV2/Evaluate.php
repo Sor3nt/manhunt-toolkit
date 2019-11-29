@@ -59,8 +59,6 @@ class Evaluate{
                 $this->add('04000000');
 
                 $variables = $compiler->getVariablesByScriptName($association->value);
-//var_dump(count($variables));
-//exit;
 //                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Reserve Pointer Offsets');
 
                 break;
@@ -75,9 +73,7 @@ class Evaluate{
                 $this->add('0a000000');
                 $this->add('09000000');
 
-
                 $scriptSize = $compiler->getScriptSize($association->value);
-
 
                 if ($scriptSize > 0){
                     $this->msg = sprintf("Reserve Memory %s", $scriptSize);
@@ -176,17 +172,7 @@ class Evaluate{
 
                 //we have a regular variable
                 if ($association->assign === false && $association->math === false){
-
-//                    if ($association->vvarType == "state"){
-//                        $isState = $compiler->getState($association->value->varType);
-//                        $this->getPointer($association, 'state');
-//
-//                    }else{
-                        $this->getPointer($association, $association->varType);
-
-//                    }
-
-
+                    $this->getPointer($association, $association->varType);
                 }
 
                 break;
@@ -370,8 +356,6 @@ class Evaluate{
                     break;
                 }
 
-
-
                 foreach ($association->childs as $index => $param) {
 
 
@@ -412,7 +396,6 @@ class Evaluate{
                     }
 
                     if($param->type == Tokens::T_STRING){
-//                        $stringIndex = substr($param->value, 4);
                         $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
 
                         $this->msg = sprintf("Read String %s", $string['value']);
@@ -481,9 +464,6 @@ class Evaluate{
 
                 $this->msg = sprintf("Switch %s", $caseVariable->value);
 
-
-
-
                 /**
                  * TODO: das gehört in T_VARIABLE
                  */
@@ -496,8 +476,6 @@ class Evaluate{
                 /**
                  * TODO: das gehört in T_VARIABLE
                  */
-
-
 
                 new Evaluate($this->compiler, $caseVariable);
 
@@ -592,7 +570,6 @@ class Evaluate{
         }
     }
 
-
     private function add($code, $appendix = null ){
         $msg = $this->msg;
 
@@ -604,7 +581,6 @@ class Evaluate{
             'msg' => $msg
         ];
     }
-
 
     private function getTypeByAssociation( Associations $variable ){
 
@@ -633,8 +609,6 @@ class Evaluate{
 
                 break;
             case 'string':
-
-
                 if (in_array($association->section, ['header', 'script']) !== false){
                     $this->add($association->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $association->section);
                     $this->add('04000000', 'Read String');
@@ -657,11 +631,9 @@ class Evaluate{
                     $this->add('12000000', 'Read String');
                     $this->add('02000000', 'Read String');
                     $this->add('00000000', "Offset / Size (todo)");
-
                 }
 
                 break;
-
         }
     }
 

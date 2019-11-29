@@ -2,8 +2,8 @@
 
 namespace App\Service\CompilerV2;
 
-use App\Service\Compiler\Token;
-use App\Service\Compiler\Tokens\T_AND;
+use App\Service\Compiler\Token;use App\Service\Compiler\Tokens\T_AND;
+use Exception;
 
 class Associations
 {
@@ -72,8 +72,8 @@ class Associations
 
     /**
      * Associations constructor.
-     * @param Compiler $compiler
-     * @throws \Exception
+     * @param Compiler|null $compiler
+     * @throws Exception
      */
     public function __construct(Compiler $compiler = null)
     {
@@ -94,7 +94,6 @@ class Associations
                 $compiler->current++;
             }
 
-//            $this->type = "var_" . $variable['type'];
             $this->type = Tokens::T_VARIABLE;
             $this->value = $variable['name'];
 
@@ -126,9 +125,7 @@ class Associations
                 } else {
                     $this->assign = new Associations($compiler);
                 }
-
             }
-
 
             /**
              * Math operations
@@ -191,7 +188,6 @@ class Associations
             return;
         }
 
-
         /**
          * Check: Is this a int / float ?
          */
@@ -202,18 +198,11 @@ class Associations
                 (float)$value :
                 (int)$value;
 
-
-            //Negative number
-//            if ($compiler->getToken($compiler->current - 2) == "-"){
-//                $number *= -1;
-//            }
-
             $this->type = is_float($number) ? Tokens::T_FLOAT : Tokens::T_INT;
             $this->value = $number;
 
             return;
         }
-
 
         /**
          * Check: Is this a string ?
@@ -226,7 +215,6 @@ class Associations
             $this->value = $compiler->strings[$stringIndex];
 
             return;
-
         }
 
         /**
@@ -238,23 +226,18 @@ class Associations
                 $this->type = Tokens::T_NOP;
                 $compiler->mlsScriptMain = $compiler->consume();
                 break;
-
             case 'const':
                 $this->type = Tokens::T_NOP;
                 $this->consumeConstants($compiler);
-
                 break;
             case 'type':
                 $this->type = Tokens::T_NOP;
                 $this->consumeTypes($compiler);
-
                 break;
             case 'var':
             case 'arg':
                 $this->type = Tokens::T_NOP;
-
                 $this->consumeParameters($compiler, $compiler->currentSection);
-
                 break;
             case 'entity':
                 $this->type = Tokens::T_NOP;
@@ -270,21 +253,16 @@ class Associations
                 $compiler->currentScriptName = $this->value;
 
                 //we have params
-                if ($compiler->consumeIfTrue("(")) {
-                    $this->consumeParameters($compiler, $this->value);
-                }
+                if ($compiler->consumeIfTrue("(")) $this->consumeParameters($compiler, $this->value);
 
                 // Return type
-                if ($compiler->consumeIfTrue(":")) {
-                    $this->return = $compiler->consume();
-                }
-
+                if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
 
                 // Forward order
                 if ($compiler->consumeIfTrue("forward")) {
                     $this->type = Tokens::T_FORWARD;
 
-                    // regular body content
+                // regular body content
                 } else {
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
@@ -293,8 +271,6 @@ class Associations
                 }
 
                 $compiler->addCustomFunction($this->value, Tokens::T_PROCEDURE);
-//                $compiler->addVariable($this->value, Tokens::T_RETURN);
-
 
                 break;
             case 'script':
@@ -307,8 +283,7 @@ class Associations
                 $this->type = Tokens::T_SCRIPT;
                 $this->value = $compiler->currentScriptName;
 
-                //skip "begin"
-                $compiler->consumeIfTrue("begin");
+                $compiler->consumeIfTrue("begin");      //skip "begin"
 
                 $this->childs = $this->associateUntil($compiler, Tokens::T_END);
 
@@ -320,9 +295,7 @@ class Associations
 
                 $isState = $compiler->getState($this->value->varType);
 
-                //skip "of"
-                $compiler->consumeIfTrue("of");
-
+                $compiler->consumeIfTrue("of");     //skip "of"
 
                 while ($compiler->getToken($compiler->current + 1) == ":") {
                     $state = false;
@@ -365,11 +338,6 @@ class Associations
 
                 $case->type = Token::T_IF_CASE;
 
-//
-//                if ($compiler->consumeIfTrue("not")) {
-//                    $case->isNot = true;
-//                }
-
                 /** @var Associations[] $conditions */
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);
 
@@ -388,8 +356,6 @@ class Associations
                 if (count($conditions) == 3 && $conditions[0]->type != Tokens::T_CONDITION) {
                     $newCondition = new Associations();
                     $newCondition->type = Tokens::T_CONDITION;
-//                    $newCondition->isNot = $nextNot;
-//                    $newCondition->statementOperator = $nextOperator;
                     list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
                     $newCondition->childs = [$firstChild];
                     $newCondition->operator = $operator;
@@ -412,8 +378,6 @@ class Associations
 
                     $newCondition = new Associations();
                     $newCondition->type = Tokens::T_CONDITION;
-//                    $newCondition->isNot = $nextNot;
-//                    $newCondition->statementOperator = $nextOperator;
                     list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
                     $newCondition->childs = [$firstChild];
                     $newCondition->operator = $operator;
@@ -460,7 +424,7 @@ class Associations
 
                                 }else{
                                     var_dump($condition);
-                                    throw new \Exception("IF Statement with not 3 childs");
+                                    throw new Exception("IF Statement with not 3 childs");
                                 }
                             }else if ($condition->type == Tokens::T_NOT){
                                     $nextNot = true;
@@ -529,24 +493,13 @@ class Associations
 
                 break;
 
-            case '<>':
-                $this->type = Tokens::T_IS_NOT_EQUAL;
-                break;
-            case 'and':
-                $this->type = Tokens::T_AND;
-                break;
-            case 'or':
-                $this->type = Tokens::T_OR;
-                break;
             case '(':
                 $this->type = Tokens::T_CONDITION;
 
                 $this->childs = $this->associateUntil($compiler, Tokens::T_BRACKET_CLOSE);
 
                 break;
-            /**
-             * Simple values, just convert into T_TOKEN
-             */
+
             case 'true':
                 $this->type = Tokens::T_BOOLEAN;
                 $this->varType = 'boolean';
@@ -558,86 +511,43 @@ class Associations
                 $this->value = false;
                 break;
 
-            case 'nil':
-                $this->type = Tokens::T_INT;
-                $this->value = 0;
-                break;
-
-
-            case '+':
-                $this->type = Tokens::T_ADDITION;
-                break;
-            case '-':
-                $this->type = Tokens::T_SUBSTRACTION;
-//
-//                //it is possible that we hit a negative number
-//                //more or less a hack...
-//                if (is_numeric($compiler->getToken($compiler->current))){
-//                    $this->type = Tokens::T_NOP;
-//                }
-
-                break;
-            case '*':
-                $this->type = Tokens::T_MULTIPLY;
-                break;
-            case ':=':
-                $this->type = Tokens::T_ASSIGN;
-                break;
-            case '=': $this->type = Tokens::T_IS_EQUAL; break;
-//            case '=':
-//                $this->type = Tokens::T_NOP;
-//                break;
-            case '<':
-                $this->type = Tokens::T_IS_SMALLER;
-                break;
-            case '<=':
-                $this->type = Tokens::T_IS_SMALLER_EQUAL;
-                break;
-            case '>':
-                $this->type = Tokens::T_IS_GREATER;
-                break;
-            case '>=':
-                $this->type = Tokens::T_IS_GREATER_EQUAL;
-                break;
-
-            case 'then':
-                $this->type = Tokens::T_THEN;
-                break;
-            case ')':
-                $this->type = Tokens::T_BRACKET_CLOSE;
-                break;
-            case 'end':
-                $this->type = Tokens::T_END;
-                break;
-
-            case 'not':
-                $this->type = Tokens::T_NOT;
-                break;
-            case 'do':
-                $this->type = Tokens::T_DO;
-                break;
-
+            /**
+             * Simple values, just convert into T_TOKEN
+             */
+            case '<>':   $this->type = Tokens::T_IS_NOT_EQUAL; break;
+            case 'and':  $this->type = Tokens::T_AND; break;
+            case 'or':   $this->type = Tokens::T_OR; break;
+            case 'nil':  $this->type = Tokens::T_INT; $this->value = 0; break;
+            case '+':    $this->type = Tokens::T_ADDITION; break;
+            case '-':    $this->type = Tokens::T_SUBSTRACTION; break;
+            case '*':    $this->type = Tokens::T_MULTIPLY; break;
+            case ':=':   $this->type = Tokens::T_ASSIGN; break;
+            case '=':    $this->type = Tokens::T_IS_EQUAL; break;
+            case '<':    $this->type = Tokens::T_IS_SMALLER; break;
+            case '<=':   $this->type = Tokens::T_IS_SMALLER_EQUAL; break;
+            case '>':    $this->type = Tokens::T_IS_GREATER; break;
+            case '>=':   $this->type = Tokens::T_IS_GREATER_EQUAL; break;
+            case 'then': $this->type = Tokens::T_THEN; break;
+            case ')':    $this->type = Tokens::T_BRACKET_CLOSE; break;
+            case 'end':  $this->type = Tokens::T_END; break;
+            case 'not':  $this->type = Tokens::T_NOT; break;
+            case 'do':   $this->type = Tokens::T_DO; break;
 
             case 'begin':
             case 'end.':
-            case ',':
-                $this->type = Tokens::T_NOP;
-                break;
-
+            case ',':    $this->type = Tokens::T_NOP; break;
 
             default:
                 $compiler->raiseException();
                 break;
-
         }
-
     }
 
     /**
      * @param Compiler $compiler
      * @param $tokenType
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function associateUntil(Compiler $compiler, $tokenType)
     {
@@ -684,8 +594,7 @@ class Associations
                 $names[] = $compiler->consume();
             }
 
-            //skip ":"
-            $compiler->current++;
+            $compiler->current++;   //skip ":"
 
             $isLevelVar = $compiler->getToken() == "level_var";
             $isGameVar = $compiler->getToken() == "game_var";
@@ -700,19 +609,12 @@ class Associations
              */
             if ($type == "array") {
 
-                // Skip "["
-                $compiler->current++;
-
+                $compiler->current++;   // Skip "["
                 list($start, $end) = explode('..', $compiler->consume());
-
-                // Skip "]"
-                $compiler->current++;
-
-                // Skip "of"
-                $compiler->current++;
+                $compiler->current++;   // Skip "]"
+                $compiler->current++;   // Skip "of"
 
                 $type = $compiler->consume();
-
 
                 foreach ($names as $name) {
                     $compiler->addVariable($name, 'array', null, false, false, $section);
@@ -723,7 +625,6 @@ class Associations
                 }
 
             } else {
-
 
                 /**
                  * Parse the string size
@@ -743,7 +644,6 @@ class Associations
                 }
             }
 
-
             /**
              * When we use this function to parse "custom function" parameters,
              * its possible that the "custom function" has a return value
@@ -756,22 +656,18 @@ class Associations
                 $compiler->current++;
                 return;
             }
-
         }
-
     }
 
 
     private function consumeTypes(Compiler $compiler)
     {
 
-
         while ($compiler->getToken($compiler->current + 1) == "=") {
 
             $name = $compiler->consume();
             $compiler->current++;
             $compiler->current++;
-
 
             $entries = [$compiler->consume()];
             while ($compiler->getToken($compiler->current) != ')') {
@@ -781,15 +677,8 @@ class Associations
 
             $compiler->current++;
 
-
             $compiler->addStates($name, $entries);
-//var_dump($compiler->gameClass->types);
-//exit;
         }
-
-//        var_dump($compiler->gameClass->types);
-//        exit;
-
     }
 
     private function consumeConstants(Compiler $compiler)
@@ -813,11 +702,9 @@ class Associations
             }
 
             $compiler->addConstants($name, $value);
-
         }
 
     }
-
 
     public function __toString()
     {

@@ -50,35 +50,11 @@ class Compiler
         //extract all used strings
         preg_match_all("/['|\"](.+)['|\"]/U", $source, $strings);
         $this->strings = array_values(array_unique($strings[1]));
-//
-//        foreach ($this->strings as &$string) {
-//
-//            $len = strlen($string) + 1;
-//
-//            $string = [
-//                'value' => $string,
-//                'offset' => $this->offsetGlobalVariable,
-//                'size' => $len
-//            ];
-//
-//            if (4 - $len % 4 != 0) $len += 4 - $len % 4;
-//echo $len . " " . $string['value'] . "\n";
-//            $this->offsetGlobalVariable += $len;
-//
-//        }
-
-        //ich brauch pro block die strings....
-
-//        unset($string);
-
-//        var_dump($this->strings);
-//exit;
-
 
         $newStrings = array_values(array_unique($strings[0]));
-        //replace usage with dummy
+
+        //replace usage with dummy to avoid parsing errors
         foreach ($newStrings as $index => $string) {
-//            var_dump($string . " as " . "'str_" . $index);
             $source = str_replace($string, "'str_" . $index . '\'', $source );
         }
 
@@ -99,7 +75,6 @@ class Compiler
         $source = preg_replace("/\(/", " ( ", $source);
         $source = preg_replace("/\)/", " ) ", $source);
         $source = preg_replace("/\+/", " + ", $source);
-//        $source = preg_replace("/\-/", " - ", $source);
         $source = preg_replace("/\,/", " , ", $source);
         $source = preg_replace("/\[/", " [ ", $source);
         $source = preg_replace("/\]/", " ] ", $source);
@@ -114,7 +89,11 @@ class Compiler
     }
 
 
-    private function searchStrings(  ){
+    /**
+     * We need to parse every string in the original order of the source code.
+     * inside one script block the strings are unique but repeat in next blocks again maybe
+     */
+    private function searchStrings(){
 
         $current = 0;
         $currentScriptName = "";
@@ -134,7 +113,6 @@ class Compiler
                 $this->addString(substr($token, 1, -1), $currentScriptName);
             }
 
-
             $current++;
         }
 
@@ -145,16 +123,16 @@ class Compiler
      */
     public function compile(){
 
+        // Search and add all used strings
         $this->searchStrings();
-//var_dump($this->strings4Script);
-//exit;
 
+        // Build the AST (Abstract syntax tree)
         $associated = [];
         while ($this->current < count($this->tokens)){
 
             $association = new Associations($this);
-            if ($association->type == Tokens::T_NOP) continue;
-            $associated[] = $association;
+            if ($association->type !== Tokens::T_NOP) $associated[] = $association;
+
         }
 
         /**
@@ -194,7 +172,6 @@ class Compiler
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
 
-
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -203,9 +180,7 @@ class Compiler
 
             'CODE' => $this->codes
         ];
-
     }
-
 
     public function getState($name, $state = null){
         if (!isset($this->gameClass->types[$name])) return false;
@@ -244,12 +219,8 @@ class Compiler
         ];
 
         if (4 - $len % 4 != 0) $len += 4 - $len % 4;
-//        echo $len . ' ' . $string . "\n";
 
         $this->offsetGlobalVariable += $len;
-
-//        var_dump($this->strings4Script);
-//        exit;
     }
 
     public function addStates($name, $states ){
@@ -262,7 +233,7 @@ class Compiler
             ];
         }
 
-        var_dump("Add Type: " . $name . " with types " . print_r($types, true) );
+//        var_dump("Add Type: " . $name . " with types " . print_r($types, true) );
 
         $this->gameClass->types[$name] = [
             'types' => $types
@@ -270,7 +241,7 @@ class Compiler
 
     }
     public function addConstants( $name, $value ){
-        var_dump("Add Constant: " . $name . " with value " . $value );
+//        var_dump("Add Constant: " . $name . " with value " . $value );
         $this->gameClass->constants[$name] = [
             'value' => $value
         ];
@@ -279,14 +250,8 @@ class Compiler
 
     public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null ){
 
-        var_dump("Add Variable: " . $name . ' to section ' . $section);
-        /**
-         * AHHH TODO: die werte werden überschriben, erweitern um den script namen um es uniqu zu haben....
-         */
         if (is_null($size)) $size = $this->calcSize($type);
         $sizeWithoutPad4 = $size;
-
-
 
         if ($section == "header"){
 
@@ -323,8 +288,6 @@ class Compiler
             'section' => $section,
             'scriptName' => $this->currentScriptName
         ];
-
-
 
         if ($type == "vec3d") {
 
@@ -417,8 +380,6 @@ class Compiler
         return false;
     }
 
-
-
     public function consumeIfTrue( $val ){
         if ($this->getToken() == $val){
             $this->current++;
@@ -492,9 +453,7 @@ class Compiler
                 break;
         }
 
-        if ($addString4Bytes) {
-            if ($size % 4 == 0) $size += 4;
-        }
+        if ($addString4Bytes && $size % 4 == 0) $size += 4;
 
         return $size;
     }
