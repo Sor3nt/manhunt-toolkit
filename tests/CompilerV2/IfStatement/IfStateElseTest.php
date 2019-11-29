@@ -80,7 +80,7 @@ class IfStateElseTest extends KernelTestCase
             '01000000', //statement (end sequence)
             '00000000', //statement (end sequence)
             '3f000000', //statement (init start offset)
-            '5c010000', //Offset (line number 2460)
+            '00010000', //Offset (line number 2460)
             '12000000', //parameter (access script var)
             '01000000', //parameter (access script var)
             '00000000', //value 0

@@ -18,6 +18,8 @@ class Compiler
 
     public $variables = [];
     public $strings = [];
+    public $stringsAll = [];
+    public $strings4Script = [];
     public $codes = [];
 
     public $currentSection = "header";
@@ -47,31 +49,42 @@ class Compiler
 
         //extract all used strings
         preg_match_all("/['|\"](.+)['|\"]/U", $source, $strings);
-        $this->strings = array_unique($strings[1]);
+        $this->strings = array_values(array_unique($strings[1]));
+//
+//        foreach ($this->strings as &$string) {
+//
+//            $len = strlen($string) + 1;
+//
+//            $string = [
+//                'value' => $string,
+//                'offset' => $this->offsetGlobalVariable,
+//                'size' => $len
+//            ];
+//
+//            if (4 - $len % 4 != 0) $len += 4 - $len % 4;
+//echo $len . " " . $string['value'] . "\n";
+//            $this->offsetGlobalVariable += $len;
+//
+//        }
 
-        foreach ($this->strings as &$string) {
+        //ich brauch pro block die strings....
 
-            $len = strlen($string) + 1;
+//        unset($string);
 
-            $string = [
-                'value' => $string,
-                'offset' => $this->offsetGlobalVariable,
-                'size' => $len
-            ];
+//        var_dump($this->strings);
+//exit;
 
-            if (4 - $len % 4 != 0) $len += 4 - $len % 4;
 
-            $this->offsetGlobalVariable += $len;
-
-        }
-
-        unset($string);
-
+        $newStrings = array_values(array_unique($strings[0]));
         //replace usage with dummy
-        foreach ($strings[0] as $index => $string) {
+        foreach ($newStrings as $index => $string) {
+//            var_dump($string . " as " . "'str_" . $index);
             $source = str_replace($string, "'str_" . $index . '\'', $source );
         }
 
+        if (count($newStrings) !== count(array_unique($strings[1]))){
+            die("eh damn, the strings did not match....");
+        }
 
         /**
          * Avoid wrong associations
@@ -98,6 +111,32 @@ class Compiler
          */
         preg_match_all("/([^\s|^;]+)/", $source, $tokens);
         $this->tokens = $tokens[0];
+    }
+
+
+    private function searchStrings(  ){
+
+        $current = 0;
+        $currentScriptName = "";
+        while ($current < count($this->tokens)) {
+            $token = $this->tokens[$current];
+
+            switch(strtolower($token)){
+                case 'script':
+                case 'procedure':
+                case 'function':
+                    $currentScriptName = $this->tokens[$current + 1];
+                    break;
+
+            }
+
+            if (substr($token, -1, 1) == "'"){
+                $this->addString(substr($token, 1, -1), $currentScriptName);
+            }
+
+
+            $current++;
+        }
 
     }
 
@@ -105,6 +144,11 @@ class Compiler
      * @throws \Exception
      */
     public function compile(){
+
+        $this->searchStrings();
+//var_dump($this->strings4Script);
+//exit;
+
         $associated = [];
         while ($this->current < count($this->tokens)){
 
@@ -150,6 +194,7 @@ class Compiler
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
 
+
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -173,6 +218,39 @@ class Compiler
         return $this->gameClass->types[$name];
     }
 
+
+    public function addString($string, $currentScriptName){
+        $currentScriptName = strtolower($currentScriptName);
+        $stringIndex = substr($string, 4);
+        $string = $this->strings[$stringIndex];
+
+        if (
+            isset($this->strings4Script[$currentScriptName]) &&
+            isset($this->strings4Script[$currentScriptName][strtolower($string)])
+        ){
+            return;
+        }
+
+        if (!isset($this->strings4Script[$currentScriptName]))
+            $this->strings4Script[$currentScriptName] = [];
+
+        $len = strlen($string) + 1;
+
+        $this->strings4Script[$currentScriptName][strtolower($string)] = [
+            'value' => $string,
+            'offset' => $this->offsetGlobalVariable,
+            'scriptName' => $currentScriptName,
+            'size' => $len
+        ];
+
+        if (4 - $len % 4 != 0) $len += 4 - $len % 4;
+//        echo $len . ' ' . $string . "\n";
+
+        $this->offsetGlobalVariable += $len;
+
+//        var_dump($this->strings4Script);
+//        exit;
+    }
 
     public function addStates($name, $states ){
 
@@ -208,11 +286,14 @@ class Compiler
         if (is_null($size)) $size = $this->calcSize($type);
         $sizeWithoutPad4 = $size;
 
+
+
         if ($section == "header"){
 
             $offset = $this->offsetGlobalVariable;
 
             if ($size % 4 != 0) $size += $size % 4;
+
             $this->offsetGlobalVariable += $size;
         }else if ($section == "script"){
             $this->offsetScriptVariable += $size;
@@ -284,7 +365,7 @@ class Compiler
 
         $this->gameClass->functions[strtolower($name)] = [
             'name' => strtolower($name),
-            'offset' => $this->offsetProcedureScripts,
+            'offset' => Helper::fromIntToHex($this->offsetProcedureScripts),
             'type' => $type
         ];
 
@@ -306,11 +387,6 @@ class Compiler
         $size = 0;
         $variables = $this->getVariablesByScriptName($scriptName);
 
-
-//        if ($scriptName == "oncreate"){
-//            var_dump($variables);
-//            exit;
-//        }
         foreach ($variables as $variable) {
 
             //is this equal, it mean we process a parameter not a regular variable
@@ -318,6 +394,8 @@ class Compiler
 
             $size += $variable['size'];
         }
+
+        if ($size % 4 != 0 ) $size += $size % 4;
 
         return $size;
     }

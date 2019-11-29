@@ -222,6 +222,9 @@ class Associations
             $this->type = Tokens::T_STRING;
             $this->value = substr($value, 1, -1);
 
+            $stringIndex = substr($this->value, 4);
+            $this->value = $compiler->strings[$stringIndex];
+
             return;
 
         }
@@ -780,8 +783,12 @@ class Associations
 
 
             $compiler->addStates($name, $entries);
-
+//var_dump($compiler->gameClass->types);
+//exit;
         }
+
+//        var_dump($compiler->gameClass->types);
+//        exit;
 
     }
 

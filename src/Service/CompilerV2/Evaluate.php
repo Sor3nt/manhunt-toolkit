@@ -26,6 +26,8 @@ class Evaluate{
         switch ($association->type){
             
             case Tokens::T_PROCEDURE:
+                $this->compiler->currentScriptName = $association->value;
+
                 $this->msg = sprintf("Initialize Custom Function %s", $association->value);
                 $this->add('10000000');
                 $this->add('0a000000');
@@ -54,14 +56,18 @@ class Evaluate{
                 $this->add('0f000000');
                 $this->add('0a000000');
                 $this->add('3a000000');
+                $this->add('04000000');
 
                 $variables = $compiler->getVariablesByScriptName($association->value);
-
-                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Reserve Pointer Offsets');
+//var_dump(count($variables));
+//exit;
+//                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Reserve Pointer Offsets');
 
                 break;
 
             case Tokens::T_SCRIPT:
+                $this->compiler->currentScriptName = $association->value;
+
                 $this->msg = sprintf("Initialize Script %s", $association->value);
                 $this->add('10000000');
                 $this->add('0a000000');
@@ -250,7 +256,7 @@ class Evaluate{
                         }
 
                         $offset = count($compiler->codes);
-                        $this->add('OFFSET', 'Offset');
+                        $this->add('OFFSET', 'Offset 1');
 
                         $this->add('33000000');
                         $this->add('01000000');
@@ -296,7 +302,7 @@ class Evaluate{
                     $this->add('3f000000');
 
                     $offset = count($compiler->codes);
-                    $this->add('OFFSET', "Offset");
+                    $this->add('OFFSET', "Offset 2");
 
                     foreach ($case->onTrue as $item) {
                         new Evaluate($this->compiler, $item);
@@ -317,6 +323,8 @@ class Evaluate{
                         $this->add(Helper::fromIntToHex($startOffset * 4), "start Offset");
                     }
 
+                    $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+
                     if ($case->onFalse !== null){
                         foreach ($case->onFalse as $item) {
                             new Evaluate($this->compiler, $item);
@@ -324,7 +332,6 @@ class Evaluate{
 
                     }
 
-                    $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
                 }
 
                 foreach ($endOffsets as $offset) {
@@ -405,8 +412,8 @@ class Evaluate{
                     }
 
                     if($param->type == Tokens::T_STRING){
-                        $stringIndex = substr($param->value, 4);
-                        $string = $compiler->strings[$stringIndex];
+//                        $stringIndex = substr($param->value, 4);
+                        $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
 
                         $this->msg = sprintf("Read String %s", $string['value']);
 
@@ -483,7 +490,8 @@ class Evaluate{
                 $isState = $compiler->getState($caseVariable->varType);
 
                 if ($isState){
-                    $this->getPointer($association, 'state');
+                    $this->msg = sprintf("Switch state %s %s", $caseVariable->value, $caseVariable->section);
+                    $this->getPointer($caseVariable, 'state');
                 }
                 /**
                  * TODO: das gehört in T_VARIABLE
@@ -503,7 +511,12 @@ class Evaluate{
 
                     $this->add('24000000', 'Case ' . $realIndex);
                     $this->add('01000000');
-                    $this->add(Helper::fromIntToHex($realIndex), 'Offset');
+
+                    if (is_array($case->value)){
+                        $this->add(Helper::fromIntToHex($case->value['offset']), 'case Offset');
+                    }else{
+                        $this->add(Helper::fromIntToHex($realIndex), 'case Offset');
+                    }
                     $this->add('3f000000');
 
                     //we dont know yet the correct offset, we store the position and
@@ -728,8 +741,7 @@ class Evaluate{
                 break;
             case 'string':
 
-                $stringIndex = substr($association->value, 4);
-                $string = $this->compiler->strings[$stringIndex];
+                $string = $this->compiler->strings4Script[strtolower($this->compiler->currentScriptName)][strtolower($association->value)];
 
                 $this->msg = sprintf("Move String Pointer to %s", $string['offset']);
 
