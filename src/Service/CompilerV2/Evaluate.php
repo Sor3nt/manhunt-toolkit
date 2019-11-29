@@ -146,12 +146,7 @@ class Evaluate{
 
                     $this->msg = sprintf("Variable %s Math Operation ", $association->value);
 
-                    if ($association->varType == "integer"){
-                        $this->add($association->section == "header" ? '14000000' : '13000000', 'Read Variable');
-                        $this->add('01000000', 'Read Integer');
-                        $this->add('04000000', 'Read Integer');
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                    }
+                    $this->getPointer($association, $association->varType);
 
                     $this->add('10000000');
                     $this->add('01000000');
@@ -174,6 +169,7 @@ class Evaluate{
                         $this->add('33000000');
                         $this->add('04000000');
                         $this->add('01000000');
+
                         $this->add('11000000');
                         $this->add('01000000');
                         $this->add('04000000');
@@ -191,14 +187,11 @@ class Evaluate{
                 $this->msg = sprintf("IF Statement ");
 
                 $startOffset = count($compiler->codes);
-//var_dump($association);
-//exit;
+
                 $endOffsets = [];
                 foreach ($association->cases as $index => $case) {
 
                     $isLastCase = count($association->cases) == $index+1;
-
-                    $compareAgainst = false;
 
                     //apply the condition
                     /** @var Associations $condition */
@@ -206,40 +199,12 @@ class Evaluate{
 
                         $firstEntry = $condition->childs[0];
 
-//                        if ($firstEntry->type == Tokens::T_FUNCTION) {
-//                            if ($firstEntry->return == null) {
-//                                var_dump($firstEntry);
-//                                throw new \Exception(sprintf("No Return type available for function ->%s<-", $condition->value));
-//                            }
-//
-//                            $compareWith = $firstEntry->return;
-//                        } else if ($firstEntry->type == Tokens::T_VARIABLE) {
-//                            $compareWith = $firstEntry->varType;
-//                        } else {
-//                            $compareWith = "integer";
-//                        }
-
-                        if ($firstEntry->varType == "integer") {
-
-                            $this->add($firstEntry->section == "header" ? '14000000' : '13000000', 'Read Integer');
-                            $this->add('01000000', 'Read Integer Variable');
-                            $this->add('04000000', 'Read Integer Variable');
-                            $this->add(Helper::fromIntToHex($firstEntry->offset), 'Offset');
-
-
-                        }else if ($firstEntry->varType == "boolean"){
-
-                            $this->add($firstEntry->section == "header" ? '14000000' : '13000000', 'Read Integer');
-                            $this->add('01000000', 'Read Boolean Variable');
-                            $this->add('04000000', 'Read Boolean Variable');
-                            $this->add(Helper::fromIntToHex($firstEntry->offset), 'Offset');
-                        }
+                        $this->getPointer($firstEntry, $firstEntry->varType);
 
 
                         foreach ($condition->childs as $child) {
                             new Evaluate($this->compiler, $child);
                         }
-
 
 
                         if ($case->isNot !== null || $condition->isNot !== null){
@@ -723,6 +688,24 @@ var_dump($association->section);
 
     }
 
+    private function getPointer($association, $type ){
+
+        switch ($type) {
+            case 'boolean':
+
+                $this->add($association->section == "header" ? '14000000' : '13000000', 'Boolean Pointer from Section ' . $association->section);
+                $this->add('01000000', 'Read Boolean Variable');
+                $this->add('04000000', 'Read Boolean Variable');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                break;
+            case 'integer':
+                $this->add($association->section == "header" ? '14000000' : '13000000', 'Integer Pointer from Section ' . $association->section);
+                $this->add('01000000', 'Read Integer');
+                $this->add('04000000', 'Read Integer');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                break;
+        }
+    }
     /**
      * @param $association
      * @param $type
