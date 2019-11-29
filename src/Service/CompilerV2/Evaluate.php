@@ -166,6 +166,11 @@ class Evaluate{
                     }
                 }
 
+                //we have a regular variable
+                if ($association->assign === false && $association->math === false){
+                    $this->getPointer($association, $association->varType);
+                }
+
                 break;
             case Tokens::T_DO:
             case Tokens::T_IF:
@@ -179,10 +184,6 @@ class Evaluate{
                      //apply the condition
                     /** @var Associations $condition */
                     foreach ($case->condition as $conditionIndex => $condition) {
-
-                        $firstEntry = $condition->childs[0];
-
-                        $this->getPointer($firstEntry, $firstEntry->varType);
 
                         foreach ($condition->childs as $child) {
                             new Evaluate($this->compiler, $child);
@@ -436,11 +437,6 @@ class Evaluate{
                 $caseStartOffsets = [];
                 $caseEndOffsets = [];
 
-                if ($caseVariable->type !== Tokens::T_FUNCTION) {
-                    $this->getPointer($caseVariable, $caseVariable->varType);
-                }
-
-
                 $cases = array_reverse($association->cases);
                 foreach (array_reverse($association->cases) as $index => $case) {
 
@@ -621,6 +617,13 @@ class Evaluate{
     private function getPointer($association, $type ){
 
         switch ($type) {
+            case 'entityptr':
+
+                $this->add($association->section == "header" ? '14000000' : '13000000', 'Boolean Pointer from Section ' . $association->section);
+                $this->add('01000000', 'Read Boolean Variable');
+                $this->add('04000000', 'Read Boolean Variable');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                break;
             case 'boolean':
 
                 $this->add($association->section == "header" ? '14000000' : '13000000', 'Boolean Pointer from Section ' . $association->section);
@@ -634,6 +637,8 @@ class Evaluate{
                 $this->add('04000000', 'Read Integer');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 break;
+
+
         }
     }
     /**
