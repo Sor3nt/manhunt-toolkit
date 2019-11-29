@@ -290,7 +290,7 @@ class Evaluate{
                         new Evaluate($this->compiler, $item);
                     }
 
-                    if (count($association->cases) != $index + 1){
+                    if (count($association->cases) != $index + 1 || $case->onFalse !== null){
                         $this->add('3c000000', 'Jump to');
 
                         $endOffsets[] = count($compiler->codes);
@@ -303,6 +303,13 @@ class Evaluate{
                         $this->add('3c000000', 'Jump to ' . ($startOffset * 4));
 
                         $this->add(Helper::fromIntToHex($startOffset * 4), "start Offset");
+                    }
+
+                    if ($case->onFalse !== null){
+                        foreach ($case->onFalse as $item) {
+                            new Evaluate($this->compiler, $item);
+                        }
+
                     }
 
                     $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
@@ -357,13 +364,17 @@ class Evaluate{
                     /**
                      * i guess the procedure need only the pointer and not the actual value
                      */
-                    if ($association->isProcedure === true) continue;
+                    if ($association->isProcedure === true){
+                        $this->add('10000000');
+                        $this->add('01000000');
+                        continue;
+                    }
 
                     if($param->type == Tokens::T_STRING){
                         $stringIndex = substr($param->value, 4);
                         $string = $compiler->strings[$stringIndex];
 
-                        $this->msg = sprintf("Read String %s", $param->value);
+                        $this->msg = sprintf("Read String %s", $string['value']);
 
                         $this->add('12000000');
                         $this->add('02000000');
@@ -391,16 +402,8 @@ class Evaluate{
                     }
                 }
 
-                if (count($association->childs) > 0 && $association->isProcedure === true){
-                    $this->add('10000000');
-                    $this->add('01000000');
-                }
-
                 $this->msg = sprintf("Call Function %s", $association->value);
                 if ($association->isProcedure === true){
-
-
-
                     $this->add('10000000');
                     $this->add('04000000');
                     $this->add('11000000');
