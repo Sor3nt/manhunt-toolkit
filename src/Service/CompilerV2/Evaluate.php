@@ -168,7 +168,17 @@ class Evaluate{
 
                 //we have a regular variable
                 if ($association->assign === false && $association->math === false){
-                    $this->getPointer($association, $association->varType);
+
+//                    if ($association->vvarType == "state"){
+//                        $isState = $compiler->getState($association->value->varType);
+//                        $this->getPointer($association, 'state');
+//
+//                    }else{
+                        $this->getPointer($association, $association->varType);
+
+//                    }
+
+
                 }
 
                 break;
@@ -356,6 +366,9 @@ class Evaluate{
                     if ($param->varType == "string") {
                         // move the internal pointer to the offset
                         $this->movePointer($param);
+                    }else if ($param->varType == "vec3d") {
+                        // move the internal pointer to the offset
+                        $this->movePointer($param);
                     }
 
 
@@ -439,6 +452,23 @@ class Evaluate{
                 $caseVariable = $association->value;
 
                 $this->msg = sprintf("Switch %s", $caseVariable->value);
+
+
+
+
+                /**
+                 * TODO: das gehört in T_VARIABLE
+                 */
+                $isState = $compiler->getState($caseVariable->varType);
+
+                if ($isState){
+                    $this->getPointer($association, 'state');
+                }
+                /**
+                 * TODO: das gehört in T_VARIABLE
+                 */
+
+
 
                 new Evaluate($this->compiler, $caseVariable);
 
@@ -546,8 +576,14 @@ class Evaluate{
     private function movePointer( Associations $association ){
 
         $type = $this->getTypeByAssociation( $association );
-
         switch ($type){
+            case 'vec3d':
+                $this->add($association->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $association->section);
+                $this->add('04000000', 'Read String');
+                $this->add('01000000', 'Read String');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+
+                break;
             case 'string':
 
 
@@ -628,6 +664,7 @@ class Evaluate{
     private function getPointer($association, $type ){
 
         switch ($type) {
+            case 'state':
             case 'entityptr':
             case 'boolean':
             case 'integer':
