@@ -71,6 +71,8 @@ class Evaluate{
 
 
                 $scriptSize = $compiler->getScriptSize($association->value);
+
+
                 if ($scriptSize > 0){
                     $this->msg = sprintf("Reserve Memory %s", $scriptSize);
 

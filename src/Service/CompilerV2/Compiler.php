@@ -202,7 +202,9 @@ class Compiler
     public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null ){
 
         var_dump("Add Variable: " . $name . ' to section ' . $section);
-
+        /**
+         * AHHH TODO: die werte werden überschriben, erweitern um den script namen um es uniqu zu haben....
+         */
         if (is_null($size)) $size = $this->calcSize($type);
         $sizeWithoutPad4 = $size;
 
@@ -231,10 +233,10 @@ class Compiler
             $this->offsetProcedureVariable -= 4;
         }
 
-        $this->variables[strtolower($name) . '_' . $this->currentSection] = [
+        $this->variables[] = [
             'name' => strtolower($name),
             'type' => $type,
-            'size' => $size,
+            'size' => $type == "vec3d" || $type == "rgbaint" ? 0 : $size,
             'sizeWithoutPad4' => $sizeWithoutPad4,
             'offset' => $offset,
             'section' => $section,
@@ -244,13 +246,12 @@ class Compiler
 
 
         if ($type == "vec3d") {
-            $this->variables[strtolower($name) . '_' . $this->currentSection]['size'] = 0;
 
             foreach (["x", "y", "z"] as $entry) {
 
                 $attributeName = strtolower($name) . '.' . $entry;
 
-                $this->variables[$attributeName . '_' . $this->currentSection] = [
+                $this->variables[] = [
                     'name' => $attributeName,
                     'type' => 'float',
                     'size' => 4,
@@ -260,13 +261,12 @@ class Compiler
                 ];
             }
         }else if ($type == "rgbaint"){
-            $this->variables[strtolower($name) . '_' . $this->currentSection]['size'] = 0;
 
             foreach (["red", "green", "blue", "alpha"] as $entry) {
 
                 $attributeName = strtolower($name) . '.' . $entry;
 
-                $this->variables[$attributeName . '_' . $this->currentSection] = [
+                $this->variables[] = [
                     'name' => $attributeName,
                     'type' => 'integer',
                     'size' => 4,
@@ -306,6 +306,11 @@ class Compiler
         $size = 0;
         $variables = $this->getVariablesByScriptName($scriptName);
 
+
+//        if ($scriptName == "oncreate"){
+//            var_dump($variables);
+//            exit;
+//        }
         foreach ($variables as $variable) {
 
             //is this equal, it mean we process a parameter not a regular variable
@@ -319,16 +324,17 @@ class Compiler
 
     public function getVariable($name){
 
-        $index = strtolower($name) . '_';
-
-        if (isset($this->variables[$index . 'header'])){
-            return $this->variables[$index. 'header'];
+        $index = strtolower($name);
+        foreach ($this->variables as $variable) {
+            if ($variable['name'] == $index){
+                if (
+                    $variable['section'] == "header" ||
+                    $variable['scriptName'] == $this->currentScriptName
+                ){
+                    return $variable;
+                }
+            }
         }
-
-        if (isset($this->variables[$index . 'script'])){
-            return $this->variables[$index. 'script'];
-        }
-
 
         return false;
     }
