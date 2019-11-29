@@ -361,8 +361,12 @@ class Evaluate{
                     break;
                 }
 
-                foreach ($association->childs as $param) {
 
+
+                foreach ($association->childs as $index => $param) {
+
+
+                    //TODO das gehört doch auch in T_VARIABLE ODER ?!
                     if ($param->varType == "string") {
                         // move the internal pointer to the offset
                         $this->movePointer($param);
@@ -373,6 +377,21 @@ class Evaluate{
 
 
                     new Evaluate($this->compiler, $param);
+
+                    if ($association->forceFloat){
+                        if($association->forceFloat[$index] === true){
+
+                            if ($param->type !== Tokens::T_FLOAT){
+
+                                $this->add('10000000');
+                                $this->add('01000000');
+
+                                $this->add('4d000000', 'integer to float');
+
+                            }
+
+                        }
+                    }
 
                     /**
                      * i guess the procedure need only the pointer and not the actual value
@@ -526,7 +545,21 @@ class Evaluate{
                 $this->readData($association, 'float');
                 break;
             case Tokens::T_INT:
+                $this->msg = sprintf("Handle Integer %s", $association->value);
+
+                $negate = false;
+                if ($association->value < 0){
+                    $association->value *= -1;
+                    $negate = true;
+                }
+
                 $this->readData($association, 'integer');
+
+                if ($negate){
+                    $this->add('2a000000', 'negate integer');
+                    $this->add('01000000', 'negate integer');
+                }
+
                 break;
             case Tokens::T_STRING:
                 $this->readData($association, 'string');
@@ -743,7 +776,7 @@ class Evaluate{
             case 'boolean':
                 $this->add('12000000');
                 $this->add('01000000');
-                $this->add(Helper::fromIntToHex((int)$association->value), 'Boolean ' . (int)$association->value);
+                $this->add(Helper::fromIntToHex((int)$association->value), $type . ' ' . (int)$association->value);
                 break;
             case 'constant':
                 $this->add('12000000');

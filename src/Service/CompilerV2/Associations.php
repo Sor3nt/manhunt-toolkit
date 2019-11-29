@@ -20,6 +20,8 @@ class Associations
     public $size = null;
     public $sizeWithoutPad4 = null;
     public $offset = null;
+    /** @var array|null  */
+    public $forceFloat = null;
     public $varType = null;
     public $section = null;
 
@@ -50,6 +52,7 @@ class Associations
         if ($this->math !== false) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
         if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
+        if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
         if ($this->varType !== null) $debug['varType'] = $this->varType;
         if ($this->section !== null) $debug['section'] = $this->section;
@@ -156,6 +159,7 @@ class Associations
             $this->type = Tokens::T_FUNCTION;
             $this->value = $function['name'];
             $this->offset = $function['offset'];
+            if (isset($function['forceFloat'])) $this->forceFloat = $function['forceFloat'];
 
             if (isset($function['type'])){
                 $this->isCustomFunction = $function['type'] == Tokens::T_CUSTOM_FUNCTION;

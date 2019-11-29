@@ -14,6 +14,10 @@ class ManhuntDefault
             //hack
             if (!isset($function['name'])) $function['name'] = $name;
 
+            if (isset($this->functionForceFloat[$name])){
+                $function['forceFloat'] = $this->functionForceFloat[$name];
+            }
+
             return $function;
         }
 
