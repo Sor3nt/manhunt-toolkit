@@ -132,9 +132,7 @@ class Evaluate{
                             $this->add('01000000');
 
                             //convert to float
-                            $this->add('4d000000');
-                            $this->add('16000000');
-                            $this->add('04000000');
+                            $this->add('4d000000', 'Convert INT to FLOAT');
 
                         }
                     }
@@ -680,6 +678,8 @@ class Evaluate{
                 $this->add('01000000');
                 break;
             case 'real':
+                $this->add('16000000');
+                $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 $this->add('01000000');
                 break;
