@@ -10,6 +10,7 @@ class Associations
 
     public $type = Tokens::T_UNKNOWN;
     public $value = "";
+    public $forIndex = null;
 
     /** @var Associations[] */
     public $childs = [];
@@ -36,6 +37,13 @@ class Associations
     public $statementOperator = null;
     public $isCustomFunction = null;
     public $isProcedure = null;
+    public $start = null;
+    public $paramCount = null;
+    public $isLastWriteDebugParam = null;
+    /**
+     * @var Associations|null
+     */
+    public $end = null;
 
     public $cases = [];
 
@@ -54,6 +62,7 @@ class Associations
         if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
+        if ($this->forIndex !== null) $debug['forIndex'] = $this->forIndex;
         if ($this->varType !== null) $debug['varType'] = $this->varType;
         if ($this->section !== null) $debug['section'] = $this->section;
         if ($this->return !== null) $debug['return'] = $this->return;
@@ -66,6 +75,10 @@ class Associations
         if ($this->statementOperator !== null) $debug['statementOperator'] = $this->statementOperator;
         if ($this->isCustomFunction !== null) $debug['isCustomFunction'] = $this->isCustomFunction;
         if ($this->isProcedure !== null) $debug['isProcedure'] = $this->isProcedure;
+        if ($this->paramCount !== null) $debug['paramCount'] = $this->paramCount;
+        if ($this->start !== null) $debug['start'] = $this->start;
+        if ($this->end !== null) $debug['end'] = $this->end;
+        if ($this->isLastWriteDebugParam !== null) $debug['isLastWriteDebugParam'] = $this->isLastWriteDebugParam;
 
         return $debug;
     }
@@ -87,10 +100,24 @@ class Associations
         $variable = $compiler->getVariable($value);
 
         if ($variable !== false) {
-
+//exit;
             if ($variable['type'] == "array") {
                 $compiler->current++;
-                $variable = $compiler->getVariable($value . '[' . $compiler->consume() . ']');
+                $indexName = $compiler->consume();
+                $variable = $compiler->getVariable($value . '[' . $indexName . ']');
+
+                if ($variable == false){
+                    /**
+                     * This happens when we access a array index within a loop
+                     *
+                     * for i:= 1 to 3 do PKarray[i] := false;
+                     *
+                     * PKarray[i] can not be known, the iterator "i" can have different names
+                     */
+                    $variable = $compiler->getVariable($value);
+                    $this->forIndex = $compiler->getVariable($indexName);
+                }
+
                 $compiler->current++;
             }
 
@@ -106,25 +133,41 @@ class Associations
 
             $isState = $compiler->getState($this->varType);
 
-            /**
-             * Assignment
-             */
             if ($compiler->consumeIfTrue(":=")) {
 
-                if ($isState !== false) {
-                    $stateName = $compiler->consume();
+                if ($compiler->getToken($compiler->current + 1) == "to"){
 
-                    $state = $compiler->getState($this->varType, $stateName);
+                    /**
+                     * Assignment within for loop condition
+                     *
+                     * for i:= 1 to 3 do
+                     */
 
-                    $this->varType = "state";
-                    $this->assign = new Associations();
-                    $this->assign->type = Tokens::T_STATE;
-                    $this->assign->value = $stateName;
-                    $this->assign->offset = $state['offset'];
+                    $this->start = new Associations($compiler);
+                    $compiler->current++;       //Skip "to"
+                    $this->end = new Associations($compiler);
 
-                } else {
-                    $this->assign = new Associations($compiler);
+                }else{
+                    /**
+                     * Assignment
+                     */
+                    if ($isState !== false) {
+                        $stateName = $compiler->consume();
+
+                        $state = $compiler->getState($this->varType, $stateName);
+
+                        $this->varType = "state";
+                        $this->assign = new Associations();
+                        $this->assign->type = Tokens::T_STATE;
+                        $this->assign->value = $stateName;
+                        $this->assign->offset = $state['offset'];
+
+                    } else {
+                        $this->assign = new Associations($compiler);
+                    }
                 }
+
+
             }
 
             /**
@@ -253,7 +296,7 @@ class Associations
                 $compiler->currentScriptName = $this->value;
 
                 //we have params
-                if ($compiler->consumeIfTrue("(")) $this->consumeParameters($compiler, $this->value);
+                if ($compiler->consumeIfTrue("(")) $this->consumeParameters($compiler, $this->value, ";");
 
                 // Return type
                 if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
@@ -262,7 +305,7 @@ class Associations
                 if ($compiler->consumeIfTrue("forward")) {
                     $this->type = Tokens::T_FORWARD;
 
-                // regular body content
+                    // regular body content
                 } else {
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
@@ -329,6 +372,31 @@ class Associations
                 $compiler->current++;
 
                 break;
+            case 'for':
+                $this->type = Tokens::T_FOR;
+                $condition = new Associations($compiler);
+
+                $compiler->current++;       //Skip "do"
+
+                $this->start = $condition->start;
+                $this->end = $condition->end;
+
+                $this->childs[] = $condition;
+
+                if ($compiler->consumeIfTrue("begin")) {
+
+                    $this->onTrue = $this->associateUntil($compiler, Tokens::T_END);
+
+                } else {
+                    /**
+                     * Short For-Statement
+                     *
+                     * for i:= 1 to 3 do PKarray[i] := false;
+                     */
+                    $this->onTrue = [new Associations($compiler)];
+                }
+
+                break;
             case 'while':
             case 'if':
                 $this->type = $value == "if" ? Tokens::T_IF : Tokens::T_DO;
@@ -363,11 +431,11 @@ class Associations
 
                     $conditionsRearranged[] = $newCondition;
 
-                /**
-                 * strange Wrapped statement
-                 *
-                 * if (sleep(100)) <> NIL then
-                 */
+                    /**
+                     * strange Wrapped statement
+                     *
+                     * if (sleep(100)) <> NIL then
+                     */
                 }else if (
                     count($conditions) == 3 &&
                     $conditions[0]->type == Tokens::T_CONDITION &&
@@ -427,17 +495,16 @@ class Associations
                                     throw new Exception("IF Statement with not 3 childs");
                                 }
                             }else if ($condition->type == Tokens::T_NOT){
-                                    $nextNot = true;
-                                    continue;
+                                $nextNot = true;
+                                continue;
                             }else if ($condition->type == Tokens::T_AND){
-                                    $nextOperator = $condition->type;
-                                    continue;
+                                $nextOperator = $condition->type;
+                                continue;
                             }else if ($condition->type == Tokens::T_OR){
-                                    $nextOperator = $condition->type;
-                                    continue;
+                                $nextOperator = $condition->type;
+                                continue;
 
                             }else{
-
                                 /**
                                  * We have a single value statement
                                  *
@@ -580,10 +647,22 @@ class Associations
     private function consumeParameters(Compiler $compiler, $section = "header")
     {
 
+        /**
+         * A mystery
+         *
+         * it exists a call like this
+         * PROCEDURE SpawnHunterWithM16( var pos : Vec3D ); FORWARD;
+         *
+         * and hell, i dont know why they put "var" before the variable
+         */
+        $compiler->consumeIfTrue('var');
+
         while (
             $compiler->getToken($compiler->current + 1) == ":" ||
             $compiler->getToken($compiler->current + 1) == ","
         ) {
+
+            $compiler->consumeIfTrue('var');
 
             $names = [$compiler->consume()];
 
@@ -654,6 +733,9 @@ class Associations
                 $compiler->current++;
                 return;
             }
+
+            $compiler->consumeIfTrue('var');
+
         }
     }
 

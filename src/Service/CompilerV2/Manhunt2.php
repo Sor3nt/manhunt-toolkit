@@ -3119,6 +3119,19 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '6a020000'
         ],
 
+        'setnumberofkillablehuntersinlevel' => [
+            'name' => 'SetNumberOfKillableHuntersInLevel',
+            'offset' => 'e8020000'
+        ],
+        'returnammoofinventoryweapon' => [
+            'name' => 'ReturnAmmoOfInventoryWeapon',
+            'offset' => '0'
+        ],
+        'airemovesubpackfromleader' => [
+            'name' => 'AIRemoveSubPackFromLeader',
+            'offset' => '0'
+        ],
+
         'hidefakehunter' => [
             'name' => 'hidefakehunter',
             'offset' => 'hidefakehunter'
