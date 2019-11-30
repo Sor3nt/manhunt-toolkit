@@ -171,7 +171,8 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-
+//var_dump($associationRearranged);
+//exit;
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }

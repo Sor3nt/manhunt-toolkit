@@ -45,7 +45,7 @@ class Associations
         $debug = [
             'type' => $this->type
         ];
-        if (!empty($this->value)) $debug['value'] = $this->value;
+        if ($this->value !== "") $debug['value'] = $this->value;
         if (count($this->childs)) $debug['childs'] = $this->childs;
         if (count($this->cases)) $debug['cases'] = $this->cases;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
@@ -59,7 +59,7 @@ class Associations
         if ($this->return !== null) $debug['return'] = $this->return;
         if ($this->isNot !== null) $debug['isNot'] = $this->isNot;
         if ($this->onTrue !== null) $debug['onTrue'] = $this->onTrue;
-        if ($this->onFalse !== null) $debug['onTrue'] = $this->onFalse;
+        if ($this->onFalse !== null) $debug['onFalse'] = $this->onFalse;
         if ($this->condition !== false) $debug['condition'] = $this->condition;
         if ($this->operator !== null) $debug['operator'] = $this->operator;
         if ($this->operatorValue !== null) $debug['operatorValue'] = $this->operatorValue;
@@ -485,12 +485,10 @@ class Associations
                         }
 
                     } else {
-                        $case->onFalse = new Associations($compiler);
-
+                        $case->onFalse = [new Associations($compiler)];
                     }
 
                 }
-
                 break;
 
             case '(':

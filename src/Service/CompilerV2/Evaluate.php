@@ -124,6 +124,22 @@ class Evaluate{
                     }
 
                     /**
+                     * These types accept only floats, given int need to be converted
+                     */
+                    if ($association->varType == "real"){
+                        if ($association->assign->type == Tokens::T_INT){
+                            $this->add('10000000');
+                            $this->add('01000000');
+
+                            //convert to float
+                            $this->add('4d000000');
+                            $this->add('16000000');
+                            $this->add('04000000');
+
+                        }
+                    }
+
+                    /**
                      * Block 2: Write to leftHand
                      */
 
@@ -663,6 +679,10 @@ class Evaluate{
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 $this->add('01000000');
                 break;
+            case 'real':
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('01000000');
+                break;
             case 'vec3d':
                 $this->add('12000000');
                 $this->add('03000000');
@@ -767,6 +787,7 @@ class Evaluate{
             case 'constant':
                 $this->add('12000000');
                 $this->add('01000000');
+                //todo das könnte direkt über die association var kommen...
                 $this->add($this->compiler->gameClass->getConstant($association->value)['offset'], "Offset");
                 break;
 
