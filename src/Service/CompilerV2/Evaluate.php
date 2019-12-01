@@ -239,24 +239,37 @@ class Evaluate{
                     /** @var Associations $condition */
                     foreach ($case->condition as $conditionIndex => $condition) {
 
-
+                        $compareAgainst = false;
 
                         foreach ($condition->childs as $param) {
 
-                            //TODO das gehört doch auch in T_VARIABLE ODER ?!
-                            if ($param->varType == "string") {
+                            $isState = $compiler->getState($param->varType);
+
+                            if ($isState) {
+                                $compareAgainst = "state";
+                                $this->getPointer($param, "state");
+
+                                //TODO das gehört doch auch in T_VARIABLE ODER ?!
+                            }else if ($param->varType == "string") {
+                                $compareAgainst = "string";
                                 // move the internal pointer to the offset
                                 $this->movePointer($param);
                             }else if ($param->varType == "vec3d") {
+                                $compareAgainst = "vec3d";
                                 // move the internal pointer to the offset
                                 $this->movePointer($param);
                             }else if ($param->varType == "ecollectabletype") {
+                                $compareAgainst = "ecollectabletype";
                                 // move the internal pointer to the offset
                                 $this->movePointer($param);
                             }else if ($param->varType == "eaicombattype") {
+                                $compareAgainst = "eaicombattype";
                                 // move the internal pointer to the offset
                                 $this->movePointer($param);
                             }
+
+
+
 
 
                             new Evaluate($this->compiler, $param);
@@ -280,7 +293,15 @@ class Evaluate{
 
                         }
 
-                        new Evaluate($this->compiler, $condition->operatorValue);
+                        if ($compareAgainst == "state"){
+                            $this->add('12000000', 'Simple Int');
+                            $this->add('01000000', 'Simple Int');
+                            $this->add(Helper::fromIntToHex($condition->operatorValue->offset), 'offset');
+
+                        }else{
+                            new Evaluate($this->compiler, $condition->operatorValue);
+                        }
+
 
                         if ($condition->operatorValue->type == Tokens::T_STRING){
                             $this->add('12000000');
@@ -451,7 +472,6 @@ class Evaluate{
                 }
 
                 foreach ($association->childs as $index => $param) {
-
 
                     //TODO das gehört doch auch in T_VARIABLE ODER ?!
                     if ($param->varType == "string") {
@@ -820,6 +840,7 @@ class Evaluate{
             case 'entityptr':
             case 'boolean':
             case 'integer':
+            case 'state':
                 $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' Pointer from Section ' . $association->section);
                 $this->add('01000000', 'Read Boolean Variable');
                 $this->add('04000000', 'Read Boolean Variable');
