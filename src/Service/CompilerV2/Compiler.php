@@ -231,6 +231,16 @@ class Compiler
                 'name' => $state,
                 'offset' => $index
             ];
+
+            $this->variables[] = [
+                'name' => $state,
+                'type' => 'integer',
+                'size' => 1,
+                'sizeWithoutPad4' => 1,
+                'offset' => $index,
+                'section' => 'header',
+                'scriptName' => 'header'
+            ];
         }
 
 //        var_dump("Add Type: " . $name . " with types " . print_r($types, true) );
@@ -240,10 +250,12 @@ class Compiler
         ];
 
     }
-    public function addConstants( $name, $value ){
-//        var_dump("Add Constant: " . $name . " with value " . $value );
+    public function addConstants( $name, $value, $type){
+        var_dump("Add Constant: " . $name . " with value " . $value );
         $this->gameClass->constants[$name] = [
-            'value' => $value
+            'value' => $value,
+            'offset' => 'constant offset',
+            'varType' => $type
         ];
 
     }

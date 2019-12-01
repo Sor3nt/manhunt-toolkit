@@ -228,6 +228,7 @@ class Associations
             $this->type = Tokens::T_CONSTANT;
             $this->value = $value;
             $this->offset = $constant['offset'];
+            $this->varType = isset($constant['varType']) ? $constant['varType'] : 'integer';
             return;
         }
 
@@ -296,7 +297,7 @@ class Associations
                 $compiler->currentScriptName = $this->value;
 
                 //we have params
-                if ($compiler->consumeIfTrue("(")) $this->consumeParameters($compiler, $this->value, ";");
+                if ($compiler->consumeIfTrue("(")) $this->consumeParameters($compiler, $this->value, true);
 
                 // Return type
                 if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
@@ -644,7 +645,7 @@ class Associations
         ];
     }
 
-    private function consumeParameters(Compiler $compiler, $section = "header")
+    private function consumeParameters(Compiler $compiler, $section = "header", $reverse = false)
     {
 
         /**
@@ -656,6 +657,8 @@ class Associations
          * and hell, i dont know why they put "var" before the variable
          */
         $compiler->consumeIfTrue('var');
+
+        $toAdd = [];
 
         while (
             $compiler->getToken($compiler->current + 1) == ":" ||
@@ -680,6 +683,15 @@ class Associations
 
             $type = $compiler->consume();
 
+            $entry = [
+                'names' => $names,
+                'type' => $type,
+                'size' => null,
+                'fromArray' => false,
+                'isLevelVar' => $isLevelVar,
+                'isGameVar' => $isGameVar,
+            ];
+
 
             /**
              * itemsSpawned : array[1..3] of boolean;
@@ -692,14 +704,8 @@ class Associations
                 $compiler->current++;   // Skip "of"
 
                 $type = $compiler->consume();
-
-                foreach ($names as $name) {
-                    $compiler->addVariable($name, 'array', null, false, false, $section);
-
-                    for ($i = $start; $i <= $end; $i++) {
-                        $compiler->addVariable($name . '[' . $i . ']', $type, null, false, false, $section);
-                    }
-                }
+                $entry['type'] = $type;
+                $entry['fromArray'] = true;
 
             } else {
 
@@ -712,14 +718,14 @@ class Associations
                 if ($type == "string" && $compiler->getToken() == "[") {
                     $compiler->current++;
                     $size = (int)$compiler->consume();
+                    $entry['size'] = $size;
                     $compiler->current++;
 
                 }
 
-                foreach ($names as $name) {
-                    $compiler->addVariable($name, $type, $size, $isLevelVar, $isGameVar, $section);
-                }
             }
+
+            $toAdd[] = $entry;
 
             /**
              * When we use this function to parse "custom function" parameters,
@@ -731,10 +737,37 @@ class Associations
              */
             if ($compiler->getToken() == ")") {
                 $compiler->current++;
-                return;
+                break;
             }
 
             $compiler->consumeIfTrue('var');
+
+        }
+
+        if ($reverse) $toAdd = array_reverse($toAdd);
+
+        foreach ($toAdd as $var) {
+
+            if ($reverse) $var['names'] = array_reverse($var['names']);
+
+            if ($var['fromArray'] === true){
+
+                foreach ($var['names'] as $name) {
+                    $compiler->addVariable($name, 'array', null, false, false, $section);
+
+                    for ($i = $start; $i <= $end; $i++) {
+                        $compiler->addVariable($name . '[' . $i . ']', $var['tyüe'], null, false, false, $section);
+                    }
+                }
+
+            }else{
+
+                foreach ($var['names'] as $name) {
+                    $compiler->addVariable($name, $var['type'], $var['size'], $var['isLevelVar'], $var['isGameVar'], $section);
+                }
+
+
+            }
 
         }
     }
@@ -769,19 +802,25 @@ class Associations
         ) {
 
             $name = $compiler->consume();
-
             //skip "="
             $compiler->current++;
 
             $value = $compiler->consume();
 
-            if (strpos($value, ".") !== false) {
-                $value = (float)$value;
-            } else {
-                $value = (int)$value;
+            if (strpos($value, "'") !== false) {
+                $value = substr($value, 1, -1);
+                $type = 'string';
+            }else{
+                if (strpos($value, ".") !== false) {
+                    $value = (float)$value;
+                    $type = 'float';
+                } else {
+                    $value = (int)$value;
+                    $type = 'int';
+                }
             }
 
-            $compiler->addConstants($name, $value);
+            $compiler->addConstants($name, $value, $type);
         }
 
     }

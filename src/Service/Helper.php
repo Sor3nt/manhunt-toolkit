@@ -129,7 +129,7 @@ class Helper{
     static function fromIntToHex( $int, $toBig = true ){
         if ($toBig){
             $codeLenght = self::toBigEndian(self::pad(dechex($int),4, true));
-            return self::pad($codeLenght);
+            return substr(self::pad($codeLenght), 0 , 8);
 
         }else{
             $codeLenght = self::toLittleEndian(self::pad(dechex($int),8, true));

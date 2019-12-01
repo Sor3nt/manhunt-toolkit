@@ -388,7 +388,8 @@ class Evaluate{
                     if ($association->forceFloat){
                         if($association->forceFloat[$index] === true){
 
-                            if ($param->type !== Tokens::T_FLOAT){
+                            // floats and REAL are the same...
+                            if ($param->type !== Tokens::T_FLOAT && $param->varType != "real"){
 
                                 $this->add('10000000');
                                 $this->add('01000000');
@@ -639,7 +640,7 @@ class Evaluate{
                     $this->add('13000000', 'Read String from Section ' . $association->section);
                     $this->add('01000000', 'Read String');
                     $this->add('04000000', 'Read String');
-                    $this->add(substr(Helper::fromIntToHex($association->offset),0, 8), 'Offset');
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
 
                     //then read the given size
                     $this->add('12000000', 'Read String');
@@ -704,6 +705,7 @@ class Evaluate{
     private function getPointer($association, $type ){
 
         switch ($type) {
+            case 'real':
             case 'state':
             case 'entityptr':
             case 'boolean':

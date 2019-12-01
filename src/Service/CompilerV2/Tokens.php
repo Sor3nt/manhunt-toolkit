@@ -28,6 +28,7 @@ namespace App\Service\CompilerV2;
     const T_DEVISION                    = 'T_DEVISION';
     const T_DIVISION                    = 'T_DIVISION';
     const T_STATE                       = 'T_STATE';
+    const T_STATE_ENTRY                       = 'T_STATE_ENTRY';
     const T_IF_END                      = 'T_IF_END';
     const T_FOR_END                     = 'T_FOR_END';
     const T_WHILE_END                   = 'T_WHILE_END';
