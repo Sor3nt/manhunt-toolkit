@@ -376,6 +376,18 @@ class Compiler
 
         return $found;
     }
+    public function getArgumentsByScriptName($scriptName){
+
+        $found = [];
+        foreach ($this->variables as $variable) {
+            if (
+                $variable['scriptName'] == $scriptName &&
+                $variable['scriptName'] == $variable['section']
+            ) $found[] = $variable;
+        }
+
+        return $found;
+    }
 
     public function getScriptSize($scriptName){
         $size = 0;

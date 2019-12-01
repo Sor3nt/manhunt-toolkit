@@ -190,7 +190,7 @@ class ProcedureParamEAiCombatTypeTest extends KernelTestCase
             '0f000000', //unknown
             '0a000000', //unknown
             '3a000000', //unknown
-            '04000000', //unknown
+            '10000000', //unknown
 
             
             // script start

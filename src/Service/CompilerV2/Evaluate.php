@@ -56,10 +56,14 @@ class Evaluate{
                 $this->add('0f000000');
                 $this->add('0a000000');
                 $this->add('3a000000');
-                $this->add('04000000');
 
-                $variables = $compiler->getVariablesByScriptName($association->value);
-//                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Reserve Pointer Offsets');
+                /**
+                 * The last line represents the arguments
+                 * Each argument reserve 4bytes.
+                 * First 4bytes already reserverd.
+                 */
+                $variables = $compiler->getArgumentsByScriptName($association->value);
+                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Variable count ' . count($variables));
 
                 break;
 
