@@ -21,10 +21,12 @@ class Associations
     public $size = null;
     public $sizeWithoutPad4 = null;
     public $offset = null;
+    public $index = null;
     /** @var array|null  */
     public $forceFloat = null;
     public $varType = null;
     public $section = null;
+    public $fromArray = false;
 
     public $return = null;
     public $isNot = null;
@@ -65,6 +67,7 @@ class Associations
         if ($this->forIndex !== null) $debug['forIndex'] = $this->forIndex;
         if ($this->varType !== null) $debug['varType'] = $this->varType;
         if ($this->section !== null) $debug['section'] = $this->section;
+        if ($this->index !== null) $debug['index'] = $this->index;
         if ($this->return !== null) $debug['return'] = $this->return;
         if ($this->isNot !== null) $debug['isNot'] = $this->isNot;
         if ($this->onTrue !== null) $debug['onTrue'] = $this->onTrue;
@@ -78,6 +81,7 @@ class Associations
         if ($this->paramCount !== null) $debug['paramCount'] = $this->paramCount;
         if ($this->start !== null) $debug['start'] = $this->start;
         if ($this->end !== null) $debug['end'] = $this->end;
+        if ($this->fromArray !== false) $debug['fromArray'] = $this->fromArray;
         if ($this->isLastWriteDebugParam !== null) $debug['isLastWriteDebugParam'] = $this->isLastWriteDebugParam;
 
         return $debug;
@@ -127,8 +131,10 @@ class Associations
             $this->offset = $variable['offset'];
             $this->size = $variable['size'];
             $this->sizeWithoutPad4 = $variable['sizeWithoutPad4'];
+            $this->index = $variable['index'];
             $this->varType = $variable['type'];
             $this->section = $variable['section'];
+            $this->fromArray = $variable['fromArray'];
 
 
             $isState = $compiler->getState($this->varType);
@@ -770,7 +776,7 @@ class Associations
                     $compiler->addVariable($name, 'array', null, false, false, $section);
 
                     for ($i = $var['start']; $i <= $var['end']; $i++) {
-                        $compiler->addVariable($name . '[' . $i . ']', $var['type'], null, false, false, $section);
+                        $compiler->addVariable($name . '[' . $i . ']', $var['type'], null, false, false, $section, true, $i);
                     }
                 }
 

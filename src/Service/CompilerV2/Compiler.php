@@ -260,7 +260,7 @@ class Compiler
 
     }
 
-    public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null ){
+    public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null, $fromArray = false, $index = null ){
 
         if (is_null($size)) $size = $this->calcSize($type);
         $sizeWithoutPad4 = $size;
@@ -298,8 +298,11 @@ class Compiler
             'sizeWithoutPad4' => $sizeWithoutPad4,
             'offset' => $offset,
             'section' => $section,
-            'scriptName' => $this->currentScriptName
+            'index' => $index,
+            'scriptName' => $this->currentScriptName,
+            'fromArray' => $fromArray
         ];
+
 
         if ($type == "vec3d") {
 

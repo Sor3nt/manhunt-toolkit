@@ -110,6 +110,38 @@ class Evaluate{
                      */
                     if ($association->varType == "vec3d") {
                         $this->readData($association, "vec3d");
+
+                    /**
+                     * We assign to an array index
+                     *
+                     * itemsSpawned[1] := FALSE;
+                     */
+                    }else if ($association->fromArray == true) {
+                        $this->readData($association, "array");
+
+                        $this->add('10000000');
+                        $this->add('01000000');
+
+                        $this->add('12000000');
+                        $this->add('01000000');
+                        $this->add(Helper::fromIntToHex((int)$association->index), "Array index " . $association->index);
+
+                        $this->add('34000000');
+                        $this->add('01000000');
+                        $this->add('01000000');
+                        $this->add('12000000');
+                        $this->add('04000000');
+                        $this->add('04000000');
+                        $this->add('35000000');
+                        $this->add('04000000');
+                        $this->add('0f000000');
+                        $this->add('04000000');
+                        $this->add('31000000');
+                        $this->add('04000000');
+                        $this->add('01000000');
+                        $this->add('10000000');
+                        $this->add('04000000');
+
                     }
 
                     if (
@@ -143,7 +175,11 @@ class Evaluate{
 
                     $this->msg = sprintf("Assign to Variable %s", $association->value);
 
-                    $this->writeData($association, $association->varType);
+                    if ($association->fromArray == true) {
+                        $this->writeData($association, "array");
+                    }else{
+                        $this->writeData($association, $association->varType);
+                    }
                 }
 
                 if ($association->math !== false){
@@ -203,8 +239,27 @@ class Evaluate{
                     /** @var Associations $condition */
                     foreach ($case->condition as $conditionIndex => $condition) {
 
-                        foreach ($condition->childs as $child) {
-                            new Evaluate($this->compiler, $child);
+
+
+                        foreach ($condition->childs as $param) {
+
+                            //TODO das gehört doch auch in T_VARIABLE ODER ?!
+                            if ($param->varType == "string") {
+                                // move the internal pointer to the offset
+                                $this->movePointer($param);
+                            }else if ($param->varType == "vec3d") {
+                                // move the internal pointer to the offset
+                                $this->movePointer($param);
+                            }else if ($param->varType == "ecollectabletype") {
+                                // move the internal pointer to the offset
+                                $this->movePointer($param);
+                            }else if ($param->varType == "eaicombattype") {
+                                // move the internal pointer to the offset
+                                $this->movePointer($param);
+                            }
+
+
+                            new Evaluate($this->compiler, $param);
                         }
 
                         if ($case->isNot !== null || $condition->isNot !== null){
@@ -218,14 +273,39 @@ class Evaluate{
                         $this->add('10000000', 'Return Condition test');
                         $this->add('01000000', 'Return Condition test');
 
+                        //todo should check both sides to find the right type
+                        if ($condition->operatorValue->type == Tokens::T_STRING){
+                            $this->add('10000000', 'Return string test');
+                            $this->add('02000000', 'Return string test');
+
+                        }
+
                         new Evaluate($this->compiler, $condition->operatorValue);
 
-                        $this->add('0f000000', "Return last case");
-                        $this->add('04000000', "Return last case");
+                        if ($condition->operatorValue->type == Tokens::T_STRING){
+                            $this->add('12000000');
+                            $this->add('02000000');
+                            $this->add(Helper::fromIntToHex(strlen($condition->operatorValue->value) + 1));
 
-                        $this->add('23000000');
-                        $this->add('04000000');
-                        $this->add('01000000');
+                            $this->add('10000000', 'Return string');
+                            $this->add('01000000', 'Return string');
+                            $this->add('10000000', 'Return string');
+                            $this->add('02000000', 'Return string');
+
+
+                            $this->add('49000000', 'compare string');
+
+                        }else{
+
+                            $this->add('0f000000', "Return last case");
+                            $this->add('04000000', "Return last case");
+
+                            $this->add('23000000');
+                            $this->add('04000000');
+                            $this->add('01000000');
+                        }
+
+
 
                         $this->add('12000000');
                         $this->add('01000000');
@@ -434,9 +514,16 @@ class Evaluate{
                     }
 
                     //regular parameter return
-                    $this->msg = sprintf("Function %s Return", $association->value);
-                    $this->add('10000000');
-                    $this->add('01000000');
+                    if (
+                        strtolower($param->value) == "getentityposition" ||
+                        strtolower($param->value) == "getentityview"
+                    ){
+
+                    }else{
+                        $this->msg = sprintf("Function %s Return", $association->value);
+                        $this->add('10000000');
+                        $this->add('01000000');
+                    }
 
                     //special return for strings
                     if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
@@ -708,6 +795,15 @@ class Evaluate{
                 $this->add('04000000');
                 $this->add('44000000');
                 break;
+            case 'array':
+                $this->add('0f000000');
+                $this->add('02000000');
+
+                $this->add('17000000');
+                $this->add('04000000', 'Offset maybe?');
+                $this->add('02000000');
+                $this->add('01000000');
+                break;
         }
 
     }
@@ -733,7 +829,7 @@ class Evaluate{
     }
 
     /**
-     * @param $association
+     * @param Associations $association
      * @param $type
      * @throws Exception
      */
@@ -746,6 +842,15 @@ class Evaluate{
                 $this->add('01000000');
                 $this->add(Helper::fromFloatToHex($association->value), "Offset");
 
+                break;
+            case 'array':
+                $this->msg = sprintf("Read array entry");
+
+                $this->add('21000000');
+                $this->add('04000000');
+                $this->add('01000000');
+
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 break;
             case 'string':
 
