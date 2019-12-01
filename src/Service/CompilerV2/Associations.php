@@ -706,6 +706,8 @@ class Associations
                 $type = $compiler->consume();
                 $entry['type'] = $type;
                 $entry['fromArray'] = true;
+                $entry['start'] = $start;
+                $entry['end'] = $end;
 
             } else {
 
@@ -744,6 +746,18 @@ class Associations
 
         }
 
+        /**
+         * Procedure arguments offset calculation are reversed
+         *
+         * PROCEDURE SpawnHunter(HunterName : string; x, y, z : real); FORWARD;
+         *
+         * need to be reversed into
+         *
+         * PROCEDURE SpawnHunter(z, y, x : real; HunterName : string); FORWARD;
+         *
+         * I guess its because we generate negative offsets for procedures/custom functions
+         *
+         */
         if ($reverse) $toAdd = array_reverse($toAdd);
 
         foreach ($toAdd as $var) {
@@ -755,8 +769,8 @@ class Associations
                 foreach ($var['names'] as $name) {
                     $compiler->addVariable($name, 'array', null, false, false, $section);
 
-                    for ($i = $start; $i <= $end; $i++) {
-                        $compiler->addVariable($name . '[' . $i . ']', $var['tyüe'], null, false, false, $section);
+                    for ($i = $var['start']; $i <= $var['end']; $i++) {
+                        $compiler->addVariable($name . '[' . $i . ']', $var['type'], null, false, false, $section);
                     }
                 }
 
