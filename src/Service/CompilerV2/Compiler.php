@@ -252,10 +252,26 @@ class Compiler
     }
     public function addConstants( $name, $value, $type){
         var_dump("Add Constant: " . $name . " with value " . $value );
-        $this->gameClass->constants[$name] = [
+
+        $size = 4;
+        if ($type == "string"){
+            $stringIndex = substr($value, 4);
+            $value = $this->strings[$stringIndex];
+
+            $size = strlen($value) + 1;
+        }
+
+        $this->variables[] = [
+            'name' => $name,
             'value' => $value,
-            'offset' => 'constant offset',
-            'varType' => $type
+            'size' => $size,
+            'sizeWithoutPad4' => $size,
+            'offset' => 0,
+            'type' => $type,
+            'varType' => $type,
+            'section' => 'header',
+            'scriptName' => 'header'
+
         ];
 
     }

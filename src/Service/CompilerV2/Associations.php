@@ -131,10 +131,14 @@ class Associations
             $this->offset = $variable['offset'];
             $this->size = $variable['size'];
             $this->sizeWithoutPad4 = $variable['sizeWithoutPad4'];
-            $this->index = $variable['index'];
             $this->varType = $variable['type'];
             $this->section = $variable['section'];
-            $this->fromArray = $variable['fromArray'];
+
+
+            //used from array variables like "itemsSpawned[1]"
+            if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
+            if (isset($variable['index'])) $this->index = $variable['index'];
+
 
 
             $isState = $compiler->getState($this->varType);
