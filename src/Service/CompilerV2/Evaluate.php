@@ -383,6 +383,9 @@ class Evaluate{
                     }else if ($param->varType == "ecollectabletype") {
                         // move the internal pointer to the offset
                         $this->movePointer($param);
+                    }else if ($param->varType == "eaicombattype") {
+                        // move the internal pointer to the offset
+                        $this->movePointer($param);
                     }
 
 
@@ -620,10 +623,11 @@ class Evaluate{
         $type = $this->getTypeByAssociation( $association );
 
         switch ($type){
+            case 'eaicombattype':
             case 'ecollectabletype':
-                $this->add('13000000', 'Read String from Section ' . $association->section);
-                $this->add('01000000', 'Read String');
-                $this->add('04000000', 'Read String');
+                $this->add('13000000', 'Read ecollectabletype from Section ' . $association->section);
+                $this->add('01000000', 'Read ecollectabletype');
+                $this->add('04000000', 'Read ecollectabletype');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 break;
             case 'vec3d':
