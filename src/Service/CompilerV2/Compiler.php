@@ -24,6 +24,7 @@ class Compiler
 
     public $currentSection = "header";
     public $currentScriptName = "";
+    public $currentBlockType = "";
 
     public $mlsScriptMain = "levelscript";
     public $mlsEntityName = "demo_level";
@@ -34,6 +35,7 @@ class Compiler
     public $offsetScriptVariable = 0;
     public $offsetProcedureVariable = -12;
     public $offsetProcedureScripts = 0;
+    public $offsetConstants = 0;
 
     public function __construct($source, $game, $platform, $parentScript = false)
     {
@@ -261,18 +263,22 @@ class Compiler
             $size = strlen($value) + 1;
         }
 
+
         $this->variables[] = [
             'name' => $name,
             'value' => $value,
             'size' => $size,
             'sizeWithoutPad4' => $size,
-            'offset' => 0,
+            'offset' => $this->offsetConstants,
             'type' => $type,
             'varType' => $type,
             'section' => 'header',
             'scriptName' => 'header'
 
         ];
+
+        $this->offsetConstants += $size + (4 - $size % 4);
+
 
     }
 
@@ -284,27 +290,27 @@ class Compiler
         if ($section == "header"){
 
             $offset = $this->offsetGlobalVariable;
-
-            if ($size % 4 != 0) $size += $size % 4;
-
             $this->offsetGlobalVariable += $size;
+            $this->offsetGlobalVariable += $this->offsetGlobalVariable % 4;
+
         }else if ($section == "script"){
+
             $this->offsetScriptVariable += $size;
 
             $offset = $this->offsetScriptVariable;
 
-            if ($size % 4 != 0) $this->offsetScriptVariable += $size % 4;
+            $this->offsetScriptVariable +=  $this->offsetScriptVariable % 4;
         }else{
             /**
              * We process some custom_function / procedure variables
              *
              * the start of the offset is -12 and any size will be subtracted from the offset
              *
-             * looks like it is a 4 byte pointer
+             * looks like it is a 4 byte pointer list
              */
 
             $offset = $this->offsetProcedureVariable;
-            $this->offsetProcedureVariable -= 4;
+            $this->offsetProcedureVariable -= $size + ($size % 4);
         }
 
         $this->variables[] = [

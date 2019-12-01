@@ -290,6 +290,19 @@ class Associations
                 break;
             case 'var':
             case 'arg':
+
+            /**
+             * Any procedure share his own scope of memory
+             * Regular scripts share the same memory
+             *
+             * Note: Procedures are always loaded before any script block
+             */
+
+                if ($compiler->currentBlockType == "procedure"){
+                    $compiler->offsetScriptVariable = 0;
+                }
+//                var_dump($compiler->currentScriptName . " " . $);
+//                exit;
                 $this->type = Tokens::T_NOP;
                 $this->consumeParameters($compiler, $compiler->currentSection);
                 break;
@@ -302,6 +315,9 @@ class Associations
 
             case 'procedure':
             case 'function':
+                $compiler->currentBlockType = $value;
+
+                $compiler->offsetProcedureVariable = -12;
 
                 $this->value = $compiler->consume();
                 $compiler->currentScriptName = $this->value;
@@ -328,6 +344,7 @@ class Associations
 
                 break;
             case 'script':
+                $compiler->currentBlockType = $value;
                 $compiler->offsetScriptVariable = 0;
 
                 //at this point we save any new variables into the script section
