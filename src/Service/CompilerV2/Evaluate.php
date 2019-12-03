@@ -234,13 +234,8 @@ class Evaluate{
 
                 $compareAgainst = false;
 
-//                if (count($association->childs) === 0) return;
-
                 $onlyConditions = true;
                 foreach ($association->childs as $index => $param) {
-
-                    $isLastParam = count($association->childs) == $index + 1;
-
 
                     $isState = $compiler->getState($param->varType);
 
@@ -271,32 +266,24 @@ class Evaluate{
 
                     if ($param->type !== Tokens::T_CONDITION) $onlyConditions = false;
 
-
                     if ($association->operatorValue !== null){
-//                    if($isLastParam !== true){
                         $this->add('10000000', "return param");
                         $this->add('01000000', "return param");
                     }
-
                 }
-
 
                 if ($association->isNot === true){
                     $this->add('29000000', 'Not');
                     $this->add('01000000', 'Not');
                     $this->add('01000000', 'Not');
-
                 }
 
                 if ($association->operatorValue !== null){
 
-
                     //todo should check both sides to find the right type
                     if ($association->operatorValue->type == Tokens::T_STRING){
-
                         $this->add('10000000', 'Return string');
                         $this->add('02000000', 'Return string');
-
                     }
 
                     if ($compareAgainst == "state"){
@@ -307,7 +294,6 @@ class Evaluate{
                     }else{
                         new Evaluate($this->compiler, $association->operatorValue);
                     }
-
 
                     if ($association->operatorValue->type == Tokens::T_STRING){
                         $this->add('12000000');
@@ -371,7 +357,6 @@ class Evaluate{
                     $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
                 }
 
-
                 if ($association->statementOperator ){
                     $this->add('0f000000', "apply to operator");
                     $this->add('04000000', "apply to operator");
@@ -391,17 +376,9 @@ class Evaluate{
 
                     $this->add('01000000', 'apply operator ' . $association->statementOperator);
                     $this->add('04000000', 'apply operator ' . $association->statementOperator);
-
                 }
 
-//                if (
-//                    $association->statementOperator !== null ||
-//                    $association->operatorValue !== null
-//
-//                ){
-
                 if ($association->isLastCondition !== true && $onlyConditions == false){
-//                    var_dump($association);
 
                     /**
                      * wenn die eine condition in einer condition ist, ist die außere condition im grunde leer
@@ -409,9 +386,7 @@ class Evaluate{
                      */
                     $this->add('10000000', "next condition");
                     $this->add('01000000', "next condition");
-
                 }
-//                }
 
                 break;
             case Tokens::T_DO:
@@ -429,9 +404,6 @@ class Evaluate{
                     foreach ($case->condition as $conditionIndex => $condition) {
                         new Evaluate($this->compiler, $condition);
                     }
-
-//                    $this->add('10000000', 'return ');
-//                    $this->add('01000000', 'return');
 
                     $this->add('24000000');
                     $this->add('01000000');
@@ -876,7 +848,6 @@ class Evaluate{
             case 'entityptr':
             case 'boolean':
             case 'integer':
-            case 'state':
                 $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' Pointer from Section ' . $association->section);
                 $this->add('01000000', 'Read Boolean Variable');
                 $this->add('04000000', 'Read Boolean Variable');
@@ -972,11 +943,5 @@ class Evaluate{
             default:
                 throw new Exception(sprintf("ReadData unknown type %s", $type));
         }
-    }
-
-    private function handleIfCondition( Associations $condition ){
-
-//        if ($condition->type == Tokens::T_CONDITION)
-
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Service\CompilerV2;
 
-use App\Service\Compiler\Token;use App\Service\Compiler\Tokens\T_AND;
+use App\Service\Compiler\Token;
 use Exception;
 
 class Associations
@@ -703,17 +703,13 @@ class Associations
                 foreach ($var['names'] as $name) {
                     $compiler->addVariable($name, $var['type'], $var['size'], $var['isLevelVar'], $var['isGameVar'], $section);
                 }
-
-
             }
-
         }
     }
 
 
     private function consumeTypes(Compiler $compiler)
     {
-
         while ($compiler->getToken($compiler->current + 1) == "=") {
 
             $name = $compiler->consume();
@@ -760,7 +756,6 @@ class Associations
 
             $compiler->addConstants($name, $value, $type);
         }
-
     }
 
     private function unwrapSimpleCondition( &$conditions){
@@ -769,8 +764,19 @@ class Associations
 
                 $this->unwrapSimpleCondition($child->childs);
 
+                /**
+                 * take sure we only unwrap nonsense wrapped stuff
+                 *
+                 * (GetEntity('Syringe_(CT)')) <> NIL
+                 *
+                 * and NOT
+                 *
+                 * (GetEntity('Syringe_(CT)')) or (GetEntity('Syringe_(CT)'))
+                 */
+
                 if (
                     count($child->childs) == 1 &&
+
                     in_array($conditions[1]->type, [
                         Tokens::T_IS_NOT_EQUAL,
                         Tokens::T_IS_GREATER_EQUAL,
@@ -778,8 +784,9 @@ class Associations
                         Tokens::T_IS_SMALLER_EQUAL,
                         Tokens::T_IS_SMALLER,
                         Tokens::T_IS_EQUAL,
-                    ]) !== false){
-                        $conditions[$index] = $child->childs[0];
+                    ]) !== false
+                ){
+                    $conditions[$index] = $child->childs[0];
                 }
 
                 continue;
@@ -791,12 +798,10 @@ class Associations
      * If IsPlayerWalking then sleep(1500);
      * If NOT IsPlayerWalking then sleep(1500);
      * if leaveCutText = TRUE then sleep(1500);
-
      *
      * @param Associations[] $conditions
      * @throws Exception
      */
-
     private function convertToSimpleCondition( &$conditions){
 
         if (count($conditions) > 3) return;
@@ -817,11 +822,10 @@ class Associations
         $conditions = [$newCondition];
     }
 
-
-
     /**
      * @param Associations[] $conditions
      * @param Associations $parent
+     * @param null $nextNot
      */
     private function convertConditionNot(&$conditions, &$parent = null, $nextNot = null ){
 
@@ -844,7 +848,6 @@ class Associations
                     $parent->isNot = true;
                 }else{
                     $nextNot = true;
-
                 }
 
                 continue;
@@ -855,11 +858,9 @@ class Associations
     }
 
     /**
-     * @param Associations[] $conditions
-     * @param null $parent
+     * @param $conditions
      */
-
-    private function convertConditionStatementOperator( &$conditions, &$parent = null ){
+    private function convertConditionStatementOperator( &$conditions ){
 
         $nextStatementOperator = false;
         foreach ($conditions as $index => $child) {
@@ -871,7 +872,7 @@ class Associations
                     $nextStatementOperator = false;
                 }
 
-                $this->convertConditionStatementOperator($child->childs, $child);
+                $this->convertConditionStatementOperator($child->childs);
                 continue;
             }
 
@@ -887,8 +888,13 @@ class Associations
     }
 
 
+    /**
+     * @param $conditions
+     * @param $last
+     *
+     * find the last condition of a if statement
+     */
     private function getLastCondition( &$conditions, &$last ){
-
         foreach ($conditions as $index => &$child) {
 
             if ($child->type == Tokens::T_CONDITION){
@@ -897,42 +903,17 @@ class Associations
                 continue;
             }
         }
-
     }
 
 
     /**
      * @param Associations[] $conditions
-     * @param null $parent
+     * @param Associations|null $parent
      * @throws Exception
      */
-    private function convertConditionCompareOperator( &$conditions, &$parent = null ){
+    private function convertConditionCompareOperator( &$conditions, Associations &$parent = null ){
 
         /** @var Associations $lastCondition */
-
-//        if (
-//            count($conditions) == 3 &&
-//            in_array($conditions[1]->type, [
-//                Tokens::T_IS_NOT_EQUAL,
-//                Tokens::T_IS_GREATER_EQUAL,
-//                Tokens::T_IS_GREATER,
-//                Tokens::T_IS_SMALLER_EQUAL,
-//                Tokens::T_IS_SMALLER,
-//                Tokens::T_IS_EQUAL,
-//            ]) !== false
-//        ){
-//            $newCondition = new Associations();
-//            $newCondition->type = Tokens::T_CONDITION;
-//            list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
-//            $newCondition->childs = [$firstChild];
-//            $newCondition->operator = $operator;
-//            $newCondition->operatorValue = $operatorValue;
-//
-//            $conditions = [$newCondition];
-//
-//        }
-//
-//        return;
 
         $foundCondition = false;
         foreach ($conditions as $index => &$child) {
@@ -955,7 +936,6 @@ class Associations
             if ($parent == null){
                 $conditions = $newCondition;
             }else{
-//                $parent = $newCondition;
                 $parent->childs = [$firstChild];
                 $parent->operator = $operator;
                 $parent->operatorValue = $operatorValue;
