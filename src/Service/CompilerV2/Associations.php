@@ -45,6 +45,7 @@ class Associations
     public $isLastWriteDebugParam = null;
     public $isLastCondition = null;
     public $negate = false;
+    public $scriptName = "";
     /**
      * @var Associations|null
      */
@@ -59,6 +60,7 @@ class Associations
             'type' => $this->type
         ];
         if ($this->value !== "") $debug['value'] = $this->value;
+        if ($this->scriptName !== "") $debug['scriptName'] = $this->scriptName;
         if (count($this->childs)) $debug['childs'] = $this->childs;
         if (count($this->cases)) $debug['cases'] = $this->cases;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
@@ -497,15 +499,18 @@ class Associations
 
                 break;
 
+            /**
+             * Tread boolean as simple int
+             */
             case 'true':
-                $this->type = Tokens::T_BOOLEAN;
-                $this->varType = 'boolean';
-                $this->value = true;
+                $this->type = Tokens::T_INT;
+                $this->varType = 'integer';
+                $this->value = 1;
                 break;
             case 'false':
-                $this->type = Tokens::T_BOOLEAN;
-                $this->varType = 'boolean';
-                $this->value = false;
+                $this->type = Tokens::T_INT;
+                $this->varType = 'integer';
+                $this->value = 0;
                 break;
 
             /**

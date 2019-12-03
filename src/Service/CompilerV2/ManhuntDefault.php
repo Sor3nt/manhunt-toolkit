@@ -2,6 +2,8 @@
 
 namespace App\Service\CompilerV2;
 
+use App\Service\Helper;
+
 class ManhuntDefault
 {
 
@@ -26,6 +28,10 @@ class ManhuntDefault
 
     public function getConstant( $name ){
         if (isset($this->constants[strtolower($name)])){
+
+//            if (is_string($this->constants[strtolower($name)]['offset'])){
+//                $this->constants[strtolower($name)]['offset'] = Helper::fromHexToInt($this->constants[strtolower($name)]['offset']);
+//            }
             return $this->constants[strtolower($name)];
         }
 

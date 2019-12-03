@@ -37,8 +37,12 @@ class Compiler
     public $offsetProcedureScripts = 0;
     public $offsetConstants = 0;
 
+    public $evalVar;
+
     public function __construct($source, $game, $platform, $parentScript = false)
     {
+
+        $this->evalVar = new EvaluateVariable($this);
 
         $this->game = $game;
         $this->platform = $platform;
@@ -213,12 +217,20 @@ class Compiler
 
         $len = strlen($string) + 1;
 
-        $this->strings4Script[$currentScriptName][strtolower($string)] = [
-            'value' => $string,
-            'offset' => $this->offsetGlobalVariable,
-            'scriptName' => $currentScriptName,
-            'size' => $len
-        ];
+        $newString = new Associations();
+        $newString->value = $string;
+        $newString->section = "header";
+        $newString->offset = $this->offsetGlobalVariable;
+        $newString->scriptName = $currentScriptName;
+        $newString->size = $len;
+        $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
+
+        //        $this->strings4Script[$currentScriptName][strtolower($string)] = [
+//            'value' => $string,
+//            'offset' => $this->offsetGlobalVariable,
+//            'scriptName' => $currentScriptName,
+//            'size' => $len
+//        ];
 
         if (4 - $len % 4 != 0) $len += 4 - $len % 4;
 

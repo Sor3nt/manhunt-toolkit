@@ -118,12 +118,11 @@ class Evaluate{
                     }else if ($association->forIndex !== null) {
 var_dump($association->forIndex);
 exit;
-                        $this->readData($association->forIndex, $association->forIndex->varType);
+//                        $this->readData($association->forIndex, $association->forIndex->varType);
 
-                        $this->add('10000000');
-                        $this->add('01000000');
+//                        $this->compiler->evalVar->ret();
 
-                        $this->getPointer($association, $association->varType);
+//                        $this->getPointer($association, $association->varType);
 
 //var_dump($association);
 //exit;
@@ -135,12 +134,9 @@ exit;
                     }else if ($association->fromArray == true) {
                         $this->readData($association, "array");
 
-                        $this->add('10000000');
-                        $this->add('01000000');
+                        $this->compiler->evalVar->ret();
 
-                        $this->add('12000000');
-                        $this->add('01000000');
-                        $this->add(Helper::fromIntToHex((int)$association->index), "Array index " . $association->index);
+                        $this->compiler->evalVar->valuePointer( (int)$association->index );
 
                         $this->add('34000000');
                         $this->add('01000000');
@@ -176,8 +172,7 @@ exit;
                      */
                     if ($association->varType == "real"){
                         if ($association->assign->type == Tokens::T_INT){
-                            $this->add('10000000');
-                            $this->add('01000000');
+                            $this->compiler->evalVar->ret();
 
                             //convert to float
                             $this->add('4d000000', 'Convert INT to FLOAT');
@@ -202,10 +197,14 @@ exit;
 
                     $this->msg = sprintf("Variable %s Math Operation ", $association->value);
 
-                    $this->getPointer($association, $association->varType);
 
-                    $this->add('10000000');
-                    $this->add('01000000');
+                    if ($association->type != Tokens::T_VARIABLE)
+                        die("math without a var... todo ");
+
+
+                    $compiler->evalVar->variablePointer($association);
+
+                    $this->compiler->evalVar->ret();
 
                     foreach ($association->math->childs as $condition) {
                         new Evaluate($this->compiler, $condition);
@@ -238,7 +237,7 @@ exit;
 
                 //we have a regular variable
                 if ($association->assign === false && $association->math === false){
-                    $this->getPointer($association, $association->varType);
+                    $compiler->evalVar->variablePointer($association);
                 }
 
                 break;
@@ -291,7 +290,8 @@ exit;
 
                     if ($isState) {
                         $compareAgainst = "state";
-                        $this->getPointer($param, "state");
+
+                        $compiler->evalVar->variablePointer($param, "state");
 
                         //TODO das gehört doch auch in T_VARIABLE ODER ?!
                     }else if ($param->varType == "string") {
@@ -301,15 +301,15 @@ exit;
                     }else if ($param->varType == "vec3d") {
                         $compareAgainst = "vec3d";
                         // move the internal pointer to the offset
-                        $this->movePointer($param);
+                        $this->compiler->evalVar->memoryPointer($param);
                     }else if ($param->varType == "ecollectabletype") {
                         $compareAgainst = "ecollectabletype";
                         // move the internal pointer to the offset
-                        $this->movePointer($param);
+                        $this->compiler->evalVar->memoryPointer($param);
                     }else if ($param->varType == "eaicombattype") {
                         $compareAgainst = "eaicombattype";
                         // move the internal pointer to the offset
-                        $this->movePointer($param);
+                        $this->compiler->evalVar->memoryPointer($param);
                     }
 
                     new Evaluate($this->compiler, $param);
@@ -317,8 +317,7 @@ exit;
                     if ($param->type !== Tokens::T_CONDITION) $onlyConditions = false;
 
                     if ($association->operatorValue !== null){
-                        $this->add('10000000', "return param");
-                        $this->add('01000000', "return param");
+                        $this->compiler->evalVar->ret();
                     }
                 }
 
@@ -337,25 +336,16 @@ exit;
                     }
 
                     if ($compareAgainst == "state"){
-                        $this->add('12000000', 'Simple Int');
-                        $this->add('01000000', 'Simple Int');
-                        $this->add(Helper::fromIntToHex($association->operatorValue->offset), ' state offset');
+                        $this->compiler->evalVar->valuePointer($association->operatorValue->offset);
 
                     }else{
                         new Evaluate($this->compiler, $association->operatorValue);
                     }
 
                     if ($association->operatorValue->type == Tokens::T_STRING){
-                        $this->add('12000000');
-                        $this->add('02000000');
-                        $this->add(Helper::fromIntToHex(strlen($association->operatorValue->value) + 1));
+                        $this->compiler->evalVar->readSize( strlen($association->operatorValue->value) + 1 );
 
-                        $this->add('10000000', 'Return string');
-                        $this->add('01000000', 'Return string');
-
-                        $this->add('10000000', 'Return string');
-                        $this->add('02000000', 'Return string');
-
+                        $this->compiler->evalVar->retString();
 
                         $this->add('49000000', 'compare string');
 
@@ -369,9 +359,7 @@ exit;
                         $this->add('01000000');
                     }
 
-                    $this->add('12000000');
-                    $this->add('01000000');
-                    $this->add('01000000');
+                    $this->compiler->evalVar->valuePointer(1);
 
                     switch ($association->operator){
                         case Tokens::T_IS_EQUAL:
@@ -434,8 +422,7 @@ exit;
                      * wenn die eine condition in einer condition ist, ist die außere condition im grunde leer
                      * daher darf dann auch kein 10 01 passieren
                      */
-                    $this->add('10000000', "next condition");
-                    $this->add('01000000', "next condition");
+                    $this->compiler->evalVar->ret();
                 }
 
                 break;
@@ -537,15 +524,8 @@ exit;
                         $this->movePointer($param);
                     }else if ($param->varType == "vec3d") {
                         // move the internal pointer to the offset
-                        $this->movePointer($param);
-                    }else if ($param->varType == "ecollectabletype") {
-                        // move the internal pointer to the offset
-                        $this->movePointer($param);
-                    }else if ($param->varType == "eaicombattype") {
-                        // move the internal pointer to the offset
-                        $this->movePointer($param);
+                        $this->compiler->evalVar->memoryPointer($param);
                     }
-
 
                     new Evaluate($this->compiler, $param);
 
@@ -555,8 +535,7 @@ exit;
                             // floats and REAL are the same...
                             if ($param->type !== Tokens::T_FLOAT && $param->varType != "real"){
 
-                                $this->add('10000000');
-                                $this->add('01000000');
+                                $this->compiler->evalVar->ret();
 
                                 $this->add('4d000000', 'integer to float');
 
@@ -569,26 +548,18 @@ exit;
                      * i guess the procedure need only the pointer and not the actual value
                      */
                     if ($association->isProcedure === true){
-                        $this->add('10000000');
-                        $this->add('01000000');
+                        $this->compiler->evalVar->ret();
                         continue;
                     }
 
                     if($param->type == Tokens::T_STRING){
                         $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
-
-                        $this->msg = sprintf("Read String %s", $string['value']);
-
-                        $this->add('12000000');
-                        $this->add('02000000');
-                        $this->add(Helper::fromIntToHex($string['size']), "Length");
+                        $this->compiler->evalVar->readSize( $string->size );
                     }
 
                     //we need to return the result after any math operation
                     if ($param->math !== false){
-                        $this->msg = sprintf("Function %s Math Return", $association->value);
-                        $this->add('10000000');
-                        $this->add('01000000');
+                        $this->compiler->evalVar->ret();
                     }
 
                     //regular parameter return
@@ -597,18 +568,11 @@ exit;
                         strtolower($param->value) == "getentityview"
                     ){
 
+                    }else if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
+                        $this->compiler->evalVar->retString();
+
                     }else{
-                        $this->msg = sprintf("Function %s Return", $association->value);
-                        $this->add('10000000');
-                        $this->add('01000000');
-                    }
-
-                    //special return for strings
-                    if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
-                        $this->msg = sprintf("Function %s Return String", $association->value);
-
-                        $this->add('10000000');
-                        $this->add('02000000');
+                        $this->compiler->evalVar->ret();
                     }
                 }
 
@@ -656,8 +620,7 @@ exit;
                 $isState = $compiler->getState($caseVariable->varType);
 
                 if ($isState){
-                    $this->msg = sprintf("Switch state %s %s", $caseVariable->value, $caseVariable->section);
-                    $this->getPointer($caseVariable, 'state');
+                    $compiler->evalVar->variablePointer($caseVariable, 'state');
                 }
                 /**
                  * TODO: das gehört in T_VARIABLE
@@ -728,10 +691,6 @@ exit;
 
                 $this->readData($association, 'integer');
 
-                if ($association->negate){
-                    $this->add('2a000000', 'negate integer');
-                    $this->add('01000000', 'negate integer');
-                }
 
                 break;
             case Tokens::T_STRING:
@@ -782,33 +741,15 @@ exit;
         $type = $this->getTypeByAssociation( $association );
 
         switch ($type){
-            case 'eaicombattype':
-            case 'ecollectabletype':
-                $this->add('13000000', 'Read ecollectabletype from Section ' . $association->section);
-                $this->add('01000000', 'Read ecollectabletype');
-                $this->add('04000000', 'Read ecollectabletype');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                break;
-            case 'vec3d':
-                $this->add($association->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $association->section);
-                $this->add('04000000', 'Read String');
-                $this->add('01000000', 'Read String');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-
-                break;
             case 'string':
                 if (in_array($association->section, ['header', 'script']) !== false){
-                    $this->add($association->section == "header" ? '21000000' : '22000000', 'Read String from Section ' . $association->section);
-                    $this->add('04000000', 'Read String');
-                    $this->add('01000000', 'Read String');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
 
-                    //then read the given size
-                    $this->add('12000000', 'Read String');
-                    $this->add('02000000', 'Read String');
-                    $this->add(Helper::fromIntToHex($association->sizeWithoutPad4), "Size of " . $association->sizeWithoutPad4);
+                    $this->compiler->evalVar->memoryPointer($association);
+                    $this->compiler->evalVar->readSize( $association->sizeWithoutPad4 );
 
                 }else{
+
+
                     //custom parameter
                     $this->add('13000000', 'Read String from Section ' . $association->section);
                     $this->add('01000000', 'Read String');
@@ -816,9 +757,7 @@ exit;
                     $this->add(Helper::fromIntToHex($association->offset), 'Offset');
 
                     //then read the given size
-                    $this->add('12000000', 'Read String');
-                    $this->add('02000000', 'Read String');
-                    $this->add('00000000', "Offset / Size (todo)");
+                    $this->compiler->evalVar->readSize( 0 );
                 }
 
                 break;
@@ -846,13 +785,8 @@ exit;
             case 'entityptr':
             case 'integer':
             case 'boolean':
-                $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
-                $this->add('04000000');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                $this->add('01000000');
-                break;
             case 'real':
-                $this->add('16000000');
+                $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 $this->add('01000000');
@@ -861,8 +795,10 @@ exit;
                 $this->add('12000000');
                 $this->add('03000000');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+
                 $this->add('0f000000');
                 $this->add('01000000');
+
                 $this->add('0f000000');
                 $this->add('04000000');
                 $this->add('44000000');
@@ -880,25 +816,6 @@ exit;
 
     }
 
-    /**
-     * @param $association
-     * @param $type
-     */
-    private function getPointer($association, $type ){
-
-        switch ($type) {
-            case 'real':
-            case 'state':
-            case 'entityptr':
-            case 'boolean':
-            case 'integer':
-                $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' Pointer from Section ' . $association->section);
-                $this->add('01000000', 'Read Boolean Variable');
-                $this->add('04000000', 'Read Boolean Variable');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                break;
-        }
-    }
 
     /**
      * @param Associations $association
@@ -911,15 +828,36 @@ exit;
             case 'integer':
             case 'boolean':
             case 'state':
-                $this->add('12000000');
-                $this->add('01000000');
-                $this->add(Helper::fromIntToHex((int)$association->value), "value " . (int)$association->value);
+            case 'float':
+
+                $this->compiler->evalVar->valuePointer($association->value );
+
+                if ($association->negate){
+                    if (is_float($association->value)){
+                        $this->compiler->evalVar->ret();
+
+                        $this->add('4f000000', 'Negate Float');
+                        $this->add('32000000', 'Negate Float');
+                        $this->add('09000000', 'Negate Float');
+                        $this->add('04000000', 'Negate Float');
+
+                    }else{
+                        $this->add('2a000000', 'Negate Integer');
+                        $this->add('01000000', 'Negate Integer');
+
+                    }
+                }
+
                 break;
+
             case 'constant':
+
+//                $this->compiler->evalVar->valuePointer( $association );
+//var_dump($association);exit;
                 $this->add('12000000');
                 $this->add('01000000');
-                //todo das könnte direkt über die association var kommen...
-                $this->add($this->compiler->gameClass->getConstant($association->value)['offset'], "Offset");
+//                //todo das könnte direkt über die association var kommen...
+                $this->add($association->offset, "Offset");
                 break;
             case 'array':
                 $this->msg = sprintf("Read array entry");
@@ -933,42 +871,14 @@ exit;
             case 'string':
 
                 $string = $this->compiler->strings4Script[strtolower($this->compiler->currentScriptName)][strtolower($association->value)];
-
-                $this->msg = sprintf("Move String Pointer to %s", $string['offset']);
-
-                $this->add('21000000');
-                $this->add('04000000');
-                $this->add('01000000');
-
-                $this->add(Helper::fromIntToHex($string['offset']), 'Offset');
+                $this->compiler->evalVar->memoryPointer( $string );
 
                 break;
-            case 'float':
 
-                $this->msg = sprintf("Read Float %s", $association->value);
-                $this->add('12000000');
-                $this->add('01000000');
-                $this->add(Helper::fromFloatToHex($association->value), "Offset");
-
-                if ($association->negate){
-                    $this->add('10000000');
-                    $this->add('01000000');
-
-                    $this->add('4f000000', 'Negate Float');
-                    $this->add('32000000', 'Negate Float');
-                    $this->add('09000000', 'Negate Float');
-                    $this->add('04000000', 'Negate Float');
-                }
-
-                break;
             case 'vec3d':
-                $this->add($association->section == "header" ? '21000000' : '22000000', 'Section ' . $association->section);
-                $this->add('04000000');
-                $this->add('01000000');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
 
-                $this->add('10000000', 'Return');
-                $this->add('01000000', 'Return');
+                $this->compiler->evalVar->memoryPointer($association);
+                $this->compiler->evalVar->ret();
                 break;
 
 
