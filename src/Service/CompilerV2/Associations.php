@@ -440,6 +440,7 @@ class Associations
                 /** @var Associations[] $conditions */
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);
 
+                $this->unwrapSimpleCondition($conditions);
                 $this->convertToSimpleCondition($conditions);
                 $this->convertConditionNot($conditions);
                 $this->convertConditionStatementOperator($conditions);
@@ -448,11 +449,11 @@ class Associations
 
                 /** @var Associations $lastCondition */
                 $lastCondition->isLastCondition = true;
-//var_dump($conditions);
-//exit;
                 $case->condition = $conditions;
 
-                if ($compiler->consumeIfTrue("begin")) {
+
+
+            if ($compiler->consumeIfTrue("begin")) {
 
                     $case->onTrue = $this->associateUntil($compiler, Tokens::T_END);
 
@@ -762,6 +763,30 @@ class Associations
 
     }
 
+    private function unwrapSimpleCondition( &$conditions){
+        foreach ($conditions as $index => $child) {
+            if ($child->type == Tokens::T_CONDITION){
+
+                $this->unwrapSimpleCondition($child->childs);
+
+                if (
+                    count($child->childs) == 1 &&
+                    in_array($conditions[1]->type, [
+                        Tokens::T_IS_NOT_EQUAL,
+                        Tokens::T_IS_GREATER_EQUAL,
+                        Tokens::T_IS_GREATER,
+                        Tokens::T_IS_SMALLER_EQUAL,
+                        Tokens::T_IS_SMALLER,
+                        Tokens::T_IS_EQUAL,
+                    ]) !== false){
+                        $conditions[$index] = $child->childs[0];
+                }
+
+                continue;
+            }
+        }
+    }
+
     /**
      * If IsPlayerWalking then sleep(1500);
      * If NOT IsPlayerWalking then sleep(1500);
@@ -771,6 +796,7 @@ class Associations
      * @param Associations[] $conditions
      * @throws Exception
      */
+
     private function convertToSimpleCondition( &$conditions){
 
         if (count($conditions) > 3) return;
