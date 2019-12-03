@@ -726,15 +726,9 @@ exit;
             case Tokens::T_INT:
                 $this->msg = sprintf("Handle Integer %s", $association->value);
 
-                $negate = false;
-                if ($association->value < 0){
-                    $association->value *= -1;
-                    $negate = true;
-                }
-
                 $this->readData($association, 'integer');
 
-                if ($negate){
+                if ($association->negate){
                     $this->add('2a000000', 'negate integer');
                     $this->add('01000000', 'negate integer');
                 }
@@ -914,12 +908,18 @@ exit;
     private function readData($association, $type ){
 
         switch ($type){
+            case 'integer':
+            case 'boolean':
             case 'state':
-                $this->msg = sprintf("Read STATE %s", $association->value);
                 $this->add('12000000');
                 $this->add('01000000');
-                $this->add(Helper::fromFloatToHex($association->value), "Offset");
-
+                $this->add(Helper::fromIntToHex((int)$association->value), "value " . (int)$association->value);
+                break;
+            case 'constant':
+                $this->add('12000000');
+                $this->add('01000000');
+                //todo das könnte direkt über die association var kommen...
+                $this->add($this->compiler->gameClass->getConstant($association->value)['offset'], "Offset");
                 break;
             case 'array':
                 $this->msg = sprintf("Read array entry");
@@ -945,19 +945,12 @@ exit;
                 break;
             case 'float':
 
-                $negate = false;
-                if ($association->value < 0){
-                    $negate = true;
-                    $association->value = $association->value * -1;
-                }
-
-
                 $this->msg = sprintf("Read Float %s", $association->value);
                 $this->add('12000000');
                 $this->add('01000000');
                 $this->add(Helper::fromFloatToHex($association->value), "Offset");
 
-                if ($negate){
+                if ($association->negate){
                     $this->add('10000000');
                     $this->add('01000000');
 
@@ -977,18 +970,7 @@ exit;
                 $this->add('10000000', 'Return');
                 $this->add('01000000', 'Return');
                 break;
-            case 'integer':
-            case 'boolean':
-                $this->add('12000000');
-                $this->add('01000000');
-                $this->add(Helper::fromIntToHex((int)$association->value), $type . ' ' . (int)$association->value);
-                break;
-            case 'constant':
-                $this->add('12000000');
-                $this->add('01000000');
-                //todo das könnte direkt über die association var kommen...
-                $this->add($this->compiler->gameClass->getConstant($association->value)['offset'], "Offset");
-                break;
+
 
             default:
                 throw new Exception(sprintf("ReadData unknown type %s", $type));

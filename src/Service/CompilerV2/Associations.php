@@ -44,6 +44,7 @@ class Associations
     public $paramCount = null;
     public $isLastWriteDebugParam = null;
     public $isLastCondition = null;
+    public $negate = false;
     /**
      * @var Associations|null
      */
@@ -85,6 +86,7 @@ class Associations
         if ($this->start !== null) $debug['start'] = $this->start;
         if ($this->end !== null) $debug['end'] = $this->end;
         if ($this->fromArray !== false) $debug['fromArray'] = $this->fromArray;
+        if ($this->negate !== false) $debug['negate'] = $this->negate;
         if ($this->isLastWriteDebugParam !== null) $debug['isLastWriteDebugParam'] = $this->isLastWriteDebugParam;
 
         return $debug;
@@ -257,6 +259,11 @@ class Associations
 
             $this->type = is_float($number) ? Tokens::T_FLOAT : Tokens::T_INT;
             $this->value = $number;
+
+            if ($number < 0){
+                $this->negate = true;
+                $this->value *= -1;
+            }
 
             return;
         }
