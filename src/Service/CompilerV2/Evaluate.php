@@ -60,7 +60,7 @@ class Evaluate{
                 /**
                  * The last line represents the arguments
                  * Each argument reserve 4bytes.
-                 * First 4bytes already reserverd.
+                 * First 4bytes are always reserved.
                  */
                 $variables = $compiler->getArgumentsByScriptName($association->value);
                 $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Variable count ' . count($variables));
@@ -230,8 +230,193 @@ class Evaluate{
                 }
 
                 break;
+            case Tokens::T_CONDITION:
+
+                $compareAgainst = false;
+
+//                if (count($association->childs) === 0) return;
+
+                $onlyConditions = true;
+                foreach ($association->childs as $index => $param) {
+
+                    $isLastParam = count($association->childs) == $index + 1;
+
+
+                    $isState = $compiler->getState($param->varType);
+
+                    if ($isState) {
+                        $compareAgainst = "state";
+                        $this->getPointer($param, "state");
+
+                        //TODO das gehört doch auch in T_VARIABLE ODER ?!
+                    }else if ($param->varType == "string") {
+                        $compareAgainst = "string";
+                        // move the internal pointer to the offset
+                        $this->movePointer($param);
+                    }else if ($param->varType == "vec3d") {
+                        $compareAgainst = "vec3d";
+                        // move the internal pointer to the offset
+                        $this->movePointer($param);
+                    }else if ($param->varType == "ecollectabletype") {
+                        $compareAgainst = "ecollectabletype";
+                        // move the internal pointer to the offset
+                        $this->movePointer($param);
+                    }else if ($param->varType == "eaicombattype") {
+                        $compareAgainst = "eaicombattype";
+                        // move the internal pointer to the offset
+                        $this->movePointer($param);
+                    }
+
+                    new Evaluate($this->compiler, $param);
+
+                    if ($param->type !== Tokens::T_CONDITION) $onlyConditions = false;
+
+
+                    if ($association->operatorValue !== null){
+//                    if($isLastParam !== true){
+                        $this->add('10000000', "return param");
+                        $this->add('01000000', "return param");
+                    }
+
+                }
+
+
+                if ($association->isNot === true){
+                    $this->add('29000000', 'Not');
+                    $this->add('01000000', 'Not');
+                    $this->add('01000000', 'Not');
+
+                }
+
+                if ($association->operatorValue !== null){
+
+
+                    //todo should check both sides to find the right type
+                    if ($association->operatorValue->type == Tokens::T_STRING){
+
+                        $this->add('10000000', 'Return string');
+                        $this->add('02000000', 'Return string');
+
+                    }
+
+                    if ($compareAgainst == "state"){
+                        $this->add('12000000', 'Simple Int');
+                        $this->add('01000000', 'Simple Int');
+                        $this->add(Helper::fromIntToHex($association->operatorValue->offset), ' state offset');
+
+                    }else{
+                        new Evaluate($this->compiler, $association->operatorValue);
+                    }
+
+
+                    if ($association->operatorValue->type == Tokens::T_STRING){
+                        $this->add('12000000');
+                        $this->add('02000000');
+                        $this->add(Helper::fromIntToHex(strlen($association->operatorValue->value) + 1));
+
+                        $this->add('10000000', 'Return string');
+                        $this->add('01000000', 'Return string');
+
+                        $this->add('10000000', 'Return string');
+                        $this->add('02000000', 'Return string');
+
+
+                        $this->add('49000000', 'compare string');
+
+                    }else{
+
+                        $this->add('0f000000', "Return last case");
+                        $this->add('04000000', "Return last case");
+
+                        $this->add('23000000');
+                        $this->add('04000000');
+                        $this->add('01000000');
+                    }
+
+                    $this->add('12000000');
+                    $this->add('01000000');
+                    $this->add('01000000');
+
+                    switch ($association->operator){
+                        case Tokens::T_IS_EQUAL:
+                            $this->add('3f000000');
+                            break;
+                        case Tokens::T_IS_NOT_EQUAL:
+                            $this->add('40000000');
+                            break;
+                        case Tokens::T_IS_SMALLER:
+                            $this->add('3d000000');
+                            break;
+                        case Tokens::T_IS_SMALLER_EQUAL:
+                            $this->add('3e000000');
+                            break;
+                        case Tokens::T_IS_GREATER:
+                            $this->add('42000000');
+                            break;
+                        case Tokens::T_IS_GREATER_EQUAL:
+                            $this->add('41000000');
+                            break;
+                        default:
+                            throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $association->operator));
+                            break;
+                    }
+
+                    $offset = count($compiler->codes);
+                    $this->add('OFFSET', 'Offset 1');
+
+                    $this->add('33000000');
+                    $this->add('01000000');
+                    $this->add('01000000');
+
+                    $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+                }
+
+
+                if ($association->statementOperator ){
+                    $this->add('0f000000', "apply to operator");
+                    $this->add('04000000', "apply to operator");
+
+                    switch ($association->statementOperator){
+
+                        case Tokens::T_OR:
+                            $this->add('27000000', 'OR');
+                            break;
+                        case Tokens::T_AND:
+                            $this->add('25000000', 'AND');
+                            break;
+                        default:
+                            throw new Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $association->statementOperator));
+                            break;
+                    }
+
+                    $this->add('01000000', 'apply operator ' . $association->statementOperator);
+                    $this->add('04000000', 'apply operator ' . $association->statementOperator);
+
+                }
+
+//                if (
+//                    $association->statementOperator !== null ||
+//                    $association->operatorValue !== null
+//
+//                ){
+
+                if ($association->isLastCondition !== true && $onlyConditions == false){
+//                    var_dump($association);
+
+                    /**
+                     * wenn die eine condition in einer condition ist, ist die außere condition im grunde leer
+                     * daher darf dann auch kein 10 01 passieren
+                     */
+                    $this->add('10000000', "next condition");
+                    $this->add('01000000', "next condition");
+
+                }
+//                }
+
+                break;
             case Tokens::T_DO:
             case Tokens::T_IF:
+
                 $this->msg = sprintf("IF Statement ");
 
                 $startOffset = count($compiler->codes);
@@ -242,164 +427,11 @@ class Evaluate{
                      //apply the condition
                     /** @var Associations $condition */
                     foreach ($case->condition as $conditionIndex => $condition) {
-
-                        $compareAgainst = false;
-
-                        foreach ($condition->childs as $param) {
-
-                            $isState = $compiler->getState($param->varType);
-
-                            if ($isState) {
-                                $compareAgainst = "state";
-                                $this->getPointer($param, "state");
-
-                                //TODO das gehört doch auch in T_VARIABLE ODER ?!
-                            }else if ($param->varType == "string") {
-                                $compareAgainst = "string";
-                                // move the internal pointer to the offset
-                                $this->movePointer($param);
-                            }else if ($param->varType == "vec3d") {
-                                $compareAgainst = "vec3d";
-                                // move the internal pointer to the offset
-                                $this->movePointer($param);
-                            }else if ($param->varType == "ecollectabletype") {
-                                $compareAgainst = "ecollectabletype";
-                                // move the internal pointer to the offset
-                                $this->movePointer($param);
-                            }else if ($param->varType == "eaicombattype") {
-                                $compareAgainst = "eaicombattype";
-                                // move the internal pointer to the offset
-                                $this->movePointer($param);
-                            }
-
-
-
-
-
-                            new Evaluate($this->compiler, $param);
-                        }
-
-                        if ($case->isNot !== null || $condition->isNot !== null){
-                            $this->add('29000000', 'Not');
-                            $this->add('01000000', 'Not');
-                            $this->add('01000000', 'Not');
-                        }
-
-                        if ($condition->operatorValue == null) continue;
-
-                        $this->add('10000000', 'Return Condition test');
-                        $this->add('01000000', 'Return Condition test');
-
-                        //todo should check both sides to find the right type
-                        if ($condition->operatorValue->type == Tokens::T_STRING){
-                            $this->add('10000000', 'Return string test');
-                            $this->add('02000000', 'Return string test');
-
-                        }
-
-                        if ($compareAgainst == "state"){
-                            $this->add('12000000', 'Simple Int');
-                            $this->add('01000000', 'Simple Int');
-                            $this->add(Helper::fromIntToHex($condition->operatorValue->offset), 'offset');
-
-                        }else{
-                            new Evaluate($this->compiler, $condition->operatorValue);
-                        }
-
-
-                        if ($condition->operatorValue->type == Tokens::T_STRING){
-                            $this->add('12000000');
-                            $this->add('02000000');
-                            $this->add(Helper::fromIntToHex(strlen($condition->operatorValue->value) + 1));
-
-                            $this->add('10000000', 'Return string');
-                            $this->add('01000000', 'Return string');
-                            $this->add('10000000', 'Return string');
-                            $this->add('02000000', 'Return string');
-
-
-                            $this->add('49000000', 'compare string');
-
-                        }else{
-
-                            $this->add('0f000000', "Return last case");
-                            $this->add('04000000', "Return last case");
-
-                            $this->add('23000000');
-                            $this->add('04000000');
-                            $this->add('01000000');
-                        }
-
-
-
-                        $this->add('12000000');
-                        $this->add('01000000');
-                        $this->add('01000000');
-
-                        switch ($condition->operator){
-                            case Tokens::T_IS_EQUAL:
-                                $this->add('3f000000');
-                                break;
-                            case Tokens::T_IS_NOT_EQUAL:
-                                $this->add('40000000');
-                                break;
-                            case Tokens::T_IS_SMALLER:
-                                $this->add('3d000000');
-                                break;
-                            case Tokens::T_IS_SMALLER_EQUAL:
-                                $this->add('3e000000');
-                                break;
-                            case Tokens::T_IS_GREATER:
-                                $this->add('42000000');
-                                break;
-                            case Tokens::T_IS_GREATER_EQUAL:
-                                $this->add('41000000');
-                                break;
-                            default:
-                                throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $condition->operator));
-                                break;
-                        }
-
-                        $offset = count($compiler->codes);
-                        $this->add('OFFSET', 'Offset 1');
-
-                        $this->add('33000000');
-                        $this->add('01000000');
-                        $this->add('01000000');
-
-                        $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-
-                        if ($conditionIndex > 0){
-                            $this->add('0f000000', "return 0f 04 (operator)");
-                            $this->add('04000000', "return 0f 04 (operator)");
-                        }else if (count($case->condition) > 1){
-                            $this->add('10000000', "return current condition");
-                            $this->add('01000000', "return current condition");
-                        }
-
-                        if ($condition->statementOperator ){
-                            switch ($condition->statementOperator){
-
-                                case Tokens::T_OR:
-                                    $this->add('27000000', 'OR');
-                                    break;
-                                case Tokens::T_AND:
-                                    $this->add('25000000', 'AND');
-                                    break;
-                                default:
-                                    throw new Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $condition->statementOperator));
-                                    break;
-                            }
-
-                            $this->add('01000000', 'Next Condition ');
-                            $this->add('04000000', 'Next Condition');
-
-                            if ($conditionIndex + 1 != count($case->condition)) {
-                                $this->add('10000000', 'return ');
-                                $this->add('01000000', 'return');
-                            }
-                        }
+                        new Evaluate($this->compiler, $condition);
                     }
+
+//                    $this->add('10000000', 'return ');
+//                    $this->add('01000000', 'return');
 
                     $this->add('24000000');
                     $this->add('01000000');
@@ -940,5 +972,11 @@ class Evaluate{
             default:
                 throw new Exception(sprintf("ReadData unknown type %s", $type));
         }
+    }
+
+    private function handleIfCondition( Associations $condition ){
+
+//        if ($condition->type == Tokens::T_CONDITION)
+
     }
 }

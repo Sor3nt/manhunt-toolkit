@@ -71,6 +71,8 @@ class IfFunctionAndFunctionTest extends KernelTestCase
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
             '02000000', //value 2
+
+
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
 

@@ -35,6 +35,7 @@ class Associations
     public $onTrue = null;
     public $onFalse = null;
     public $operator = null;
+    /** @var Associations|null  */
     public $operatorValue = null;
     public $statementOperator = null;
     public $isCustomFunction = null;
@@ -42,6 +43,7 @@ class Associations
     public $start = null;
     public $paramCount = null;
     public $isLastWriteDebugParam = null;
+    public $isLastCondition = null;
     /**
      * @var Associations|null
      */
@@ -73,6 +75,7 @@ class Associations
         if ($this->onTrue !== null) $debug['onTrue'] = $this->onTrue;
         if ($this->onFalse !== null) $debug['onFalse'] = $this->onFalse;
         if ($this->condition !== false) $debug['condition'] = $this->condition;
+        if ($this->isLastCondition !== null) $debug['isLastCondition'] = $this->isLastCondition;
         if ($this->operator !== null) $debug['operator'] = $this->operator;
         if ($this->operatorValue !== null) $debug['operatorValue'] = $this->operatorValue;
         if ($this->statementOperator !== null) $debug['statementOperator'] = $this->statementOperator;
@@ -130,7 +133,7 @@ class Associations
 
             $this->offset = $variable['offset'];
             $this->size = $variable['size'];
-            $this->sizeWithoutPad4 = $variable['sizeWithoutPad4'];
+            $this->sizeWithoutPad4 = isset($variable['sizeWithoutPad4']) ? $variable['sizeWithoutPad4'] : $variable['size'];
             $this->varType = $variable['type'];
             $this->section = $variable['section'];
 
@@ -437,124 +440,17 @@ class Associations
                 /** @var Associations[] $conditions */
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);
 
-                $conditionsRearranged = [];
+                $this->convertToSimpleCondition($conditions);
+                $this->convertConditionNot($conditions);
+                $this->convertConditionStatementOperator($conditions);
+                $this->convertConditionCompareOperator($conditions);
+                $this->getLastCondition($conditions, $lastCondition);
 
-                $nextNot = null;
-                $nextOperator = null;
-
-                /** Parse the Statement */
-
-                /**
-                 * We have a regular statement without brackets
-                 *
-                 * if randFlash = 0 then
-                 */
-                if (count($conditions) == 3 && $conditions[0]->type != Tokens::T_CONDITION) {
-                    $newCondition = new Associations();
-                    $newCondition->type = Tokens::T_CONDITION;
-                    list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
-                    $newCondition->childs = [$firstChild];
-                    $newCondition->operator = $operator;
-                    $newCondition->operatorValue = $operatorValue;
-
-                    $conditionsRearranged[] = $newCondition;
-
-                    /**
-                     * strange Wrapped statement
-                     *
-                     * if (sleep(100)) <> NIL then
-                     */
-                }else if (
-                    count($conditions) == 3 &&
-                    $conditions[0]->type == Tokens::T_CONDITION &&
-                    count($conditions[0]->childs) == 1
-                ){
-
-                    $conditions[0] = $conditions[0]->childs[0];
-
-                    $newCondition = new Associations();
-                    $newCondition->type = Tokens::T_CONDITION;
-                    list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
-                    $newCondition->childs = [$firstChild];
-                    $newCondition->operator = $operator;
-                    $newCondition->operatorValue = $operatorValue;
-
-                    $conditionsRearranged[] = $newCondition;
-
-                }else{
-
-                    foreach ($conditions as $conditionRaw) {
-
-                        $conditionReGrouped = [$conditionRaw];
-                        if (
-                            $conditionRaw->type === Tokens::T_CONDITION &&
-                            count($conditionRaw->childs) < 3
-                        ){
-                            $conditionReGrouped = $conditionRaw->childs;
-                        }
-
-                        foreach ($conditionReGrouped as $condition) {
-
-                            if ($condition->type === Tokens::T_CONDITION){
-
-                                /**
-                                 * We have a regular statement
-                                 *
-                                 * if (GetDoorState(entity) <> DOOR_CLOSED) then
-                                 */
-                                if (count($condition->childs) == 3){
-                                    list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($condition->childs);
-
-                                    $newCondition = new Associations();
-                                    $newCondition->type = Tokens::T_CONDITION;
-                                    $newCondition->childs = [$firstChild];
-                                    $newCondition->isNot = $nextNot;
-                                    $newCondition->statementOperator = $nextOperator;
-                                    $newCondition->operator = $operator;
-                                    $newCondition->operatorValue = $operatorValue;
-
-                                    $conditionsRearranged[] = $newCondition;
-
-                                    $nextNot = null;
-                                    $nextOperator = null;
-
-                                }else{
-                                    var_dump($condition);
-                                    throw new Exception("IF Statement with not 3 childs");
-                                }
-                            }else if ($condition->type == Tokens::T_NOT){
-                                $nextNot = true;
-                                continue;
-                            }else if ($condition->type == Tokens::T_AND){
-                                $nextOperator = $condition->type;
-                                continue;
-                            }else if ($condition->type == Tokens::T_OR){
-                                $nextOperator = $condition->type;
-                                continue;
-
-                            }else{
-                                /**
-                                 * We have a single value statement
-                                 *
-                                 * If IsPlayerWalking then
-                                 */
-                                $newCondition = new Associations();
-                                $newCondition->type = Tokens::T_CONDITION;
-                                $newCondition->childs = [$condition];
-                                $newCondition->isNot = $nextNot;
-                                $newCondition->statementOperator = $nextOperator;
-
-                                $conditionsRearranged[] = $newCondition;
-
-                                $nextNot = null;
-                                $nextOperator = null;
-                            }
-                        }
-
-                    }
-                }
-
-                $case->condition = $conditionsRearranged;
+                /** @var Associations $lastCondition */
+                $lastCondition->isLastCondition = true;
+//var_dump($conditions);
+//exit;
+                $case->condition = $conditions;
 
                 if ($compiler->consumeIfTrue("begin")) {
 
@@ -862,6 +758,182 @@ class Associations
             }
 
             $compiler->addConstants($name, $value, $type);
+        }
+
+    }
+
+    /**
+     * If IsPlayerWalking then sleep(1500);
+     * If NOT IsPlayerWalking then sleep(1500);
+     * if leaveCutText = TRUE then sleep(1500);
+
+     *
+     * @param Associations[] $conditions
+     * @throws Exception
+     */
+    private function convertToSimpleCondition( &$conditions){
+
+        if (count($conditions) > 3) return;
+        if ($conditions[0]->type == Tokens::T_CONDITION) return;
+        if (
+            count($conditions) == 2 &&
+            $conditions[1]->type == Tokens::T_CONDITION
+        ) return;
+        if (
+            count($conditions) == 3 &&
+            $conditions[2]->type == Tokens::T_CONDITION
+        ) return;
+
+        $newCondition = new Associations();
+        $newCondition->type = Tokens::T_CONDITION;
+        $newCondition->childs = $conditions;
+
+        $conditions = [$newCondition];
+    }
+
+
+
+    /**
+     * @param Associations[] $conditions
+     * @param Associations $parent
+     */
+    private function convertConditionNot(&$conditions, &$parent = null, $nextNot = null ){
+
+        foreach ($conditions as $index => $child) {
+
+            if ($child->type == Tokens::T_CONDITION){
+
+                if ($nextNot === true){
+                    $child->isNot = true;
+                    $nextNot = null;
+                }
+                $this->convertConditionNot($child->childs, $child, $nextNot);
+                continue;
+            }
+
+            if ($child->type == Tokens::T_NOT){
+                unset($conditions[$index]);
+
+                if ($parent !== null){
+                    $parent->isNot = true;
+                }else{
+                    $nextNot = true;
+
+                }
+
+                continue;
+            }
+
+        }
+
+    }
+
+    /**
+     * @param Associations[] $conditions
+     * @param null $parent
+     */
+
+    private function convertConditionStatementOperator( &$conditions, &$parent = null ){
+
+        $nextStatementOperator = false;
+        foreach ($conditions as $index => $child) {
+
+            if ($child->type == Tokens::T_CONDITION){
+
+                if ($nextStatementOperator !== false){
+                    $child->statementOperator = $nextStatementOperator;
+                    $nextStatementOperator = false;
+                }
+
+                $this->convertConditionStatementOperator($child->childs, $child);
+                continue;
+            }
+
+            if (
+                $child->type == Tokens::T_OR ||
+                $child->type == Tokens::T_AND
+            ){
+                $nextStatementOperator = clone $child;
+
+                unset($conditions[$index]);
+            }
+        }
+    }
+
+
+    private function getLastCondition( &$conditions, &$last ){
+
+        foreach ($conditions as $index => &$child) {
+
+            if ($child->type == Tokens::T_CONDITION){
+                $last = $child;
+                $this->getLastCondition($child->childs, $last);
+                continue;
+            }
+        }
+
+    }
+
+
+    /**
+     * @param Associations[] $conditions
+     * @param null $parent
+     * @throws Exception
+     */
+    private function convertConditionCompareOperator( &$conditions, &$parent = null ){
+
+        /** @var Associations $lastCondition */
+
+//        if (
+//            count($conditions) == 3 &&
+//            in_array($conditions[1]->type, [
+//                Tokens::T_IS_NOT_EQUAL,
+//                Tokens::T_IS_GREATER_EQUAL,
+//                Tokens::T_IS_GREATER,
+//                Tokens::T_IS_SMALLER_EQUAL,
+//                Tokens::T_IS_SMALLER,
+//                Tokens::T_IS_EQUAL,
+//            ]) !== false
+//        ){
+//            $newCondition = new Associations();
+//            $newCondition->type = Tokens::T_CONDITION;
+//            list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
+//            $newCondition->childs = [$firstChild];
+//            $newCondition->operator = $operator;
+//            $newCondition->operatorValue = $operatorValue;
+//
+//            $conditions = [$newCondition];
+//
+//        }
+//
+//        return;
+
+        $foundCondition = false;
+        foreach ($conditions as $index => &$child) {
+
+            if ($child->type == Tokens::T_CONDITION){
+                $this->convertConditionCompareOperator($child->childs, $child);
+                $foundCondition = true;
+                continue;
+            }
+        }
+
+        if ($foundCondition === false && count($conditions) == 3){
+            $newCondition = new Associations();
+            $newCondition->type = Tokens::T_CONDITION;
+            list($firstChild, $operator, $operatorValue) = $this->convertTripleStatement($conditions);
+            $newCondition->childs = [$firstChild];
+            $newCondition->operator = $operator;
+            $newCondition->operatorValue = $operatorValue;
+
+            if ($parent == null){
+                $conditions = $newCondition;
+            }else{
+//                $parent = $newCondition;
+                $parent->childs = [$firstChild];
+                $parent->operator = $operator;
+                $parent->operatorValue = $operatorValue;
+            }
         }
 
     }

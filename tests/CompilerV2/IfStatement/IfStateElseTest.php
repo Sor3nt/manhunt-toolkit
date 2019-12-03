@@ -58,8 +58,10 @@ class IfStateElseTest extends KernelTestCase
             '01000000', //Read VAR from header
             '04000000', //Read VAR from header
             '40000000', //Offset
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
             '00000000', //value 0
