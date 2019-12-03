@@ -356,8 +356,8 @@ class Compiler
                     'scriptName' => $this->currentScriptName
                 ];
             }
-        }
 
+        }
 
     }
 

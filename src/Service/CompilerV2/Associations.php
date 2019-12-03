@@ -775,6 +775,7 @@ class Associations
                  */
 
                 if (
+                    count($conditions) == 3 &&
                     count($child->childs) == 1 &&
 
                     in_array($conditions[1]->type, [

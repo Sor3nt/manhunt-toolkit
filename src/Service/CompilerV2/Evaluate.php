@@ -115,8 +115,20 @@ class Evaluate{
                     if ($association->varType == "vec3d") {
                         $this->readData($association, "vec3d");
 
+                    }else if ($association->forIndex !== null) {
+var_dump($association->forIndex);
+exit;
+                        $this->readData($association->forIndex, $association->forIndex->varType);
+
+                        $this->add('10000000');
+                        $this->add('01000000');
+
+                        $this->getPointer($association, $association->varType);
+
+//var_dump($association);
+//exit;
                     /**
-                     * We assign to an array index
+                     * We assign to an array index (by id)
                      *
                      * itemsSpawned[1] := FALSE;
                      */
@@ -230,6 +242,44 @@ class Evaluate{
                 }
 
                 break;
+
+            case Tokens::T_FOR:
+
+
+                $this->msg = sprintf("For statement");
+
+                new Evaluate($this->compiler, $association->start);
+
+                $this->add('15000000');
+                $this->add('04000000');
+                $this->add('20000000');
+                $this->add('01000000');
+
+                new Evaluate($this->compiler, $association->end);
+
+
+                $this->add('13000000');
+                $this->add('02000000');
+                $this->add('04000000');
+                $this->add('20000000');
+                $this->add('23000000');
+                $this->add('01000000');
+                $this->add('02000000');
+                $this->add('41000000');
+                $this->add('00390000');
+
+                $this->add('3c000000');
+                $this->add('offset', 'LineOffset');
+
+
+                foreach ($association->onTrue as $item) {
+                    new Evaluate($this->compiler, $item);
+                }
+
+//                var_dump($association);
+//                exit;
+                break;
+
             case Tokens::T_CONDITION:
 
                 $compareAgainst = false;
