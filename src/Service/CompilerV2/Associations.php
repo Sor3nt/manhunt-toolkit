@@ -279,10 +279,19 @@ class Associations
          */
         if (strpos($value, '"') !== false || strpos($value, '\'') !== false) {
             $this->type = Tokens::T_STRING;
-            $this->value = substr($value, 1, -1);
 
+            //convert replaced strings back to original
+            $this->value = substr($value, 1, -1);
             $stringIndex = substr($this->value, 4);
             $this->value = $compiler->strings[$stringIndex];
+
+            /** @var Associations $string */
+            $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($this->value)];
+            $this->scriptName = $string->scriptName;
+            $this->size = $string->size;
+            $this->offset = $string->offset;
+            $this->section = $string->section;
+
 
             return;
         }

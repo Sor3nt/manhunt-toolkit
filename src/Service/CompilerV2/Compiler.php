@@ -19,6 +19,7 @@ class Compiler
     public $variables = [];
     public $strings = [];
     public $stringsAll = [];
+
     public $strings4Script = [];
     public $codes = [];
 

@@ -198,11 +198,6 @@ exit;
 
                     $this->msg = sprintf("Variable %s Math Operation ", $association->value);
 
-
-                    if ($association->type != Tokens::T_VARIABLE)
-                        die("math without a var... todo ");
-
-
                     $compiler->evalVar->variablePointer($association);
 
                     $this->compiler->evalVar->ret();
@@ -211,29 +206,8 @@ exit;
                         new Evaluate($this->compiler, $condition);
                     }
 
-                    $this->add('0f000000');
-                    $this->add('04000000');
+                    $compiler->evalVar->math($association->math->type);
 
-                    if ($association->math->type == Tokens::T_ADDITION) {
-                        $this->add('31000000');
-                        $this->add('01000000');
-                        $this->add('04000000');
-                    }else if ($association->math->type == Tokens::T_MULTIPLY){
-                        $this->add('35000000');
-                        $this->add('04000000');
-                    }else if ($association->math->type == Tokens::T_SUBSTRACTION){
-                        $this->add('33000000');
-                        $this->add('04000000');
-                        $this->add('01000000');
-
-                        $this->add('11000000');
-                        $this->add('01000000');
-                        $this->add('04000000');
-                    }else if ($association->math->type == Tokens::T_DIVISION){
-                        $this->add('T_DIVISION');
-                    }else{
-                        throw new Exception("Math-Type not implemented " . $association->math->type);
-                    }
                 }
 
                 //we have a regular variable
@@ -827,29 +801,19 @@ exit;
 
         switch ($type){
             case 'integer':
-            case 'boolean':
             case 'state':
             case 'float':
             case 'constant':
 
                 $this->compiler->evalVar->valuePointer($association->offset );
-
                 if ($association->negate) $this->compiler->evalVar->negate($association);
-
                 break;
 
             case 'vec3d':
             case 'array':
+            case 'string':
                 $this->compiler->evalVar->memoryPointer( $association );
                 break;
-            case 'string':
-
-                $string = $this->compiler->strings4Script[strtolower($this->compiler->currentScriptName)][strtolower($association->value)];
-                $this->compiler->evalVar->memoryPointer( $string );
-
-                break;
-
-
 
             default:
                 throw new Exception(sprintf("ReadData unknown type %s", $type));

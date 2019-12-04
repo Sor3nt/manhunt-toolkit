@@ -88,6 +88,36 @@ class EvaluateVariable{
         }
     }
 
+    /**
+     * @param $type
+     * @throws Exception
+     */
+    public function math( $type ){
+        $this->add('0f000000');
+        $this->add('04000000');
+
+        if ($type == Tokens::T_ADDITION) {
+            $this->add('31000000');
+            $this->add('01000000');
+            $this->add('04000000');
+        }else if ($type == Tokens::T_MULTIPLY){
+            $this->add('35000000');
+            $this->add('04000000');
+        }else if ($type == Tokens::T_SUBSTRACTION){
+            $this->add('33000000');
+            $this->add('04000000');
+            $this->add('01000000');
+
+            $this->add('11000000');
+            $this->add('01000000');
+            $this->add('04000000');
+        }else if ($type == Tokens::T_DIVISION){
+            $this->add('T_DIVISION');
+        }else{
+            throw new Exception("Math-Type not implemented " . $association->math->type);
+        }
+    }
+
 
     private function add($code, $appendix = null ){
         $msg = $this->msg;
