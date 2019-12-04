@@ -35,14 +35,14 @@ class EvaluateVariable{
         $this->msg = "read data ";
         $this->add('12000000');
         $this->add('02000000');
-        $this->add(Helper::fromIntToHex($offset), 'Size');
+        $this->add(Helper::fromIntToHex($offset), 'Size of ' . $offset);
     }
 
     public function valuePointer($offset ){
 
-        $this->msg = "get simple value pointer";
-        $this->add('12000000');
-        $this->add('01000000');
+        $this->msg = "simple value pointer";
+        $this->add('12000000', 'Read ' . $offset);
+        $this->add('01000000', 'Read ' . $offset);
         $this->add(
             is_int($offset) ?
                     Helper::fromIntToHex($offset) :
@@ -64,11 +64,18 @@ class EvaluateVariable{
         }
     }
 
+    public function gameVarPointer( Associations $association){
+        $this->add($association->section == "header" ? '1e000000' : '1e000000', $association->varType . ' from Section ' . $association->section);
+        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+        $this->add('04000000', 'Read value ' . $association->value);
+        $this->add('01000000', 'Read value ' . $association->value);
+
+    }
     public function memoryPointer( Associations $association){
-        $this->add($association->section == "header" ? '21000000' : '22000000', 'Read memory from Section ' . $association->section);
+        $this->add($association->section == "header" ? '21000000' : '22000000', $association->varType . ' from Section ' . $association->section);
         $this->add('04000000', 'Read memory');
         $this->add('01000000', 'Read memory');
-        $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
 
     }
 
@@ -106,28 +113,30 @@ class EvaluateVariable{
      * @throws Exception
      */
     public function math( $type ){
-        $this->add('0f000000');
-        $this->add('04000000');
+        $this->msg = "Math Operator";
+
+        $this->add('0f000000', 'init');
+        $this->add('04000000', 'init');
 
         if ($type == Tokens::T_ADDITION) {
-            $this->add('31000000');
-            $this->add('01000000');
-            $this->add('04000000');
+            $this->add('31000000', 'T_ADDITION');
+            $this->add('01000000', 'T_ADDITION');
+            $this->add('04000000', 'T_ADDITION');
         }else if ($type == Tokens::T_MULTIPLY){
-            $this->add('35000000');
-            $this->add('04000000');
+            $this->add('35000000', 'T_MULTIPLY');
+            $this->add('04000000', 'T_MULTIPLY');
         }else if ($type == Tokens::T_SUBSTRACTION){
-            $this->add('33000000');
-            $this->add('04000000');
-            $this->add('01000000');
+            $this->add('33000000', 'T_SUBSTRACTION');
+            $this->add('04000000', 'T_SUBSTRACTION');
+            $this->add('01000000', 'T_SUBSTRACTION');
 
-            $this->add('11000000');
-            $this->add('01000000');
-            $this->add('04000000');
+            $this->add('11000000', 'T_SUBSTRACTION');
+            $this->add('01000000', 'T_SUBSTRACTION');
+            $this->add('04000000', 'T_SUBSTRACTION');
         }else if ($type == Tokens::T_DIVISION){
-            $this->add('T_DIVISION');
+            $this->add('00000000', 'T_DIVISION');
         }else{
-            throw new Exception("Math-Type not implemented " . $association->math->type);
+            throw new Exception("Math-Type not implemented " . $type);
         }
     }
 
@@ -137,7 +146,7 @@ class EvaluateVariable{
 
         $this->add('34000000');
         $this->add('09000000');
-        $this->add(Helper::fromIntToHex($size), 'Offset');
+        $this->add(Helper::fromIntToHex($size), 'Size of ' . $size);
     }
 
     public function scriptStart( $blockName ){

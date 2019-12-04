@@ -153,7 +153,12 @@ class Evaluate{
             case Tokens::T_VARIABLE:
                 $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
 
-                $compiler->evalVar->variablePointer($association);
+                if ($association->isGameVar === true){
+                    $compiler->evalVar->gameVarPointer($association);
+                }else{
+                    $compiler->evalVar->variablePointer($association);
+
+                }
 
                 break;
 

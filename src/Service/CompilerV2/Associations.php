@@ -21,6 +21,8 @@ class Associations
 
     public $size = null;
     public $sizeWithoutPad4 = null;
+    public $isLevelVar = null;
+    public $isGameVar = null;
     public $offset = null;
     public $index = null;
     /** @var array|null  */
@@ -70,6 +72,8 @@ class Associations
         if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
+        if ($this->isGameVar !== null) $debug['gameVar'] = $this->isGameVar;
+        if ($this->isLevelVar !== null) $debug['levelVar'] = $this->isLevelVar;
         if ($this->forIndex !== null) $debug['forIndex'] = $this->forIndex;
         if ($this->varType !== null) $debug['varType'] = $this->varType;
         if ($this->section !== null) $debug['section'] = $this->section;
@@ -146,6 +150,8 @@ class Associations
             //used from array variables like "itemsSpawned[1]"
             if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
             if (isset($variable['index'])) $this->index = $variable['index'];
+            if (isset($variable['isGameVar'])) $this->isGameVar = $variable['isGameVar'];
+            if (isset($variable['isLevelVar'])) $this->isLevelVar = $variable['isLevelVar'];
 
 
 
@@ -721,10 +727,10 @@ class Associations
             if ($var['fromArray'] === true){
 
                 foreach ($var['names'] as $name) {
-                    $compiler->addVariable($name, 'array', null, false, false, $section);
+                    $compiler->addVariable($name, 'array', null, $var['isLevelVar'], $var['isGameVar'], $section);
 
                     for ($i = $var['start']; $i <= $var['end']; $i++) {
-                        $compiler->addVariable($name . '[' . $i . ']', $var['type'], null, false, false, $section, true, $i);
+                        $compiler->addVariable($name . '[' . $i . ']', $var['type'], null, $var['isLevelVar'], $var['isGameVar'], $section, true, $i);
                     }
                 }
 

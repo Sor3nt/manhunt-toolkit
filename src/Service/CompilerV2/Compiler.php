@@ -331,6 +331,8 @@ class Compiler
             'type' => $type,
             'size' => $type == "vec3d" || $type == "rgbaint" ? 0 : $size,
             'sizeWithoutPad4' => $sizeWithoutPad4,
+            'isLevelVar' => $isLevelVar,
+            'isGameVar' => $isGameVar,
             'offset' => $offset,
             'section' => $section,
             'index' => $index,
@@ -348,6 +350,8 @@ class Compiler
                 $this->variables[] = [
                     'name' => $attributeName,
                     'type' => 'float',
+                    'isLevelVar' => $isLevelVar,
+                    'isGameVar' => $isGameVar,
                     'size' => 4,
                     'offset' => '123456789',
                     'section' => $section,
@@ -363,6 +367,8 @@ class Compiler
                 $this->variables[] = [
                     'name' => $attributeName,
                     'type' => 'integer',
+                    'isLevelVar' => $isLevelVar,
+                    'isGameVar' => $isGameVar,
                     'size' => 4,
                     'offset' => '123456789',
                     'section' => $section,
