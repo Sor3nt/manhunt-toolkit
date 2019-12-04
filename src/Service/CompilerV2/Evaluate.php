@@ -24,83 +24,28 @@ class Evaluate{
         $this->compiler = $compiler;
         
         switch ($association->type){
-            
-            case Tokens::T_PROCEDURE:
-                $this->compiler->currentScriptName = $association->value;
-
-                $this->msg = sprintf("Initialize Custom Function %s", $association->value);
-                $this->add('10000000');
-                $this->add('0a000000');
-                $this->add('11000000');
-                $this->add('0a000000');
-                $this->add('09000000');
-
-                $scriptSize = $compiler->getScriptSize($association->value);
-
-                if ($scriptSize > 0){
-                    $this->msg = sprintf("Reserve Memory %s", $scriptSize);
-
-                    $this->add('34000000');
-                    $this->add('09000000');
-                    $this->add(Helper::fromIntToHex($scriptSize), sprintf('Reserve %s bytes', $scriptSize));
-                }
-
-                foreach ($association->childs as $condition) {
-                    new Evaluate($this->compiler, $condition);
-                }
-
-                $this->msg = sprintf("Closing Custom Function %s", $association->value);
-                $this->add('11000000');
-                $this->add('09000000');
-                $this->add('0a000000');
-                $this->add('0f000000');
-                $this->add('0a000000');
-                $this->add('3a000000');
-
-                /**
-                 * The last line represents the arguments
-                 * Each argument reserve 4bytes.
-                 * First 4bytes are always reserved.
-                 */
-                $variables = $compiler->getArgumentsByScriptName($association->value);
-                $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Variable count ' . count($variables));
-
-                break;
 
             case Tokens::T_SCRIPT:
+            case Tokens::T_PROCEDURE:
                 $this->compiler->currentScriptName = $association->value;
-
-                $this->msg = sprintf("Initialize Script %s", $association->value);
-                $this->add('10000000');
-                $this->add('0a000000');
-                $this->add('11000000');
-                $this->add('0a000000');
-                $this->add('09000000');
-
                 $scriptSize = $compiler->getScriptSize($association->value);
 
-                if ($scriptSize > 0){
-                    $this->msg = sprintf("Reserve Memory %s", $scriptSize);
+                $this->compiler->evalVar->scriptStart($association->value);
 
-                    $this->add('34000000');
-                    $this->add('09000000');
-                    $this->add(Helper::fromIntToHex($scriptSize));
-                }
+                $compiler->evalVar->reserveMemory($scriptSize);
 
                 foreach ($association->childs as $condition) {
                     new Evaluate($this->compiler, $condition);
                 }
 
-                $this->msg = sprintf("Closing Script %s", $association->value);
-                $this->add('11000000');
-                $this->add('09000000');
-                $this->add('0a000000');
-                $this->add('0f000000');
-                $this->add('0a000000');
-                $this->add('3b000000');
-                $this->add('00000000');
+                if ($association->type == Tokens::T_PROCEDURE){
+                    $this->compiler->evalVar->procedureEnd($association);
+                }else{
+                    $this->compiler->evalVar->scriptEnd($association->value);
+                }
 
                 break;
+
 
             case Tokens::T_VARIABLE:
                 $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
@@ -171,20 +116,13 @@ exit;
                     /**
                      * These types accept only floats, given int need to be converted
                      */
-                    if ($association->varType == "real"){
-                        if ($association->assign->type == Tokens::T_INT){
-                            $this->compiler->evalVar->ret();
-
-                            //convert to float
-                            $this->add('4d000000', 'Convert INT to FLOAT');
-
-                        }
+                    if ($association->varType == "real" && $association->assign->type == Tokens::T_INT){
+                        $this->compiler->evalVar->int2float();
                     }
 
                     /**
                      * Block 2: Write to leftHand
                      */
-
                     $this->msg = sprintf("Assign to Variable %s", $association->value);
 
                     if ($association->fromArray == true) {
@@ -285,6 +223,8 @@ exit;
                         $compareAgainst = "eaicombattype";
                         // move the internal pointer to the offset
                         $this->compiler->evalVar->memoryPointer($param);
+                    }else{
+                        var_dump($association->type);
                     }
 
                     new Evaluate($this->compiler, $param);
@@ -297,9 +237,7 @@ exit;
                 }
 
                 if ($association->isNot === true){
-                    $this->add('29000000', 'Not');
-                    $this->add('01000000', 'Not');
-                    $this->add('01000000', 'Not');
+                    $compiler->evalVar->not();
                 }
 
                 if ($association->operatorValue !== null){

@@ -88,6 +88,19 @@ class EvaluateVariable{
         }
     }
 
+    public function not(){
+        $this->add('29000000', 'Not');
+        $this->add('01000000', 'Not');
+        $this->add('01000000', 'Not');
+    }
+
+    public function int2float(){
+        $this->ret();
+
+        //convert to float
+        $this->add('4d000000', 'Convert INT to FLOAT');
+    }
+
     /**
      * @param $type
      * @throws Exception
@@ -118,6 +131,53 @@ class EvaluateVariable{
         }
     }
 
+    public function reserveMemory(int $size){
+        if ($size == 0 ) return;
+        $this->msg = sprintf("Reserve Memory %s", $size);
+
+        $this->add('34000000');
+        $this->add('09000000');
+        $this->add(Helper::fromIntToHex($size), 'Offset');
+    }
+
+    public function scriptStart( $blockName ){
+        $this->msg = sprintf("Initialize Script %s", $blockName);
+        $this->add('10000000');
+        $this->add('0a000000');
+        $this->add('11000000');
+        $this->add('0a000000');
+        $this->add('09000000');
+    }
+
+    public function scriptEnd( $blockName ){
+        $this->msg = sprintf("Closing Script %s", $blockName);
+        $this->add('11000000');
+        $this->add('09000000');
+        $this->add('0a000000');
+        $this->add('0f000000');
+        $this->add('0a000000');
+        $this->add('3b000000');
+        $this->add('00000000');
+
+    }
+
+    public function procedureEnd( Associations $association ){
+        $this->msg = sprintf("Closing Procedure %s", $association->value);
+        $this->add('11000000');
+        $this->add('09000000');
+        $this->add('0a000000');
+        $this->add('0f000000');
+        $this->add('0a000000');
+        $this->add('3a000000');
+
+        /**
+         * The last line represents the arguments
+         * Each argument reserve 4bytes.
+         * First 4bytes are always reserved.
+         */
+        $variables = $this->compiler->getArgumentsByScriptName($association->value);
+        $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Variable count ' . count($variables));
+    }
 
     private function add($code, $appendix = null ){
         $msg = $this->msg;
