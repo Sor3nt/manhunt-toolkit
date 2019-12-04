@@ -3,6 +3,7 @@
 namespace App\Service\CompilerV2;
 
 use App\Service\Compiler\Token;
+use App\Service\Helper;
 use Exception;
 
 class Associations
@@ -243,8 +244,10 @@ class Associations
         if ($constant !== false) {
 
             $this->type = Tokens::T_CONSTANT;
+//            $this-> = $value;
             $this->value = $value;
-            $this->offset = $constant['offset'];
+            $this->section = "header";
+            $this->offset = Helper::fromHexToInt($constant['offset']);
             $this->varType = isset($constant['varType']) ? $constant['varType'] : 'integer';
             return;
         }
@@ -266,6 +269,7 @@ class Associations
                 $this->negate = true;
                 $this->value *= -1;
             }
+            $this->offset = $this->value;
 
             return;
         }
@@ -506,11 +510,13 @@ class Associations
                 $this->type = Tokens::T_INT;
                 $this->varType = 'integer';
                 $this->value = 1;
+                $this->offset = 1;
                 break;
             case 'false':
                 $this->type = Tokens::T_INT;
                 $this->varType = 'integer';
                 $this->value = 0;
+                $this->offset = 0;
                 break;
 
             /**

@@ -114,6 +114,7 @@ class Evaluate{
                      */
                     if ($association->varType == "vec3d") {
                         $this->readData($association, "vec3d");
+                        $this->compiler->evalVar->ret();
 
                     }else if ($association->forIndex !== null) {
 var_dump($association->forIndex);
@@ -829,44 +830,17 @@ exit;
             case 'boolean':
             case 'state':
             case 'float':
-
-                $this->compiler->evalVar->valuePointer($association->value );
-
-                if ($association->negate){
-                    if (is_float($association->value)){
-                        $this->compiler->evalVar->ret();
-
-                        $this->add('4f000000', 'Negate Float');
-                        $this->add('32000000', 'Negate Float');
-                        $this->add('09000000', 'Negate Float');
-                        $this->add('04000000', 'Negate Float');
-
-                    }else{
-                        $this->add('2a000000', 'Negate Integer');
-                        $this->add('01000000', 'Negate Integer');
-
-                    }
-                }
-
-                break;
-
             case 'constant':
 
-//                $this->compiler->evalVar->valuePointer( $association );
-//var_dump($association);exit;
-                $this->add('12000000');
-                $this->add('01000000');
-//                //todo das könnte direkt über die association var kommen...
-                $this->add($association->offset, "Offset");
+                $this->compiler->evalVar->valuePointer($association->offset );
+
+                if ($association->negate) $this->compiler->evalVar->negate($association);
+
                 break;
+
+            case 'vec3d':
             case 'array':
-                $this->msg = sprintf("Read array entry");
-
-                $this->add('21000000');
-                $this->add('04000000');
-                $this->add('01000000');
-
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->compiler->evalVar->memoryPointer( $association );
                 break;
             case 'string':
 
@@ -875,11 +849,6 @@ exit;
 
                 break;
 
-            case 'vec3d':
-
-                $this->compiler->evalVar->memoryPointer($association);
-                $this->compiler->evalVar->ret();
-                break;
 
 
             default:
