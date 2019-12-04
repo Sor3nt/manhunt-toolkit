@@ -47,23 +47,23 @@ class Evaluate{
                 break;
 
 
-            case Tokens::T_VARIABLE:
-                $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
+            case Tokens::T_ASSIGN:
 
-                if ($association->assign !== false){
+                /**
+                 * Some Elements need to be initialized first
+                 *
+                 * Init left hand
+                 */
+                if ($association->varType == "vec3d") {
+                    $this->readData($association, "vec3d");
+                    $this->compiler->evalVar->ret();
 
-                    /**
-                     * Some Elements need to be initialized first
-                     *
-                     * Init left hand
-                     */
-                    if ($association->varType == "vec3d") {
-                        $this->readData($association, "vec3d");
-                        $this->compiler->evalVar->ret();
+                }
 
-                    }else if ($association->forIndex !== null) {
 
-                        //                        $this->readData($association->forIndex, $association->forIndex->varType);
+                if ($association->forIndex !== null) {
+
+                    //                        $this->readData($association->forIndex, $association->forIndex->varType);
 
 //                        $this->compiler->evalVar->ret();
 
@@ -76,81 +76,84 @@ class Evaluate{
                      *
                      * itemsSpawned[1] := FALSE;
                      */
-                    }else if ($association->fromArray == true) {
-                        $this->readData($association, "array");
-
-                        $this->compiler->evalVar->ret();
-
-                        $this->compiler->evalVar->valuePointer( (int)$association->index );
-
-                        $this->add('34000000');
-                        $this->add('01000000');
-                        $this->add('01000000');
-                        $this->add('12000000');
-                        $this->add('04000000');
-                        $this->add('04000000');
-                        $this->add('35000000');
-                        $this->add('04000000');
-                        $this->add('0f000000');
-                        $this->add('04000000');
-                        $this->add('31000000');
-                        $this->add('04000000');
-                        $this->add('01000000');
-                        $this->add('10000000');
-                        $this->add('04000000');
-
-                    }
-
-                    if (
-                        $association->assign->type == Tokens::T_FUNCTION ||
-                        $association->assign->type == Tokens::T_VARIABLE
-                    ){
-                        new Evaluate($this->compiler, $association->assign);
-                    }else{
-
-                        $rightHandReturn = $this->getVarType($association->assign);
-                        $this->readData($association->assign, $rightHandReturn);
-                    }
-
-                    /**
-                     * These types accept only floats, given int need to be converted
-                     */
-                    if ($association->varType == "real" && $association->assign->type == Tokens::T_INT){
-                        $this->compiler->evalVar->int2float();
-                    }
-
-                    /**
-                     * Block 2: Write to leftHand
-                     */
-                    $this->msg = sprintf("Assign to Variable %s", $association->value);
-
-                    if ($association->fromArray == true) {
-                        $this->writeData($association, "array");
-                    }else{
-                        $this->writeData($association, $association->varType);
-                    }
                 }
 
-                if ($association->math !== false){
-
-                    $this->msg = sprintf("Variable %s Math Operation ", $association->value);
-
-                    $compiler->evalVar->variablePointer($association);
+                if ($association->fromArray == true) {
+                    $this->readData($association, "array");
 
                     $this->compiler->evalVar->ret();
 
-                    foreach ($association->math->childs as $condition) {
-                        new Evaluate($this->compiler, $condition);
-                    }
+                    $this->compiler->evalVar->valuePointer( (int)$association->index );
 
-                    $compiler->evalVar->math($association->math->type);
+                    $this->add('34000000');
+                    $this->add('01000000');
+                    $this->add('01000000');
+                    $this->add('12000000');
+                    $this->add('04000000');
+                    $this->add('04000000');
+                    $this->add('35000000');
+                    $this->add('04000000');
+                    $this->add('0f000000');
+                    $this->add('04000000');
+                    $this->add('31000000');
+                    $this->add('04000000');
+                    $this->add('01000000');
+                    $this->add('10000000');
+                    $this->add('04000000');
 
                 }
 
-                //we have a regular variable
-                if ($association->assign === false && $association->math === false){
-                    $compiler->evalVar->variablePointer($association);
+                if (
+                    $association->assign->type == Tokens::T_MATH ||
+                    $association->assign->type == Tokens::T_FUNCTION ||
+                    $association->assign->type == Tokens::T_VARIABLE
+                ) {
+                    new Evaluate($this->compiler, $association->assign);
+                }else{
+
+                    $rightHandReturn = $this->getVarType($association->assign);
+                    $this->readData($association->assign, $rightHandReturn);
                 }
+
+                /**
+                 * These types accept only floats, given int need to be converted
+                 */
+                if ($association->varType == "real" && $association->assign->type == Tokens::T_INT){
+                    $this->compiler->evalVar->int2float();
+                }
+
+                /**
+                 * Block 2: Write to leftHand
+                 */
+                $this->msg = sprintf("Assign to Variable %s", $association->value);
+
+                if ($association->fromArray == true) {
+                    $this->writeData($association, "array");
+                }else{
+                    $this->writeData($association, $association->varType);
+                }
+
+                break;
+
+            case Tokens::T_MATH:
+
+                $this->msg = sprintf("Variable %s Math Operation ", $association->value);
+
+                $compiler->evalVar->variablePointer($association);
+
+                $this->compiler->evalVar->ret();
+
+                foreach ($association->math->childs as $condition) {
+                    new Evaluate($this->compiler, $condition);
+                }
+
+                $compiler->evalVar->math($association->math->type);
+
+                break;
+            case Tokens::T_VARIABLE:
+                $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
+
+                $compiler->evalVar->variablePointer($association);
 
                 break;
 
@@ -421,6 +424,7 @@ class Evaluate{
                     foreach ($association->childs as $index => $param) {
                         $clone = clone $association;
                         $clone->childs = [$param];
+                        $clone->isLastWriteDebugParam = count($association->childs) == $index + 1;
 
                         new Evaluate($compiler, $clone);
                     }
@@ -476,7 +480,8 @@ class Evaluate{
                     //regular parameter return
                     if (
                         strtolower($param->value) == "getentityposition" ||
-                        strtolower($param->value) == "getentityview"
+                        strtolower($param->value) == "getentityview" ||
+                        strtolower($param->value) == "getentityname"
                     ){
 
                     }else if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
@@ -512,7 +517,10 @@ class Evaluate{
                     }
 
                     $this->add($writeDebugFunction['offset'], "Offset");
-                    $this->add('74000000');
+
+                    if ($association->isLastWriteDebugParam === null || $association->isLastWriteDebugParam === true){
+                        $this->add('74000000');
+                    }
                 }else{
                     $this->add($association->offset, "Offset");
                 }

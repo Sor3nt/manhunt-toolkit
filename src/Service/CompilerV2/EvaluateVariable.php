@@ -57,10 +57,10 @@ class EvaluateVariable{
         if (in_array($type,
             ['real', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
         ) !== false ){
-            $this->add($association->section == "header" ? '14000000' : '13000000', ' Pointer from Section ' . $association->section);
-            $this->add('01000000', 'Read Variable');
-            $this->add('04000000', 'Read Variable');
-            $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+            $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' from Section ' . $association->section);
+            $this->add('01000000', 'Read Variable ' . $association->value);
+            $this->add('04000000', 'Read Variable ' . $association->value);
+            $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
         }
     }
 

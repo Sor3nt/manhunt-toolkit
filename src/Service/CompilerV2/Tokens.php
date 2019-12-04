@@ -3,6 +3,7 @@ namespace App\Service\CompilerV2;
 
  class Tokens {
 
+    const T_MATH                      = "T_MATH";
     const T_VOID                      = "T_VOID";
     const T_NOP                      = "T_NOP";
     const T_UNKNOWN                      = "T_UNKNOWN";

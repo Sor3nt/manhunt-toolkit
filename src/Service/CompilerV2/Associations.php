@@ -169,6 +169,8 @@ class Associations
                     /**
                      * Assignment
                      */
+
+                    $this->type = Tokens::T_ASSIGN;
                     if ($isState !== false) {
                         $stateName = $compiler->consume();
 
@@ -201,6 +203,7 @@ class Associations
                 $operator = new Associations($compiler);
                 $operator->childs = [new Associations($compiler)];
                 $this->math = $operator;
+                $this->type = Tokens::T_MATH;
             }
 
 
