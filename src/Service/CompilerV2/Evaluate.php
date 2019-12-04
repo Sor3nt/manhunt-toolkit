@@ -22,7 +22,7 @@ class Evaluate{
     {
 
         $this->compiler = $compiler;
-        
+
         switch ($association->type){
 
             case Tokens::T_SCRIPT:
@@ -62,9 +62,8 @@ class Evaluate{
                         $this->compiler->evalVar->ret();
 
                     }else if ($association->forIndex !== null) {
-var_dump($association->forIndex);
-exit;
-//                        $this->readData($association->forIndex, $association->forIndex->varType);
+
+                        //                        $this->readData($association->forIndex, $association->forIndex->varType);
 
 //                        $this->compiler->evalVar->ret();
 
@@ -156,7 +155,6 @@ exit;
                 break;
 
             case Tokens::T_FOR:
-
 
                 $this->msg = sprintf("For statement");
 
@@ -422,7 +420,7 @@ exit;
 
                     foreach ($association->childs as $index => $param) {
                         $clone = clone $association;
-                        $clone->childs[] = $param;
+                        $clone->childs = [$param];
 
                         new Evaluate($compiler, $clone);
                     }

@@ -494,7 +494,7 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '14000000'
         ],
         'map_color_green' => [
-            'offset' => 'map_color_green'
+            'offset' => '00000000' //todo
         ],
 
         'map_color_hunter_idle' => [
