@@ -4,7 +4,7 @@ namespace App\Tests\CompilerV2\Functions;
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class FunctionParamMathMulitplyTest extends KernelTestCase
+class FunctionParamMathIntegerAddFunctionTest extends KernelTestCase
 {
 
     public function test()
@@ -18,10 +18,11 @@ class FunctionParamMathMulitplyTest extends KernelTestCase
                 A01_Escape_Asylum : et_level;
 
             script OnCreate;
-                VAR
-            		killableHunters : integer;
                 begin
-            		SetMaxScoreForLevel(killableHunters * 4);
+
+                    { 1x return } 
+                    Sleep(7 + randnum(15));
+
                 end;
             end.
 
@@ -37,36 +38,32 @@ class FunctionParamMathMulitplyTest extends KernelTestCase
             '09000000',
 
 
+            '12000000', //parameter (read simple type (int/float...))
+            '01000000', //parameter (read simple type (int/float...))
+            '07000000', //value 7
 
-            '34000000',
-            '09000000',
-            '04000000',
-
-
-
-            '13000000', //read from script var
-            '01000000', //read from script var
-            '04000000', //read from script var
-            '04000000', //Offset
             '10000000', //nested call return result
             '01000000', //nested call return result
-            '12000000', //parameter (temp int)
-            '01000000', //parameter (temp int)
-            '04000000', //value 4
 
-            //multiply
-            '0f000000', //parameter (temp int)
-            '04000000', //parameter (temp int)
-            '35000000', //unknown
+            '12000000', //parameter (read simple type (int/float...))
+            '01000000', //parameter (read simple type (int/float...))
+            '0f000000', //value 15
+
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
+            '69000000', //RandNum Call
+
+            '0f000000', //unknown
+            '04000000', //unknown
+            '31000000', //unknown
+            '01000000', //unknown
             '04000000', //unknown
 
             '10000000', //nested call return result
             '01000000', //nested call return result
 
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-
-            '59030000', //SetMaxScoreForLevel Call
+            '6a000000', //Sleep Call
 
             // script end
             '11000000',

@@ -1,10 +1,10 @@
 <?php
-namespace App\Tests\CompilerV2\Assign\Script;
+namespace App\Tests\CompilerV2\Functions;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignIntegerMathSubstractionTest extends KernelTestCase
+class FunctionParamMathFunctionMulitplyIntegerTest extends KernelTestCase
 {
 
     public function test()
@@ -13,24 +13,24 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
 
         $script = "
             scriptmain LevelScript;
-
-            
+                        
             entity
                 A01_Escape_Asylum : et_level;
 
             script OnCreate;
                 VAR
-                    animLength : integer;       
+            		killableHunters : integer;
                 begin
-                    
-                    { no return } 
-                   	animLength := animLength - 1500;
+                
+                    { 2x return } 
+            		SetMaxScoreForLevel(killableHunters * 4);
                 end;
-
             end.
+
         ";
 
         $expected = [
+
             // script start
             '10000000',
             '0a000000',
@@ -39,9 +39,10 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
             '09000000',
 
 
-            '34000000', //reserve bytes
-            '09000000', //reserve bytes
-            '04000000', //Offset in byte
+
+            '34000000',
+            '09000000',
+            '04000000',
 
 
 
@@ -49,30 +50,25 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
             '01000000', //read from script var
             '04000000', //read from script var
             '04000000', //Offset
-
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
-            'dc050000', //value 1500
+            '04000000', //value 4
 
-
+            //multiply
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
+            '35000000', //T_MULTIPLY
+            '04000000', //T_MULTIPLY
 
-            '33000000', //T_SUBSTRACTION
-            '04000000', //T_SUBSTRACTION
-            '01000000', //T_SUBSTRACTION
-
-            '11000000', //T_SUBSTRACTION
-            '01000000', //T_SUBSTRACTION
-            '04000000', //T_SUBSTRACTION
-
-            '15000000', //unknown
-            '04000000', //unknown
-            '04000000', //offset
+            '10000000', //nested call return result
             '01000000', //nested call return result
 
+            '10000000', //nested call return result
+            '01000000', //nested call return result
+
+            '59030000', //SetMaxScoreForLevel Call
 
             // script end
             '11000000',
@@ -81,9 +77,9 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
             '0f000000',
             '0a000000',
             '3b000000',
-            '00000000'
-        ];
+            '00000000',
 
+        ];
 
         $compiler = new \App\Service\CompilerV2\Compiler($script, MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC, false);
         $compiled = $compiler->compile();

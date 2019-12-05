@@ -48,6 +48,7 @@ class Evaluate{
 
 
             case Tokens::T_ASSIGN:
+                $compiler->evalVar->msg = sprintf("Process Assign %s", $association->value);
 
                 /**
                  * Some Elements need to be initialized first
@@ -104,7 +105,6 @@ class Evaluate{
                 }
 
                 if (
-                    $association->assign->type == Tokens::T_MATH ||
                     $association->assign->type == Tokens::T_FUNCTION ||
                     $association->assign->type == Tokens::T_VARIABLE
                 ) {
@@ -125,7 +125,7 @@ class Evaluate{
                 /**
                  * Block 2: Write to leftHand
                  */
-                $this->msg = sprintf("Assign to Variable %s", $association->value);
+                $compiler->evalVar->msg = sprintf("Assign to Variable %s", $association->value);
 
                 if ($association->fromArray == true) {
                     $this->writeData($association, "array");
@@ -135,36 +135,26 @@ class Evaluate{
 
                 break;
 
-            case Tokens::T_MATH:
 
-                $this->msg = sprintf("Variable %s Math Operation ", $association->value);
-
-                $compiler->evalVar->variablePointer($association);
-
-                $this->compiler->evalVar->ret();
-
-                foreach ($association->math->childs as $condition) {
-                    new Evaluate($this->compiler, $condition);
-                }
-
-                $compiler->evalVar->math($association->math->type);
-
-                break;
             case Tokens::T_VARIABLE:
-                $this->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
+                $compiler->evalVar->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
 
                 if ($association->isGameVar === true){
                     $compiler->evalVar->gameVarPointer($association);
                 }else{
                     $compiler->evalVar->variablePointer($association);
+                }
 
+                if ($association->math !== false){
+                    $this->compiler->evalVar->ret();
+                    $this->doMath($association);
                 }
 
                 break;
 
             case Tokens::T_FOR:
 
-                $this->msg = sprintf("For statement");
+                $compiler->evalVar->msg = sprintf("For statement");
 
                 new Evaluate($this->compiler, $association->start);
 
@@ -199,6 +189,7 @@ class Evaluate{
                 break;
 
             case Tokens::T_CONDITION:
+                $compiler->evalVar->msg = sprintf("IF Condition");
 
                 $compareAgainst = false;
 
@@ -266,7 +257,7 @@ class Evaluate{
 
                         $this->compiler->evalVar->retString();
 
-                        $this->add('49000000', 'compare string');
+                        $this->add('49000000', 'compare string ' . $association->operatorValue->value);
 
                     }else{
 
@@ -281,23 +272,23 @@ class Evaluate{
                     $this->compiler->evalVar->valuePointer(1);
 
                     switch ($association->operator){
-                        case Tokens::T_IS_EQUAL:
-                            $this->add('3f000000');
-                            break;
-                        case Tokens::T_IS_NOT_EQUAL:
-                            $this->add('40000000');
-                            break;
                         case Tokens::T_IS_SMALLER:
                             $this->add('3d000000');
                             break;
                         case Tokens::T_IS_SMALLER_EQUAL:
                             $this->add('3e000000');
                             break;
-                        case Tokens::T_IS_GREATER:
-                            $this->add('42000000');
+                        case Tokens::T_IS_EQUAL:
+                            $this->add('3f000000');
+                            break;
+                        case Tokens::T_IS_NOT_EQUAL:
+                            $this->add('40000000');
                             break;
                         case Tokens::T_IS_GREATER_EQUAL:
                             $this->add('41000000');
+                            break;
+                        case Tokens::T_IS_GREATER:
+                            $this->add('42000000');
                             break;
                         default:
                             throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $association->operator));
@@ -348,7 +339,7 @@ class Evaluate{
             case Tokens::T_DO:
             case Tokens::T_IF:
 
-                $this->msg = sprintf("IF Statement ");
+                $compiler->evalVar->msg = sprintf("IF Statement ");
 
                 $startOffset = count($compiler->codes);
 
@@ -406,6 +397,7 @@ class Evaluate{
                 break;
 
             case Tokens::T_FUNCTION:
+                $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
 
                 /**
                  * A special handler for writedebug calls
@@ -476,9 +468,14 @@ class Evaluate{
                         $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
                         $this->compiler->evalVar->readSize( $string->size );
                     }
-
-                    //we need to return the result after any math operation
-                    if ($param->math !== false){
+#                    //we need to return the result after any math operation
+                    if (
+                        $param->math !== false &&
+                        (
+                            end($param->math->childs)->type == Tokens::T_INT ||
+                            end($param->math->childs)->type == Tokens::T_FLOAT
+                        )
+                    ){
                         $this->compiler->evalVar->ret();
                     }
 
@@ -497,7 +494,7 @@ class Evaluate{
                     }
                 }
 
-                $this->msg = sprintf("Call Function %s", $association->value);
+                $compiler->evalVar->msg = sprintf("Call Function %s", $association->value);
                 if ($association->isProcedure === true){
                     $this->add('10000000');
                     $this->add('04000000');
@@ -536,7 +533,7 @@ class Evaluate{
                 /** @var Associations $caseVariable */
                 $caseVariable = $association->value;
 
-                $this->msg = sprintf("Switch %s", $caseVariable->value);
+                $compiler->evalVar->msg = sprintf("Switch %s", $caseVariable->value);
 
                 /**
                  * TODO: das gehört in T_VARIABLE
@@ -609,11 +606,25 @@ class Evaluate{
                 break;
             case Tokens::T_FLOAT:
                 $this->readData($association, 'float');
+
+
+                if ($association->math !== false){
+                    $this->compiler->evalVar->ret();
+                    $this->doMath($association);
+                }
+
                 break;
             case Tokens::T_INT:
-                $this->msg = sprintf("Handle Integer %s", $association->value);
+                $compiler->evalVar->msg = sprintf("Handle Integer %s", $association->value);
 
                 $this->readData($association, 'integer');
+
+
+                if ($association->math !== false){
+                    $this->compiler->evalVar->ret();
+                    $this->doMath($association);
+//                    $this->compiler->evalVar->ret();
+                }
 
 
                 break;
@@ -634,7 +645,7 @@ class Evaluate{
     }
 
     private function add($code, $appendix = null ){
-        $msg = $this->msg;
+        $msg = $this->compiler->evalVar->msg;
 
         if (!is_null($appendix)) $msg .= ' | ' . $appendix;
 
@@ -767,5 +778,31 @@ class Evaluate{
             default:
                 throw new Exception(sprintf("ReadData unknown type %s", $type));
         }
+    }
+
+    /**
+     * @param Associations $association
+     * @throws Exception
+     */
+    public function doMath( Associations $association ){
+
+        $this->compiler->evalVar->msg = sprintf("Variable %s Math Operation ", $association->value);
+//var_dump($association);
+//exit;
+//        $this->compiler->evalVar->variablePointer($association);
+//
+//        $this->compiler->evalVar->ret();
+
+        foreach ($association->math->childs as $condition) {
+            new Evaluate($this->compiler, $condition);
+        }
+
+        $this->compiler->evalVar->math($association->math->type);
+
+
+//        if (end($association->math->childs)->type != Tokens::T_FUNCTION){
+//            $this->compiler->evalVar->ret();
+//        }
+
     }
 }

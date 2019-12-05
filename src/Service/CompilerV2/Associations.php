@@ -209,7 +209,7 @@ class Associations
                 $operator = new Associations($compiler);
                 $operator->childs = [new Associations($compiler)];
                 $this->math = $operator;
-                $this->type = Tokens::T_MATH;
+//                $this->type = Tokens::T_MATH;
             }
 
 
@@ -279,6 +279,22 @@ class Associations
                 $this->value *= -1;
             }
             $this->offset = $this->value;
+
+            /**
+             * Math operations
+             */
+            if (
+                $compiler->getToken() == "+" ||
+                $compiler->getToken() == "-" ||
+                $compiler->getToken() == "*" ||
+                $compiler->getToken() == "div"
+            ) {
+
+                $operator = new Associations($compiler);
+                $operator->childs = [new Associations($compiler)];
+                $this->math = $operator;
+//                $this->type = Tokens::T_MATH;
+            }
 
             return;
         }
