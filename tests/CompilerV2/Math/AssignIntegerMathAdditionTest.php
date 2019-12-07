@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\CompilerV2\Assign\Script;
+namespace App\Tests\CompilerV2\Math;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -45,14 +45,18 @@ class AssignIntegerMathAdditionTest extends KernelTestCase
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var
-            '04000000', //Offset
+            '04000000', //openCount
+
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
             '01000000', //value 1
+
             '0f000000', //parameter (temp int)
             '04000000', //parameter (temp int)
+
             '31000000', //unknown
             '01000000', //unknown
             '04000000', //unknown

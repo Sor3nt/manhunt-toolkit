@@ -112,34 +112,12 @@ class EvaluateVariable{
      * @param $type
      * @throws Exception
      */
-    public function math( $type ){
-        var_dump("process operator " . $type);
-//    public function math( Associations $association ){
+    public function math( $type, $varType ){
+
         $this->msg = "Math Operator";
 
-//        $type = $association->math->operator;
-//var_dump($type);
-        $varType = "float";
-//        $varType = false;
-//
-//        switch ($association->type ){
-//
-//            case Tokens::T_FLOAT:
-//            case 'real':
-//                $varType = "float";
-//                break;
-//            case Tokens::T_INT:
-//                $varType = "integer";
-//                break;
-//            case Tokens::T_VARIABLE:
-//                $varType = $association->varType;
-//                if ($varType == "real") $varType = "float";
-//                break;
-//            default:
-//
-////                var_dump($association->type);
-//                throw new \Exception("Math handler, unable to detect vartype!");
-//        }
+        if($varType == "real") $varType = "float";
+
 
         if ($varType !== "float" && $varType !== "integer")
             throw new \Exception("Math handler, received no float/int type!");
