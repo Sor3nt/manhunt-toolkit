@@ -103,12 +103,17 @@ class Evaluate{
                     $this->add('04000000');
 
                 }
-
                 if (
+                    $association->assign->type == Tokens::T_FLOAT ||
+                    $association->assign->type == Tokens::T_INT ||
                     $association->assign->type == Tokens::T_FUNCTION ||
                     $association->assign->type == Tokens::T_VARIABLE
                 ) {
                     new Evaluate($this->compiler, $association->assign);
+                }else if (
+                    $association->assign->type == Tokens::T_MATH
+                ){
+                    $this->doMath($association->assign->childs);
                 }else{
 
                     $rightHandReturn = $this->getVarType($association->assign);
@@ -145,9 +150,16 @@ class Evaluate{
                     $compiler->evalVar->variablePointer($association);
                 }
 
-                if ($association->math !== false){
+                if ($association->math !== null){
                     $this->compiler->evalVar->ret();
                     $this->doMath($association);
+
+
+//                    if ($association->math->math == null && $association->math->operator != null){
+//                        var_dump($association->math);exit;
+//                        $this->compiler->evalVar->math($association->math->operator);
+//                        $this->compiler->evalVar->ret();
+//                    }
                 }
 
                 break;
@@ -468,16 +480,6 @@ class Evaluate{
                         $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
                         $this->compiler->evalVar->readSize( $string->size );
                     }
-#                    //we need to return the result after any math operation
-                    if (
-                        $param->math !== false &&
-                        (
-                            end($param->math->childs)->type == Tokens::T_INT ||
-                            end($param->math->childs)->type == Tokens::T_FLOAT
-                        )
-                    ){
-                        $this->compiler->evalVar->ret();
-                    }
 
                     //regular parameter return
                     if (
@@ -608,9 +610,15 @@ class Evaluate{
                 $this->readData($association, 'float');
 
 
-                if ($association->math !== false){
+                if ($association->math !== null){
                     $this->compiler->evalVar->ret();
                     $this->doMath($association);
+
+
+                    if ($association->math->math == null && $association->math->operator != null){
+                        $this->compiler->evalVar->math($association->math->operator);
+                        $this->compiler->evalVar->ret();
+                    }
                 }
 
                 break;
@@ -620,7 +628,7 @@ class Evaluate{
                 $this->readData($association, 'integer');
 
 
-                if ($association->math !== false){
+                if ($association->math !== null){
                     $this->compiler->evalVar->ret();
                     $this->doMath($association);
 //                    $this->compiler->evalVar->ret();
@@ -781,28 +789,34 @@ class Evaluate{
     }
 
     /**
-     * @param Associations $association
+     * @param Associations[] $associations
      * @throws Exception
      */
-    public function doMath( Associations $association ){
+    public function doMath( $associations ){
 
-        $this->compiler->evalVar->msg = sprintf("Variable %s Math Operation ", $association->value);
-//var_dump($association);
-//exit;
-//        $this->compiler->evalVar->variablePointer($association);
-//
-//        $this->compiler->evalVar->ret();
+        $this->compiler->evalVar->msg = sprintf("Math Operation ");
 
-        foreach ($association->math->childs as $condition) {
-            new Evaluate($this->compiler, $condition);
+        foreach ($associations as $index => $association) {
+
+            $isLast = count($associations) == $index + 1;
+
+            if (in_array($association->type, [
+                Tokens::T_ADDITION,
+                Tokens::T_SUBSTRACTION,
+                Tokens::T_DIVISION,
+                Tokens::T_MULTIPLY,
+            ])){
+                $this->compiler->evalVar->math($association->type);
+
+                if ($isLast == false) $this->compiler->evalVar->ret();
+
+            }else{
+                new Evaluate($this->compiler, $association);
+                $this->compiler->evalVar->ret();
+            }
+
+
         }
-
-        $this->compiler->evalVar->math($association->math->type);
-
-
-//        if (end($association->math->childs)->type != Tokens::T_FUNCTION){
-//            $this->compiler->evalVar->ret();
-//        }
 
     }
 }

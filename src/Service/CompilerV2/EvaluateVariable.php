@@ -47,7 +47,7 @@ class EvaluateVariable{
             is_int($offset) ?
                     Helper::fromIntToHex($offset) :
                     Helper::fromFloatToHex($offset),
-            "Offset"
+            "Offset " . (is_int($offset) ? "as int" : "as float")
         );
     }
 
@@ -113,30 +113,78 @@ class EvaluateVariable{
      * @throws Exception
      */
     public function math( $type ){
+        var_dump("process operator " . $type);
+//    public function math( Associations $association ){
         $this->msg = "Math Operator";
 
-        $this->add('0f000000', 'init');
-        $this->add('04000000', 'init');
+//        $type = $association->math->operator;
+//var_dump($type);
+        $varType = "float";
+//        $varType = false;
+//
+//        switch ($association->type ){
+//
+//            case Tokens::T_FLOAT:
+//            case 'real':
+//                $varType = "float";
+//                break;
+//            case Tokens::T_INT:
+//                $varType = "integer";
+//                break;
+//            case Tokens::T_VARIABLE:
+//                $varType = $association->varType;
+//                if ($varType == "real") $varType = "float";
+//                break;
+//            default:
+//
+////                var_dump($association->type);
+//                throw new \Exception("Math handler, unable to detect vartype!");
+//        }
 
-        if ($type == Tokens::T_ADDITION) {
-            $this->add('31000000', 'T_ADDITION');
-            $this->add('01000000', 'T_ADDITION');
-            $this->add('04000000', 'T_ADDITION');
-        }else if ($type == Tokens::T_MULTIPLY){
-            $this->add('35000000', 'T_MULTIPLY');
-            $this->add('04000000', 'T_MULTIPLY');
-        }else if ($type == Tokens::T_SUBSTRACTION){
-            $this->add('33000000', 'T_SUBSTRACTION');
-            $this->add('04000000', 'T_SUBSTRACTION');
-            $this->add('01000000', 'T_SUBSTRACTION');
+        if ($varType !== "float" && $varType !== "integer")
+            throw new \Exception("Math handler, received no float/int type!");
 
-            $this->add('11000000', 'T_SUBSTRACTION');
-            $this->add('01000000', 'T_SUBSTRACTION');
-            $this->add('04000000', 'T_SUBSTRACTION');
-        }else if ($type == Tokens::T_DIVISION){
-            $this->add('00000000', 'T_DIVISION');
+        if ($varType == "float"){
+
+            if ($type == Tokens::T_ADDITION) {
+                $this->add('50000000', 'T_ADDITION (float)');
+            }else if ($type == Tokens::T_MULTIPLY){
+                $this->add('52000000', 'T_MULTIPLY (float)');
+            }else if ($type == Tokens::T_SUBSTRACTION){
+                $this->add('51000000', 'T_SUBSTRACTION (float)');
+            }else if ($type == Tokens::T_DIVISION){
+                $this->add('53000000', 'T_DIVISION (float)');
+            }else{
+                throw new Exception("Math-Type not implemented " . $type);
+            }
+
+
         }else{
-            throw new Exception("Math-Type not implemented " . $type);
+
+            $this->add('0f000000', 'convert to float');
+            $this->add('04000000', 'convert to float');
+
+            if ($type == Tokens::T_ADDITION) {
+                $this->add('31000000', 'T_ADDITION (int)');
+                $this->add('01000000', 'T_ADDITION (int)');
+                $this->add('04000000', 'T_ADDITION (int)');
+            }else if ($type == Tokens::T_MULTIPLY){
+                $this->add('35000000', 'T_MULTIPLY (int)');
+                $this->add('04000000', 'T_MULTIPLY (int)');
+            }else if ($type == Tokens::T_SUBSTRACTION){
+                $this->add('33000000', 'T_SUBSTRACTION (int)');
+                $this->add('04000000', 'T_SUBSTRACTION (int)');
+                $this->add('01000000', 'T_SUBSTRACTION (int)');
+
+//                $this->add('11000000', 'T_SUBSTRACTION (int)');
+//                $this->add('01000000', 'T_SUBSTRACTION (int)');
+//                $this->add('04000000', 'T_SUBSTRACTION (int)');
+            }else if ($type == Tokens::T_DIVISION){
+                $this->add('00000000', 'T_DIVISION (int)');
+            }else{
+                throw new Exception("Math-Type not implemented " . $type);
+            }
+
         }
     }
 
@@ -199,4 +247,104 @@ class EvaluateVariable{
             'msg' => $msg
         ];
     }
+}
+
+
+/**
+ * Class RPN
+ * Based on https://github.com/skugubaev/RPN thank u skugubaev!
+ * @package App\Service\CompilerV2
+ */
+Class RPN {
+
+
+    /**
+     * @param Associations[] $tokens
+     * @return array|string
+     */
+    public function convertToReversePolishNotation($tokens)
+    {
+
+        /** @var Associations[] $stack */
+        $stack = [];
+
+        /** @var Associations[] $result */
+        $result = [];
+
+        foreach ($tokens as $symbol) {
+
+            switch ($symbol->type) {
+
+                case Tokens::T_BRACKET_OPEN:
+                    array_push($stack, $symbol);
+                    break;
+                case Tokens::T_BRACKET_CLOSE:
+                    $operand = array_pop($stack);
+                    while ($operand->type !=  Tokens::T_BRACKET_OPEN) {
+                        $result[] = $operand;
+                        $operand = array_pop($stack);
+                    }
+                    break;
+                default:
+                    if (in_array($symbol->type, ['T_ADDITION', 'T_SUBSTRACTION', 'T_MULTIPLY', 'T_DIVISION'])) {
+                        if (empty($stack)) {
+                            array_push($stack, $symbol);
+                        } else {
+                            $weight = $this->getWeight($symbol);
+                            $operand = array_pop($stack);
+
+                            if ($weight <= $this->getWeight($operand)) {
+                                while ($weight <= $this->getWeight($operand)) {
+                                    $result[] = $operand;
+                                    if (empty($stack)) {
+                                        break;
+                                    }
+                                    $operand = array_pop($stack);
+                                }
+                                if ($weight > $this->getWeight($operand)) {
+                                    array_push($stack, $operand);
+                                }
+                            } else {
+                                array_push($stack, $operand);
+                            }
+                            array_push($stack, $symbol);
+                        }
+                        break;
+
+                    } else {
+                        $result[] = $symbol;
+                    }
+
+                    break;
+            }
+
+        }
+
+        while (!empty($stack)) {
+            $result[] = array_pop($stack);
+        }
+
+        return $result;
+    }
+
+    private function getWeight(Associations $operation)
+    {
+        $result = 0;
+        switch ($operation->type) {
+            case 'T_SUBSTRACTION':
+            case 'T_ADDITION':
+                $result = 2;
+                break;
+            case 'T_MULTIPLY':
+            case 'T_DIVISION':
+                $result = 3;
+                break;
+            case '(':
+                $result = 1;
+                break;
+        }
+
+        return $result;
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Service\CompilerV2;
 
+use App\Service\Compiler\Parser\T_BRACKET_OPEN;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 use Exception;
@@ -17,7 +18,9 @@ class Associations
     public $childs = [];
 
     public $assign = false;
-    public $math = false;
+
+    /** @var Associations */
+    public $math = null;
 
     public $size = null;
     public $sizeWithoutPad4 = null;
@@ -67,7 +70,7 @@ class Associations
         if (count($this->childs)) $debug['childs'] = $this->childs;
         if (count($this->cases)) $debug['cases'] = $this->cases;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
-        if ($this->math !== false) $debug['math'] = $this->math;
+        if ($this->math !== null) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
         if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
@@ -189,7 +192,41 @@ class Associations
                         $this->assign->offset = $state['offset'];
 
                     } else {
-                        $this->assign = new Associations($compiler);
+
+
+
+                        /** @var Associations[] $mathChilds */
+                        $mathChilds = [
+                            new Associations($compiler)
+                        ];
+                        while (
+                            $compiler->getToken() == "+" ||
+                            $compiler->getToken() == "-" ||
+                            $compiler->getToken() == "*" ||
+                            $compiler->getToken() == "/" ||
+                            $compiler->getToken() == "(" ||
+                            $compiler->getToken() == "div"
+                        ) {
+//                            var_dump($compiler->getToken());
+                            $mathChilds[] = new Associations($compiler);
+                            $mathChilds[] = new Associations($compiler);
+//                            var_dump($compiler->getToken());
+                        }
+
+//                        exit;
+                        if (count($mathChilds) > 1){
+                            $result = [];
+                            $this->flatForRpn($mathChilds, $result);
+                            $math = new Associations();
+                            $math->type = Tokens::T_MATH;
+                            $math->childs = (new RPN())->convertToReversePolishNotation($result);
+                            $this->assign = $math;
+                        }else{
+                            $this->assign = $mathChilds[0];
+
+                        }
+
+
                     }
                 }
 
@@ -199,19 +236,7 @@ class Associations
             /**
              * Math operations
              */
-            if (
-                $compiler->getToken() == "+" ||
-                $compiler->getToken() == "-" ||
-                $compiler->getToken() == "*" ||
-                $compiler->getToken() == "div"
-            ) {
-
-                $operator = new Associations($compiler);
-                $operator->childs = [new Associations($compiler)];
-                $this->math = $operator;
-//                $this->type = Tokens::T_MATH;
-            }
-
+//            $this->applyMath($compiler);
 
             return;
         }
@@ -283,18 +308,8 @@ class Associations
             /**
              * Math operations
              */
-            if (
-                $compiler->getToken() == "+" ||
-                $compiler->getToken() == "-" ||
-                $compiler->getToken() == "*" ||
-                $compiler->getToken() == "div"
-            ) {
+//            $this->applyMath($compiler);
 
-                $operator = new Associations($compiler);
-                $operator->childs = [new Associations($compiler)];
-                $this->math = $operator;
-//                $this->type = Tokens::T_MATH;
-            }
 
             return;
         }
@@ -535,6 +550,11 @@ class Associations
 
                 $this->childs = $this->associateUntil($compiler, Tokens::T_BRACKET_CLOSE);
 
+                /**
+                 * Math operations
+                 */
+//                $this->applyMath($compiler);
+
                 break;
 
             /**
@@ -563,6 +583,7 @@ class Associations
             case '+':    $this->type = Tokens::T_ADDITION; break;
             case '-':    $this->type = Tokens::T_SUBSTRACTION; break;
             case '*':    $this->type = Tokens::T_MULTIPLY; break;
+            case '/':    $this->type = Tokens::T_DIVISION; break;
             case ':=':   $this->type = Tokens::T_ASSIGN; break;
             case '=':    $this->type = Tokens::T_IS_EQUAL; break;
             case '<':    $this->type = Tokens::T_IS_SMALLER; break;
@@ -992,6 +1013,60 @@ class Associations
                 $parent->childs = [$firstChild];
                 $parent->operator = $operator;
                 $parent->operatorValue = $operatorValue;
+            }
+        }
+
+    }
+
+    /**
+     * @param Compiler $compiler
+     * @throws Exception
+     */
+    public function applyMath(Compiler $compiler){
+
+        if (
+            $compiler->getToken() == "+" ||
+            $compiler->getToken() == "-" ||
+            $compiler->getToken() == "*" ||
+            $compiler->getToken() == "/" ||
+            $compiler->getToken() == "div"
+        ) {
+
+            $mathOperator = (new Associations($compiler))->type;
+            $forAssociation = new Associations($compiler);
+
+//            $this->operator = $mathOperator;
+            $forAssociation->operator = $mathOperator;
+            $this->math = $forAssociation;
+        }
+
+    }
+
+    /**
+     * @param Associations[] $entries
+     */
+    public function flatForRpn( array $entries, array &$result ){
+
+        foreach ($entries as $entry) {
+
+            if ($entry->type == Tokens::T_CONDITION){
+
+                $open = new Associations();
+                $open->type = Tokens::T_BRACKET_OPEN;
+                $open->value = "(";
+
+                $result[] = $open;
+                $this->flatForRpn($entry->childs, $result);
+
+                $close = new Associations();
+                $close->type = Tokens::T_BRACKET_CLOSE;
+                $close->value = ")";
+
+                $result[] = $close;
+                continue;
+            }else{
+
+                $result[] = $entry;
             }
         }
 
