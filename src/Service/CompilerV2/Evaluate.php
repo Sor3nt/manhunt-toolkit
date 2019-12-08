@@ -60,16 +60,15 @@ class Evaluate{
                     $this->readData($association, "vec3d");
                     $this->compiler->evalVar->ret();
 
-                //we access a a object attribute
+                //we access a object attribute
                 }else if (
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"
                 ) {
                     $this->readData($association->parent, "vec3d");
                     $this->compiler->evalVar->ret();
-//var_dump($association);
-//exit;
-                    //we read not the first entry
+
+                    //we do not assign to the first entry
                     if ($association->parent->value . '.x' !== $association->value){
                         $this->add('0f000000', 'assign to secondary');
                         $this->add('01000000', 'assign to secondary');
@@ -80,32 +79,6 @@ class Evaluate{
 
                         $this->compiler->evalVar->ret();
                     }
-
-                    $this->readData($association->parent, "vec3d");
-                    $this->compiler->evalVar->ret();
-
-                    if ($association->parent->value . '.x' !== $association->value){
-                        $this->add('0f000000', 'assign to secondary');
-                        $this->add('01000000', 'assign to secondary');
-
-                        $this->add('32000000', 'assign to secondary');
-                        $this->add('01000000', 'assign to secondary');
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
-
-                        $this->compiler->evalVar->ret();
-                    }
-
-
-                    //read attribute from vec3d
-                    $this->add('0f000000');
-                    $this->add('02000000');
-
-                    $this->add('18000000');
-                    $this->add('01000000');
-                    $this->add('04000000', 'Offset for ' . $association->value);
-                    $this->add('02000000');
-
-
                 }
 
 
@@ -136,13 +109,17 @@ class Evaluate{
                     $this->add('34000000');
                     $this->add('01000000');
                     $this->add('01000000');
+
                     $this->add('12000000');
                     $this->add('04000000');
                     $this->add('04000000');
+
                     $this->add('35000000');
                     $this->add('04000000');
+
                     $this->add('0f000000');
                     $this->add('04000000');
+
                     $this->add('31000000');
                     $this->add('04000000');
                     $this->add('01000000');
@@ -864,11 +841,24 @@ class Evaluate{
 
                 new Evaluate($this->compiler, $association);
 
+
                 if (
                     ($target->varType == "real" || $target->varType == "float")
                     ||
                     ($target->varType == "integer" && $isLast == false)
                 ){
+                    $this->compiler->evalVar->ret();
+
+                }
+
+
+
+
+                if (
+                    ($target->varType == "real" || $target->varType == "float") &&
+                    $association->type == Tokens::T_INT
+                ){
+                    $this->add('4d000000', 'integer to float');
                     $this->compiler->evalVar->ret();
 
                 }
