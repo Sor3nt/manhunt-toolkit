@@ -337,7 +337,7 @@ class Compiler
             $this->offsetProcedureVariable -= $size + ($size % 4);
         }
 
-        $this->variables[] = [
+        $master = [
             'name' => strtolower($name),
             'type' => $type,
             'size' => $type == "vec3d" || $type == "rgbaint" ? 0 : $size,
@@ -351,12 +351,15 @@ class Compiler
             'fromArray' => $fromArray
         ];
 
+        $this->variables[] = $master;
+
 
         if ($type == "vec3d") {
 
-            foreach (["x", "y", "z"] as $entry) {
+            foreach (["x", "y", "z"] as $index => $entry) {
 
                 $attributeName = strtolower($name) . '.' . $entry;
+
 
                 $this->variables[] = [
                     'name' => $attributeName,
@@ -364,9 +367,10 @@ class Compiler
                     'isLevelVar' => $isLevelVar,
                     'isGameVar' => $isGameVar,
                     'size' => 4,
-                    'offset' => '123456789',
+                    'offset' => $index * 4,
                     'section' => $section,
-                    'scriptName' => $this->currentScriptName
+                    'scriptName' => $this->currentScriptName,
+                    'parent' => $master
                 ];
             }
         }else if ($type == "rgbaint"){
@@ -383,7 +387,8 @@ class Compiler
                     'size' => 4,
                     'offset' => '123456789',
                     'section' => $section,
-                    'scriptName' => $this->currentScriptName
+                    'scriptName' => $this->currentScriptName,
+                    'parent' => $master
                 ];
             }
 

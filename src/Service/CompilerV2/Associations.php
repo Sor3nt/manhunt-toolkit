@@ -25,6 +25,7 @@ class Associations
     public $size = null;
     public $sizeWithoutPad4 = null;
     public $isLevelVar = null;
+    public $parent = null;
     public $isGameVar = null;
     public $offset = null;
     public $index = null;
@@ -77,6 +78,7 @@ class Associations
         if ($this->offset !== null) $debug['offset'] = $this->offset;
         if ($this->isGameVar !== null) $debug['gameVar'] = $this->isGameVar;
         if ($this->isLevelVar !== null) $debug['levelVar'] = $this->isLevelVar;
+        if ($this->parent !== null) $debug['parent'] = $this->parent;
         if ($this->forIndex !== null) $debug['forIndex'] = $this->forIndex;
         if ($this->varType !== null) $debug['varType'] = $this->varType;
         if ($this->section !== null) $debug['section'] = $this->section;
@@ -155,6 +157,25 @@ class Associations
             if (isset($variable['index'])) $this->index = $variable['index'];
             if (isset($variable['isGameVar'])) $this->isGameVar = $variable['isGameVar'];
             if (isset($variable['isLevelVar'])) $this->isLevelVar = $variable['isLevelVar'];
+            if (isset($variable['parent'])){
+
+                $parent = new Associations();
+                $parent->type = Tokens::T_VARIABLE;
+                $parent->value = $variable['parent']['name'];
+
+                $parent->offset = $variable['parent']['offset'];
+                $parent->size = $variable['parent']['size'];
+                $parent->sizeWithoutPad4 = isset($variable['parent']['sizeWithoutPad4']) ? $variable['parent']['sizeWithoutPad4'] : $variable['parent']['size'];
+                $parent->varType = $variable['parent']['type'];
+                $parent->section = $variable['parent']['section'];
+
+                if (isset($variable['parent']['fromArray'])) $parent->fromArray = $variable['parent']['fromArray'];
+                if (isset($variable['parent']['index'])) $parent->index = $variable['parent']['index'];
+                if (isset($variable['parent']['isGameVar'])) $parent->isGameVar = $variable['parent']['isGameVar'];
+                if (isset($variable['parent']['isLevelVar'])) $parent->isLevelVar = $variable['parent']['isLevelVar'];
+
+                $this->parent = $parent;
+            }
 
 
 

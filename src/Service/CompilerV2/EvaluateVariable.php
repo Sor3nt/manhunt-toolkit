@@ -53,15 +53,33 @@ class EvaluateVariable{
 
     public function variablePointer( Associations $association, $type = null){
         $type = is_null($type) ? $association->varType : $type;
+        if (
+            $association->parent != null &&
+            $association->parent->varType == "vec3d"
+        ) {
 
-        if (in_array($type,
-            ['real', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
-        ) !== false ){
-            $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' from Section ' . $association->section);
-            $this->add('01000000', 'Read Variable ' . $association->value);
-            $this->add('04000000', 'Read Variable ' . $association->value);
-            $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+//            //we read not the first entry
+//            if ($association->parent->value . '.x' !== $association->value){
+//                $this->add('0f000000', 'assign to secondary1');
+//                $this->add('01000000', 'assign to secondary');
+//
+//                $this->add('32000000', 'assign to secondary');
+//                $this->add('01000000', 'assign to secondary');
+//                $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+//            }
+
+
+        }else{
+            if (in_array($type,
+                    ['real', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+                ) !== false ){
+                $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' from Section ' . $association->section);
+                $this->add('01000000', 'Read Variable ' . $association->value);
+                $this->add('04000000', 'Read Variable ' . $association->value);
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+            }
         }
+
     }
 
     public function gameVarPointer( Associations $association){

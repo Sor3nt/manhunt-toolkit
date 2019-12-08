@@ -55,9 +55,56 @@ class Evaluate{
                  *
                  * Init left hand
                  */
+
                 if ($association->varType == "vec3d") {
                     $this->readData($association, "vec3d");
                     $this->compiler->evalVar->ret();
+
+                //we access a a object attribute
+                }else if (
+                    $association->parent != null &&
+                    $association->parent->varType == "vec3d"
+                ) {
+                    $this->readData($association->parent, "vec3d");
+                    $this->compiler->evalVar->ret();
+//var_dump($association);
+//exit;
+                    //we read not the first entry
+                    if ($association->parent->value . '.x' !== $association->value){
+                        $this->add('0f000000', 'assign to secondary');
+                        $this->add('01000000', 'assign to secondary');
+
+                        $this->add('32000000', 'assign to secondary');
+                        $this->add('01000000', 'assign to secondary');
+                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+
+                        $this->compiler->evalVar->ret();
+                    }
+
+                    $this->readData($association->parent, "vec3d");
+                    $this->compiler->evalVar->ret();
+
+                    if ($association->parent->value . '.x' !== $association->value){
+                        $this->add('0f000000', 'assign to secondary');
+                        $this->add('01000000', 'assign to secondary');
+
+                        $this->add('32000000', 'assign to secondary');
+                        $this->add('01000000', 'assign to secondary');
+                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+
+                        $this->compiler->evalVar->ret();
+                    }
+
+
+                    //read attribute from vec3d
+                    $this->add('0f000000');
+                    $this->add('02000000');
+
+                    $this->add('18000000');
+                    $this->add('01000000');
+                    $this->add('04000000', 'Offset for ' . $association->value);
+                    $this->add('02000000');
+
 
                 }
 
@@ -134,6 +181,18 @@ class Evaluate{
 
                 if ($association->fromArray == true) {
                     $this->writeData($association, "array");
+                }else if (
+                    $association->parent != null &&
+                    $association->parent->varType == "vec3d"
+                ) {
+                    $this->add('0f000000');
+                    $this->add('02000000');
+
+                    $this->add('17000000');
+                    $this->add('04000000');
+                    $this->add('02000000');
+                    $this->add('01000000');
+
                 }else{
                     $this->writeData($association, $association->varType);
                 }
@@ -146,6 +205,7 @@ class Evaluate{
 
                 if ($association->isGameVar === true){
                     $compiler->evalVar->gameVarPointer($association);
+
                 }else{
                     $compiler->evalVar->variablePointer($association);
                 }
