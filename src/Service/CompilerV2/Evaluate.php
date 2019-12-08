@@ -505,7 +505,23 @@ class Evaluate{
                     $param = $association->childs[0];
                     if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
                         $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
+                    }else if ($param->varType == "float") {
+                        $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
+                    }else if ($param->type == Tokens::T_FUNCTION) {
+                        switch ($param->return){
+                            case 'string':
+                                $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
+                                break;
+                            case 'float':
+                                $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
+                                break;
+                            default:
+                                throw new Exception("Unknown WriteDebug function return " . $param->return);
+
+
+                        }
                     }else{
+                        var_dump($param);
                         throw new Exception("Unknown WriteDebug function for " . $param->varType);
                     }
 
@@ -765,7 +781,7 @@ class Evaluate{
      */
     public function doMath( $associations, Associations $target ){
 
-
+//var_dump($associations);exit;
         $this->compiler->evalVar->msg = sprintf("Math Operation ");
 
         foreach ($associations as $index => $association) {

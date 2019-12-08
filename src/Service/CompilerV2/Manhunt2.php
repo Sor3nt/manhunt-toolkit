@@ -1198,6 +1198,11 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '73000000'
         ],
 
+        'writedebugfloat' => [
+            'name' => 'WriteDebugFloat',
+            'offset' => '6f000000'
+        ],
+
         'writedebugreal' => [
             'name' => 'WriteDebugReal',
             'offset' => '6f000000'

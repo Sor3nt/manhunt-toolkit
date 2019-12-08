@@ -154,11 +154,11 @@ class EvaluateVariable{
                 $this->add('04000000', 'T_SUBSTRACTION (int)');
                 $this->add('01000000', 'T_SUBSTRACTION (int)');
 
-//                $this->add('11000000', 'T_SUBSTRACTION (int)');
-//                $this->add('01000000', 'T_SUBSTRACTION (int)');
-//                $this->add('04000000', 'T_SUBSTRACTION (int)');
+                $this->add('11000000', 'T_SUBSTRACTION (int)');
+                $this->add('01000000', 'T_SUBSTRACTION (int)');
+                $this->add('04000000', 'T_SUBSTRACTION (int)');
             }else if ($type == Tokens::T_DIVISION){
-                $this->add('00000000', 'T_DIVISION (int)');
+                $this->add('4d000000', 'T_DIVISION (int)');
             }else{
                 throw new Exception("Math-Type not implemented " . $type);
             }
