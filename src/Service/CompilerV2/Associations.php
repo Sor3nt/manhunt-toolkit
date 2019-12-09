@@ -228,23 +228,21 @@ class Associations
                             $compiler->getToken() == "(" ||
                             $compiler->getToken() == "div"
                         ) {
-//                            var_dump($compiler->getToken());
                             $mathChilds[] = new Associations($compiler);
                             $mathChilds[] = new Associations($compiler);
-//                            var_dump($compiler->getToken());
                         }
 
-//                        exit;
                         if (count($mathChilds) > 1){
                             $result = [];
+                            //todo move into RPN class...
                             $this->flatForRpn($mathChilds, $result);
+
                             $math = new Associations();
                             $math->type = Tokens::T_MATH;
                             $math->childs = (new RPN())->convertToReversePolishNotation($result);
                             $this->assign = $math;
                         }else{
                             $this->assign = $mathChilds[0];
-
                         }
 
 
@@ -282,9 +280,32 @@ class Associations
 
             if ($compiler->getToken() == "(") {
                 $params = new Associations($compiler);
-                foreach ($params->childs as $child) {
-                    $this->childs[] = $child;
+
+                if (
+                    count($params->childs) > 1 &&
+                    (
+                        $params->childs[1]->type == Tokens::T_ADDITION ||
+                        $params->childs[1]->type == Tokens::T_SUBSTRACTION ||
+                        $params->childs[1]->type == Tokens::T_MULTIPLY ||
+                        $params->childs[1]->type == Tokens::T_DIVISION
+                    )
+                ){
+                    $result = [];
+                    $this->flatForRpn($params->childs, $result);
+
+                    $math = new Associations();
+                    $math->type = Tokens::T_MATH;
+                    $math->childs = (new RPN())->convertToReversePolishNotation($result);
+
+                    $this->childs = [$math];
+                }else{
+                    foreach ($params->childs as $child) {
+                        $this->childs[] = $child;
+                    }
+
                 }
+
+
             }
 
 
@@ -1039,29 +1060,6 @@ class Associations
 
     }
 
-    /**
-     * @param Compiler $compiler
-     * @throws Exception
-     */
-    public function applyMath(Compiler $compiler){
-
-        if (
-            $compiler->getToken() == "+" ||
-            $compiler->getToken() == "-" ||
-            $compiler->getToken() == "*" ||
-            $compiler->getToken() == "/" ||
-            $compiler->getToken() == "div"
-        ) {
-
-            $mathOperator = (new Associations($compiler))->type;
-            $forAssociation = new Associations($compiler);
-
-//            $this->operator = $mathOperator;
-            $forAssociation->operator = $mathOperator;
-            $this->math = $forAssociation;
-        }
-
-    }
 
     /**
      * @param Associations[] $entries

@@ -152,8 +152,9 @@ class EvaluateVariable{
         if($varType == "real") $varType = "float";
 
 
-        if ($varType !== "float" && $varType !== "integer")
+        if ($varType !== "float" && $varType !== "integer"){
             throw new \Exception("Math handler, received no float/int type!");
+        }
 
         if ($varType == "float"){
 

@@ -2,6 +2,7 @@
 
 namespace App\Service\CompilerV2;
 
+use App\Service\Compiler\Token;
 use App\Service\Helper;
 use Exception;
 
@@ -25,6 +26,9 @@ class Evaluate{
 
         switch ($association->type){
 
+            case Tokens::T_MATH:
+                $this->doMath($association->childs);
+                break;
             case Tokens::T_SCRIPT:
             case Tokens::T_PROCEDURE:
                 $this->compiler->currentScriptName = $association->value;
@@ -137,7 +141,7 @@ class Evaluate{
                 }else if (
                     $association->assign->type == Tokens::T_MATH
                 ){
-                    $this->doMath($association->assign->childs, $association);
+                    $this->doMath($association->assign->childs, $association->varType);
                 }else{
 
                     $rightHandReturn = $this->getVarType($association->assign);
@@ -814,11 +818,49 @@ class Evaluate{
 
     /**
      * @param Associations[] $associations
+     * @param null $varType
      * @throws Exception
      */
-    public function doMath( $associations, Associations $target ){
+    public function doMath( $associations, $varType = null ){
 
-//var_dump($associations);exit;
+
+        /**
+         * Sometimes we need to look around which vartype we have...
+         */
+        if ($varType == null){
+            foreach ($associations as $association) {
+                if (
+                    $association->type == Tokens::T_INT ||
+                    $association->varType == 'integer'
+                ){
+                    $varType = "integer";
+                    break;
+                }
+
+                if (
+                    $association->type == Tokens::T_FLOAT ||
+                    $association->varType == 'float' ||
+                    $association->varType == 'real'
+                ){
+                    $varType = "integer";
+                    break;
+                }
+
+                if (
+                    $association->type == Tokens::T_FUNCTION &&
+                    $association->return !== null
+                ){
+                    $varType = $association->return;
+                    break;
+                }
+            }
+        }
+
+        if ($varType == null){
+            throw new \Exception("Unable to detect vartype");
+        }
+
+
         $this->compiler->evalVar->msg = sprintf("Math Operation ");
 
         foreach ($associations as $index => $association) {
@@ -831,7 +873,7 @@ class Evaluate{
                 Tokens::T_MULTIPLY,
             ])){
                 $isLast = count($associations) == $index + 1;
-                $this->compiler->evalVar->math($association->type, $target->varType);
+                $this->compiler->evalVar->math($association->type, $varType);
 
                 if ($isLast == false) $this->compiler->evalVar->ret();
 
@@ -843,19 +885,17 @@ class Evaluate{
 
 
                 if (
-                    ($target->varType == "real" || $target->varType == "float")
+                    ($varType == "real" || $varType == "float")
                     ||
-                    ($target->varType == "integer" && $isLast == false)
+                    ($varType == "integer" && $isLast == false)
                 ){
                     $this->compiler->evalVar->ret();
 
                 }
 
 
-
-
                 if (
-                    ($target->varType == "real" || $target->varType == "float") &&
+                    ($varType == "real" || $varType == "float") &&
                     $association->type == Tokens::T_INT
                 ){
                     $this->add('4d000000', 'integer to float');
