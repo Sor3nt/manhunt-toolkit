@@ -485,13 +485,17 @@ class Evaluate{
 
                     if ($association->forceFloat){
                         if($association->forceFloat[$index] === true){
+                            if ($param->type == Tokens::T_MATH){
 
-                            // floats and REAL are the same...
-                            if ($param->type !== Tokens::T_FLOAT && $param->varType != "real"){
+                            }else{
 
-                                $this->compiler->evalVar->ret();
+                                // floats and REAL are the same...
+                                if ($param->type !== Tokens::T_FLOAT && $param->varType != "real"){
 
-                                $this->add('4d000000', 'integer to float');
+                                    $this->compiler->evalVar->ret();
+                                    $this->add('4d000000', 'integer to float1 ');
+
+                                }
 
                             }
 
@@ -910,7 +914,7 @@ class Evaluate{
                     ($varType == "real" || $varType == "float") &&
                     $association->type == Tokens::T_INT
                 ){
-                    $this->add('4d000000', 'integer to float');
+                    $this->add('4d000000', 'integer to float2');
                     $this->compiler->evalVar->ret();
 
                 }

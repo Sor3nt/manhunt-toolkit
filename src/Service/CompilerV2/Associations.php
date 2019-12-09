@@ -299,6 +299,7 @@ class Associations
 
                         $math = new Associations();
                         $math->type = Tokens::T_MATH;
+
                         $math->childs = (new RPN())->convertToReversePolishNotation([
                             $params->childs[$current],  //value a
                             $params->childs[$current + 1], // operator
