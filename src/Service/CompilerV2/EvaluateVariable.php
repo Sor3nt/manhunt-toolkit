@@ -173,8 +173,8 @@ class EvaluateVariable{
 
         }else{
 
-            $this->add('0f000000', 'convert to float');
-            $this->add('04000000', 'convert to float');
+            $this->add('0f000000', 'int math');
+            $this->add('04000000', 'int math');
 
             if ($type == Tokens::T_ADDITION) {
                 $this->add('31000000', 'T_ADDITION (int)');

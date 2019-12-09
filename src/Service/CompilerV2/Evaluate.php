@@ -676,6 +676,7 @@ class Evaluate{
                 break;
 
             default:
+
                 throw new Exception(sprintf("Unable to evaluate %s ", $association->type));
         }
     }
@@ -828,6 +829,7 @@ class Evaluate{
          * Sometimes we need to look around which vartype we have...
          */
         if ($varType == null){
+
             foreach ($associations as $association) {
                 if (
                     $association->type == Tokens::T_INT ||
@@ -842,7 +844,7 @@ class Evaluate{
                     $association->varType == 'float' ||
                     $association->varType == 'real'
                 ){
-                    $varType = "integer";
+                    $varType = "float";
                     break;
                 }
 
@@ -855,6 +857,7 @@ class Evaluate{
                 }
             }
         }
+
 
         if ($varType == null){
             throw new \Exception("Unable to detect vartype");

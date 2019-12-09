@@ -281,30 +281,40 @@ class Associations
             if ($compiler->getToken() == "(") {
                 $params = new Associations($compiler);
 
-                if (
-                    count($params->childs) > 1 &&
-                    (
-                        $params->childs[1]->type == Tokens::T_ADDITION ||
-                        $params->childs[1]->type == Tokens::T_SUBSTRACTION ||
-                        $params->childs[1]->type == Tokens::T_MULTIPLY ||
-                        $params->childs[1]->type == Tokens::T_DIVISION
-                    )
-                ){
-                    $result = [];
-                    $this->flatForRpn($params->childs, $result);
+                $newParams = [];
+                $current = 0;
+                while($current < count($params->childs)){
+                    $param = $params->childs[$current];
+//                foreach ($params as $index => $param) {
 
-                    $math = new Associations();
-                    $math->type = Tokens::T_MATH;
-                    $math->childs = (new RPN())->convertToReversePolishNotation($result);
+                    if (
+                        isset($params->childs[$current + 1]) &&
+                        (
+                            $params->childs[$current + 1]->type == Tokens::T_ADDITION ||
+                            $params->childs[$current + 1]->type == Tokens::T_SUBSTRACTION ||
+                            $params->childs[$current + 1]->type == Tokens::T_MULTIPLY ||
+                            $params->childs[$current + 1]->type == Tokens::T_DIVISION
+                        )
+                    ){
 
-                    $this->childs = [$math];
-                }else{
-                    foreach ($params->childs as $child) {
-                        $this->childs[] = $child;
+                        $math = new Associations();
+                        $math->type = Tokens::T_MATH;
+                        $math->childs = (new RPN())->convertToReversePolishNotation([
+                            $params->childs[$current],  //value a
+                            $params->childs[$current + 1], // operator
+                            $params->childs[$current + 2], // value b
+                        ]);
+
+                        $current = $current + 2;
+
+                        $this->childs[] = $math;
+
+                    }else{
+                        $this->childs[] = $param;
                     }
 
+                    $current++;
                 }
-
 
             }
 
