@@ -1,10 +1,10 @@
 <?php
-namespace App\Tests\CompilerV2\Math;
+namespace App\Tests\CompilerV2\Math\Assign;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignIntegerMathAdditionTest extends KernelTestCase
+class ToIntegerMathIntegerAddTest extends KernelTestCase
 {
 
     public function test()

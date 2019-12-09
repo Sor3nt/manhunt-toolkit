@@ -866,6 +866,7 @@ class Evaluate{
         foreach ($associations as $index => $association) {
 
 
+
             if (in_array($association->type, [
                 Tokens::T_ADDITION,
                 Tokens::T_SUBSTRACTION,
@@ -876,6 +877,14 @@ class Evaluate{
                 $this->compiler->evalVar->math($association->type, $varType);
 
                 if ($isLast == false) $this->compiler->evalVar->ret();
+
+                /**
+                 * Looks like a hack but the extra return appears only in
+                 * function parameters that ends with a multiply operation...
+                 */
+                if ($isLast == true && $association->type == Tokens::T_MULTIPLY){
+                    $this->compiler->evalVar->ret();
+                }
 
             }else{
                 //we reached the last token followed by a operator

@@ -82,6 +82,7 @@ class Compiler
         $source = preg_replace("/\//", " / ", $source);
         $source = preg_replace("/\(/", " ( ", $source);
         $source = preg_replace("/\)/", " ) ", $source);
+        $source = preg_replace("/\*/", " * ", $source);
         $source = preg_replace("/\+/", " + ", $source);
         $source = preg_replace("/\,/", " , ", $source);
         $source = preg_replace("/\[/", " [ ", $source);

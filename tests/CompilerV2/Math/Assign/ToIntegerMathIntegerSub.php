@@ -1,10 +1,10 @@
 <?php
-namespace App\Tests\CompilerV2\Assign\Script;
+namespace App\Tests\CompilerV2\Math\Assign;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AssignIntegerMathSubstractionTest extends KernelTestCase
+class ToIntegerMathIntegerSub extends KernelTestCase
 {
 
     public function test()
@@ -23,7 +23,7 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
                     animLength : integer;       
                 begin
                     
-                    { no return } 
+                    { animLength 1500 - } 
                    	animLength := animLength - 1500;
                 end;
 
@@ -48,10 +48,11 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
             '13000000', //read from script var
             '01000000', //read from script var
             '04000000', //read from script var
-            '04000000', //Offset
+            '04000000', //Offset animLength
 
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '12000000', //parameter (temp int)
             '01000000', //parameter (temp int)
             'dc050000', //value 1500
@@ -68,10 +69,10 @@ class AssignIntegerMathSubstractionTest extends KernelTestCase
             '01000000', //T_SUBSTRACTION
             '04000000', //T_SUBSTRACTION
 
-            '15000000', //unknown
-            '04000000', //unknown
+            '15000000', //assign
+            '04000000', //assign
             '04000000', //offset
-            '01000000', //nested call return result
+            '01000000', //assign
 
 
             // script end

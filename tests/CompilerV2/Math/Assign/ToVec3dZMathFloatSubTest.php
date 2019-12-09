@@ -1,10 +1,10 @@
 <?php
-namespace App\Tests\CompilerV2\Functions;
+namespace App\Tests\CompilerV2\Math\Assign;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class FunctionParamMathIntegerAddFunctionTest extends KernelTestCase
+class ToVec3dZMathFloatSubTest extends KernelTestCase
 {
 
     public function test()
@@ -13,23 +13,22 @@ class FunctionParamMathIntegerAddFunctionTest extends KernelTestCase
 
         $script = "
             scriptmain LevelScript;
-                        
+
             entity
                 A01_Escape_Asylum : et_level;
 
             script OnCreate;
+                VAR
+                    pos : vec3d;                
+
                 begin
-
-                    { 1x return } 
-                    Sleep(7 + randnum(15));
-
+                    pos.z := 21.0;
                 end;
-            end.
 
+            end.
         ";
 
         $expected = [
-
             // script start
             '10000000',
             '0a000000',
@@ -37,33 +36,41 @@ class FunctionParamMathIntegerAddFunctionTest extends KernelTestCase
             '0a000000',
             '09000000',
 
+            '34000000', //reserve bytes
+            '09000000', //reserve bytes
+            '0c000000', //Offset in byte
 
-            '12000000', //parameter (read simple type (int/float...))
-            '01000000', //parameter (read simple type (int/float...))
-            '07000000', //value 7
 
-            '10000000', //nested call return result
-            '01000000', //nested call return result
-
-            '12000000', //parameter (read simple type (int/float...))
-            '01000000', //parameter (read simple type (int/float...))
-            '0f000000', //value 15
+            '22000000', //unknown
+            '04000000', //unknown
+            '01000000', //unknown
+            '0c000000', //unknown
 
             '10000000', //nested call return result
             '01000000', //nested call return result
-
-            '69000000', //RandNum Call
 
             '0f000000', //unknown
-            '04000000', //unknown
-            '31000000', //unknown
             '01000000', //unknown
-            '04000000', //unknown
+
+            '32000000', //unknown
+            '01000000', //unknown
+            '08000000', //unknown
 
             '10000000', //nested call return result
             '01000000', //nested call return result
 
-            '6a000000', //Sleep Call
+
+            '12000000', //parameter (function return (bool?))
+            '01000000', //parameter (function return (bool?))
+            '0000a841', //value 21.0
+
+            '0f000000', //parameter (function return (bool?))
+            '02000000', //parameter (function return (bool?))
+
+            '17000000', //unknown
+            '04000000', //unknown
+            '02000000', //unknown
+            '01000000', //unknown
 
             // script end
             '11000000',
@@ -72,10 +79,8 @@ class FunctionParamMathIntegerAddFunctionTest extends KernelTestCase
             '0f000000',
             '0a000000',
             '3b000000',
-            '00000000',
-
+            '00000000'
         ];
-
         $compiler = new \App\Service\CompilerV2\Compiler($script, MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC, false);
         $compiled = $compiler->compile();
 
