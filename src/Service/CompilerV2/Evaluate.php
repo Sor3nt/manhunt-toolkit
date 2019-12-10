@@ -336,6 +336,12 @@ class Evaluate{
 
                         $this->add('49000000', 'compare string ' . $association->operatorValue->value);
 
+                    }else if ($association->operatorValue->type == Tokens::T_FLOAT){
+                        //value evaluated already just apply the return
+                        $this->compiler->evalVar->ret();
+
+                        $this->add('4e000000', 'compare float');
+
                     }else{
 
                         $this->add('0f000000', "Return last case");
@@ -570,6 +576,7 @@ class Evaluate{
 
                     //regular parameter return
                     }else if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
+                        // TODO: the param should be converted into a simple int to avoid these hacks
                         if ($param->value !== " "){
                             $this->compiler->evalVar->retString();
                         }
