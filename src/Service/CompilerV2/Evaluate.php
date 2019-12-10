@@ -474,7 +474,6 @@ class Evaluate{
                 break;
 
             case Tokens::T_FUNCTION:
-                $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
 
                 /**
                  * A special handler for writedebug calls
@@ -505,6 +504,7 @@ class Evaluate{
                     break;
                 }
 
+                $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                 foreach ($association->childs as $index => $param) {
 
                     //TODO das gehört doch auch in T_VARIABLE ODER ?!
@@ -518,6 +518,7 @@ class Evaluate{
 
                     new Evaluate($this->compiler, $param);
 
+                    $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                     if ($association->forceFloat){
                         if($association->forceFloat[$index] === true){
                             if ($param->type == Tokens::T_MATH){
@@ -546,19 +547,32 @@ class Evaluate{
                     }
 
                     if($param->type == Tokens::T_STRING){
-                        $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
-                        $this->compiler->evalVar->readSize( $string->size );
+                        if ($param->value !== " "){
+                            $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
+                            $this->compiler->evalVar->readSize( $string->size );
+                        }
                     }
 
-                    //regular parameter return
+                    /**
+                     * Mystery : these function dont require a return, never
+                     */
                     if (
                         strtolower($param->value) == "getentityposition" ||
+                        strtolower($param->value) == "getplayerposition" ||
                         strtolower($param->value) == "getentityview" ||
                         strtolower($param->value) == "getentityname"
                     ){
 
+                    //Attribute access dont need a return....
+                    }else if ( $param->parent != null){
+                        //do nothing
+
+
+                    //regular parameter return
                     }else if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
-                        $this->compiler->evalVar->retString();
+                        if ($param->value !== " "){
+                            $this->compiler->evalVar->retString();
+                        }
 
                     }else{
                         $this->compiler->evalVar->ret();
@@ -584,7 +598,13 @@ class Evaluate{
                 if (strtolower($association->value) == "writedebug"){
                     $param = $association->childs[0];
                     if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
-                        $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
+
+                        //Not sure about this part, a space require a different handling
+                        if($param->value === " "){
+                            $writeDebugFunction = $compiler->gameClass->getFunction('writedebugemptystring');
+                        }else{
+                            $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
+                        }
                     }else if ($param->varType == "float") {
                         $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
                     }else if ($param->type == Tokens::T_FUNCTION) {
@@ -704,7 +724,13 @@ class Evaluate{
 
                 break;
             case Tokens::T_STRING:
-                $this->readData($association, 'string');
+
+                if ($association->value === " "){
+                    $this->compiler->evalVar->valuePointer(32);
+
+                }else{
+                    $this->readData($association, 'string');
+                }
                 break;
             case Tokens::T_CASE:
 
