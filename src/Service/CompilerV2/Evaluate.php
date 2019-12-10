@@ -86,21 +86,40 @@ class Evaluate{
                 }
 
 
+
+                /**
+                 * We assign to an array index (by id)
+                 *
+                 * itemsSpawned[1] := FALSE;
+                 */
                 if ($association->forIndex !== null) {
 
-                    //                        $this->readData($association->forIndex, $association->forIndex->varType);
+                    $this->compiler->evalVar->memoryPointer($association);
 
-//                        $this->compiler->evalVar->ret();
+                    $this->compiler->evalVar->ret();
 
-//                        $this->getPointer($association, $association->varType);
+                    new Evaluate($this->compiler, $association->forIndex);
 
-//var_dump($association);
-//exit;
-                    /**
-                     * We assign to an array index (by id)
-                     *
-                     * itemsSpawned[1] := FALSE;
-                     */
+
+                    $this->add('34000000');
+                    $this->add('01000000');
+                    $this->add('01000000');
+
+                    $this->add('12000000');
+                    $this->add('04000000');
+                    $this->add('04000000');
+
+                    $this->add('35000000');
+                    $this->add('04000000');
+
+                    $this->add('0f000000');
+                    $this->add('04000000');
+
+                    $this->add('31000000');
+                    $this->add('04000000');
+                    $this->add('01000000');
+                    $this->add('10000000');
+                    $this->add('04000000');
                 }
 
                 if ($association->fromArray == true) {
@@ -131,6 +150,7 @@ class Evaluate{
                     $this->add('04000000');
 
                 }
+
                 if (
                     $association->assign->type == Tokens::T_FLOAT ||
                     $association->assign->type == Tokens::T_INT ||
@@ -173,7 +193,6 @@ class Evaluate{
                     $this->add('04000000');
                     $this->add('02000000');
                     $this->add('01000000');
-
                 }else{
                     $this->writeData($association, $association->varType);
                 }
@@ -196,18 +215,21 @@ class Evaluate{
 
             case Tokens::T_FOR:
 
-                $compiler->evalVar->msg = sprintf("For statement");
 
                 new Evaluate($this->compiler, $association->start);
 
+                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('15000000');
                 $this->add('04000000');
                 $this->add('20000000');
                 $this->add('01000000');
 
+                $startOffset = count($this->compiler->codes);
+
                 new Evaluate($this->compiler, $association->end);
 
 
+                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('13000000');
                 $this->add('02000000');
                 $this->add('04000000');
@@ -219,15 +241,28 @@ class Evaluate{
                 $this->add('00390000');
 
                 $this->add('3c000000');
-                $this->add('offset', 'LineOffset');
-
+                $endOffset = count($this->compiler->codes);
+                $this->add('offset', 'End Offset');
 
                 foreach ($association->onTrue as $item) {
                     new Evaluate($this->compiler, $item);
                 }
 
-//                var_dump($association);
-//                exit;
+                $compiler->evalVar->msg = sprintf("For statement");
+                $this->add('2f000000');
+                $this->add('04000000');
+                $this->add('1c000000');
+
+
+                $this->add('3c000000');
+                $this->add(Helper::fromIntToHex($startOffset * 4), 'Start Offset');
+
+
+                $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+                $this->add('30000000');
+                $this->add('04000000');
+                $this->add('1c000000');
+
                 break;
 
             case Tokens::T_CONDITION:

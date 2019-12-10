@@ -136,7 +136,28 @@ class Associations
                      * PKarray[i] can not be known, the iterator "i" can have different names
                      */
                     $variable = $compiler->getVariable($value);
-                    $this->forIndex = $compiler->getVariable($indexName);
+                    $forIndex = $compiler->getVariable($indexName);
+
+
+                    $forIndexAssociation = new Associations();
+
+                    $forIndexAssociation->type = Tokens::T_VARIABLE;
+                    $forIndexAssociation->value = $forIndex['name'];
+
+                    $forIndexAssociation->offset = $forIndex['offset'];
+                    $forIndexAssociation->size = $forIndex['size'];
+                    $forIndexAssociation->sizeWithoutPad4 = isset($forIndex['sizeWithoutPad4']) ? $variable['sizeWithoutPad4'] : $variable['size'];
+                    $forIndexAssociation->varType = $forIndex['type'];
+                    $forIndexAssociation->section = $forIndex['section'];
+
+
+                    //used from array variables like "itemsSpawned[1]"
+                    if (isset($forIndex['fromArray'])) $forIndexAssociation->fromArray = $forIndex['fromArray'];
+                    if (isset($forIndex['index'])) $forIndexAssociation->index = $forIndex['index'];
+                    if (isset($forIndex['isGameVar'])) $forIndexAssociation->isGameVar = $forIndex['isGameVar'];
+                    if (isset($forIndex['isLevelVar'])) $forIndexAssociation->isLevelVar = $forIndex['isLevelVar'];
+
+                    $this->forIndex = $forIndexAssociation;
                 }
 
                 $compiler->current++;
