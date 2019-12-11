@@ -254,17 +254,18 @@ class Associations
 
                         if (count($mathChilds) > 1){
                             $result = [];
-                            //todo move into RPN class...
-                            $this->flatForRpn($mathChilds, $result);
+
 
                             $math = new Associations();
                             $math->type = Tokens::T_MATH;
+
+                            $this->flatForRpn($mathChilds, $result);
                             $math->childs = (new RPN())->convertToReversePolishNotation($result);
+
                             $this->assign = $math;
                         }else{
                             $this->assign = $mathChilds[0];
                         }
-
 
                     }
                 }
@@ -342,7 +343,6 @@ class Associations
         if ($constant !== false) {
 
             $this->type = Tokens::T_CONSTANT;
-//            $this-> = $value;
             $this->value = $value;
             $this->section = "header";
             $this->offset = Helper::fromHexToInt($constant['offset']);
@@ -369,12 +369,6 @@ class Associations
             }
             $this->offset = $this->value;
 
-            /**
-             * Math operations
-             */
-//            $this->applyMath($compiler);
-
-
             return;
         }
 
@@ -395,7 +389,6 @@ class Associations
             $this->size = $string->size;
             $this->offset = $string->offset;
             $this->section = $string->section;
-
 
             return;
         }
@@ -430,8 +423,7 @@ class Associations
                 if ($compiler->currentBlockType == "procedure"){
                     $compiler->offsetScriptVariable = 0;
                 }
-//                var_dump($compiler->currentScriptName . " " . $);
-//                exit;
+
                 $this->type = Tokens::T_NOP;
                 $this->consumeParameters($compiler, $compiler->currentSection);
                 break;
@@ -453,11 +445,11 @@ class Associations
 
 
                 $parameters = [];
+
                 //we have params
                 if ($compiler->consumeIfTrue("(")){
                     $parameters = $this->consumeParameters($compiler, $this->value, true);
                 }
-
 
                 // Return type
                 if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
@@ -471,7 +463,6 @@ class Associations
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
                     $this->childs = $this->associateUntil($compiler, Tokens::T_END);
-
                 }
 
                 $compiler->addCustomFunction($this->value, Tokens::T_PROCEDURE);
@@ -483,10 +474,8 @@ class Associations
                 $floatMap = [];
                 $addFloatMap = false;
                 foreach (array_reverse($parameters) as $parameter) {
-                    if (
-                        $parameter['type'] == 'float' ||
-                        $parameter['type'] == 'real'
-                    ){
+
+                    if ( $parameter['type'] == 'float' ){
                         $addFloatMap = true;
                         foreach ($parameter['names'] as $name) {
                             $floatMap[] = true;
@@ -528,10 +517,10 @@ class Associations
 
                 while ($compiler->getToken($compiler->current + 1) == ":") {
                     $state = false;
+
                     if ($isState !== false) {
                         $state = $compiler->getState($this->value->varType, $compiler->getToken());
                     }
-
 
                     $case = new Associations();
                     $case->type = Tokens::T_CASE;
@@ -552,7 +541,6 @@ class Associations
                     }
 
                     $this->cases[] = $case;
-
                 }
 
                 $compiler->current++;
@@ -606,9 +594,7 @@ class Associations
                 $lastCondition->isLastCondition = true;
                 $case->condition = $conditions;
 
-
-
-            if ($compiler->consumeIfTrue("begin")) {
+                if ($compiler->consumeIfTrue("begin")) {
 
                     $case->onTrue = $this->associateUntil($compiler, Tokens::T_END);
 
@@ -636,6 +622,7 @@ class Associations
                     }
 
                 }
+
                 break;
 
             case '(':
@@ -649,16 +636,11 @@ class Associations
              * Tread boolean as simple int
              */
             case 'true':
-                $this->type = Tokens::T_INT;
-                $this->varType = 'integer';
-                $this->value = 1;
-                $this->offset = 1;
-                break;
             case 'false':
                 $this->type = Tokens::T_INT;
                 $this->varType = 'integer';
-                $this->value = 0;
-                $this->offset = 0;
+                $this->value = $value == "true" ? 1 : 0;
+                $this->offset = $value == "true" ? 1 : 0;
                 break;
 
             /**

@@ -261,9 +261,7 @@ class EvaluateVariable{
     public function readFromArrayIndex( Associations $association ){
 
         $this->compiler->evalVar->memoryPointer($association);
-
         $this->compiler->evalVar->ret();
-
 
         if ($association->forIndex != null){
             new Evaluate($this->compiler, $association->forIndex);
@@ -273,8 +271,6 @@ class EvaluateVariable{
         }
 
         $this->readArray();
-
-
     }
 
     public function readArray(){

@@ -23,7 +23,7 @@ class Evaluate{
 
         $this->compiler = $compiler;
 
-        switch ($association->type){
+        switch ($association->type) {
 
             case Tokens::T_MATH:
                 $this->doMath($association->childs);
@@ -41,9 +41,9 @@ class Evaluate{
                     new Evaluate($this->compiler, $condition);
                 }
 
-                if ($association->type == Tokens::T_PROCEDURE){
+                if ($association->type == Tokens::T_PROCEDURE) {
                     $this->compiler->evalVar->procedureEnd($association);
-                }else{
+                } else {
                     $this->compiler->evalVar->scriptEnd($association->value);
                 }
 
@@ -60,19 +60,32 @@ class Evaluate{
                  */
 
                 if ($association->varType == "vec3d") {
-                    $this->readData($association, "vec3d");
+                    $association->type = Tokens::T_VARIABLE;
+                    new Evaluate($this->compiler, $association);
+
                     $this->compiler->evalVar->ret();
 
-                //we access a object attribute
-                }else if (
+                /**
+                 * We assign to an array index (by id)
+                 *
+                 * itemsSpawned[1] := FALSE;
+                 */
+                }else if ($association->forIndex !== null) {
+                    $association->type = Tokens::T_VARIABLE;
+                    new Evaluate($this->compiler, $association);
+
+                    //we access a object attribute
+                } else if (
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"
                 ) {
-                    $this->readData($association->parent, "vec3d");
+                    $association->type = Tokens::T_VARIABLE;
+                    new Evaluate($this->compiler, $association->parent);
+
                     $this->compiler->evalVar->ret();
 
                     //we do not assign to the first entry
-                    if ($association->parent->value . '.x' !== $association->value){
+                    if ($association->parent->value . '.x' !== $association->value) {
                         $this->add('0f000000', 'assign to secondary');
                         $this->add('01000000', 'assign to secondary');
 
@@ -82,20 +95,10 @@ class Evaluate{
 
                         $this->compiler->evalVar->ret();
                     }
-                }
 
 
 
-                /**
-                 * We assign to an array index (by id)
-                 *
-                 * itemsSpawned[1] := FALSE;
-                 */
-                if ($association->forIndex !== null) {
-                    $this->compiler->evalVar->readFromArrayIndex($association);
-                }
-
-                if ($association->fromArray == true) {
+                }else if ($association->fromArray == true) {
                     $this->readData($association, "array");
 
                     $this->compiler->evalVar->ret();
@@ -103,22 +106,19 @@ class Evaluate{
                     $this->compiler->evalVar->valuePointer( (int)$association->index );
 
                     $this->compiler->evalVar->readArray();
-
-
-
                 }
 
+                /**
+                 * Handle right hand (value to assign)
+                 */
                 if (
                     $association->assign->type == Tokens::T_FLOAT ||
                     $association->assign->type == Tokens::T_INT ||
                     $association->assign->type == Tokens::T_FUNCTION ||
+                    $association->assign->type == Tokens::T_MATH ||
                     $association->assign->type == Tokens::T_VARIABLE
                 ) {
                     new Evaluate($this->compiler, $association->assign);
-                }else if (
-                    $association->assign->type == Tokens::T_MATH
-                ){
-                    $this->doMath($association->assign->childs, $association->varType);
                 }else{
 
                     $rightHandReturn = $this->getVarType($association->assign);
@@ -164,8 +164,13 @@ class Evaluate{
 
                 if ($association->isGameVar === true){
                     $compiler->evalVar->gameVarPointer($association);
-                }else if ($association->fromArray === true) {
+
+                }else if (
+                    $association->fromArray === true ||
+                    $association->forIndex !== null
+                ) {
                     $this->compiler->evalVar->readFromArrayIndex($association);
+
                 }else if ( $association->varType == "string") {
 
                     if (in_array($association->section, ['header', 'script']) !== false){
@@ -188,6 +193,8 @@ class Evaluate{
                     }
                 }else if ( $association->varType == "vec3d") {
                     $this->compiler->evalVar->memoryPointer($association);
+
+
                 }else{
                     $compiler->evalVar->variablePointer(
                         $association,
