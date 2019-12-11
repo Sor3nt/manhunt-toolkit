@@ -271,6 +271,8 @@ class Compiler
     public function addConstants( $name, $value, $type){
         var_dump("Add Constant: " . $name . " with value " . $value );
 
+        if ($type == "real") $type = "float";
+
         $size = 4;
         if ($type == "string"){
             $stringIndex = substr($value, 4);

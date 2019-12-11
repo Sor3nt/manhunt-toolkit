@@ -120,7 +120,7 @@ class Associations
         $variable = $compiler->getVariable($value);
 
         if ($variable !== false) {
-//exit;
+
             if ($variable['type'] == "array") {
                 $compiler->current++;
                 $indexName = $compiler->consume();
@@ -471,6 +471,7 @@ class Associations
                 /**
                  * Add the custom function also to the force float map
                  */
+
                 $floatMap = [];
                 $addFloatMap = false;
                 foreach (array_reverse($parameters) as $parameter) {
@@ -749,6 +750,7 @@ class Associations
             if ($isLevelVar || $isGameVar) $compiler->current++;
 
             $type = $compiler->consume();
+            if ($type == "real") $type = "float";
 
             $entry = [
                 'names' => $names,
