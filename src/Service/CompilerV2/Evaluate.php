@@ -2,7 +2,6 @@
 
 namespace App\Service\CompilerV2;
 
-use App\Service\Compiler\Token;
 use App\Service\Helper;
 use Exception;
 
@@ -490,16 +489,18 @@ class Evaluate{
                     new Evaluate($this->compiler, $param);
 
                     $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
-                    if ($association->forceFloat){
-                        if($association->forceFloat[$index] === true){
-                            if ($param->type == Tokens::T_MATH){
 
-                            }else if ($param->type !== Tokens::T_FLOAT && $param->varType != "float"){
+                    if (
+                        $association->forceFloat &&
+                        $association->forceFloat[$index] === true &&
 
-                                $this->compiler->evalVar->ret();
-                                $this->add('4d000000', 'integer to float1 ');
-                            }
-                        }
+                        $param->type != Tokens::T_MATH &&
+                        $param->type !== Tokens::T_FLOAT &&
+
+                        $param->varType != "float"
+                    ){
+
+                        $this->compiler->evalVar->int2float();
                     }
 
                     /**
@@ -521,15 +522,12 @@ class Evaluate{
                      * Mystery : these function dont require a return, never
                      */
                     if (
+                        $param->parent != null ||
                         strtolower($param->value) == "getentityposition" ||
                         strtolower($param->value) == "getplayerposition" ||
                         strtolower($param->value) == "getentityview" ||
                         strtolower($param->value) == "getentityname"
                     ){
-
-                    //Attribute access dont need a return....
-                    }else if ( $param->parent != null){
-                        //do nothing
 
                     //regular data / string return
                     }else if (
@@ -611,18 +609,6 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("Switch %s", $caseVariable->value);
 
-                /**
-                 * TODO: das gehört in T_VARIABLE
-                 */
-//                $isState = $compiler->getState($caseVariable->varType);
-//
-//                if ($isState){
-//                    $compiler->evalVar->variablePointer($caseVariable, 'state');
-//                }
-                /**
-                 * TODO: das gehört in T_VARIABLE
-                 */
-
                 new Evaluate($this->compiler, $caseVariable);
 
                 $caseStartOffsets = [];
@@ -675,23 +661,13 @@ class Evaluate{
                 break;
 
             case Tokens::T_CONSTANT:
-                $this->readData($association, 'constant');
-                break;
-            case Tokens::T_BOOLEAN:
-                $this->readData($association, 'boolean');
-                break;
             case Tokens::T_FLOAT:
-                $this->readData($association, 'float');
-
-
-                break;
+            case Tokens::T_BOOLEAN:
             case Tokens::T_INT:
-                $compiler->evalVar->msg = sprintf("Handle Integer %s", $association->value);
-
-                $this->readData($association, 'integer');
-
-
+                $compiler->evalVar->msg = sprintf("Read simple value %s", $association->value);
+                $this->readData($association);
                 break;
+
             case Tokens::T_STRING:
 
                 if ($association->value === " "){
@@ -785,17 +761,9 @@ class Evaluate{
      * @param $type
      * @throws Exception
      */
-    private function readData($association, $type ){
+    private function readData($association, $type = null ){
 
         switch ($type){
-            case 'integer':
-            case 'state':
-            case 'float':
-            case 'constant':
-
-                $this->compiler->evalVar->valuePointer($association->offset );
-                if ($association->negate) $this->compiler->evalVar->negate($association);
-                break;
 
             case 'vec3d':
             case 'array':
@@ -804,7 +772,9 @@ class Evaluate{
                 break;
 
             default:
-                throw new Exception(sprintf("ReadData unknown type %s", $type));
+                $this->compiler->evalVar->valuePointer($association->offset );
+                if ($association->negate) $this->compiler->evalVar->negate($association);
+                break;
         }
     }
 
@@ -850,7 +820,7 @@ class Evaluate{
 
 
         if ($varType == null){
-            throw new \Exception("Unable to detect vartype");
+            throw new Exception("Unable to detect varType");
         }
 
 

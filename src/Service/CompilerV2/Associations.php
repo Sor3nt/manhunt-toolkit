@@ -2,7 +2,6 @@
 
 namespace App\Service\CompilerV2;
 
-use App\Service\Compiler\Parser\T_BRACKET_OPEN;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 use Exception;
@@ -269,14 +268,7 @@ class Associations
 
                     }
                 }
-
-
             }
-
-            /**
-             * Math operations
-             */
-//            $this->applyMath($compiler);
 
             return;
         }
@@ -302,11 +294,9 @@ class Associations
             if ($compiler->getToken() == "(") {
                 $params = new Associations($compiler);
 
-                $newParams = [];
                 $current = 0;
                 while($current < count($params->childs)){
                     $param = $params->childs[$current];
-//                foreach ($params as $index => $param) {
 
                     if (
                         isset($params->childs[$current + 1]) &&
@@ -652,11 +642,6 @@ class Associations
                 $this->type = Tokens::T_CONDITION;
 
                 $this->childs = $this->associateUntil($compiler, Tokens::T_BRACKET_CLOSE);
-
-                /**
-                 * Math operations
-                 */
-//                $this->applyMath($compiler);
 
                 break;
 
@@ -1123,9 +1108,10 @@ class Associations
 
     }
 
-
     /**
      * @param Associations[] $entries
+     * @param Associations[] $result
+     * @throws Exception
      */
     public function flatForRpn( array $entries, array &$result ){
 
