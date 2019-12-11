@@ -313,28 +313,19 @@ class Evaluate{
 
                         $compiler->evalVar->variablePointer($param, "state");
 
-                        //TODO das gehört doch auch in T_VARIABLE ODER ?!
-//                    }else if ($param->fromArray === true) {
-//                        $this->compiler->evalVar->memoryPointer($param);
-
                     }else if ($param->varType == "string") {
                         $compareAgainst = "string";
-                        // move the internal pointer to the offset
+
                         $this->movePointer($param);
-                    }else if ($param->varType == "vec3d") {
-                        $compareAgainst = "vec3d";
-                        // move the internal pointer to the offset
+
+                    }else if (
+                        $param->varType == "vec3d" ||
+                        $param->varType == "ecollectabletype" ||
+                        $param->varType == "eaicombattype"
+                    ) {
+                        $compareAgainst = $param->varType;
+
                         $this->compiler->evalVar->memoryPointer($param);
-                    }else if ($param->varType == "ecollectabletype") {
-                        $compareAgainst = "ecollectabletype";
-                        // move the internal pointer to the offset
-                        $this->compiler->evalVar->memoryPointer($param);
-                    }else if ($param->varType == "eaicombattype") {
-                        $compareAgainst = "eaicombattype";
-                        // move the internal pointer to the offset
-                        $this->compiler->evalVar->memoryPointer($param);
-                    }else{
-                        var_dump($association->type);
                     }
 
                     new Evaluate($this->compiler, $param);
@@ -348,7 +339,6 @@ class Evaluate{
                         $this->add('01000000');
                         $this->add('04000000');
                         $this->add('02000000');
-
                     }
 
                     if ($param->type !== Tokens::T_CONDITION) $onlyConditions = false;

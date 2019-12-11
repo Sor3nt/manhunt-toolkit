@@ -461,8 +461,13 @@ class Associations
                 $this->value = $compiler->consume();
                 $compiler->currentScriptName = $this->value;
 
+
+                $parameters = [];
                 //we have params
-                if ($compiler->consumeIfTrue("(")) $this->consumeParameters($compiler, $this->value, true);
+                if ($compiler->consumeIfTrue("(")){
+                    $parameters = $this->consumeParameters($compiler, $this->value, true);
+                }
+
 
                 // Return type
                 if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
@@ -480,6 +485,30 @@ class Associations
                 }
 
                 $compiler->addCustomFunction($this->value, Tokens::T_PROCEDURE);
+
+
+                /**
+                 * Add the custom function also the the force float map
+                 */
+                $floatMap = [];
+                $addFloatMap = false;
+                foreach (array_reverse($parameters) as $parameter) {
+                    if (
+                        $parameter['type'] == 'float' ||
+                        $parameter['type'] == 'real'
+                    ){
+                        $addFloatMap = true;
+                        foreach ($parameter['names'] as $name) {
+                            $floatMap[] = true;
+                        }
+                    }else{
+                        $floatMap[] = false;
+                    }
+                }
+
+                if ($addFloatMap){
+                    $compiler->gameClass->functionForceFloat[$compiler->currentScriptName] = $floatMap;
+                }
 
                 break;
             case 'script':
@@ -852,6 +881,8 @@ class Associations
                 }
             }
         }
+
+        return $toAdd;
     }
 
 
