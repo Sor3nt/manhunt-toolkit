@@ -129,7 +129,7 @@ class Evaluate{
                 /**
                  * These types accept only floats, given int need to be converted
                  */
-                if ($association->varType == "real" && $association->assign->type == Tokens::T_INT){
+                if ($association->varType == "float" && $association->assign->type == Tokens::T_INT){
                     $this->compiler->evalVar->int2float();
                 }
 
@@ -168,7 +168,6 @@ class Evaluate{
                 }else if ($association->fromArray === true) {
                     $this->compiler->evalVar->readFromArrayIndex($association);
                 }else if ( $association->varType == "string") {
-                    $type = $this->getTypeByAssociation( $association );
 
                     if (in_array($association->section, ['header', 'script']) !== false){
 
@@ -176,7 +175,6 @@ class Evaluate{
                         $this->compiler->evalVar->readSize( $association->sizeWithoutPad4 );
 
                     }else{
-
 
                         $appendix = 'Read String ' . $association->value . ' from Section ' . $association->section;
 
@@ -496,18 +494,11 @@ class Evaluate{
                         if($association->forceFloat[$index] === true){
                             if ($param->type == Tokens::T_MATH){
 
-                            }else{
+                            }else if ($param->type !== Tokens::T_FLOAT && $param->varType != "float"){
 
-                                // floats and REAL are the same...
-                                if ($param->type !== Tokens::T_FLOAT && $param->varType != "real"){
-
-                                    $this->compiler->evalVar->ret();
-                                    $this->add('4d000000', 'integer to float1 ');
-
-                                }
-
+                                $this->compiler->evalVar->ret();
+                                $this->add('4d000000', 'integer to float1 ');
                             }
-
                         }
                     }
 
@@ -736,21 +727,6 @@ class Evaluate{
         ];
     }
 
-    private function getTypeByAssociation( Associations $variable ){
-
-        if ($variable->type == Tokens::T_VARIABLE){
-            return $variable->varType;
-        }
-
-        if ($variable->type == Tokens::T_STRING) return 'string';
-        if ($variable->type == Tokens::T_CONSTANT) return 'integer';
-        if ($variable->type == Tokens::T_BOOLEAN) return 'integer';
-        if ($variable->type == Tokens::T_INT) return 'integer';
-        if ($variable->type == Tokens::T_FLOAT) return 'float';
-
-        die ("cant convert");
-    }
-
     /**
      * @param Associations $association
      * @return bool|mixed|string|null
@@ -772,7 +748,7 @@ class Evaluate{
             case 'entityptr':
             case 'integer':
             case 'boolean':
-            case 'real':
+            case 'float':
                 $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
@@ -856,8 +832,7 @@ class Evaluate{
 
                 if (
                     $association->type == Tokens::T_FLOAT ||
-                    $association->varType == 'float' ||
-                    $association->varType == 'real'
+                    $association->varType == 'float'
                 ){
                     $varType = "float";
                     break;
@@ -911,29 +886,22 @@ class Evaluate{
                 new Evaluate($this->compiler, $association);
 
 
-                if (
-                    ($varType == "real" || $varType == "float")
-                    ||
+                if ($varType == "float"  ||
                     ($varType == "integer" && $isLast == false)
                 ){
                     $this->compiler->evalVar->ret();
-
                 }
 
 
                 if (
-                    ($varType == "real" || $varType == "float") &&
+                    $varType == "float" &&
                     $association->type == Tokens::T_INT
                 ){
                     $this->add('4d000000', 'integer to float2');
                     $this->compiler->evalVar->ret();
-
                 }
 
             }
-
-
         }
-
     }
 }

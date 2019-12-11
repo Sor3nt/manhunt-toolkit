@@ -300,6 +300,8 @@ class Compiler
 
     public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null, $fromArray = false, $index = null ){
 
+        if ($type == 'real') $type = "float";
+
         if (is_null($size)) $size = $this->calcSize($type);
         $sizeWithoutPad4 = $size;
 

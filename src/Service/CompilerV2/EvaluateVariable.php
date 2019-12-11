@@ -85,7 +85,7 @@ class EvaluateVariable{
 
         }else{
             if (in_array($type,
-                    ['real', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+                    ['real', 'float', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
                 ) !== false ){
                 $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' from Section ' . $association->section);
                 $this->add('01000000', 'Read Variable ' . $association->value);
@@ -145,8 +145,6 @@ class EvaluateVariable{
      * @throws Exception
      */
     public function math( $type, $varType ){
-
-        if($varType == "real") $varType = "float";
 
 
         if ($varType !== "float" && $varType !== "integer"){
