@@ -1193,6 +1193,31 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
+        'aisetsearchparams' => [
+            'name' => 'AISetSearchParams',
+            'offset' => '97010000'
+        ],
+
+        'aiaddareaforsubpack' => [
+            'name' => 'AIAddAreaForSubpack',
+            'offset' => 'AIAddAreaForSubpack'
+        ],
+
+        'aisubpackstayinterritory' => [
+            'name' => 'AISubpackStayInTerritory',
+            'offset' => 'AISubpackStayInTerritory'
+        ],
+
+        'aisetboundaryintercept' => [
+            'name' => 'AISetBoundaryIntercept',
+            'offset' => 'AISetBoundaryIntercept'
+        ],
+
+        'isplayercarryinggascan' => [
+            'name' => 'IsPlayerCarryingGasCan',
+            'offset' => 'IsPlayerCarryingGasCan'
+        ],
+
         'writedebugstring' => [
             'name' => 'WriteDebugString',
             'offset' => '73000000'

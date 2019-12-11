@@ -205,6 +205,8 @@ class Evaluate{
 
                 if ($association->isGameVar === true){
                     $compiler->evalVar->gameVarPointer($association);
+                }else if ($association->fromArray === true) {
+                    $this->compiler->evalVar->memoryPointer($association);
 
                 }else{
                     $compiler->evalVar->variablePointer($association);
@@ -281,6 +283,9 @@ class Evaluate{
                         $compiler->evalVar->variablePointer($param, "state");
 
                         //TODO das gehört doch auch in T_VARIABLE ODER ?!
+//                    }else if ($param->fromArray === true) {
+//                        $this->compiler->evalVar->memoryPointer($param);
+
                     }else if ($param->varType == "string") {
                         $compareAgainst = "string";
                         // move the internal pointer to the offset

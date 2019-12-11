@@ -55,7 +55,7 @@ class Compiler
 
 
         //extract all used strings
-        preg_match_all("/['|\"](.+)['|\"]/U", $source, $strings);
+        preg_match_all("/['|\"](.*)['|\"]/U", $source, $strings);
         $this->strings = array_values(array_unique($strings[1]));
 
         $newStrings = array_values(array_unique($strings[0]));
