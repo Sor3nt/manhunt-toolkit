@@ -167,13 +167,30 @@ class Evaluate{
                     $compiler->evalVar->gameVarPointer($association);
                 }else if ($association->fromArray === true) {
                     $this->compiler->evalVar->readFromArrayIndex($association);
-//                }else if (
-//                    $association->varType == "vec3d" ||
-//                    $association->varType == "ecollectabletype" ||
-//                    $association->varType == "eaicombattype"
-//                ) {
-//
-//                    $this->compiler->evalVar->memoryPointer($association);
+                }else if ( $association->varType == "string") {
+                    $type = $this->getTypeByAssociation( $association );
+
+                    if (in_array($association->section, ['header', 'script']) !== false){
+
+                        $this->compiler->evalVar->memoryPointer($association);
+                        $this->compiler->evalVar->readSize( $association->sizeWithoutPad4 );
+
+                    }else{
+
+
+                        $appendix = 'Read String ' . $association->value . ' from Section ' . $association->section;
+
+                        //custom parameter
+                        $this->add('13000000', $appendix);
+                        $this->add('01000000', $appendix);
+                        $this->add('04000000', $appendix);
+                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+
+                        //then read the given size
+                        $this->compiler->evalVar->readSize( 0 );
+                    }
+                }else if ( $association->varType == "vec3d") {
+                    $this->compiler->evalVar->memoryPointer($association);
                 }else{
                     $compiler->evalVar->variablePointer(
                         $association,
@@ -238,32 +255,15 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("IF Condition");
 
                 $compareAgainst = false;
-
                 $onlyConditions = true;
+
                 foreach ($association->childs as $index => $param) {
 
                     $isState = $compiler->getState($param->varType);
 
-                    if ($isState) {
-                        $compareAgainst = "state";
-
-                    }else if ($param->varType == "string") {
-                        $compareAgainst = "string";
-
-                        $this->movePointer($param);
-
-                    }else if (
-                        $param->varType == "vec3d" ||
-                        $param->varType == "ecollectabletype" ||
-                        $param->varType == "eaicombattype"
-                    ) {
-                        $compareAgainst = $param->varType;
-
-                        $this->compiler->evalVar->memoryPointer($param);
-                    }
+                    $compareAgainst = $isState ? 'state' : $param->varType;
 
                     new Evaluate($this->compiler, $param);
-
 
                     if ($param->fromArray === true) {
                         $this->add('0f000000');
@@ -488,15 +488,6 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                 foreach ($association->childs as $index => $param) {
-
-                    //TODO das gehört doch auch in T_VARIABLE ODER ?!
-                    if ($param->varType == "string") {
-                        // move the internal pointer to the offset
-                        $this->movePointer($param);
-                    }else if ($param->varType == "vec3d") {
-                        // move the internal pointer to the offset
-                        $this->compiler->evalVar->memoryPointer($param);
-                    }
 
                     new Evaluate($this->compiler, $param);
 
@@ -758,36 +749,6 @@ class Evaluate{
         if ($variable->type == Tokens::T_FLOAT) return 'float';
 
         die ("cant convert");
-    }
-
-    private function movePointer( Associations $association ){
-
-        $type = $this->getTypeByAssociation( $association );
-
-        switch ($type){
-            case 'string':
-                if (in_array($association->section, ['header', 'script']) !== false){
-
-                    $this->compiler->evalVar->memoryPointer($association);
-                    $this->compiler->evalVar->readSize( $association->sizeWithoutPad4 );
-
-                }else{
-
-
-                    $appendix = 'Read String ' . $association->value . ' from Section ' . $association->section;
-
-                    //custom parameter
-                    $this->add('13000000', $appendix);
-                    $this->add('01000000', $appendix);
-                    $this->add('04000000', $appendix);
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
-
-                    //then read the given size
-                    $this->compiler->evalVar->readSize( 0 );
-                }
-
-                break;
-        }
     }
 
     /**
