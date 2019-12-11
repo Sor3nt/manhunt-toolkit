@@ -206,8 +206,39 @@ class Evaluate{
                 if ($association->isGameVar === true){
                     $compiler->evalVar->gameVarPointer($association);
                 }else if ($association->fromArray === true) {
+//var_dump($association);exit;
                     $this->compiler->evalVar->memoryPointer($association);
 
+                    $this->compiler->evalVar->ret();
+
+
+                    if ($association->forIndex != null){
+                        new Evaluate($this->compiler, $association->forIndex);
+                    }else{
+                        //todo, no int convertion should happen here...
+                        $compiler->evalVar->valuePointer((int)$association->index);
+                    }
+
+
+                    $this->add('34000000');
+                    $this->add('01000000');
+                    $this->add('01000000');
+
+                    $this->add('12000000');
+                    $this->add('04000000');
+                    $this->add('04000000');
+
+                    $this->add('35000000');
+                    $this->add('04000000');
+
+                    $this->add('0f000000');
+                    $this->add('04000000');
+
+                    $this->add('31000000');
+                    $this->add('04000000');
+                    $this->add('01000000');
+                    $this->add('10000000');
+                    $this->add('04000000');
                 }else{
                     $compiler->evalVar->variablePointer($association);
                 }
@@ -307,6 +338,18 @@ class Evaluate{
                     }
 
                     new Evaluate($this->compiler, $param);
+
+
+                    if ($param->fromArray === true) {
+                        $this->add('0f000000');
+                        $this->add('02000000');
+
+                        $this->add('18000000');
+                        $this->add('01000000');
+                        $this->add('04000000');
+                        $this->add('02000000');
+
+                    }
 
                     if ($param->type !== Tokens::T_CONDITION) $onlyConditions = false;
 
