@@ -93,33 +93,7 @@ class Evaluate{
                  * itemsSpawned[1] := FALSE;
                  */
                 if ($association->forIndex !== null) {
-
-                    $this->compiler->evalVar->memoryPointer($association);
-
-                    $this->compiler->evalVar->ret();
-
-                    new Evaluate($this->compiler, $association->forIndex);
-
-
-                    $this->add('34000000');
-                    $this->add('01000000');
-                    $this->add('01000000');
-
-                    $this->add('12000000');
-                    $this->add('04000000');
-                    $this->add('04000000');
-
-                    $this->add('35000000');
-                    $this->add('04000000');
-
-                    $this->add('0f000000');
-                    $this->add('04000000');
-
-                    $this->add('31000000');
-                    $this->add('04000000');
-                    $this->add('01000000');
-                    $this->add('10000000');
-                    $this->add('04000000');
+                    $this->compiler->evalVar->readFromArrayIndex($association);
                 }
 
                 if ($association->fromArray == true) {
@@ -129,25 +103,9 @@ class Evaluate{
 
                     $this->compiler->evalVar->valuePointer( (int)$association->index );
 
-                    $this->add('34000000');
-                    $this->add('01000000');
-                    $this->add('01000000');
+                    $this->compiler->evalVar->readArray();
 
-                    $this->add('12000000');
-                    $this->add('04000000');
-                    $this->add('04000000');
 
-                    $this->add('35000000');
-                    $this->add('04000000');
-
-                    $this->add('0f000000');
-                    $this->add('04000000');
-
-                    $this->add('31000000');
-                    $this->add('04000000');
-                    $this->add('01000000');
-                    $this->add('10000000');
-                    $this->add('04000000');
 
                 }
 
@@ -186,13 +144,15 @@ class Evaluate{
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"
                 ) {
-                    $this->add('0f000000');
-                    $this->add('02000000');
 
-                    $this->add('17000000');
-                    $this->add('04000000');
-                    $this->add('02000000');
-                    $this->add('01000000');
+                    $appendix = 'write to ' . $association->value;
+                    $this->add('0f000000', $appendix);
+                    $this->add('02000000', $appendix);
+
+                    $this->add('17000000', $appendix);
+                    $this->add('04000000', $appendix);
+                    $this->add('02000000', $appendix);
+                    $this->add('01000000', $appendix);
                 }else{
                     $this->writeData($association, $association->varType);
                 }
@@ -206,52 +166,30 @@ class Evaluate{
                 if ($association->isGameVar === true){
                     $compiler->evalVar->gameVarPointer($association);
                 }else if ($association->fromArray === true) {
-//var_dump($association);exit;
-                    $this->compiler->evalVar->memoryPointer($association);
-
-                    $this->compiler->evalVar->ret();
-
-
-                    if ($association->forIndex != null){
-                        new Evaluate($this->compiler, $association->forIndex);
-                    }else{
-                        //todo, no int convertion should happen here...
-                        $compiler->evalVar->valuePointer((int)$association->index);
-                    }
-
-
-                    $this->add('34000000');
-                    $this->add('01000000');
-                    $this->add('01000000');
-
-                    $this->add('12000000');
-                    $this->add('04000000');
-                    $this->add('04000000');
-
-                    $this->add('35000000');
-                    $this->add('04000000');
-
-                    $this->add('0f000000');
-                    $this->add('04000000');
-
-                    $this->add('31000000');
-                    $this->add('04000000');
-                    $this->add('01000000');
-                    $this->add('10000000');
-                    $this->add('04000000');
+                    $this->compiler->evalVar->readFromArrayIndex($association);
+//                }else if (
+//                    $association->varType == "vec3d" ||
+//                    $association->varType == "ecollectabletype" ||
+//                    $association->varType == "eaicombattype"
+//                ) {
+//
+//                    $this->compiler->evalVar->memoryPointer($association);
                 }else{
-                    $compiler->evalVar->variablePointer($association);
+                    $compiler->evalVar->variablePointer(
+                        $association,
+                        $compiler->getState($association->varType) ? 'state' : null
+                    );
                 }
 
 
                 break;
 
             case Tokens::T_FOR:
+                $compiler->evalVar->msg = sprintf("For statement");
 
 
                 new Evaluate($this->compiler, $association->start);
 
-                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('15000000');
                 $this->add('04000000');
                 $this->add('20000000');
@@ -262,7 +200,6 @@ class Evaluate{
                 new Evaluate($this->compiler, $association->end);
 
 
-                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('13000000');
                 $this->add('02000000');
                 $this->add('04000000');
@@ -273,7 +210,7 @@ class Evaluate{
                 $this->add('41000000');
                 $this->add('00390000');
 
-                $this->add('3c000000');
+                $this->add('3c000000', 'Jump to');
                 $endOffset = count($this->compiler->codes);
                 $this->add('offset', 'End Offset');
 
@@ -281,13 +218,12 @@ class Evaluate{
                     new Evaluate($this->compiler, $item);
                 }
 
-                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('2f000000');
                 $this->add('04000000');
                 $this->add('1c000000');
 
 
-                $this->add('3c000000');
+                $this->add('3c000000', 'Jump to');
                 $this->add(Helper::fromIntToHex($startOffset * 4), 'Start Offset');
 
 
@@ -310,8 +246,6 @@ class Evaluate{
 
                     if ($isState) {
                         $compareAgainst = "state";
-
-                        $compiler->evalVar->variablePointer($param, "state");
 
                     }else if ($param->varType == "string") {
                         $compareAgainst = "string";
@@ -466,13 +400,16 @@ class Evaluate{
 
                 $endOffsets = [];
                 foreach ($association->cases as $index => $case) {
+                    $compiler->evalVar->msg = sprintf("IF Statement case %s", $index);
 
-                     //apply the condition
+
+                    //apply the condition
                     /** @var Associations $condition */
                     foreach ($case->condition as $conditionIndex => $condition) {
                         new Evaluate($this->compiler, $condition);
                     }
 
+                    $compiler->evalVar->msg = sprintf("IF Statement case %s", $index);
                     $this->add('24000000');
                     $this->add('01000000');
                     $this->add('00000000');
@@ -485,6 +422,7 @@ class Evaluate{
                         new Evaluate($this->compiler, $item);
                     }
 
+                    $compiler->evalVar->msg = sprintf("IF Statement case %s", $index);
                     if (count($association->cases) != $index + 1 || $case->onFalse !== null){
                         $this->add('3c000000', 'Jump to');
 
@@ -611,9 +549,11 @@ class Evaluate{
                     }else if ( $param->parent != null){
                         //do nothing
 
-
-                    //regular parameter return
-                    }else if ( $param->type == Tokens::T_STRING || $param->varType == "string" ){
+                    //regular data / string return
+                    }else if (
+                        $param->type == Tokens::T_STRING ||
+                        $param->varType == "string"
+                    ){
                         // TODO: the param should be converted into a simple int to avoid these hacks
                         if ($param->value !== " "){
                             $this->compiler->evalVar->retString();
@@ -625,18 +565,20 @@ class Evaluate{
                 }
 
                 $compiler->evalVar->msg = sprintf("Call Function %s", $association->value);
+
                 if ($association->isProcedure === true){
-                    $this->add('10000000');
-                    $this->add('04000000');
-                    $this->add('11000000');
-                    $this->add('02000000');
-                    $this->add('00000000');
-                    $this->add('32000000');
-                    $this->add('02000000');
-                    $this->add('1c000000');
-                    $this->add('10000000');
-                    $this->add('02000000');
-                    $this->add('39000000');
+                    $msg = "custom call";
+                    $this->add('10000000', $msg);
+                    $this->add('04000000', $msg);
+                    $this->add('11000000', $msg);
+                    $this->add('02000000', $msg);
+                    $this->add('00000000', $msg);
+                    $this->add('32000000', $msg);
+                    $this->add('02000000', $msg);
+                    $this->add('1c000000', $msg);
+                    $this->add('10000000', $msg);
+                    $this->add('02000000', $msg);
+                    $this->add('39000000', $msg);
                 }
 
 
@@ -690,11 +632,11 @@ class Evaluate{
                 /**
                  * TODO: das gehört in T_VARIABLE
                  */
-                $isState = $compiler->getState($caseVariable->varType);
-
-                if ($isState){
-                    $compiler->evalVar->variablePointer($caseVariable, 'state');
-                }
+//                $isState = $compiler->getState($caseVariable->varType);
+//
+//                if ($isState){
+//                    $compiler->evalVar->variablePointer($caseVariable, 'state');
+//                }
                 /**
                  * TODO: das gehört in T_VARIABLE
                  */
@@ -726,7 +668,7 @@ class Evaluate{
                 }
 
                 foreach (array_reverse($association->cases) as $index => $case) {
-                    $this->add('3c000000');
+                    $this->add('3c000000', 'Jump to');
 
                     //we dont know yet the correct offset, we store the position and
                     //fix it in the next loop
@@ -738,7 +680,7 @@ class Evaluate{
                     new Evaluate($this->compiler, $case);
                 }
 
-                $this->add('3c000000');
+                $this->add('3c000000', 'Jump to');
 
                 $caseEndOffsets[] = count($compiler->codes);
                 $this->add('END OFFSET', 'Last Case Offset');
@@ -832,11 +774,13 @@ class Evaluate{
                 }else{
 
 
+                    $appendix = 'Read String ' . $association->value . ' from Section ' . $association->section;
+
                     //custom parameter
-                    $this->add('13000000', 'Read String from Section ' . $association->section);
-                    $this->add('01000000', 'Read String');
-                    $this->add('04000000', 'Read String');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                    $this->add('13000000', $appendix);
+                    $this->add('01000000', $appendix);
+                    $this->add('04000000', $appendix);
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
 
                     //then read the given size
                     $this->compiler->evalVar->readSize( 0 );

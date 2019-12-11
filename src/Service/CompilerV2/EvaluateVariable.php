@@ -32,17 +32,16 @@ class EvaluateVariable{
     }
 
     public function readSize( int $offset){
-        $this->msg = "read data ";
-        $this->add('12000000');
-        $this->add('02000000');
+//        $this->msg = "read data ";
+        $this->add('12000000', 'read data');
+        $this->add('02000000', 'read data');
         $this->add(Helper::fromIntToHex($offset), 'Size of ' . $offset);
     }
 
     public function valuePointer($offset ){
 
-        $this->msg = "simple value pointer";
-        $this->add('12000000', 'Read ' . $offset);
-        $this->add('01000000', 'Read ' . $offset);
+        $this->add('12000000', 'Simple Read ' . $offset);
+        $this->add('01000000', 'Simple Read ' . $offset);
         $this->add(
             is_int($offset) ?
                     Helper::fromIntToHex($offset) :
@@ -63,11 +62,11 @@ class EvaluateVariable{
             $this->compiler->evalVar->ret();
 
             if ($association->parent->value . '.x' !== $association->value){
-                $this->add('0f000000', 'assign to secondary');
-                $this->add('01000000', 'assign to secondary');
+                $this->add('0f000000', 'object secondary');
+                $this->add('01000000', 'object secondary');
 
-                $this->add('32000000', 'assign to secondary');
-                $this->add('01000000', 'assign to secondary');
+                $this->add('32000000', 'object secondary value');
+                $this->add('01000000', 'object secondary value');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
 
                 $this->compiler->evalVar->ret();
@@ -147,8 +146,6 @@ class EvaluateVariable{
      */
     public function math( $type, $varType ){
 
-        $this->msg = "Math Operator";
-
         if($varType == "real") $varType = "float";
 
 
@@ -173,8 +170,8 @@ class EvaluateVariable{
 
         }else{
 
-            $this->add('0f000000', 'int math');
-            $this->add('04000000', 'int math');
+            $this->add('0f000000', 'integer math');
+            $this->add('04000000', 'integer math');
 
             if ($type == Tokens::T_ADDITION) {
                 $this->add('31000000', 'T_ADDITION (int)');
@@ -202,10 +199,9 @@ class EvaluateVariable{
 
     public function reserveMemory(int $size){
         if ($size == 0 ) return;
-        $this->msg = sprintf("Reserve Memory %s", $size);
 
-        $this->add('34000000');
-        $this->add('09000000');
+        $this->add('34000000', 'Reserve Memory');
+        $this->add('09000000', 'Reserve Memory');
         $this->add(Helper::fromIntToHex($size), 'Size of ' . $size);
     }
 
@@ -258,6 +254,55 @@ class EvaluateVariable{
             'code' => $code,
             'msg' => $msg
         ];
+    }
+
+    /**
+     * @param Associations $association
+     * @throws Exception
+     */
+    public function readFromArrayIndex( Associations $association ){
+
+        $this->compiler->evalVar->memoryPointer($association);
+
+        $this->compiler->evalVar->ret();
+
+
+        if ($association->forIndex != null){
+            new Evaluate($this->compiler, $association->forIndex);
+        }else{
+            //todo, no int convertion should happen here...
+            $this->compiler->evalVar->valuePointer((int)$association->index);
+        }
+
+        $this->readArray();
+
+
+    }
+
+    public function readArray(){
+
+        $msg = "Read array";
+
+        $this->add('34000000', $msg);
+        $this->add('01000000', $msg);
+        $this->add('01000000', $msg);
+
+        $this->add('12000000', $msg);
+        $this->add('04000000', $msg);
+        $this->add('04000000', $msg);
+
+        $this->add('35000000', $msg);
+        $this->add('04000000', $msg);
+
+        $this->add('0f000000', $msg);
+        $this->add('04000000', $msg);
+
+        $this->add('31000000', $msg);
+        $this->add('04000000', $msg);
+        $this->add('01000000', $msg);
+        $this->add('10000000', $msg);
+        $this->add('04000000', $msg);
+
     }
 }
 

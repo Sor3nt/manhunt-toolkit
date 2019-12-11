@@ -488,7 +488,7 @@ class Associations
 
 
                 /**
-                 * Add the custom function also the the force float map
+                 * Add the custom function also to the force float map
                  */
                 $floatMap = [];
                 $addFloatMap = false;
