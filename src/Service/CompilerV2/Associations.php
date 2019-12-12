@@ -583,9 +583,9 @@ class Associations
 
                 /** @var Associations[] $conditions */
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);
-
                 $this->unwrapSimpleCondition($conditions);
                 $this->convertToSimpleCondition($conditions);
+                $this->convertOperatorChain($conditions);
                 $this->convertConditionNot($conditions);
                 $this->convertConditionStatementOperator($conditions);
                 $this->convertConditionCompareOperator($conditions);
@@ -975,6 +975,57 @@ class Associations
      * @param Associations $parent
      * @param null $nextNot
      */
+    private function convertOperatorChain(&$conditions ){
+
+        foreach ($conditions as $index => &$child) {
+
+            if ($child->type == Tokens::T_CONDITION){
+
+                $this->convertOperatorChain($child->childs);
+                continue;
+            }
+
+            if (
+                $child->type !== Tokens::T_NOT &&
+                isset($conditions[$index + 1]) &&
+                (
+                    $conditions[$index + 1]->type == Tokens::T_OR ||
+                    $conditions[$index + 1]->type == Tokens::T_AND
+                ) && (
+                    isset($conditions[$index + 2]) &&
+                    $conditions[$index + 2]->type != Tokens::T_CONDITION
+                )
+            ){
+                $newCondition = new Associations();
+                $newCondition->type = Tokens::T_CONDITION;
+                $newCondition->childs = [clone $child];
+                $child = $newCondition;
+            }
+
+        }
+
+        if (
+            isset($conditions[count($conditions) - 2]) &&
+            (
+                $conditions[count($conditions) - 2]->type == Tokens::T_OR ||
+                $conditions[count($conditions) - 2]->type == Tokens::T_AND
+            )
+        ){
+            $last = end($conditions);
+            if ($last->type != Tokens::T_CONDITION){
+                $newCondition = new Associations();
+                $newCondition->type = Tokens::T_CONDITION;
+                $newCondition->childs = [clone $last];
+                $conditions[count($conditions) - 1] = $newCondition;
+
+            }
+        }
+
+
+
+
+    }
+
     private function convertConditionNot(&$conditions, &$parent = null, $nextNot = null ){
 
         foreach ($conditions as $index => $child) {
