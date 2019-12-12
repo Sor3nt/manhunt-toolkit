@@ -1280,6 +1280,11 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '74000000'
         ],
 
+//
+        'removecurrentinventoryitem' => [
+            'name' => 'RemoveCurrentInventoryItem',
+            'offset' => '01000000'
+        ],
 
         'setqtmbaseprobability' => [
             'name' => 'SetQTMBaseProbability',

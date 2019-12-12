@@ -650,6 +650,10 @@ class Evaluate{
                     }
                 }else{
                     $this->add($association->offset, "Offset");
+
+                    if (strtolower($association->value) == "callscript"){
+                        $this->add("0e030000", "hidden callscript");
+                    }
                 }
 
                 break;
