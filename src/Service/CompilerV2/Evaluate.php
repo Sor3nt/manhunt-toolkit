@@ -326,14 +326,34 @@ class Evaluate{
 
                         $this->add('4e000000', 'compare float');
 
-                    }else{
-
+                    }else if (
+                        $association->operatorValue->type == Tokens::T_INT ||
+                        $association->operatorValue->type == Tokens::T_CONSTANT ||
+                        $association->operatorValue->return == 'entityptr' ||
+                        $association->operatorValue->varType == 'entityptr' ||
+                        $association->operatorValue->varType == 'integer'
+                    ){
                         $this->add('0f000000', "Return last case");
                         $this->add('04000000', "Return last case");
 
                         $this->add('23000000');
                         $this->add('04000000');
                         $this->add('01000000');
+                    }else{
+
+                        /*
+                         * Todo:
+                         *
+                         * Unknown block, appear here, right after case end
+                         *
+                         * if(CalcDistanceToEntity(GetPlayer, pos[i]) < radius) then begin
+                         */
+
+                        $this->compiler->evalVar->ret();
+
+                        //some math action ....
+                        $this->add('4e000000');
+
                     }
 
                     $this->compiler->evalVar->valuePointer(1);
@@ -555,7 +575,7 @@ class Evaluate{
                         }
 
                     }else{
-                        if ($param->fromArray){
+                        if ($param->fromArray || $param->forIndex){
 
                         }else{
                             $this->compiler->evalVar->ret();
@@ -591,6 +611,8 @@ class Evaluate{
                         }else{
                             $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
                         }
+                    }else if ($param->varType == "integer") {
+                        $writeDebugFunction = $compiler->gameClass->getFunction('writedebuginteger');
                     }else if ($param->varType == "float") {
                         $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
                     }else if ($param->type == Tokens::T_FUNCTION) {

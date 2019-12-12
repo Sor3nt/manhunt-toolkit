@@ -1015,10 +1015,30 @@ class Manhunt2 extends ManhuntDefault
             'return' => 'integer'
         ],
 
+        'pedsettranqknockout' => [
+            'name' => 'PedSetTranqKnockout',
+            'offset' => '64030000'
+        ],
+
+        'hascutscenebeenplayed' => [
+            'name' => 'HasCutsceneBeenPlayed',
+            'offset' => '03030000'
+        ],
+
+        'markcutsceneasplayed' => [
+            'name' => 'MarkCutsceneAsPlayed',
+            'offset' => '02030000'
+        ],
+
+        'whitenoisesetval' => [
+            'name' => 'WhiteNoiseSetVal',
+            'offset' => 'db020000'
+        ],
+
         'getentity' => [
             'name' => 'GetEntity',
             'offset' => '77000000',
-            'return' => 'Entity'
+            'return' => 'entityptr'
         ],
 
         'hudtoggleflashflags' => [
@@ -1777,7 +1797,7 @@ class Manhunt2 extends ManhuntDefault
              */
             'params' => [],
             'desc' => '',
-            'return' => 'Entity'
+            'return' => 'entityptr'
         ],
 //
 
@@ -1836,11 +1856,6 @@ class Manhunt2 extends ManhuntDefault
         'destroyentity' => [
             'name' => 'DestroyEntity',
             'offset' => 'a0020000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             */
-            'params' => ['Entity'],
             'desc' => ''
         ],
 
@@ -1859,11 +1874,6 @@ class Manhunt2 extends ManhuntDefault
         'unlockentity' => [
             'name' => 'UnLockEntity',
             'offset' => '99000000',
-            /**
-             * Parameters
-             * 1: result of getEntity
-             */
-            'params' => ['Entity'],
             'desc' => ''
         ],
 
@@ -2408,7 +2418,7 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '1a030000',
 
             'params' => ['EntityPtr'],
-            'return' => 'Void',
+            'return' => 'float',
             'desc' => ''
         ],
 
