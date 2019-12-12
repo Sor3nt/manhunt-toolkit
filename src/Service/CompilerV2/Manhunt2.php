@@ -22,7 +22,7 @@ class Manhunt2 extends ManhuntDefault
         ],
 
         'difficulty_hard' => [
-            'offset' => '00000000'
+            'offset' => '02000000'
         ],
 
         'ct_sniper_rifle' => [
