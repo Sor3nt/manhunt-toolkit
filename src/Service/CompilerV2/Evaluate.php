@@ -575,8 +575,18 @@ class Evaluate{
                         }
 
                     }else{
+
+                        /**
+                         * HACKS HACKS HACK.......
+                         *
+                         * Fucking returns....
+                         */
                         if ($param->fromArray || $param->forIndex){
 
+                        }else if(
+                            strtolower($association->value) == "writedebug" &&
+                            $param->varType == "integer"
+                        ){
                         }else{
                             $this->compiler->evalVar->ret();
                         }

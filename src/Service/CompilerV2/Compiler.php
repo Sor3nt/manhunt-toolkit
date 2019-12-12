@@ -540,7 +540,16 @@ class Compiler
 
     public function validateCode($compareCode){
         foreach ($this->codes as $index => $code) {
-            if ($code['code'] != $compareCode[$index]) return false;
+            if ($code['code'] != $compareCode[$index]){
+
+                if (
+                    Helper::fromHexToFloat($compareCode[$index]) -
+                    Helper::fromHexToFloat($code['code']) > 0.01
+                ){
+                    return false;
+                }
+
+            }
         }
 
         return true;
