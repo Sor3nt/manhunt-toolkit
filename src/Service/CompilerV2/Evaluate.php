@@ -555,7 +555,11 @@ class Evaluate{
                         }
 
                     }else{
-                        $this->compiler->evalVar->ret();
+                        if ($param->fromArray){
+
+                        }else{
+                            $this->compiler->evalVar->ret();
+                        }
                     }
                 }
 
