@@ -261,6 +261,7 @@ class Evaluate{
                 $compareAgainst = false;
                 $onlyConditions = true;
 
+                $doReturn = true;
                 foreach ($association->childs as $index => $param) {
 
                     $isState = $compiler->getState($param->varType);
@@ -281,7 +282,14 @@ class Evaluate{
 
                     if ($param->type !== Tokens::T_CONDITION) $onlyConditions = false;
 
-                    if ($association->operatorValue !== null){
+                    if (
+                        $param->type == Tokens::T_FUNCTION &&
+                        $param->return == "string"
+                    ){
+                        $doReturn = false;
+                    }
+
+                    if ($doReturn && $association->operatorValue !== null){
                         $this->compiler->evalVar->ret();
                     }
                 }
@@ -293,8 +301,8 @@ class Evaluate{
                 if ($association->operatorValue !== null){
 
                     //todo should check both sides to find the right type
-                    if ($association->operatorValue->type == Tokens::T_STRING){
-                        $this->add('10000000', 'Return string');
+                    if ($doReturn && $association->operatorValue->type == Tokens::T_STRING){
+                        $this->add('10000000', 'Return string 1');
                         $this->add('02000000', 'Return string');
                     }
 

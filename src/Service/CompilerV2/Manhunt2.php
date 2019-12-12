@@ -17,6 +17,14 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'difficulty_easy' => [
+            'offset' => '00000000'
+        ],
+
+        'difficulty_hard' => [
+            'offset' => '00000000'
+        ],
+
         'ct_sniper_rifle' => [
             'offset' => '32000000'
         ],
@@ -1193,6 +1201,11 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
+        'getplatform' => [
+            'name' => 'GetPlatform',
+            'offset' => 'd4030000',
+            'return' => 'string'
+        ],
         'aisetsearchparams' => [
             'name' => 'AISetSearchParams',
             'offset' => '97010000'
