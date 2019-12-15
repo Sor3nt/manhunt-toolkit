@@ -435,6 +435,7 @@ class Associations
                 $this->type = Tokens::T_NOP;
 
                 $this->consumeParameters($compiler, $compiler->currentSection, false, $value == "arg");
+
                 break;
             case 'entity':
                 $this->type = Tokens::T_NOP;
@@ -733,7 +734,7 @@ class Associations
          *
          * and hell, i dont know why they put "var" before the variable
          */
-        $compiler->consumeIfTrue('var');
+        if ($isArgument == false) $compiler->consumeIfTrue('var');
 
         $toAdd = [];
 
@@ -742,7 +743,7 @@ class Associations
             $compiler->getToken($compiler->current + 1) == ","
         ) {
 
-            $compiler->consumeIfTrue('var');
+            if ($isArgument == false) $compiler->consumeIfTrue('var');
 
             $names = [$compiler->consume()];
 
@@ -822,7 +823,7 @@ class Associations
                 break;
             }
 
-            $compiler->consumeIfTrue('var');
+            if ($isArgument == false) $compiler->consumeIfTrue('var');
 
         }
 

@@ -305,6 +305,8 @@ class Compiler
         if ($data['type'] == 'real') $data['type'] = "float";
 
         if (is_null($data['size'])) $data['size'] = $this->calcSize($data['type']);
+
+        //todo: looks like this is anyway not in use anymore, recheck for cleanup
         $sizeWithoutPad4 = $data['size'];
 
         if ($data['section'] == "header"){
@@ -394,6 +396,20 @@ class Compiler
             if (
                 $variable['scriptName'] == $scriptName &&
                 $variable['scriptName'] == $variable['section']
+            ) $found[] = $variable;
+        }
+
+        return $found;
+    }
+
+    public function getScriptArgumentsByScriptName($scriptName){
+
+        $found = [];
+        foreach ($this->variables as $variable) {
+            if (
+                $variable['scriptName'] == $scriptName &&
+                $variable['isArgument'] == true
+//                $variable['scriptName'] == $variable['section']
             ) $found[] = $variable;
         }
 

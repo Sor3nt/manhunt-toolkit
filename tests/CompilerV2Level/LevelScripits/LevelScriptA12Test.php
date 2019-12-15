@@ -5,7 +5,7 @@ use App\MHT;
 use App\Service\Helper;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class LevelScriptA09Test extends KernelTestCase
+class LevelScriptA12Test extends KernelTestCase
 {
 
     public function test()

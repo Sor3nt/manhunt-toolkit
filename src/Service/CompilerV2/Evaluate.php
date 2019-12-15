@@ -37,6 +37,43 @@ class Evaluate{
 
                 $compiler->evalVar->reserveMemory($scriptSize);
 
+
+                $arguments = $compiler->getScriptArgumentsByScriptName($association->value);
+                foreach ($arguments as $index => $argument) {
+                    $compiler->evalVar->msg = sprintf("Process Argument index %s", $index);
+                    $this->add('10030000', 'init argument read');
+
+                    $this->add('24000000', 'read argument');
+                    $this->add('01000000', 'read argument');
+                    $this->add('00000000', 'offset?');
+
+                    $this->add('3f000000', 'unknown');
+                    $this->add('68490000', 'offset?');
+
+                    $this->add('12000000', 'read index');
+                    $this->add('01000000', 'read index');
+                    $this->add('00000000', 'offset');
+
+                    $this->compiler->evalVar->ret();
+
+                    $this->add('12000000', 'read index');
+                    $this->add('01000000', 'read index');
+                    $this->add('00000000', 'offset');
+
+                    $this->compiler->evalVar->ret();
+
+                    $this->add('0a030000', 'a argument command, for first param');
+
+                    $this->add('15000000', 'read param');
+                    $this->add('04000000', 'read param');
+                    $this->add('04000000', 'offset');
+
+
+                    $this->add('01000000', 'unknown');
+                    $this->add('0f030000', 'unknown');
+
+                }
+
                 foreach ($association->childs as $condition) {
                     new Evaluate($this->compiler, $condition);
                 }
