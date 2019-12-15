@@ -153,13 +153,43 @@ class Evaluate{
                     $association->assign->type == Tokens::T_INT ||
                     $association->assign->type == Tokens::T_FUNCTION ||
                     $association->assign->type == Tokens::T_MATH ||
+                    $association->assign->type == Tokens::T_STRING ||
                     $association->assign->type == Tokens::T_VARIABLE
                 ) {
                     new Evaluate($this->compiler, $association->assign);
+
                 }else{
 
                     $rightHandReturn = $this->getVarType($association->assign);
+
                     $this->readData($association->assign, $rightHandReturn);
+                }
+
+                if ($association->assign->varType == 'vec3d'){
+                    $compiler->evalVar->ret();
+                }
+
+                if ($association->assign->type == Tokens::T_STRING){
+
+                    $compiler->evalVar->readSize( $association->assign->size );
+                    $compiler->evalVar->retString();
+
+                    $this->add($association->section == "header" ? '21000000' : '22000000', $association->varType . ' from Section ' . $association->section);
+                    $this->add('04000000', 'Read memory');
+                    $this->add('04000000', 'Read memory');
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+
+                    $this->add('12000000');
+                    $this->add('03000000');
+                    $this->add('20000000', 'size / offset?');
+
+
+                    $this->add('10000000');
+                    $this->add('04000000');
+
+                    $this->add('10000000');
+                    $this->add('03000000');
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
                 }
 
                 /**

@@ -83,12 +83,21 @@ class Compiler
         $source = preg_replace("/\(/", " ( ", $source);
         $source = preg_replace("/\)/", " ) ", $source);
         $source = preg_replace("/\*/", " * ", $source);
+
+        $source = preg_replace("/\<\>/", " != ", $source);
+        $source = preg_replace("/\</", " < ", $source);
+        $source = preg_replace("/\>/", " > ", $source);
+        $source = preg_replace("/\!\=/", " <> ", $source);
+
+
         $source = preg_replace("/\+/", " + ", $source);
         $source = preg_replace("/\,/", " , ", $source);
         $source = preg_replace("/\[/", " [ ", $source);
         $source = preg_replace("/\]/", " ] ", $source);
-        $source = preg_replace("/\:[^=]/", " : ", $source);
-        $source = preg_replace("/\:\=/", " := ", $source);
+//        $source = preg_replace("/\:[^=]/", " : ", $source);
+        $source = preg_replace("/\:/", " : ", $source);
+        $source = preg_replace("/\=/", " = ", $source);
+        $source = preg_replace("/\:\s*\=/", " := ", $source);
 
         /**
          * Fetch all chars except whitespaces and line end sign ";"
@@ -180,7 +189,8 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-
+//var_dump($associationRearranged);
+//exit;
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -435,12 +445,28 @@ class Compiler
 
     public function getVariable($name){
 
+        /**
+         * Main prio has the script scope, then the header and constants
+         */
         $index = strtolower($name);
         foreach ($this->variables as $variable) {
+
             if ($variable['name'] == $index){
                 if (
-                    $variable['section'] == "header" ||
+                    $variable['section'] == "script" &&
                     $variable['scriptName'] == $this->currentScriptName
+
+                ){
+                    return $variable;
+                }
+            }
+        }
+
+        foreach ($this->variables as $variable) {
+
+            if ($variable['name'] == $index){
+                if (
+                    $variable['section'] != "script"
                 ){
                     return $variable;
                 }
