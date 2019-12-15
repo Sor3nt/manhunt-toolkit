@@ -273,14 +273,14 @@ class Evaluate{
                 break;
 
             case Tokens::T_FOR:
-                $compiler->evalVar->msg = sprintf("For statement");
 
 
                 new Evaluate($this->compiler, $association->start);
 
+                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('15000000');
                 $this->add('04000000');
-                $this->add('20000000');
+                $this->add(Helper::fromIntToHex($association->end->value), 'end value');
                 $this->add('01000000');
 
                 $startOffset = count($this->compiler->codes);
@@ -288,27 +288,35 @@ class Evaluate{
                 new Evaluate($this->compiler, $association->end);
 
 
+                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('13000000');
                 $this->add('02000000');
                 $this->add('04000000');
-                $this->add('20000000');
+                $this->add(Helper::fromIntToHex($association->end->value), 'end value 2');
+
+
                 $this->add('23000000');
                 $this->add('01000000');
                 $this->add('02000000');
                 $this->add('41000000');
-                $this->add('00390000');
+
+                $startOffset2 = count($this->compiler->codes);
+                $this->add('offset 2', 'Offset first command');
 
                 $this->add('3c000000', 'Jump to');
                 $endOffset = count($this->compiler->codes);
                 $this->add('offset', 'End Offset');
 
+                $compiler->codes[$startOffset2]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+
                 foreach ($association->onTrue as $item) {
                     new Evaluate($this->compiler, $item);
                 }
 
+                $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('2f000000');
                 $this->add('04000000');
-                $this->add('1c000000');
+                $this->add('00000000', 'Offset TODO! 1 ');
 
 
                 $this->add('3c000000', 'Jump to');
@@ -318,7 +326,7 @@ class Evaluate{
                 $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
                 $this->add('30000000');
                 $this->add('04000000');
-                $this->add('1c000000');
+                $this->add('00000000', 'Offset TODO! 2');
 
                 break;
 
@@ -343,6 +351,7 @@ class Evaluate{
 
                         $this->add('18000000');
                         $this->add('01000000');
+
                         $this->add('04000000');
                         $this->add('02000000');
                     }
@@ -739,7 +748,7 @@ class Evaluate{
                 $cases = array_reverse($association->cases);
                 foreach (array_reverse($association->cases) as $index => $case) {
 
-                    $realIndex = count($cases) - $index - 1;
+                    $realIndex = count($cases) - $index ;
 
                     $this->add('24000000', 'Case ' . $realIndex);
                     $this->add('01000000');

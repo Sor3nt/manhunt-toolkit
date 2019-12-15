@@ -34,7 +34,7 @@ class Compiler
     public $offsetString = 0;
     public $offsetGlobalVariable = 0;
     public $offsetScriptVariable = 0;
-    public $offsetProcedureVariable = -12;
+    public $offsetProcedureVariable = 0;
     public $offsetProcedureScripts = 0;
     public $offsetConstants = 0;
 
@@ -84,11 +84,8 @@ class Compiler
         $source = preg_replace("/\)/", " ) ", $source);
         $source = preg_replace("/\*/", " * ", $source);
 
-        $source = preg_replace("/\<\>/", " != ", $source);
         $source = preg_replace("/\</", " < ", $source);
         $source = preg_replace("/\>/", " > ", $source);
-        $source = preg_replace("/\!\=/", " <> ", $source);
-
 
         $source = preg_replace("/\+/", " + ", $source);
         $source = preg_replace("/\,/", " , ", $source);
@@ -97,7 +94,12 @@ class Compiler
 //        $source = preg_replace("/\:[^=]/", " : ", $source);
         $source = preg_replace("/\:/", " : ", $source);
         $source = preg_replace("/\=/", " = ", $source);
+
+
         $source = preg_replace("/\:\s*\=/", " := ", $source);
+        $source = preg_replace("/\>\s*\=/", " >= ", $source);
+        $source = preg_replace("/\<\s*\=/", " <= ", $source);
+        $source = preg_replace("/\<\s*\>/", " <> ", $source);
 
         /**
          * Fetch all chars except whitespaces and line end sign ";"
