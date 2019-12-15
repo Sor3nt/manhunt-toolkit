@@ -180,7 +180,7 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//var_dump($associationRearranged);exit;
+
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -300,22 +300,22 @@ class Compiler
 
     }
 
-    public function addVariable( $name, $type, $size = null, $isLevelVar = false, $isGameVar = false, $section = null, $fromArray = false, $index = null ){
+    public function addVariable( $data ){
 
-        if ($type == 'real') $type = "float";
+        if ($data['type'] == 'real') $data['type'] = "float";
 
-        if (is_null($size)) $size = $this->calcSize($type);
-        $sizeWithoutPad4 = $size;
+        if (is_null($data['size'])) $data['size'] = $this->calcSize($data['type']);
+        $sizeWithoutPad4 = $data['size'];
 
-        if ($section == "header"){
+        if ($data['section'] == "header"){
 
             $offset = $this->offsetGlobalVariable;
-            $this->offsetGlobalVariable += $size;
+            $this->offsetGlobalVariable += $data['size'];
             $this->offsetGlobalVariable += $this->offsetGlobalVariable % 4;
 
-        }else if ($section == "script"){
+        }else if ($data['section'] == "script"){
 
-            $this->offsetScriptVariable += $size;
+            $this->offsetScriptVariable += $data['size'];
 
             $offset = $this->offsetScriptVariable;
 
@@ -330,65 +330,39 @@ class Compiler
              */
 
             $offset = $this->offsetProcedureVariable;
-            $this->offsetProcedureVariable -= $size + ($size % 4);
+            $this->offsetProcedureVariable -= $data['size'] + ($data['size'] % 4);
         }
 
-        $master = [
-            'name' => strtolower($name),
-            'type' => $type,
-            'size' => $type == "vec3d" || $type == "rgbaint" ? 0 : $size,
-            'sizeWithoutPad4' => $sizeWithoutPad4,
-            'isLevelVar' => $isLevelVar,
-            'isGameVar' => $isGameVar,
-            'offset' => $offset,
-            'section' => $section,
-            'index' => $index,
-            'scriptName' => $this->currentScriptName,
-            'fromArray' => $fromArray
-        ];
+        $master = array_merge([], $data);
+        $master['size'] = $master['type'] == "vec3d" || $master['type'] == "rgbaint" ? 0 : $master['size'];
+        $master['sizeWithoutPad4'] = $sizeWithoutPad4;
+        $master['offset'] = $offset;
+        $master['scriptName'] = $this->currentScriptName;
 
         $this->variables[] = $master;
 
 
-        if ($type == "vec3d") {
+        $attributes = [];
+        if ($master['type'] == "vec3d") $attributes = ["x" => 'float', "y" => 'float', "z" => 'float'];
+        if ($master['type'] == "rgbaint") $attributes = ["red" => 'integer', "green" => 'integer', "blue" => 'integer', "alpha" => 'integer'];
 
-            foreach (["x", "y", "z"] as $index => $entry) {
+        $index = 0;
+        foreach ($attributes as $entry => $type) {
 
-                $attributeName = strtolower($name) . '.' . $entry;
+            $attribute = array_merge([], $data);
 
+            $attribute['name'] = $master['name'] . '.' . $entry;
+            $attribute['type'] = $type;
+            $attribute['size'] = 4;
+            $attribute['offset'] = $index * 4;
+            $attribute['parent'] = $master;
+            $attribute['scriptName'] = $this->currentScriptName;
 
-                $this->variables[] = [
-                    'name' => $attributeName,
-                    'type' => 'float',
-                    'isLevelVar' => $isLevelVar,
-                    'isGameVar' => $isGameVar,
-                    'size' => 4,
-                    'offset' => $index * 4,
-                    'section' => $section,
-                    'scriptName' => $this->currentScriptName,
-                    'parent' => $master
-                ];
-            }
-        }else if ($type == "rgbaint"){
+            $this->variables[] = $attribute;
 
-            foreach (["red", "green", "blue", "alpha"] as $entry) {
-
-                $attributeName = strtolower($name) . '.' . $entry;
-
-                $this->variables[] = [
-                    'name' => $attributeName,
-                    'type' => 'integer',
-                    'isLevelVar' => $isLevelVar,
-                    'isGameVar' => $isGameVar,
-                    'size' => 4,
-                    'offset' => '123456789',
-                    'section' => $section,
-                    'scriptName' => $this->currentScriptName,
-                    'parent' => $master
-                ];
-            }
-
+            $index++;
         }
+
 
     }
 
@@ -413,7 +387,7 @@ class Compiler
 
         return $found;
     }
-    public function getArgumentsByScriptName($scriptName){
+    public function getProcedureArgumentsByScriptName($scriptName){
 
         $found = [];
         foreach ($this->variables as $variable) {

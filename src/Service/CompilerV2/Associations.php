@@ -21,10 +21,14 @@ class Associations
     /** @var Associations */
     public $math = null;
 
+    /** @var null|string  */
+    public $variableName = null;
+
     public $size = null;
     public $sizeWithoutPad4 = null;
     public $isLevelVar = null;
     public $parent = null;
+    public $isArgument = null;
     public $isGameVar = null;
     public $offset = null;
     public $index = null;
@@ -72,6 +76,7 @@ class Associations
         if ($this->assign !== false) $debug['assign'] = $this->assign;
         if ($this->math !== null) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
+        if ($this->isArgument !== null) $debug['isArgument'] = $this->isArgument;
         if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
@@ -153,6 +158,7 @@ class Associations
                     //used from array variables like "itemsSpawned[1]"
                     if (isset($forIndex['fromArray'])) $forIndexAssociation->fromArray = $forIndex['fromArray'];
                     if (isset($forIndex['index'])) $forIndexAssociation->index = $forIndex['index'];
+                    if (isset($forIndex['isArgument'])) $forIndexAssociation->isArgument = $forIndex['isArgument'];
                     if (isset($forIndex['isGameVar'])) $forIndexAssociation->isGameVar = $forIndex['isGameVar'];
                     if (isset($forIndex['isLevelVar'])) $forIndexAssociation->isLevelVar = $forIndex['isLevelVar'];
 
@@ -175,6 +181,7 @@ class Associations
             //used from array variables like "itemsSpawned[1]"
             if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
             if (isset($variable['index'])) $this->index = $variable['index'];
+            if (isset($variable['isArgument'])) $this->isArgument = $variable['isArgument'];
             if (isset($variable['isGameVar'])) $this->isGameVar = $variable['isGameVar'];
             if (isset($variable['isLevelVar'])) $this->isLevelVar = $variable['isLevelVar'];
             if (isset($variable['parent'])){
@@ -191,6 +198,7 @@ class Associations
 
                 if (isset($variable['parent']['fromArray'])) $parent->fromArray = $variable['parent']['fromArray'];
                 if (isset($variable['parent']['index'])) $parent->index = $variable['parent']['index'];
+                if (isset($variable['parent']['isArgument'])) $parent->isArgument = $variable['parent']['isArgument'];
                 if (isset($variable['parent']['isGameVar'])) $parent->isGameVar = $variable['parent']['isGameVar'];
                 if (isset($variable['parent']['isLevelVar'])) $parent->isLevelVar = $variable['parent']['isLevelVar'];
 
@@ -425,7 +433,8 @@ class Associations
                 }
 
                 $this->type = Tokens::T_NOP;
-                $this->consumeParameters($compiler, $compiler->currentSection);
+
+                $this->consumeParameters($compiler, $compiler->currentSection, false, $value == "arg");
                 break;
             case 'entity':
                 $this->type = Tokens::T_NOP;
@@ -713,7 +722,7 @@ class Associations
         ];
     }
 
-    private function consumeParameters(Compiler $compiler, $section = "header", $reverse = false)
+    private function consumeParameters(Compiler $compiler, $section = "header", $reverse = false, $isArgument = false)
     {
 
         /**
@@ -757,8 +766,10 @@ class Associations
                 'type' => $type,
                 'size' => null,
                 'fromArray' => false,
+                'isArgument' => $isArgument,
                 'isLevelVar' => $isLevelVar,
                 'isGameVar' => $isGameVar,
+                'section' => $section
             ];
 
 
@@ -836,17 +847,32 @@ class Associations
             if ($var['fromArray'] === true){
 
                 foreach ($var['names'] as $name) {
-                    $compiler->addVariable($name, 'array', null, $var['isLevelVar'], $var['isGameVar'], $section);
+
+                    $entry = array_merge([], $var);
+                    $entry['name'] = $name;
+                    $entry['type'] = 'array';
+
+                    $compiler->addVariable($entry);
 
                     for ($i = $var['start']; $i <= $var['end']; $i++) {
-                        $compiler->addVariable($name . '[' . $i . ']', $var['type'], null, $var['isLevelVar'], $var['isGameVar'], $section, true, $i);
+
+                        $entry = array_merge([], $var);
+                        $entry['name'] = $name . '[' . $i . ']';
+                        $entry['fromArray'] = true;
+                        $entry['index'] = $i;
+
+                        $compiler->addVariable($entry);
                     }
                 }
 
             }else{
 
                 foreach ($var['names'] as $name) {
-                    $compiler->addVariable($name, $var['type'], $var['size'], $var['isLevelVar'], $var['isGameVar'], $section);
+
+                    $entry = array_merge([], $var);
+                    $entry['name'] = $name;
+
+                    $compiler->addVariable($entry);
                 }
             }
         }

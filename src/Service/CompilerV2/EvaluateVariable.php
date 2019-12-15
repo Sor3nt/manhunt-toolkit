@@ -238,7 +238,7 @@ class EvaluateVariable{
          * Each argument reserve 4bytes.
          * First 4bytes are always reserved.
          */
-        $variables = $this->compiler->getArgumentsByScriptName($association->value);
+        $variables = $this->compiler->getProcedureArgumentsByScriptName($association->value);
         $this->add(Helper::fromIntToHex(4 + (count($variables) * 4)), 'Variable count ' . count($variables));
     }
 
