@@ -371,6 +371,12 @@ class Associations
             $this->type = is_float($number) ? Tokens::T_FLOAT : Tokens::T_INT;
             $this->value = $number;
 
+            if (
+                isset($compiler->gameClass->floatAllowedDeviation[(string)$this->value])
+            ){
+                $this->value = $compiler->gameClass->floatAllowedDeviation[(string)$this->value];
+            }
+
             if ($number < 0){
                 $this->negate = true;
                 $this->value *= -1;

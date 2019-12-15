@@ -7,6 +7,18 @@ use App\Service\Helper;
 class ManhuntDefault
 {
 
+
+    public $types = [];
+    public $constants = [];
+    public $functions = [];
+
+
+    public $floatAllowedDeviation = [
+
+        '100.409492' => 100.409485
+    ];
+
+
     public function getFunction( $name ){
         $name = strtolower($name);
 
@@ -46,10 +58,6 @@ class ManhuntDefault
 
         return false;
     }
-
-    public $types = [];
-    public $constants = [];
-    public $functions = [];
 
     /**
      * some functions need explicit float parameters
