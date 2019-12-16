@@ -821,6 +821,8 @@ class Associations
                 if ($type == "string" && $compiler->getToken() == "[") {
                     $compiler->current++;
                     $size = (int)$compiler->consume();
+                    if ($size % 4 == 0) $size += 4;
+
                     $entry['size'] = $size;
                     $compiler->current++;
 
