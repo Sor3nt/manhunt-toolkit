@@ -123,7 +123,7 @@ class Associations
          * Check: Is this a variable ?
          */
         $variable = $compiler->getVariable($value);
-
+//var_dump($variable, $compiler->currentScriptName);
         if ($variable !== false) {
 
             if ($variable['type'] == "array") {
@@ -440,7 +440,9 @@ class Associations
 
                 $this->type = Tokens::T_NOP;
 
-                $this->consumeParameters($compiler, $compiler->currentSection, false, $value == "arg");
+                $toAdd = $this->consumeParameters($compiler, $compiler->currentSection, $value == "arg");
+
+                $this->applyVariables($compiler, $toAdd);
 
                 break;
             case 'entity':
@@ -454,7 +456,7 @@ class Associations
             case 'function':
                 $compiler->currentBlockType = $value;
 
-                $compiler->offsetProcedureVariable = -12;
+//                $compiler->offsetProcedureVariable = -12;
 
                 $this->value = $compiler->consume();
                 $compiler->currentScriptName = $this->value;
@@ -464,7 +466,19 @@ class Associations
 
                 //we have params
                 if ($compiler->consumeIfTrue("(")){
-                    $parameters = $this->consumeParameters($compiler, $this->value, true);
+                    $parameters = $this->consumeParameters($compiler, $this->value);
+
+//                    var_dump($parameters);
+//                    exit;
+                    $parameterCount = 0;
+                    foreach ($parameters as $parameter) {
+                        $parameterCount += count($parameter['names']);
+                    }
+
+                    $compiler->offsetProcedureVariable = -12;
+//                    $compiler->offsetProcedureVariable = $parameterCount * 4 * -1;
+
+                    $this->applyVariables($compiler, $parameters, true);
                 }
 
                 // Return type
@@ -729,7 +743,7 @@ class Associations
         ];
     }
 
-    private function consumeParameters(Compiler $compiler, $section = "header", $reverse = false, $isArgument = false)
+    private function consumeParameters(Compiler $compiler, $section = "header", $isArgument = false)
     {
 
         /**
@@ -833,6 +847,11 @@ class Associations
 
         }
 
+
+        return $toAdd;
+    }
+
+    public function applyVariables(Compiler $compiler, &$toAdd, $reverse = false){
         /**
          * Procedure arguments offset calculation are reversed
          *
@@ -883,8 +902,6 @@ class Associations
                 }
             }
         }
-
-        return $toAdd;
     }
 
 
