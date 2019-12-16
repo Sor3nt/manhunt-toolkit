@@ -1233,22 +1233,22 @@ class Manhunt2 extends ManhuntDefault
 
         'aiaddareaforsubpack' => [
             'name' => 'AIAddAreaForSubpack',
-            'offset' => 'AIAddAreaForSubpack'
+            'offset' => '78010000'
         ],
 
         'aisubpackstayinterritory' => [
             'name' => 'AISubpackStayInTerritory',
-            'offset' => 'AISubpackStayInTerritory'
+            'offset' => 'd5010000'
         ],
 
         'aisetboundaryintercept' => [
             'name' => 'AISetBoundaryIntercept',
-            'offset' => 'AISetBoundaryIntercept'
+            'offset' => '53020000'
         ],
 
         'isplayercarryinggascan' => [
             'name' => 'IsPlayerCarryingGasCan',
-            'offset' => 'IsPlayerCarryingGasCan'
+            'offset' => 'f0020000'
         ],
 
         'writedebugstring' => [
@@ -3040,7 +3040,7 @@ class Manhunt2 extends ManhuntDefault
 
         'aidefinegoalguarddirection' => [
             'name' => 'aidefinegoalguarddirection',
-            'offset' => 'aidefinegoalguarddirection'
+            'offset' => 'b0010000'
         ],
 
         'seteffectpauselength' => [
@@ -3191,7 +3191,7 @@ class Manhunt2 extends ManhuntDefault
         ],
         'airemovesubpackfromleader' => [
             'name' => 'AIRemoveSubPackFromLeader',
-            'offset' => '0'
+            'offset' => '51010000'
         ],
 
         'hidefakehunter' => [
