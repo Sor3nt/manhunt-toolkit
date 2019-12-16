@@ -30,6 +30,12 @@ class Evaluate{
                 break;
             case Tokens::T_SCRIPT:
             case Tokens::T_PROCEDURE:
+
+
+                if ($association->type == Tokens::T_PROCEDURE){
+                    $compiler->gameClass->functions[strtolower($association->value)]['offset'] = Helper::fromIntToHex(count($this->compiler->codes) * 4);
+                }
+
                 $this->compiler->currentScriptName = $association->value;
                 $scriptSize = $compiler->getScriptSize($association->value);
 
@@ -564,6 +570,17 @@ class Evaluate{
                 break;
 
             case Tokens::T_FUNCTION:
+
+                /**
+                 * When we call a procedure, the given offset is wrong because we can not know where the procedure starts
+                 * while we parsing it inside the associations.
+                 *
+                 * the offset is recalculated while evaluating T_PROCEDURE!
+                 */
+                if (isset($compiler->gameClass->functions[strtolower($association->value)])){
+                    $association->offset = $compiler->gameClass->functions[strtolower($association->value)]['offset'];
+                }
+
 
                 /**
                  * A special handler for writedebug calls

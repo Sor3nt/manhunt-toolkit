@@ -233,6 +233,8 @@ class EvaluateVariable{
         $this->add('0a000000');
         $this->add('3a000000');
 
+//        $this->add(Helper::fromIntToHex(count($this->compiler->codes) * 4), 'End Offset');
+
         /**
          * The last line represents the arguments
          * Each argument reserve 4bytes.
