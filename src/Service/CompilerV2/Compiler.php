@@ -318,8 +318,22 @@ class Compiler
 
         if (is_null($data['size'])) $data['size'] = $this->calcSize($data['type']);
 
-        //todo: looks like this is anyway not in use anymore, recheck for cleanup
         $sizeWithoutPad4 = $data['size'];
+
+        if ($data['type'] == "string"){
+
+            if ($data['section'] == "header" || $data['section'] == "script"){
+
+
+                if ($data['size'] % 4 != 0){
+                    $data['size'] += $data['size'] % 4;
+                }else{
+                    $data['size'] += 4;
+                }
+            }
+
+        }
+
 
         if ($data['section'] == "header"){
 
@@ -329,7 +343,7 @@ class Compiler
 
         }else if ($data['section'] == "script"){
 
-            $this->offsetScriptVariable += $data['size'];
+            $this->offsetScriptVariable += $sizeWithoutPad4;
 
             $offset = $this->offsetScriptVariable;
 
@@ -368,6 +382,7 @@ class Compiler
             $attribute['name'] = $master['name'] . '.' . $entry;
             $attribute['type'] = $type;
             $attribute['size'] = 4;
+            $attribute['sizeWithoutPad4'] = 4;
             $attribute['offset'] = $index * 4;
             $attribute['parent'] = $master;
             $attribute['scriptName'] = $this->currentScriptName;
@@ -440,7 +455,7 @@ class Compiler
             $size += $variable['size'];
         }
 
-        if ($size % 4 != 0 ) $size += $size % 4;
+//        $size += $size % 4;
 
         return $size;
     }
@@ -541,7 +556,7 @@ class Compiler
         );
     }
 
-    public function calcSize( $type, $addString4Bytes = false ){
+    public function calcSize( $type ){
 
         $size = 4;
         switch ($type){
@@ -549,8 +564,6 @@ class Compiler
                 $size = 12;
                 break;
         }
-
-        if ($addString4Bytes && $size % 4 == 0) $size += 4;
 
         return $size;
     }
