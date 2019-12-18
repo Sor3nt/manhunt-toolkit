@@ -335,30 +335,36 @@ class Compiler
         }
 
 
-        if ($data['section'] == "header"){
+        if (!isset($data['offset'])){
 
-            $offset = $this->offsetGlobalVariable;
-            $this->offsetGlobalVariable += $data['size'];
-            $this->offsetGlobalVariable += $this->offsetGlobalVariable % 4;
 
-        }else if ($data['section'] == "script"){
+            if ($data['section'] == "header"){
 
-            $this->offsetScriptVariable += $sizeWithoutPad4;
+                $offset = $this->offsetGlobalVariable;
+                $this->offsetGlobalVariable += $data['size'];
+                $this->offsetGlobalVariable += $this->offsetGlobalVariable % 4;
 
-            $offset = $this->offsetScriptVariable;
+            }else if ($data['section'] == "script"){
 
-            $this->offsetScriptVariable +=  $this->offsetScriptVariable % 4;
+                $this->offsetScriptVariable += $sizeWithoutPad4;
+
+                $offset = $this->offsetScriptVariable;
+
+                $this->offsetScriptVariable +=  $this->offsetScriptVariable % 4;
+            }else{
+                /**
+                 * We process some custom_function / procedure variables
+                 *
+                 * the start of the offset is -12 and any size will be subtracted from the offset
+                 *
+                 * looks like it is a 4 byte pointer list
+                 */
+
+                $offset = $this->offsetProcedureVariable;
+                $this->offsetProcedureVariable -= $data['size'] + ($data['size'] % 4);
+            }
         }else{
-            /**
-             * We process some custom_function / procedure variables
-             *
-             * the start of the offset is -12 and any size will be subtracted from the offset
-             *
-             * looks like it is a 4 byte pointer list
-             */
-
-            $offset = $this->offsetProcedureVariable;
-            $this->offsetProcedureVariable -= $data['size'] + ($data['size'] % 4);
+            $offset = $data['offset'];
         }
 
         $master = array_merge([], $data);
@@ -393,6 +399,7 @@ class Compiler
         }
 
 
+        return $master;
     }
 
     public function addCustomFunction( $name, $type = Tokens::T_CUSTOM_FUNCTION ){

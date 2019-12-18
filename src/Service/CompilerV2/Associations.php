@@ -877,8 +877,9 @@ class Associations
                     $entry = array_merge([], $var);
                     $entry['name'] = $name;
                     $entry['type'] = 'array';
+                    $entry['size'] = $var['end'] * 4;
 
-                    $compiler->addVariable($entry);
+                    $masterVariable = $compiler->addVariable($entry);
 
                     for ($i = $var['start']; $i <= $var['end']; $i++) {
 
@@ -886,6 +887,8 @@ class Associations
                         $entry['name'] = $name . '[' . $i . ']';
                         $entry['fromArray'] = true;
                         $entry['index'] = $i;
+                        $entry['offset'] = $masterVariable['offset'];
+//                        $entry['size'] = 4;
 
                         $compiler->addVariable($entry);
                     }

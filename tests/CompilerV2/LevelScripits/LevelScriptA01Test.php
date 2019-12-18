@@ -43,12 +43,12 @@ var
 	lExplainedBlockFlag : boolean;
 
 
-    lBeastCutsceneSyncFlag : boolean;
+    lBeastCutsceneSyncFlag : boolean; { 3c170000  5948 }
 
 	lCurrentLoonieName : string[30];
 
 	{ [gupi] keep track of tutorial display scripts }	
-	lSavePointTutRemoved : boolean;
+	lSavePointTutRemoved : boolean;  { 60170000 5984 }
 	lButtonTutRemoved : boolean;
 
 	OfficeDoorUnlocked : boolean;
@@ -299,7 +299,7 @@ script OnLevelStateSwitch;
 
 var
 	HunterName : string[30];
-	Door, Hunter : EntityPtr;
+	Door, Hunter : EntityPtr;  
 	pos, pos2 : Vec3D;
 	Timer : integer;
 

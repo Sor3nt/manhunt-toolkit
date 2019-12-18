@@ -142,6 +142,7 @@ class Evaluate{
 
 
                 }else if ($association->fromArray == true) {
+
                     $this->readData($association, "array");
 
                     $this->compiler->evalVar->ret();
