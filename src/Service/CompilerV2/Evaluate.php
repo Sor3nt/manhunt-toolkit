@@ -882,7 +882,8 @@ class Evaluate{
             case 'vec3d':
                 $this->add('12000000');
                 $this->add('03000000');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('0c000000');
+//                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
 
                 $this->add('0f000000');
                 $this->add('01000000');
