@@ -271,11 +271,15 @@ class EvaluateVariable{
             //todo, no int convertion should happen here...
             $this->compiler->evalVar->valuePointer((int)$association->index);
         }
-
-        $this->readArray();
+//var_dump($association);
+        if ($association->typeOf == "vec3d" || $association->varType == "vec3d"){
+            $this->readArray(12);
+        }else{
+            $this->readArray(4);
+        }
     }
 
-    public function readArray(){
+    public function readArray($indexVariableOffset = 4){
 
         $msg = "Read array";
 
@@ -285,7 +289,7 @@ class EvaluateVariable{
 
         $this->add('12000000', $msg);
         $this->add('04000000', $msg);
-        $this->add('04000000', $msg);
+        $this->add(Helper::fromIntToHex($indexVariableOffset), 'index variable offsety');
 
         $this->add('35000000', $msg);
         $this->add('04000000', $msg);

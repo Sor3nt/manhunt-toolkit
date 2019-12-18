@@ -10,6 +10,7 @@ class Associations
 {
 
     public $type = Tokens::T_UNKNOWN;
+    public $typeOf = null;
     public $value = "";
     public $forIndex = null;
 
@@ -76,6 +77,7 @@ class Associations
         if ($this->assign !== false) $debug['assign'] = $this->assign;
         if ($this->math !== null) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
+        if ($this->typeOf !== null) $debug['typeOf'] = $this->typeOf;
         if ($this->isArgument !== null) $debug['isArgument'] = $this->isArgument;
         if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
@@ -154,8 +156,8 @@ class Associations
                     $forIndexAssociation->varType = $forIndex['type'];
                     $forIndexAssociation->section = $forIndex['section'];
 
-
                     //used from array variables like "itemsSpawned[1]"
+                    if (isset($forIndex['typeOf'])) $forIndexAssociation->typeOf = $forIndex['typeOf'];
                     if (isset($forIndex['fromArray'])) $forIndexAssociation->fromArray = $forIndex['fromArray'];
                     if (isset($forIndex['index'])) $forIndexAssociation->index = $forIndex['index'];
                     if (isset($forIndex['isArgument'])) $forIndexAssociation->isArgument = $forIndex['isArgument'];
@@ -179,6 +181,7 @@ class Associations
 
 
             //used from array variables like "itemsSpawned[1]"
+            if (isset($variable['typeOf'])) $this->typeOf = $variable['typeOf'];
             if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
             if (isset($variable['index'])) $this->index = $variable['index'];
             if (isset($variable['isArgument'])) $this->isArgument = $variable['isArgument'];
@@ -196,6 +199,7 @@ class Associations
                 $parent->varType = $variable['parent']['type'];
                 $parent->section = $variable['parent']['section'];
 
+                if (isset($variable['parent']['typeOf'])) $parent->typeOf = $variable['parent']['typeOf'];
                 if (isset($variable['parent']['fromArray'])) $parent->fromArray = $variable['parent']['fromArray'];
                 if (isset($variable['parent']['index'])) $parent->index = $variable['parent']['index'];
                 if (isset($variable['parent']['isArgument'])) $parent->isArgument = $variable['parent']['isArgument'];
@@ -877,7 +881,13 @@ class Associations
                     $entry = array_merge([], $var);
                     $entry['name'] = $name;
                     $entry['type'] = 'array';
-                    $entry['size'] = $var['end'] * 4;
+                    $entry['typeOf'] = $var['type'];
+
+                    if ($var['type'] == "vec3d"){
+                        $entry['size'] = $var['end'] * 12;
+                    }else{
+                        $entry['size'] = $var['end'] * 4;
+                    }
 
                     $masterVariable = $compiler->addVariable($entry);
 
