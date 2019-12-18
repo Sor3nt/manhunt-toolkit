@@ -772,9 +772,10 @@ class Evaluate{
                     $this->add('01000000');
 
                     if (is_array($case->value)){
-                        $this->add(Helper::fromIntToHex($case->value['offset']), 'case Offset');
+                        $this->add(Helper::fromIntToHex($case->value['offset']), 'case Offset (1)');
                     }else{
-                        $this->add(Helper::fromIntToHex($realIndex), 'case Offset');
+                        $this->add(Helper::fromIntToHex($case->value->offset), 'case Offset (1)');
+//                        $this->add(Helper::fromIntToHex($realIndex), 'case Offset (2)');
                     }
                     $this->add('3f000000');
 
