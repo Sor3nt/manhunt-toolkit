@@ -188,7 +188,7 @@ class Evaluate{
 
                     $this->add('12000000');
                     $this->add('03000000');
-                    $this->add('20000000', 'size / offset?');
+                    $this->add(Helper::fromIntToHex($association->size), 'Size ' . $association->size);
 
 
                     $this->add('10000000');
@@ -196,7 +196,10 @@ class Evaluate{
 
                     $this->add('10000000');
                     $this->add('03000000');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+
+                    $this->add('48000000');
+
+//                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
                 }
 
                 /**
@@ -323,9 +326,9 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('2f000000');
                 $this->add('04000000');
-                $this->add('00000000', 'Offset TODO! 1 ');
-//                $this->add(Helper::fromIntToHex($association->childs[0]->value  ), 'Variable offset');
-
+//                $this->add('00000000', 'Offset TODO! 1 ');
+                $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
+//var_dump($association);exit;
 
                 $this->add('3c000000', 'Jump to');
                 $this->add(Helper::fromIntToHex($startOffset * 4), 'Start Offset');
@@ -334,7 +337,8 @@ class Evaluate{
                 $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
                 $this->add('30000000');
                 $this->add('04000000');
-                $this->add('00000000', 'Offset TODO! 2');
+//                $this->add('00000000', 'Offset TODO! 2');
+                $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
 
                 break;
 

@@ -349,18 +349,11 @@ class Compiler
 
             }else if ($data['section'] == "script"){
 
-
-                if ($this->offsetScriptVariable == 0){
-                    $this->offsetScriptVariable += $sizeWithoutPad4;
-                }else{
-
-                    $this->offsetScriptVariable += $sizeWithoutPad4;
-                }
-
+                $this->offsetScriptVariable += $sizeWithoutPad4;
 
                 $offset = $this->offsetScriptVariable;
 
-                if ($data['type'] == "string"){
+                 if ($data['type'] == "string"){
 
                     if ($data['size'] % 4 != 0){
                         $this->offsetScriptVariable += $data['size'] % 4;
@@ -477,13 +470,14 @@ class Compiler
 
             //is this equal, it mean we process a parameter not a regular variable
             if ($variable['section'] == $variable['scriptName']) continue;
+            if (isset($variable['index'])) continue;
 
             $size += $variable['size'];
 
-
+//var_dump($variable, $size);
             if ($variable['type'] == "string"){
-                if ($size % 4 != 0){
-                    $size += $size % 4;
+                if ($variable['size'] % 4 != 0){
+                    $size += $variable['size'] % 4;
                 }else{
                     $size += 4;
                 }
