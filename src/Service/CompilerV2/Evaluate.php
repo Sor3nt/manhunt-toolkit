@@ -287,7 +287,7 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('15000000');
                 $this->add('04000000');
-                $this->add(Helper::fromIntToHex($association->end->value  ), 'unknown for value.hmmm');
+                $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
                 $this->add('01000000');
 
                 $startOffset = count($this->compiler->codes);
@@ -299,7 +299,7 @@ class Evaluate{
                 $this->add('13000000');
                 $this->add('02000000');
                 $this->add('04000000');
-                $this->add(Helper::fromIntToHex($association->end->value), 'unknown for value.hmmm 2');
+                $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
 
 
                 $this->add('23000000');
@@ -319,11 +319,12 @@ class Evaluate{
                 foreach ($association->onTrue as $item) {
                     new Evaluate($this->compiler, $item);
                 }
-
+//var_dump($association);exit;
                 $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('2f000000');
                 $this->add('04000000');
                 $this->add('00000000', 'Offset TODO! 1 ');
+//                $this->add(Helper::fromIntToHex($association->childs[0]->value  ), 'Variable offset');
 
 
                 $this->add('3c000000', 'Jump to');

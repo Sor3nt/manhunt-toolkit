@@ -322,9 +322,10 @@ class Compiler
 
         if ($data['type'] == "string"){
 
-            if ($data['section'] == "header" || $data['section'] == "script"){
+            if ($data['section'] == "header" ){
+//            if ($data['section'] == "header" || $data['section'] == "script"){
 
-
+//
                 if ($data['size'] % 4 != 0){
                     $data['size'] += $data['size'] % 4;
                 }else{
@@ -341,14 +342,32 @@ class Compiler
             if ($data['section'] == "header"){
 
                 $offset = $this->offsetGlobalVariable;
+
+
                 $this->offsetGlobalVariable += $data['size'];
                 $this->offsetGlobalVariable += $this->offsetGlobalVariable % 4;
 
             }else if ($data['section'] == "script"){
 
-                $this->offsetScriptVariable += $sizeWithoutPad4;
+
+                if ($this->offsetScriptVariable == 0){
+                    $this->offsetScriptVariable += $sizeWithoutPad4;
+                }else{
+
+                    $this->offsetScriptVariable += $sizeWithoutPad4;
+                }
+
 
                 $offset = $this->offsetScriptVariable;
+
+                if ($data['type'] == "string"){
+
+                    if ($data['size'] % 4 != 0){
+                        $this->offsetScriptVariable += $data['size'] % 4;
+                    }else{
+                        $this->offsetScriptVariable += 4;
+                    }
+                }
 
                 $this->offsetScriptVariable +=  $this->offsetScriptVariable % 4;
             }else{
@@ -460,6 +479,17 @@ class Compiler
             if ($variable['section'] == $variable['scriptName']) continue;
 
             $size += $variable['size'];
+
+
+            if ($variable['type'] == "string"){
+                if ($size % 4 != 0){
+                    $size += $size % 4;
+                }else{
+                    $size += 4;
+                }
+
+            }
+
         }
 
 //        $size += $size % 4;

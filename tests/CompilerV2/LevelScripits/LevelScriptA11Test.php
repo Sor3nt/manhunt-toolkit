@@ -1079,9 +1079,9 @@ end;
 
 procedure DestroyAllHuntersInSubpack;
 var
-	NrHunters, OldNrHunters : integer;
-	Success : boolean;
-	HunterName : string[30];
+	NrHunters { 4 }, OldNrHunters { 8 } : integer;
+	Success { 12 } : boolean;
+	HunterName { 42} : string[30];
 
 begin
 	WriteDebug('DestroyAllHunters in ', SubpackName);
