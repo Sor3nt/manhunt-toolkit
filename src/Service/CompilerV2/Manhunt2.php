@@ -3187,7 +3187,7 @@ class Manhunt2 extends ManhuntDefault
         ],
         'returnammoofinventoryweapon' => [
             'name' => 'ReturnAmmoOfInventoryWeapon',
-            'offset' => '0'
+            'offset' => 'df020000'
         ],
         'airemovesubpackfromleader' => [
             'name' => 'AIRemoveSubPackFromLeader',

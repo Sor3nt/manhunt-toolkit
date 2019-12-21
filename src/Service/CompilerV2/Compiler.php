@@ -385,7 +385,7 @@ class Compiler
                  */
 
                 $offset = $this->offsetProcedureVariable;
-                $this->offsetProcedureVariable -= $data['size'] + ($data['size'] % 4);
+                $this->offsetProcedureVariable -= $data['size'];
             }
         }else{
             $offset = $data['offset'];
