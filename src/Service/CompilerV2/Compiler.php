@@ -355,6 +355,7 @@ class Compiler
         }
 
 
+
         if (!isset($data['offset'])){
 
 
@@ -392,7 +393,7 @@ class Compiler
                  */
 
                 $offset = $this->offsetProcedureVariable;
-                $this->offsetProcedureVariable -= $data['size'];
+                $this->offsetProcedureVariable -= 4;
             }
         }else{
             $offset = $data['offset'];
@@ -473,6 +474,9 @@ class Compiler
         $found = [];
         foreach ($this->variables as $variable) {
             if (
+                // do not count object attributes
+                !isset($variable['parent']) &&
+
                 $variable['scriptName'] == $scriptName &&
                 $variable['scriptName'] == $variable['section']
             ) $found[] = $variable;
