@@ -3,6 +3,7 @@ namespace App\Service\CompilerV2;
 
 use App\MHT;
 use App\Service\Helper;
+use Exception;
 
 class Compiler
 {
@@ -24,7 +25,6 @@ class Compiler
 
     public $variables = [];
     public $strings = [];
-    public $stringsAll = [];
 
     public $strings4Script = [];
     public $codes = [];
@@ -37,7 +37,9 @@ class Compiler
     public $mlsEntityName = "demo_level";
     public $mlsEntityType = "et_level";
 
-    public $offsetString = 0;
+    /*
+     * Offset holder
+     */
     public $offsetGlobalVariable = 0;
     public $offsetScriptVariable = 0;
     public $offsetProcedureVariable = 0;
@@ -48,7 +50,7 @@ class Compiler
 
     public $storedProcedureCallOffsets = [];
 
-    public function __construct($source, $game, $platform, $parentScript = false)
+    public function __construct($source, $game, $platform)
     {
 
         $this->evalVar = new EvaluateVariable($this);
@@ -57,10 +59,8 @@ class Compiler
         $this->platform = $platform;
         $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2();
 
-
         // remove comments / unused code
-        $source = preg_replace("/\{(.|\s)*\}/mU", "", $source);
-
+        $source = preg_replace("/{(.|\s)*}/mU", "", $source);
 
         //extract all used strings
         preg_match_all("/['|\"](.*)['|\"]/U", $source, $strings);
@@ -71,10 +71,6 @@ class Compiler
         //replace usage with dummy to avoid parsing errors
         foreach ($newStrings as $index => $string) {
             $source = str_replace($string, "'str_" . $index . '\'', $source );
-        }
-
-        if (count($newStrings) !== count(array_unique($strings[1]))){
-            die("eh damn, the strings did not match....");
         }
 
         /**
@@ -92,22 +88,22 @@ class Compiler
         $source = preg_replace("/\)/", " ) ", $source);
         $source = preg_replace("/\*/", " * ", $source);
 
-        $source = preg_replace("/\</", " < ", $source);
-        $source = preg_replace("/\>/", " > ", $source);
+        $source = preg_replace("/</", " < ", $source);
+        $source = preg_replace("/>/", " > ", $source);
 
         $source = preg_replace("/\+/", " + ", $source);
-        $source = preg_replace("/\,/", " , ", $source);
+        $source = preg_replace("/,/", " , ", $source);
         $source = preg_replace("/\[/", " [ ", $source);
-        $source = preg_replace("/\]/", " ] ", $source);
-//        $source = preg_replace("/\:[^=]/", " : ", $source);
-        $source = preg_replace("/\:/", " : ", $source);
-        $source = preg_replace("/\=/", " = ", $source);
+        $source = preg_replace("/]/", " ] ", $source);
+
+        $source = preg_replace("/:/", " : ", $source);
+        $source = preg_replace("/=/", " = ", $source);
 
 
-        $source = preg_replace("/\:\s*\=/", " := ", $source);
-        $source = preg_replace("/\>\s*\=/", " >= ", $source);
-        $source = preg_replace("/\<\s*\=/", " <= ", $source);
-        $source = preg_replace("/\<\s*\>/", " <> ", $source);
+        $source = preg_replace("/:\s*=/", " := ", $source);
+        $source = preg_replace("/>\s*=/", " >= ", $source);
+        $source = preg_replace("/<\s*=/", " <= ", $source);
+        $source = preg_replace("/<\s*>/", " <> ", $source);
 
         /**
          * Fetch all chars except whitespaces and line end sign ";"
@@ -148,7 +144,7 @@ class Compiler
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function compile(){
 
@@ -200,12 +196,10 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//var_dump($this->variables);
-//exit;
+
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
-
 
         /**
          * Procedures can be called BEFORE the actual bytecode is written.
@@ -234,7 +228,6 @@ class Compiler
         return $this->gameClass->types[$name];
     }
 
-
     public function addString($string, $currentScriptName){
         $currentScriptName = strtolower($currentScriptName);
         $stringIndex = substr($string, 4);
@@ -258,14 +251,8 @@ class Compiler
         $newString->offset = $this->offsetGlobalVariable;
         $newString->scriptName = $currentScriptName;
         $newString->size = $len;
-        $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
 
-        //        $this->strings4Script[$currentScriptName][strtolower($string)] = [
-//            'value' => $string,
-//            'offset' => $this->offsetGlobalVariable,
-//            'scriptName' => $currentScriptName,
-//            'size' => $len
-//        ];
+        $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
 
         if (4 - $len % 4 != 0) $len += 4 - $len % 4;
 
@@ -285,14 +272,11 @@ class Compiler
                 'name' => $state,
                 'type' => 'integer',
                 'size' => 1,
-                'sizeWithoutPad4' => 1,
                 'offset' => $index,
                 'section' => 'header',
                 'scriptName' => 'header'
             ];
         }
-
-//        var_dump("Add Type: " . $name . " with types " . print_r($types, true) );
 
         $this->gameClass->types[$name] = [
             'types' => $types
@@ -300,7 +284,6 @@ class Compiler
 
     }
     public function addConstants( $name, $value, $type){
-        var_dump("Add Constant: " . $name . " with value " . $value );
 
         if ($type == "real") $type = "float";
 
@@ -312,23 +295,18 @@ class Compiler
             $size = strlen($value) + 1;
         }
 
-
         $this->variables[] = [
             'name' => $name,
             'value' => $value,
             'size' => $size,
-            'sizeWithoutPad4' => $size,
             'offset' => $this->offsetConstants,
             'type' => $type,
             'varType' => $type,
             'section' => 'header',
             'scriptName' => 'header'
-
         ];
 
         $this->offsetConstants += $size + (4 - $size % 4);
-
-
     }
 
     public function addVariable( $data ){
@@ -337,39 +315,25 @@ class Compiler
 
         if (is_null($data['size'])) $data['size'] = $this->calcSize($data['type']);
 
-        $sizeWithoutPad4 = $data['size'];
-
-        if ($data['type'] == "string"){
-
-            if ($data['section'] == "header" ){
-//            if ($data['section'] == "header" || $data['section'] == "script"){
-
-//
-                if ($data['size'] % 4 != 0){
-                    $data['size'] += $data['size'] % 4;
-                }else{
-                    $data['size'] += 4;
-                }
-            }
-
-        }
-
-
-
         if (!isset($data['offset'])){
-
 
             if ($data['section'] == "header"){
 
+                $size = $data['size'];
+                if ($data['type'] == "string"){
+                    if ($size % 4 != 0){
+                        $size += $data['size'] % 4;
+                    }else{
+                        $size += 4;
+                    }
+                }
+
                 $offset = $this->offsetGlobalVariable;
-
-
-                $this->offsetGlobalVariable += $data['size'];
-                $this->offsetGlobalVariable += $this->offsetGlobalVariable % 4;
+                $this->offsetGlobalVariable += $size;
 
             }else if ($data['section'] == "script"){
 
-                $this->offsetScriptVariable += $sizeWithoutPad4;
+                $this->offsetScriptVariable += $data['size'];
 
                 $offset = $this->offsetScriptVariable;
 
@@ -382,7 +346,6 @@ class Compiler
                     }
                 }
 
-                $this->offsetScriptVariable +=  $this->offsetScriptVariable % 4;
             }else{
                 /**
                  * We process some custom_function / procedure variables
@@ -399,7 +362,6 @@ class Compiler
             $offset = $data['offset'];
         }
 
-
         /**
          * Overwrite the calculated offset with the game_var / level_var offset
          */
@@ -407,6 +369,7 @@ class Compiler
             $gameVar = $this->gameScript->getVariable($data['name']);
             if ($gameVar) $offset = $gameVar['offset'];
         }
+
         if ($this->levelScript !== null){
             $levelVar = $this->levelScript->getVariable($data['name']);
             if ($levelVar) $offset = $levelVar['offset'];
@@ -415,12 +378,10 @@ class Compiler
 
         $master = array_merge([], $data);
         $master['size'] = $master['type'] == "vec3d" || $master['type'] == "rgbaint" ? 0 : $master['size'];
-        $master['sizeWithoutPad4'] = $sizeWithoutPad4;
         $master['offset'] = $offset;
         $master['scriptName'] = $this->currentScriptName;
 
         $this->variables[] = $master;
-
 
         $attributes = [];
         if ($master['type'] == "vec3d") $attributes = ["x" => 'float', "y" => 'float', "z" => 'float'];
@@ -434,7 +395,6 @@ class Compiler
             $attribute['name'] = $master['name'] . '.' . $entry;
             $attribute['type'] = $type;
             $attribute['size'] = 4;
-            $attribute['sizeWithoutPad4'] = 4;
             $attribute['offset'] = $index * 4;
             $attribute['parent'] = $master;
             $attribute['scriptName'] = $this->currentScriptName;
@@ -443,7 +403,6 @@ class Compiler
 
             $index++;
         }
-
 
         return $master;
     }
@@ -511,19 +470,14 @@ class Compiler
 
             $size += $variable['size'];
 
-//var_dump($variable, $size);
             if ($variable['type'] == "string"){
                 if ($variable['size'] % 4 != 0){
                     $size += $variable['size'] % 4;
                 }else{
                     $size += 4;
                 }
-
             }
-
         }
-
-//        $size += $size % 4;
 
         return $size;
     }
@@ -609,12 +563,12 @@ class Compiler
     }
 
     /**
+     * @param string $msg
      * @param int $shift
-     * @throws \Exception
+     * @throws Exception
      */
     public function raiseException($msg = "", $shift = 1){
-
-        throw new \Exception(
+        throw new Exception(
             sprintf(
                 "%s. Could not convert Value %s. Arround here %s",
                 $msg,
@@ -639,14 +593,7 @@ class Compiler
     public function validateCode($compareCode){
         foreach ($this->codes as $index => $code) {
             if ($code['code'] != $compareCode[$index]){
-//
-//                if (
-//                    Helper::fromHexToFloat($compareCode[$index]) -
-//                    Helper::fromHexToFloat($code['code']) > 0.01
-//                ){
-                    return false;
-//                }
-
+                return false;
             }
         }
 

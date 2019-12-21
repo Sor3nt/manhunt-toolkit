@@ -26,7 +26,7 @@ class Associations
     public $variableName = null;
 
     public $size = null;
-    public $sizeWithoutPad4 = null;
+
     public $isLevelVar = null;
     public $parent = null;
     public $isArgument = null;
@@ -79,7 +79,6 @@ class Associations
         if ($this->size !== null) $debug['size'] = $this->size;
         if ($this->typeOf !== null) $debug['typeOf'] = $this->typeOf;
         if ($this->isArgument !== null) $debug['isArgument'] = $this->isArgument;
-        if ($this->sizeWithoutPad4 !== null) $debug['sizeWithoutPad4'] = $this->sizeWithoutPad4;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
         if ($this->isGameVar !== null) $debug['gameVar'] = $this->isGameVar;
@@ -152,7 +151,6 @@ class Associations
 
                     $forIndexAssociation->offset = $forIndex['offset'];
                     $forIndexAssociation->size = $forIndex['size'];
-                    $forIndexAssociation->sizeWithoutPad4 = isset($forIndex['sizeWithoutPad4']) ? $variable['sizeWithoutPad4'] : $variable['size'];
                     $forIndexAssociation->varType = $forIndex['type'];
                     $forIndexAssociation->section = $forIndex['section'];
 
@@ -175,7 +173,7 @@ class Associations
 
             $this->offset = $variable['offset'];
             $this->size = $variable['size'];
-            $this->sizeWithoutPad4 = isset($variable['sizeWithoutPad4']) ? $variable['sizeWithoutPad4'] : $variable['size'];
+
             $this->varType = $variable['type'];
             $this->section = $variable['section'];
 
@@ -195,7 +193,6 @@ class Associations
 
                 $parent->offset = $variable['parent']['offset'];
                 $parent->size = $variable['parent']['size'];
-                $parent->sizeWithoutPad4 = isset($variable['parent']['sizeWithoutPad4']) ? $variable['parent']['sizeWithoutPad4'] : $variable['parent']['size'];
                 $parent->varType = $variable['parent']['type'];
                 $parent->section = $variable['parent']['section'];
 

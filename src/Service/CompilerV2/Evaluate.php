@@ -253,7 +253,7 @@ class Evaluate{
                     if (in_array($association->section, ['header', 'script']) !== false){
 
                         $this->compiler->evalVar->memoryPointer($association);
-                        $this->compiler->evalVar->readSize( $association->sizeWithoutPad4 );
+                        $this->compiler->evalVar->readSize( $association->size );
 
                     }else{
 
