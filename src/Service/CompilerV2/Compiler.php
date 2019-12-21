@@ -40,6 +40,8 @@ class Compiler
 
     public $evalVar;
 
+    public $storedProcedureCallOffsets = [];
+
     public function __construct($source, $game, $platform, $parentScript = false)
     {
 
@@ -195,6 +197,16 @@ class Compiler
 //exit;
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
+        }
+
+
+        /**
+         * Procedures can be called BEFORE the actual bytecode is written.
+         * In this case we can not know where our procedure starts
+         * that is why we fix it afterwards
+         */
+        foreach ($this->storedProcedureCallOffsets as $call) {
+            $this->codes[$call['offset']]['code'] = $this->gameClass->functions[$call['value']]['offset'];
         }
 
         return [

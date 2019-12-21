@@ -748,6 +748,14 @@ class Evaluate{
                         $this->add('74000000');
                     }
                 }else{
+
+                    if ($association->isProcedure || $association->isCustomFunction){
+                        $compiler->storedProcedureCallOffsets[] = [
+                            'value' => $association->value,
+                            'offset' => count($compiler->codes)
+                        ];
+                    }
+
                     $this->add($association->offset, "Offset");
 
                     if (strtolower($association->value) == "callscript"){
