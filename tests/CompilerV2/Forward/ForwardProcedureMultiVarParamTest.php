@@ -47,7 +47,7 @@ class ForwardProcedureMultiVarParamTest extends KernelTestCase
             "0f000000", //procedure end block
             "0a000000", //procedure end block
             "3a000000", //procedure end block (line 34)
-            "28000000", //procedure end block
+            "1c000000", //procedure end block
 
 
             "10000000", //Script start block

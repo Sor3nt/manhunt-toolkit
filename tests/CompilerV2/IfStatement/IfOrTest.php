@@ -45,7 +45,7 @@ class IfOrTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '64000000', //Offset in byte
+            '60000000', //Offset in byte
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //unknown
@@ -77,7 +77,7 @@ class IfOrTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '68000000', //Offset in byte
+            '60000000', //Offset in byte
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //unknown
@@ -114,7 +114,7 @@ class IfOrTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '6c000000', //Offset in byte
+            '60000000', //Offset in byte
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //unknown
@@ -151,7 +151,7 @@ class IfOrTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '70000000', //Offset in byte
+            '60000000', //Offset in byte
             '10000000', //nested call return result
             '01000000', //nested call return result
             '12000000', //unknown

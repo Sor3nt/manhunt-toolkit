@@ -50,7 +50,7 @@ class ForwardProcedureVarParamTest extends KernelTestCase
             "0f000000", //procedure end block
             "0a000000", //procedure end block
             "3a000000", //procedure end block (line 34)
-            "14000000", //procedure end block
+            "08000000", //procedure end block
 
 
             "10000000", //Script start block

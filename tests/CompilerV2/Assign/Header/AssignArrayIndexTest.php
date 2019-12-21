@@ -45,7 +45,7 @@ class AssignArrayIndexTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '04000000', //Offset in byte
+            '00000000', //Offset in byte
 
             '10000000', //nested call return result
             '01000000', //nested call return result
@@ -88,7 +88,7 @@ class AssignArrayIndexTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '08000000', //Offset in byte
+            '00000000', //Offset in byte
             '10000000', //nested call return result
             '01000000', //nested call return result
 
@@ -127,7 +127,7 @@ class AssignArrayIndexTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '0c000000', //Offset in byte
+            '00000000', //Offset in byte
 
             '10000000', //nested call return result
             '01000000', //nested call return result

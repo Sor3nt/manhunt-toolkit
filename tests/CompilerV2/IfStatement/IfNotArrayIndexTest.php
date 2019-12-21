@@ -42,7 +42,7 @@ class IfNotArrayIndexTest extends KernelTestCase
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)
-            '1c000000', //Offset bBurnableBurnt
+            '18000000', //Offset bBurnableBurnt
 
             '10000000', //nested call return result
             '01000000', //nested call return result

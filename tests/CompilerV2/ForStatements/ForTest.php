@@ -53,7 +53,7 @@ class ForTest extends KernelTestCase
 
             '15000000', //unknown
             '04000000', //unknown
-            '20000000', //32
+            '04000000', //32
             '01000000', //unknown
 
             '12000000', //unknown
@@ -63,12 +63,12 @@ class ForTest extends KernelTestCase
             '13000000', //unknown
             '02000000', //unknown
             '04000000', //unknown
-            '20000000', //unknown
+            '04000000', //unknown
             '23000000', //unknown
             '01000000', //unknown
             '02000000', //unknown
             '41000000', //unknown
-            '00390000', //unknown
+            '74000000', //unknown
 
             '3c000000', //statement (init statement start offset)
             '10010000', //Offset (line number 3687)
@@ -120,14 +120,14 @@ class ForTest extends KernelTestCase
 
             '2f000000', //unknown
             '04000000', //unknown
-            '1c000000', //unknown
+            '00000000', //unknown
 
             '3c000000', //statement (init statement start offset)
             '3c000000', //Offset (line number 3634)
 
             '30000000', //unknown
             '04000000', //unknown
-            '1c000000', //unknown
+            '00000000', //unknown
 
 
 

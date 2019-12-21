@@ -38,13 +38,13 @@ class FunctionParamArrayTest extends KernelTestCase
 
             '34000000',
             '09000000',
-            '7c000000',
+            '78000000',
 
 
             '22000000', //Prepare string read (3)
             '04000000', //Prepare string read (3)
             '01000000', //Prepare string read (3)
-            '10000000', //offset pos[1]
+            '78000000', //offset pos[1]
 
             '10000000', //nested call return result
             '01000000', //nested call return result
@@ -57,7 +57,7 @@ class FunctionParamArrayTest extends KernelTestCase
             '01000000', //unknown
             '12000000', //unknown
             '04000000', //unknown
-            '04000000', //unknown
+            '0c000000', //unknown
             '35000000', //unknown
             '04000000', //unknown
             '0f000000', //unknown
