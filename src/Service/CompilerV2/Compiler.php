@@ -10,6 +10,12 @@ class Compiler
     public $game;
     public $platform;
 
+    /** @var null|Compiler  */
+    public $gameScript = null;
+
+    /** @var null|Compiler  */
+    public $levelScript = null;
+
     public $tokens = [];
     public $current = 0;
 
@@ -141,6 +147,7 @@ class Compiler
     }
 
     /**
+     * @return array
      * @throws \Exception
      */
     public function compile(){
@@ -390,6 +397,20 @@ class Compiler
         }else{
             $offset = $data['offset'];
         }
+
+
+        /**
+         * Overwrite the calculated offset with the game_var / level_var offset
+         */
+        if ($this->gameScript !== null){
+            $gameVar = $this->gameScript->getVariable($data['name']);
+            if ($gameVar) $offset = $gameVar['offset'];
+        }
+        if ($this->levelScript !== null){
+            $levelVar = $this->levelScript->getVariable($data['name']);
+            if ($levelVar) $offset = $levelVar['offset'];
+        }
+
 
         $master = array_merge([], $data);
         $master['size'] = $master['type'] == "vec3d" || $master['type'] == "rgbaint" ? 0 : $master['size'];
