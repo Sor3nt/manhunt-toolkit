@@ -25,6 +25,12 @@ class Evaluate{
 
         switch ($association->type) {
 
+            case Tokens::T_SELF:
+                $this->add('12000000', 'self call');
+                $this->add('01000000', 'self call');
+                $this->add('49000000', 'self call');
+
+                break;
             case Tokens::T_MATH:
                 $this->doMath($association->childs);
                 break;

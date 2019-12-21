@@ -17036,7 +17036,7 @@ end.
             '00000000', //Script end block
         ];
 
-        $compiler = new \App\Service\CompilerV2\Compiler($script, MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC, false);
+        $compiler = new \App\Service\CompilerV2\Compiler($script, MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
         $compiled = $compiler->compile();
 
         if ($compiler->validateCode($expected) === false){

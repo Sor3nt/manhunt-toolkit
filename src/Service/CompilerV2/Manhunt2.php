@@ -625,10 +625,10 @@ class Manhunt2 extends ManhuntDefault
     ];
 
     public $functions = [
-        'this' => [
-            'name' => 'this',
-            'offset' => "49000000"
-        ],
+//        'this' => [
+//            'name' => 'this',
+//            'offset' => "49000000"
+//        ],
 
         'sleep' => [
             'name' => 'Sleep',

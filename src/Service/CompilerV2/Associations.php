@@ -603,6 +603,10 @@ class Associations
                 }
 
                 break;
+            case 'this':
+                $this->type = Tokens::T_SELF;
+                break;
+
             case 'while':
             case 'if':
                 $this->type = $value == "if" ? Tokens::T_IF : Tokens::T_DO;
@@ -616,12 +620,13 @@ class Associations
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);
                 $this->unwrapSimpleCondition($conditions);
                 $this->convertToSimpleCondition($conditions);
+//                $this->convertToSimpleCondition2($conditions);
+//            var_dump($conditions);exit;
                 $this->convertOperatorChain($conditions);
                 $this->convertConditionNot($conditions);
                 $this->convertConditionStatementOperator($conditions);
                 $this->convertConditionCompareOperator($conditions);
                 $this->getLastCondition($conditions, $lastCondition);
-
                 /** @var Associations $lastCondition */
                 $lastCondition->isLastCondition = true;
                 $case->condition = $conditions;
@@ -1011,6 +1016,34 @@ class Associations
      * @throws Exception
      */
     private function convertToSimpleCondition( &$conditions){
+
+//        if (count($conditions) > 3) return;
+        if ($conditions[0]->type == Tokens::T_CONDITION) return;
+
+        $newCondition = new Associations();
+        $newCondition->type = Tokens::T_CONDITION;
+
+
+        if (
+            count($conditions) == 2 &&
+            $conditions[1]->type == Tokens::T_CONDITION
+        ) return;
+
+        if (
+            count($conditions) == 3 &&
+            $conditions[2]->type == Tokens::T_CONDITION
+        ) return;
+
+        for ($i = 0; $i < 3; $i++){
+            if (isset($conditions[$i])) $newCondition->childs[] = $conditions[$i];
+
+        }
+
+        $conditions = array_merge([$newCondition], array_slice($conditions, count($newCondition->childs)));
+
+    }
+
+    private function convertToSimpleCondition2( &$conditions){
 
         if (count($conditions) > 3) return;
         if ($conditions[0]->type == Tokens::T_CONDITION) return;
