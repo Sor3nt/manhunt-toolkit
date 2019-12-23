@@ -389,27 +389,22 @@ class Evaluate{
 
                     if ($param->type == Tokens::T_VARIABLE) {
 
+
+                        $isState = $compiler->getState($param->varType);
+                        if ($compareAgainst == false) $compareAgainst = $isState ? 'state' : $param->varType;
+
                         if ($param->varType == "string"){
                             new Evaluate($this->compiler, $param);
                             $doReturn = "string";
 
-//                            $this->compiler->evalVar->retString();
+                        }else if ($param->fromState === true) {
+                            $this->compiler->evalVar->valuePointer($param->offset);
 
                         }else{
-                            $isState = $compiler->getState($param->varType);
-                            if ($compareAgainst == false) $compareAgainst = $isState ? 'state' : $param->varType;
 
-                            if ($param->fromState === true) {
-                                $this->compiler->evalVar->valuePointer($param->offset);
-//
-                            } else {
-                                new Evaluate($this->compiler, $param);
-                            }
-
-
+                            new Evaluate($this->compiler, $param);
 
                             $compiler->evalVar->msg = sprintf("Condition");
-
 
                             if ($param->fromArray === true) {
                                 $this->add('0f000000', 'from array');
@@ -422,7 +417,10 @@ class Evaluate{
                                 $this->add('02000000', 'from array');
                             }
 
-                            if (isset($association->childs[$index + 1]) && $association->childs[$index + 1]->type == Tokens::T_NOT){
+                            if (
+                                isset($association->childs[$index + 1]) &&
+                                $association->childs[$index + 1]->type == Tokens::T_NOT
+                            ){
                                 $this->compiler->evalVar->not();
                             }
 
@@ -432,54 +430,36 @@ class Evaluate{
                             }else{
                                 if ($lastInCurrentChain){
                                     $doReturn = null;
-
                                 }else{
                                     $doReturn = "default";
                                 }
-
                             }
-//                            $doReturn = "default";
-//                            $this->compiler->evalVar->ret("variable result");
                         }
 
-
-
-
                     }else if (
-                        $param->type == Tokens::T_FLOAT
-                    ){
-                        new Evaluate($this->compiler, $param);
-
-
-                        $doReturn = "default";
-//                        $this->compiler->evalVar->ret("float");
-
-                    }else if (
+                        $param->type == Tokens::T_FLOAT ||
                         $param->type == Tokens::T_INT ||
                         $param->type == Tokens::T_CONSTANT
                     ){
                         new Evaluate($this->compiler, $param);
 
-                        if ($lastInCurrentChain){
-                            $doReturn = null;
-
-                        }else{
+                        if ($param->type == Tokens::T_FLOAT){
                             $doReturn = "default";
+                        }else{
+                            if ($lastInCurrentChain){
+                                $doReturn = null;
+                            }else{
+                                $doReturn = "default";
+                            }
+
                         }
-
-                        //                        $this->compiler->evalVar->ret("integer");
-                    }else if (
-                        $param->type == Tokens::T_STRING
-                    ){
+                    }else if ( $param->type == Tokens::T_STRING ){
                         new Evaluate($this->compiler, $param);
-
                         $this->compiler->evalVar->readSize($param->size);
-//                        $this->compiler->evalVar->retString();
+
                         $doReturn = "string";
 
-                    }else if (
-                        $param->type == Tokens::T_FUNCTION
-                    ){
+                    }else if ( $param->type == Tokens::T_FUNCTION ){
                         new Evaluate($this->compiler, $param);
 
                         if (isset($association->childs[$index + 1]) && $association->childs[$index + 1]->type == Tokens::T_NOT){
@@ -489,16 +469,10 @@ class Evaluate{
                         if ($param->return != "string"){
                             if ($lastInCurrentChain ){
                                 $doReturn = null;
-
                             }else{
                                 $doReturn = "default";
                             }
-
                         }
-
-
-//                        $this->compiler->evalVar->ret("function");
-
 
                     }else if ($param->type == Tokens::T_NOT){
                         /*
@@ -525,11 +499,7 @@ class Evaluate{
 
                         if (!$lastInCurrentChain){
                             $this->compiler->evalVar->ret("Return for next Case");
-
                         }
-
-//                        if ($last == false){
-//                        }
 
                     }else{
 
@@ -560,8 +530,6 @@ class Evaluate{
                                 break;
                         }
 
-
-
                         $offset = count($compiler->codes);
                         $this->add('OFFSET', 'Offset 1');
 
@@ -589,8 +557,6 @@ class Evaluate{
                     }else if ($doReturn == "default"){
                         $this->compiler->evalVar->ret('default '. $index . " - ". count($association->childs));
                     }
-
-
 
                     if (
                         isset($association->childs[$index + 1]) &&
@@ -632,7 +598,11 @@ class Evaluate{
                             }
                         }
 
+                        // all the same, convert them into integer
                         if ($compareAgainst == "boolean") $compareAgainst = "integer";
+                        if ($compareAgainst == "entityptr") $compareAgainst = "integer";
+                        if ($compareAgainst == "state") $compareAgainst = "integer";
+
 
                         if ($compareAgainst == "float"){
                             $this->add('4e000000', 'compare float');
@@ -643,11 +613,7 @@ class Evaluate{
                             $this->add('49000000', 'compare string ' . $param->value);
                             $this->compiler->evalVar->valuePointer(1);
 
-                        }elseif (
-                            $compareAgainst == "integer" ||
-                            $compareAgainst == "entityptr" ||
-                            $compareAgainst == "state"
-                        ){
+                        }elseif ($compareAgainst == "integer"){
                             $this->add('0f000000', "compare integer");
                             $this->add('04000000', "compare integer");
 
@@ -657,140 +623,10 @@ class Evaluate{
 
                             $this->compiler->evalVar->valuePointer(1);
                         }
-
-
-
                     }
 
                 }
-//
-//                if ($association->isNot === true){
-//                    $compiler->evalVar->not();
-//                }
-//
-//                if ($association->operatorValue !== null){
-//
-//                    //todo should check both sides to find the right type
-//                    if ($doReturn && $association->operatorValue->type == Tokens::T_STRING){
-//                        $this->add('10000000', 'Return string 1');
-//                        $this->add('02000000', 'Return string');
-//                    }
-//
-//                    if ($compareAgainst == "state"){
-//                        $this->compiler->evalVar->valuePointer($association->operatorValue->offset);
-//
-//                    }else{
-//                        new Evaluate($this->compiler, $association->operatorValue);
-//                    }
-//
-//                    if ($association->operatorValue->type == Tokens::T_STRING){
-//                        $this->compiler->evalVar->readSize( strlen($association->operatorValue->value) + 1 );
-//
-//                        $this->compiler->evalVar->retString();
-//
-//                        $this->add('49000000', 'compare string ' . $association->operatorValue->value);
-//
-//                    }else if ($association->operatorValue->type == Tokens::T_FLOAT){
-//                        //value evaluated already just apply the return
-//                        $this->compiler->evalVar->ret();
-//
-//                        $this->add('4e000000', 'compare float');
-//
-//                    }else if (
-//                        $association->operatorValue->type == Tokens::T_INT ||
-//                        $association->operatorValue->type == Tokens::T_CONSTANT ||
-//                        $association->operatorValue->return == 'entityptr' ||
-//                        $association->operatorValue->varType == 'entityptr' ||
-//                        $association->operatorValue->varType == 'integer'
-//                    ){
-//                        $this->add('0f000000', "Return last case");
-//                        $this->add('04000000', "Return last case");
-//
-//                        $this->add('23000000');
-//                        $this->add('04000000');
-//                        $this->add('01000000');
-//                    }else{
-//
-//                        /*
-//                         * Todo:
-//                         *
-//                         * Unknown block, appear here, right after case end
-//                         *
-//                         * if(CalcDistanceToEntity(GetPlayer, pos[i]) < radius) then begin
-//                         */
-//
-//                        $this->compiler->evalVar->ret();
-//
-//                        //some math action ....
-//                        $this->add('4e000000');
-//
-//                    }
-//
-//                    $this->compiler->evalVar->valuePointer(1);
-//
-//                    switch ($association->operator){
-//                        case Tokens::T_IS_SMALLER:
-//                            $this->add('3d000000');
-//                            break;
-//                        case Tokens::T_IS_SMALLER_EQUAL:
-//                            $this->add('3e000000');
-//                            break;
-//                        case Tokens::T_IS_EQUAL:
-//                            $this->add('3f000000');
-//                            break;
-//                        case Tokens::T_IS_NOT_EQUAL:
-//                            $this->add('40000000');
-//                            break;
-//                        case Tokens::T_IS_GREATER_EQUAL:
-//                            $this->add('41000000');
-//                            break;
-//                        case Tokens::T_IS_GREATER:
-//                            $this->add('42000000');
-//                            break;
-//                        default:
-//                            throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $association->operator));
-//                            break;
-//                    }
-//
-//                    $offset = count($compiler->codes);
-//                    $this->add('OFFSET', 'Offset 1');
-//
-//                    $this->add('33000000');
-//                    $this->add('01000000');
-//                    $this->add('01000000');
-//
-//                    $compiler->codes[$offset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-//                }
-//
-//                if ($association->statementOperator ){
-//                    $this->add('0f000000', "apply to operator");
-//                    $this->add('04000000', "apply to operator");
-//
-//                    switch ($association->statementOperator){
-//
-//                        case Tokens::T_OR:
-//                            $this->add('27000000', 'OR');
-//                            break;
-//                        case Tokens::T_AND:
-//                            $this->add('25000000', 'AND');
-//                            break;
-//                        default:
-//                            throw new Exception(sprintf('Evaluate: statementOperator =>  %s is not a valid operator !', $association->statementOperator));
-//                            break;
-//                    }
-//
-//                    $this->add('01000000', 'apply operator ' . $association->statementOperator);
-//                    $this->add('04000000', 'apply operator ' . $association->statementOperator);
-//                }
-//
-//                if ($association->isLastCondition !== true && $onlyConditions == false){
-//
-//                    /**
-//                     * wenn die eine condition in einer condition ist, ist die außere condition im grunde leer
-//                     * daher darf dann auch kein 10 01 passieren
-//                     */
-//                    $this->compiler->evalVar->ret();
-//                }
+
 
                 break;
             case Tokens::T_DO:
@@ -805,13 +641,6 @@ class Evaluate{
                     $compiler->evalVar->msg = sprintf("IF Statement case %s", $index);
 
                     new Evaluate($this->compiler, $case->condition);
-
-                    //apply the condition
-                    /** @var Associations $condition */
-//                    foreach ($case->condition as $conditionIndex => $condition) {
-//                        var_dump($case->condition);
-//                        new Evaluate($this->compiler, $condition);
-//                    }
 
                     $compiler->evalVar->msg = sprintf("IF Statement case %s", $index);
                     $this->add('24000000');
