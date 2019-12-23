@@ -263,8 +263,10 @@ class Evaluate{
             case Tokens::T_VARIABLE:
                 $compiler->evalVar->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
 
-                if ($association->isGameVar === true){
+                if ($association->isGameVar === true) {
                     $compiler->evalVar->gameVarPointer($association);
+                }else if ($association->isLevelVar === true){
+                    $compiler->evalVar->levelVarPointer($association);
 
                 }else if (
                     $association->fromArray === true ||
@@ -1012,17 +1014,28 @@ class Evaluate{
         throw new Exception("Unable to resolve type " . $association->type);
     }
 
-    private function writeData($association, $type ){
+
+    private function writeData(Associations $association, $type ){
         switch ($type) {
             case 'state':
             case 'entityptr':
             case 'integer':
             case 'boolean':
             case 'float':
-                $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
-                $this->add('04000000');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                $this->add('01000000');
+
+                if ($association->isLevelVar){
+                    $this->add('1a000000', 'LevelVar');
+                    $this->add('01000000');
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                    $this->add('04000000');
+
+                }else{
+                    $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
+                    $this->add('04000000');
+                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                    $this->add('01000000');
+
+                }
                 break;
             case 'vec3d':
                 $this->add('12000000');
@@ -1140,7 +1153,11 @@ class Evaluate{
                  * Looks like a hack but the extra return appears only in
                  * function parameters that ends with a multiply operation...
                  */
-                if ($isLast == true && $association->type == Tokens::T_MULTIPLY){
+                if (
+                    $varType != "float" &&
+                    $isLast == true &&
+                    $association->type == Tokens::T_MULTIPLY
+                ){
                     $this->compiler->evalVar->ret();
                 }
 
