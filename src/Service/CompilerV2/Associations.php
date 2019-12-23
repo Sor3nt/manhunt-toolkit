@@ -27,6 +27,7 @@ class Associations
 
     public $size = null;
 
+    public $fromState = null;
     public $isLevelVar = null;
     public $parent = null;
     public $isArgument = null;
@@ -75,6 +76,7 @@ class Associations
         if (count($this->childs)) $debug['childs'] = $this->childs;
         if (count($this->cases)) $debug['cases'] = $this->cases;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
+        if ($this->fromState !== null) $debug['fromState'] = $this->math;
         if ($this->math !== null) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
         if ($this->typeOf !== null) $debug['typeOf'] = $this->typeOf;
@@ -157,6 +159,7 @@ class Associations
                     //used from array variables like "itemsSpawned[1]"
                     if (isset($forIndex['typeOf'])) $forIndexAssociation->typeOf = $forIndex['typeOf'];
                     if (isset($forIndex['fromArray'])) $forIndexAssociation->fromArray = $forIndex['fromArray'];
+                    if (isset($forIndex['fromState'])) $forIndexAssociation->fromState = $forIndex['fromState'];
                     if (isset($forIndex['index'])) $forIndexAssociation->index = $forIndex['index'];
                     if (isset($forIndex['isArgument'])) $forIndexAssociation->isArgument = $forIndex['isArgument'];
                     if (isset($forIndex['isGameVar'])) $forIndexAssociation->isGameVar = $forIndex['isGameVar'];
@@ -180,6 +183,7 @@ class Associations
 
             //used from array variables like "itemsSpawned[1]"
             if (isset($variable['typeOf'])) $this->typeOf = $variable['typeOf'];
+            if (isset($variable['fromState'])) $this->fromState = $variable['fromState'];
             if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
             if (isset($variable['index'])) $this->index = $variable['index'];
             if (isset($variable['isArgument'])) $this->isArgument = $variable['isArgument'];
@@ -197,6 +201,7 @@ class Associations
                 $parent->section = $variable['parent']['section'];
 
                 if (isset($variable['parent']['typeOf'])) $parent->typeOf = $variable['parent']['typeOf'];
+                if (isset($variable['parent']['fromState'])) $parent->fromState = $variable['parent']['fromState'];
                 if (isset($variable['parent']['fromArray'])) $parent->fromArray = $variable['parent']['fromArray'];
                 if (isset($variable['parent']['index'])) $parent->index = $variable['parent']['index'];
                 if (isset($variable['parent']['isArgument'])) $parent->isArgument = $variable['parent']['isArgument'];
@@ -618,17 +623,32 @@ class Associations
 
                 /** @var Associations[] $conditions */
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);
-                $this->unwrapSimpleCondition($conditions);
-                $this->convertToSimpleCondition($conditions);
-//                $this->convertToSimpleCondition2($conditions);
+
+                $result = [];
+                $this->flatForRpn($conditions, $result);
+                $conditions = (new RPN())->convertToReversePolishNotation($result);
+
+            $newCondition = new Associations();
+            $newCondition->type = Tokens::T_CONDITION;
+            $newCondition->childs = $conditions;
+
+            $conditions = $newCondition;
+
+//                                var_dump($conditions);exit;
+//
+//                $this->unwrapSimpleCondition($conditions);
+//                $this->convertToSimpleChain($conditions);
+//                $this->convertToSimpleCondition($conditions);
+////                $this->convertToSimpleCondition2($conditions);
+////            var_dump($conditions);exit;
+//                $this->convertOperatorChain($conditions);
 //            var_dump($conditions);exit;
-                $this->convertOperatorChain($conditions);
-                $this->convertConditionNot($conditions);
-                $this->convertConditionStatementOperator($conditions);
-                $this->convertConditionCompareOperator($conditions);
-                $this->getLastCondition($conditions, $lastCondition);
-                /** @var Associations $lastCondition */
-                $lastCondition->isLastCondition = true;
+//                $this->convertConditionNot($conditions);
+//                $this->convertConditionStatementOperator($conditions);
+//                $this->convertConditionCompareOperator($conditions);
+//                $this->getLastCondition($conditions, $lastCondition);
+//                /** @var Associations $lastCondition */
+//                $lastCondition->isLastCondition = true;
                 $case->condition = $conditions;
 
                 if ($compiler->consumeIfTrue("begin")) {
@@ -1006,6 +1026,59 @@ class Associations
             }
         }
     }
+
+    /**
+     * @param Associations[] $conditions
+     */
+    private function convertToSimpleChain( &$conditions){
+
+        $hasCondition = false;
+        $hasOperator = false;
+        foreach ($conditions as $condition) {
+            if ($condition->type == Tokens::T_CONDITION){
+                $hasCondition = true;
+                continue;
+            }
+
+            switch ($condition->type){
+                case Tokens::T_AND:
+                case Tokens::T_OR:
+                    $hasOperator = true;
+                    break;
+            }
+        }
+
+        if ($hasCondition == false && $hasOperator == true){
+
+
+            $newCondition = new Associations();
+            $newCondition->type = Tokens::T_CONDITION;
+//            $newCondition->childs = $conditions;
+
+            foreach ($conditions as $condition) {
+
+                switch ($condition->type){
+                    case Tokens::T_AND:
+                    case Tokens::T_OR:
+                        continue;
+                        break;
+                }
+
+                $newCondition->childs[] = $condition;
+
+            }
+
+            var_dump($newCondition);exit;
+
+            $conditions = [$newCondition];
+
+
+var_dump($conditions);
+//            var_dump("jo");
+        }
+
+    }
+
 
     /**
      * If IsPlayerWalking then sleep(1500);

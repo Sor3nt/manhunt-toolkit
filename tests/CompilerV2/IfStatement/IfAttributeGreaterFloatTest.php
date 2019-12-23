@@ -55,13 +55,12 @@ class IfAttributeGreaterFloatTest extends KernelTestCase
             '10000000', //nested call return result
             '01000000', //nested call return result
 
-            '0f000000', //unknown
-            '02000000', //unknown
-
-            '18000000', //unknown
-            '01000000', //unknown
-            '04000000', //unknown
-            '02000000', //unknown
+            '0f000000', //from array
+            '02000000', //from array
+            '18000000', //from array
+            '01000000', //from array
+            '04000000', //from array
+            '02000000', //from array
 
             '10000000', //nested call return result
             '01000000', //nested call return result
@@ -73,7 +72,7 @@ class IfAttributeGreaterFloatTest extends KernelTestCase
             '10000000', //nested call return result
             '01000000', //nested call return result
 
-            '4e000000', //unknown
+            '4e000000', //compare float
 
             '12000000', //unknown
             '01000000', //unknown

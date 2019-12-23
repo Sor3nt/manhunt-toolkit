@@ -19,9 +19,9 @@ class EvaluateVariable{
         $this->compiler = $compiler;
     }
 
-    public function ret(){
-        $this->add('10000000', 'Return');
-        $this->add('01000000', 'Return');
+    public function ret( $msg = "" ){
+        $this->add('10000000', 'Return ' . $msg);
+        $this->add('01000000', 'Return ' . $msg);
     }
 
     public function retString(){
@@ -343,7 +343,21 @@ Class RPN {
                     }
                     break;
                 default:
-                    if (in_array($symbol->type, ['T_ADDITION', 'T_SUBSTRACTION', 'T_MULTIPLY', 'T_DIVISION'])) {
+                    if (in_array($symbol->type, [
+                        Tokens::T_IS_SMALLER,
+                        Tokens::T_IS_SMALLER_EQUAL,
+                        Tokens::T_IS_GREATER_EQUAL,
+                        Tokens::T_IS_GREATER,
+                        Tokens::T_IS_EQUAL,
+                        Tokens::T_IS_NOT_EQUAL,
+                        'T_ADDITION',
+                        'T_SUBSTRACTION',
+                        'T_MULTIPLY',
+                        'T_DIVISION',
+                        'T_AND',
+                        'T_OR',
+                        'T_NOT'
+                    ])) {
                         if (empty($stack)) {
                             array_push($stack, $symbol);
                         } else {
@@ -390,12 +404,22 @@ Class RPN {
         switch ($operation->type) {
             case 'T_SUBSTRACTION':
             case 'T_ADDITION':
+            case 'T_AND':
                 $result = 2;
                 break;
             case 'T_MULTIPLY':
             case 'T_DIVISION':
+            case 'T_OR':
                 $result = 3;
                 break;
+            case 'T_NOT':
+
+            case Tokens::T_IS_GREATER:
+            case Tokens::T_IS_GREATER_EQUAL:
+            case Tokens::T_IS_EQUAL:
+            case Tokens::T_IS_NOT_EQUAL:
+            case Tokens::T_IS_SMALLER_EQUAL:
+            case Tokens::T_IS_SMALLER:
             case '(':
                 $result = 1;
                 break;

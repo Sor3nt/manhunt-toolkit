@@ -71,15 +71,19 @@ class IfAndOrNestedTest extends KernelTestCase
 
             '51020000', //IsExecutionInProgress Call
 
-            '0f000000', //unknown
-            '04000000', //unknown
+
+
+            '0f000000', //apply to operator
+            '04000000', //apply to operator
 
             '27000000', //statement (OR operator)
             '01000000', //statement (OR operator)
             '04000000', //statement (OR operator)
 
-            '0f000000', //unknown
-            '04000000', //unknown
+            '0f000000', //apply operator
+            '04000000', //apply operator
+
+
 
             '25000000', //statement (AND operator)
             '01000000', //statement (AND operator)

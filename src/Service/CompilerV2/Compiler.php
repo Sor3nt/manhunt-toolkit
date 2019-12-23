@@ -273,6 +273,7 @@ class Compiler
                 'type' => 'integer',
                 'size' => 1,
                 'offset' => $index,
+                'fromState' => true,
                 'section' => 'header',
                 'scriptName' => 'header'
             ];
@@ -607,5 +608,21 @@ class Compiler
         }
 
         return true;
+    }
+
+    public function isTypeConditionOperatorOrOperator($type){
+        switch ($type){
+            case Tokens::T_OR:
+            case Tokens::T_AND:
+            case Tokens::T_IS_GREATER_EQUAL:
+            case Tokens::T_IS_GREATER:
+            case Tokens::T_IS_SMALLER:
+            case Tokens::T_IS_SMALLER_EQUAL:
+            case Tokens::T_IS_EQUAL:
+            case Tokens::T_IS_NOT_EQUAL:
+                return true;
+        }
+
+        return false;
     }
 }

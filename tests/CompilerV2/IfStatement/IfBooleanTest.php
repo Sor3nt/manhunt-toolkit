@@ -69,6 +69,7 @@ class IfBooleanTest extends KernelTestCase
             '33000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
             '01000000', //statement (compare mode INT/FLOAT)
+
             '24000000', //statement (end sequence)
             '01000000', //statement (end sequence)
             '00000000', //statement (end sequence)

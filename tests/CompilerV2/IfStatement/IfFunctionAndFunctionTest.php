@@ -52,9 +52,9 @@ class IfFunctionAndFunctionTest extends KernelTestCase
             '12000000', //parameter (Read String var)
             '02000000', //parameter (Read String var)
             '0b000000', //value 11
+
             '10000000', //nested call return result
             '01000000', //nested call return result
-
             '10000000', //nested string return result
             '02000000', //nested string return result
 
