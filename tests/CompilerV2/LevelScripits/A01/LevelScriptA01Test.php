@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\CompilerV2Level\LevelScripts;
+namespace App\Tests\CompilerV2\LevelScripts\A01;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class LevelScriptA01Test extends KernelTestCase
 {
 
-    public function test()
+    public function testGetLevel()
     {
 
 
@@ -17054,6 +17054,8 @@ end.
         }else{
             $this->assertEquals(true,true);
         }
+
+        return $compiler;
     }
 
 }

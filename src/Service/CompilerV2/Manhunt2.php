@@ -2130,13 +2130,8 @@ class Manhunt2 extends ManhuntDefault
         'getpedorientation' => [
             'name' => 'GetPedOrientation',
             'offset' => '8d030000',
-            /**
-             * Parameters
-             * - none
-             */
-            'params' => [],
-            'return' => 'Void',
-            'desc' => ''
+
+            'return' => 'float'
         ],
 
         'isgametextdisplaying' => [

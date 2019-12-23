@@ -10,6 +10,7 @@ class Compiler
 
     public $game;
     public $platform;
+    public $debug = false;
 
     /** @var null|Compiler  */
     public $gameScript = null;
@@ -49,6 +50,13 @@ class Compiler
     public $evalVar;
 
     public $storedProcedureCallOffsets = [];
+
+    public function debug($stuff, $exit = true){
+        if ($this->debug){
+            var_dump($stuff);
+            if ($exit) exit;
+        }
+    }
 
     public function __construct($source, $game, $platform)
     {
@@ -196,7 +204,7 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//var_dump($associationRearranged);exit;
+//$this->debug($associationRearranged);
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }

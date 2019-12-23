@@ -411,7 +411,7 @@ class Evaluate{
 
 
                         $isState = $compiler->getState($param->varType);
-                        if ($compareAgainst == false) $compareAgainst = $isState ? 'state' : $param->varType;
+                        $compareAgainst = $isState ? 'state' : $param->varType;
 
                         if ($param->varType == "string"){
                             new Evaluate($this->compiler, $param);
@@ -616,8 +616,8 @@ class Evaluate{
                                     throw new \Exception("Unable to detect compareType for type " . $leftHand->type);
                                     break;
                             }
-                        }
 
+                        }
                         // all the same, convert them into integer
                         if ($compareAgainst == "boolean") $compareAgainst = "integer";
                         if ($compareAgainst == "entityptr") $compareAgainst = "integer";
@@ -643,6 +643,8 @@ class Evaluate{
 
                             $this->compiler->evalVar->valuePointer(1);
                         }
+
+                        $compareAgainst = false;
                     }
 
                 }
