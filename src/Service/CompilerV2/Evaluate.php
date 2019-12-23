@@ -222,6 +222,24 @@ class Evaluate{
 
                 if ($association->fromArray == true) {
                     $this->writeData($association, "array");
+                }else if ($association->varType == "string" && $association->section == "header"){
+                    $appendix = 'write to ' . $association->value;
+
+                    $this->add('21000000', $appendix);
+                    $this->add('04000000', $appendix);
+                    $this->add('04000000', $appendix);
+                    $this->add(Helper::fromIntToHex($association->offset), 'String offset');
+
+                    $this->add('12000000', $appendix);
+                    $this->add('03000000', $appendix);
+                    $this->add(Helper::fromIntToHex($association->size), 'Size of ' . $association->size);
+
+                    $this->add('10000000', $appendix);
+                    $this->add('04000000', $appendix);
+                    $this->add('10000000', $appendix);
+                    $this->add('03000000', $appendix);
+                    $this->add('48000000', $appendix);
+
                 }else if (
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"

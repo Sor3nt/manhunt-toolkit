@@ -454,6 +454,13 @@ class Associations
             case 'entity':
                 $this->type = Tokens::T_NOP;
                 $compiler->mlsEntityName = $compiler->consume();
+
+                if ($compiler->getToken() == "("){
+                    $compiler->mlsEntityName .= $compiler->consume(); // consume (
+                    $compiler->mlsEntityName .= $compiler->consume(); // consume inner name
+                    $compiler->mlsEntityName .= $compiler->consume(); // consume )
+                }
+
                 $compiler->current++;
                 $compiler->mlsEntityType = $compiler->consume();
                 break;
