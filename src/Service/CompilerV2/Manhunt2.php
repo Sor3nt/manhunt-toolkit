@@ -953,7 +953,8 @@ class Manhunt2 extends ManhuntDefault
 
         'randnum' => [
             'name' => 'RandNum',
-            'offset' => '69000000'
+            'offset' => '69000000',
+            'return' => 'integer'
         ],
 
         'getdifficultylevel' => [
@@ -1006,7 +1007,7 @@ class Manhunt2 extends ManhuntDefault
         'getentityname' => [
             'name' => 'GetEntityName',
             'offset' => '86000000',
-            'return' => Token::T_STRING
+            'return' => 'string'
         ],
 
         'getdoorstate' => [
@@ -2937,7 +2938,7 @@ class Manhunt2 extends ManhuntDefault
         'getcurrentinventoryitemtype' => [
             'name' => 'GetCurrentInventoryItemType',
             'offset' => '2a010000',
-            'return' => 'Boolean'
+            'return' => 'boolean'
         ],
 
         'aitriggersoundnoradar' => [

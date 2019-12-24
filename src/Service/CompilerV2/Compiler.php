@@ -636,6 +636,7 @@ class Compiler
                 }
                 $varType = $association->return;
                 break;
+            case Tokens::T_SELF:
             case Tokens::T_INT:
                 $varType = "integer";
                 break;

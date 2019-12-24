@@ -706,7 +706,7 @@ class Evaluate{
 
                     new Evaluate($this->compiler, $param);
 
-                    $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
+                    $compiler->evalVar->msg = sprintf("Process argument %s", $param->value);
 
                     /**
                      * Check if we need to convert the given int into a float
@@ -739,45 +739,192 @@ class Evaluate{
                         }
                     }
 
-                    /**
-                     * Mystery : these function dont require a return, never
-                     */
-                    if (
-                        $param->return == "integer" ||
-                        $param->parent != null ||
-                        strtolower($param->value) == "getentityposition" ||
-                        strtolower($param->value) == "getplayerposition" ||
-                        strtolower($param->value) == "getentityview" ||
-                        strtolower($param->value) == "getentityname"
-                    ){
 
-                    //regular data / string return
-                    }else if (
-                        $param->type == Tokens::T_STRING ||
-                        $param->varType == "string"
-                    ){
-                        // TODO: the param should be converted into a simple int to avoid these hacks
-                        if ($param->value !== " "){
+                    if (strtolower($association->value) == "writedebug"){
+
+                        if (
+                            $param->type == Tokens::T_INT ||
+                            $param->type == Tokens::T_CONSTANT
+                        ){
+                            $this->compiler->evalVar->ret();
+                        }else if (
+                            $param->type == Tokens::T_STRING
+                        ) {
+                            if ($param->value !== " "){
+                                $this->compiler->evalVar->retString();
+
+                            }
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "string"
+//                        $param->section == "header"
+                        ) {
                             $this->compiler->evalVar->retString();
                         }
 
+
                     }else{
-
-                        /**
-                         * HACKS HACKS HACK.......
-                         *
-                         * Fucking returns....
-                         */
-                        if ($param->fromArray || $param->forIndex){
-
-                        }else if(
-                            strtolower($association->value) == "writedebug" &&
-                            $param->varType == "integer"
+                        if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "entityptr" &&
+                            $param->section == "script"
                         ){
-                        }else{
                             $this->compiler->evalVar->ret();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "string"
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->retString();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "entityptr"
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->ret();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "integer"
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->ret();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "float"
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->ret();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "ecollectabletype"
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->ret();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "eaicombattype"
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->ret();
+
+                        }else if (
+                            $param->type == Tokens::T_VARIABLE &&
+                            $param->varType == "vec3d" &&
+                            $param->fromArray == false
+//                        $param->section == "header"
+                        ) {
+                            $this->compiler->evalVar->ret();
+                        }else if (
+                            $param->type == Tokens::T_FUNCTION &&
+                            $param->return == "entityptr"
+                        ) {
+                            $this->compiler->evalVar->ret();
+                        }else if (
+                            $param->type == Tokens::T_FUNCTION &&
+                            $param->return == "boolean"
+                        ) {
+                            $this->compiler->evalVar->ret();
+                        }else if (
+                            $param->type == Tokens::T_FUNCTION &&
+                            $param->return == "integer"
+                        ) {
+                            $this->compiler->evalVar->ret();
+                        } else if (
+                            $param->type == Tokens::T_MATH ||
+                            $param->type == Tokens::T_INT ||
+                            $param->type == Tokens::T_CONSTANT
+                        ){
+                            $this->compiler->evalVar->ret();
+                        } else if (
+                            $param->type == Tokens::T_FLOAT
+                        ){
+                            $this->compiler->evalVar->ret();
+                        } else if (
+                            $param->type == Tokens::T_SELF
+                        ){
+                            $this->compiler->evalVar->ret();
+                        } else if (
+                            $param->type == Tokens::T_STRING
+                        ){
+                            $this->compiler->evalVar->retString();
+                        }else{
+
+//                            var_dump($param);
                         }
+
                     }
+
+
+
+
+//                    if (
+////                        $param->type == Tokens::T_VARIABLE &&
+//                        in_array($varType, [
+//                            'integer'
+//                        ]) !== false
+//                    ){
+//                        //ignore
+//                    }else if (
+//                        $param->type == Tokens::T_FUNCTION &&
+//                        in_array($varType, [
+//                            'string'
+//                        ]) !== false
+//                    ){
+//
+//                        //ignore
+//                    }else if ($varType == "string" && $param->value !== " "){
+//                        $this->compiler->evalVar->retString();
+//
+//                    }else{
+//                        $this->compiler->evalVar->ret(1);
+//                    }
+
+
+//                    /**
+//                     * Mystery : these function dont require a return, never
+//                     */
+//                    if (
+//                        $param->return == "integer" ||
+//                        $param->parent != null ||
+//                        strtolower($param->value) == "getentityposition" ||
+//                        strtolower($param->value) == "getplayerposition" ||
+//                        strtolower($param->value) == "getentityview" ||
+//                        strtolower($param->value) == "getentityname"
+//                    ){
+//
+//                    //regular data / string return
+//                    }else if (
+//                        $param->type == Tokens::T_STRING ||
+//                        $param->varType == "string"
+//                    ){
+//                        // TODO: the param should be converted into a simple int to avoid these hacks
+//                        if ($param->value !== " "){
+//                            $this->compiler->evalVar->retString();
+//                        }
+//
+//                    }else{
+//
+//                        /**
+//                         * HACKS HACKS HACK.......
+//                         *
+//                         * Fucking returns....
+//                         */
+//                        if ($param->fromArray || $param->forIndex){
+//
+//                        }else if(
+//                            strtolower($association->value) == "writedebug" &&
+//                            $param->varType == "integer"
+//                        ){
+//                        }else{
+//                            $this->compiler->evalVar->ret();
+//                        }
+//                    }
                 }
 
                 $compiler->evalVar->msg = sprintf("Call Function %s", $association->value);
