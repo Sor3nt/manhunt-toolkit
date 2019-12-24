@@ -791,6 +791,7 @@ class Evaluate{
                      * Mystery : these function dont require a return, never
                      */
                     if (
+                        $param->return == "integer" ||
                         $param->parent != null ||
                         strtolower($param->value) == "getentityposition" ||
                         strtolower($param->value) == "getplayerposition" ||
@@ -861,6 +862,9 @@ class Evaluate{
                         $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
                     }else if ($param->type == Tokens::T_FUNCTION) {
                         switch ($param->return){
+                            case 'integer':
+                                $writeDebugFunction = $compiler->gameClass->getFunction('writedebuginteger');
+                                break;
                             case 'string':
                                 $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
                                 break;
