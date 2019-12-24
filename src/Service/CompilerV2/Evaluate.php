@@ -394,12 +394,12 @@ class Evaluate{
                         if ($nextChild->type == Tokens::T_NOT){
                             if (isset($association->childs[$index + 2])){
 
-                                $lastInCurrentChain = $this->compiler->isTypeConditionOperatorOrOperator($association->childs[$index + 2]->type);
+                                $lastInCurrentChain = $this->compiler->isTypeConditionOperatorOrOperation($association->childs[$index + 2]->type);
                             }else{
                                 $lastInCurrentChain = true;
                             }
                         }else{
-                            $lastInCurrentChain = $this->compiler->isTypeConditionOperatorOrOperator($association->childs[$index + 1]->type);
+                            $lastInCurrentChain = $this->compiler->isTypeConditionOperatorOrOperation($association->childs[$index + 1]->type);
                         }
 
                     }
@@ -578,71 +578,20 @@ class Evaluate{
                         $this->compiler->evalVar->ret('default '. $index . " - ". count($association->childs));
                     }
 
+
+                    /**
+                     * we reached a operation (>, <, =, <>...)
+                     */
                     if (
                         isset($association->childs[$index + 1]) &&
-                        (
-                            $association->childs[$index + 1]->type == Tokens::T_IS_GREATER ||
-                            $association->childs[$index + 1]->type == Tokens::T_IS_GREATER_EQUAL ||
-                            $association->childs[$index + 1]->type == Tokens::T_IS_NOT_EQUAL ||
-                            $association->childs[$index + 1]->type == Tokens::T_IS_SMALLER ||
-                            $association->childs[$index + 1]->type == Tokens::T_IS_SMALLER_EQUAL ||
-                            $association->childs[$index + 1]->type == Tokens::T_IS_EQUAL
-                        )
+                        $compiler->isTypeConditionOperation($association->childs[$index + 1]->type)
                     ) {
 
                         if ($compareAgainst == false){
-
-                            $leftHand = $association->childs[$index];
-                            switch ($leftHand->type){
-                                case Tokens::T_VARIABLE:
-                                    $compareAgainst = $leftHand->varType;
-                                    break;
-                                case Tokens::T_FUNCTION:
-                                    $compareAgainst = $leftHand->return;
-                                    break;
-                                case Tokens::T_INT:
-                                    $compareAgainst = "integer";
-                                    break;
-                                case Tokens::T_FLOAT:
-                                    $compareAgainst = "float";
-                                    break;
-                                case Tokens::T_STRING:
-                                    $compareAgainst = "string";
-                                    break;
-                                case Tokens::T_CONSTANT:
-                                    $compareAgainst = $leftHand->varType;;
-                                    break;
-                                default:
-                                    throw new \Exception("Unable to detect compareType for type " . $leftHand->type);
-                                    break;
-                            }
-
+                            $compareAgainst = $compiler->detectVarType($param);
                         }
-                        // all the same, convert them into integer
-                        if ($compareAgainst == "boolean") $compareAgainst = "integer";
-                        if ($compareAgainst == "entityptr") $compareAgainst = "integer";
-                        if ($compareAgainst == "state") $compareAgainst = "integer";
 
-
-                        if ($compareAgainst == "float"){
-                            $this->add('4e000000', 'compare float');
-                            $this->compiler->evalVar->valuePointer(1);
-
-                        }elseif ($compareAgainst == "string"){
-
-                            $this->add('49000000', 'compare string ' . $param->value);
-                            $this->compiler->evalVar->valuePointer(1);
-
-                        }elseif ($compareAgainst == "integer"){
-                            $this->add('0f000000', "compare integer");
-                            $this->add('04000000', "compare integer");
-
-                            $this->add('23000000', "compare integer");
-                            $this->add('04000000', "compare integer");
-                            $this->add('01000000', "compare integer");
-
-                            $this->compiler->evalVar->valuePointer(1);
-                        }
+                        $compiler->evalVar->setCompareMode($compareAgainst);
 
                         $compareAgainst = false;
                     }
@@ -759,6 +708,9 @@ class Evaluate{
 
                     $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
 
+                    /**
+                     * Check if we need to convert the given int into a float
+                     */
                     if (
                         $association->forceFloat &&
                         $association->forceFloat[$index] === true &&

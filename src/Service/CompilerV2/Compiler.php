@@ -618,10 +618,62 @@ class Compiler
         return true;
     }
 
-    public function isTypeConditionOperatorOrOperator($type){
+    /**
+     * @param Associations $association
+     * @return mixed|string|null
+     * @throws Exception
+     */
+    public function detectVarType( Associations $association ){
+
+        $varType = null;
+        switch ($association->type){
+            case Tokens::T_VARIABLE:
+                $varType = $association->varType;
+                break;
+            case Tokens::T_FUNCTION:
+                if ($association->return == null){
+                    throw new \Exception("Unable to detect varType, RETURN missed for function " . $association->value);
+                }
+                $varType = $association->return;
+                break;
+            case Tokens::T_INT:
+                $varType = "integer";
+                break;
+            case Tokens::T_FLOAT:
+                $varType = "float";
+                break;
+            case Tokens::T_STRING:
+                $varType = "string";
+                break;
+            case Tokens::T_CONSTANT:
+                $varType = $association->varType;;
+                break;
+            default:
+                throw new \Exception("Unable to detect compareType for type " . $association->type);
+                break;
+        }
+
+        return $varType;
+    }
+
+    public function isTypeConditionOperatorOrOperation($type){
         switch ($type){
             case Tokens::T_OR:
             case Tokens::T_AND:
+            case Tokens::T_IS_GREATER_EQUAL:
+            case Tokens::T_IS_GREATER:
+            case Tokens::T_IS_SMALLER:
+            case Tokens::T_IS_SMALLER_EQUAL:
+            case Tokens::T_IS_EQUAL:
+            case Tokens::T_IS_NOT_EQUAL:
+                return true;
+        }
+
+        return false;
+    }
+
+    public function isTypeConditionOperation($type){
+        switch ($type){
             case Tokens::T_IS_GREATER_EQUAL:
             case Tokens::T_IS_GREATER:
             case Tokens::T_IS_SMALLER:
