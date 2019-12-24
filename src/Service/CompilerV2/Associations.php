@@ -989,7 +989,7 @@ class Associations
                     $type = 'float';
                 } else {
                     $value = (int)$value;
-                    $type = 'int';
+                    $type = 'integer';
                 }
             }
 

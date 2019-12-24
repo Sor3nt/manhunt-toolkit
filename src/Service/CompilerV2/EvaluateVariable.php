@@ -52,16 +52,17 @@ class EvaluateVariable{
 
     public function variablePointer( Associations $association, $type = null){
         $type = is_null($type) ? $association->varType : $type;
+
         if (
             $association->parent != null &&
             $association->parent->varType == "vec3d"
         ) {
 
-            $this->compiler->evalVar->memoryPointer( $association->parent );
+            $this->compiler->evalVar->memoryPointer($association->parent);
 
             $this->compiler->evalVar->ret();
 
-            if ($association->parent->value . '.x' !== $association->value){
+            if ($association->parent->value . '.x' !== $association->value) {
                 $this->add('0f000000', 'object secondary');
                 $this->add('01000000', 'object secondary');
 
@@ -81,7 +82,6 @@ class EvaluateVariable{
             $this->add('01000000');
             $this->add('04000000', 'Offset for ' . $association->value);
             $this->add('02000000');
-
 
         }else{
             if (in_array($type,
@@ -111,7 +111,7 @@ class EvaluateVariable{
 
     }
     public function memoryPointer( Associations $association){
-        $this->add($association->section == "header" ? '21000000' : '22000000', $association->varType . ' from Section ' . $association->section);
+        $this->add($association->section == "header" || $association->section == "constant" ? '21000000' : '22000000', $association->varType . ' from Section ' . $association->section);
         $this->add('04000000', 'Read memory');
         $this->add('01000000', 'Read memory');
         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);

@@ -294,35 +294,62 @@ class Compiler
     }
     public function addConstants( $name, $value, $type){
 
-        if ($type == "real") $type = "float";
+//        if ($type == "real") $type = "float";
+//
+//        $size = 4;
+//        if ($type == "string"){
+//            $stringIndex = substr($value, 4);
+//            $value = $this->strings[$stringIndex];
+//
+//            $size = strlen($value) + 1;
+//        }
+//
+//        $this->variables[] = [
+//            'name' => $name,
+//            'value' => $value,
+//            'size' => $size,
+//            'offset' => $this->offsetConstants,
+//            'type' => $type,
+//            'varType' => $type,
+//            'section' => 'constant',
+//            'scriptName' => 'header'
+//        ];
 
-        $size = 4;
-        if ($type == "string"){
-            $stringIndex = substr($value, 4);
-            $value = $this->strings[$stringIndex];
 
-            $size = strlen($value) + 1;
-        }
-
-        $this->variables[] = [
+        $data = [
+            'size' => 4,
             'name' => $name,
             'value' => $value,
-            'size' => $size,
-            'offset' => $this->offsetConstants,
             'type' => $type,
             'varType' => $type,
-            'section' => 'header',
+            'section' => 'constant',
             'scriptName' => 'header'
         ];
 
-        $this->offsetConstants += $size + (4 - $size % 4);
+
+        if (is_int($value)) {
+            $data['offset'] = $value;
+        }else if (is_float($value)) {
+            $data['offset'] = $value;
+        }else{
+            $stringIndex = substr($value, 4);
+            $value = $this->strings[$stringIndex];
+
+            $data['size'] = strlen($value) + 1;
+            $data['offset'] = $this->offsetConstants;
+
+        }
+
+        $this->offsetConstants += $data['size'] + (4 - $data['size'] % 4);
+
+        $this->addVariable($data);
     }
 
     public function addVariable( $data ){
 
         if ($data['type'] == 'real') $data['type'] = "float";
 
-        if (is_null($data['size'])) $data['size'] = $this->calcSize($data['type']);
+        if (!isset($data['size'])) $data['size'] = $this->calcSize($data['type']);
 
         if (!isset($data['offset'])){
 

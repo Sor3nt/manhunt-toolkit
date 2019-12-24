@@ -276,7 +276,7 @@ class Evaluate{
 
                 }else if ( $association->varType == "string") {
 
-                    if (in_array($association->section, ['header', 'script']) !== false){
+                    if (in_array($association->section, ['header', 'script', 'constant']) !== false){
 
                         $this->compiler->evalVar->memoryPointer($association);
                         $this->compiler->evalVar->readSize( $association->size );
@@ -297,17 +297,19 @@ class Evaluate{
                 }else if ( $association->varType == "vec3d") {
 
                     //we read from a procedure argument
-                    if ($association->offset < 0){
+                    if ($association->offset < 0) {
                         $this->add($association->section == "header" ? '14000000' : '13000000', $association->varType . ' from Section ' . $association->section);
                         $this->add('01000000', 'Read Variable ' . $association->value);
                         $this->add('04000000', 'Read Variable ' . $association->value);
                         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
 
-                    }else{
+                    } else {
                         $this->compiler->evalVar->memoryPointer($association);
                     }
 
+                }else if ($association->section == "constant"){
 
+                    $compiler->evalVar->valuePointer($association->offset);
 
                 }else{
                     $compiler->evalVar->variablePointer(

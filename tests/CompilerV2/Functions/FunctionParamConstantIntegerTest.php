@@ -4,7 +4,7 @@ namespace App\Tests\CompilerV2\Functions;
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class FunctionParamCustomConstantTest extends KernelTestCase
+class FunctionParamConstantIntegerTest extends KernelTestCase
 {
 
     public function test()
@@ -16,13 +16,14 @@ class FunctionParamCustomConstantTest extends KernelTestCase
             entity
                 A01_Escape_Asylum : et_level;
 
-            CONST
-                playerName = 'player(player)';
+                        
+            const
+                cBlinkDelay = 300;
 
             script OnCreate;
 
                 begin
-                	AiAddPlayer(playerName);
+                	sleep(cBlinkDelay);
                 end;
 
             end.
@@ -36,23 +37,15 @@ class FunctionParamCustomConstantTest extends KernelTestCase
             '0a000000',
             '09000000',
 
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '00000000', //offset
-
-            '12000000', //parameter (Read String var)
-            '02000000', //parameter (Read String var)
-            '0f000000', //value 15
+            '12000000', //parameter (read simple type (int/float...))
+            '01000000', //parameter (read simple type (int/float...))
+            '2c010000', //value 300
 
             '10000000', //nested call return result
             '01000000', //nested call return result
 
-            '10000000', //nested string return result
-            '02000000', //nested string return result
-
-            '5b010000', //aiaddplayer Call
-            
+            '6a000000', //Sleep Call
+    
             // script end
             '11000000',
             '09000000',
