@@ -156,6 +156,18 @@ class Compiler
      */
     public function compile(){
 
+        while ($this->current < count($this->tokens)) {
+//            var_dump($this->getToken());
+            if ($this->consumeIfTrue('const')){
+                (new Associations())->consumeConstants($this);
+            }else{
+                $this->current++;
+            }
+        }
+//$this->debug($this->variables );
+//$this->debug($this->offsetGlobalVariable );
+        $this->current = 0;
+
         // Search and add all used strings
         $this->searchStrings();
 
@@ -294,27 +306,6 @@ class Compiler
     }
     public function addConstants( $name, $value, $type){
 
-//        if ($type == "real") $type = "float";
-//
-//        $size = 4;
-//        if ($type == "string"){
-//            $stringIndex = substr($value, 4);
-//            $value = $this->strings[$stringIndex];
-//
-//            $size = strlen($value) + 1;
-//        }
-//
-//        $this->variables[] = [
-//            'name' => $name,
-//            'value' => $value,
-//            'size' => $size,
-//            'offset' => $this->offsetConstants,
-//            'type' => $type,
-//            'varType' => $type,
-//            'section' => 'constant',
-//            'scriptName' => 'header'
-//        ];
-
 
         $data = [
             'size' => 4,
@@ -329,8 +320,10 @@ class Compiler
 
         if (is_int($value)) {
             $data['offset'] = $value;
+            $this->offsetGlobalVariable += 4;
         }else if (is_float($value)) {
             $data['offset'] = $value;
+            $this->offsetGlobalVariable += 4;
         }else{
             $stringIndex = substr($value, 4);
             $value = $this->strings[$stringIndex];
@@ -340,6 +333,14 @@ class Compiler
 
         }
 
+        /**
+         * this is a little bit tricky here
+         *
+         * the constant values are part of the globaleVariableOffset
+         * but the string extraction process will grab the constant strings also.
+         *
+         * To avoid duplicate offset calculation we use a temporary offset calculation...
+         */
         $this->offsetConstants += $data['size'] + (4 - $data['size'] % 4);
 
         $this->addVariable($data);
@@ -353,7 +354,10 @@ class Compiler
 
         if (!isset($data['offset'])){
 
-            if ($data['section'] == "header"){
+            if (
+                $data['section'] == "header" ||
+                $data['section'] == "constant"
+            ){
 
                 $size = $data['size'];
                 if ($data['type'] == "string"){

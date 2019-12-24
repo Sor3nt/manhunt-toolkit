@@ -111,10 +111,10 @@ class EvaluateVariable{
 
     }
     public function memoryPointer( Associations $association){
-        $this->add($association->section == "header" || $association->section == "constant" ? '21000000' : '22000000', $association->varType . ' from Section ' . $association->section);
+        $this->add($association->section == "header" || $association->section == "constant" ? '21000000' : '22000000', $association->value . ' from Section ' . $association->section);
         $this->add('04000000', 'Read memory');
         $this->add('01000000', 'Read memory');
-        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+        $this->add(Helper::fromIntToHex($association->offset), 'Offset for ' . $association->value);
 
     }
 
