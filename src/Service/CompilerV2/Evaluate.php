@@ -266,7 +266,16 @@ class Evaluate{
                 if ($association->isGameVar === true) {
                     $compiler->evalVar->gameVarPointer($association);
                 }else if ($association->isLevelVar === true){
-                    $compiler->evalVar->levelVarPointer($association);
+
+                    if ($association->varType == "string"){
+
+                        $compiler->evalVar->levelVarPointerString($association);
+                        $compiler->evalVar->readSize($association->size);
+
+                    }else{
+                        $compiler->evalVar->levelVarPointer($association);
+
+                    }
 
                 }else if (
                     $association->fromArray === true ||
