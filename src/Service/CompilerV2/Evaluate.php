@@ -468,6 +468,7 @@ class Evaluate{
                         }
 
                     }else if (
+                        $param->type == Tokens::T_SELF ||
                         $param->type == Tokens::T_FLOAT ||
                         $param->type == Tokens::T_INT ||
                         $param->type == Tokens::T_CONSTANT

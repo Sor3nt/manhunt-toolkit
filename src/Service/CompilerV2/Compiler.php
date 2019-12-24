@@ -157,15 +157,14 @@ class Compiler
     public function compile(){
 
         while ($this->current < count($this->tokens)) {
-//            var_dump($this->getToken());
+
             if ($this->consumeIfTrue('const')){
                 (new Associations())->consumeConstants($this);
             }else{
                 $this->current++;
             }
         }
-//$this->debug($this->variables );
-//$this->debug($this->offsetGlobalVariable );
+
         $this->current = 0;
 
         // Search and add all used strings
@@ -216,7 +215,7 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//$this->debug($associationRearranged);
+//var_dump($associationRearranged);
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
