@@ -990,7 +990,7 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("Call Function %s", $association->value);
 
                 if ($association->isProcedure === true){
-                    $msg = "custom call";
+                    $msg = "procedure call";
                     $this->add('10000000', $msg);
                     $this->add('04000000', $msg);
                     $this->add('11000000', $msg);
@@ -1002,6 +1002,25 @@ class Evaluate{
                     $this->add('10000000', $msg);
                     $this->add('02000000', $msg);
                     $this->add('39000000', $msg);
+                }
+
+                if ($association->isCustomFunction === true){
+                    $msg = "custom function call";
+
+                    $this->add('10000000', $msg); //procedure
+                    $this->add('04000000', $msg); //procedure
+                    $this->add('11000000', $msg); //procedure
+                    $this->add('02000000', $msg); //procedure
+                    $this->add('00000000', $msg); //procedure
+                    $this->add('32000000', $msg); //procedure
+                    $this->add('02000000', $msg); //procedure
+                    $this->add('1c000000', $msg); //procedure
+                    $this->add('10000000', $msg); //procedure
+                    $this->add('02000000', $msg); //procedure
+                    $this->add('39000000', $msg); //procedure
+                    $this->add(Helper::fromIntToHex($association->offset), $msg . ' (offset)');
+
+                    return;
                 }
 
 

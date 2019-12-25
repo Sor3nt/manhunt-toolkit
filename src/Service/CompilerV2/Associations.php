@@ -447,7 +447,10 @@ class Associations
              * Note: Procedures are always loaded before any script block
              */
 
-                if ($compiler->currentBlockType == "procedure"){
+                if (
+                    $compiler->currentBlockType == "procedure" ||
+                    $compiler->currentBlockType == "function"
+                ){
                     $compiler->offsetScriptVariable = 0;
                 }
 
