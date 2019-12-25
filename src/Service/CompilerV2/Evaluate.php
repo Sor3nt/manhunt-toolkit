@@ -215,30 +215,10 @@ class Evaluate{
                     $compiler->evalVar->ret();
                 }
 
-                if ($association->assign->type == Tokens::T_STRING){
 
+                if ($association->assign->type == Tokens::T_STRING){
                     $compiler->evalVar->readSize( $association->assign->size );
                     $compiler->evalVar->retString();
-
-                    $this->add($association->section == "header" ? '21000000' : '22000000', $association->varType . ' from Section ' . $association->section);
-                    $this->add('04000000', 'Read memory');
-                    $this->add('04000000', 'Read memory');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
-
-                    $this->add('12000000');
-                    $this->add('03000000');
-                    $this->add(Helper::fromIntToHex($association->size), 'Size ' . $association->size);
-
-
-                    $this->add('10000000');
-                    $this->add('04000000');
-
-                    $this->add('10000000');
-                    $this->add('03000000');
-
-                    $this->add('48000000');
-
-//                    $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
                 }
 
                 /**
@@ -258,12 +238,17 @@ class Evaluate{
                 }else if ($association->isCustomFunction){
 
                     $compiler->evalVar->writeToAttribute($association);
+                }else if (
+                    $association->varType == "string" && (
+                        $association->section == "header" ||
+                        $association->section == "script" ||
+                        $association->section == "constant"
 
-
-                }else if ($association->varType == "string" && $association->section == "header"){
+                    )
+                ){
                     $appendix = 'write to ' . $association->value;
 
-                    $this->add('21000000', $appendix);
+                    $this->add($association->section == "header" ? '21000000' : '22000000', $appendix);
                     $this->add('04000000', $appendix);
                     $this->add('04000000', $appendix);
                     $this->add(Helper::fromIntToHex($association->offset), 'String offset');
@@ -317,6 +302,7 @@ class Evaluate{
 
                     if (in_array($association->section, ['header', 'script', 'constant']) !== false){
 
+//                        $this->add('debug', "debug");
                         $this->compiler->evalVar->memoryPointer($association);
                         $this->compiler->evalVar->readSize( $association->size );
 
