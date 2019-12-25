@@ -405,12 +405,12 @@ class Compiler
         /**
          * Overwrite the calculated offset with the game_var / level_var offset
          */
-        if ($this->gameScript !== null){
+        if (isset($data['isGameVar']) && $data['isGameVar'] == true && $this->gameScript !== null){
             $gameVar = $this->gameScript->getVariable($data['name']);
             if ($gameVar) $offset = $gameVar['offset'];
         }
 
-        if ($this->levelScript !== null){
+        if (isset($data['isLevelVar']) && $data['isLevelVar'] == true && $this->levelScript !== null){
             $levelVar = $this->levelScript->getVariable($data['name']);
             if ($levelVar) $offset = $levelVar['offset'];
         }

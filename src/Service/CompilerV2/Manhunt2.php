@@ -17,6 +17,9 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'ec_hunter' => [
+            'offset' => '1f000000'
+        ],
         'difficulty_easy' => [
             'offset' => '00000000'
         ],
@@ -873,9 +876,17 @@ class Manhunt2 extends ManhuntDefault
             'name' => 'AllowReceivingOfHeadshots',
             'offset' => '7f030000'
         ],
+        'getnumberoftypesinsidetrigger' => [
+            'name' => 'GetNumberOfTypesInsideTrigger',
+            'offset' => 'db010000'
+        ],
         'ishunterinshadow' => [
             'name' => 'IsHunterInShadow',
             'offset' => 'ca030000'
+        ],
+        'frisbeespeechstop' => [
+            'name' => 'FrisbeeSpeechStop',
+            'offset' => '67030000'
         ],
         'getmoverstate' => [
             'name' => 'GetMoverState',
@@ -1287,6 +1298,14 @@ class Manhunt2 extends ManhuntDefault
             'offset' => 'be000000'
         ],
 
+        'getnameoftypeintriggerfromindex' => [
+            'name' => 'GetNameOfTypeInTriggerFromIndex',
+            'offset' => 'dc010000'
+        ],
+        'heligetdistancefromspolight' => [
+            'name' => 'HeliGetDistanceFromSpolight',
+            'offset' => 'a7030000'
+        ],
         'setqtmbaseprobability' => [
             'name' => 'SetQTMBaseProbability',
             'offset' => 'ac030000'
@@ -1642,14 +1661,7 @@ class Manhunt2 extends ManhuntDefault
         'setpedorientation' => [
             'name' => 'SetPedOrientation',
             'offset' => 'b0020000',
-            /**
-             * Parameters
-             * 1: GetEntityPosition
-             * 2: integer
-             * - 10
-             */
-            'params' => ['EntityPosition', 'integer'],
-            'desc' => ''
+            'return' => 'vec3d'
         ],
 
         'setmoverstate' => [
