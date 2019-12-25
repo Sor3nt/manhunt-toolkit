@@ -50,6 +50,27 @@ class EvaluateVariable{
         );
     }
 
+    public function writeToAttribute(Associations $association ){
+        $appendix = 'write to ' . $association->value;
+        $this->add('0f000000', $appendix);
+        $this->add('02000000', $appendix);
+
+        $this->add('17000000', $appendix);
+        $this->add('04000000', $appendix);
+        $this->add('02000000', $appendix);
+        $this->add('01000000', $appendix);
+    }
+
+    public function moveAttributePointer(Associations $association ){
+        $msg = "Write to Attribute";
+        $this->add('0f000000', $msg);
+        $this->add('01000000', $msg);
+
+        $this->add('32000000', $msg);
+        $this->add('01000000', $msg);
+        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+    }
+
     public function variablePointer( Associations $association, $type = null){
         $type = is_null($type) ? $association->varType : $type;
 

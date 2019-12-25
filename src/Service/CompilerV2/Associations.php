@@ -491,15 +491,12 @@ class Associations
                 if ($compiler->consumeIfTrue("(")){
                     $parameters = $this->consumeParameters($compiler, $this->value);
 
-//                    var_dump($parameters);
-//                    exit;
                     $parameterCount = 0;
                     foreach ($parameters as $parameter) {
                         $parameterCount += count($parameter['names']);
                     }
 
                     $compiler->offsetProcedureVariable = -12;
-//                    $compiler->offsetProcedureVariable = $parameterCount * 4 * -1;
 
                     $this->applyVariables($compiler, $parameters, true);
                 }
@@ -652,28 +649,11 @@ class Associations
                 $this->flatForRpn($conditions, $result);
                 $conditions = (new RPN())->convertToReversePolishNotation($result);
 
-            $newCondition = new Associations();
-            $newCondition->type = Tokens::T_CONDITION;
-            $newCondition->childs = $conditions;
+                $newCondition = new Associations();
+                $newCondition->type = Tokens::T_CONDITION;
+                $newCondition->childs = $conditions;
+                $conditions = $newCondition;
 
-            $conditions = $newCondition;
-//            var_dump($conditions);exit;
-
-//                                var_dump($conditions);exit;
-//
-//                $this->unwrapSimpleCondition($conditions);
-//                $this->convertToSimpleChain($conditions);
-//                $this->convertToSimpleCondition($conditions);
-////                $this->convertToSimpleCondition2($conditions);
-////            var_dump($conditions);exit;
-//                $this->convertOperatorChain($conditions);
-//            var_dump($conditions);exit;
-//                $this->convertConditionNot($conditions);
-//                $this->convertConditionStatementOperator($conditions);
-//                $this->convertConditionCompareOperator($conditions);
-//                $this->getLastCondition($conditions, $lastCondition);
-//                /** @var Associations $lastCondition */
-//                $lastCondition->isLastCondition = true;
                 $case->condition = $conditions;
 
                 if ($compiler->consumeIfTrue("begin")) {

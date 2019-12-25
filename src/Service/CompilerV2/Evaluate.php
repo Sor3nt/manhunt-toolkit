@@ -161,7 +161,7 @@ class Evaluate{
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
-                    //we access a object attribute
+                //we access a object attribute
                 } else if (
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"
@@ -173,12 +173,7 @@ class Evaluate{
 
                     //we do not assign to the first entry
                     if ($association->parent->value . '.x' !== $association->value) {
-                        $this->add('0f000000', 'assign to secondary');
-                        $this->add('01000000', 'assign to secondary');
-
-                        $this->add('32000000', 'assign to secondary');
-                        $this->add('01000000', 'assign to secondary');
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+                        $this->compiler->evalVar->moveAttributePointer($association);
 
                         $this->compiler->evalVar->ret();
                     }
@@ -261,14 +256,9 @@ class Evaluate{
                 if ($association->fromArray == true) {
                     $this->writeData($association, "array");
                 }else if ($association->isCustomFunction){
-                    $appendix = 'write to ' . $association->value;
-                    $this->add('0f000000', $appendix);
-                    $this->add('02000000', $appendix);
 
-                    $this->add('17000000', $appendix);
-                    $this->add('04000000', $appendix);
-                    $this->add('02000000', $appendix);
-                    $this->add('01000000', $appendix);
+                    $compiler->evalVar->writeToAttribute($association);
+
 
                 }else if ($association->varType == "string" && $association->section == "header"){
                     $appendix = 'write to ' . $association->value;
@@ -292,15 +282,7 @@ class Evaluate{
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"
                 ) {
-
-                    $appendix = 'write to ' . $association->value;
-                    $this->add('0f000000', $appendix);
-                    $this->add('02000000', $appendix);
-
-                    $this->add('17000000', $appendix);
-                    $this->add('04000000', $appendix);
-                    $this->add('02000000', $appendix);
-                    $this->add('01000000', $appendix);
+                    $compiler->evalVar->writeToAttribute($association);
                 }else{
                     $this->writeData($association, $association->varType);
                 }
@@ -418,13 +400,11 @@ class Evaluate{
                 foreach ($association->onTrue as $item) {
                     new Evaluate($this->compiler, $item);
                 }
-//var_dump($association);exit;
+
                 $compiler->evalVar->msg = sprintf("For statement");
                 $this->add('2f000000');
                 $this->add('04000000');
-//                $this->add('00000000', 'Offset TODO! 1 ');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
-//var_dump($association);exit;
 
                 $this->add('3c000000', 'Jump to');
                 $this->add(Helper::fromIntToHex($startOffset * 4), 'Start Offset');
@@ -433,7 +413,6 @@ class Evaluate{
                 $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
                 $this->add('30000000');
                 $this->add('04000000');
-//                $this->add('00000000', 'Offset TODO! 2');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
 
                 break;
@@ -442,7 +421,6 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("Condition");
 
                 $compareAgainst = false;
-                $onlyConditions = true;
 
                 foreach ($association->childs as $index => $param) {
 
@@ -485,6 +463,7 @@ class Evaluate{
 
                             $compiler->evalVar->msg = sprintf("Condition");
 
+                            //todo part of t_variable....
                             if ($param->fromArray === true) {
                                 $this->add('0f000000', 'from array');
                                 $this->add('02000000', 'from array');
@@ -817,7 +796,6 @@ class Evaluate{
                         }else if (
                             $param->type == Tokens::T_VARIABLE &&
                             $param->varType == "string"
-//                        $param->section == "header"
                         ) {
                             $this->compiler->evalVar->retString();
                         }
@@ -825,172 +803,58 @@ class Evaluate{
 
                     }else{
                         if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "entityptr" &&
-                            $param->section == "script"
-                        ){
-                            $this->compiler->evalVar->ret();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "string"
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->retString();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "entityptr"
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->ret();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "integer"
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->ret();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "float"
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->ret();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "ecollectabletype"
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->ret();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "eaicombattype"
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->ret();
-
-                        }else if (
-                            $param->type == Tokens::T_VARIABLE &&
-                            $param->varType == "vec3d" &&
-                            $param->fromArray == false
-//                        $param->section == "header"
-                        ) {
-                            $this->compiler->evalVar->ret();
-                        }else if (
-                            $param->type == Tokens::T_FUNCTION &&
-                            $param->return == "entityptr"
-                        ) {
-                            $this->compiler->evalVar->ret();
-                        }else if (
-                            $param->type == Tokens::T_FUNCTION &&
-                            $param->return == "boolean"
-                        ) {
-                            $this->compiler->evalVar->ret();
-                        }else if (
-                            $param->type == Tokens::T_FUNCTION &&
-                            $param->return == "integer"
-                        ) {
-                            $this->compiler->evalVar->ret();
-                        } else if (
+                            $param->type == Tokens::T_SELF ||
                             $param->type == Tokens::T_MATH ||
                             $param->type == Tokens::T_INT ||
-                            $param->type == Tokens::T_CONSTANT
-                        ){
-                            $this->compiler->evalVar->ret();
-                        } else if (
-                            $param->type == Tokens::T_FLOAT
-                        ){
-                            $this->compiler->evalVar->ret();
-                        } else if (
-                            $param->type == Tokens::T_SELF
-                        ){
-                            $this->compiler->evalVar->ret();
-                        } else if (
-                            $param->type == Tokens::T_STRING
-                        ){
-                            $this->compiler->evalVar->retString();
-                        }else{
+                            $param->type == Tokens::T_CONSTANT ||
+                            $param->type == Tokens::T_FLOAT ||
+                            (
+                                $param->type == Tokens::T_VARIABLE &&
+                                (
+                                    ($param->varType == "vec3d" && $param->fromArray == false) ||
+                                    $param->varType == "eaicombattype" ||
+                                    $param->varType == "ecollectabletype" ||
+                                    $param->varType == "entityptr" ||
+                                    $param->varType == "integer" ||
+                                    $param->varType == "float"
+                                )
+                            )
 
-//                            var_dump($param);
+                            ||
+
+                            (
+                                $param->type == Tokens::T_FUNCTION &&
+                                (
+                                    $param->return == "entityptr" ||
+                                    $param->return == "integer" ||
+                                    $param->return == "boolean"
+                                )
+                            )
+                        ){
+                            $this->compiler->evalVar->ret();
+
+                        }else if (
+                            (
+                                $param->type == Tokens::T_VARIABLE &&
+                                $param->varType == "string"
+                            ) ||
+                            $param->type == Tokens::T_STRING
+                        ) {
+                            $this->compiler->evalVar->retString();
+
                         }
 
                     }
 
-
-
-
-//                    if (
-////                        $param->type == Tokens::T_VARIABLE &&
-//                        in_array($varType, [
-//                            'integer'
-//                        ]) !== false
-//                    ){
-//                        //ignore
-//                    }else if (
-//                        $param->type == Tokens::T_FUNCTION &&
-//                        in_array($varType, [
-//                            'string'
-//                        ]) !== false
-//                    ){
-//
-//                        //ignore
-//                    }else if ($varType == "string" && $param->value !== " "){
-//                        $this->compiler->evalVar->retString();
-//
-//                    }else{
-//                        $this->compiler->evalVar->ret(1);
-//                    }
-
-
-//                    /**
-//                     * Mystery : these function dont require a return, never
-//                     */
-//                    if (
-//                        $param->return == "integer" ||
-//                        $param->parent != null ||
-//                        strtolower($param->value) == "getentityposition" ||
-//                        strtolower($param->value) == "getplayerposition" ||
-//                        strtolower($param->value) == "getentityview" ||
-//                        strtolower($param->value) == "getentityname"
-//                    ){
-//
-//                    //regular data / string return
-//                    }else if (
-//                        $param->type == Tokens::T_STRING ||
-//                        $param->varType == "string"
-//                    ){
-//                        // TODO: the param should be converted into a simple int to avoid these hacks
-//                        if ($param->value !== " "){
-//                            $this->compiler->evalVar->retString();
-//                        }
-//
-//                    }else{
-//
-//                        /**
-//                         * HACKS HACKS HACK.......
-//                         *
-//                         * Fucking returns....
-//                         */
-//                        if ($param->fromArray || $param->forIndex){
-//
-//                        }else if(
-//                            strtolower($association->value) == "writedebug" &&
-//                            $param->varType == "integer"
-//                        ){
-//                        }else{
-//                            $this->compiler->evalVar->ret();
-//                        }
-//                    }
                 }
 
                 $compiler->evalVar->msg = sprintf("Call Function %s", $association->value);
 
-                if ($association->isProcedure === true){
-                    $msg = "procedure call";
+                if (
+                    $association->isProcedure === true ||
+                    $association->isCustomFunction === true
+                ){
+                    $msg = "procedure/function call";
                     $this->add('10000000', $msg);
                     $this->add('04000000', $msg);
                     $this->add('11000000', $msg);
@@ -1002,26 +866,17 @@ class Evaluate{
                     $this->add('10000000', $msg);
                     $this->add('02000000', $msg);
                     $this->add('39000000', $msg);
+
+
+                    /**
+                     * Custom functions can return a value and the space need to be defined here.
+                     */
+                    if ($association->isCustomFunction === true){
+                        $this->add(Helper::fromIntToHex($association->offset), $msg . ' (return offset)');
+                        return;
+                    }
                 }
 
-                if ($association->isCustomFunction === true){
-                    $msg = "custom function call";
-
-                    $this->add('10000000', $msg); //procedure
-                    $this->add('04000000', $msg); //procedure
-                    $this->add('11000000', $msg); //procedure
-                    $this->add('02000000', $msg); //procedure
-                    $this->add('00000000', $msg); //procedure
-                    $this->add('32000000', $msg); //procedure
-                    $this->add('02000000', $msg); //procedure
-                    $this->add('1c000000', $msg); //procedure
-                    $this->add('10000000', $msg); //procedure
-                    $this->add('02000000', $msg); //procedure
-                    $this->add('39000000', $msg); //procedure
-                    $this->add(Helper::fromIntToHex($association->offset), $msg . ' (offset)');
-
-                    return;
-                }
 
 
                 if (strtolower($association->value) == "writedebug"){
@@ -1236,13 +1091,9 @@ class Evaluate{
                 $this->add('44000000');
                 break;
             case 'array':
-                $this->add('0f000000');
-                $this->add('02000000');
 
-                $this->add('17000000');
-                $this->add('04000000', 'Offset maybe?');
-                $this->add('02000000');
-                $this->add('01000000');
+                $this->compiler->evalVar->writeToAttribute($association);
+
                 break;
         }
 
