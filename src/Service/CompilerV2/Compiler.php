@@ -67,6 +67,9 @@ class Compiler
         $this->platform = $platform;
         $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2();
 
+        //a special comment
+        $source = str_replace("}}", "}", $source);
+
         // remove comments / unused code
         $source = preg_replace("/{(.|\s)*}/mU", "", $source);
 
@@ -86,9 +89,6 @@ class Compiler
          */
         //leftover from the exporter (todo)
         $source = str_replace("\00", "", $source);
-
-        //a special comment
-        $source = str_replace("}}", "}", $source);
 
         //split the parts a little bit more (todo: combine them)
         $source = preg_replace("/\//", " / ", $source);
@@ -118,6 +118,7 @@ class Compiler
          */
         preg_match_all("/([^\s|^;]+)/", $source, $tokens);
         $this->tokens = $tokens[0];
+
     }
 
 
@@ -215,7 +216,7 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//var_dump($associationRearranged);
+//var_dump($associationRearranged);exit;
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -446,11 +447,20 @@ class Compiler
         return $master;
     }
 
-    public function addCustomFunction( $name, $type = Tokens::T_CUSTOM_FUNCTION ){
+    public function addCustomFunction( $name, $type = Tokens::T_CUSTOM_FUNCTION, $return = null ){
+
+        //The forward command already add the function, reuse the return value
+        if (
+            isset($this->gameClass->functions[strtolower($name)]) &&
+            isset($this->gameClass->functions[strtolower($name)]['return'])
+        ){
+            $return = $this->gameClass->functions[strtolower($name)]['return'];
+        }
 
         $this->gameClass->functions[strtolower($name)] = [
             'name' => strtolower($name),
             'offset' => Helper::fromIntToHex($this->offsetProcedureScripts),
+            'return' => $return,
             'type' => $type
         ];
 

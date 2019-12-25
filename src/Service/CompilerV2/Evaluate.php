@@ -36,6 +36,7 @@ class Evaluate{
                 break;
             case Tokens::T_SCRIPT:
             case Tokens::T_PROCEDURE:
+            case Tokens::T_CUSTOM_FUNCTION:
 
 
                 if ($association->type == Tokens::T_PROCEDURE){
@@ -43,10 +44,16 @@ class Evaluate{
                 }
 
                 $this->compiler->currentScriptName = $association->value;
-                $scriptSize = $compiler->getScriptSize($association->value);
 
                 $this->compiler->evalVar->scriptStart($association->value);
 
+
+                if ($association->type == Tokens::T_CUSTOM_FUNCTION){
+                    $compiler->evalVar->reserveMemory($compiler->calcSize($association->return));
+
+                }
+
+                $scriptSize = $compiler->getScriptSize($association->value);
                 $compiler->evalVar->reserveMemory($scriptSize);
 
 
@@ -90,7 +97,18 @@ class Evaluate{
                     new Evaluate($this->compiler, $condition);
                 }
 
-                if ($association->type == Tokens::T_PROCEDURE) {
+                if ($association->type == Tokens::T_CUSTOM_FUNCTION){
+                    $this->add('13000000', 'read return value');
+                    $this->add('01000000', 'read return value');
+                    $this->add('04000000', 'read return value');
+                    $this->add(Helper::fromIntToHex($compiler->calcSize($association->return)), 'read return value offset');
+                }
+
+
+                if (
+                    $association->type == Tokens::T_PROCEDURE ||
+                    $association->type == Tokens::T_CUSTOM_FUNCTION
+                ) {
                     $this->compiler->evalVar->procedureEnd($association);
                 } else {
                     $this->compiler->evalVar->scriptEnd($association->value);
@@ -114,7 +132,27 @@ class Evaluate{
 
                     $this->compiler->evalVar->ret();
 
-                /**
+
+
+                }else if ($association->isCustomFunction){
+                    $this->add('10000000', 'to custom function return');
+                    $this->add('02000000', 'to custom function return');
+                    $this->add('11000000', 'to custom function return');
+                    $this->add('02000000', 'to custom function return');
+                    $this->add('0a000000', 'to custom function return');
+                    $this->add('34000000', 'to custom function return');
+                    $this->add('02000000', 'to custom function return');
+                    $this->add('04000000', 'to custom function return');
+                    $this->add('20000000', 'to custom function return');
+                    $this->add('01000000', 'to custom function return');
+                    $this->add('04000000', 'to custom function return');
+                    $this->add('02000000', 'to custom function return');
+                    $this->add('0f000000', 'to custom function return');
+                    $this->add('02000000', 'to custom function return');
+
+                    $compiler->evalVar->ret();
+
+                    /**
                  * We assign to an array index (by id)
                  *
                  * itemsSpawned[1] := FALSE;
@@ -222,6 +260,16 @@ class Evaluate{
 
                 if ($association->fromArray == true) {
                     $this->writeData($association, "array");
+                }else if ($association->isCustomFunction){
+                    $appendix = 'write to ' . $association->value;
+                    $this->add('0f000000', $appendix);
+                    $this->add('02000000', $appendix);
+
+                    $this->add('17000000', $appendix);
+                    $this->add('04000000', $appendix);
+                    $this->add('02000000', $appendix);
+                    $this->add('01000000', $appendix);
+
                 }else if ($association->varType == "string" && $association->section == "header"){
                     $appendix = 'write to ' . $association->value;
 
@@ -1100,6 +1148,7 @@ class Evaluate{
 
             default:
 
+                var_dump($association);
                 throw new Exception(sprintf("Unable to evaluate %s ", $association->type));
         }
     }

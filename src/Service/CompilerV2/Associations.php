@@ -122,12 +122,15 @@ class Associations
 
         $value = strtolower($compiler->consume());
 
+        $isVariableOrFunction = false;
+
         /**
          * Check: Is this a variable ?
          */
         $variable = $compiler->getVariable($value);
-//var_dump($variable, $compiler->currentScriptName);
+
         if ($variable !== false) {
+            $isVariableOrFunction = true;
 
             if ($variable['type'] == "array") {
                 $compiler->current++;
@@ -210,8 +213,72 @@ class Associations
 
                 $this->parent = $parent;
             }
+        }
 
+        /**
+         * Check: Is this a function ?
+         */
+        $function = $compiler->gameClass->getFunction($value);
+        if ($function !== false) {
+            $isVariableOrFunction = true;
 
+            $this->type = Tokens::T_FUNCTION;
+            $this->value = $function['name'];
+            $this->offset = $function['offset'];
+            if (isset($function['forceFloat'])) $this->forceFloat = $function['forceFloat'];
+
+            if (isset($function['type'])){
+                $this->isCustomFunction = $function['type'] == Tokens::T_CUSTOM_FUNCTION;
+                $this->isProcedure = $function['type'] == Tokens::T_PROCEDURE;
+            }
+            $this->return = !isset($function['return']) ? null : $function['return'];
+
+            if ($compiler->getToken() == "(") {
+                $params = new Associations($compiler);
+
+                $current = 0;
+                while($current < count($params->childs)){
+                    $param = $params->childs[$current];
+
+                    if (
+                        isset($params->childs[$current + 1]) &&
+                        (
+                            $params->childs[$current + 1]->type == Tokens::T_ADDITION ||
+                            $params->childs[$current + 1]->type == Tokens::T_SUBSTRACTION ||
+                            $params->childs[$current + 1]->type == Tokens::T_MULTIPLY ||
+                            $params->childs[$current + 1]->type == Tokens::T_DIVISION
+                        )
+                    ){
+
+                        $math = new Associations();
+                        $math->type = Tokens::T_MATH;
+
+                        $math->childs = (new RPN())->convertToReversePolishNotation([
+                            $params->childs[$current],  //value a
+                            $params->childs[$current + 1], // operator
+                            $params->childs[$current + 2], // value b
+                        ]);
+
+                        $current = $current + 2;
+
+                        $this->childs[] = $math;
+
+                    }else{
+                        $this->childs[] = $param;
+                    }
+
+                    $current++;
+                }
+
+            }
+        }
+
+        /**
+         * Assignment can be happen to a variable and also to a function.
+         *
+         * Custom function blocks use his name to return the value...
+         */
+        if ($isVariableOrFunction){
 
             $isState = $compiler->getState($this->varType);
 
@@ -283,68 +350,7 @@ class Associations
 
                     }
                 }
-            }
-
-            return;
         }
-
-        /**
-         * Check: Is this a function ?
-         */
-        $function = $compiler->gameClass->getFunction($value);
-
-        if ($function !== false) {
-
-            $this->type = Tokens::T_FUNCTION;
-            $this->value = $function['name'];
-            $this->offset = $function['offset'];
-            if (isset($function['forceFloat'])) $this->forceFloat = $function['forceFloat'];
-
-            if (isset($function['type'])){
-                $this->isCustomFunction = $function['type'] == Tokens::T_CUSTOM_FUNCTION;
-                $this->isProcedure = $function['type'] == Tokens::T_PROCEDURE;
-            }
-            $this->return = !isset($function['return']) ? null : $function['return'];
-
-            if ($compiler->getToken() == "(") {
-                $params = new Associations($compiler);
-
-                $current = 0;
-                while($current < count($params->childs)){
-                    $param = $params->childs[$current];
-
-                    if (
-                        isset($params->childs[$current + 1]) &&
-                        (
-                            $params->childs[$current + 1]->type == Tokens::T_ADDITION ||
-                            $params->childs[$current + 1]->type == Tokens::T_SUBSTRACTION ||
-                            $params->childs[$current + 1]->type == Tokens::T_MULTIPLY ||
-                            $params->childs[$current + 1]->type == Tokens::T_DIVISION
-                        )
-                    ){
-
-                        $math = new Associations();
-                        $math->type = Tokens::T_MATH;
-
-                        $math->childs = (new RPN())->convertToReversePolishNotation([
-                            $params->childs[$current],  //value a
-                            $params->childs[$current + 1], // operator
-                            $params->childs[$current + 2], // value b
-                        ]);
-
-                        $current = $current + 2;
-
-                        $this->childs[] = $math;
-
-                    }else{
-                        $this->childs[] = $param;
-                    }
-
-                    $current++;
-                }
-
-            }
-
 
             return;
         }
@@ -494,7 +500,6 @@ class Associations
 
                     $this->applyVariables($compiler, $parameters, true);
                 }
-
                 // Return type
                 if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
 
@@ -506,10 +511,18 @@ class Associations
                 } else {
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
+                    if (isset($compiler->gameClass->functions[strtolower($this->value)])){
+                        $this->return = $compiler->gameClass->functions[strtolower($this->value)]['return'];
+                    }
+
                     $this->childs = $this->associateUntil($compiler, Tokens::T_END);
                 }
 
-                $compiler->addCustomFunction($this->value, Tokens::T_PROCEDURE);
+                $compiler->addCustomFunction(
+                    $this->value,
+                    $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE,
+                    $this->return
+                );
 
 
                 /**
@@ -641,6 +654,7 @@ class Associations
             $newCondition->childs = $conditions;
 
             $conditions = $newCondition;
+//            var_dump($conditions);exit;
 
 //                                var_dump($conditions);exit;
 //
