@@ -929,9 +929,20 @@ class Evaluate{
 
                             new Evaluate($this->compiler, $extraArgument);
 
-                            $compiler->evalVar->ret();
+                            if (
+                                $extraArgument->type == Tokens::T_STRING
+                            ){
 
-                            $this->add("07030000", "unknown command");
+                                $compiler->evalVar->readSize($extraArgument->size);
+                                $compiler->evalVar->retString();
+                                $this->add("09030000", "string arg");
+                            }else{
+                                $compiler->evalVar->ret();
+
+                                $this->add("07030000", "int arg");
+                            }
+
+
                         }
 
 //                        var_dump($association->extraArguments);
