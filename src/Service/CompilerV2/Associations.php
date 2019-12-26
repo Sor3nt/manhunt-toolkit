@@ -17,6 +17,9 @@ class Associations
     /** @var Associations[] */
     public $childs = [];
 
+    /** @var Associations[] */
+    public $extraArguments = [];
+
     public $assign = false;
 
     /** @var Associations */
@@ -74,6 +77,7 @@ class Associations
         if ($this->value !== "") $debug['value'] = $this->value;
         if ($this->scriptName !== "") $debug['scriptName'] = $this->scriptName;
         if (count($this->childs)) $debug['childs'] = $this->childs;
+        if (count($this->extraArguments)) $debug['extraArguments'] = $this->extraArguments;
         if (count($this->cases)) $debug['cases'] = $this->cases;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
         if ($this->fromState !== null) $debug['fromState'] = $this->math;
@@ -271,6 +275,13 @@ class Associations
                 }
 
             }
+
+            if ($compiler->consumeIfTrue(":")) {
+
+                do{
+                    $this->extraArguments[] = new Associations($compiler);
+                }while($compiler->consumeIfTrue(","));
+            }
         }
 
         /**
@@ -465,10 +476,8 @@ class Associations
                 $this->type = Tokens::T_NOP;
                 $compiler->mlsEntityName = $compiler->consume();
 
-                if ($compiler->getToken() == "("){
+                while($compiler->getToken() != ':'){
                     $compiler->mlsEntityName .= $compiler->consume(); // consume (
-                    $compiler->mlsEntityName .= $compiler->consume(); // consume inner name
-                    $compiler->mlsEntityName .= $compiler->consume(); // consume )
                 }
 
                 $compiler->current++;

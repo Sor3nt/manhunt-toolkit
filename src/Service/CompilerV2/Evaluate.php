@@ -64,10 +64,12 @@ class Evaluate{
 
                     $this->add('24000000', 'read argument');
                     $this->add('01000000', 'read argument');
+
                     $this->add('00000000', 'offset?');
 
                     $this->add('3f000000', 'unknown');
-                    $this->add('68490000', 'offset?');
+                    $endOffset = count($compiler->codes);
+                    $this->add('00000000', 'offset?');
 
                     $this->add('12000000', 'read index');
                     $this->add('01000000', 'read index');
@@ -90,6 +92,7 @@ class Evaluate{
 
                     $this->add('01000000', 'unknown');
                     $this->add('0f030000', 'unknown');
+                    $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
 
                 }
 
@@ -917,6 +920,22 @@ class Evaluate{
                     $this->add($association->offset, "Offset");
 
                     if (strtolower($association->value) == "callscript"){
+
+                        foreach ($association->extraArguments as $index => $extraArgument) {
+
+                            $compiler->evalVar->valuePointer($index);
+
+                            $compiler->evalVar->ret();
+
+                            new Evaluate($this->compiler, $extraArgument);
+
+                            $compiler->evalVar->ret();
+
+                            $this->add("07030000", "unknown command");
+                        }
+
+//                        var_dump($association->extraArguments);
+//                        exit;
                         $this->add("0e030000", "hidden callscript");
                     }
                 }

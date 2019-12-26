@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\CompilerV2\WriteDebug;
+namespace App\Tests\CompilerV2\ScriptArgument;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -84,7 +84,7 @@ class ScriptArgIntegerTest extends KernelTestCase
             '00000000', //read argument 0 (level)
 
             '3f000000', //
-            '68490000', //
+            '78000000', //
 
             '12000000', //parameter (read simple type (int/float...))
             '01000000', //parameter (read simple type (int/float...))

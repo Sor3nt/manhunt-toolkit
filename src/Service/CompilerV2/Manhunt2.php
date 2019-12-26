@@ -1021,6 +1021,16 @@ class Manhunt2 extends ManhuntDefault
             'return' => 'string'
         ],
 
+        'createlinetrigger' => [
+            'name' => 'CreateLineTrigger',
+            'offset' => '27010000'
+        ],
+
+        'insidetriggertype' => [
+            'name' => 'InsideTriggerType',
+            'offset' => 'InsideTriggerType'
+        ],
+
         'getdoorstate' => [
             'name' => 'GetDoorState',
             'offset' => '96000000',
