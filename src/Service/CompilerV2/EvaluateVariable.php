@@ -31,10 +31,10 @@ class EvaluateVariable{
         $this->add('02000000', 'Return String');
     }
 
-    public function readSize( int $offset){
+    public function readSize( int $offset, $msg = " "){
 //        $this->msg = "read data ";
-        $this->add('12000000', 'read data');
-        $this->add('02000000', 'read data');
+        $this->add('12000000', $msg . 'read data ' . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
+        $this->add('02000000', $msg . 'read data');
         $this->add(Helper::fromIntToHex($offset), 'Size of ' . $offset);
     }
 

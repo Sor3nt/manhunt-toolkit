@@ -21,6 +21,7 @@ class Associations
     public $extraArguments = [];
 
     public $assign = false;
+    public $onlyPointer = false;
 
     /** @var Associations */
     public $math = null;
@@ -79,6 +80,7 @@ class Associations
         if (count($this->childs)) $debug['childs'] = $this->childs;
         if (count($this->extraArguments)) $debug['extraArguments'] = $this->extraArguments;
         if (count($this->cases)) $debug['cases'] = $this->cases;
+        if ($this->onlyPointer !== false) $debug['onlyPointer'] = $this->onlyPointer;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
         if ($this->fromState !== null) $debug['fromState'] = $this->math;
         if ($this->math !== null) $debug['math'] = $this->math;
@@ -276,10 +278,15 @@ class Associations
 
             }
 
+            /**
+             * Callscript calls can have extra arguments
+             */
             if ($compiler->consumeIfTrue(":")) {
 
                 do{
-                    $this->extraArguments[] = new Associations($compiler);
+                    $entry = new Associations($compiler);
+                    $entry->onlyPointer = true;
+                    $this->extraArguments[] = $entry;
                 }while($compiler->consumeIfTrue(","));
             }
         }

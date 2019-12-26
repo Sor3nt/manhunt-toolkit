@@ -307,7 +307,11 @@ class Evaluate{
 
 //                        $this->add('debug', "debug");
                         $this->compiler->evalVar->memoryPointer($association);
-                        $this->compiler->evalVar->readSize( $association->size );
+
+                        //arguments for procedures need only the pointer...
+                        if ($association->onlyPointer == false){
+                            $this->compiler->evalVar->readSize( $association->size );
+                        }
 
                     }else{
 
@@ -732,6 +736,8 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                 foreach ($association->childs as $index => $param) {
 
+
+                    $param->onlyPointer = $association->isProcedure == true;
                     new Evaluate($this->compiler, $param);
 
                     $compiler->evalVar->msg = sprintf("Process argument %s", $param->value);
