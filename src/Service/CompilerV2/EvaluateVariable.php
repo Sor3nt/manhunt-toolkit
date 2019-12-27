@@ -240,11 +240,16 @@ class EvaluateVariable{
 
     }
 
-    public function readVariable( Associations $association){
+    public function readVariable( Associations $association, $offset = null){
         $this->add($association->section == "header" ? '14000000' : '13000000', $association->varType . ' from Section ' . $association->section);
         $this->add('01000000', 'Read Variable ' . $association->value);
         $this->add('04000000', 'Read Variable ' . $association->value);
-        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+        if ($offset == null){
+            $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+        }else{
+            $this->add(Helper::fromIntToHex($offset), 'Offset ' . $offset);
+
+        }
 
     }
 

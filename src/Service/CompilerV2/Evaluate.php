@@ -26,18 +26,16 @@ class Evaluate{
         switch ($association->type) {
 
             case Tokens::T_SELF:
-                $this->add('12000000', 'self call');
-                $this->add('01000000', 'self call');
-                $this->add('49000000', 'self call');
+                $this->compiler->evalVar->valuePointer(73); // self
 
                 break;
             case Tokens::T_MATH:
                 $this->doMath($association->childs);
                 break;
+
             case Tokens::T_SCRIPT:
             case Tokens::T_PROCEDURE:
             case Tokens::T_CUSTOM_FUNCTION:
-
 
                 if ($association->type == Tokens::T_PROCEDURE){
                     $compiler->gameClass->functions[strtolower($association->value)]['offset'] = Helper::fromIntToHex(count($this->compiler->codes) * 4);
@@ -47,15 +45,13 @@ class Evaluate{
 
                 $this->compiler->evalVar->scriptStart($association->value);
 
-
                 if ($association->type == Tokens::T_CUSTOM_FUNCTION){
                     $compiler->evalVar->reserveMemory($compiler->calcSize($association->return));
-
                 }
 
-                $scriptSize = $compiler->getScriptSize($association->value);
-                $compiler->evalVar->reserveMemory($scriptSize);
-
+                $compiler->evalVar->reserveMemory(
+                    $compiler->getScriptSize($association->value)
+                );
 
                 $arguments = $compiler->getScriptArgumentsByScriptName($association->value);
                 foreach ($arguments as $index => $argument) {
@@ -64,36 +60,28 @@ class Evaluate{
 
                     $this->add('24000000', 'read argument');
                     $this->add('01000000', 'read argument');
-
                     $this->add('00000000', 'offset?');
 
                     $this->add('3f000000', 'unknown');
+
                     $endOffset = count($compiler->codes);
-                    $this->add('00000000', 'offset?');
+                    $this->add('00000000', 'Line Offset');
 
-                    $this->add('12000000', 'read index');
-                    $this->add('01000000', 'read index');
-                    $this->add('00000000', 'offset');
-
+                    $this->compiler->evalVar->valuePointer(0);
                     $this->compiler->evalVar->ret();
 
-                    $this->add('12000000', 'read index');
-                    $this->add('01000000', 'read index');
-                    $this->add('00000000', 'offset');
-
+                    $this->compiler->evalVar->valuePointer(0);
                     $this->compiler->evalVar->ret();
 
                     $this->add('0a030000', 'a argument command, for first param');
 
-                    $this->add('15000000', 'read param');
-                    $this->add('04000000', 'read param');
+                    $this->add('15000000', 'write to ?');
+                    $this->add('04000000', 'write to ?');
                     $this->add('04000000', 'offset');
+                    $this->add('01000000', 'write to ?');
 
-
-                    $this->add('01000000', 'unknown');
                     $this->add('0f030000', 'unknown');
                     $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-
                 }
 
                 foreach ($association->childs as $condition) {
@@ -101,12 +89,8 @@ class Evaluate{
                 }
 
                 if ($association->type == Tokens::T_CUSTOM_FUNCTION){
-                    $this->add('13000000', 'read return value');
-                    $this->add('01000000', 'read return value');
-                    $this->add('04000000', 'read return value');
-                    $this->add(Helper::fromIntToHex($compiler->calcSize($association->return)), 'read return value offset');
+                    $this->compiler->evalVar->readVariable($association, $compiler->calcSize($association->return));
                 }
-
 
                 if (
                     $association->type == Tokens::T_PROCEDURE ||
@@ -118,8 +102,6 @@ class Evaluate{
                 }
 
                 break;
-
-
             case Tokens::T_STATE:
                 $this->compiler->evalVar->readData($association);
 
@@ -140,14 +122,14 @@ class Evaluate{
                     $compiler->evalVar->msg = sprintf("Process Assign %s", $association->value);
                     $this->compiler->evalVar->ret();
 
-
-
                 }else if ($association->isCustomFunction){
                     $this->add('10000000', 'to custom function return');
                     $this->add('02000000', 'to custom function return');
+
                     $this->add('11000000', 'to custom function return');
                     $this->add('02000000', 'to custom function return');
                     $this->add('0a000000', 'to custom function return');
+
                     $this->add('34000000', 'to custom function return');
                     $this->add('02000000', 'to custom function return');
                     $this->add('04000000', 'to custom function return');
@@ -160,12 +142,12 @@ class Evaluate{
 
                     $compiler->evalVar->ret();
 
-                    /**
+                /**
                  * We assign to an array index (by id)
                  *
                  * itemsSpawned[1] := FALSE;
                  */
-                }else if ($association->forIndex !== null) {
+                } else if ($association->forIndex !== null) {
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
@@ -182,23 +164,16 @@ class Evaluate{
                     //we do not assign to the first entry
                     if ($association->parent->value . '.x' !== $association->value) {
                         $this->compiler->evalVar->moveAttributePointer($association);
-
                         $this->compiler->evalVar->ret();
                     }
 
-
-
                 }else if ($association->fromArray == true) {
-
-//                    $this->readData($association, "array");
 
                     $this->compiler->evalVar->readData($association);
                     $this->compiler->evalVar->ret();
 
                     $this->compiler->evalVar->valuePointer( (int)$association->index );
-
                     $this->compiler->evalVar->readArray();
-
                 }
 
                 /**
@@ -235,7 +210,9 @@ class Evaluate{
 
                 if ($association->isGameVar === true) {
                     $compiler->evalVar->gameVarPointer($association);
-                }else if ($association->isLevelVar === true){
+                }
+
+                else if ($association->isLevelVar === true){
 
                     if ($association->varType == "string"){
 
@@ -244,10 +221,10 @@ class Evaluate{
 
                     }else{
                         $compiler->evalVar->levelVarPointer($association);
-
                     }
+                }
 
-                }else if (
+                else if (
                     $association->fromArray === true ||
                     $association->forIndex !== null
                 ) {
@@ -267,7 +244,9 @@ class Evaluate{
 
                     }
 
-                }else if ( $association->varType == "string") {
+                }
+
+                else if ( $association->varType == "string") {
 
                     if (in_array($association->section, ['header', 'script', 'constant']) !== false){
 
@@ -290,15 +269,14 @@ class Evaluate{
                     //we read from a procedure argument
                     if ($association->offset < 0) {
                         $this->compiler->evalVar->readVariable( $association );
-
                     } else {
                         $this->compiler->evalVar->memoryPointer($association);
                     }
 
-                }else if ($association->section == "constant"){
+                }
 
+                else if ($association->section == "constant"){
                     $compiler->evalVar->valuePointer($association->offset);
-
                 }
 
                 else {
@@ -493,7 +471,6 @@ class Evaluate{
                         $compiler->evalVar->msg = sprintf("Condition");
 
                         $compiler->evalVar->conditionOperation($param);
-
 
                         $offset = count($compiler->codes);
                         $this->add('OFFSET', 'Offset 1');
