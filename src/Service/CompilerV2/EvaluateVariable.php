@@ -32,8 +32,7 @@ class EvaluateVariable{
     }
 
     public function readSize( int $offset, $msg = " "){
-//        $this->msg = "read data ";
-        $this->add('12000000', $msg . 'read data ' . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
+        $this->add('12000000', $msg . 'read data');
         $this->add('02000000', $msg . 'read data');
         $this->add(Helper::fromIntToHex($offset), 'Size of ' . $offset);
     }
@@ -42,7 +41,6 @@ class EvaluateVariable{
         $this->add('12000000');
         $this->add('03000000');
         $this->add(Helper::fromIntToHex($size), 'Size of ' . $size);
-
     }
 
     public function valuePointer($offset ){
@@ -109,7 +107,17 @@ class EvaluateVariable{
         $type = $association->varType;
         if ($association->fromArray == true) $type = 'array';
 
-        if ($type == 'vec3d') {
+        if (
+            $association->isCustomFunction ||
+            (
+                $association->parent != null &&
+                $association->parent->varType == "vec3d"
+            )
+        ) {
+            $this->compiler->evalVar->writeToAttribute($association);
+
+
+        }else if ($type == 'vec3d') {
 
             $this->compiler->evalVar->writeSize(12);
 
@@ -119,6 +127,29 @@ class EvaluateVariable{
             $this->add('0f000000');
             $this->add('04000000');
             $this->add('44000000');
+        }else if (
+            $type == 'string' && (
+                $association->section == "header" ||
+                $association->section == "script" ||
+                $association->section == "constant"
+            )
+        ){
+            $appendix = 'write to ' . $association->value;
+
+            $this->add($association->section == "header" ? '21000000' : '22000000', $appendix);
+            $this->add('04000000', $appendix);
+            $this->add('04000000', $appendix);
+            $this->add(Helper::fromIntToHex($association->offset), 'String offset');
+
+            $this->compiler->evalVar->writeSize($association->size);
+
+            $this->add('10000000', $appendix);
+            $this->add('04000000', $appendix);
+
+            $this->add('10000000', $appendix);
+            $this->add('03000000', $appendix);
+            $this->add('48000000', $appendix);
+
         }else if ($type == 'array'){
             $this->compiler->evalVar->writeToAttribute($association);
 
@@ -145,8 +176,9 @@ class EvaluateVariable{
 
     public function writeToAttribute(Associations $association ){
         $appendix = 'write to ' . $association->value;
-        $this->add('0f000000', $appendix);
-        $this->add('02000000', $appendix);
+
+        $this->add('0f000000', 'attribute operation');
+        $this->add('02000000', 'attribute operation');
 
         $this->add('17000000', $appendix);
         $this->add('04000000', $appendix);
@@ -155,15 +187,16 @@ class EvaluateVariable{
     }
 
     public function readAttribute(Associations $association ){
+        $appendix = 'Read from ' . $association->value;
 
         //read attribute from record
-        $this->add('0f000000');
-        $this->add('02000000');
+        $this->add('0f000000', 'attribute operation');
+        $this->add('02000000', 'attribute operation');
 
-        $this->add('18000000');
-        $this->add('01000000');
-        $this->add('04000000', 'Offset for ' . $association->value);
-        $this->add('02000000');
+        $this->add('18000000', $appendix);
+        $this->add('01000000', $appendix);
+        $this->add('04000000', $appendix);
+        $this->add('02000000', $appendix);
     }
 
 
@@ -434,6 +467,32 @@ class EvaluateVariable{
             $this->readArray(12);
         }else{
             $this->readArray(4);
+        }
+    }
+
+
+    /**
+     * @param Associations $association
+     * @throws Exception
+     */
+    public function readData($association){
+
+        $type = $this->compiler->detectVarType($association);
+
+        if ($association->fromArray) $type = 'array';
+
+        switch ($type){
+
+            case 'vec3d':
+            case 'array':
+            case 'string':
+                $this->memoryPointer( $association );
+                break;
+
+            default:
+                $this->valuePointer($association->offset );
+                if ($association->negate === true) $this->negate($association);
+                break;
         }
     }
 

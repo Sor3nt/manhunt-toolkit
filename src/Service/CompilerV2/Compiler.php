@@ -674,6 +674,8 @@ class Compiler
 
         $varType = null;
         switch ($association->type){
+            case Tokens::T_ASSIGN:
+            case Tokens::T_CONSTANT:
             case Tokens::T_VARIABLE:
                 $varType = $association->varType;
                 break;
@@ -683,6 +685,8 @@ class Compiler
                 }
                 $varType = $association->return;
                 break;
+            case Tokens::T_STATE:
+            case Tokens::T_BOOLEAN:
             case Tokens::T_SELF:
             case Tokens::T_INT:
                 $varType = "integer";
@@ -693,9 +697,6 @@ class Compiler
             case Tokens::T_STRING:
                 $varType = "string";
                 break;
-            case Tokens::T_CONSTANT:
-                $varType = $association->varType;;
-                break;
             default:
                 throw new \Exception("Unable to detect compareType for type " . $association->type);
                 break;
@@ -705,15 +706,13 @@ class Compiler
     }
 
     public function isTypeMathOperator($type){
+
         switch ($type){
             case Tokens::T_ADDITION:
             case Tokens::T_SUBSTRACTION:
             case Tokens::T_MULTIPLY:
             case Tokens::T_DIVISION:
-
                 return true;
-                break;
-
         }
 
         return false;
