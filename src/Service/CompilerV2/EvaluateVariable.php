@@ -50,6 +50,53 @@ class EvaluateVariable{
         );
     }
 
+    public function conditionOperation( Associations $associations ){
+        switch ($associations->type){
+            case Tokens::T_IS_SMALLER:
+                $this->add('3d000000');
+                break;
+            case Tokens::T_IS_SMALLER_EQUAL:
+                $this->add('3e000000');
+                break;
+            case Tokens::T_IS_EQUAL:
+                $this->add('3f000000');
+                break;
+            case Tokens::T_IS_NOT_EQUAL:
+                $this->add('40000000');
+                break;
+            case Tokens::T_IS_GREATER_EQUAL:
+                $this->add('41000000');
+                break;
+            case Tokens::T_IS_GREATER:
+                $this->add('42000000');
+                break;
+            default:
+                var_dump($associations);
+                throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $associations->operator));
+                break;
+        }
+    }
+
+
+    public function conditionOperator( Associations $associations ){
+
+        $this->add('0f000000', "apply to operator");
+        $this->add('04000000', "apply to operator");
+
+        switch ($associations->type){
+            case Tokens::T_OR:
+                $this->add('27000000', 'OR');
+                break;
+            case Tokens::T_AND:
+                $this->add('25000000', 'AND');
+                break;
+        }
+
+        $this->add('01000000', 'apply operator');
+        $this->add('04000000', 'apply operator');
+
+    }
+
     public function writeToAttribute(Associations $association ){
         $appendix = 'write to ' . $association->value;
         $this->add('0f000000', $appendix);
@@ -60,6 +107,19 @@ class EvaluateVariable{
         $this->add('02000000', $appendix);
         $this->add('01000000', $appendix);
     }
+
+    public function readAttribute(Associations $association ){
+
+        //read attribute from record
+        $this->add('0f000000');
+        $this->add('02000000');
+
+        $this->add('18000000');
+        $this->add('01000000');
+        $this->add('04000000', 'Offset for ' . $association->value);
+        $this->add('02000000');
+    }
+
 
     public function moveAttributePointer(Associations $association ){
         $msg = "Write to Attribute";
@@ -75,49 +135,36 @@ class EvaluateVariable{
         $type = is_null($type) ? $association->varType : $type;
 
         if (
-
-            (
-                $association->parent != null &&
-                $association->parent->varType == "vec3d"
-            )
+            $association->parent != null &&
+            $association->parent->varType == "vec3d"
         ) {
 
             $this->compiler->evalVar->memoryPointer($association->parent);
-
             $this->compiler->evalVar->ret();
 
             if ($association->parent->value . '.x' !== $association->value) {
-                $this->add('0f000000', 'object secondary');
-                $this->add('01000000', 'object secondary');
-
-                $this->add('32000000', 'object secondary value');
-                $this->add('01000000', 'object secondary value');
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
-
-                $this->compiler->evalVar->ret();
+                $this->moveAttributePointer($association);
+                $this->ret();
             }
 
-
-            //read attribute from vec3d
-            $this->add('0f000000');
-            $this->add('02000000');
-
-            $this->add('18000000');
-            $this->add('01000000');
-            $this->add('04000000', 'Offset for ' . $association->value);
-            $this->add('02000000');
+            $this->compiler->evalVar->readAttribute($association);
 
 
         }else{
             if (in_array($type,
                     ['real', 'float', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
                 ) !== false ){
-                $this->add($association->section == "header" ? '14000000' : '13000000', $type . ' from Section ' . $association->section);
-                $this->add('01000000', 'Read Variable ' . $association->value);
-                $this->add('04000000', 'Read Variable ' . $association->value);
-                $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+                $this->readVariable($association);
             }
         }
+
+    }
+
+    public function readVariable( Associations $association){
+        $this->add($association->section == "header" ? '14000000' : '13000000', $association->varType . ' from Section ' . $association->section);
+        $this->add('01000000', 'Read Variable ' . $association->value);
+        $this->add('04000000', 'Read Variable ' . $association->value);
+        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
 
     }
 
@@ -234,7 +281,6 @@ class EvaluateVariable{
                 throw new Exception("Math-Type not implemented " . $type);
             }
 
-
         }else{
 
             $this->add('0f000000', 'integer math');
@@ -290,7 +336,6 @@ class EvaluateVariable{
         $this->add('0a000000');
         $this->add('3b000000');
         $this->add('00000000');
-
     }
 
     public function procedureEnd( Associations $association ){
@@ -301,8 +346,6 @@ class EvaluateVariable{
         $this->add('0f000000');
         $this->add('0a000000');
         $this->add('3a000000');
-
-//        $this->add(Helper::fromIntToHex(count($this->compiler->codes) * 4), 'End Offset');
 
         /**
          * The last line represents the arguments
@@ -317,7 +360,6 @@ class EvaluateVariable{
         $msg = $this->msg;
 
         if (!is_null($appendix)) $msg .= ' | ' . $appendix;
-
 
         $this->compiler->codes[] = [
             'code' => $code,
@@ -360,11 +402,11 @@ class EvaluateVariable{
         $this->add('04000000', $msg);
         $this->add(Helper::fromIntToHex($indexVariableOffset), 'index variable offsety');
 
-        $this->add('35000000', $msg);
-        $this->add('04000000', $msg);
+        $this->add('35000000', $msg); // T_MULTIPLY (int) ?
+        $this->add('04000000', $msg); // T_MULTIPLY (int) ?
 
-        $this->add('0f000000', $msg);
-        $this->add('04000000', $msg);
+        $this->add('0f000000', $msg); // Math
+        $this->add('04000000', $msg); // Math
 
         $this->add('31000000', $msg);
         $this->add('04000000', $msg);

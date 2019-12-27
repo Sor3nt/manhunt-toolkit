@@ -306,32 +306,23 @@ class Evaluate{
 
                     if ($association->isRecord === true){
 
+                        //it is not the first attribute, move pointer
                         if ($association->attributeName != $association->records[0][0]){
                             $compiler->evalVar->moveAttributePointer($association);
                             $compiler->evalVar->ret();
                         }
 
-                        //read attribute from record
-                        $this->add('0f000000');
-                        $this->add('02000000');
-
-                        $this->add('18000000');
-                        $this->add('01000000');
-                        $this->add('04000000', 'Offset for ' . $association->value);
-                        $this->add('02000000');
-
+                        $compiler->evalVar->readAttribute($association);
                         $compiler->evalVar->ret();
-
-
+                    }else{
+//                        $compiler->evalVar->readAttribute($association);
 
                     }
-
 
                 }else if ( $association->varType == "string") {
 
                     if (in_array($association->section, ['header', 'script', 'constant']) !== false){
 
-//                        $this->add('debug', "debug");
                         $this->compiler->evalVar->memoryPointer($association);
 
                         //arguments for procedures need only the pointer...
@@ -341,25 +332,14 @@ class Evaluate{
 
                     }else{
 
-                        $appendix = 'Read String ' . $association->value . ' from Section ' . $association->section;
-
-                        //custom parameter
-                        $this->add('13000000', $appendix);
-                        $this->add('01000000', $appendix);
-                        $this->add('04000000', $appendix);
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
-
-                        //then read the given size
+                        $this->compiler->evalVar->readVariable( $association );
                         $this->compiler->evalVar->readSize( 0 );
                     }
                 }else if ( $association->varType == "vec3d") {
 
                     //we read from a procedure argument
                     if ($association->offset < 0) {
-                        $this->add($association->section == "header" ? '14000000' : '13000000', $association->varType . ' from Section ' . $association->section);
-                        $this->add('01000000', 'Read Variable ' . $association->value);
-                        $this->add('04000000', 'Read Variable ' . $association->value);
-                        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+                        $this->compiler->evalVar->readVariable( $association );
 
                     } else {
                         $this->compiler->evalVar->memoryPointer($association);
@@ -457,14 +437,11 @@ class Evaluate{
                         }else{
                             $lastInCurrentChain = $this->compiler->isTypeConditionOperatorOrOperation($association->childs[$index + 1]->type);
                         }
-
                     }
-
 
                     $doReturn = null;
 
                     if ($param->type == Tokens::T_VARIABLE) {
-
 
                         $isState = $compiler->getState($param->varType);
                         $compareAgainst = $isState ? 'state' : $param->varType;
@@ -484,14 +461,7 @@ class Evaluate{
 
                             //todo part of t_variable....
                             if ($param->fromArray === true) {
-                                $this->add('0f000000', 'from array');
-                                $this->add('02000000', 'from array');
-
-                                $this->add('18000000', 'from array');
-                                $this->add('01000000', 'from array');
-
-                                $this->add('04000000', 'from array');
-                                $this->add('02000000', 'from array');
+                                $compiler->evalVar->readAttribute($param);
                             }
 
                             if (
@@ -560,20 +530,7 @@ class Evaluate{
                     }else if ($param->type == Tokens::T_OR || $param->type == Tokens::T_AND){
                         $compiler->evalVar->msg = sprintf("Condition");
 
-                        $this->add('0f000000', "apply to operator");
-                        $this->add('04000000', "apply to operator");
-
-                        switch ($param->type){
-                            case Tokens::T_OR:
-                                $this->add('27000000', 'OR');
-                                break;
-                            case Tokens::T_AND:
-                                $this->add('25000000', 'AND');
-                                break;
-                        }
-
-                        $this->add('01000000', 'apply operator');
-                        $this->add('04000000', 'apply operator');
+                        $compiler->evalVar->conditionOperator($param);
 
                         if (!$lastInCurrentChain){
                             $this->compiler->evalVar->ret("Return for next Case");
@@ -583,30 +540,8 @@ class Evaluate{
 
                         $compiler->evalVar->msg = sprintf("Condition");
 
-                        switch ($param->type){
-                            case Tokens::T_IS_SMALLER:
-                                $this->add('3d000000');
-                                break;
-                            case Tokens::T_IS_SMALLER_EQUAL:
-                                $this->add('3e000000');
-                                break;
-                            case Tokens::T_IS_EQUAL:
-                                $this->add('3f000000');
-                                break;
-                            case Tokens::T_IS_NOT_EQUAL:
-                                $this->add('40000000');
-                                break;
-                            case Tokens::T_IS_GREATER_EQUAL:
-                                $this->add('41000000');
-                                break;
-                            case Tokens::T_IS_GREATER:
-                                $this->add('42000000');
-                                break;
-                            default:
-                                var_dump($param);
-                                throw new Exception(sprintf('Evaluate:: Unknown statement operator %s', $association->operator));
-                                break;
-                        }
+                        $compiler->evalVar->conditionOperation($param);
+
 
                         $offset = count($compiler->codes);
                         $this->add('OFFSET', 'Offset 1');
@@ -706,7 +641,6 @@ class Evaluate{
                         foreach ($case->onFalse as $item) {
                             new Evaluate($this->compiler, $item);
                         }
-
                     }
 
                 }
@@ -761,8 +695,6 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                 foreach ($association->childs as $index => $param) {
-
-
                     $param->onlyPointer = $association->isProcedure == true;
                     new Evaluate($this->compiler, $param);
 
@@ -898,8 +830,6 @@ class Evaluate{
                     }
                 }
 
-
-
                 if (strtolower($association->value) == "writedebug"){
                     $param = $association->childs[0];
                     if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
@@ -973,12 +903,8 @@ class Evaluate{
 
                                 $this->add("07030000", "int arg");
                             }
-
-
                         }
 
-//                        var_dump($association->extraArguments);
-//                        exit;
                         $this->add("0e030000", "hidden callscript");
                     }
                 }
@@ -1008,8 +934,8 @@ class Evaluate{
                         $this->add(Helper::fromIntToHex($case->value['offset']), 'case Offset (1)');
                     }else{
                         $this->add(Helper::fromIntToHex($case->value->offset), 'case Offset (1)');
-//                        $this->add(Helper::fromIntToHex($realIndex), 'case Offset (2)');
                     }
+
                     $this->add('3f000000');
 
                     //we dont know yet the correct offset, we store the position and
@@ -1079,7 +1005,6 @@ class Evaluate{
         $msg = $this->compiler->evalVar->msg;
 
         if (!is_null($appendix)) $msg .= ' | ' . $appendix;
-
 
         $this->compiler->codes[] = [
             'code' => $code,
