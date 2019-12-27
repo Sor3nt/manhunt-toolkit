@@ -704,6 +704,21 @@ class Compiler
         return $varType;
     }
 
+    public function isTypeMathOperator($type){
+        switch ($type){
+            case Tokens::T_ADDITION:
+            case Tokens::T_SUBSTRACTION:
+            case Tokens::T_MULTIPLY:
+            case Tokens::T_DIVISION:
+
+                return true;
+                break;
+
+        }
+
+        return false;
+    }
+
     public function isTypeConditionOperatorOrOperation($type){
         switch ($type){
             case Tokens::T_OR:

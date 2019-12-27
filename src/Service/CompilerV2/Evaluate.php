@@ -239,7 +239,8 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("Assign to Variable %s", $association->value);
 
                 if ($association->fromArray == true) {
-                    $this->writeData($association, "array");
+                    $compiler->evalVar->writeToVariable($association);
+
                 }else if ($association->isCustomFunction){
 
                     $compiler->evalVar->writeToAttribute($association);
@@ -258,9 +259,7 @@ class Evaluate{
                     $this->add('04000000', $appendix);
                     $this->add(Helper::fromIntToHex($association->offset), 'String offset');
 
-                    $this->add('12000000', $appendix);
-                    $this->add('03000000', $appendix);
-                    $this->add(Helper::fromIntToHex($association->size), 'Size of ' . $association->size);
+                    $compiler->evalVar->writeSize($association->size);
 
                     $this->add('10000000', $appendix);
                     $this->add('04000000', $appendix);
@@ -274,7 +273,7 @@ class Evaluate{
                 ) {
                     $compiler->evalVar->writeToAttribute($association);
                 }else{
-                    $this->writeData($association, $association->varType);
+                    $compiler->evalVar->writeToVariable($association);
                 }
 
                 break;
@@ -333,7 +332,9 @@ class Evaluate{
                         $this->compiler->evalVar->readVariable( $association );
                         $this->compiler->evalVar->readSize( 0 );
                     }
-                }else if ( $association->varType == "vec3d") {
+                }
+
+                else if ( $association->varType == "vec3d") {
 
                     //we read from a procedure argument
                     if ($association->offset < 0) {
@@ -347,7 +348,9 @@ class Evaluate{
 
                     $compiler->evalVar->valuePointer($association->offset);
 
-                }else{
+                }
+
+                else {
                     $compiler->evalVar->variablePointer(
                         $association,
                         $compiler->getState($association->varType) ? 'state' : null
@@ -1023,51 +1026,6 @@ class Evaluate{
         if ($association->type == Tokens::T_STATE) return 'state';
         if ($association->type == Tokens::T_CONSTANT) return 'constant';
         throw new Exception("Unable to resolve type " . $association->type);
-    }
-
-
-    private function writeData(Associations $association, $type ){
-        switch ($type) {
-            case 'state':
-            case 'entityptr':
-            case 'integer':
-            case 'boolean':
-            case 'float':
-
-                if ($association->isLevelVar){
-                    $this->add('1a000000', 'LevelVar');
-                    $this->add('01000000');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                    $this->add('04000000');
-
-                }else{
-                    $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
-                    $this->add('04000000');
-                    $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-                    $this->add('01000000');
-
-                }
-                break;
-            case 'vec3d':
-                $this->add('12000000');
-                $this->add('03000000');
-                $this->add('0c000000');
-//                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
-
-                $this->add('0f000000');
-                $this->add('01000000');
-
-                $this->add('0f000000');
-                $this->add('04000000');
-                $this->add('44000000');
-                break;
-            case 'array':
-
-                $this->compiler->evalVar->writeToAttribute($association);
-
-                break;
-        }
-
     }
 
 

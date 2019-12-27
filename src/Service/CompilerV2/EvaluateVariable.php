@@ -38,6 +38,13 @@ class EvaluateVariable{
         $this->add(Helper::fromIntToHex($offset), 'Size of ' . $offset);
     }
 
+    public function writeSize( $size ){
+        $this->add('12000000');
+        $this->add('03000000');
+        $this->add(Helper::fromIntToHex($size), 'Size of ' . $size);
+
+    }
+
     public function valuePointer($offset ){
 
         $this->add('12000000', 'Simple Read ' . $offset);
@@ -94,6 +101,45 @@ class EvaluateVariable{
 
         $this->add('01000000', 'apply operator');
         $this->add('04000000', 'apply operator');
+
+    }
+
+    public function writeToVariable(Associations $association ){
+
+        $type = $association->varType;
+        if ($association->fromArray == true) $type = 'array';
+
+        if ($type == 'vec3d') {
+
+            $this->compiler->evalVar->writeSize(12);
+
+            $this->add('0f000000');
+            $this->add('01000000');
+
+            $this->add('0f000000');
+            $this->add('04000000');
+            $this->add('44000000');
+        }else if ($type == 'array'){
+            $this->compiler->evalVar->writeToAttribute($association);
+
+
+        }else{
+
+            if ($association->isLevelVar){
+                $this->add('1a000000', 'LevelVar');
+                $this->add('01000000');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('04000000');
+
+            }else{
+                $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
+                $this->add('04000000');
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('01000000');
+
+            }
+        }
+
 
     }
 

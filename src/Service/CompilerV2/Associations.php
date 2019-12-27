@@ -47,7 +47,15 @@ class Associations
     //flag for the association
     public $fromArray = null;
 
-    public $records = [];
+    public $records = [
+
+        'vec3d' => [
+            'x' => 'float',
+            'y' => 'float',
+            'z' => 'float',
+        ]
+
+    ];
 
     /** @var Associations|null */
     public $start = null;
@@ -180,12 +188,15 @@ class Associations
             $this->type = Tokens::T_FUNCTION;
             $this->value = $function['name'];
             $this->offset = $function['offset'];
-            if (isset($function['forceFloat'])) $this->forceFloat = $function['forceFloat'];
+
+            if (isset($function['forceFloat']))
+                $this->forceFloat = $function['forceFloat'];
 
             if (isset($function['type'])){
                 $this->isCustomFunction = $function['type'] == Tokens::T_CUSTOM_FUNCTION;
                 $this->isProcedure = $function['type'] == Tokens::T_PROCEDURE;
             }
+
             $this->return = !isset($function['return']) ? null : $function['return'];
 
             if ($compiler->getToken() == "(") {
@@ -195,14 +206,12 @@ class Associations
                 while($current < count($params->childs)){
                     $param = $params->childs[$current];
 
+                    /**
+                     * Right after a function parameter is a math operation
+                     */
                     if (
                         isset($params->childs[$current + 1]) &&
-                        (
-                            $params->childs[$current + 1]->type == Tokens::T_ADDITION ||
-                            $params->childs[$current + 1]->type == Tokens::T_SUBSTRACTION ||
-                            $params->childs[$current + 1]->type == Tokens::T_MULTIPLY ||
-                            $params->childs[$current + 1]->type == Tokens::T_DIVISION
-                        )
+                        $compiler->isTypeMathOperator($params->childs[$current + 1]->type)
                     ){
 
                         $math = new Associations();
@@ -228,7 +237,7 @@ class Associations
             }
 
             /**
-             * Callscript calls can have extra arguments
+             * Callscript calls can have arguments
              */
             if ($compiler->consumeIfTrue(":")) {
 
