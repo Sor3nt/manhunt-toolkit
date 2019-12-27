@@ -132,9 +132,12 @@ class Associations
             $isVariableOrFunction = true;
 
             if ($variable['type'] == "array") {
-                $compiler->current++;
-                $indexName = $compiler->consume();
-                $variable = $compiler->getVariable($value . '[' . $indexName . ']');
+
+                $compiler->current++; // Skip "["
+
+                $indexName = new Associations($compiler);
+
+                $variable = $compiler->getVariable($value . '[' . $indexName->value . ']');
 
                 if ($variable == false){
                     /**
@@ -145,13 +148,11 @@ class Associations
                      * PKarray[i] can not be known, the iterator "i" can have different names
                      */
                     $variable = $compiler->getVariable($value);
-                    $forIndex = $compiler->getVariable($indexName);
 
-                    $this->forIndex = $compiler->createVariableAssociation($forIndex);
+                    $this->forIndex = $indexName;
                 }
 
                 $compiler->current++; // Skip "]"
-
 
                 //we access a object (vec3d/record) attribute
                 if (substr($compiler->getToken(), 0, 1) == "."){

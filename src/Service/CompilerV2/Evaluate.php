@@ -302,7 +302,7 @@ class Evaluate{
                     $association->forIndex !== null
                 ) {
                     $compiler->evalVar->msg = sprintf("Read from Array %s / %s", $association->value, $association->varType);
-                    $this->compiler->evalVar->readFromArrayIndex($association);
+                    $compiler->evalVar->readFromArrayIndex($association);
 
                     if ($association->isRecord === true){
 
@@ -314,8 +314,6 @@ class Evaluate{
 
                         $compiler->evalVar->readAttribute($association);
                         $compiler->evalVar->ret();
-                    }else{
-//                        $compiler->evalVar->readAttribute($association);
 
                     }
 
