@@ -75,8 +75,11 @@ class EvaluateVariable{
         $type = is_null($type) ? $association->varType : $type;
 
         if (
-            $association->parent != null &&
-            $association->parent->varType == "vec3d"
+
+            (
+                $association->parent != null &&
+                $association->parent->varType == "vec3d"
+            )
         ) {
 
             $this->compiler->evalVar->memoryPointer($association->parent);
@@ -103,6 +106,7 @@ class EvaluateVariable{
             $this->add('01000000');
             $this->add('04000000', 'Offset for ' . $association->value);
             $this->add('02000000');
+
 
         }else{
             if (in_array($type,
@@ -336,7 +340,7 @@ class EvaluateVariable{
             //todo, no int convertion should happen here...
             $this->compiler->evalVar->valuePointer((int)$association->index);
         }
-//var_dump($association);
+
         if ($association->typeOf == "vec3d" || $association->varType == "vec3d"){
             $this->readArray(12);
         }else{

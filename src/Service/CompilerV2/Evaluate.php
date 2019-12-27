@@ -133,6 +133,7 @@ class Evaluate{
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
+                    $compiler->evalVar->msg = sprintf("Process Assign %s", $association->value);
                     $this->compiler->evalVar->ret();
 
 
@@ -192,6 +193,7 @@ class Evaluate{
                     $this->compiler->evalVar->valuePointer( (int)$association->index );
 
                     $this->compiler->evalVar->readArray();
+
                 }
 
                 /**
@@ -299,7 +301,31 @@ class Evaluate{
                     $association->fromArray === true ||
                     $association->forIndex !== null
                 ) {
+                    $compiler->evalVar->msg = sprintf("Read from Array %s / %s", $association->value, $association->varType);
                     $this->compiler->evalVar->readFromArrayIndex($association);
+
+                    if ($association->isRecord){
+
+                        if ($association->attributeName != $association->records[0][0]){
+                            $compiler->evalVar->moveAttributePointer($association);
+                            $compiler->evalVar->ret();
+                        }
+
+                        //read attribute from record
+                        $this->add('0f000000');
+                        $this->add('02000000');
+
+                        $this->add('18000000');
+                        $this->add('01000000');
+                        $this->add('04000000', 'Offset for ' . $association->value);
+                        $this->add('02000000');
+
+                        $compiler->evalVar->ret();
+
+
+
+                    }
+
 
                 }else if ( $association->varType == "string") {
 

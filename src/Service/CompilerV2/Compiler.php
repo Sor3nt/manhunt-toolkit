@@ -19,6 +19,7 @@ class Compiler
     public $levelScript = null;
 
     public $tokens = [];
+    public $records = [];
     public $current = 0;
 
     /** @var ManhuntDefault */
@@ -302,6 +303,12 @@ class Compiler
         $this->gameClass->types[$name] = [
             'types' => $types
         ];
+
+    }
+    public function addRecord($name, $recordEntries ){
+
+        $this->records[$name] = $recordEntries;
+
 
     }
     public function addConstants( $name, $value, $type){

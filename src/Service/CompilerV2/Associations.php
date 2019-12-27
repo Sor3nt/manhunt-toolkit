@@ -28,8 +28,11 @@ class Associations
 
     /** @var null|string  */
     public $variableName = null;
+    public $attributeName = null;
 
     public $size = null;
+    public $isRecord = false;
+    public $records = [];
 
     public $fromState = null;
     public $isLevelVar = null;
@@ -80,12 +83,15 @@ class Associations
         if (count($this->childs)) $debug['childs'] = $this->childs;
         if (count($this->extraArguments)) $debug['extraArguments'] = $this->extraArguments;
         if (count($this->cases)) $debug['cases'] = $this->cases;
+        if (count($this->records)) $debug['records'] = $this->records;
         if ($this->onlyPointer !== false) $debug['onlyPointer'] = $this->onlyPointer;
         if ($this->assign !== false) $debug['assign'] = $this->assign;
+        if ($this->isRecord !== false) $debug['isRecord'] = $this->isRecord;
         if ($this->fromState !== null) $debug['fromState'] = $this->math;
         if ($this->math !== null) $debug['math'] = $this->math;
         if ($this->size !== null) $debug['size'] = $this->size;
         if ($this->typeOf !== null) $debug['typeOf'] = $this->typeOf;
+        if ($this->attributeName !== null) $debug['attributeName'] = $this->attributeName;
         if ($this->isArgument !== null) $debug['isArgument'] = $this->isArgument;
         if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
         if ($this->offset !== null) $debug['offset'] = $this->offset;
@@ -154,7 +160,6 @@ class Associations
                     $variable = $compiler->getVariable($value);
                     $forIndex = $compiler->getVariable($indexName);
 
-
                     $forIndexAssociation = new Associations();
 
                     $forIndexAssociation->type = Tokens::T_VARIABLE;
@@ -167,6 +172,7 @@ class Associations
 
                     //used from array variables like "itemsSpawned[1]"
                     if (isset($forIndex['typeOf'])) $forIndexAssociation->typeOf = $forIndex['typeOf'];
+                    if (isset($forIndex['isRecord'])) $forIndexAssociation->isRecord = $forIndex['isRecord'];
                     if (isset($forIndex['fromArray'])) $forIndexAssociation->fromArray = $forIndex['fromArray'];
                     if (isset($forIndex['fromState'])) $forIndexAssociation->fromState = $forIndex['fromState'];
                     if (isset($forIndex['index'])) $forIndexAssociation->index = $forIndex['index'];
@@ -177,8 +183,17 @@ class Associations
                     $this->forIndex = $forIndexAssociation;
                 }
 
-                $compiler->current++;
+                $compiler->current++; // Skip "]"
+
+
+                //we access a object (vec3d/record) attribute
+                if (substr($compiler->getToken(), 0, 1) == "."){
+                    $attributeName = $compiler->consume();
+                    $variable['attributeName'] = substr($attributeName, 1);
+                    $variable['offset'] = 0; // TODO
+                }
             }
+
 
             $this->type = Tokens::T_VARIABLE;
             $this->value = $variable['name'];
@@ -192,6 +207,9 @@ class Associations
 
             //used from array variables like "itemsSpawned[1]"
             if (isset($variable['typeOf'])) $this->typeOf = $variable['typeOf'];
+            if (isset($variable['attributeName'])) $this->attributeName = $variable['attributeName'];
+            if (isset($variable['isRecord'])) $this->isRecord = $variable['isRecord'];
+            if (isset($variable['records'])) $this->records = $variable['records'];
             if (isset($variable['fromState'])) $this->fromState = $variable['fromState'];
             if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
             if (isset($variable['index'])) $this->index = $variable['index'];
@@ -210,6 +228,9 @@ class Associations
                 $parent->section = $variable['parent']['section'];
 
                 if (isset($variable['parent']['typeOf'])) $parent->typeOf = $variable['parent']['typeOf'];
+                if (isset($variable['parent']['attributeName'])) $parent->attributeName = $variable['parent']['attributeName'];
+                if (isset($variable['parent']['isRecord'])) $parent->isRecord = $variable['parent']['isRecord'];
+                if (isset($variable['parent']['records'])) $parent->isRecord = $variable['parent']['records'];
                 if (isset($variable['parent']['fromState'])) $parent->fromState = $variable['parent']['fromState'];
                 if (isset($variable['parent']['fromArray'])) $parent->fromArray = $variable['parent']['fromArray'];
                 if (isset($variable['parent']['index'])) $parent->index = $variable['parent']['index'];
@@ -853,6 +874,9 @@ class Associations
 
                 $type = $compiler->consume();
                 $entry['type'] = $type;
+                if (isset($compiler->records[$type])){
+                    $entry['isRecord'] = true;
+                }
                 $entry['fromArray'] = true;
                 $entry['start'] = $start;
                 $entry['end'] = $end;
@@ -926,11 +950,28 @@ class Associations
                     $entry['type'] = 'array';
                     $entry['typeOf'] = $var['type'];
 
-                    if ($var['type'] == "vec3d"){
-                        $entry['size'] = $var['end'] * 12;
+                    if (isset($var['isRecord']) && $var['isRecord'] === true){
+                        $entry['isRecord'] = true;
+
+                        $recordArray = $compiler->records[$var['type']];
+                        $entry['records'] = $recordArray;
+
+                        $recordSize = 0;
+                        foreach ($recordArray as $item) {
+                            $recordSize += $compiler->calcSize($item[1]);
+                        }
+
+                        $entry['size'] = $var['end'] * $recordSize;
+
                     }else{
-                        $entry['size'] = $var['end'] * 4;
+                        if ($var['type'] == "vec3d"){
+                            $entry['size'] = $var['end'] * 12;
+                        }else{
+                            $entry['size'] = $var['end'] * 4;
+                        }
+
                     }
+
 
                     $masterVariable = $compiler->addVariable($entry);
 
@@ -966,18 +1007,40 @@ class Associations
         while ($compiler->getToken($compiler->current + 1) == "=") {
 
             $name = $compiler->consume();
-            $compiler->current++;
-            $compiler->current++;
+            $compiler->current++; // Skip "="
 
-            $entries = [$compiler->consume()];
-            while ($compiler->getToken($compiler->current) != ')') {
+
+            if ($compiler->consumeIfTrue('(')){
+                $entries = [$compiler->consume()];
+                while ($compiler->getToken($compiler->current) != ')') {
+                    $compiler->current++;
+                    $entries[] = $compiler->consume();
+                }
+
                 $compiler->current++;
-                $entries[] = $compiler->consume();
+                $compiler->addStates($name, $entries);
+
+            }else if ($compiler->consumeIfTrue('record')){
+
+
+                $recordEntries = [];
+                while ($compiler->getToken($compiler->current + 1) == ":") {
+                    $recordName = $compiler->consume();
+                    $compiler->current++; // Skip ":"
+                    $recordType = $compiler->consume();
+
+                    $recordEntries[] = [$recordName, $recordType];
+                }
+
+                $compiler->current++; // Skip "end"
+
+
+                $compiler->addRecord($name, $recordEntries);
+
             }
 
-            $compiler->current++;
 
-            $compiler->addStates($name, $entries);
+
         }
     }
 
