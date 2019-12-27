@@ -733,4 +733,27 @@ class Compiler
 
         return false;
     }
+
+    public function createVariableAssociation( array $data, Associations $variable = null ){
+
+        if ($variable == null) $variable = new Associations();
+
+        //copy all given data into the Association object
+        foreach ($data as $index => $value) {
+
+            if ($index == "name") $index = "value";
+
+            if (property_exists(Associations::class, $index)){
+                $variable->$index = $value;
+            }
+        }
+
+        if ($variable->varType == null && $variable->type !== null){
+            $variable->varType = $variable->type;
+        }
+
+        $variable->type = Tokens::T_VARIABLE;
+
+        return $variable;
+    }
 }

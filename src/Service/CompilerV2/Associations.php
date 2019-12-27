@@ -160,27 +160,7 @@ class Associations
                     $variable = $compiler->getVariable($value);
                     $forIndex = $compiler->getVariable($indexName);
 
-                    $forIndexAssociation = new Associations();
-
-                    $forIndexAssociation->type = Tokens::T_VARIABLE;
-                    $forIndexAssociation->value = $forIndex['name'];
-
-                    $forIndexAssociation->offset = $forIndex['offset'];
-                    $forIndexAssociation->size = $forIndex['size'];
-                    $forIndexAssociation->varType = $forIndex['type'];
-                    $forIndexAssociation->section = $forIndex['section'];
-
-                    //used from array variables like "itemsSpawned[1]"
-                    if (isset($forIndex['typeOf'])) $forIndexAssociation->typeOf = $forIndex['typeOf'];
-                    if (isset($forIndex['isRecord'])) $forIndexAssociation->isRecord = $forIndex['isRecord'];
-                    if (isset($forIndex['fromArray'])) $forIndexAssociation->fromArray = $forIndex['fromArray'];
-                    if (isset($forIndex['fromState'])) $forIndexAssociation->fromState = $forIndex['fromState'];
-                    if (isset($forIndex['index'])) $forIndexAssociation->index = $forIndex['index'];
-                    if (isset($forIndex['isArgument'])) $forIndexAssociation->isArgument = $forIndex['isArgument'];
-                    if (isset($forIndex['isGameVar'])) $forIndexAssociation->isGameVar = $forIndex['isGameVar'];
-                    if (isset($forIndex['isLevelVar'])) $forIndexAssociation->isLevelVar = $forIndex['isLevelVar'];
-
-                    $this->forIndex = $forIndexAssociation;
+                    $this->forIndex = $compiler->createVariableAssociation($forIndex);
                 }
 
                 $compiler->current++; // Skip "]"
@@ -194,51 +174,11 @@ class Associations
                 }
             }
 
+            $compiler->createVariableAssociation($variable, $this);
 
-            $this->type = Tokens::T_VARIABLE;
-            $this->value = $variable['name'];
-
-            $this->offset = $variable['offset'];
-            $this->size = $variable['size'];
-
-            $this->varType = $variable['type'];
-            $this->section = $variable['section'];
-
-
-            //used from array variables like "itemsSpawned[1]"
-            if (isset($variable['typeOf'])) $this->typeOf = $variable['typeOf'];
-            if (isset($variable['attributeName'])) $this->attributeName = $variable['attributeName'];
-            if (isset($variable['isRecord'])) $this->isRecord = $variable['isRecord'];
-            if (isset($variable['records'])) $this->records = $variable['records'];
-            if (isset($variable['fromState'])) $this->fromState = $variable['fromState'];
-            if (isset($variable['fromArray'])) $this->fromArray = $variable['fromArray'];
-            if (isset($variable['index'])) $this->index = $variable['index'];
-            if (isset($variable['isArgument'])) $this->isArgument = $variable['isArgument'];
-            if (isset($variable['isGameVar'])) $this->isGameVar = $variable['isGameVar'];
-            if (isset($variable['isLevelVar'])) $this->isLevelVar = $variable['isLevelVar'];
             if (isset($variable['parent'])){
 
-                $parent = new Associations();
-                $parent->type = Tokens::T_VARIABLE;
-                $parent->value = $variable['parent']['name'];
-
-                $parent->offset = $variable['parent']['offset'];
-                $parent->size = $variable['parent']['size'];
-                $parent->varType = $variable['parent']['type'];
-                $parent->section = $variable['parent']['section'];
-
-                if (isset($variable['parent']['typeOf'])) $parent->typeOf = $variable['parent']['typeOf'];
-                if (isset($variable['parent']['attributeName'])) $parent->attributeName = $variable['parent']['attributeName'];
-                if (isset($variable['parent']['isRecord'])) $parent->isRecord = $variable['parent']['isRecord'];
-                if (isset($variable['parent']['records'])) $parent->isRecord = $variable['parent']['records'];
-                if (isset($variable['parent']['fromState'])) $parent->fromState = $variable['parent']['fromState'];
-                if (isset($variable['parent']['fromArray'])) $parent->fromArray = $variable['parent']['fromArray'];
-                if (isset($variable['parent']['index'])) $parent->index = $variable['parent']['index'];
-                if (isset($variable['parent']['isArgument'])) $parent->isArgument = $variable['parent']['isArgument'];
-                if (isset($variable['parent']['isGameVar'])) $parent->isGameVar = $variable['parent']['isGameVar'];
-                if (isset($variable['parent']['isLevelVar'])) $parent->isLevelVar = $variable['parent']['isLevelVar'];
-
-                $this->parent = $parent;
+                $this->parent = $compiler->createVariableAssociation($variable['parent']);;
             }
         }
 
