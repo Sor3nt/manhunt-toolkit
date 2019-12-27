@@ -10,115 +10,102 @@ class Associations
 {
 
     public $type = Tokens::T_UNKNOWN;
-    public $typeOf = null;
-    public $value = "";
-    public $forIndex = null;
+
+    /*
+     * Regular Parts
+     */
+
+    public $value = null;
 
     /** @var Associations[] */
     public $childs = [];
 
+    public $size = null;
+    public $offset = null;
+
+    public $isRecord = null;
+    public $isLevelVar = null;
+    public $isGameVar = null;
+    public $isCustomFunction = null;
+    public $isProcedure = null;
+    public $isLastWriteDebugParam = null;
+
+    public $section = null;
+
+    /*
+     * Array parts
+     */
+
+    // Type of the current array
+    // Example: "sleepArr : array [1..3] of integer;" would be the type "integer"
+    public $typeOf = null;
+
+    // Current used  index to access the array
+    // Example: "sleep(sleepArr[i])" would be the  variable "i" used as index
+    public $forIndex = null;
+
+    //flag for the association
+    public $fromArray = null;
+
+    public $records = [];
+
+    /** @var Associations|null */
+    public $start = null;
+
+    /** @var Associations|null */
+    public $end = null;
+
+
+
+    /*
+     * Conditions
+     */
+    public $cases = [];
+
+    public $operator = null;
+    public $condition = null;
+
+    public $onTrue = null;
+    public $onFalse = null;
+
+
+
     /** @var Associations[] */
     public $extraArguments = [];
 
-    public $assign = false;
-    public $onlyPointer = false;
+    public $assign = null;
+    public $onlyPointer = null;
 
     /** @var Associations */
     public $math = null;
 
-    /** @var null|string  */
-    public $variableName = null;
     public $attributeName = null;
 
-    public $size = null;
-    public $isRecord = false;
-    public $records = [];
-
     public $fromState = null;
-    public $isLevelVar = null;
     public $parent = null;
-    public $isArgument = null;
-    public $isGameVar = null;
-    public $offset = null;
     public $index = null;
+
     /** @var array|null  */
     public $forceFloat = null;
     public $varType = null;
-    public $section = null;
-    public $fromArray = false;
 
     public $return = null;
-    public $isNot = null;
 
-    public $condition = false;
-    public $onTrue = null;
-    public $onFalse = null;
-    public $operator = null;
-    /** @var Associations|null  */
-    public $operatorValue = null;
-    public $statementOperator = null;
-    public $isCustomFunction = null;
-    public $isProcedure = null;
-    public $start = null;
-    public $paramCount = null;
-    public $isLastWriteDebugParam = null;
-    public $isLastCondition = null;
-    public $negate = false;
+    public $negate = null;
     public $scriptName = "";
-    /**
-     * @var Associations|null
-     */
-    public $end = null;
-
-    public $cases = [];
 
     public function __debugInfo()
     {
 
-        $debug = [
-            'type' => $this->type
-        ];
-        if ($this->value !== "") $debug['value'] = $this->value;
-        if ($this->scriptName !== "") $debug['scriptName'] = $this->scriptName;
-        if (count($this->childs)) $debug['childs'] = $this->childs;
-        if (count($this->extraArguments)) $debug['extraArguments'] = $this->extraArguments;
-        if (count($this->cases)) $debug['cases'] = $this->cases;
-        if (count($this->records)) $debug['records'] = $this->records;
-        if ($this->onlyPointer !== false) $debug['onlyPointer'] = $this->onlyPointer;
-        if ($this->assign !== false) $debug['assign'] = $this->assign;
-        if ($this->isRecord !== false) $debug['isRecord'] = $this->isRecord;
-        if ($this->fromState !== null) $debug['fromState'] = $this->math;
-        if ($this->math !== null) $debug['math'] = $this->math;
-        if ($this->size !== null) $debug['size'] = $this->size;
-        if ($this->typeOf !== null) $debug['typeOf'] = $this->typeOf;
-        if ($this->attributeName !== null) $debug['attributeName'] = $this->attributeName;
-        if ($this->isArgument !== null) $debug['isArgument'] = $this->isArgument;
-        if ($this->forceFloat !== null) $debug['forceFloat'] = $this->forceFloat;
-        if ($this->offset !== null) $debug['offset'] = $this->offset;
-        if ($this->isGameVar !== null) $debug['gameVar'] = $this->isGameVar;
-        if ($this->isLevelVar !== null) $debug['levelVar'] = $this->isLevelVar;
-        if ($this->parent !== null) $debug['parent'] = $this->parent;
-        if ($this->forIndex !== null) $debug['forIndex'] = $this->forIndex;
-        if ($this->varType !== null) $debug['varType'] = $this->varType;
-        if ($this->section !== null) $debug['section'] = $this->section;
-        if ($this->index !== null) $debug['index'] = $this->index;
-        if ($this->return !== null) $debug['return'] = $this->return;
-        if ($this->isNot !== null) $debug['isNot'] = $this->isNot;
-        if ($this->onTrue !== null) $debug['onTrue'] = $this->onTrue;
-        if ($this->onFalse !== null) $debug['onFalse'] = $this->onFalse;
-        if ($this->condition !== false) $debug['condition'] = $this->condition;
-        if ($this->isLastCondition !== null) $debug['isLastCondition'] = $this->isLastCondition;
-        if ($this->operator !== null) $debug['operator'] = $this->operator;
-        if ($this->operatorValue !== null) $debug['operatorValue'] = $this->operatorValue;
-        if ($this->statementOperator !== null) $debug['statementOperator'] = $this->statementOperator;
-        if ($this->isCustomFunction !== null) $debug['isCustomFunction'] = $this->isCustomFunction;
-        if ($this->isProcedure !== null) $debug['isProcedure'] = $this->isProcedure;
-        if ($this->paramCount !== null) $debug['paramCount'] = $this->paramCount;
-        if ($this->start !== null) $debug['start'] = $this->start;
-        if ($this->end !== null) $debug['end'] = $this->end;
-        if ($this->fromArray !== false) $debug['fromArray'] = $this->fromArray;
-        if ($this->negate !== false) $debug['negate'] = $this->negate;
-        if ($this->isLastWriteDebugParam !== null) $debug['isLastWriteDebugParam'] = $this->isLastWriteDebugParam;
+        $debug = [];
+
+        foreach ($this as $key => $value) {
+
+            if ($value !== null && $value !== ""){
+                if (is_array($value) && count($value) == 0) continue;
+                $debug[$key] = $value;
+            }
+        }
 
         return $debug;
     }
@@ -738,18 +725,6 @@ class Associations
         return $result;
     }
 
-    /**
-     * @param Associations[] $associations
-     * @return mixed
-     */
-    private function convertTripleStatement( array $associations ){
-
-        return [
-            $associations[0],
-            $associations[1]->type,
-            $associations[2]
-        ];
-    }
 
     private function consumeParameters(Compiler $compiler, $section = "header", $isArgument = false)
     {

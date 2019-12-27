@@ -304,7 +304,7 @@ class Evaluate{
                     $compiler->evalVar->msg = sprintf("Read from Array %s / %s", $association->value, $association->varType);
                     $this->compiler->evalVar->readFromArrayIndex($association);
 
-                    if ($association->isRecord){
+                    if ($association->isRecord === true){
 
                         if ($association->attributeName != $association->records[0][0]){
                             $compiler->evalVar->moveAttributePointer($association);
@@ -335,7 +335,7 @@ class Evaluate{
                         $this->compiler->evalVar->memoryPointer($association);
 
                         //arguments for procedures need only the pointer...
-                        if ($association->onlyPointer == false){
+                        if ($association->onlyPointer == null){
                             $this->compiler->evalVar->readSize( $association->size );
                         }
 
@@ -832,7 +832,7 @@ class Evaluate{
                             (
                                 $param->type == Tokens::T_VARIABLE &&
                                 (
-                                    ($param->varType == "vec3d" && $param->fromArray == false) ||
+                                    ($param->varType == "vec3d" && $param->fromArray == null) ||
                                     $param->varType == "eaicombattype" ||
                                     $param->varType == "ecollectabletype" ||
                                     $param->varType == "entityptr" ||
@@ -1165,7 +1165,7 @@ class Evaluate{
 
             default:
                 $this->compiler->evalVar->valuePointer($association->offset );
-                if ($association->negate) $this->compiler->evalVar->negate($association);
+                if ($association->negate === true) $this->compiler->evalVar->negate($association);
                 break;
         }
     }
