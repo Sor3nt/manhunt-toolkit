@@ -236,21 +236,21 @@ class Evaluate{
                     $compiler->evalVar->msg = sprintf("Use Array Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->readFromArrayIndex($association);
 
-                    if ($association->isRecord === true){
-                        $compiler->evalVar->msg = sprintf("Use Array-Record Variable %s / %s", $association->value, $association->varType);
-
-                        //it is not the first attribute, move pointer
-                        if ($association->attributeName != $association->records[0][0]){
-                            $compiler->evalVar->moveAttributePointer($association);
-                            $compiler->evalVar->ret();
-                        }
-
-                        $compiler->evalVar->readAttribute($association);
-                        $compiler->evalVar->ret();
-
-
-
-                    }
+//                    if ($association->isRecord === true){
+//                        $compiler->evalVar->msg = sprintf("Use Array-Record Variable %s / %s", $association->value, $association->varType);
+//
+//                        //it is not the first attribute, move pointer
+//                        if ($association->attributeName != $association->records[0][0]){
+//                            $compiler->evalVar->moveAttributePointer($association);
+//                            $compiler->evalVar->ret();
+//                        }
+//
+//                        $compiler->evalVar->readAttribute($association);
+//                        $compiler->evalVar->ret();
+//
+//
+//
+//                    }
 
                 }
 

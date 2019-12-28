@@ -19,7 +19,26 @@ class Compiler
     public $levelScript = null;
 
     public $tokens = [];
-    public $records = [];
+
+    public $records = [
+
+        'vec3d' => [
+            'x' => [
+                'type' => 'float'
+            ],
+
+            'y' => [
+                'type' => 'float'
+            ],
+
+            'z' => [
+                'type' => 'float'
+            ],
+        ]
+
+    ];
+
+//    public $records = [];
     public $current = 0;
 
     /** @var ManhuntDefault */

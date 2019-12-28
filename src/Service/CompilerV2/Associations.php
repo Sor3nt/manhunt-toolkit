@@ -22,8 +22,8 @@ class Associations
 
     public $size = null;
     public $offset = null;
+    public $records = [];
 
-    public $isRecord = null;
     public $isLevelVar = null;
     public $isGameVar = null;
     public $isCustomFunction = null;
@@ -46,24 +46,6 @@ class Associations
 
     //flag for the association
     public $fromArray = null;
-
-    public $records = [
-
-        'vec3d' => [
-            'x' => [
-                'type' => 'float'
-            ],
-
-            'y' => [
-                'type' => 'float'
-            ],
-
-            'z' => [
-                'type' => 'float'
-            ],
-        ]
-
-    ];
 
     /** @var Associations|null */
     public $start = null;
@@ -795,9 +777,6 @@ class Associations
                 $type = $compiler->consume();
 
                 $entry['type'] = $type;
-                if (isset($this->records[$type])){
-                    $entry['records'] = $this->records[$type];
-                }
                 $entry['fromArray'] = true;
                 $entry['start'] = $start;
                 $entry['end'] = $end;
@@ -870,37 +849,23 @@ class Associations
                     $entry['type'] = 'array';
                     $entry['typeOf'] = $var['type'];
 
-                    if (isset($var['records'])){
+                    if (isset($compiler->records[$var['type']])){
+                        $entry['records'] = $compiler->records[$var['type']];
+
 
                         $recordSize = 0;
-                        foreach ($var['records'] as $item) {
+                        foreach ($entry['records'] as $item) {
                             $recordSize += $compiler->calcSize($item['type']);
                         }
 
                         $entry['size'] = $var['end'] * $recordSize;
 
                     }else{
-//                        if ($var['type'] == "vec3d"){
-//                            $entry['size'] = $var['end'] * 12;
-//                        }else{
-                            $entry['size'] = $var['end'] * 4;
-//                        }
-
+                        $entry['size'] = $var['end'] * 4;
                     }
 
-                    $masterVariable = $compiler->addVariable($entry);
-//
-//                    for ($i = $var['start']; $i <= $var['end']; $i++) {
-//
-//                        $entry = array_merge([], $var);
-//                        $entry['name'] = $name . '[' . $i . ']';
-//                        $entry['fromArray'] = true;
-//                        $entry['index'] = $i;
-//                        $entry['offset'] = $masterVariable['offset'];
-////                        $entry['size'] = 4;
-//
-//                        $compiler->addVariable($entry);
-//                    }
+                    $compiler->addVariable($entry);
+
                 }
 
             }else{
@@ -909,6 +874,11 @@ class Associations
 
                     $entry = array_merge([], $var);
                     $entry['name'] = $name;
+
+
+                    if (isset($compiler->records[$var['type']])) {
+                        $entry['records'] = $compiler->records[$var['type']];
+                    }
 
                     $compiler->addVariable($entry);
                 }
@@ -944,7 +914,7 @@ class Associations
                     $compiler->current++; // Skip ":"
                     $recordType = $compiler->consume();
 
-                    $recordEntries[] = [$recordName, $recordType];
+                    $recordEntries[] = [$recordName => [ 'type' => $recordType ]];
                 }
 
                 $compiler->current++; // Skip "end"
