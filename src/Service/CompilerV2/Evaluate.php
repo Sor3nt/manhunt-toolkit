@@ -88,7 +88,7 @@ class Evaluate{
                 }
 
                 foreach ($association->childs as $condition) {
-                    new Evaluate($this->compiler, $condition);
+                    new Evaluate($this->compiler, $condition, $this->compiler->evalVar->msg);
                 }
 
                 if ($association->type == Tokens::T_CUSTOM_FUNCTION){
@@ -231,8 +231,7 @@ class Evaluate{
                 }
 
                 else if (
-                    $association->fromArray === true ||
-                    $association->forIndex !== null
+                    $association->fromArray === true
                 ) {
                     $compiler->evalVar->msg = sprintf("Use Array Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->readFromArrayIndex($association);
@@ -248,6 +247,8 @@ class Evaluate{
 
                         $compiler->evalVar->readAttribute($association);
                         $compiler->evalVar->ret();
+
+
 
                     }
 
@@ -402,7 +403,6 @@ class Evaluate{
 
                             $compiler->evalVar->msg = sprintf("Condition");
 
-                            //todo part of t_variable....
                             if ($param->fromArray === true) {
                                 $compiler->evalVar->readAttribute($param);
                             }
@@ -638,9 +638,7 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                 foreach ($association->childs as $index => $param) {
                     $param->onlyPointer = $association->isProcedure == true;
-                    new Evaluate($this->compiler, $param);
-
-                    $compiler->evalVar->msg = sprintf("Process argument %s", $param->value);
+                    new Evaluate($this->compiler, $param, $compiler->evalVar->msg);
 
                     /**
                      * Check if we need to convert the given int into a float

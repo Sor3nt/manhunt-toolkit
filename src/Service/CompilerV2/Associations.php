@@ -50,9 +50,17 @@ class Associations
     public $records = [
 
         'vec3d' => [
-            'x' => 'float',
-            'y' => 'float',
-            'z' => 'float',
+            'x' => [
+                'type' => 'float'
+            ],
+
+            'y' => [
+                'type' => 'float'
+            ],
+
+            'z' => [
+                'type' => 'float'
+            ],
         ]
 
     ];
@@ -144,21 +152,8 @@ class Associations
                 $compiler->current++; // Skip "["
 
                 $indexName = new Associations($compiler);
-
-                $variable = $compiler->getVariable($value . '[' . $indexName->value . ']');
-
-                if ($variable == false){
-                    /**
-                     * This happens when we access a array index within a loop
-                     *
-                     * for i:= 1 to 3 do PKarray[i] := false;
-                     *
-                     * PKarray[i] can not be known, the iterator "i" can have different names
-                     */
-                    $variable = $compiler->getVariable($value);
-
-                    $this->forIndex = $indexName;
-                }
+                $variable = $compiler->getVariable($value);
+                $this->forIndex = $indexName;
 
                 $compiler->current++; // Skip "]"
 
@@ -798,9 +793,10 @@ class Associations
                 $compiler->current++;   // Skip "of"
 
                 $type = $compiler->consume();
+
                 $entry['type'] = $type;
-                if (isset($compiler->records[$type])){
-                    $entry['isRecord'] = true;
+                if (isset($this->records[$type])){
+                    $entry['records'] = $this->records[$type];
                 }
                 $entry['fromArray'] = true;
                 $entry['start'] = $start;
@@ -819,7 +815,6 @@ class Associations
                     $size = (int)$compiler->consume();
                     $entry['size'] = $size;
                     $compiler->current++;
-
                 }
 
             }
@@ -875,42 +870,37 @@ class Associations
                     $entry['type'] = 'array';
                     $entry['typeOf'] = $var['type'];
 
-                    if (isset($var['isRecord']) && $var['isRecord'] === true){
-                        $entry['isRecord'] = true;
-
-                        $recordArray = $compiler->records[$var['type']];
-                        $entry['records'] = $recordArray;
+                    if (isset($var['records'])){
 
                         $recordSize = 0;
-                        foreach ($recordArray as $item) {
-                            $recordSize += $compiler->calcSize($item[1]);
+                        foreach ($var['records'] as $item) {
+                            $recordSize += $compiler->calcSize($item['type']);
                         }
 
                         $entry['size'] = $var['end'] * $recordSize;
 
                     }else{
-                        if ($var['type'] == "vec3d"){
-                            $entry['size'] = $var['end'] * 12;
-                        }else{
+//                        if ($var['type'] == "vec3d"){
+//                            $entry['size'] = $var['end'] * 12;
+//                        }else{
                             $entry['size'] = $var['end'] * 4;
-                        }
+//                        }
 
                     }
-
 
                     $masterVariable = $compiler->addVariable($entry);
-
-                    for ($i = $var['start']; $i <= $var['end']; $i++) {
-
-                        $entry = array_merge([], $var);
-                        $entry['name'] = $name . '[' . $i . ']';
-                        $entry['fromArray'] = true;
-                        $entry['index'] = $i;
-                        $entry['offset'] = $masterVariable['offset'];
-//                        $entry['size'] = 4;
-
-                        $compiler->addVariable($entry);
-                    }
+//
+//                    for ($i = $var['start']; $i <= $var['end']; $i++) {
+//
+//                        $entry = array_merge([], $var);
+//                        $entry['name'] = $name . '[' . $i . ']';
+//                        $entry['fromArray'] = true;
+//                        $entry['index'] = $i;
+//                        $entry['offset'] = $masterVariable['offset'];
+////                        $entry['size'] = 4;
+//
+//                        $compiler->addVariable($entry);
+//                    }
                 }
 
             }else{
