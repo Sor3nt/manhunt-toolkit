@@ -8,6 +8,7 @@ use Exception;
 class EvaluateVariable{
 
     public $msg = "";
+    public $prevMsg = "";
 
     /** @var Compiler */
     private $compiler;
@@ -404,33 +405,33 @@ class EvaluateVariable{
     }
 
     public function scriptStart( $blockName ){
-        $this->msg = sprintf("Initialize Script %s", $blockName);
-        $this->add('10000000');
-        $this->add('0a000000');
-        $this->add('11000000');
-        $this->add('0a000000');
-        $this->add('09000000');
+        $msg = sprintf("Initialize Script %s", $blockName);
+        $this->add('10000000', $msg);
+        $this->add('0a000000', $msg);
+        $this->add('11000000', $msg);
+        $this->add('0a000000', $msg);
+        $this->add('09000000', $msg);
     }
 
     public function scriptEnd( $blockName ){
-        $this->msg = sprintf("Closing Script %s", $blockName);
-        $this->add('11000000');
-        $this->add('09000000');
-        $this->add('0a000000');
-        $this->add('0f000000');
-        $this->add('0a000000');
-        $this->add('3b000000');
-        $this->add('00000000');
+        $msg = sprintf("Closing Script %s", $blockName);
+        $this->add('11000000', $msg);
+        $this->add('09000000', $msg);
+        $this->add('0a000000', $msg);
+        $this->add('0f000000', $msg);
+        $this->add('0a000000', $msg);
+        $this->add('3b000000', $msg);
+        $this->add('00000000', $msg);
     }
 
     public function procedureEnd( Associations $association ){
-        $this->msg = sprintf("Closing Procedure %s", $association->value);
-        $this->add('11000000');
-        $this->add('09000000');
-        $this->add('0a000000');
-        $this->add('0f000000');
-        $this->add('0a000000');
-        $this->add('3a000000');
+        $msg = sprintf("Closing Procedure %s", $association->value);
+        $this->add('11000000', $msg);
+        $this->add('09000000', $msg);
+        $this->add('0a000000', $msg);
+        $this->add('0f000000', $msg);
+        $this->add('0a000000', $msg);
+        $this->add('3a000000', $msg);
 
         /**
          * The last line represents the arguments
@@ -462,11 +463,13 @@ class EvaluateVariable{
         $this->compiler->evalVar->ret();
 
         if ($association->forIndex != null){
-            new Evaluate($this->compiler, $association->forIndex);
+            new Evaluate($this->compiler, $association->forIndex, $this->compiler->evalVar->msg);
         }else{
             //todo, no int convertion should happen here...
             $this->compiler->evalVar->valuePointer((int)$association->index);
         }
+
+//        $this->compiler->evalVar->msg .= " " . $association->value;
 
         if ($association->typeOf == "vec3d" || $association->varType == "vec3d"){
             $this->readArray(12);

@@ -18,8 +18,10 @@ class Evaluate{
      * @param Associations $association
      * @throws Exception
      */
-    public function __construct( Compiler $compiler, Associations $association )
+    public function __construct( Compiler $compiler, Associations $association, $restoreMessage = null )
     {
+
+
 
         $this->compiler = $compiler;
 
@@ -36,6 +38,7 @@ class Evaluate{
             case Tokens::T_SCRIPT:
             case Tokens::T_PROCEDURE:
             case Tokens::T_CUSTOM_FUNCTION:
+                $this->compiler->evalVar->msg = "Create new Script Block";
 
                 if ($association->type == Tokens::T_PROCEDURE){
                     $compiler->gameClass->functions[strtolower($association->value)]['offset'] = Helper::fromIntToHex(count($this->compiler->codes) * 4);
@@ -173,7 +176,9 @@ class Evaluate{
                     $this->compiler->evalVar->ret();
 
                     $this->compiler->evalVar->valuePointer( (int)$association->index );
+
                     $this->compiler->evalVar->readArray();
+
                 }
 
                 /**
@@ -206,13 +211,14 @@ class Evaluate{
 
 
             case Tokens::T_VARIABLE:
-                $compiler->evalVar->msg = sprintf("Use Variable %s / %s", $association->value, $association->varType);
 
                 if ($association->isGameVar === true) {
+                    $compiler->evalVar->msg = sprintf("Use Game Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->gameVarPointer($association);
                 }
 
                 else if ($association->isLevelVar === true){
+                    $compiler->evalVar->msg = sprintf("Use Level Variable %s / %s", $association->value, $association->varType);
 
                     if ($association->varType == "string"){
 
@@ -228,10 +234,11 @@ class Evaluate{
                     $association->fromArray === true ||
                     $association->forIndex !== null
                 ) {
-                    $compiler->evalVar->msg = sprintf("Read from Array %s / %s", $association->value, $association->varType);
+                    $compiler->evalVar->msg = sprintf("Use Array Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->readFromArrayIndex($association);
 
                     if ($association->isRecord === true){
+                        $compiler->evalVar->msg = sprintf("Use Array-Record Variable %s / %s", $association->value, $association->varType);
 
                         //it is not the first attribute, move pointer
                         if ($association->attributeName != $association->records[0][0]){
@@ -249,6 +256,7 @@ class Evaluate{
                 else if ( $association->varType == "string") {
 
                     if (in_array($association->section, ['header', 'script', 'constant']) !== false){
+                        $compiler->evalVar->msg = sprintf("Use String Variable %s / %s", $association->value, $association->varType);
 
                         $this->compiler->evalVar->memoryPointer($association);
 
@@ -258,6 +266,7 @@ class Evaluate{
                         }
 
                     }else{
+                        $compiler->evalVar->msg = sprintf("Use Empty-String Variable %s / %s", $association->value, $association->varType);
 
                         $this->compiler->evalVar->readVariable( $association );
                         $this->compiler->evalVar->readSize( 0 );
@@ -268,18 +277,22 @@ class Evaluate{
 
                     //we read from a procedure argument
                     if ($association->offset < 0) {
+                        $compiler->evalVar->msg = sprintf("Use Vec3d Variable from Procedure %s / %s", $association->value, $association->varType);
                         $this->compiler->evalVar->readVariable( $association );
                     } else {
+                        $compiler->evalVar->msg = sprintf("Use Vec3d Variable %s / %s", $association->value, $association->varType);
                         $this->compiler->evalVar->memoryPointer($association);
                     }
 
                 }
 
                 else if ($association->section == "constant"){
+                    $compiler->evalVar->msg = sprintf("Use Constant Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->valuePointer($association->offset);
                 }
 
                 else {
+                    $compiler->evalVar->msg = sprintf("Use Regular Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->variablePointer(
                         $association,
                         $compiler->getState($association->varType) ? 'state' : null
@@ -927,6 +940,11 @@ class Evaluate{
 
                 var_dump($association);
                 throw new Exception(sprintf("Unable to evaluate %s ", $association->type));
+        }
+
+
+        if ($restoreMessage !== null){
+            $compiler->evalVar->msg = $restoreMessage;
         }
     }
 
