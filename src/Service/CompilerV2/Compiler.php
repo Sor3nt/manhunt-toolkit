@@ -121,6 +121,11 @@ class Compiler
 
         $source = preg_replace("/\+/", " + ", $source);
         $source = preg_replace("/,/", " , ", $source);
+
+        //split attribute access
+        // "vel.x := vel.x  *  speed;" to "vel . x := vel . x  *  speed;"
+     //   $source = preg_replace("/([a-zA-Z])\.([a-zA-Z])/", "$1 . $2", $source);
+
         $source = preg_replace("/\[/", " [ ", $source);
         $source = preg_replace("/]/", " ] ", $source);
 
@@ -450,6 +455,8 @@ class Compiler
         $this->variables[] = $master;
 
         $attributes = [];
+
+
         if ($master['type'] == "vec3d") $attributes = ["x" => 'float', "y" => 'float', "z" => 'float'];
         if ($master['type'] == "rgbaint") $attributes = ["red" => 'integer', "green" => 'integer', "blue" => 'integer', "alpha" => 'integer'];
 
@@ -788,5 +795,10 @@ class Compiler
         $variable->type = Tokens::T_VARIABLE;
 
         return $variable;
+    }
+
+    public $logPad = 0;
+    public function log($msg){
+//        echo "|>" . str_repeat('-', $this->logPad) . " " .$msg . "\n";
     }
 }

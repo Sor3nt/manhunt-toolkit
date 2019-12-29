@@ -109,17 +109,22 @@ class EvaluateVariable{
         if ($association->fromArray == true) $type = 'array';
 
         if (
+            $type == 'array' ||
             $association->isCustomFunction ||
             (
                 $association->parent != null &&
                 $association->parent->varType == "vec3d"
             )
         ) {
+
+            $this->compiler->log(sprintf("Write to Attribute %s", $association->value));
+
             $this->compiler->evalVar->writeToAttribute($association);
 
 
         }else if ($type == 'vec3d') {
 
+            $this->compiler->log(sprintf("Write to Object %s", $association->value));
             $this->compiler->evalVar->writeSize(12);
 
             $this->add('0f000000');
@@ -137,11 +142,14 @@ class EvaluateVariable{
         ){
             $appendix = 'write to ' . $association->value;
 
+            $this->compiler->log(sprintf("Write to String"));
+
             $this->add($association->section == "header" ? '21000000' : '22000000', $appendix);
             $this->add('04000000', $appendix);
             $this->add('04000000', $appendix);
             $this->add(Helper::fromIntToHex($association->offset), 'String offset');
 
+            $this->compiler->log(sprintf("Write size %s", $association->size));
             $this->compiler->evalVar->writeSize($association->size);
 
             $this->add('10000000', $appendix);
@@ -151,19 +159,18 @@ class EvaluateVariable{
             $this->add('03000000', $appendix);
             $this->add('48000000', $appendix);
 
-        }else if ($type == 'array'){
-            $this->compiler->evalVar->writeToAttribute($association);
-
 
         }else{
 
             if ($association->isLevelVar){
+                $this->compiler->log(sprintf("Write to level var %s", $association->value));
                 $this->add('1a000000', 'LevelVar');
                 $this->add('01000000');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 $this->add('04000000');
 
             }else{
+                $this->compiler->log(sprintf("Write to %s section %s", $association->value, $association->section ));
                 $this->add($association->section == "header" ? '16000000' : '15000000', 'Section ' . $association->section);
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
@@ -330,12 +337,15 @@ class EvaluateVariable{
     }
 
     public function not(){
+        $this->compiler->log(sprintf("Apply NOT operator"));
         $this->add('29000000', 'Not');
         $this->add('01000000', 'Not');
         $this->add('01000000', 'Not');
     }
 
     public function int2float(){
+        $this->compiler->log(sprintf("Convert Integer 2 Float"));
+
         $this->ret();
 
         //convert to float

@@ -139,12 +139,13 @@ class Associations
 
                 $compiler->current++; // Skip "]"
 
-                //we access a object (vec3d/record) attribute
-                if (substr($compiler->getToken(), 0, 1) == "."){
-                    $attributeName = $compiler->consume();
-                    $variable['attributeName'] = substr($attributeName, 1);
-                    $variable['offset'] = 0; // TODO
-                }
+            }
+
+
+            //we access a object (vec3d/record) attribute
+            if ($compiler->consumeIfTrue(".")){
+                $variable['attributeName'] = $compiler->consume();
+                $variable['offset'] = 0; // TODO
             }
 
             $compiler->createVariableAssociation($variable, $this);

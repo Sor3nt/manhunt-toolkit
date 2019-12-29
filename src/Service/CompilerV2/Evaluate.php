@@ -20,6 +20,10 @@ class Evaluate{
      */
     public function __construct( Compiler $compiler, Associations $association, $restoreMessage = null )
     {
+        $compiler->logPad++;
+
+        $compiler->log(sprintf("Call Evaluate"));
+
 
 
 
@@ -118,7 +122,10 @@ class Evaluate{
                  * Init left hand
                  */
 
+                $compiler->log(sprintf("We assign something to %s", $association->value));
+
                 if ($association->varType == "vec3d") {
+                    $compiler->log(sprintf("Assign to Vec3d"));
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
@@ -126,6 +133,7 @@ class Evaluate{
                     $this->compiler->evalVar->ret();
 
                 }else if ($association->isCustomFunction){
+                    $compiler->log(sprintf("Assignment is actual a Function return"));
                     $this->add('10000000', 'to custom function return');
                     $this->add('02000000', 'to custom function return');
 
@@ -151,6 +159,7 @@ class Evaluate{
                  * itemsSpawned[1] := FALSE;
                  */
                 } else if ($association->forIndex !== null) {
+                    $compiler->log(sprintf("Assign to Array Index"));
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
@@ -159,6 +168,7 @@ class Evaluate{
                     $association->parent != null &&
                     $association->parent->varType == "vec3d"
                 ) {
+                    $compiler->log(sprintf("Assign to Object Attribute"));
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association->parent);
 
@@ -166,21 +176,13 @@ class Evaluate{
 
                     //we do not assign to the first entry
                     if ($association->parent->value . '.x' !== $association->value) {
+                        $compiler->log(sprintf("Assign to Object Attribute %s", $association->value));
                         $this->compiler->evalVar->moveAttributePointer($association);
                         $this->compiler->evalVar->ret();
                     }
-
-                }else if ($association->fromArray == true) {
-
-                    $this->compiler->evalVar->readData($association);
-                    $this->compiler->evalVar->ret();
-
-                    $this->compiler->evalVar->valuePointer( (int)$association->index );
-
-                    $this->compiler->evalVar->readArray();
-
                 }
 
+                $compiler->log(sprintf("Evaluate right side"));
                 /**
                  * Handle right hand (value to assign)
                  */
@@ -212,20 +214,25 @@ class Evaluate{
 
             case Tokens::T_VARIABLE:
 
+
                 if ($association->isGameVar === true) {
+                    $this->compiler->log(sprintf("Read game var %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Game Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->gameVarPointer($association);
                 }
 
                 else if ($association->isLevelVar === true){
+                    $this->compiler->log(sprintf("Read level var %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Level Variable %s / %s", $association->value, $association->varType);
 
                     if ($association->varType == "string"){
+                        $this->compiler->log(sprintf("Read String"));
 
                         $compiler->evalVar->levelVarPointerString($association);
                         $compiler->evalVar->readSize($association->size);
 
                     }else{
+                        $this->compiler->log(sprintf("Read regular level var"));
                         $compiler->evalVar->levelVarPointer($association);
                     }
                 }
@@ -233,6 +240,8 @@ class Evaluate{
                 else if (
                     $association->fromArray === true
                 ) {
+                    $this->compiler->log(sprintf("Read from array %s", $association->value));
+
                     $compiler->evalVar->msg = sprintf("Use Array Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->readFromArrayIndex($association);
 
@@ -255,6 +264,7 @@ class Evaluate{
                 }
 
                 else if ( $association->varType == "string") {
+                    $this->compiler->log(sprintf("Read from string variable %s", $association->value));
 
                     if (in_array($association->section, ['header', 'script', 'constant']) !== false){
                         $compiler->evalVar->msg = sprintf("Use String Variable %s / %s", $association->value, $association->varType);
@@ -275,6 +285,7 @@ class Evaluate{
                 }
 
                 else if ( $association->varType == "vec3d") {
+                    $this->compiler->log(sprintf("Read from object variable %s", $association->value));
 
                     //we read from a procedure argument
                     if ($association->offset < 0) {
@@ -288,11 +299,13 @@ class Evaluate{
                 }
 
                 else if ($association->section == "constant"){
+                    $this->compiler->log(sprintf("Read from constant variable %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Constant Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->valuePointer($association->offset);
                 }
 
                 else {
+                    $this->compiler->log(sprintf("Read from regular variable %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Regular Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->variablePointer(
                         $association,
@@ -944,6 +957,9 @@ class Evaluate{
         if ($restoreMessage !== null){
             $compiler->evalVar->msg = $restoreMessage;
         }
+
+        $compiler->logPad--;
+
     }
 
     private function add($code, $appendix = null ){
