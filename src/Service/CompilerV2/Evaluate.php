@@ -397,6 +397,7 @@ class Evaluate{
                 break;
 
             case Tokens::T_CONDITION:
+
                 $compiler->evalVar->msg = sprintf("Condition");
 
                 $compareAgainst = false;

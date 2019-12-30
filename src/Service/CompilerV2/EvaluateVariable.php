@@ -640,12 +640,12 @@ Class RPN {
         switch ($operation->type) {
             case 'T_SUBSTRACTION':
             case 'T_ADDITION':
-            case 'T_AND':
+            case 'T_OR':
                 $result = 2;
                 break;
             case 'T_MULTIPLY':
             case 'T_DIVISION':
-            case 'T_OR':
+            case 'T_AND':
                 $result = 3;
                 break;
             case 'T_NOT':

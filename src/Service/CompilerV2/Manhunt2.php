@@ -1028,7 +1028,9 @@ class Manhunt2 extends ManhuntDefault
 
         'insidetriggertype' => [
             'name' => 'InsideTriggerType',
-            'offset' => 'InsideTriggerType'
+            'offset' => 'd6010000',
+            'return' => 'integer'
+
         ],
 
         'getdoorstate' => [
@@ -2121,25 +2123,13 @@ class Manhunt2 extends ManhuntDefault
         'isplayerrunning' => [
             'name' => 'IsPlayerRunning',
             'offset' => 'ee020000',
-            /**
-             * Parameters
-             * - none
-             */
-            'params' => [],
-            'return' => 'Void',
-            'desc' => ''
+            'return' => 'integer',
         ],
 
         'isplayersprinting' => [
             'name' => 'IsPlayerSprinting',
             'offset' => 'ef020000',
-            /**
-             * Parameters
-             * - none
-             */
-            'params' => [],
-            'return' => 'Void',
-            'desc' => ''
+            'return' => 'integer',
         ],
 
         'getpedorientation' => [
@@ -2229,14 +2219,7 @@ class Manhunt2 extends ManhuntDefault
         'insidetrigger' => [
             'name' => 'InsideTrigger',
             'offset' => 'a5000000',
-            /**
-             * Parameters
-             * 1: Entity
-             * 2: Player
-             */
-            'params' => ['Entity', 'Player'],
-            'return' => 'Void',
-            'desc' => ''
+            'return' => 'integer',
         ],
 
         'isplayerpositionknown' => [
