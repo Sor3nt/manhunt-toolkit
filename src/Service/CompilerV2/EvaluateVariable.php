@@ -111,18 +111,15 @@ class EvaluateVariable{
         if (
             $type == 'array' ||
             $association->isCustomFunction ||
-            (
-                $association->parent != null &&
-                $association->parent->varType == "vec3d"
-            )
+            $association->attribute !== null
         ) {
 
-            $this->compiler->log(sprintf("Write to Attribute %s", $association->value));
+//            $this->compiler->log(sprintf("Write to Attribute %s", $association->attribute->value));
 
             $this->compiler->evalVar->writeToAttribute($association);
 
 
-        }else if ($type == 'vec3d') {
+        }else if ($type == 'object') {
 
             $this->compiler->log(sprintf("Write to Object %s", $association->value));
             $this->compiler->evalVar->writeSize(12);
@@ -209,7 +206,7 @@ class EvaluateVariable{
 
 
     public function moveAttributePointer(Associations $association ){
-        $msg = "Write to Attribute";
+        $msg = "Move Attribute Pointer";
 
         $this->add('0f000000', $msg);
         $this->add('01000000', $msg);
@@ -226,7 +223,7 @@ class EvaluateVariable{
             $association->parent != null &&
             $association->parent->varType == "vec3d"
         ) {
-
+die("J");
             $this->compiler->evalVar->memoryPointer($association->parent);
             $this->compiler->evalVar->ret();
 
@@ -505,7 +502,7 @@ class EvaluateVariable{
 
         switch ($type){
 
-            case 'vec3d':
+            case 'object':
             case 'array':
             case 'string':
                 $this->memoryPointer( $association );

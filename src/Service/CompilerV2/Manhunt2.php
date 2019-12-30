@@ -462,7 +462,7 @@ class Manhunt2 extends ManhuntDefault
         ],
 
         'mover_accel_fast' => [
-            'offset' => '02000000'
+            'offset' => '01000000'
         ],
 
         'aiscript_mediumpriority' => [
@@ -2103,15 +2103,7 @@ class Manhunt2 extends ManhuntDefault
         'spawnmovingentity' => [
             'name' => 'SpawnMovingEntity',
             'offset' => '7a000000',
-            /**
-             * Parameters
-             * 1: string Entity Name ?
-             * 2: vec3d
-             * 4: string script name ?
-             */
-            'params' => [Token::T_STRING, 'vec3d', Token::T_STRING],
-            'return' => '',
-            'desc' => ''
+            'return' => 'entityptr',
         ],
 
         'isplayerinsafezone' => [
@@ -3222,16 +3214,28 @@ class Manhunt2 extends ManhuntDefault
             'name' => 'showfakehunter',
             'offset' => 'showfakehunter'
         ],
+
         'subtractvectors' => [
             'name' => 'subtractvectors',
-            'offset' => 'subtractvectors'
+            'offset' => '86010000'
         ],
 
-//        'nil' => [
-//            'name' => 'nil',
-//            'offset' => '00000000',
-//            'return' => "void"
-//        ],
+        'removeitemfrominventoryatslot' => [
+            'name' => 'RemoveItemFromInventoryAtSlot',
+            'offset' => 'bd000000'
+        ],
+
+        'enteredtriggertype' => [
+            'name' => 'EnteredTriggerType',
+            'offset' => 'EnteredTriggerType'
+        ],
+
+
+        'setlevelfailed' => [
+            'name' => 'SetLevelFailed',
+            'offset' => 'SetLevelFailed'
+        ],
+
 
     ];
 }

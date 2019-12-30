@@ -77,7 +77,10 @@ class Associations
     /** @var Associations */
     public $math = null;
 
-    public $attributeName = null;
+    /** @var null|Associations */
+    public $attribute = null;
+
+    public $firstAttribute = null;
 
     public $fromState = null;
     public $parent = null;
@@ -144,16 +147,35 @@ class Associations
 
             //we access a object (vec3d/record) attribute
             if ($compiler->consumeIfTrue(".")){
-                $variable['attributeName'] = $compiler->consume();
-                $variable['offset'] = 0; // TODO
+                $attribute = $compiler->createVariableAssociation($variable);
+                $attribute->value = $compiler->consume();
+
+                $records = $compiler->records[$variable['type']];
+                $attribute->firstAttribute = array_keys($records)[0] == $attribute->value;
+
+                foreach ($records as $index => $record) {
+
+                    if ($index == $attribute->value){
+                        $attribute->varType = $record['type'];
+                        $attribute->offset = $record['offset'];
+                        break;
+                    }
+                }
+
+
+                $variable['attribute'] = $attribute;
+
+            }
+
+            if (isset($compiler->records[$variable['type']])){
+                $variable['type'] = 'object';
             }
 
             $compiler->createVariableAssociation($variable, $this);
-
-            if (isset($variable['parent'])){
-
-                $this->parent = $compiler->createVariableAssociation($variable['parent']);;
-            }
+//
+//            if (isset($variable['parent'])){
+//                $this->parent = $compiler->createVariableAssociation($variable['parent']);;
+//            }
         }
 
         /**
@@ -378,6 +400,10 @@ class Associations
          */
         switch ($value) {
 
+            //Uhm its a mistake by the r* devs...
+            case 'd.':
+                $this->type = Tokens::T_NOP;
+                break;
             case 'scriptmain':
                 $this->type = Tokens::T_NOP;
                 $compiler->mlsScriptMain = $compiler->consume();
@@ -851,15 +877,8 @@ class Associations
                     $entry['typeOf'] = $var['type'];
 
                     if (isset($compiler->records[$var['type']])){
-                        $entry['records'] = $compiler->records[$var['type']];
 
-
-                        $recordSize = 0;
-                        foreach ($entry['records'] as $item) {
-                            $recordSize += $compiler->calcSize($item['type']);
-                        }
-
-                        $entry['size'] = $var['end'] * $recordSize;
+                        $entry['size'] = $var['end'] * $compiler->calcSize($var['type']);
 
                     }else{
                         $entry['size'] = $var['end'] * 4;
@@ -875,11 +894,6 @@ class Associations
 
                     $entry = array_merge([], $var);
                     $entry['name'] = $name;
-
-
-                    if (isset($compiler->records[$var['type']])) {
-                        $entry['records'] = $compiler->records[$var['type']];
-                    }
 
                     $compiler->addVariable($entry);
                 }

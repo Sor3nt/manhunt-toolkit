@@ -124,15 +124,16 @@ class Evaluate{
 
                 $compiler->log(sprintf("We assign something to %s", $association->value));
 
-                if ($association->varType == "vec3d") {
-                    $compiler->log(sprintf("Assign to Vec3d"));
+                if ($association->varType == "object" && $association->attribute == null) {
+                    $compiler->log(sprintf("Assign to Object"));
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
-                    $compiler->evalVar->msg = sprintf("Process Assign %s", $association->value);
                     $this->compiler->evalVar->ret();
 
-                }else if ($association->isCustomFunction){
+                }
+
+                else if ($association->isCustomFunction){
                     $compiler->log(sprintf("Assignment is actual a Function return"));
                     $this->add('10000000', 'to custom function return');
                     $this->add('02000000', 'to custom function return');
@@ -158,28 +159,31 @@ class Evaluate{
                  *
                  * itemsSpawned[1] := FALSE;
                  */
-                } else if ($association->forIndex !== null) {
+                }
+
+                else if (
+                    $association->varType == "array" &&
+//                    $association->varType == "object" &&
+                    $association->forIndex !== null
+                ) {
                     $compiler->log(sprintf("Assign to Array Index"));
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
                 //we access a object attribute
                 } else if (
-                    $association->parent != null &&
-                    $association->parent->varType == "vec3d"
+                    $association->attribute != null
                 ) {
                     $compiler->log(sprintf("Assign to Object Attribute"));
                     $association->type = Tokens::T_VARIABLE;
-                    new Evaluate($this->compiler, $association->parent);
+                    new Evaluate($this->compiler, $association);
 
-                    $this->compiler->evalVar->ret();
-
-                    //we do not assign to the first entry
-                    if ($association->parent->value . '.x' !== $association->value) {
-                        $compiler->log(sprintf("Assign to Object Attribute %s", $association->value));
-                        $this->compiler->evalVar->moveAttributePointer($association);
+                    if ($association->attribute->firstAttribute === false) {
+                        $this->compiler->evalVar->moveAttributePointer($association->attribute);
                         $this->compiler->evalVar->ret();
                     }
+
+
                 }
 
                 $compiler->log(sprintf("Evaluate right side"));
@@ -188,7 +192,7 @@ class Evaluate{
                  */
                 new Evaluate($this->compiler, $association->assign);
 
-                if ($association->assign->varType == 'vec3d'){
+                if ($association->assign->varType == 'object'){
                     $compiler->evalVar->ret();
                 }else if ($association->assign->type == Tokens::T_STRING){
                     $compiler->evalVar->readSize( $association->assign->size );
@@ -198,7 +202,19 @@ class Evaluate{
                 /**
                  * These types accept only floats, given int need to be converted
                  */
-                if ($association->varType == "float" && $association->assign->type == Tokens::T_INT){
+                $realVarType = $association->varType;
+
+                if (
+                    $association->varType == "object" &&
+                    $association->attribute !== null
+                ){
+                    $realVarType = $association->attribute->varType;
+                }
+
+                if (
+                    $realVarType == "float" &&
+                    $association->assign->type == Tokens::T_INT
+                ){
                     $this->compiler->evalVar->int2float();
                 }
 
@@ -284,15 +300,32 @@ class Evaluate{
                     }
                 }
 
-                else if ( $association->varType == "vec3d") {
+                /**
+                 * We read a object Attribute
+                 *
+                 * WriteDebug(pos.x);
+                 * pos is our $association and x is stored inside $association->attribute
+                 */
+                else if ( $association->varType == "object" && $association->attribute !== null ) {
+
+                    $this->compiler->evalVar->memoryPointer($association);
+                    $this->compiler->evalVar->ret();
+
+//                    if ($association->attribute->firstAttribute === false) {
+//                        $this->compiler->evalVar->moveAttributePointer($association->attribute);
+//                    }
+
+
+                }
+                else if ( $association->varType == "object" && $association->attribute == null ) {
                     $this->compiler->log(sprintf("Read from object variable %s", $association->value));
 
                     //we read from a procedure argument
                     if ($association->offset < 0) {
-                        $compiler->evalVar->msg = sprintf("Use Vec3d Variable from Procedure %s / %s", $association->value, $association->varType);
+                        $compiler->evalVar->msg = sprintf("Use Object Variable from Procedure %s / %s", $association->value, $association->varType);
                         $this->compiler->evalVar->readVariable( $association );
                     } else {
-                        $compiler->evalVar->msg = sprintf("Use Vec3d Variable %s / %s", $association->value, $association->varType);
+                        $compiler->evalVar->msg = sprintf("Use Object Variable %s / %s", $association->value, $association->varType);
                         $this->compiler->evalVar->memoryPointer($association);
                     }
 
@@ -330,6 +363,7 @@ class Evaluate{
                 $startOffset = count($this->compiler->codes);
 
                 new Evaluate($this->compiler, $association->end);
+
 
 
                 $compiler->evalVar->msg = sprintf("For statement");
@@ -403,6 +437,11 @@ class Evaluate{
                         $isState = $compiler->getState($param->varType);
                         $compareAgainst = $isState ? 'state' : $param->varType;
 
+                        if ($compareAgainst == "object" && $param->attribute !== null){
+                            $compareAgainst = $param->attribute->varType;
+                        }
+
+
                         if ($param->varType == "string"){
                             new Evaluate($this->compiler, $param);
                             $doReturn = "string";
@@ -416,8 +455,22 @@ class Evaluate{
 
                             $compiler->evalVar->msg = sprintf("Condition");
 
-                            if ($param->fromArray === true) {
+                            if (
+                                $param->fromArray === true ||
+                                $param->attribute !== null
+                            ) {
+
+
+                                if (
+                                    $param->attribute !== null &&
+                                    $param->attribute->firstAttribute === false
+                                ){
+                                    $this->compiler->evalVar->moveAttributePointer($param->attribute);
+                                    $this->compiler->evalVar->ret("1");
+                                }
+
                                 $compiler->evalVar->readAttribute($param);
+
                             }
 
                             if (
@@ -677,6 +730,13 @@ class Evaluate{
                         continue;
                     }
 
+                    if(
+                        $param->varType == "object" &&
+                        $param->attribute !== null
+                    ){
+                        $this->compiler->evalVar->readAttribute($association);
+                    }
+
                     if($param->type == Tokens::T_STRING){
                         if ($param->value !== " "){
                             $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
@@ -717,7 +777,7 @@ class Evaluate{
                             (
                                 $param->type == Tokens::T_VARIABLE &&
                                 (
-                                    ($param->varType == "vec3d" && $param->fromArray == null) ||
+                                    ($param->varType == "object" && $param->fromArray == null) ||
                                     $param->varType == "eaicombattype" ||
                                     $param->varType == "ecollectabletype" ||
                                     $param->varType == "entityptr" ||
@@ -785,6 +845,9 @@ class Evaluate{
 
                 if (strtolower($association->value) == "writedebug"){
                     $param = $association->childs[0];
+
+                    if ($param->attribute !== null) $param = $param->attribute;
+
                     if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
 
                         //Not sure about this part, a space require a different handling
@@ -981,28 +1044,30 @@ class Evaluate{
     public function doMath( $associations, $varType = null ){
 
 
-        /**
-         * Sometimes we need to look around which vartype we have...
-         */
-        if ($varType == null){
+//        /**
+//         * Sometimes we need to look around which vartype we have...
+//         */
+//        if ($varType == null){
+//
+//            foreach ($associations as $association) {
+//                if ( $association->type == Tokens::T_INT || $association->varType == 'integer' ){
+//                    $varType = "integer";
+//                    break;
+//                }
+//
+//                if ( $association->type == Tokens::T_FLOAT || $association->varType == 'float' ){
+//                    $varType = "float";
+//                    break;
+//                }
+//
+//                if ( $association->type == Tokens::T_FUNCTION && $association->return !== null ){
+//                    $varType = $association->return;
+//                    break;
+//                }
+//            }
+//        }
 
-            foreach ($associations as $association) {
-                if ( $association->type == Tokens::T_INT || $association->varType == 'integer' ){
-                    $varType = "integer";
-                    break;
-                }
-
-                if ( $association->type == Tokens::T_FLOAT || $association->varType == 'float' ){
-                    $varType = "float";
-                    break;
-                }
-
-                if ( $association->type == Tokens::T_FUNCTION && $association->return !== null ){
-                    $varType = $association->return;
-                    break;
-                }
-            }
-        }
+        $varType = $this->compiler->detectVarType($associations[0]);
 
         if ($varType == null){
             throw new Exception("Unable to detect varType");
@@ -1031,15 +1096,35 @@ class Evaluate{
                     $this->compiler->evalVar->ret();
                 }
 
-            }else{
+            }else {
                 //we reached the last token followed by a operator
                 $isLast = count($associations) == $index + 2;
 
                 new Evaluate($this->compiler, $association);
 
+
+                if (
+                    $association->attribute !== null &&
+                    $association->attribute->firstAttribute === false
+                ) {
+                    $this->compiler->evalVar->moveAttributePointer($association->attribute);
+                    $this->compiler->evalVar->ret("1");
+
+                    $this->compiler->evalVar->readAttribute($association);
+
+                }
+
+                else if (
+                    $association->attribute !== null &&
+                    $association->attribute->firstAttribute === true
+                ) {
+                    $this->compiler->evalVar->readAttribute($association);
+
+                }
+
                 if ($varType == "float" || ($varType == "integer" && $isLast == false)
                 ){
-                    $this->compiler->evalVar->ret();
+                    $this->compiler->evalVar->ret("2");
                 }
 
                 if (
@@ -1047,7 +1132,7 @@ class Evaluate{
                     $association->type == Tokens::T_INT
                 ){
                     $this->add('4d000000', 'integer to float2');
-                    $this->compiler->evalVar->ret();
+                    $this->compiler->evalVar->ret("3");
                 }
 
             }

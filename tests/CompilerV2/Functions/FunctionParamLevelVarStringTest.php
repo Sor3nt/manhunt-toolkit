@@ -5,7 +5,7 @@ use App\MHT;
 use App\Tests\CompilerV2\LevelScripts\A01\LevelScriptA01Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-require_once __DIR__. '/../LevelScripits/A01/LevelScriptA01Test.php';
+require_once __DIR__. '/../../CompilerV2Level/A01/LevelScriptA01Test.php';
 
 class FunctionParamLevelVarStringTest extends LevelScriptA01Test
 {

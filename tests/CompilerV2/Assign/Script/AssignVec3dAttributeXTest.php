@@ -23,7 +23,6 @@ class AssignVec3dAttributeXTest extends KernelTestCase
                         pos, vel : vec3D;
                         speed : real;
                     begin
-                        speed := 10.0;
                         vel.x := vel.x * speed;
                     end;
 
@@ -42,13 +41,7 @@ class AssignVec3dAttributeXTest extends KernelTestCase
             '09000000', //reserve bytes
             '1c000000', //Offset in byte
 
-            '12000000', //unknown
-            '01000000', //unknown
-            '00002041', //unknown
-            '15000000', //unknown
-            '04000000', //unknown
-            '1c000000', //unknown
-            '01000000', //unknown
+
             '22000000', //Prepare string read (3)
             '04000000', //Prepare string read (3)
             '01000000', //Prepare string read (3)

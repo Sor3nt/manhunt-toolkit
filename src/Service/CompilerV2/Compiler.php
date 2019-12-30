@@ -24,16 +24,19 @@ class Compiler
 
         'vec3d' => [
             'x' => [
-                'type' => 'float'
+                'type' => 'float',
+                'offset' => 0
             ],
 
             'y' => [
-                'type' => 'float'
+                'type' => 'float',
+                'offset' => 4
             ],
 
             'z' => [
-                'type' => 'float'
-            ],
+                'type' => 'float',
+                 'offset' => 8
+           ],
         ]
 
     ];
@@ -124,7 +127,10 @@ class Compiler
 
         //split attribute access
         // "vel.x := vel.x  *  speed;" to "vel . x := vel . x  *  speed;"
-     //   $source = preg_replace("/([a-zA-Z])\.([a-zA-Z])/", "$1 . $2", $source);
+        $source = preg_replace("/([a-zA-Z])\.([a-zA-Z])/", "$1 . $2", $source);
+
+        // "vel.x := vel1.x  *  speed;" to "vel . x := vel1 . x  *  speed;"
+        $source = preg_replace("/([0-9])\.([a-zA-Z])/", "$1 . $2", $source);
 
         $source = preg_replace("/\[/", " [ ", $source);
         $source = preg_replace("/]/", " ] ", $source);
@@ -241,7 +247,7 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//var_dump($associationRearranged);exit;
+
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -448,34 +454,35 @@ class Compiler
 
 
         $master = array_merge([], $data);
-        $master['size'] = $master['type'] == "vec3d" || $master['type'] == "rgbaint" ? 0 : $master['size'];
         $master['offset'] = $offset;
         $master['scriptName'] = $this->currentScriptName;
 
         $this->variables[] = $master;
 
-        $attributes = [];
+//        $attributes = [];
 
 
-        if ($master['type'] == "vec3d") $attributes = ["x" => 'float', "y" => 'float', "z" => 'float'];
-        if ($master['type'] == "rgbaint") $attributes = ["red" => 'integer', "green" => 'integer', "blue" => 'integer', "alpha" => 'integer'];
-
-        $index = 0;
-        foreach ($attributes as $entry => $type) {
-
-            $attribute = array_merge([], $data);
-
-            $attribute['name'] = $master['name'] . '.' . $entry;
-            $attribute['type'] = $type;
-            $attribute['size'] = 4;
-            $attribute['offset'] = $index * 4;
-            $attribute['parent'] = $master;
-            $attribute['scriptName'] = $this->currentScriptName;
-
-            $this->variables[] = $attribute;
-
-            $index++;
-        }
+        //Todo change to record
+//
+//        if ($master['type'] == "vec3d") $attributes = ["x" => 'float', "y" => 'float', "z" => 'float'];
+//        if ($master['type'] == "rgbaint") $attributes = ["red" => 'integer', "green" => 'integer', "blue" => 'integer', "alpha" => 'integer'];
+//
+//        $index = 0;
+//        foreach ($attributes as $entry => $type) {
+//
+//            $attribute = array_merge([], $data);
+//
+//            $attribute['name'] =  $entry;
+//            $attribute['type'] = $type;
+//            $attribute['size'] = 4;
+//            $attribute['offset'] = $index * 4;
+//            $attribute['parent'] = $master;
+//            $attribute['scriptName'] = $this->currentScriptName;
+//
+//            $this->variables[] = $attribute;
+//
+//            $index++;
+//        }
 
         return $master;
     }
@@ -662,13 +669,22 @@ class Compiler
 
     public function calcSize( $type ){
 
-        $size = 4;
-        switch ($type){
-            case 'vec3d':
-                $size = 12;
-                break;
-        }
+        if (isset($this->records[$type])){
+            $records = $this->records[$type];
 
+            $size = 0;
+            foreach ($records as $item) {
+                $size += $this->calcSize($item['type']);
+            }
+
+        }else {
+            $size = 4;
+            switch ($type) {
+                case 'vec3d':
+                    $size = 12;
+                    break;
+            }
+        }
         return $size;
     }
 
@@ -704,6 +720,10 @@ class Compiler
             case Tokens::T_CONSTANT:
             case Tokens::T_VARIABLE:
                 $varType = $association->varType;
+
+                if ($varType == "object" && $association->attribute !== null){
+                    return $association->attribute->varType;
+                }
                 break;
             case Tokens::T_FUNCTION:
                 if ($association->return == null){
