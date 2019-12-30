@@ -720,10 +720,10 @@ class Evaluate{
                         $param->varType == "object" &&
                         $param->attribute !== null
                     ){
-//                        if ($param->attribute->firstAttribute === false){
-//                            $this->compiler->evalVar->moveAttributePointer($param->attribute);
-//                            $this->compiler->evalVar->ret("1");
-//                        }
+                        if ($param->attribute->firstAttribute === false){
+                            $this->compiler->evalVar->moveAttributePointer($param->attribute);
+                            $this->compiler->evalVar->ret("1");
+                        }
 
                         $this->compiler->evalVar->readAttribute($association);
                     }

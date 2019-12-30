@@ -97,15 +97,15 @@ class Compiler
         $source = preg_replace("/{(.|\s)*}/mU", "", $source);
 
         //extract all used strings
-        preg_match_all("/['|\"](.*)['|\"]/U", $source, $strings);
-        $this->strings = array_values(array_unique($strings[1]));
 
-        $newStrings = array_values(array_unique($strings[0]));
+        $index = 0;
+        $source = preg_replace_callback("/['|\"](.*)['|\"]/U", function( $match ) use (&$index){
 
-        //replace usage with dummy to avoid parsing errors
-        foreach ($newStrings as $index => $string) {
-            $source = str_replace($string, "'str_" . $index . '\'', $source );
-        }
+            $this->strings[] = $match[1];
+            $name = "'str_" . $index . "'";
+            $index++;
+            return $name;
+        },$source);
 
         /**
          * Avoid wrong associations
@@ -249,7 +249,7 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-
+//var_dump($associationRearranged);exit;
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
