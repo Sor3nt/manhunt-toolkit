@@ -646,9 +646,9 @@ Class RPN {
             case 'T_MULTIPLY':
             case 'T_DIVISION':
             case 'T_AND':
+            case 'T_NOT':
                 $result = 3;
                 break;
-            case 'T_NOT':
 
             case Tokens::T_IS_GREATER:
             case Tokens::T_IS_GREATER_EQUAL:
