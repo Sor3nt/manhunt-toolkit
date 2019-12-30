@@ -17,6 +17,9 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'ec_player' => [
+            'offset' => '0f020000'
+        ],
         'ec_hunter' => [
             'offset' => '1f000000'
         ],
@@ -749,7 +752,8 @@ class Manhunt2 extends ManhuntDefault
 
         'heligetnodereached' => [
             'name' => 'HeliGetNodeReached',
-            'offset' => 'b4030000'
+            'offset' => 'b4030000',
+            'return' => 'string'
         ],
 
         'getindexfrominventoryitemtype' => [
@@ -3217,6 +3221,20 @@ class Manhunt2 extends ManhuntDefault
         'setlevelfailed' => [
             'name' => 'SetLevelFailed',
             'offset' => 'SetLevelFailed'
+        ],
+
+
+        'heligotoposition' => [
+            'name' => 'HeliGotoPosition',
+            'offset' => '32030000'
+        ],
+
+
+
+        'isaudiocompleted' => [
+            'name' => 'IsAudioCompleted',
+            'offset' => '61020000',
+            'return' => 'integer'
         ],
 
 
