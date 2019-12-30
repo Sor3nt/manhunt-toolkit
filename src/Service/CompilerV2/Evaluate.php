@@ -202,17 +202,10 @@ class Evaluate{
                 /**
                  * These types accept only floats, given int need to be converted
                  */
-                $realVarType = $association->varType;
 
                 if (
-                    $association->varType == "object" &&
-                    $association->attribute !== null
-                ){
-                    $realVarType = $association->attribute->varType;
-                }
-
-                if (
-                    $realVarType == "float" &&
+                    $compiler->detectVarType($association) == "float" &&
+//                    $compiler->detectVarType($association) == "integer" &&
                     $association->assign->type == Tokens::T_INT
                 ){
                     $this->compiler->evalVar->int2float();
@@ -261,22 +254,18 @@ class Evaluate{
                     $compiler->evalVar->msg = sprintf("Use Array Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->readFromArrayIndex($association);
 
-//                    if ($association->isRecord === true){
-//                        $compiler->evalVar->msg = sprintf("Use Array-Record Variable %s / %s", $association->value, $association->varType);
-//
-//                        //it is not the first attribute, move pointer
-//                        if ($association->attributeName != $association->records[0][0]){
-//                            $compiler->evalVar->moveAttributePointer($association);
-//                            $compiler->evalVar->ret();
-//                        }
-//
-//                        $compiler->evalVar->readAttribute($association);
-//                        $compiler->evalVar->ret();
-//
-//
-//
-//                    }
+                    if($association->attribute !== null ) {
+                        if ($association->attribute->firstAttribute === false) {
+                            $this->compiler->evalVar->moveAttributePointer($association->attribute);
+                            $this->compiler->evalVar->ret();
+                        }
 
+//                        $this->compiler->evalVar->memoryPointer($association);
+//                        $this->compiler->evalVar->ret();
+
+
+
+                    }
                 }
 
                 else if ( $association->varType == "string") {
@@ -460,11 +449,7 @@ class Evaluate{
                                 $param->attribute !== null
                             ) {
 
-
-                                if (
-                                    $param->attribute !== null &&
-                                    $param->attribute->firstAttribute === false
-                                ){
+                                if ($param->attribute !== null && $param->attribute->firstAttribute === false){
                                     $this->compiler->evalVar->moveAttributePointer($param->attribute);
                                     $this->compiler->evalVar->ret("1");
                                 }
@@ -734,6 +719,11 @@ class Evaluate{
                         $param->varType == "object" &&
                         $param->attribute !== null
                     ){
+//                        if ($param->attribute->firstAttribute === false){
+//                            $this->compiler->evalVar->moveAttributePointer($param->attribute);
+//                            $this->compiler->evalVar->ret("1");
+//                        }
+
                         $this->compiler->evalVar->readAttribute($association);
                     }
 

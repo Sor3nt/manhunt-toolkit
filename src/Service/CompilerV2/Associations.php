@@ -150,7 +150,12 @@ class Associations
                 $attribute = $compiler->createVariableAssociation($variable);
                 $attribute->value = $compiler->consume();
 
-                $records = $compiler->records[$variable['type']];
+                if ($variable['type'] == "array"){
+                    $records = $compiler->records[$variable['typeOf']];
+
+                }else{
+                    $records = $compiler->records[$variable['type']];
+                }
                 $attribute->firstAttribute = array_keys($records)[0] == $attribute->value;
 
                 foreach ($records as $index => $record) {
@@ -815,12 +820,10 @@ class Associations
                  *
                  * me : string[32];
                  */
-                $size = null;
                 if ($type == "string" && $compiler->getToken() == "[") {
-                    $compiler->current++;
-                    $size = (int)$compiler->consume();
-                    $entry['size'] = $size;
-                    $compiler->current++;
+                    $compiler->current++; //Skip "["
+                    $entry['size'] = (int)$compiler->consume();;
+                    $compiler->current++; //Skip "]"
                 }
 
             }
@@ -877,7 +880,6 @@ class Associations
                     $entry['typeOf'] = $var['type'];
 
                     if (isset($compiler->records[$var['type']])){
-
                         $entry['size'] = $var['end'] * $compiler->calcSize($var['type']);
 
                     }else{
@@ -920,16 +922,24 @@ class Associations
                 $compiler->current++;
                 $compiler->addStates($name, $entries);
 
-            }else if ($compiler->consumeIfTrue('record')){
+            }
+
+            else if ($compiler->consumeIfTrue('record')){
 
 
                 $recordEntries = [];
+                $offset = 0;
                 while ($compiler->getToken($compiler->current + 1) == ":") {
                     $recordName = $compiler->consume();
                     $compiler->current++; // Skip ":"
                     $recordType = $compiler->consume();
 
-                    $recordEntries[] = [$recordName => [ 'type' => $recordType ]];
+                    $recordEntries[$recordName] = [
+                        'type' => $recordType,
+                        'offset' => $offset
+                    ];
+
+                    $offset += $compiler->calcSize($recordType);
                 }
 
                 $compiler->current++; // Skip "end"

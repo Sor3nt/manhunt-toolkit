@@ -132,6 +132,8 @@ class Compiler
         // "vel.x := vel1.x  *  speed;" to "vel . x := vel1 . x  *  speed;"
         $source = preg_replace("/([0-9])\.([a-zA-Z])/", "$1 . $2", $source);
 
+        $source = preg_replace("/(\])\.([a-zA-Z])/", "$1 . $2", $source);
+
         $source = preg_replace("/\[/", " [ ", $source);
         $source = preg_replace("/]/", " ] ", $source);
 
