@@ -353,13 +353,13 @@ die("J");
         $this->add('01000000', 'Not');
     }
 
-    public function int2float(){
+    public function int2float($msg = ""){
         $this->compiler->log(sprintf("Convert Integer 2 Float"));
 
         $this->ret();
 
         //convert to float
-        $this->add('4d000000', 'Convert INT to FLOAT');
+        $this->add('4d000000', 'Convert INT to FLOAT ' . $msg);
     }
 
     /**

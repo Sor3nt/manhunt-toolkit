@@ -208,7 +208,7 @@ class Evaluate{
 //                    $compiler->detectVarType($association) == "integer" &&
                     $association->assign->type == Tokens::T_INT
                 ){
-                    $this->compiler->evalVar->int2float();
+                    $this->compiler->evalVar->int2float("T_ASSIGN");
                 }
 
                 /**
@@ -698,7 +698,17 @@ class Evaluate{
                         $param->varType != "float"
                     ){
 
-                        $this->compiler->evalVar->int2float();
+                        if ($param->varType == "object"){
+                            if (
+                                $param->attribute !== null &&
+                                $param->attribute->varType != "float"
+                            ){
+                                $this->compiler->evalVar->int2float("T_FUNCTION 1");
+                            }
+                        }else{
+                            $this->compiler->evalVar->int2float("T_FUNCTION 2");
+
+                        }
                     }
 
                     /**
@@ -1100,7 +1110,7 @@ class Evaluate{
 
                 if ($association->type == Tokens::T_VARIABLE){
                     if ($varType !== $this->compiler->detectVarType($association)){
-                        $this->compiler->evalVar->int2float();
+                        $this->compiler->evalVar->int2float("T_MATH");
                     }
                 }
 
