@@ -2899,13 +2899,13 @@ class Manhunt2 extends ManhuntDefault
 
         'enteredtriggertype' => [
             'name' => 'EnteredTriggerType',
-            'offset' => 'EnteredTriggerType'
+            'offset' => 'd2010000'
         ],
 
 
         'setlevelfailed' => [
             'name' => 'SetLevelFailed',
-            'offset' => 'SetLevelFailed'
+            'offset' => '8e020000'
         ],
 
 
@@ -2920,6 +2920,42 @@ class Manhunt2 extends ManhuntDefault
             'name' => 'IsAudioCompleted',
             'offset' => '61020000',
             'return' => 'integer'
+        ],
+
+
+
+        'temporarysetplayertofists' => [
+            'name' => 'TemporarySetPlayerToFists',
+            'offset' => '21000000',
+        ],
+
+
+        'restoreplayerweapon' => [
+            'name' => 'RestorePlayerWeapon',
+            'offset' => 'RestorePlayerWeapon'
+        ],
+
+
+        'round' => [
+            'name' => 'Round',
+            'offset' => 'Round'
+        ],
+
+
+
+        'newparticleeffect' => [
+            'name' => 'NewParticleEffect',
+            'offset' => 'NewParticleEffect'
+        ],
+
+        'getentitymatrix' => [
+            'name' => 'GetEntityMatrix',
+            'offset' => 'GetEntityMatrix'
+        ],
+
+        'attacheffecttomatrix' => [
+            'name' => 'AttachEffectToMatrix',
+            'offset' => 'AttachEffectToMatrix'
         ],
 
 

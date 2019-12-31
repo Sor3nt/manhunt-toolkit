@@ -22,6 +22,25 @@ class Compiler
 
     public $records = [
 
+        'rgbaint' => [
+            'red' => [
+                'type' => 'integer',
+                'offset' => 0
+            ],
+            'green' => [
+                'type' => 'integer',
+                'offset' => 4
+            ],
+            'blue' => [
+                'type' => 'integer',
+                'offset' => 8
+            ],
+            'alpha' => [
+                'type' => 'integer',
+                'offset' => 12
+            ],
+        ],
+
         'vec3d' => [
             'x' => [
                 'type' => 'float',
