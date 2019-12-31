@@ -163,7 +163,6 @@ class Associations
                     if ($index == $attribute->value){
                         $attribute->varType = $record['type'];
                         $attribute->offset = $record['offset'];
-                        break;
                     }
                 }
 

@@ -24,23 +24,23 @@ class Compiler
 
         'rgbaint' => [
             'red' => [
-                'type' => 'integer',
-                'offset' => 0
-            ],
-            'green' => [
-                'type' => 'integer',
-                'offset' => 4
+                'type' => 'short-integer',
+                'offset' => 0,
             ],
             'blue' => [
-                'type' => 'integer',
-                'offset' => 8
+                'type' => 'short-integer',
+                'offset' => 2
+            ],
+            'green' => [
+                'type' => 'short-integer',
+                'offset' => 1
             ],
             'alpha' => [
-                'type' => 'integer',
-                'offset' => 12
+                'type' => 'short-integer',
+                'offset' => 3
             ],
         ],
-
+    
         'vec3d' => [
             'x' => [
                 'type' => 'float',
@@ -701,6 +701,9 @@ class Compiler
         }else {
             $size = 4;
             switch ($type) {
+                case 'short-integer':
+                    $size = 1;
+                    break;
                 case 'vec3d':
                     $size = 12;
                     break;

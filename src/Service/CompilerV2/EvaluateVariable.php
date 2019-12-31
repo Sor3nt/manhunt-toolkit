@@ -116,7 +116,13 @@ class EvaluateVariable{
 
 //            $this->compiler->log(sprintf("Write to Attribute %s", $association->attribute->value));
 
-            $this->compiler->evalVar->writeToAttribute($association);
+            if ($association->attribute == null){
+                $this->compiler->evalVar->writeToAttribute($association);
+
+            }else{
+
+                $this->compiler->evalVar->writeToAttribute($association->attribute);
+            }
 
 
         }else if ($type == 'object') {
@@ -186,7 +192,14 @@ class EvaluateVariable{
         $this->add('02000000', 'attribute operation');
 
         $this->add('17000000', $appendix);
-        $this->add('04000000', $appendix);
+
+        if ($association->varType == "short-integer"){
+            $this->add('01000000', $appendix);
+
+        }else{
+            $this->add('04000000', $appendix);
+
+        }
         $this->add('02000000', $appendix);
         $this->add('01000000', $appendix);
     }
