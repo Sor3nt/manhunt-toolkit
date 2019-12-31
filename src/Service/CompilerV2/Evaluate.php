@@ -736,6 +736,8 @@ class Evaluate{
                     }
 
 
+
+
                     if (strtolower($association->value) == "writedebug"){
 
                         if (
@@ -759,7 +761,11 @@ class Evaluate{
 
 
                     }else{
+
                         if (
+                            //it is a workaround for nested calls...
+                            $param->type == Tokens::T_CONDITION ||
+
                             $param->type == Tokens::T_SELF ||
                             $param->type == Tokens::T_MATH ||
                             $param->type == Tokens::T_INT ||
@@ -788,6 +794,7 @@ class Evaluate{
                                 )
                             )
                         ){
+
                             $this->compiler->evalVar->ret();
 
                         }else if (
