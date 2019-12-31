@@ -668,7 +668,7 @@ class Associations
                 $result = [];
                 $this->flatForRpn($conditions, $result);
                 $conditions = (new RPN())->convertToReversePolishNotation($result);
-
+//var_dump($conditions);exit;
                 $newCondition = new Associations();
                 $newCondition->type = Tokens::T_CONDITION;
                 $newCondition->childs = $conditions;

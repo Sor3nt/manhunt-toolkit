@@ -455,6 +455,7 @@ class Evaluate{
                                 isset($association->childs[$index + 1]) &&
                                 $association->childs[$index + 1]->type == Tokens::T_NOT
                             ){
+                                $association->childs[$index + 1]->type = Tokens::T_NOP;
                                 $this->compiler->evalVar->not();
                             }
 
@@ -498,6 +499,7 @@ class Evaluate{
                         new Evaluate($this->compiler, $param);
 
                         if (isset($association->childs[$index + 1]) && $association->childs[$index + 1]->type == Tokens::T_NOT){
+                            $association->childs[$index + 1]->type = Tokens::T_NOP;
                             $this->compiler->evalVar->not();
                         }
 
@@ -511,6 +513,9 @@ class Evaluate{
                         }
 
                     }else if ($param->type == Tokens::T_NOT){
+                        $this->compiler->evalVar->not();
+
+                    }else if ($param->type == Tokens::T_NOP){
                         /*
                          * Do nothing, the NOT is handled in other calls
                          */

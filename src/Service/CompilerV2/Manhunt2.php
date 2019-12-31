@@ -2955,7 +2955,7 @@ class Manhunt2 extends ManhuntDefault
 
         'attacheffecttomatrix' => [
             'name' => 'AttachEffectToMatrix',
-            'offset' => '48040000'
+            'offset' => '10010000'
         ],
 
     ];
