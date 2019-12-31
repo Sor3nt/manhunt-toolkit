@@ -617,7 +617,7 @@ class CustomFunctionParamStringTest extends KernelTestCase
             '10000000', //procedure/function call
             '02000000', //procedure/function call
             '39000000', //procedure/function call
-            '00093d00', //procedure/function call OFFSET
+            '00000000', //procedure/function call OFFSET
 
             '29000000', //NOT
             '01000000', //NOT

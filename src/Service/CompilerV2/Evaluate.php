@@ -44,7 +44,7 @@ class Evaluate{
             case Tokens::T_CUSTOM_FUNCTION:
                 $this->compiler->evalVar->msg = "Create new Script Block";
 
-                if ($association->type == Tokens::T_PROCEDURE){
+                if ($association->type == Tokens::T_PROCEDURE || $association->type == Tokens::T_CUSTOM_FUNCTION){
                     $compiler->gameClass->functions[strtolower($association->value)]['offset'] = Helper::fromIntToHex(count($this->compiler->codes) * 4);
                 }
 
@@ -829,7 +829,7 @@ class Evaluate{
                      * Custom functions can return a value and the space need to be defined here.
                      */
                     if ($association->isCustomFunction === true){
-                        $this->add(Helper::fromIntToHex($association->offset), $msg . ' (return offset)');
+                        $this->add(Helper::fromIntToHex($association->offset), $msg . ' (return offset) ' . $association->offset);
                         return;
                     }
                 }
