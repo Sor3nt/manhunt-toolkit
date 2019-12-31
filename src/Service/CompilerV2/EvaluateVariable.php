@@ -357,6 +357,7 @@ die("J");
 
 
         if ($varType !== "float" && $varType !== "integer"){
+            var_dump($varType, $type);
             throw new \Exception("Math handler, received no float/int type!");
         }
 

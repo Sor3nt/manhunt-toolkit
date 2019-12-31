@@ -400,8 +400,6 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("Condition");
 
-                $compareAgainst = false;
-
                 foreach ($association->childs as $index => $param) {
 
                     $lastInCurrentChain = false;
@@ -424,21 +422,12 @@ class Evaluate{
 
                     if ($param->type == Tokens::T_VARIABLE) {
 
-                        $isState = $compiler->getState($param->varType);
-                        $compareAgainst = $isState ? 'state' : $param->varType;
-
-                        if ($compareAgainst == "object" && $param->attribute !== null){
-                            $compareAgainst = $param->attribute->varType;
-                        }
-
-
                         if ($param->varType == "string"){
                             new Evaluate($this->compiler, $param);
                             $doReturn = "string";
 
                         }else if ($param->fromState === true) {
                             $this->compiler->evalVar->valuePointer($param->offset);
-
                         }else{
 
                             new Evaluate($this->compiler, $param);
@@ -456,7 +445,6 @@ class Evaluate{
                                 }
 
                                 $compiler->evalVar->readAttribute($param);
-
                             }
 
                             if (
@@ -508,6 +496,7 @@ class Evaluate{
                         if (isset($association->childs[$index + 1]) && $association->childs[$index + 1]->type == Tokens::T_NOT){
                             $this->compiler->evalVar->not();
                         }
+
 
                         if ($param->return != "string"){
                             if ($lastInCurrentChain ){
@@ -574,13 +563,13 @@ class Evaluate{
                         $compiler->isTypeConditionOperation($association->childs[$index + 1]->type)
                     ) {
 
-                        if ($compareAgainst == false){
+                        if ($param->type == Tokens::T_AND){
+                            $compareAgainst = $compiler->detectVarType($association->childs[$index - 1]);
+                        }else{
                             $compareAgainst = $compiler->detectVarType($param);
                         }
 
                         $compiler->evalVar->setCompareMode($compareAgainst);
-
-                        $compareAgainst = false;
                     }
 
                 }

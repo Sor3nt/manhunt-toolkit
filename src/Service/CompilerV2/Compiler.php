@@ -726,6 +726,9 @@ class Compiler
                 if ($varType == "object" && $association->attribute !== null){
                     return $association->attribute->varType;
                 }
+                if ($varType == "array"){
+                    return $association->typeOf;
+                }
                 break;
             case Tokens::T_FUNCTION:
                 if ($association->return == null){
