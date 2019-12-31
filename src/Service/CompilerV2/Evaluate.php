@@ -711,7 +711,7 @@ class Evaluate{
                     /**
                      * i guess the procedure need only the pointer and not the actual value
                      */
-                    if ($association->isProcedure === true){
+                    if ($association->isProcedure === true || $association->isCustomFunction === true){
                         $this->compiler->evalVar->ret();
                         continue;
                     }
