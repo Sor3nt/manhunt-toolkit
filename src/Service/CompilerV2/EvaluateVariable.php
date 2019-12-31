@@ -250,7 +250,7 @@ die("J");
 
         }else{
             if (in_array($type,
-                    ['real', 'float', 'state', 'entityptr', 'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+                    ['real', 'float', 'state', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
                 ) !== false ){
                 $this->readVariable($association);
             }

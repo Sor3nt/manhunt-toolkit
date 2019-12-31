@@ -770,6 +770,8 @@ class Evaluate{
                                     ($param->varType == "object" && $param->fromArray == null) ||
                                     $param->varType == "eaicombattype" ||
                                     $param->varType == "ecollectabletype" ||
+                                    $param->varType == "effectptr" ||
+                                    $param->varType == "matrixptr" ||
                                     $param->varType == "entityptr" ||
                                     $param->varType == "integer" ||
                                     $param->varType == "float"
@@ -781,6 +783,9 @@ class Evaluate{
                             (
                                 $param->type == Tokens::T_FUNCTION &&
                                 (
+
+                                    $param->return == "effectptr" ||
+                                    $param->return == "matrixptr" ||
                                     $param->return == "entityptr" ||
                                     $param->return == "integer" ||
                                     $param->return == "boolean"
@@ -1092,6 +1097,12 @@ class Evaluate{
                 $isLast = count($associations) == $index + 2;
 
                 new Evaluate($this->compiler, $association);
+
+                if ($association->type == Tokens::T_VARIABLE){
+                    if ($varType !== $this->compiler->detectVarType($association)){
+                        $this->compiler->evalVar->int2float();
+                    }
+                }
 
 
                 if (
