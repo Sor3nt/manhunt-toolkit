@@ -2960,13 +2960,36 @@ class Manhunt2 extends ManhuntDefault
 
         'clearhunteraimtarget' => [
             'name' => 'ClearHunterAimTarget',
-            'offset' => 'ClearHunterAimTarget'
+            'offset' => '4a020000'
         ],
 
         'isgoaldefined' => [
             'name' => 'IsGoalDefined',
-            'offset' => 'IsGoalDefined'
+            'offset' => 'd3030000'
         ],
+
+
+
+        'playscriptaudiostream' => [
+            'name' => 'PlayScriptAudioStream',
+            'offset' => 'cb020000'
+        ],
+
+
+
+
+        'isscriptaudiostreampreloaded' => [
+            'name' => 'IsScriptAudioStreamPreLoaded',
+            'offset' => 'ca020000'
+        ],
+
+        'preloadscriptaudiostream' => [
+            'name' => 'PreLoadScriptAudioStream',
+            'offset' => 'c9020000'
+        ],
+
+
+
 
     ];
 }

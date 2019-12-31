@@ -60,6 +60,7 @@ class Evaluate{
                     $compiler->getScriptSize($association->value)
                 );
 
+                /** @var Associations[] $arguments */
                 $arguments = $compiler->getScriptArgumentsByScriptName($association->value);
                 foreach ($arguments as $index => $argument) {
                     $compiler->evalVar->msg = sprintf("Process Argument index %s", $index);
@@ -77,15 +78,47 @@ class Evaluate{
                     $this->compiler->evalVar->valuePointer(0);
                     $this->compiler->evalVar->ret();
 
-                    $this->compiler->evalVar->valuePointer(0);
-                    $this->compiler->evalVar->ret();
 
-                    $this->add('0a030000', 'a argument command, for first param');
+                    if (isset($argument['fallback'])){
 
-                    $this->add('15000000', 'write to ?');
-                    $this->add('04000000', 'write to ?');
-                    $this->add('04000000', 'offset');
-                    $this->add('01000000', 'write to ?');
+                        new Evaluate($this->compiler, $argument['fallback'], $this->compiler->evalVar->msg);
+                        $this->compiler->evalVar->readSize($argument['fallback']->size);
+
+                        $this->compiler->evalVar->retString();
+
+                        $this->add('0c030000', 'a argument command, for first param');
+
+
+                        $this->add('22000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add('08000000', 'write to ?');
+
+                        $this->add('12000000', 'write to ?');
+                        $this->add('03000000', 'write to ?');
+                        $this->add('08000000', 'write to ?');
+                        $this->add('10000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add('10000000', 'write to ?');
+                        $this->add('03000000', 'write to ?');
+                        $this->add('48000000', 'write to ?');
+
+                    }else{
+
+                        $this->compiler->evalVar->valuePointer(0);
+                        $this->compiler->evalVar->ret();
+
+                        $this->add('0a030000', 'a argument command, for first param');
+
+
+                        $this->add('15000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add('04000000', 'offset');
+                        $this->add('01000000', 'write to ?');
+
+                    }
+
+
 
                     $this->add('0f030000', 'unknown');
                     $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);

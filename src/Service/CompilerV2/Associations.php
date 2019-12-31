@@ -22,6 +22,7 @@ class Associations
 
     public $size = null;
     public $offset = null;
+    public $fallback = null;
     public $records = [];
 
     public $isLevelVar = null;
@@ -867,6 +868,10 @@ class Associations
                     $compiler->current++; //Skip "]"
                 }
 
+            }
+
+            if ($compiler->consumeIfTrue(':')){
+                $entry['fallback'] = new Associations($compiler);
             }
 
             $toAdd[] = $entry;
