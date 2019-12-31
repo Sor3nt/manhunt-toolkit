@@ -473,12 +473,16 @@ class Associations
                     $compiler->currentBlockType == "procedure" ||
                     $compiler->currentBlockType == "function"
                 ){
+                    $compiler->offsetGlobalVariable = 0;
                     $compiler->offsetScriptVariable = 0;
+                    $toAdd = $this->consumeParameters($compiler, "script", $value == "arg");
+                }else{
+
+                    $toAdd = $this->consumeParameters($compiler, $compiler->currentSection, $value == "arg");
                 }
 
                 $this->type = Tokens::T_NOP;
 
-                $toAdd = $this->consumeParameters($compiler, $compiler->currentSection, $value == "arg");
 
                 $this->applyVariables($compiler, $toAdd);
 

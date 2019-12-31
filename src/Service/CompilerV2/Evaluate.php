@@ -517,7 +517,7 @@ class Evaluate{
 
                     }else if ($param->type == Tokens::T_NOP){
                         /*
-                         * Do nothing, the NOT is handled in other calls
+                         * Do nothing
                          */
 
                     }else if ($param->type == Tokens::T_OR || $param->type == Tokens::T_AND){
@@ -548,6 +548,7 @@ class Evaluate{
                         if (
                             isset($association->childs[$index + 1]) &&
                             (
+                                $association->childs[$index + 1]->type != Tokens::T_NOT &&
                                 $association->childs[$index + 1]->type != Tokens::T_OR &&
                                 $association->childs[$index + 1]->type != Tokens::T_AND
                             )

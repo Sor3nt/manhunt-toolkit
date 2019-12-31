@@ -2958,5 +2958,15 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '10010000'
         ],
 
+        'clearhunteraimtarget' => [
+            'name' => 'ClearHunterAimTarget',
+            'offset' => 'ClearHunterAimTarget'
+        ],
+
+        'isgoaldefined' => [
+            'name' => 'IsGoalDefined',
+            'offset' => 'IsGoalDefined'
+        ],
+
     ];
 }
