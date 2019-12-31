@@ -2945,19 +2945,18 @@ class Manhunt2 extends ManhuntDefault
 
         'newparticleeffect' => [
             'name' => 'NewParticleEffect',
-            'offset' => 'NewParticleEffect'
+            'offset' => 'a8000000'
         ],
 
         'getentitymatrix' => [
             'name' => 'GetEntityMatrix',
-            'offset' => 'GetEntityMatrix'
+            'offset' => '0f010000'
         ],
 
         'attacheffecttomatrix' => [
             'name' => 'AttachEffectToMatrix',
             'offset' => 'AttachEffectToMatrix'
         ],
-
 
     ];
 }

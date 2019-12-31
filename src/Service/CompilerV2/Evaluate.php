@@ -351,7 +351,11 @@ class Evaluate{
 
                 $startOffset = count($this->compiler->codes);
 
-                new Evaluate($this->compiler, $association->end);
+                if ($association->end->type == Tokens::T_MATH){
+                    $this->doMath($association->end->childs);
+                }else{
+                    new Evaluate($this->compiler, $association->end);
+                }
 
 
 

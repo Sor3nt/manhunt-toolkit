@@ -275,8 +275,46 @@ class Associations
 
                     $this->start = new Associations($compiler);
                     $compiler->current++;       //Skip "to"
-                    $this->end = new Associations($compiler);
+//                    $this->end = $this->associateUntil($compiler, Tokens::T_DO);
+//                    var_dump($this->end);exit;
 
+
+                    /** @var Associations[] $mathChilds */
+                    $mathChilds = [
+                        new Associations($compiler)
+                    ];
+                    while (
+                        $compiler->getToken() == "+" ||
+                        $compiler->getToken() == "-" ||
+                        $compiler->getToken() == "*" ||
+                        $compiler->getToken() == "/" ||
+                        $compiler->getToken() == "(" ||
+                        $compiler->getToken() == "div"
+                    ) {
+                        $mathChilds[] = new Associations($compiler);
+                        $mathChilds[] = new Associations($compiler);
+                    }
+
+                    if (count($mathChilds) > 1){
+                        $result = [];
+
+
+                        $math = new Associations();
+                        $math->type = Tokens::T_MATH;
+
+                        $this->flatForRpn($mathChilds, $result);
+                        $math->childs = (new RPN())->convertToReversePolishNotation($result);
+
+                        $this->end = $math;
+                    }else{
+                        $this->end = $mathChilds[0];
+                    }
+
+
+//                    $this->start = new Associations($compiler);
+//                    $compiler->current++;       //Skip "to"
+//                    $this->end = new Associations($compiler);
+//
                 }else{
                     /**
                      * Assignment
