@@ -82,26 +82,31 @@ class Evaluate{
                     if (isset($argument['fallback'])){
 
                         new Evaluate($this->compiler, $argument['fallback'], $this->compiler->evalVar->msg);
-                        $this->compiler->evalVar->readSize($argument['fallback']->size);
 
-                        $this->compiler->evalVar->retString();
+                        if ($compiler->detectVarType($argument['fallback']) == "string"){
+                            $this->compiler->evalVar->readSize($argument['fallback']->size);
 
-                        $this->add('0c030000', 'a argument command, for first param');
+                            $this->compiler->evalVar->retString();
+
+                            $this->add('0c030000', 'a argument command, for first param');
 
 
-                        $this->add('22000000', 'write to ?');
-                        $this->add('04000000', 'write to ?');
-                        $this->add('04000000', 'write to ?');
-                        $this->add('08000000', 'write to ?');
+                            $this->add('22000000', 'write to ?');
+                            $this->add('04000000', 'write to ?');
+                            $this->add('04000000', 'write to ?');
+                            $this->add(Helper::fromIntToHex($argument['size']), 'size of string is ' . $argument['size']);
 
-                        $this->add('12000000', 'write to ?');
-                        $this->add('03000000', 'write to ?');
-                        $this->add('08000000', 'write to ?');
-                        $this->add('10000000', 'write to ?');
-                        $this->add('04000000', 'write to ?');
-                        $this->add('10000000', 'write to ?');
-                        $this->add('03000000', 'write to ?');
-                        $this->add('48000000', 'write to ?');
+                            $this->add('12000000', 'write to ?');
+                            $this->add('03000000', 'write to ?');
+                            $this->add(Helper::fromIntToHex($argument['size']), 'size of string is ' . $argument['size']);
+//                            $this->add('08000000', 'write to ?');
+                            $this->add('10000000', 'write to ?');
+                            $this->add('04000000', 'write to ?');
+                            $this->add('10000000', 'write to ?');
+                            $this->add('03000000', 'write to ?');
+                            $this->add('48000000', 'write to ?');
+
+                        }
 
                     }else{
 

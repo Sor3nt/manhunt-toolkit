@@ -2989,6 +2989,38 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
+        'helisetorientation' => [
+            'name' => 'HeliSetOrientation',
+            'offset' => 'a9030000'
+        ],
+
+        'calcvisibility' => [
+            'name' => 'CalcVisibility',
+            'offset' => '53030000'
+        ],
+
+
+        'aidefinegoalgotoentity' => [
+            'name' => 'AIDefineGoalGotoEntity',
+            'offset' => 'd7010000'
+        ],
+
+        'aiisenemyinsight' => [
+            'name' => 'AIIsEnemyInSight',
+            'offset' => 'AIIsEnemyInSight'
+        ],
+
+        'huntershootatentityauto' => [
+            'name' => 'HunterShootAtEntityAuto',
+            'offset' => 'HunterShootAtEntityAuto'
+        ],
+
+        'huntershootatentitystop' => [
+            'name' => 'HunterShootAtEntityStop',
+            'offset' => 'HunterShootAtEntityStop'
+        ],
+
+
 
 
     ];
