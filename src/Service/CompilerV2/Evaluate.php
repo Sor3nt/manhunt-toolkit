@@ -62,9 +62,10 @@ class Evaluate{
 
                 /** @var Associations[] $arguments */
                 $arguments = $compiler->getScriptArgumentsByScriptName($association->value);
-                foreach ($arguments as $index => $argument) {
-                    $compiler->evalVar->msg = sprintf("Process Argument index %s", $index);
-                    $this->add('10030000', 'init argument read');
+
+                if (count($arguments)){
+                    $compiler->evalVar->msg = sprintf("Process %s Arguments ", count($arguments));
+                    $this->add('10030000', 'Initialize Argument reading');
 
                     $this->add('24000000', 'read argument');
                     $this->add('01000000', 'read argument');
@@ -75,58 +76,71 @@ class Evaluate{
                     $endOffset = count($compiler->codes);
                     $this->add('00000000', 'Line Offset');
 
-                    $this->compiler->evalVar->valuePointer(0);
-                    $this->compiler->evalVar->ret();
+                }
 
+                $argumentsOffset = 0;
+
+                foreach ($arguments as $index => $argument) {
+
+                    $this->compiler->evalVar->valuePointer($index);
+                    $this->compiler->evalVar->ret();
 
                     if (isset($argument['fallback'])){
 
                         new Evaluate($this->compiler, $argument['fallback'], $this->compiler->evalVar->msg);
 
-                        if ($compiler->detectVarType($argument['fallback']) == "string"){
-                            $this->compiler->evalVar->readSize($argument['fallback']->size);
+                        $this->compiler->evalVar->readSize($argument['fallback']->size);
 
-                            $this->compiler->evalVar->retString();
+                        $this->compiler->evalVar->retString();
 
-                            $this->add('0c030000', 'a argument command, for first param');
+                        $this->add('0c030000', 'a argument command, for first param');
 
 
-                            $this->add('22000000', 'write to ?');
-                            $this->add('04000000', 'write to ?');
-                            $this->add('04000000', 'write to ?');
-                            $this->add(Helper::fromIntToHex($argument['size']), 'size of string is ' . $argument['size']);
+                        $this->add('22000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add(Helper::fromIntToHex($argument['size']), 'size of string is ' . $argument['size']);
 
-                            $this->add('12000000', 'write to ?');
-                            $this->add('03000000', 'write to ?');
-                            $this->add(Helper::fromIntToHex($argument['size']), 'size of string is ' . $argument['size']);
-//                            $this->add('08000000', 'write to ?');
-                            $this->add('10000000', 'write to ?');
-                            $this->add('04000000', 'write to ?');
-                            $this->add('10000000', 'write to ?');
-                            $this->add('03000000', 'write to ?');
-                            $this->add('48000000', 'write to ?');
+                        $this->add('12000000', 'write to ?');
+                        $this->add('03000000', 'write to ?');
+                        $this->add(Helper::fromIntToHex($argument['size']), 'size of string is ' . $argument['size']);
 
-                        }
+                        $this->add('10000000', 'write to ?');
+                        $this->add('04000000', 'write to ?');
+                        $this->add('10000000', 'write to ?');
+                        $this->add('03000000', 'write to ?');
+                        $this->add('48000000', 'write to ?');
 
                     }else{
 
                         $this->compiler->evalVar->valuePointer(0);
                         $this->compiler->evalVar->ret();
 
-                        $this->add('0a030000', 'a argument command, for first param');
+                        if ($argument['type'] == "integer"){
+                            $this->add('0a030000', 'argument is integer');
+                        }else if ($argument['type'] == "float"){
+                            $this->add('0b030000', 'argument is float');
+                        }else if ($argument['type'] == "string"){
+                            $this->add('0c030000', 'argument is string');
+                        }
 
+                        $argumentsOffset += $compiler->calcSize($argument['type']);
 
-                        $this->add('15000000', 'write to ?');
-                        $this->add('04000000', 'write to ?');
-                        $this->add('04000000', 'offset');
-                        $this->add('01000000', 'write to ?');
+                        $this->add('15000000', 'read from offset');
+                        $this->add('04000000', 'read from offset');
+
+                        $this->add(Helper::fromIntToHex($argumentsOffset), 'offset');
+                        $this->add('01000000', 'read from offset');
 
                     }
 
 
+                }
 
-                    $this->add('0f030000', 'unknown');
+                if (count($arguments)){
+                    $this->add('0f030000', 'end of arguments');
                     $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+
                 }
 
                 foreach ($association->childs as $condition) {
