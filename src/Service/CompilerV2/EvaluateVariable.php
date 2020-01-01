@@ -283,7 +283,7 @@ die("J");
         $this->add('1c000000', $association->varType . ' from LevelVar ');
         $this->add('01000000', 'Read value ' . $association->value);
         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
-        $this->add('1e000000', 'Read value ' . $association->value);
+        $this->add(Helper::fromIntToHex($association->levelVarSize), '(LevelVar) Size ' . $association->size);
 
     }
 

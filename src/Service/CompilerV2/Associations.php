@@ -25,6 +25,7 @@ class Associations
     public $fallback = null;
     public $records = [];
 
+    public $levelVarSize = null;
     public $isLevelVar = null;
     public $isGameVar = null;
     public $isCustomFunction = null;

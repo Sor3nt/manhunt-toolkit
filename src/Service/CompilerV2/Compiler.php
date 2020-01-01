@@ -148,6 +148,8 @@ class Compiler
         // "vel.x := vel.x  *  speed;" to "vel . x := vel . x  *  speed;"
         $source = preg_replace("/([a-zA-Z])\.([a-zA-Z])/", "$1 . $2", $source);
 
+        $source = preg_replace("/([a-zA-Z])\-([0-9])/", "$1 - $2", $source);
+
         // "vel.x := vel1.x  *  speed;" to "vel . x := vel1 . x  *  speed;"
         $source = preg_replace("/([0-9])\.([a-zA-Z])/", "$1 . $2", $source);
 
@@ -470,7 +472,10 @@ class Compiler
 
         if (isset($data['isLevelVar']) && $data['isLevelVar'] == true && $this->levelScript !== null){
             $levelVar = $this->levelScript->getVariable($data['name']);
-            if ($levelVar) $offset = $levelVar['offset'];
+            if ($levelVar){
+                $offset = $levelVar['offset'];
+                $data['levelVarSize'] = $levelVar['size'];
+            }
         }
 
 
