@@ -3050,6 +3050,13 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
+        'setgametextdisplaytime' => [
+            'name' => 'SetGameTextDisplayTime',
+            'offset' => '0d010000'
+        ],
+
+
+
 
 
     ];

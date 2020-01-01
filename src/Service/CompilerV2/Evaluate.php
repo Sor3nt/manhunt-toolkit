@@ -912,7 +912,7 @@ class Evaluate{
                      * Custom functions can return a value and the space need to be defined here.
                      */
                     if ($association->isCustomFunction === true){
-                        $this->add(Helper::fromIntToHex($association->offset), $msg . ' (return offset) ' . $association->offset);
+                        $this->add($association->offset, $msg . ' (return offset) ' . $association->offset);
                         return;
                     }
                 }
