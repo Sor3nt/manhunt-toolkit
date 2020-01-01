@@ -17,6 +17,9 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'mover_accel_none' => [
+            'offset' => '03000000'
+        ],
         'ec_player' => [
             'offset' => '0f020000'
         ],
@@ -3018,6 +3021,23 @@ class Manhunt2 extends ManhuntDefault
         'huntershootatentitystop' => [
             'name' => 'HunterShootAtEntityStop',
             'offset' => 'HunterShootAtEntityStop'
+        ],
+
+        'usablegetcurrentanimtimeratio' => [
+            'name' => 'UsableGetCurrentAnimTimeRatio',
+            'offset' => 'c0010000'
+        ],
+
+
+        'playscriptaudiostreamfromentity' => [
+            'name' => 'PlayScriptAudioStreamFromEntity',
+            'offset' => '21030000'
+        ],
+
+
+        'aicutsceneallentitiesenable' => [
+            'name' => 'AICutSceneAllEntitiesEnable',
+            'offset' => 'aa020000'
         ],
 
 
