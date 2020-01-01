@@ -127,6 +127,10 @@ class Helper{
     }
 
     static function fromIntToHex( $int, $toBig = true ){
+
+        //TODO, its a hack.... dont know why
+        if ($int >= 90000) $toBig = false;
+
         if ($toBig){
             $codeLenght = self::toBigEndian(self::pad(dechex($int),4, true));
             return substr(self::pad($codeLenght), 0 , 8);
@@ -139,6 +143,10 @@ class Helper{
 
     static function fromHexToInt( $hex ){
         return (int) current(unpack("L", hex2bin($hex)));
+
+    }
+    static function fromHexToFloat( $hex ){
+        return (float) current(unpack("g", hex2bin($hex)));
 
     }
 

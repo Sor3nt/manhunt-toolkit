@@ -3056,6 +3056,19 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
+        'isentitypartofai' => [
+            'name' => 'IsEntityPartOfAI',
+            'offset' => 'd1030000',
+            'return' => 'integer'
+        ],
+
+
+        'aigetsubpackname' => [
+            'name' => 'AIGetSubpackName',
+            'offset' => '15030000'
+        ],
+
+
 
 
 
