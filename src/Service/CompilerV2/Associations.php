@@ -541,7 +541,6 @@ class Associations
                         $this->return = $compiler->gameClass->functions[strtolower($this->value)]['return'];
                     }
 
-                    $this->childs = $this->associateUntil($compiler, Tokens::T_END);
                 }
 
                 $compiler->addCustomFunction(
@@ -549,6 +548,11 @@ class Associations
                     $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE,
                     $this->return
                 );
+
+                if ($this->type !== Tokens::T_FORWARD){
+                    $this->childs = $this->associateUntil($compiler, Tokens::T_END);
+
+                }
 
 
                 /**

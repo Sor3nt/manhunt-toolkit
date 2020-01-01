@@ -1564,16 +1564,7 @@ class Manhunt2 extends ManhuntDefault
 
         'cutscenecamerasettarget' => [
             'name' => 'CutSceneCameraSetTarget',
-            'offset' => '5b030000',
-            /**
-             * Parameters
-             * 1: float
-             * 2: float
-             * 3: float
-             * 4: float
-             */
-            'params' => ['Float', 'Float', 'Float', 'Float'],
-            'desc' => ''
+            'offset' => '5b030000'
         ],
 
         'cutscenecamerasetfov' => [
@@ -3038,6 +3029,24 @@ class Manhunt2 extends ManhuntDefault
         'aicutsceneallentitiesenable' => [
             'name' => 'AICutSceneAllEntitiesEnable',
             'offset' => 'aa020000'
+        ],
+
+
+        'sethunterimpossibletopickup' => [
+            'name' => 'SetHunterImpossibleToPickup',
+            'offset' => '9d030000'
+        ],
+
+
+        'entityplaycutsceneanimation' => [
+            'name' => 'EntityPlayCutSceneAnimation',
+            'offset' => 'd8020000'
+        ],
+
+
+        'cancelhuntercutsceneanim' => [
+            'name' => 'CancelHunterCutsceneAnim',
+            'offset' => '74030000'
         ],
 
 

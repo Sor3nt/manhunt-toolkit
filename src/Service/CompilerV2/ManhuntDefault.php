@@ -73,7 +73,7 @@ class ManhuntDefault
         'sethuntergunfireminpause' => [false, true],
         'helisetorientation' => [false, true],
         'cutscenecamerasetroll' => [true, true],
-        'cutscenecamerasettarget' => [true, true, true, true],
+        'cutscenecamerasettarget' => [true, true, true, true, true],
         'cutscenecamerasetpos' => [true, true, true, true],
         'radarcreateblip' => [false, true],
         'helisetfiringrate' => [false, true],

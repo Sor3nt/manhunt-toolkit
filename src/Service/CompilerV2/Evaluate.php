@@ -293,7 +293,10 @@ class Evaluate{
                     $this->compiler->log(sprintf("Read level var %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Level Variable %s / %s", $association->value, $association->varType);
 
-                    if ($association->varType == "string"){
+                    if ($association->varType == "object") {
+                        $compiler->evalVar->levelVarPointerString($association);
+
+                    }else if ($association->varType == "string"){
                         $this->compiler->log(sprintf("Read String"));
 
                         $compiler->evalVar->levelVarPointerString($association);
