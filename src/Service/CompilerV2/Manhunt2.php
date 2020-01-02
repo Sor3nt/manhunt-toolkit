@@ -1079,7 +1079,7 @@ class Manhunt2 extends ManhuntDefault
         ],
         'isfirstpersoncamera' => [
             'name' => 'isfirstpersoncamera',
-            'offset' => '88000000'
+            'offset' => 'd5030000'
         ],
 
         'iswhitenoisedisplaying' => [
