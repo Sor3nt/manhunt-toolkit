@@ -643,7 +643,7 @@ class Evaluate{
                     if ($doReturn == "string"){
                         $this->compiler->evalVar->retString();
                     }else if ($doReturn == "default"){
-                        $this->compiler->evalVar->ret('default '. $index . " - ". count($association->childs));
+                        $this->compiler->evalVar->ret();
                     }
 
 
@@ -655,7 +655,7 @@ class Evaluate{
                         $compiler->isTypeConditionOperation($association->childs[$index + 1]->type)
                     ) {
 
-                        if ($param->type == Tokens::T_AND){
+                        if ($param->type == Tokens::T_AND || $param->type == Tokens::T_OR){
                             $compareAgainst = $compiler->detectVarType($association->childs[$index - 1]);
                         }else{
                             $compareAgainst = $compiler->detectVarType($param);
@@ -770,6 +770,8 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("Process Function %s", $association->value);
                 foreach ($association->childs as $index => $param) {
+
+                    //todo: i think it is a hack, the t_variable just do to much!
                     $param->onlyPointer = $association->isProcedure == true;
                     new Evaluate($this->compiler, $param, $compiler->evalVar->msg);
 
@@ -780,10 +782,10 @@ class Evaluate{
                         $association->forceFloat &&
                         $association->forceFloat[$index] === true &&
 
-                        $param->type != Tokens::T_MATH &&
+                        $param->type !== Tokens::T_MATH &&
                         $param->type !== Tokens::T_FLOAT &&
 
-                        $param->varType != "float"
+                        $param->varType !== "float"
                     ){
 
                         if ($param->varType == "object"){
@@ -802,7 +804,10 @@ class Evaluate{
                     /**
                      * i guess the procedure need only the pointer and not the actual value
                      */
-                    if ($association->isProcedure === true || $association->isCustomFunction === true){
+                    if (
+                        $association->isProcedure === true ||
+                        $association->isCustomFunction === true
+                    ){
                         $this->compiler->evalVar->ret();
                         continue;
                     }
@@ -813,7 +818,7 @@ class Evaluate{
                     ){
                         if ($param->attribute->firstAttribute === false){
                             $this->compiler->evalVar->moveAttributePointer($param->attribute, "T_FUNCTION");
-                            $this->compiler->evalVar->ret("1");
+                            $this->compiler->evalVar->ret();
                         }
 
                         $this->compiler->evalVar->readAttribute($association);
@@ -825,9 +830,6 @@ class Evaluate{
                             $this->compiler->evalVar->readSize( $string->size );
                         }
                     }
-
-
-
 
                     if (strtolower($association->value) == "writedebug"){
 
@@ -850,13 +852,11 @@ class Evaluate{
                             $this->compiler->evalVar->retString();
                         }
 
-
                     }else{
 
                         if (
-                            //it is a workaround for nested calls...
-                            $param->type == Tokens::T_CONDITION ||
 
+                            $param->type == Tokens::T_CONDITION || //it is a workaround for nested calls...
                             $param->type == Tokens::T_SELF ||
                             $param->type == Tokens::T_MATH ||
                             $param->type == Tokens::T_INT ||
@@ -1132,34 +1132,9 @@ class Evaluate{
 
     /**
      * @param Associations[] $associations
-     * @param null $varType
      * @throws Exception
      */
-    public function doMath( $associations, $varType = null ){
-
-
-//        /**
-//         * Sometimes we need to look around which vartype we have...
-//         */
-//        if ($varType == null){
-//
-//            foreach ($associations as $association) {
-//                if ( $association->type == Tokens::T_INT || $association->varType == 'integer' ){
-//                    $varType = "integer";
-//                    break;
-//                }
-//
-//                if ( $association->type == Tokens::T_FLOAT || $association->varType == 'float' ){
-//                    $varType = "float";
-//                    break;
-//                }
-//
-//                if ( $association->type == Tokens::T_FUNCTION && $association->return !== null ){
-//                    $varType = $association->return;
-//                    break;
-//                }
-//            }
-//        }
+    public function doMath( $associations ){
 
         $varType = $this->compiler->detectVarType($associations[0]);
 
@@ -1205,16 +1180,14 @@ class Evaluate{
                     }
                 }
 
-
                 if (
                     $association->attribute !== null &&
                     $association->attribute->firstAttribute === false
                 ) {
                     $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_MATH");
-                    $this->compiler->evalVar->ret("1");
+                    $this->compiler->evalVar->ret();
 
                     $this->compiler->evalVar->readAttribute($association);
-
                 }
 
                 else if (
@@ -1227,7 +1200,7 @@ class Evaluate{
 
                 if ($varType == "float" || ($varType == "integer" && $isLast == false)
                 ){
-                    $this->compiler->evalVar->ret("2");
+                    $this->compiler->evalVar->ret();
                 }
 
                 if (

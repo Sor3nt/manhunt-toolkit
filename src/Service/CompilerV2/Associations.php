@@ -277,46 +277,9 @@ class Associations
 
                     $this->start = new Associations($compiler);
                     $compiler->current++;       //Skip "to"
-//                    $this->end = $this->associateUntil($compiler, Tokens::T_DO);
-//                    var_dump($this->end);exit;
 
+                    $this->end = $compiler->getPossibleMathChilds();
 
-                    /** @var Associations[] $mathChilds */
-                    $mathChilds = [
-                        new Associations($compiler)
-                    ];
-                    while (
-                        $compiler->getToken() == "+" ||
-                        $compiler->getToken() == "-" ||
-                        $compiler->getToken() == "*" ||
-                        $compiler->getToken() == "/" ||
-                        $compiler->getToken() == "(" ||
-                        $compiler->getToken() == "div"
-                    ) {
-                        $mathChilds[] = new Associations($compiler);
-                        $mathChilds[] = new Associations($compiler);
-                    }
-
-                    if (count($mathChilds) > 1){
-                        $result = [];
-
-
-                        $math = new Associations();
-                        $math->type = Tokens::T_MATH;
-
-                        $this->flatForRpn($mathChilds, $result);
-                        $math->childs = (new RPN())->convertToReversePolishNotation($result);
-
-                        $this->end = $math;
-                    }else{
-                        $this->end = $mathChilds[0];
-                    }
-
-
-//                    $this->start = new Associations($compiler);
-//                    $compiler->current++;       //Skip "to"
-//                    $this->end = new Associations($compiler);
-//
                 }else{
                     /**
                      * Assignment
@@ -335,42 +298,10 @@ class Associations
                         $this->assign->offset = $state['offset'];
 
                     } else {
-
-
-
-                        /** @var Associations[] $mathChilds */
-                        $mathChilds = [
-                            new Associations($compiler)
-                        ];
-                        while (
-                            $compiler->getToken() == "+" ||
-                            $compiler->getToken() == "-" ||
-                            $compiler->getToken() == "*" ||
-                            $compiler->getToken() == "/" ||
-                            $compiler->getToken() == "(" ||
-                            $compiler->getToken() == "div"
-                        ) {
-                            $mathChilds[] = new Associations($compiler);
-                            $mathChilds[] = new Associations($compiler);
-                        }
-
-                        $result = [];
-                        $this->flatForRpn($mathChilds, $result);
-
-                        if (count($result) > 1){
-                            $math = new Associations();
-                            $math->type = Tokens::T_MATH;
-
-                            $math->childs = (new RPN())->convertToReversePolishNotation($result);
-
-                            $this->assign = $math;
-                        }else{
-                            $this->assign = $mathChilds[0];
-                        }
-
+                        $this->assign = $compiler->getPossibleMathChilds();
                     }
                 }
-        }
+            }
 
             return;
         }
@@ -444,10 +375,6 @@ class Associations
          */
         switch ($value) {
 
-            //Uhm its a mistake by the r* devs...
-            case 'd.':
-                $this->type = Tokens::T_NOP;
-                break;
             case 'scriptmain':
                 $this->type = Tokens::T_NOP;
                 $compiler->mlsScriptMain = $compiler->consume();
@@ -760,6 +687,8 @@ class Associations
 
             case 'begin':
             case 'end.':
+            //Uhm its a mistake by the r* devs...
+            case 'd.':
             case ',':    $this->type = Tokens::T_NOP; break;
 
             default:
@@ -792,6 +721,13 @@ class Associations
     }
 
 
+    /**
+     * @param Compiler $compiler
+     * @param string $section
+     * @param bool $isArgument
+     * @return array
+     * @throws Exception
+     */
     private function consumeParameters(Compiler $compiler, $section = "header", $isArgument = false)
     {
 

@@ -826,6 +826,45 @@ class Compiler
         return false;
     }
 
+    /**
+     * @return Associations
+     * @throws Exception
+     */
+    public function getPossibleMathChilds(){
+        /** @var Associations[] $mathChilds */
+        $mathChilds = [
+            new Associations($this)
+        ];
+        while (
+            $this->getToken() == "+" ||
+            $this->getToken() == "-" ||
+            $this->getToken() == "*" ||
+            $this->getToken() == "/" ||
+            $this->getToken() == "(" ||
+            $this->getToken() == "div"
+        ) {
+            $mathChilds[] = new Associations($this);
+            $mathChilds[] = new Associations($this);
+        }
+
+
+        $result = [];
+        (new Associations())->flatForRpn($mathChilds, $result);
+
+        if (count($result) > 1){
+
+            $math = new Associations();
+            $math->type = Tokens::T_MATH;
+
+            $math->childs = (new RPN())->convertToReversePolishNotation($result);
+
+            return $math;
+        }else{
+            return $mathChilds[0];
+        }
+
+    }
+
     public function createVariableAssociation( array $data, Associations $variable = null ){
 
         if ($variable == null) $variable = new Associations();
