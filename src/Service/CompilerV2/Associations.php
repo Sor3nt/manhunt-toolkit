@@ -354,14 +354,13 @@ class Associations
                             $mathChilds[] = new Associations($compiler);
                         }
 
-                        if (count($mathChilds) > 1){
-                            $result = [];
+                        $result = [];
+                        $this->flatForRpn($mathChilds, $result);
 
-
+                        if (count($result) > 1){
                             $math = new Associations();
                             $math->type = Tokens::T_MATH;
 
-                            $this->flatForRpn($mathChilds, $result);
                             $math->childs = (new RPN())->convertToReversePolishNotation($result);
 
                             $this->assign = $math;

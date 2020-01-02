@@ -99,7 +99,7 @@ class AssignArrayObjectTest extends KernelTestCase
             '01000000', //Read array
             '12000000', //Read array
             '04000000', //Read array
-            '04000000', //Read array offset
+            '14000000', //Read array offset
             '35000000', //Read array
             '04000000', //Read array
             '0f000000', //Read array
@@ -143,11 +143,11 @@ class AssignArrayObjectTest extends KernelTestCase
             '01000000', //Read array
             '12000000', //Read array
             '04000000', //Read array
-            '04000000', //Read array
+            '14000000', //Read array offset
             '35000000', //Read array
             '04000000', //Read array
             '0f000000', //Read array
-            '04000000', //Read array offset
+            '04000000', //Read array
             '31000000', //Read array
             '04000000', //Read array
             '01000000', //Read array
