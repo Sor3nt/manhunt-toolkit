@@ -218,8 +218,8 @@ class EvaluateVariable{
     }
 
 
-    public function moveAttributePointer(Associations $association ){
-        $msg = "Move Attribute Pointer";
+    public function moveAttributePointer(Associations $association, $msg = "" ){
+        $msg = "Move Attribute Pointer " . $msg;
 
         $this->add('0f000000', $msg);
         $this->add('01000000', $msg);
@@ -232,28 +232,10 @@ class EvaluateVariable{
     public function variablePointer( Associations $association, $type = null){
         $type = is_null($type) ? $association->varType : $type;
 
-        if (
-            $association->parent != null &&
-            $association->parent->varType == "vec3d"
-        ) {
-die("J");
-            $this->compiler->evalVar->memoryPointer($association->parent);
-            $this->compiler->evalVar->ret();
-
-            if ($association->parent->value . '.x' !== $association->value) {
-                $this->moveAttributePointer($association);
-                $this->ret();
-            }
-
-            $this->compiler->evalVar->readAttribute($association);
-
-
-        }else{
-            if (in_array($type,
-                    ['real', 'float', 'state', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
-                ) !== false ){
-                $this->readVariable($association);
-            }
+        if (in_array($type,
+                ['real', 'float', 'state', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+            ) !== false ){
+            $this->readVariable($association);
         }
 
     }
@@ -486,6 +468,10 @@ die("J");
         if ($association->forIndex != null){
             new Evaluate($this->compiler, $association->forIndex, $this->compiler->evalVar->msg);
 
+            if ($association->forIndex->isArgument){
+//                $this->compiler->evalVar->ret("hello");
+
+            }
 
         }else{
             //todo, no int convertion should happen here...

@@ -31,6 +31,7 @@ class Associations
     public $isCustomFunction = null;
     public $isProcedure = null;
     public $isLastWriteDebugParam = null;
+    public $isArgument = null;
 
     public $section = null;
 

@@ -231,7 +231,7 @@ class Evaluate{
                     new Evaluate($this->compiler, $association);
 
                     if ($association->attribute->firstAttribute === false) {
-                        $this->compiler->evalVar->moveAttributePointer($association->attribute);
+                        $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_ASSIGN");
                         $this->compiler->evalVar->ret();
                     }
 
@@ -289,6 +289,9 @@ class Evaluate{
                     $compiler->evalVar->gameVarPointer($association);
                 }
 
+//                else if ($association->isArgument === true){
+//                    $this->compiler->evalVar->readVariable($association);
+//                }
                 else if ($association->isLevelVar === true){
                     $this->compiler->log(sprintf("Read level var %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Level Variable %s / %s", $association->value, $association->varType);
@@ -318,8 +321,9 @@ class Evaluate{
 
                     if($association->attribute !== null ) {
                         if ($association->attribute->firstAttribute === false) {
-                            $this->compiler->evalVar->moveAttributePointer($association->attribute);
-                            $this->compiler->evalVar->ret();
+
+                            $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_VARIABLE");
+                            $this->compiler->evalVar->ret("move!");
                         }
 
 //                        $this->compiler->evalVar->memoryPointer($association);
@@ -389,12 +393,14 @@ class Evaluate{
                 }
 
                 else {
+
                     $this->compiler->log(sprintf("Read from regular variable %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Regular Variable %s / %s", $association->value, $association->varType);
                     $compiler->evalVar->variablePointer(
                         $association,
                         $compiler->getState($association->varType) ? 'state' : null
                     );
+
                 }
 
 
@@ -505,9 +511,19 @@ class Evaluate{
                                 $param->attribute !== null
                             ) {
 
-                                if ($param->attribute !== null && $param->attribute->firstAttribute === false){
-                                    $this->compiler->evalVar->moveAttributePointer($param->attribute);
-                                    $this->compiler->evalVar->ret("1");
+                                /**
+                                 * This is a HACK TODO
+                                 *
+                                 * the T_VARIABLE evaluate fromArray== true + attribute != null and call already
+                                 * moveAttributePointer ...
+                                 */
+                                if ($param->fromArray == false){
+                                    if ($param->attribute !== null && $param->attribute->firstAttribute === false){
+
+                                        $this->compiler->evalVar->moveAttributePointer($param->attribute, "T_CONDITION");
+                                        $this->compiler->evalVar->ret("ret after moveAttributePointer");
+                                    }
+
                                 }
 
                                 $compiler->evalVar->readAttribute($param);
@@ -792,7 +808,7 @@ class Evaluate{
                         $param->attribute !== null
                     ){
                         if ($param->attribute->firstAttribute === false){
-                            $this->compiler->evalVar->moveAttributePointer($param->attribute);
+                            $this->compiler->evalVar->moveAttributePointer($param->attribute, "T_FUNCTION");
                             $this->compiler->evalVar->ret("1");
                         }
 
@@ -1187,7 +1203,7 @@ class Evaluate{
                     $association->attribute !== null &&
                     $association->attribute->firstAttribute === false
                 ) {
-                    $this->compiler->evalVar->moveAttributePointer($association->attribute);
+                    $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_MATH");
                     $this->compiler->evalVar->ret("1");
 
                     $this->compiler->evalVar->readAttribute($association);
