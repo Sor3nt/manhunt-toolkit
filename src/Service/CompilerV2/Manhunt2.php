@@ -3069,6 +3069,17 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
+        'gethunterareaname' => [
+            'name' => 'GetHunterAreaName',
+            'offset' => 'GetHunterAreaName'
+        ],
+
+        'getplayerareaname' => [
+            'name' => 'GetPlayerAreaName',
+            'offset' => 'GetPlayerAreaName'
+        ],
+
+
 
 
 

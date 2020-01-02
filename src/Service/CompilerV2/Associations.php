@@ -482,7 +482,9 @@ class Associations
                             $floatMap[] = true;
                         }
                     }else{
-                        $floatMap[] = false;
+                        foreach ($parameter['names'] as $name) {
+                            $floatMap[] = false;
+                        }
                     }
                 }
 

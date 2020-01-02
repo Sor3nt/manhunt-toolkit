@@ -756,6 +756,13 @@ class Evaluate{
                     $param->onlyPointer = $association->isProcedure == true;
                     new Evaluate($this->compiler, $param, $compiler->evalVar->msg);
 
+                    if (
+                        $association->forceFloat &&
+                        !isset($association->forceFloat[$index])
+                    ){
+                        throw new \Exception(sprintf("Function %s float mapping is invalid looking for index %s " , $association->value, $index));
+
+                    }
                     /**
                      * Check if we need to convert the given int into a float
                      */
@@ -847,6 +854,7 @@ class Evaluate{
                                     $param->varType == "effectptr" ||
                                     $param->varType == "matrixptr" ||
                                     $param->varType == "entityptr" ||
+                                    $param->varType == "eaiscriptpriority" ||
                                     $param->varType == "integer" ||
                                     $param->varType == "float"
                                 )
@@ -861,6 +869,7 @@ class Evaluate{
                                     $param->return == "effectptr" ||
                                     $param->return == "matrixptr" ||
                                     $param->return == "entityptr" ||
+                                    $param->return == "eaiscriptpriority" ||
                                     $param->return == "integer" ||
                                     $param->return == "boolean"
                                 )

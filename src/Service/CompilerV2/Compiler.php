@@ -270,7 +270,8 @@ class Compiler
 
         // Fix the indices.
         $associationRearranged = array_values($associationRearranged);
-//var_dump($associationRearranged);exit;
+//var_dump($associationRearranged);
+
         foreach ($associationRearranged as $association) {
             new Evaluate($this, $association);
         }
@@ -484,31 +485,6 @@ class Compiler
         $master['scriptName'] = $this->currentScriptName;
 
         $this->variables[] = $master;
-
-//        $attributes = [];
-
-
-        //Todo change to record
-//
-//        if ($master['type'] == "vec3d") $attributes = ["x" => 'float', "y" => 'float', "z" => 'float'];
-//        if ($master['type'] == "rgbaint") $attributes = ["red" => 'integer', "green" => 'integer', "blue" => 'integer', "alpha" => 'integer'];
-//
-//        $index = 0;
-//        foreach ($attributes as $entry => $type) {
-//
-//            $attribute = array_merge([], $data);
-//
-//            $attribute['name'] =  $entry;
-//            $attribute['type'] = $type;
-//            $attribute['size'] = 4;
-//            $attribute['offset'] = $index * 4;
-//            $attribute['parent'] = $master;
-//            $attribute['scriptName'] = $this->currentScriptName;
-//
-//            $this->variables[] = $attribute;
-//
-//            $index++;
-//        }
 
         return $master;
     }

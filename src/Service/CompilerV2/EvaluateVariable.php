@@ -233,7 +233,7 @@ class EvaluateVariable{
         $type = is_null($type) ? $association->varType : $type;
 
         if (in_array($type,
-                ['real', 'float', 'state', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+                ['real', 'float', 'state', 'eaiscriptpriority', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
             ) !== false ){
             $this->readVariable($association);
         }
@@ -465,18 +465,6 @@ class EvaluateVariable{
     }
 
 
-    //T_CONDITION move+read
-    // T_ASSIGN only move
-    // T_VARIABLE
-
-    public function readFromAttribute( Associations $association ){
-        if ($association->attribute->firstAttribute === false){
-            $this->moveAttributePointer($association->attribute);
-            $this->ret();
-        }
-
-        $this->readAttribute($association);
-    }
 
     /**
      * @param Associations $association
