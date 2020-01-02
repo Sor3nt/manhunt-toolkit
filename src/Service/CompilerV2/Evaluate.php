@@ -330,11 +330,6 @@ class Evaluate{
                             $this->compiler->evalVar->ret("move!");
                         }
 
-//                        $this->compiler->evalVar->memoryPointer($association);
-//                        $this->compiler->evalVar->ret();
-
-
-
                     }
                 }
 
@@ -369,12 +364,6 @@ class Evaluate{
 
                     $this->compiler->evalVar->memoryPointer($association);
                     $this->compiler->evalVar->ret();
-
-//                    if ($association->attribute->firstAttribute === false) {
-//                        $this->compiler->evalVar->moveAttributePointer($association->attribute);
-//                    }
-
-
                 }
                 else if ( $association->varType == "object" && $association->attribute == null ) {
                     $this->compiler->log(sprintf("Read from object variable %s", $association->value));
@@ -812,12 +801,7 @@ class Evaluate{
                         $param->varType == "object" &&
                         $param->attribute !== null
                     ){
-                        if ($param->attribute->firstAttribute === false){
-                            $this->compiler->evalVar->moveAttributePointer($param->attribute, "T_FUNCTION");
-                            $this->compiler->evalVar->ret();
-                        }
-
-                        $this->compiler->evalVar->readAttribute($association);
+                        $this->compiler->evalVar->readFromAttribute($param);
                     }
 
                     if($param->type == Tokens::T_STRING){
@@ -1002,12 +986,8 @@ class Evaluate{
                                 $extraArgument->varType == "object"
                             ) {
 
-                                if ($extraArgument->attribute->firstAttribute === false) {
-                                    $this->compiler->evalVar->moveAttributePointer($extraArgument->attribute, "T_FUNCTION");
-                                    $this->compiler->evalVar->ret();
-                                }
+                                $this->compiler->evalVar->readFromAttribute($extraArgument);
 
-                                $compiler->evalVar->readAttribute($extraArgument);
                                 $compiler->evalVar->ret();
 
                                 if ($extraArgument->attribute->varType == "float"){
@@ -1198,21 +1178,11 @@ class Evaluate{
                 }
 
                 if (
-                    $association->attribute !== null &&
-                    $association->attribute->firstAttribute === false
+                    $association->attribute !== null
+
                 ) {
-                    $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_MATH");
-                    $this->compiler->evalVar->ret();
 
-                    $this->compiler->evalVar->readAttribute($association);
-                }
-
-                else if (
-                    $association->attribute !== null &&
-                    $association->attribute->firstAttribute === true
-                ) {
-                    $this->compiler->evalVar->readAttribute($association);
-
+                    $this->compiler->evalVar->readFromAttribute($association);
                 }
 
                 if ($varType == "float" || ($varType == "integer" && $isLast == false)

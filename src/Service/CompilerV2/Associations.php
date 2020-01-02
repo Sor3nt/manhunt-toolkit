@@ -136,19 +136,13 @@ class Associations
             $isVariableOrFunction = true;
 
             if ($variable['type'] == "array") {
-
                 $compiler->current++; // Skip "["
-
-                $indexName = new Associations($compiler);
-                $variable = $compiler->getVariable($value);
-                $this->forIndex = $indexName;
-
+                $this->forIndex = new Associations($compiler);
                 $compiler->current++; // Skip "]"
-
             }
 
 
-            //we access a object (vec3d/record) attribute
+            //we access a object attribute
             if ($compiler->consumeIfTrue(".")){
                 $attribute = $compiler->createVariableAssociation($variable);
                 $attribute->value = $compiler->consume();
@@ -159,6 +153,7 @@ class Associations
                 }else{
                     $records = $compiler->records[$variable['type']];
                 }
+
                 $attribute->firstAttribute = array_keys($records)[0] == $attribute->value;
 
                 foreach ($records as $index => $record) {
@@ -179,10 +174,6 @@ class Associations
             }
 
             $compiler->createVariableAssociation($variable, $this);
-//
-//            if (isset($variable['parent'])){
-//                $this->parent = $compiler->createVariableAssociation($variable['parent']);;
-//            }
         }
 
         /**
@@ -344,6 +335,7 @@ class Associations
                 $this->negate = true;
                 $this->value *= -1;
             }
+
             $this->offset = $this->value;
 
             return;
@@ -352,7 +344,7 @@ class Associations
         /**
          * Check: Is this a string ?
          */
-        if (strpos($value, '"') !== false || strpos($value, '\'') !== false) {
+        if (strpos($value, '\'') !== false) {
             $this->type = Tokens::T_STRING;
 
             //convert replaced strings back to original
@@ -412,7 +404,6 @@ class Associations
 
                 $this->type = Tokens::T_NOP;
 
-
                 $this->applyVariables($compiler, $toAdd);
 
                 break;
@@ -432,11 +423,8 @@ class Associations
             case 'function':
                 $compiler->currentBlockType = $value;
 
-//                $compiler->offsetProcedureVariable = -12;
-
                 $this->value = $compiler->consume();
                 $compiler->currentScriptName = $this->value;
-
 
                 $parameters = [];
 
@@ -453,6 +441,7 @@ class Associations
 
                     $this->applyVariables($compiler, $parameters, true);
                 }
+
                 // Return type
                 if ($compiler->consumeIfTrue(":")) $this->return = $compiler->consume();
 
@@ -460,7 +449,7 @@ class Associations
                 if ($compiler->consumeIfTrue("forward")) {
                     $this->type = Tokens::T_FORWARD;
 
-                    // regular body content
+                // regular body content
                 } else {
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
@@ -478,14 +467,11 @@ class Associations
 
                 if ($this->type !== Tokens::T_FORWARD){
                     $this->childs = $this->associateUntil($compiler, Tokens::T_END);
-
                 }
-
 
                 /**
                  * Add the custom function also to the force float map
                  */
-
                 $floatMap = [];
                 $addFloatMap = false;
                 foreach (array_reverse($parameters) as $parameter) {
@@ -605,13 +591,12 @@ class Associations
                 $result = [];
                 $this->flatForRpn($conditions, $result);
                 $conditions = (new RPN())->convertToReversePolishNotation($result);
-//var_dump($conditions);exit;
+
                 $newCondition = new Associations();
                 $newCondition->type = Tokens::T_CONDITION;
                 $newCondition->childs = $conditions;
-                $conditions = $newCondition;
 
-                $case->condition = $conditions;
+                $case->condition = $newCondition;
 
                 if ($compiler->consumeIfTrue("begin")) {
 

@@ -464,6 +464,20 @@ class EvaluateVariable{
         ];
     }
 
+
+    //T_CONDITION move+read
+    // T_ASSIGN only move
+    // T_VARIABLE
+
+    public function readFromAttribute( Associations $association ){
+        if ($association->attribute->firstAttribute === false){
+            $this->moveAttributePointer($association->attribute);
+            $this->ret();
+        }
+
+        $this->readAttribute($association);
+    }
+
     /**
      * @param Associations $association
      * @throws Exception
