@@ -637,7 +637,6 @@ class Evaluate{
                         ){
                             $doReturn = "default";
                         }
-
                     }
 
                     if ($doReturn == "string"){
@@ -645,7 +644,6 @@ class Evaluate{
                     }else if ($doReturn == "default"){
                         $this->compiler->evalVar->ret();
                     }
-
 
                     /**
                      * we reached a operation (>, <, =, <>...)
@@ -663,11 +661,9 @@ class Evaluate{
 
                         $compiler->evalVar->setCompareMode($compareAgainst);
                     }
-
                 }
-
-
                 break;
+
             case Tokens::T_DO:
             case Tokens::T_IF:
 
@@ -1002,6 +998,27 @@ class Evaluate{
                             new Evaluate($this->compiler, $extraArgument);
 
                             if (
+                                $extraArgument->type == Tokens::T_VARIABLE &&
+                                $extraArgument->varType == "object"
+                            ) {
+
+                                if ($extraArgument->attribute->firstAttribute === false) {
+                                    $this->compiler->evalVar->moveAttributePointer($extraArgument->attribute, "T_FUNCTION");
+                                    $this->compiler->evalVar->ret();
+                                }
+
+                                $compiler->evalVar->readAttribute($extraArgument);
+                                $compiler->evalVar->ret();
+
+                                if ($extraArgument->attribute->varType == "float"){
+                                    $this->add("08030000", "float arg");
+                                }else{
+                                    throw new Exception("Object return type not defined for callscript");
+                                }
+
+                            }
+
+                            else if (
                                 $extraArgument->type == Tokens::T_STRING
                             ){
 
