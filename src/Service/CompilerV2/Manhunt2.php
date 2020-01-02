@@ -3071,12 +3071,37 @@ class Manhunt2 extends ManhuntDefault
 
         'gethunterareaname' => [
             'name' => 'GetHunterAreaName',
-            'offset' => 'GetHunterAreaName'
+            'offset' => '1f010000',
+            'return' => 'string'
         ],
 
         'getplayerareaname' => [
             'name' => 'GetPlayerAreaName',
-            'offset' => 'GetPlayerAreaName'
+            'offset' => '1d010000',
+            'return' => 'string'
+        ],
+
+        'doesscriptexist' => [
+            'name' => 'DoesScriptExist',
+            'offset' => 'd2030000',
+            'return' => 'integer'
+        ],
+
+        'setpeddecayinstantly' => [
+            'name' => 'SetPedDecayInstantly',
+            'offset' => '7b020000'
+        ],
+
+
+        'disablelightflare' => [
+            'name' => 'DisableLightFlare',
+            'offset' => '26030000'
+        ],
+
+
+        'enablelightflare' => [
+            'name' => 'EnableLightFlare',
+            'offset' => '25030000'
         ],
 
 
