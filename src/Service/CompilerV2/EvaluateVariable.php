@@ -468,24 +468,16 @@ class EvaluateVariable{
         if ($association->forIndex != null){
             new Evaluate($this->compiler, $association->forIndex, $this->compiler->evalVar->msg);
 
-            if ($association->forIndex->isArgument){
-//                $this->compiler->evalVar->ret("hello");
-
-            }
-
         }else{
             //todo, no int convertion should happen here...
             $this->compiler->evalVar->valuePointer((int)$association->index);
         }
 
-//        $this->compiler->evalVar->msg .= " " . $association->value;
-
-        if ($association->typeOf == "vec3d" || $association->varType == "vec3d"){
-            $this->readArray(12);
+        if ($association->typeOf !== null){
+            $this->readArray($this->compiler->calcSize($association->typeOf));
         }else{
-            $this->readArray(4);
+            $this->readArray($this->compiler->calcSize($association->type));
         }
-
 
     }
 
