@@ -230,10 +230,10 @@ class Evaluate{
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
-                    if ($association->attribute->firstAttribute === false) {
-                        $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_ASSIGN");
-                        $this->compiler->evalVar->ret();
-                    }
+//                    if ($association->attribute->firstAttribute === false) {
+//                        $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_ASSIGN");
+//                        $this->compiler->evalVar->ret();
+//                    }
 
 
                 }
@@ -289,9 +289,6 @@ class Evaluate{
                     $compiler->evalVar->gameVarPointer($association);
                 }
 
-//                else if ($association->isArgument === true){
-//                    $this->compiler->evalVar->readVariable($association);
-//                }
                 else if ($association->isLevelVar === true){
                     $this->compiler->log(sprintf("Read level var %s", $association->value));
                     $compiler->evalVar->msg = sprintf("Use Level Variable %s / %s", $association->value, $association->varType);
@@ -360,12 +357,27 @@ class Evaluate{
                  * WriteDebug(pos.x);
                  * pos is our $association and x is stored inside $association->attribute
                  */
-                else if ( $association->varType == "object" && $association->attribute !== null ) {
+                else if (
+                    $association->varType == "object" &&
+                    $association->attribute !== null
+                ) {
 
                     $this->compiler->evalVar->memoryPointer($association);
-                    $this->compiler->evalVar->ret();
+                    $this->compiler->evalVar->ret("hier");
+//                    $this->compiler->evalVar->readFromAttribute($association);
+
+                    if ($association->attribute->firstAttribute === false){
+                        $this->compiler->evalVar->moveAttributePointer($association->attribute);
+                        $this->compiler->evalVar->ret();
+                    }
+
                 }
-                else if ( $association->varType == "object" && $association->attribute == null ) {
+
+
+                else if (
+                    $association->varType == "object" &&
+                    $association->attribute == null
+                ) {
                     $this->compiler->log(sprintf("Read from object variable %s", $association->value));
 
                     //we read from a procedure argument
@@ -503,22 +515,6 @@ class Evaluate{
                                 $param->fromArray === true ||
                                 $param->attribute !== null
                             ) {
-
-                                /**
-                                 * This is a HACK TODO
-                                 *
-                                 * the T_VARIABLE evaluate fromArray== true + attribute != null and call already
-                                 * moveAttributePointer ...
-                                 */
-                                if ($param->fromArray == false){
-                                    if ($param->attribute !== null && $param->attribute->firstAttribute === false){
-
-                                        $this->compiler->evalVar->moveAttributePointer($param->attribute, "T_CONDITION");
-                                        $this->compiler->evalVar->ret("ret after moveAttributePointer");
-                                    }
-
-                                }
-
                                 $compiler->evalVar->readAttribute($param);
                             }
 
@@ -801,7 +797,7 @@ class Evaluate{
                         $param->varType == "object" &&
                         $param->attribute !== null
                     ){
-                        $this->compiler->evalVar->readFromAttribute($param);
+                        $this->compiler->evalVar->readAttribute($param);
                     }
 
                     if($param->type == Tokens::T_STRING){
@@ -986,7 +982,7 @@ class Evaluate{
                                 $extraArgument->varType == "object"
                             ) {
 
-                                $this->compiler->evalVar->readFromAttribute($extraArgument);
+                                $this->compiler->evalVar->readAttribute($extraArgument);
 
                                 $compiler->evalVar->ret();
 
@@ -1181,8 +1177,9 @@ class Evaluate{
                     $association->attribute !== null
 
                 ) {
+                    $this->compiler->evalVar->readAttribute($association);
 
-                    $this->compiler->evalVar->readFromAttribute($association);
+//                    $this->compiler->evalVar->readFromAttribute($association);
                 }
 
                 if ($varType == "float" || ($varType == "integer" && $isLast == false)
