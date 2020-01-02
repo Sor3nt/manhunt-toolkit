@@ -299,6 +299,10 @@ class Evaluate{
                     if ($association->varType == "object") {
                         $compiler->evalVar->levelVarPointerString($association);
 
+                    }else if ($association->varType == "array"){
+                        $compiler->evalVar->levelVarPointerArray($association);
+                        $compiler->evalVar->ret();
+
                     }else if ($association->varType == "string"){
                         $this->compiler->log(sprintf("Read String"));
 
@@ -1193,7 +1197,10 @@ class Evaluate{
                 new Evaluate($this->compiler, $association);
 
                 if ($association->type == Tokens::T_VARIABLE){
-                    if ($varType !== $this->compiler->detectVarType($association)){
+                    if (
+                        $this->compiler->detectVarType($association) !== "float" &&
+                        $varType !== $this->compiler->detectVarType($association)
+                    ){
                         $this->compiler->evalVar->int2float("T_MATH");
                     }
                 }

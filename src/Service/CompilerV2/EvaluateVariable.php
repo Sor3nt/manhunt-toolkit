@@ -276,6 +276,14 @@ class EvaluateVariable{
         $this->add('01000000', 'Read value ' . $association->value);
 
     }
+
+    public function levelVarPointerArray( Associations $association){
+        $this->add('1c000000', $association->varType . ' from LevelVar');
+        $this->add('01000000', 'Read value ' . $association->value);
+        $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
+        $this->add('10000000', 'Read value ' . $association->value);
+
+    }
     public function memoryPointer( Associations $association){
         $this->add($association->section == "header" || $association->section == "constant" ? '21000000' : '22000000', $association->value . ' from Section ' . $association->section);
         $this->add('04000000', 'Read memory');
