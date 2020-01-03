@@ -307,6 +307,7 @@ class Evaluate{
 
                         new Evaluate($compiler, $association->forIndex);
 
+                        //todo calc size of array
                         $compiler->evalVar->readArray(4);
 
                     }else if ($association->varType == "string"){
