@@ -46,7 +46,7 @@ class EvaluateVariable{
 
     public function valuePointer($offset ){
 
-        $this->add('12000000', 'Simple Read ' . $offset);
+        $this->add('12000000', 'Simple Read ' . debug_backtrace()[1]['class'] . '->' . debug_backtrace()[1]['function']);
         $this->add('01000000', 'Simple Read ' . $offset);
         $this->add(
             is_int($offset) ?
@@ -114,9 +114,8 @@ class EvaluateVariable{
             $association->attribute !== null
         ) {
 
-//            $this->compiler->log(sprintf("Write to Attribute %s", $association->attribute->value));
-
             if ($association->attribute == null){
+
                 $this->compiler->evalVar->writeToAttribute($association);
 
             }else{
@@ -504,8 +503,8 @@ class EvaluateVariable{
 
         switch ($type){
 
-            case 'object':
             case 'array':
+            case 'object':
             case 'string':
                 $this->memoryPointer( $association );
                 break;

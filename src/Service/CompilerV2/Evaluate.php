@@ -221,6 +221,7 @@ class Evaluate{
                     $compiler->log(sprintf("Assign to Array Index"));
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
+//                    var_dump($association);exit;
 
                 //we access a object attribute
                 } else if (
@@ -238,7 +239,11 @@ class Evaluate{
 
                 }
 
+
+
                 $compiler->log(sprintf("Evaluate right side"));
+
+
                 /**
                  * Handle right hand (value to assign)
                  */
@@ -298,7 +303,11 @@ class Evaluate{
 
                     }else if ($association->varType == "array"){
                         $compiler->evalVar->levelVarPointerArray($association);
-                        $compiler->evalVar->ret();
+                        $compiler->evalVar->ret("level var array ret");
+
+                        new Evaluate($compiler, $association->forIndex);
+
+                        $compiler->evalVar->readArray(4);
 
                     }else if ($association->varType == "string"){
                         $this->compiler->log(sprintf("Read String"));
@@ -1086,6 +1095,8 @@ class Evaluate{
             case Tokens::T_BOOLEAN:
             case Tokens::T_INT:
                 $compiler->evalVar->msg = sprintf("Read simple value %s", $association->value);
+
+
                 $this->compiler->evalVar->readData($association);
                 break;
 

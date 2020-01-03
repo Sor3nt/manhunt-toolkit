@@ -1953,13 +1953,7 @@ class Manhunt2 extends ManhuntDefault
         'isentityalive' => [
             'name' => 'IsEntityAlive',
             'offset' => 'aa010000',
-            /**
-             * Parameters
-             * 1: string
-             */
-            'params' => [Token::T_STRING],
-            'return' => 'integer',
-            'desc' => ''
+            'return' => 'integer'
         ],
 
         'setmaxscoreforlevel' => [
