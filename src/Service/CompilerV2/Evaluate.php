@@ -35,6 +35,12 @@ class Evaluate{
                 $this->compiler->evalVar->valuePointer(73); // self
 
                 break;
+            case Tokens::T_BEGIN_WRAPPER:
+                foreach ($association->childs as $item) {
+                    new Evaluate($this->compiler, $item);
+                }
+
+                break;
             case Tokens::T_MATH:
                 $this->doMath($association->childs);
                 break;

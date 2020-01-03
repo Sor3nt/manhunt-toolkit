@@ -406,6 +406,8 @@ class Associations
 
                 $this->applyVariables($compiler, $toAdd);
 
+                $compiler->consumeIfTrue("begin");      //skip "begin"
+
                 break;
             case 'entity':
                 $this->type = Tokens::T_NOP;
@@ -458,6 +460,9 @@ class Associations
                     }
 
                 }
+
+                $compiler->consumeIfTrue("begin");      //skip "begin"
+
 
                 $compiler->addCustomFunction(
                     $this->value,
@@ -673,6 +678,10 @@ class Associations
             case 'do':   $this->type = Tokens::T_DO; break;
 
             case 'begin':
+                $this->type = Tokens::T_BEGIN_WRAPPER;
+
+                $this->childs = $this->associateUntil($compiler, Tokens::T_END);
+                break;
             case 'end.':
             //Uhm its a mistake by the r* devs...
             case 'd.':

@@ -6,6 +6,7 @@ namespace App\Service\CompilerV2;
     const T_MATH                      = "T_MATH";
     const T_VOID                      = "T_VOID";
     const T_NOP                      = "T_NOP";
+    const T_BEGIN_WRAPPER                      = "T_BEGIN_WRAPPER";
     const T_UNKNOWN                      = "T_UNKNOWN";
     const T_OBJECT                      = "T_OBJECT";
     const T_REAL                        = "T_REAL";
