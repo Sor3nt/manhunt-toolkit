@@ -198,8 +198,9 @@ class Associations
             $this->return = !isset($function['return']) ? null : $function['return'];
 
             if ($compiler->getToken() == "(") {
-                $params = new Associations($compiler);
 
+                $params = new Associations($compiler);
+//                var_dump($params);exit;
                 $current = 0;
                 while($current < count($params->childs)){
                     $param = $params->childs[$current];
@@ -207,19 +208,33 @@ class Associations
                     /**
                      * Right after a function parameter is a math operation
                      */
+
+//                    var_dump($params->childs[$current + 1]->type);
                     if (
-                        isset($params->childs[$current + 1]) &&
-                        $compiler->isTypeMathOperator($params->childs[$current + 1]->type)
+                        $param->type == Token::T_CONDITION ||
+                        (
+                            isset($params->childs[$current + 1]) &&
+                            $compiler->isTypeMathOperator($params->childs[$current + 1]->type)
+                        )
                     ){
+//                        var_dump($param);
 
                         $math = new Associations();
                         $math->type = Tokens::T_MATH;
 
-                        $math->childs = (new RPN())->convertToReversePolishNotation([
-                            $params->childs[$current],  //value a
-                            $params->childs[$current + 1], // operator
-                            $params->childs[$current + 2], // value b
-                        ]);
+                        if ($param->type == Token::T_CONDITION){
+                            $math->childs = (new RPN())->convertToReversePolishNotation($param->childs);
+
+                            $current = $current - 2;
+                        }else{
+                            $math->childs = (new RPN())->convertToReversePolishNotation([
+                                $params->childs[$current],  //value a
+                                $params->childs[$current + 1], // operator
+                                $params->childs[$current + 2], // value b
+                            ]);
+//                            var_dump($this->childs);exit;
+
+                        }
 
                         $current = $current + 2;
 
@@ -233,7 +248,6 @@ class Associations
                 }
 
             }
-
             /**
              * Callscript calls can have arguments
              */
