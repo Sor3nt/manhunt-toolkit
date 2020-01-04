@@ -250,7 +250,7 @@ class Evaluate{
                 $compiler->log(sprintf("Evaluate right side"));
 
 
-                /**
+               /**
                  * Handle right hand (value to assign)
                  */
                 new Evaluate($this->compiler, $association->assign);
@@ -824,7 +824,7 @@ class Evaluate{
                     }
 
                     if($param->type == Tokens::T_STRING){
-                        if ($param->value !== " "){
+                        if (strlen($param->value) !== 1){
                             $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
                             $this->compiler->evalVar->readSize( $string->size );
                         }
@@ -840,7 +840,7 @@ class Evaluate{
                         }else if (
                             $param->type == Tokens::T_STRING
                         ) {
-                            if ($param->value !== " "){
+                            if (strlen($param->value) !== 1){
                                 $this->compiler->evalVar->retString();
 
                             }
@@ -946,8 +946,8 @@ class Evaluate{
                     if ($param->varType == "string" || $param->type == Tokens::T_STRING) {
 
                         //Not sure about this part, a space require a different handling
-                        if($param->value === " "){
-                            $writeDebugFunction = $compiler->gameClass->getFunction('writedebugemptystring');
+                        if(strlen($param->value) === 1){
+                            $writeDebugFunction = $compiler->gameClass->getFunction('writedebugsinglechar');
                         }else{
                             $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
                         }
@@ -1109,9 +1109,8 @@ class Evaluate{
 
             case Tokens::T_STRING:
 
-                if ($association->value === " "){
-                    $this->compiler->evalVar->valuePointer(32);
-
+                if (strlen($association->value) == 1) {
+                    $this->compiler->evalVar->valuePointer(ord($association->value));
                 }else{
                     $this->compiler->evalVar->readData($association);
                 }

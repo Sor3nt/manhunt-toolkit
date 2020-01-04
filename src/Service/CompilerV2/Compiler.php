@@ -118,7 +118,8 @@ class Compiler
         //extract all used strings
 
         $index = 0;
-        $source = preg_replace_callback("/['|\"](.*)['|\"]/U", function( $match ) use (&$index){
+        $source = preg_replace_callback("/['](.*)[']/U", function( $match ) use (&$index){
+//        $source = preg_replace_callback("/['|\"](.*)['|\"]/U", function( $match ) use (&$index){
 
             $this->strings[] = $match[1];
             $name = "'str_" . $index . "'";

@@ -1244,11 +1244,8 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '73000000'
         ],
 
-        /*
-         * I dont know , sounds incorrect
-         */
-        'writedebugemptystring' => [
-            'name' => 'WriteDebugEmptyString',
+        'writedebugsinglechar' => [
+            'name' => 'WriteDebugSingleChar',
             'offset' => '71000000'
         ],
 
