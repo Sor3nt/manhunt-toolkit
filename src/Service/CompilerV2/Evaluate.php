@@ -892,7 +892,7 @@ class Evaluate{
                             )
                         ){
 
-                            $this->compiler->evalVar->ret();
+                            $this->compiler->evalVar->ret($param->type);
 
                         }else if (
                             (
@@ -1053,7 +1053,7 @@ class Evaluate{
                 $cases = array_reverse($association->cases);
                 foreach (array_reverse($association->cases) as $index => $case) {
 
-                    $realIndex = count($cases) - $index ;
+                    $realIndex =  $index ;
 
                     $this->add('24000000', 'Case ' . $realIndex);
                     $this->add('01000000');
@@ -1061,7 +1061,7 @@ class Evaluate{
                     if (is_array($case->value)){
                         $this->add(Helper::fromIntToHex($case->value['offset']), 'case Offset (1)');
                     }else{
-                        $this->add(Helper::fromIntToHex($case->value->offset), 'case Offset (1)');
+                        $this->add(Helper::fromIntToHex($case->value->offset), 'case Offset (2)');
                     }
 
                     $this->add('3f000000');
@@ -1069,7 +1069,7 @@ class Evaluate{
                     //we dont know yet the correct offset, we store the position and
                     //fix it in the next loop
                     $caseStartOffsets[] = count($compiler->codes);
-                    $this->add('CASE OFFSET', 'Case Offset');
+                    $this->add('CASE OFFSET', 'Case Offset start');
                 }
 
                 foreach (array_reverse($association->cases) as $index => $case) {
@@ -1210,7 +1210,7 @@ class Evaluate{
 
                 if ($varType == "float" || ($varType == "integer" && $isLast == false)
                 ){
-                    $this->compiler->evalVar->ret();
+                    $this->compiler->evalVar->ret(2);
                 }
 
                 if (

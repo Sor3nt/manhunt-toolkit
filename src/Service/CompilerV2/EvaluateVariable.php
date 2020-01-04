@@ -642,11 +642,11 @@ Class RPN {
             case 'T_SUBSTRACTION':
             case 'T_ADDITION':
             case 'T_OR':
+            case 'T_AND':
                 $result = 2;
                 break;
             case 'T_MULTIPLY':
             case 'T_DIVISION':
-            case 'T_AND':
             case 'T_NOT':
                 $result = 3;
                 break;
