@@ -137,7 +137,7 @@ class Associations
 
             if ($variable['type'] == "array") {
                 $compiler->current++; // Skip "["
-                $this->forIndex = new Associations($compiler);
+                $this->forIndex = $compiler->getPossibleMathChilds();
                 $compiler->current++; // Skip "]"
             }
 

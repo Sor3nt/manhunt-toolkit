@@ -17,6 +17,14 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'pad_square' => [
+            'offset' => '08000000'
+        ],
+        'pad_r1' => [
+            'offset' => '80000000'
+        ],
+
+
         'mover_accel_none' => [
             'offset' => '03000000'
         ],
@@ -3093,6 +3101,17 @@ class Manhunt2 extends ManhuntDefault
         'enablelightflare' => [
             'name' => 'EnableLightFlare',
             'offset' => '25030000'
+        ],
+
+
+        'hasplayerarrivedatnode' => [
+            'name' => 'HasPlayerArrivedAtNode',
+            'offset' => '92020000'
+        ],
+
+        'ispadbuttonpressed' => [
+            'name' => 'IsPadButtonPressed',
+            'offset' => 'fa000000'
         ],
 
 
