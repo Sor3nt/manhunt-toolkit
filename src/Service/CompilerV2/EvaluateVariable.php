@@ -477,6 +477,12 @@ class EvaluateVariable{
         if ($association->forIndex != null){
             new Evaluate($this->compiler, $association->forIndex, $this->compiler->evalVar->msg);
 
+            if(
+                $association->forIndex->varType == "array"
+            ){
+                $this->compiler->evalVar->readAttribute($association->forIndex->forIndex);
+            }
+
         }else{
             //todo, no int convertion should happen here...
             $this->compiler->evalVar->valuePointer((int)$association->index);
