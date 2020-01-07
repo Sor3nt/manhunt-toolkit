@@ -1,5 +1,5 @@
 <?php
-namespace App\Tests\CompilerV2\Functions;
+namespace App\Tests\CompilerV2\Math\Functions;
 
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

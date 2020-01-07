@@ -885,7 +885,7 @@ class Evaluate{
                             (
                                 $param->type == Tokens::T_VARIABLE &&
                                 (
-                                    ($param->varType == "object" && $param->fromArray == null) ||
+//                                    ($param->varType == "object" && $param->fromArray == null) ||
                                     $param->varType == "eaicombattype" ||
                                     $param->varType == "ecollectabletype" ||
                                     $param->varType == "effectptr" ||
@@ -914,6 +914,26 @@ class Evaluate{
                         ){
 
                             $this->compiler->evalVar->ret($param->type);
+
+                        }else if (
+                            (
+                                $param->type == Tokens::T_VARIABLE &&
+                                $param->fromArray == true &&
+                                $param->forIndex !== null &&
+                                $param->forIndex->forIndex == null &&
+                                $param->attribute !== null
+                            )
+                        ) {
+                            $this->compiler->evalVar->ret();
+
+
+                        }else if (
+                            (
+                                $param->type == Tokens::T_VARIABLE &&
+                                $param->varType == 'object'
+                            )
+                        ) {
+                            $this->compiler->evalVar->ret();
 
                         }else if (
                             (

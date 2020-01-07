@@ -50,8 +50,7 @@ class ScriptArgIntegerTest extends KernelTestCase
                         GetDropPosForPlayerPickups(GetPlayer, pos);
                         SpawnMovingEntity('Crowbar_(CT)', pos, 'ScriptCreateName');
                         RunScript('Cutscene_EntLeoDead', 'PlayCutscene');
-                        Sleep(2000);
-                        RunScript('Syringe_(CT)01', 'StopSpawning');
+                        Sleep(2000);                        RunScript('Syringe_(CT)01', 'StopSpawning');
                         RunScript('Syringe_(CT)02', 'StopSpawning');
                         RunScript('Syringe_(CT)03', 'StopSpawning');
                         RunScript('Syringe_(CT)04', 'StopSpawning');
