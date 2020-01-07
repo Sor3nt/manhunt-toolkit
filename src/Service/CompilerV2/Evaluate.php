@@ -779,6 +779,24 @@ class Evaluate{
                         throw new \Exception(sprintf("Function %s float mapping is invalid looking for index %s " , $association->value, $index));
 
                     }
+
+
+                    if(
+                        $param->varType == "object" &&
+                        $param->attribute !== null
+                    ){
+                        $this->compiler->evalVar->readAttribute($param);
+                    }
+
+                    if(
+                        $param->varType == "array" &&
+                        $param->attribute !== null
+                    ){
+                        if ($param->attribute->firstAttribute == false){
+                            $this->compiler->evalVar->readAttribute($param);
+                        }
+                    }
+
                     /**
                      * Check if we need to convert the given int into a float
                      */
@@ -802,6 +820,15 @@ class Evaluate{
                         }else{
                             $this->compiler->evalVar->int2float("T_FUNCTION 2");
 
+                            /**
+                             * Nested array calls need a return
+                             *
+                             * SlowSweep[SlowSweepWP[index]].transition
+                             */
+                            if ($param->forIndex !== null && $param->forIndex->forIndex !== null){
+                                $this->compiler->evalVar->ret();
+                            }
+
                         }
                     }
 
@@ -816,12 +843,6 @@ class Evaluate{
                         continue;
                     }
 
-                    if(
-                        $param->varType == "object" &&
-                        $param->attribute !== null
-                    ){
-                        $this->compiler->evalVar->readAttribute($param);
-                    }
 
                     if($param->type == Tokens::T_STRING){
                         if (strlen($param->value) !== 1){
