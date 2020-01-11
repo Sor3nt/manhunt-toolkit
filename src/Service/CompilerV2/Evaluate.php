@@ -258,6 +258,11 @@ class Evaluate{
                 if ($association->assign->varType == 'object'){
                     $compiler->evalVar->ret();
                 }else if (
+                    $association->assign->varType == 'array'
+                ){
+                    $compiler->evalVar->readAttribute($association->assign);
+
+                }else if (
                     $association->assign->type == Tokens::T_STRING
                 ){
                     $compiler->evalVar->readSize( $association->assign->size );
