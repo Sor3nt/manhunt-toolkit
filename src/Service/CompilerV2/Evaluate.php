@@ -790,11 +790,20 @@ class Evaluate{
                                 $param->forIndex->varType == "array"
                             ) &&
                             $param->attribute->firstAttribute === true){
+//                            var_dump($param);exit;
 
-                        }else{
-                            $this->compiler->evalVar->readAttribute($param, "jaja");
+                        }else {
+
+                            if ($param->attribute->varType == "vec3d"){
+
+
+                            }else{
+                                $this->compiler->evalVar->readAttribute($param, "jaja");
+
+                            }
 
                         }
+
                     }
 //
 //                    if(
@@ -937,7 +946,8 @@ class Evaluate{
                                 $param->fromArray == true &&
                                 $param->forIndex !== null &&
                                 $param->forIndex->forIndex == null &&
-                                $param->attribute !== null
+                                $param->attribute !== null &&
+                                $param->attribute->varType !== "vec3d"
                             )
                         ) {
                             $this->compiler->evalVar->ret();
