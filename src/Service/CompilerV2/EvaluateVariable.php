@@ -294,6 +294,7 @@ class EvaluateVariable{
     public function setCompareMode( $mode ){
 
         // all the same, convert them into integer
+        if ($mode == "edoorstate") $mode = "integer";
         if ($mode == "boolean") $mode = "integer";
         if ($mode == "entityptr") $mode = "integer";
         if ($mode == "state") $mode = "integer";
@@ -307,7 +308,8 @@ class EvaluateVariable{
             $this->add('49000000', 'compare string ');
             $this->compiler->evalVar->valuePointer(1);
 
-        }elseif ($mode == "integer"){
+        }else{
+//        }elseif ($mode == "integer"){
             $this->add('0f000000', "compare integer");
             $this->add('04000000', "compare integer");
 
