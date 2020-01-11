@@ -1099,7 +1099,8 @@ class Evaluate{
                             }
 
                             else if (
-                                $extraArgument->type == Tokens::T_STRING
+                                $extraArgument->type == Tokens::T_STRING ||
+                                $extraArgument->varType == 'string'
                             ){
 
                                 $compiler->evalVar->readSize($extraArgument->size);
