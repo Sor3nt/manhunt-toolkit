@@ -834,13 +834,19 @@ class Evaluate{
                         $association->forceFloat &&
                         $association->forceFloat[$index] === true &&
 
-                        $param->type !== Tokens::T_MATH &&
                         $param->type !== Tokens::T_FLOAT &&
 
                         $param->varType !== "float"
                     ){
 
-                        if ($param->varType == "object"){
+                        if ($param->type == Tokens::T_MATH){
+                            if ($compiler->detectVarType($param->childs[0]) != "float"){
+                                $this->compiler->evalVar->int2float("T_FUNCTION 1");
+
+                            }
+                        }
+
+                        else if ($param->varType == "object"){
                             if (
                                 $param->attribute !== null &&
                                 $param->attribute->varType != "float"
