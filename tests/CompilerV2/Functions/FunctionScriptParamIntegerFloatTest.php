@@ -88,6 +88,7 @@ class FunctionScriptParamIntegerFloatTest extends KernelTestCase
             '01000000', //value 1
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '22000000', //Prepare string read (3)
             '04000000', //Prepare string read (3)
             '01000000', //Prepare string read (3)

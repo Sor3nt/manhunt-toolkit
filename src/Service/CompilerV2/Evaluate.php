@@ -781,21 +781,37 @@ class Evaluate{
                     }
 
 
-                    if(
-                        $param->varType == "object" &&
-                        $param->attribute !== null
-                    ){
-                        $this->compiler->evalVar->readAttribute($param);
-                    }
+                    if ($param->attribute !== null){
 
-                    if(
-                        $param->varType == "array" &&
-                        $param->attribute !== null
-                    ){
-                        if ($param->attribute->firstAttribute == false){
-                            $this->compiler->evalVar->readAttribute($param);
+                        if (
+                            $param->forIndex !== null &&
+                            (
+                                $param->forIndex->varType == "object" ||
+                                $param->forIndex->varType == "array"
+                            ) &&
+                            $param->attribute->firstAttribute === true){
+
+                        }else{
+                            $this->compiler->evalVar->readAttribute($param, "jaja");
+
                         }
                     }
+//
+//                    if(
+//                        $param->varType == "object" &&
+//                        $param->attribute !== null
+//                    ){
+//                        $this->compiler->evalVar->readAttribute($param);
+//                    }
+//
+//                    if(
+//                        $param->varType == "array" &&
+//                        $param->attribute !== null
+//                    ){
+//                        if ($param->attribute->firstAttribute == false){
+//                            $this->compiler->evalVar->readAttribute($param);
+//                        }
+//                    }
 
                     /**
                      * Check if we need to convert the given int into a float

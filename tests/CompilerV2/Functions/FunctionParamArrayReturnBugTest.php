@@ -56,6 +56,7 @@ class FunctionParamArrayReturnBugTest extends KernelTestCase
             '77000000', //GetEntity Call
             '10000000', //nested call return result
             '01000000', //nested call return result
+
             '21000000', //Prepare string read (DATA table)
             '04000000', //Prepare string read (DATA table)
             '01000000', //Prepare string read (DATA table)

@@ -63,18 +63,18 @@ class FunctionParamArrayNestedTest extends KernelTestCase
 
 
 
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '00000000', //slowsweep
+            '21000000', //Prepare string read (DATA table)          readFromArrayIndex
+            '04000000', //Prepare string read (DATA table)          readFromArrayIndex
+            '01000000', //Prepare string read (DATA table)          readFromArrayIndex
+            '00000000', //slowsweep                                 readFromArrayIndex
 
-            '10000000', //nested call return result
-            '01000000', //nested call return result
+            '10000000', //nested call return result                 readFromArrayIndex
+            '01000000', //nested call return result                 readFromArrayIndex
 
-            '21000000', //Prepare string read (DATA table)
-            '04000000', //Prepare string read (DATA table)
-            '01000000', //Prepare string read (DATA table)
-            '80000000', //slowsweepwp
+            '21000000', //Prepare string read (DATA table)          readFromArrayIndex $association->forIndex != null
+            '04000000', //Prepare string read (DATA table)          readFromArrayIndex $association->forIndex != null
+            '01000000', //Prepare string read (DATA table)          readFromArrayIndex $association->forIndex != null
+            '80000000', //slowsweepwp                               readFromArrayIndex $association->forIndex != null
 
             '10000000', //nested call return result
             '01000000', //nested call return result

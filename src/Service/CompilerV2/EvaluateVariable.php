@@ -203,8 +203,8 @@ class EvaluateVariable{
         $this->add('01000000', $appendix);
     }
 
-    public function readAttribute(Associations $association ){
-        $appendix = 'Read from ' . $association->value;
+    public function readAttribute(Associations $association, $msg = "" ){
+        $appendix = 'Read from ' . $association->value . ' ' . $msg;
 
         //read attribute from record
         $this->add('0f000000', 'attribute operation');
