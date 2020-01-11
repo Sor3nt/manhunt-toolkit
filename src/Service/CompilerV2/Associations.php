@@ -612,7 +612,6 @@ class Associations
                 $result = [];
                 $this->flatForRpn($conditions, $result);
                 $conditions = (new RPN())->convertToReversePolishNotation($result);
-
                 $newCondition = new Associations();
                 $newCondition->type = Tokens::T_CONDITION;
                 $newCondition->childs = $conditions;
@@ -759,6 +758,8 @@ class Associations
         ) {
 
             if ($isArgument == false) $compiler->consumeIfTrue('var');
+
+            if ($compiler->consumeIfTrue(")")) break;
 
             $names = [$compiler->consume()];
 
