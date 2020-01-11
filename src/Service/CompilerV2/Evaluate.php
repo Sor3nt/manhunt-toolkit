@@ -1286,13 +1286,28 @@ class Evaluate{
                     $this->compiler->evalVar->ret(2);
                 }
 
-                if (
-                    $varType == "float" &&
-                    $association->type == Tokens::T_INT
-                ){
-                    $this->add('4d000000', 'integer to float2');
-                    $this->compiler->evalVar->ret("3");
+                if ($varType == "float" ){
+
+                    if ($association->type == Tokens::T_INT) {
+                        $this->add('4d000000', 'integer to float2');
+                        $this->compiler->evalVar->ret("3");
+
+                    }else if (
+                        $association->type == Tokens::T_FUNCTION &&
+                        $association->return != "float"
+                    ){
+                        if ($association->return === null){
+                            throw new Exception(sprintf(" No return defined for Function %s", $association->value));
+                        }
+
+                        $this->add('4d000000', 'integer to float2');
+                        $this->compiler->evalVar->ret("3");
+
+                    }
+
                 }
+
+
 
             }
         }

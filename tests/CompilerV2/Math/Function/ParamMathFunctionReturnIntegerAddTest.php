@@ -4,7 +4,7 @@ namespace App\Tests\CompilerV2\Functions;
 use App\MHT;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ParamMathFunctionReturnAddTest extends KernelTestCase
+class ParamMathFunctionReturnIntegerAddTest extends KernelTestCase
 {
 
     public function test()

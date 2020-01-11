@@ -3015,7 +3015,8 @@ class Manhunt2 extends ManhuntDefault
 
         'usablegetcurrentanimtimeratio' => [
             'name' => 'UsableGetCurrentAnimTimeRatio',
-            'offset' => 'c0010000'
+            'offset' => 'c0010000',
+            'return' => 'float'
         ],
 
 
@@ -3112,6 +3113,11 @@ class Manhunt2 extends ManhuntDefault
         'ispadbuttonpressed' => [
             'name' => 'IsPadButtonPressed',
             'offset' => 'fa000000'
+        ],
+
+        'cleardooroverrideangle' => [
+            'name' => 'ClearDoorOverrideAngle',
+            'offset' => '99020000'
         ],
 
 
