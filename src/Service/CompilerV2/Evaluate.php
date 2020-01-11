@@ -130,16 +130,13 @@ class Evaluate{
                             $this->add('0c030000', 'argument is string');
                         }
 
-                        $argumentsOffset += $compiler->calcSize($argument['type']);
-
                         $this->add('15000000', 'read from offset');
                         $this->add('04000000', 'read from offset');
 
-                        $this->add(Helper::fromIntToHex($argumentsOffset), 'offset');
+                        $this->add(Helper::fromIntToHex($argument['offset']), 'offset for type ' . $argument['type']);
                         $this->add('01000000', 'read from offset');
 
                     }
-
 
                 }
 
@@ -1081,7 +1078,8 @@ class Evaluate{
                             new Evaluate($this->compiler, $extraArgument);
 
                             if (
-                                $extraArgument->type == Tokens::T_VARIABLE &&
+//                                $extraArgument->type == Tokens::T_VARIABLE &&
+                                $extraArgument->varType == "array" ||
                                 $extraArgument->varType == "object"
                             ) {
 
@@ -1089,9 +1087,12 @@ class Evaluate{
 
                                 $compiler->evalVar->ret();
 
-                                if ($extraArgument->attribute->varType == "float"){
+                                if ($extraArgument->attribute->varType == "float") {
                                     $this->add("08030000", "float arg");
+                                }else if ($extraArgument->attribute->varType == "integer"){
+                                    $this->add("07030000", "integer arg");
                                 }else{
+                                    var_dump($extraArgument);
                                     throw new Exception("Object return type not defined for callscript");
                                 }
 
