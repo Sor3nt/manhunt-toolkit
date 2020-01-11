@@ -1272,7 +1272,8 @@ class Evaluate{
                 }
 
                 if (
-                    $association->attribute !== null
+                    $association->attribute !== null ||
+                    $association->fromArray
 
                 ) {
                     $this->compiler->evalVar->readAttribute($association);
