@@ -448,6 +448,13 @@ class Evaluate{
                     if ($association->varType == "object") {
                         $compiler->evalVar->levelVarPointerString($association);
 
+
+                        if ($association->attribute->firstAttribute === false) {
+
+                            $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_VARIABLE");
+                            $this->compiler->evalVar->ret("move!");
+                        }
+
                     }else if ($association->varType == "array"){
                         $compiler->evalVar->levelVarPointerArray($association);
                         $compiler->evalVar->ret("level var array ret");
