@@ -2919,7 +2919,7 @@ class Manhunt2 extends ManhuntDefault
 
         'temporarysetplayertofists' => [
             'name' => 'TemporarySetPlayerToFists',
-            'offset' => '21000000',
+            'offset' => 'be020000',
         ],
 
 

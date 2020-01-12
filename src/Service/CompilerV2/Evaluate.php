@@ -321,13 +321,25 @@ class Evaluate{
                  * Handle right hand (value to assign)
                  */
                 new Evaluate($this->compiler, $association->assign);
+//
+//                if ($association->assign->varType == 'object'){
+//                    $compiler->evalVar->ret();
+//                }else
 
-                if ($association->assign->varType == 'object'){
-                    $compiler->evalVar->ret();
-                }else if (
-                    $association->assign->varType == 'array'
+                if (
+
+                    $association->assign->varType == 'array' ||
+                    $association->assign->varType == 'object'
                 ){
-                    $compiler->evalVar->readAttribute($association->assign);
+                    if ($association->assign->attribute != null){
+
+                        $compiler->evalVar->readAttribute($association->assign);
+                    }else if($association->assign->forIndex !== null){
+                        $compiler->evalVar->readAttribute($association->assign);
+                    }else{
+                        $compiler->evalVar->ret();
+
+                    }
 
                 }else if (
                     $association->assign->type == Tokens::T_STRING
