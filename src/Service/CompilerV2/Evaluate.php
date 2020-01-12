@@ -59,16 +59,14 @@ class Evaluate{
                  * currently no idea so i clone this special part
                  */
 
-
                 if (
                     $association->usedinFunction != null &&
                     strtolower($association->usedinFunction->value) == "round" &&
-                    $association->type == Tokens::T_MATH &&
                     $association->childs[0]->value == 'time' &&
                     $association->childs[1]->value == 'timefactor' &&
                     $association->childs[2]->type == Tokens::T_MULTIPLY
 
-                ){
+                ) {
 
                     new Evaluate($this->compiler, $association->childs[0]);
                     $compiler->evalVar->ret();
@@ -76,43 +74,102 @@ class Evaluate{
 
                     $rawByteCode = [
 
-                            '10000000', //nested call return result
-                            '01000000', //nested call return result
+                        '10000000', //nested call return result
+                        '01000000', //nested call return result
 
-                            '0f000000', //unknown
-                            '01000000', //unknown
-                            '0f000000', //unknown
-                            '02000000', //unknown
+                        '0f000000', //unknown
+                        '01000000', //unknown
+                        '0f000000', //unknown
+                        '02000000', //unknown
 
-                            '10000000', //return string ?
-                            '01000000', //return string ?
-                            '10000000', //return string ?
-                            '02000000', //return string ?
+                        '10000000', //return string ?
+                        '01000000', //return string ?
+                        '10000000', //return string ?
+                        '02000000', //return string ?
 
-                            '4d000000', //int2float
+                        '4d000000', //int2float
 
-                            '0f000000', //unknown
-                            '02000000', //unknown
+                        '0f000000', //unknown
+                        '02000000', //unknown
 
-                            '10000000', //return string ?
-                            '01000000', //return string ?
-                            '10000000', //return string ?
-                            '02000000', //return string ?
+                        '10000000', //return string ?
+                        '01000000', //return string ?
+                        '10000000', //return string ?
+                        '02000000', //return string ?
 
-                            '52000000', //T_MULTIPLY (float)
+                        '52000000', //T_MULTIPLY (float)
 
-                        ];
+                    ];
 
                     foreach ($rawByteCode as $code) {
                         $this->add($code, "HARDCODED");
                     }
+                }else if (
+                    count($association->childs) == 5 &&
+                    $association->childs[0]->value == 'accuracy' &&
+                    $association->childs[1]->value == 50 &&
+                    $association->childs[2]->type == Tokens::T_SUBSTRACTION &&
+                    $association->childs[3]->value == 100 &&
+                    $association->childs[4]->type == Tokens::T_DIVISION
+
+                ){
 
 
+                    new Evaluate($this->compiler, $association->childs[0]);
+                    $compiler->evalVar->ret();
+                    new Evaluate($this->compiler, $association->childs[1]);
+
+                    $rawByteCode = [
+
+                        '0f000000', //parameter (temp int)
+                        '04000000', //parameter (temp int)
+
+                        '33000000', //T_SUBSTRACTION (int)
+                        '04000000', //T_SUBSTRACTION (int)
+                        '01000000', //T_SUBSTRACTION (int)
+                        '11000000', //T_SUBSTRACTION (int)
+                        '01000000', //T_SUBSTRACTION (int)
+                        '04000000', //T_SUBSTRACTION (int)
+
+                        '10000000', //nested call return result
+                        '01000000', //nested call return result
+                        '12000000', //parameter (read simple type (int/float...))
+                        '01000000', //parameter (read simple type (int/float...))
+                        '64000000', //value 100
+
+                        '10000000', //nested call return result
+                        '01000000', //nested call return result
+
+                        '4d000000', //unknown
+
+                        '10000000', //nested call return result
+                        '01000000', //nested call return result
+                        '0f000000', //unknown
+                        '01000000', //unknown
+                        '0f000000', //unknown
+                        '02000000', //unknown
+                        '10000000', //nested call return result
+                        '01000000', //nested call return result
+                        '10000000', //unknown
+                        '02000000', //unknown
+                        '4d000000', //unknown
+                        '0f000000', //unknown
+                        '02000000', //unknown
+                        '10000000', //nested call return result
+                        '01000000', //nested call return result
+                        '10000000', //unknown
+                        '02000000', //unknown
+                        '53000000', //unknown
+
+                    ];
+
+                    foreach ($rawByteCode as $code) {
+                        $this->add($code, "HARDCODED");
+                    }
                 }else{
                     $this->doMath($association->childs);
 
                 }
-
 
                 break;
 
@@ -1351,11 +1408,11 @@ class Evaluate{
                 $isLast = count($associations) == $index + 2;
 
 //
-//                $beforeOperator = false;
-//                if (isset($associations[$index + 1])){
-//                    $beforeOperator = $this->compiler->isTypeMathOperator($associations[$index + 1]->type);
-////                    var_dump($beforeOperator);
-//                }
+                $beforeOperator = false;
+                if (isset($associations[$index + 1])){
+                    $beforeOperator = $this->compiler->isTypeMathOperator($associations[$index + 1]->type);
+//                    var_dump($beforeOperator);
+                }
 
                 new Evaluate($this->compiler, $association);
 
@@ -1378,13 +1435,13 @@ class Evaluate{
 //                    $this->compiler->evalVar->readFromAttribute($association);
                 }
 
-                if ($varType == "float" || ($varType == "integer" && $isLast == false)
+                if ($varType == "float" || ($varType == "integer" && $isLast == false && $beforeOperator == false)
                 ){
 //                    if ($beforeOperator){
 //                        var_dump($associations);
 //                    }
 
-                    $this->compiler->evalVar->ret($association->value);
+                    $this->compiler->evalVar->ret($varType);
                 }else if($isLast == false){
 //
 //                    if ($varType == 'string'){

@@ -3133,6 +3133,11 @@ class Manhunt2 extends ManhuntDefault
             'return' => 'float'
         ],
 
+        'sethunterwalkspeed' => [
+            'name' => 'SetHunterWalkSpeed',
+            'offset' => 'SetHunterWalkSpeed'
+        ],
+
 
 
 
