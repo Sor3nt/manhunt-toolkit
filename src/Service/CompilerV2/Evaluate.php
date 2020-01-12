@@ -1398,7 +1398,7 @@ class Evaluate{
                 if ($varType == "float" ){
 
                     if ($association->type == Tokens::T_INT) {
-                        $this->add('4d000000', 'integer to float2');
+                        $this->add('4d000000', 'integer to float3');
                         $this->compiler->evalVar->ret("3");
 
                     }else if (
@@ -1409,7 +1409,7 @@ class Evaluate{
                             throw new Exception(sprintf(" No return defined for Function %s", $association->value));
                         }
 
-                        $this->add('4d000000', 'integer to float2');
+                        $this->add('4d000000', 'integer to float1');
                         $this->compiler->evalVar->ret("3");
 
                     }

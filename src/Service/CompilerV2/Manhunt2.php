@@ -2925,7 +2925,7 @@ class Manhunt2 extends ManhuntDefault
 
         'restoreplayerweapon' => [
             'name' => 'RestorePlayerWeapon',
-            'offset' => 'RestorePlayerWeapon'
+            'offset' => 'bf020000'
         ],
 
 
@@ -3119,6 +3119,18 @@ class Manhunt2 extends ManhuntDefault
         'cleardooroverrideangle' => [
             'name' => 'ClearDoorOverrideAngle',
             'offset' => '99020000'
+        ],
+
+        'cos' => [
+            'name' => 'Cos',
+            'offset' => '65000000',
+            'return' => 'float'
+        ],
+
+        'sin' => [
+            'name' => 'Sin',
+            'offset' => '64000000',
+            'return' => 'float'
         ],
 
 

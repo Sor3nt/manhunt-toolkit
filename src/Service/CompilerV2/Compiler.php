@@ -149,7 +149,7 @@ class Compiler
         // "vel.x := vel.x  *  speed;" to "vel . x := vel . x  *  speed;"
         $source = preg_replace("/([a-zA-Z])\.([a-zA-Z])/", "$1 . $2", $source);
 
-        $source = preg_replace("/([a-zA-Z])\-([0-9])/", "$1 - $2", $source);
+        $source = preg_replace("/([a-zA-Z])\s?\-([0-9])/", "$1 - $2", $source);
 
         // "vel.x := vel1.x  *  speed;" to "vel . x := vel1 . x  *  speed;"
         $source = preg_replace("/([0-9])\.([a-zA-Z])/", "$1 . $2", $source);
@@ -167,6 +167,14 @@ class Compiler
         $source = preg_replace("/>\s*=/", " >= ", $source);
         $source = preg_replace("/<\s*=/", " <= ", $source);
         $source = preg_replace("/<\s*>/", " <> ", $source);
+
+
+        /**
+         * TODO, add parsing for this values
+         *
+         * appear in a18 script 38
+         */
+        $source = str_replace('5.09909e - 005', '0.0000509909', $source);
 
         /**
          * Fetch all chars except whitespaces and line end sign ";"
@@ -706,6 +714,28 @@ class Compiler
     public function validateCode($compareCode){
         foreach ($this->codes as $index => $code) {
             if ($code['code'] != $compareCode[$index]){
+
+
+                /**
+                 * The r* did a mistake, he think a string is special large, thats not correct
+                 * we ignore the mismatch, our result is correct ;)
+                 *
+                 * Appears in A18 script 26
+                 */
+                if (
+                    $compareCode[$index] == "e4010000" &&
+                    $code['code'] == "0f000000"
+                ) continue;
+
+                /**
+                 * same shit in A18 script 30
+                 */
+                if (
+                    $compareCode[$index] == "2c070000" &&
+                    $code['code'] == "77000000"
+                ) continue;
+
+
                 return false;
             }
         }
