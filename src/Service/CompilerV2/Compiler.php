@@ -835,6 +835,7 @@ class Compiler
 
             $math->childs = (new RPN())->convertToReversePolishNotation($result);
 
+            if (count($math->childs) == 1) return $math->childs[0];
             return $math;
         }else{
             return $mathChilds[0];

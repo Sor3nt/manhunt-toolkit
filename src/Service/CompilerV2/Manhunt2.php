@@ -2931,7 +2931,8 @@ class Manhunt2 extends ManhuntDefault
 
         'round' => [
             'name' => 'Round',
-            'offset' => 'Round'
+            'offset' => '59000000',
+            'return' => 'integer'
         ],
 
 

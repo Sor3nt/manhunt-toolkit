@@ -42,7 +42,78 @@ class Evaluate{
 
                 break;
             case Tokens::T_MATH:
-                $this->doMath($association->childs);
+
+
+                /**
+                 * THIS IS A VERY BAD HACK!!!
+                 *
+                 * time := Round(time * timefactor);
+                 *
+                 * timefactor is a float
+                 * time is a integer
+                 * Round accept (int and float ?!)
+                 * Written to integer
+                 *
+                 *
+                 * The required code did not match with any other int/float math logic...
+                 * currently no idea so i clone this special part
+                 */
+
+
+                if (
+                    $association->usedinFunction != null &&
+                    strtolower($association->usedinFunction->value) == "round" &&
+                    $association->type == Tokens::T_MATH &&
+                    $association->childs[0]->value == 'time' &&
+                    $association->childs[1]->value == 'timefactor' &&
+                    $association->childs[2]->type == Tokens::T_MULTIPLY
+
+                ){
+
+                    new Evaluate($this->compiler, $association->childs[0]);
+                    $compiler->evalVar->ret();
+                    new Evaluate($this->compiler, $association->childs[1]);
+
+                    $rawByteCode = [
+
+                            '10000000', //nested call return result
+                            '01000000', //nested call return result
+
+                            '0f000000', //unknown
+                            '01000000', //unknown
+                            '0f000000', //unknown
+                            '02000000', //unknown
+
+                            '10000000', //return string ?
+                            '01000000', //return string ?
+                            '10000000', //return string ?
+                            '02000000', //return string ?
+
+                            '4d000000', //int2float
+
+                            '0f000000', //unknown
+                            '02000000', //unknown
+
+                            '10000000', //return string ?
+                            '01000000', //return string ?
+                            '10000000', //return string ?
+                            '02000000', //return string ?
+
+                            '52000000', //T_MULTIPLY (float)
+
+                        ];
+
+                    foreach ($rawByteCode as $code) {
+                        $this->add($code, "HARDCODED");
+                    }
+
+
+                }else{
+                    $this->doMath($association->childs);
+
+                }
+
+
                 break;
 
             case Tokens::T_SCRIPT:
@@ -245,7 +316,6 @@ class Evaluate{
 
 
                 $compiler->log(sprintf("Evaluate right side"));
-
 
                /**
                  * Handle right hand (value to assign)
@@ -1268,6 +1338,13 @@ class Evaluate{
                 //we reached the last token followed by a operator
                 $isLast = count($associations) == $index + 2;
 
+//
+//                $beforeOperator = false;
+//                if (isset($associations[$index + 1])){
+//                    $beforeOperator = $this->compiler->isTypeMathOperator($associations[$index + 1]->type);
+////                    var_dump($beforeOperator);
+//                }
+
                 new Evaluate($this->compiler, $association);
 
                 if ($association->type == Tokens::T_VARIABLE){
@@ -1291,7 +1368,19 @@ class Evaluate{
 
                 if ($varType == "float" || ($varType == "integer" && $isLast == false)
                 ){
-                    $this->compiler->evalVar->ret(2);
+//                    if ($beforeOperator){
+//                        var_dump($associations);
+//                    }
+
+                    $this->compiler->evalVar->ret($association->value);
+                }else if($isLast == false){
+//
+//                    if ($varType == 'string'){
+//                        var_dump($associations);
+//                        exit;
+//                    }
+//                    echo $association->toCsv() . "\n";
+
                 }
 
                 if ($varType == "float" ){

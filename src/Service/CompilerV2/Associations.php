@@ -20,6 +20,8 @@ class Associations
     /** @var Associations[] */
     public $childs = [];
 
+    /** @var Associations */
+    public $usedinFunction = null;
     public $size = null;
     public $offset = null;
     public $fallback = null;
@@ -97,6 +99,22 @@ class Associations
 
     public $negate = null;
     public $scriptName = "";
+
+    public function toCsv(){
+        $infos = $this->__debugInfo();
+        $csv = "";
+        foreach ($infos as $key => $value) {
+            if (is_array($value)){
+
+                $csv .= '"' . implode(',', $value) . "\",";
+            }else{
+                $csv .= $value . ",";
+
+            }
+        }
+
+        return substr($csv, 0, -1);
+    }
 
     public function __debugInfo()
     {
@@ -221,6 +239,8 @@ class Associations
 
                         $math = new Associations();
                         $math->type = Tokens::T_MATH;
+                        $math->usedinFunction = $compiler->createVariableAssociation( $function);
+                        $math->usedinFunction->varType = null;
 
                         if ($param->type == Token::T_CONDITION){
                             $math->childs = (new RPN())->convertToReversePolishNotation($param->childs);
