@@ -1322,6 +1322,7 @@ class Evaluate{
 //
 //
 
+                $elseCase = false;
                 foreach ($cases as $index => $case) {
 
 
@@ -1334,7 +1335,7 @@ class Evaluate{
 
                     $this->add('3c000000', 'Jump to ELSE');
 
-                    $caseEndOffsets[] = count($compiler->codes);
+                    $elseCase = count($compiler->codes);
                     $this->add('ELSE OFFSET', 'ELSE Case Offset');
                 }
 
@@ -1357,7 +1358,7 @@ class Evaluate{
                         $case->value instanceof Associations &&
                         $case->value->type == Tokens::T_ELSE
                     ){
-//                        $compiler->codes[ $caseStartOffsets[$index] ]['code'] = "66666666";
+                        $compiler->codes[ $elseCase ]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
 
                     }else{
 

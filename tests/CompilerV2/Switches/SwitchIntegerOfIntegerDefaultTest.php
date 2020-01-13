@@ -83,7 +83,7 @@ class SwitchIntegerOfIntegerDefaultTest extends KernelTestCase
 
 
             '3c000000', //statement (init statement start offset)
-            '0c020000', //Offset (ELSE line number)
+            'a8010000', //Offset (ELSE line number)
 
             '3c000000', //statement (init statement start offset)
             '0c020000', //Offset (LAST line number)
