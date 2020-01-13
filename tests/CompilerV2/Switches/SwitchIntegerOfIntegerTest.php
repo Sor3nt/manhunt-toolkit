@@ -59,12 +59,14 @@ class SwitchIntegerOfIntegerTest extends KernelTestCase
             '24000000', //define case
             '01000000', //define case
             '03000000', //case number 3
+
             '3f000000', //statement (init start offset)
             '88000000', //Offset (line number 3295)
 
             '24000000', //define case
             '01000000', //define case
             '02000000', //case number 2
+
             '3f000000', //statement (init start offset)
             '18010000', //Offset (line number 3331)
 

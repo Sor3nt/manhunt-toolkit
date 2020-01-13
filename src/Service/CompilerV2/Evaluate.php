@@ -1283,7 +1283,23 @@ class Evaluate{
                 $caseEndOffsets = [];
 
                 $cases = array_reverse($association->cases);
-                foreach (array_reverse($association->cases) as $index => $case) {
+                foreach ($cases as $index => $case) {
+//                    var_dump($case->value);
+                    if (
+                        !$case->value instanceof Associations ||
+                        $case->value->type != Tokens::T_ELSE
+                    ) continue;
+                    Helper::moveArrayIndexToBottom($cases, $index);
+                }
+
+                foreach ($cases as $index => $case) {
+//                    if ($case->value->type == Tokens::T_ELSE) continue;
+
+                    if (
+                        $case->value instanceof Associations &&
+                        $case->value->type == Tokens::T_ELSE
+                    ) continue;
+
 
                     $realIndex =  $index ;
 
@@ -1296,16 +1312,39 @@ class Evaluate{
                         $this->add(Helper::fromIntToHex($case->value->offset), 'case Offset (2)');
                     }
 
-                    $this->add('3f000000');
+                    $this->add('3f000000', "Jo");
 
                     //we dont know yet the correct offset, we store the position and
                     //fix it in the next loop
-                    $caseStartOffsets[] = count($compiler->codes);
+                    $caseStartOffsets[$index] = count($compiler->codes);
                     $this->add('CASE OFFSET', 'Case Offset start');
                 }
+//
+//
 
-                foreach (array_reverse($association->cases) as $index => $case) {
-                    $this->add('3c000000', 'Jump to');
+                foreach ($cases as $index => $case) {
+
+
+                    if (
+                        !$case->value instanceof Associations ||
+                        $case->value->type != Tokens::T_ELSE
+                    ) continue;
+
+//                    if ($case->value->type != Tokens::T_ELSE) continue;
+
+                    $this->add('3c000000', 'Jump to ELSE');
+
+                    $caseEndOffsets[] = count($compiler->codes);
+                    $this->add('ELSE OFFSET', 'ELSE Case Offset');
+                }
+
+
+
+                foreach ($cases as $index => $case) {
+
+//                    if ($case->value->type == Tokens::T_ELSE) continue;
+
+                    $this->add('3c000000', 'Jump to Case ' . $index);
 
                     //we dont know yet the correct offset, we store the position and
                     //fix it in the next loop
@@ -1313,7 +1352,17 @@ class Evaluate{
                     $this->add('END OFFSET', 'Last Case Offset');
 
                     //fix the missed start offsets
-                    $compiler->codes[ $caseStartOffsets[$index] ]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+
+                    if  (
+                        $case->value instanceof Associations &&
+                        $case->value->type == Tokens::T_ELSE
+                    ){
+//                        $compiler->codes[ $caseStartOffsets[$index] ]['code'] = "66666666";
+
+                    }else{
+
+                        $compiler->codes[ $caseStartOffsets[$index] ]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
+                    }
                     new Evaluate($this->compiler, $case);
                 }
 

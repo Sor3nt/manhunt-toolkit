@@ -690,6 +690,7 @@ class Associations
             /**
              * Simple values, just convert into T_TOKEN
              */
+            case 'else':   $this->type = Tokens::T_ELSE; break;
             case '<>':   $this->type = Tokens::T_IS_NOT_EQUAL; break;
             case 'and':  $this->type = Tokens::T_AND; break;
             case 'or':   $this->type = Tokens::T_OR; break;
