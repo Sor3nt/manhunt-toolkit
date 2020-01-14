@@ -388,6 +388,9 @@ class EvaluateVariable{
                 $this->add('31000000', 'T_ADDITION (int)');
                 $this->add('01000000', 'T_ADDITION (int)');
                 $this->add('04000000', 'T_ADDITION (int)');
+            }else if ($type == Tokens::T_MOD){
+                $this->add('37000000', 'T_MOD (int)');
+
             }else if ($type == Tokens::T_MULTIPLY){
                 $this->add('35000000', 'T_MULTIPLY (int)');
                 $this->add('04000000', 'T_MULTIPLY (int)');
@@ -596,6 +599,7 @@ Class RPN {
                         Tokens::T_IS_EQUAL,
                         Tokens::T_IS_NOT_EQUAL,
                         'T_ADDITION',
+                        'T_MOD',
                         'T_SUBSTRACTION',
                         'T_MULTIPLY',
                         'T_DIVISION',
@@ -649,6 +653,7 @@ Class RPN {
         switch ($operation->type) {
             case 'T_SUBSTRACTION':
             case 'T_ADDITION':
+            case 'T_MOD':
             case 'T_OR':
             case 'T_AND':
                 $result = 2;

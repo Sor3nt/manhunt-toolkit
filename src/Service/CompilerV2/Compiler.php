@@ -807,6 +807,7 @@ class Compiler
             case Tokens::T_SUBSTRACTION:
             case Tokens::T_MULTIPLY:
             case Tokens::T_DIVISION:
+            case Tokens::T_MOD:
                 return true;
         }
 
@@ -858,6 +859,7 @@ class Compiler
             $this->getToken() == "*" ||
             $this->getToken() == "/" ||
             $this->getToken() == "(" ||
+            $this->getToken() == "mod" ||
             $this->getToken() == "div"
         ) {
             $mathChilds[] = new Associations($this);

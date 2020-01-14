@@ -17,6 +17,10 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'col_responder' => [
+            'offset' => '00400000'
+        ],
+
         'searchreqid_walktoinvestigate' => [
             'offset' => '02000000'
         ],

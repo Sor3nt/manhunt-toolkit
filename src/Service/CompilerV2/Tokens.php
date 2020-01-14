@@ -28,6 +28,7 @@ namespace App\Service\CompilerV2;
     const T_FOR                         = 'T_FOR';
     const T_MULTIPLY                    = 'T_MULTIPLY';
     const T_DEVISION                    = 'T_DEVISION';
+    const T_MOD                    = 'T_MOD';
     const T_DIVISION                    = 'T_DIVISION';
     const T_STATE                       = 'T_STATE';
     const T_STATE_ENTRY                       = 'T_STATE_ENTRY';

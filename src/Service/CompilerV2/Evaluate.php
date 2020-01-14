@@ -1078,6 +1078,7 @@ class Evaluate{
                                     $param->varType == "entityptr" ||
                                     $param->varType == "eaiscriptpriority" ||
                                     $param->varType == "integer" ||
+                                    $param->varType == "boolean" ||
                                     $param->varType == "float"
                                 )
                             )

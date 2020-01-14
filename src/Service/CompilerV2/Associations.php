@@ -696,6 +696,7 @@ class Associations
             case 'or':   $this->type = Tokens::T_OR; break;
             case 'nil':  $this->type = Tokens::T_INT; $this->value = 0; break;
             case '+':    $this->type = Tokens::T_ADDITION; break;
+            case 'mod':  $this->type = Tokens::T_MOD; break;
             case '-':    $this->type = Tokens::T_SUBSTRACTION; break;
             case '*':    $this->type = Tokens::T_MULTIPLY; break;
             case '/':    $this->type = Tokens::T_DIVISION; break;
