@@ -3174,6 +3174,32 @@ class Manhunt2 extends ManhuntDefault
             'offset' => 'fb000000'
         ],
 
+        'handcamsetall' => [
+            'name' => 'HandCamSetAll',
+            'offset' => 'e5010000'
+        ],
+
+        'killallflares' => [
+            'name' => 'KillAllFlares',
+            'offset' => '6f030000'
+        ],
+
+
+        'mutilatehunter' => [
+            'name' => 'MutilateHunter',
+            'offset' => 'c0020000'
+        ],
+
+        'rotateentityleft' => [
+            'name' => 'RotateEntityLeft',
+            'offset' => '7e000000'
+        ],
+
+        'setmoveridleposmargin' => [
+            'name' => 'SetMoverIdlePosMargin',
+            'offset' => 'de010000'
+        ],
+
 
 
 

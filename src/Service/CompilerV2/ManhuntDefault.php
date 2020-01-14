@@ -77,6 +77,7 @@ class ManhuntDefault
         'cutscenecamerasetroll' => [true, true],
         'cutscenecamerasettarget' => [true, true, true, true, true],
         'cutscenecamerasetpos' => [true, true, true, true],
+        'rotateentityleft' => [false, true],
         'radarcreateblip' => [false, true],
         'helisetfiringrate' => [false, true],
         'cutscenecamerasetfov' => [true, true],
@@ -104,7 +105,7 @@ class ManhuntDefault
         'setplayerheading' => [true],
         'aientityplayanimlooped' => [false, false, true],
         'aidefinegoalbebuddy' => [false, false, false, true],
-        'handcamsetall' => [false, true, true, true, true],
+        'handcamsetall' => [false, true, true, true, true, true],
         'cameraforcelookatentity' => [false, false, false, false, true],
 
     ];
