@@ -318,6 +318,7 @@ class Compiler
         $string = $this->strings[$stringIndex];
 
         if (
+            $currentScriptName != "" && // we are inside s const section...
             isset($this->strings4Script[$currentScriptName]) &&
             isset($this->strings4Script[$currentScriptName][strtolower($string)])
         ){
@@ -336,9 +337,15 @@ class Compiler
         $newString->scriptName = $currentScriptName;
         $newString->size = $len;
 
+
+
         $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
 
-        if (4 - $len % 4 != 0) $len += 4 - $len % 4;
+
+//        if ($len != 1){
+            if (4 - $len % 4 != 0) $len += 4 - $len % 4;
+//        }
+//        var_dump('addString ->' . $string . " => " . $this->offsetGlobalVariable . " add " . $len);
 
         $this->offsetGlobalVariable += $len;
     }
@@ -439,6 +446,7 @@ class Compiler
                 }
 
                 $offset = $this->offsetGlobalVariable;
+//                var_dump("addVariable -> " . $data['name'] . " => " . $offset . " add " . $size);
                 $this->offsetGlobalVariable += $size;
 
             }else if ($data['section'] == "script"){
@@ -470,6 +478,8 @@ class Compiler
             }
         }else{
             $offset = $data['offset'];
+//            var_dump("addVariable -> " . $data['name'] . " => " . $offset );
+
         }
 
         /**

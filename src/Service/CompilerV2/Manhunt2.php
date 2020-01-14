@@ -3140,6 +3140,13 @@ class Manhunt2 extends ManhuntDefault
 
 
 
+        'spawnstaticentity' => [
+            'name' => 'SpawnStaticEntity',
+            'offset' => '7b000000'
+        ],
+
+
+
 
 
     ];
