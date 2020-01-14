@@ -3160,6 +3160,16 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '98010000'
         ],
 
+        'isplayersneaking' => [
+            'name' => 'IsPlayerSneaking',
+            'offset' => 'ec020000'
+        ],
+
+        'haspadbuttonbeenpressed' => [
+            'name' => 'haspadbuttonbeenpressed',
+            'offset' => 'fb000000'
+        ],
+
 
 
 

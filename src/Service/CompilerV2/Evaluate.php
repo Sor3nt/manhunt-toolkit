@@ -923,7 +923,7 @@ class Evaluate{
                 foreach ($association->childs as $index => $param) {
 
                     //todo: i think it is a hack, the t_variable just do to much!
-                    $param->onlyPointer = $association->isProcedure == true;
+                    $param->onlyPointer = $association->isProcedure == true || $association->isCustomFunction == true;
                     new Evaluate($this->compiler, $param, $compiler->evalVar->msg);
 
                     if (
@@ -1160,6 +1160,11 @@ class Evaluate{
                      * Custom functions can return a value and the space need to be defined here.
                      */
                     if ($association->isCustomFunction === true){
+                        $compiler->storedProcedureCallOffsets[] = [
+                            'value' => $association->value,
+                            'offset' => count($compiler->codes)
+                        ];
+
                         $this->add($association->offset, $msg . ' (return offset) ' . $association->offset);
                         return;
                     }
