@@ -17,6 +17,15 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'searchreqid_walktoinvestigate' => [
+            'offset' => '02000000'
+        ],
+        'searchreqid_runtoinvestigate' => [
+            'offset' => '01000000'
+        ],
+        'searchreqid_negativechase' => [
+            'offset' => '00000000'
+        ],
         'pad_square' => [
             'offset' => '08000000'
         ],
@@ -3143,6 +3152,12 @@ class Manhunt2 extends ManhuntDefault
         'spawnstaticentity' => [
             'name' => 'SpawnStaticEntity',
             'offset' => '7b000000'
+        ],
+
+
+        'aisetsubpacksearchparams' => [
+            'name' => 'AISetSubPackSearchParams',
+            'offset' => '98010000'
         ],
 
 
