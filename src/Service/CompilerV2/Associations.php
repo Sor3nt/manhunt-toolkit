@@ -258,7 +258,12 @@ class Associations
 
                         $current = $current + 2;
 
-                        $this->childs[] = $math;
+                        if (count($math->childs) == 1){
+                            $this->childs[] = $math->childs[0];
+                        }else{
+                            $this->childs[] = $math;
+
+                        }
 
                     }else{
                         $this->childs[] = $param;
