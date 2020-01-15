@@ -408,6 +408,22 @@ class Evaluate{
                 ){
                     //that should be equal to Tokens::T_STRING case ....
                     $compiler->evalVar->retString();
+                }else if (
+                    $association->assign->type == Tokens::T_FUNCTION
+                ){
+
+                    if ($association->assign->return == null){
+                        throw new Exception("No return value available for " . $association->assign->value);
+                    }
+
+                    if (
+                        $association->varType == "float" &&
+                        $association->assign->return == "integer"
+                    ){
+                        $this->compiler->evalVar->int2float("T_ASSIGN function return int");
+                    }
+
+//                    var_dump($association);
                 }
 
                 /**
@@ -732,6 +748,10 @@ class Evaluate{
 
                         $doReturn = "string";
 
+                    }else if ( $param->type == Tokens::T_MATH ){
+
+                        new Evaluate($this->compiler, $param);
+
                     }else if ( $param->type == Tokens::T_FUNCTION ){
                         new Evaluate($this->compiler, $param);
 
@@ -756,7 +776,6 @@ class Evaluate{
                         /*
                          * Do nothing
                          */
-
                     }else if ($param->type == Tokens::T_OR || $param->type == Tokens::T_AND){
                         $compiler->evalVar->msg = sprintf("Condition");
 

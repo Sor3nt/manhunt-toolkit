@@ -906,7 +906,8 @@ class Manhunt2 extends ManhuntDefault
         ],
         'getnumberoftypesinsidetrigger' => [
             'name' => 'GetNumberOfTypesInsideTrigger',
-            'offset' => 'db010000'
+            'offset' => 'db010000',
+            'return' => 'integer'
         ],
         'ishunterinshadow' => [
             'name' => 'IsHunterInShadow',
@@ -1338,8 +1339,10 @@ class Manhunt2 extends ManhuntDefault
 
         'getnameoftypeintriggerfromindex' => [
             'name' => 'GetNameOfTypeInTriggerFromIndex',
-            'offset' => 'dc010000'
+            'offset' => 'dc010000',
+            'return' => 'string'
         ],
+
         'heligetdistancefromspolight' => [
             'name' => 'HeliGetDistanceFromSpolight',
             'offset' => 'a7030000'
@@ -1709,14 +1712,7 @@ class Manhunt2 extends ManhuntDefault
         'aisetidlehomenode' => [
             'name' => 'AISetIdleHomeNode',
             'offset' => '83010000',
-            /**
-             * Parameters
-             * 1: string ref to me (me[30])
-             * 2: string
-             * - AMBUSHNODE
-             */
-            'params' => [Token::T_STRING, Token::T_STRING],
-            'desc' => ''
+            'return' => 'integer'
         ],
 
         'radarpositionclearentity' => [
@@ -1862,12 +1858,7 @@ class Manhunt2 extends ManhuntDefault
         'playaudiooneshotfromentity' => [
             'name' => 'PlayAudioOneShotFromEntity',
             'offset' => '5c020000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
+            'return' => 'integer'
         ],
 
 
@@ -1927,17 +1918,7 @@ class Manhunt2 extends ManhuntDefault
         'spawnentitywithdirection' => [
             'name' => 'SpawnEntityWithDirection',
             'offset' => '7c000000',
-            /**
-             * Parameters
-             * 1: string
-             * - Ins_BodA
-             * 2: Vec3d
-             * 3: string
-             * - Runner(hunter)
-             * 4: Vec3d
-             */
-            'params' => [Token::T_STRING, 'vec3d', Token::T_STRING, 'vec3d'],
-            'desc' => ''
+            'return' => 'integer'
         ],
 
         'getentityposition' => [
@@ -2260,6 +2241,7 @@ class Manhunt2 extends ManhuntDefault
         'playaudioloopedfromentity' => [
             'name' => 'PlayAudioLoopedFromEntity',
             'offset' => '5e020000',
+            'return' => 'integer'
         ],
 
         'triggersavepoint' => [
@@ -2691,12 +2673,14 @@ class Manhunt2 extends ManhuntDefault
 
         'aireturnsubpackentityname' => [
             'name' => 'AIReturnSubpackEntityName',
-            'offset' => 'ec010000'
+            'offset' => 'ec010000',
+            'return' => 'integer'
         ],
 
         'ainumberinsubpack' => [
             'name' => 'AINumberInSubpack',
-            'offset' => '67010000'
+            'offset' => '67010000',
+            'return' => 'integer'
         ],
 
 
@@ -2825,7 +2809,8 @@ class Manhunt2 extends ManhuntDefault
 
         'playaudiooneshotfrompos' => [
             'name' => 'PlayAudioOneShotFromPos',
-            'offset' => '5d020000'
+            'offset' => '5d020000',
+            'return' => 'integer'
         ],
 
 
@@ -3003,7 +2988,8 @@ class Manhunt2 extends ManhuntDefault
 
         'calcvisibility' => [
             'name' => 'CalcVisibility',
-            'offset' => '53030000'
+            'offset' => '53030000',
+            'return' => 'integer'
         ],
 
 
