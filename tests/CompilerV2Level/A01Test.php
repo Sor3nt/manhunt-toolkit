@@ -34,7 +34,7 @@ class A01Test extends KernelTestCase
 
             $compiler = new \App\Service\CompilerV2\Compiler($testScript['SRCE'], MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
             $compiler->levelScript = $levelScriptCompiler;
-            $compiler->compile();
+            $subMls = $compiler->compile();
 
 
             //compile a other script based on the levelscript
@@ -74,50 +74,56 @@ class A01Test extends KernelTestCase
             }
 
 
-//            foreach ($compiled as $index => $section) {
-//
-//                //only used inside the compiler
-//                if ($index == "extra") continue;
-//
-//                //memory is not correct but works...
-//                if ($index == "DMEM") continue;
-//                if ($index == "SMEM") continue;
-//
-//                //we do not generate the LINE (debug stuff)
-//                if ($index == "LINE") continue;
-//                if ($index == "STAB" && count($section) == 0) continue;
-//
-//                if ($index == "DATA"){
-//
-//                    if (!isset($testScript[$index])){
-//
-//                        if (
-//                            count($section['const']) == 0 &&
-//                            count($section['strings']) == 0
-//                        ){
-//                            continue;
-//                        }
-//                    }
-//
-//                    if ($testScript[$index] != $section){
-//                        unset($testScript[$index]['byteReserved']);
-//
-//                    }
-//                }
-//
-//                if ($index == "STAB"){
-//                    foreach ($testScript[$index] as &$mhl) {
-//                        unset($mhl['nameGarbage']);
-//                    }
-//                }
-//
-//
-//                $this->assertEquals(
-//                    $testScript[$index],
-//                    $section,
-//                    $index . " Mismatch " . $testScript['ENTT']['name']
-//                );
-//            }
+            foreach ($subMls as $index => $section) {
+echo "testing " . $index;
+                //only used inside the compiler
+                if ($index == "CODE") continue;
+                if ($index == "extra") continue;
+
+                //memory is not correct but works...
+                if ($index == "DMEM") continue;
+                if ($index == "SMEM") continue;
+
+                //we do not generate the LINE (debug stuff)
+                if ($index == "LINE") continue;
+                if ($index == "STAB" && count($section) == 0) continue;
+
+                if ($index == "DATA"){
+
+                    if (!isset($testScript[$index])){
+
+                        if (
+                            count($section['const']) == 0 &&
+                            count($section['strings']) == 0
+                        ){
+                            continue;
+                        }
+                    }
+
+                    if ($testScript[$index] != $section){
+                        unset($testScript[$index]['byteReserved']);
+
+                    }
+                }
+
+                if ($index == "STAB"){
+                    foreach ($testScript[$index] as &$mhl) {
+                        unset($mhl['nameGarbage']);
+                    }
+                }
+
+                if ($testScript[$index] != $section){
+//                    var_dump($section);
+//                    var_dump($compiler->variables);
+                }
+
+                $this->assertEquals(
+                    $testScript[$index],
+                    $section,
+                    $index . " Mismatch " . $testScript['ENTT']['name']
+                );
+
+            }
 
         }
     }

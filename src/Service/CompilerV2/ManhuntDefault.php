@@ -51,14 +51,6 @@ class ManhuntDefault
         return false;
     }
 
-    public function getType( $name, $type ){
-        die("todo");
-        if (isset($this->types[strtolower($name)])){
-            return $this->types[strtolower($name)];
-        }
-
-        return false;
-    }
 
     /**
      * some functions need explicit float parameters

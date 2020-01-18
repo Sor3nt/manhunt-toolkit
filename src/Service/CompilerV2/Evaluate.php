@@ -176,6 +176,8 @@ class Evaluate{
             case Tokens::T_SCRIPT:
             case Tokens::T_PROCEDURE:
             case Tokens::T_CUSTOM_FUNCTION:
+
+                $blockStartAt = count($compiler->codes);
                 $this->compiler->evalVar->msg = "Create new Script Block";
 
                 if ($association->type == Tokens::T_PROCEDURE || $association->type == Tokens::T_CUSTOM_FUNCTION){
@@ -211,8 +213,6 @@ class Evaluate{
                     $this->add('00000000', 'Line Offset');
 
                 }
-
-                $argumentsOffset = 0;
 
                 foreach ($arguments as $index => $argument) {
 
@@ -271,7 +271,6 @@ class Evaluate{
                 if (count($arguments)){
                     $this->add('0f030000', 'end of arguments');
                     $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-
                 }
 
                 foreach ($association->childs as $condition) {
@@ -289,6 +288,26 @@ class Evaluate{
                     $this->compiler->evalVar->procedureEnd($association);
                 } else {
                     $this->compiler->evalVar->scriptEnd($association->value);
+                }
+
+
+                /**
+                 * Calculate the end of each SCRIPT block
+                 * Any PROCEDURE or FUNCTION will just count up the size
+                 *
+                 * This information is required to generate the SCPT section
+                 */
+
+                $blockSize = count($compiler->codes) - $blockStartAt;
+                if ($association->type == Tokens::T_SCRIPT) {
+                    $compiler->scriptBlockSizes[$association->value] = $compiler->lastScriptEnd;
+                    $compiler->lastScriptEnd = $blockSize * 4;
+                } else if (
+                    $association->type == Tokens::T_PROCEDURE ||
+                    $association->type == Tokens::T_CUSTOM_FUNCTION
+                ) {
+
+                    $compiler->lastScriptEnd += $blockSize * 4;
                 }
 
                 break;
@@ -1462,13 +1481,12 @@ class Evaluate{
      */
     public function doMath( $associations ){
 
-        $varType = $this->compiler->detectVarType($associations[0]);
-
-        if ($varType == null){
-            throw new Exception("Unable to detect varType");
-        }
 
         $this->compiler->evalVar->msg = sprintf("Math Operation ");
+
+        $varType = $this->compiler->detectVarType($associations[0]);
+
+        var_dump("inital " . $varType);
 
         foreach ($associations as $index => $association) {
 
@@ -1492,6 +1510,7 @@ class Evaluate{
                 }
 
             }else {
+
                 //we reached the last token followed by a operator
                 $isLast = count($associations) == $index + 2;
 
@@ -1543,12 +1562,13 @@ class Evaluate{
                 if ($varType == "float" ){
 
                     if ($association->type == Tokens::T_INT) {
+                        var_dump("convert! 1");
                         $this->add('4d000000', 'integer to float3');
                         $this->compiler->evalVar->ret("3");
 
                     }else if (
                         $association->type == Tokens::T_FUNCTION &&
-                        $association->return != "float"
+                        $association->return != $varType
                     ){
                         if ($association->return === null){
                             throw new Exception(sprintf(" No return defined for Function %s", $association->value));
@@ -1562,6 +1582,18 @@ class Evaluate{
                 }
 
 
+
+                if ($beforeOperator == false){
+                    $varType = $this->compiler->detectVarType($association);
+
+                    if ($varType == null){
+                        throw new Exception("Unable to detect varType");
+                    }
+
+                    var_dump("based on " . $varType);
+
+
+                }
 
             }
         }

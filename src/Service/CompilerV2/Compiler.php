@@ -8,6 +8,8 @@ use Exception;
 class Compiler
 {
 
+    public $untouchedSource;
+
     public $game;
     public $platform;
     public $debug = false;
@@ -67,6 +69,9 @@ class Compiler
     public $gameClass;
 
     public $variables = [];
+    public $gameVarOccurrences = [];
+    public $levelVarOccurrences = [];
+
     public $strings = [];
 
     public $strings4Script = [];
@@ -89,6 +94,10 @@ class Compiler
     public $offsetProcedureScripts = 0;
     public $offsetConstants = 0;
 
+    public $scriptBlockSizes = [];
+    public $lastScriptEnd = 0;
+
+
     public $evalVar;
 
     public $storedProcedureCallOffsets = [];
@@ -109,6 +118,7 @@ class Compiler
         $this->platform = $platform;
         $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2();
 
+        $this->untouchedSource = $source;
         //a special comment
         $source = str_replace("}}", "}", $source);
 
@@ -296,7 +306,19 @@ class Compiler
 
         return [
 
-            'CODE' => $this->codes
+            'CODE' => $this->codes,
+            'DATA' => $this->generateDATA(),
+            'STAB' => $this->generateSTAB(),
+            'SCPT' => $this->generateSCPT(),
+            'ENTT' => $this->generateEntity(),
+            'LINE' => $this->generateLine(),
+            'TRCE' => ['00000000'],
+            'SRCE' => $this->untouchedSource,
+
+            //TODO calc missed
+            'SMEM' => 78596,
+            'DMEM' => 78596,
+
         ];
     }
 
@@ -365,6 +387,8 @@ class Compiler
                 'size' => 1,
                 'offset' => $index,
                 'fromState' => true,
+                'isLevelVar' => false,
+                'isGameVar' => false,
                 'section' => 'header',
                 'scriptName' => 'header'
             ];
@@ -389,6 +413,8 @@ class Compiler
             'name' => $name,
             'value' => $value,
             'type' => $type,
+            'isLevelVar' => false,
+            'isGameVar' => false,
             'varType' => $type,
             'section' => 'constant',
             'scriptName' => 'header'
@@ -912,4 +938,184 @@ class Compiler
     public function log($msg){
 //        echo "|>" . str_repeat('-', $this->logPad) . " " .$msg . "\n";
     }
+
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    private function generateDATA()
+    {
+        $result = [
+            'const' => [],
+            'strings' => []
+        ];
+
+        foreach ($this->variables as $variable) {
+            if ($variable['section'] == "constant"){
+
+                switch ($variable['type']){
+
+                    case 'float':
+                    case 'integer':
+                        $result['const'][] = $variable['value'];
+                        break;
+                    case 'string':
+                        $stringIndex = substr($variable['value'], 4);
+                        $string = $this->strings[$stringIndex];
+
+                        $result['const'][] = $string;
+                        break;
+
+                    default:
+                        var_dump($variable);
+                        throw new \Exception("Unknown constant type " . $variable['type']);
+                        break;
+
+                }
+            }
+        }
+
+        foreach ($this->strings4Script as $strings) {
+            foreach ($strings as $value => $string) {
+                $result['strings'][] = $string->value;
+            }
+        }
+
+        return $result;
+    }
+
+
+    private function generateSTAB(){
+
+        $results = [];
+
+        foreach ($this->variables as $variable) {
+            if ($variable['section'] != "header") continue;
+            if (isset($variable['fromState']) && $variable['fromState'] === true ) continue;
+
+            $offset = Helper::fromIntToHex($variable['offset']);
+            $size = $variable['size'];
+            $objectType = $variable['type'];
+
+            $isState = $this->getState($objectType);
+
+            if ($isState !== false){
+                $objectType = "state";
+            }
+
+            $occurrences = [];
+
+            $definitionCount = 0;
+            foreach ($this->variables as $_variable) {
+                if ($_variable['name'] == $variable['name']){
+
+                    if ($definitionCount >= 1){
+                        $offset = '00000000';
+                    }
+
+                    $definitionCount++;
+                }
+            }
+
+            $hierarchieType = Helper::fromIntToHex($definitionCount);
+
+
+            if ($variable['isLevelVar'] === true) {
+
+                if (isset($this->levelVarOccurrences[$variable['name']])){
+                    $occurrences = $this->levelVarOccurrences[$variable['name']];
+                }
+
+                $hierarchieType = "ffffffff";
+                $offset = "ffffffff";
+                $size = "ffffffff";
+
+            }
+
+            else if ($variable['isGameVar'] === true){
+
+                if (isset($this->gameVarOccurrences[$variable['name']])) {
+                    $occurrences = $this->gameVarOccurrences[$variable['name']];
+                }
+
+                $hierarchieType = "feffffff";
+                $offset = "feffffff";
+                $size = "feffffff";
+            }
+
+            $result = [
+                'name' => strtolower($variable['name']),
+                'offset' => $offset,
+                'size' => $size,
+                'objectType' => $objectType,
+                'occurrences' => $occurrences
+            ];
+
+            if ($this->game == MHT::GAME_MANHUNT_2){
+                $result['hierarchieType'] = $hierarchieType;
+            }
+
+            $results[] = $result;
+        }
+
+        usort($results, function ($a, $b) {
+            return $a['name'] > $b['name'];
+        });
+
+        return $results;
+    }
+
+
+    private function generateEntity(){
+        return [
+            'name' => $this->mlsEntityName,
+            'type' => $this->mlsEntityType == "et_level" ? "levelscript" : "other"
+        ];
+
+    }
+
+
+    private function generateSCPT(){
+        $results = [];
+
+        $scriptSize = 0;
+        foreach ($this->scriptBlockSizes as $name => $size) {
+            $scriptSize += $size;
+
+            $onTrigger = $this->gameClass->functionEventDefinition['__default__'];
+
+            if (isset($this->gameClass->functionEventDefinition[$name])){
+                $onTrigger = $this->gameClass->functionEventDefinition[$name];
+            }
+
+
+            $results[] = [
+                'name' => $name,
+                'onTrigger' => $onTrigger,
+                'scriptStart' => $scriptSize
+            ];
+
+        }
+
+
+        return $results;
+
+    }
+
+    public function generateLine(){
+
+        if ($this->game == MHT::GAME_MANHUNT_2) return [];
+
+        $result = [];
+
+        foreach ($this->codes as $item) {
+            $result[] = '00000000';
+        }
+
+        return $result;
+    }
+
 }
+
+

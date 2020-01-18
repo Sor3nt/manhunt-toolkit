@@ -168,6 +168,7 @@ class EvaluateVariable{
                 $this->compiler->log(sprintf("Write to level var %s", $association->value));
                 $this->add('1a000000', 'LevelVar');
                 $this->add('01000000');
+                $this->compiler->levelVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 $this->add('04000000');
 
@@ -254,6 +255,9 @@ class EvaluateVariable{
 
     public function gameVarPointer( Associations $association){
         $this->add('1e000000', $association->varType . ' from GameVar');
+
+        $this->compiler->gameVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
+
         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
         $this->add('04000000', 'Read value ' . $association->value);
         $this->add('01000000', 'Read value ' . $association->value);
@@ -263,6 +267,9 @@ class EvaluateVariable{
     public function levelVarPointerString( Associations $association){
         $this->add('1c000000', $association->varType . ' from LevelVar ');
         $this->add('01000000', 'Read value ' . $association->value);
+
+        $this->compiler->levelVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
+
         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
         $this->add(Helper::fromIntToHex($association->levelVarSize), '(LevelVar) Size ' . $association->size);
 
@@ -270,6 +277,9 @@ class EvaluateVariable{
 
     public function levelVarPointer( Associations $association){
         $this->add('1b000000', $association->varType . ' from LevelVar');
+
+        $this->compiler->levelVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
+
         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
         $this->add('04000000', 'Read value ' . $association->value);
         $this->add('01000000', 'Read value ' . $association->value);
@@ -279,6 +289,8 @@ class EvaluateVariable{
     public function levelVarPointerArray( Associations $association){
         $this->add('1c000000', $association->varType . ' from LevelVar');
         $this->add('01000000', 'Read value ' . $association->value);
+
+        $this->compiler->levelVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
         $this->add(Helper::fromIntToHex($association->offset), 'Offset ' . $association->offset);
         $this->add(Helper::fromIntToHex($association->size), 'Size ' . $association->size);
 
