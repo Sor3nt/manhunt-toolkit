@@ -194,21 +194,28 @@ class Extract {
             $split = explode("=", $raw);
             unset($split[0]);
 
-            $numbers = [];
+            $resultsNumberc = [];
+            $resultsStrings = [];
             foreach ($split as $item) {
                 $item = trim($item);
-                $number = explode(";", $item)[0];
+                $data = explode(";", $item)[0];
 
-                $number = strpos($number, ".") !== false ? (float) $number : (int) $number;
+                if (strpos($data, "'") !== false){
+                    $resultsStrings[] = $data;
 
-                $numbers[] = $number;
+                }else{
+                    $resultsNumberc[] = strpos($data, ".") !== false ? (float) $data : (int) $data;
+
+                }
+
+
             }
 
 
-            return $numbers;
+            return [$resultsNumberc, $resultsStrings];
         }
 
-        return [];
+        return [[],[]];
     }
 
     private function reparseDATA( $results ){
@@ -232,9 +239,9 @@ class Extract {
 
         $count = 0;
         if (isset($results['SRCE'])){
-            $constEntries = $this->getConstBySource($results['SRCE']);
+            list($resultsNumberc, $resultsStrings) = $this->getConstBySource($results['SRCE']);
 
-            foreach ($constEntries as $constEntry) {
+            foreach ($resultsNumberc as $constEntry) {
 
                 $number = $binary->consume(4,
                     is_float($constEntry) ? NBinary::FLOAT_32 :
@@ -247,11 +254,16 @@ class Extract {
                         $number = 0.05;
                     }
 
+                    /**
+                     * Mystery ... the code deliver 1.38 but the DATA need 1.379
+                     */
+                    if ($number == 1.3799999952316284){
+                        $number = 1.38;
+                    }
+
                 }
 
                 $result['const'][] = $number;
-
-
             }
 
         }else{
@@ -272,16 +284,12 @@ class Extract {
 
             if ($this->game == MHT::GAME_MANHUNT){
                 $string = $binary->getString("\x00", true);
-
             }else{
-                $string = $binary->getString("\x00\xda", false);
-                //take the 00da into account
-                $binary->current += 2;
+                $string = $binary->getString("\xda", true);
 
-                $padding = 4 - ($binary->current % 4);
-                if ($padding == 4) $padding = 0;
-
-                $binary->current += $padding;
+                if (mb_substr($string, -1) == "\x00"){
+                    $string = mb_substr($string, 0, -1);
+                }
             }
 
             $result['strings'][] = $string;
@@ -361,7 +369,7 @@ class Extract {
                         break;
 
                     case "02000000";
-                        $objectType = "game_var real";
+                        $objectType = "real";
                         break;
 
                     case "03000000";
@@ -385,7 +393,7 @@ class Extract {
                         break;
 
                     case "08000000";
-                        $objectType = "tLevelState";
+                        $objectType = "state";
                         break;
 
 //                case "0a000000";

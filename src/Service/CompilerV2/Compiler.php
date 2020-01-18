@@ -958,13 +958,17 @@ class Compiler
 
                     case 'float':
                     case 'integer':
+
                         $result['const'][] = $variable['value'];
                         break;
                     case 'string':
                         $stringIndex = substr($variable['value'], 4);
                         $string = $this->strings[$stringIndex];
 
-                        $result['const'][] = $string;
+//                        if (!isset($result['byteReserved'])) $result['byteReserved'] = 0;
+//                        $result['byteReserved'] += strlen($string);
+
+//                        $result['const'][] = $string;
                         break;
 
                     default:
@@ -991,7 +995,13 @@ class Compiler
         $results = [];
 
         foreach ($this->variables as $variable) {
-            if ($variable['section'] != "header") continue;
+            if (
+                $variable['section'] != "header" &&
+
+                //Note: some script declare a level_var within a regular script block...
+                $variable['isLevelVar'] === false
+            ) continue;
+
             if (isset($variable['fromState']) && $variable['fromState'] === true ) continue;
 
             $offset = Helper::fromIntToHex($variable['offset']);
@@ -1010,15 +1020,24 @@ class Compiler
             foreach ($this->variables as $_variable) {
                 if ($_variable['name'] == $variable['name']){
 
-                    if ($definitionCount >= 1){
-                        $offset = '00000000';
+                    if ($definitionCount >= 1 ){
+                        $offset = Helper::fromIntToHex($_variable['offset'] - $_variable['size']);
+
                     }
 
                     $definitionCount++;
                 }
             }
 
-            $hierarchieType = Helper::fromIntToHex($definitionCount);
+
+            if ($definitionCount > 1){
+                $hierarchieType = Helper::fromIntToHex(2);
+            }else{
+                $hierarchieType = Helper::fromIntToHex(1);
+
+            }
+
+
 
 
             if ($variable['isLevelVar'] === true) {
@@ -1040,9 +1059,16 @@ class Compiler
                 }
 
                 $hierarchieType = "feffffff";
-                $offset = "feffffff";
-                $size = "feffffff";
+                $offset = "ffffffff";
+                $size = "ffffffff";
+
             }
+
+            if ($objectType == "ecollectabletype") $objectType = "integer";
+            if ($objectType == "entityptr") $objectType = "integer";
+            if ($objectType == "array") $objectType = "integer";
+            if ($objectType == "float") $objectType = "real";
+
 
             $result = [
                 'name' => strtolower($variable['name']),

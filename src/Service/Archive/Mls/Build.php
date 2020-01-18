@@ -294,13 +294,12 @@ class Build {
                     case 'level_var boolean':
                         $stabCode .= "\x01\x00\x00\x00";
                         break;
-                    case 'game_var real':
+                    case 'real':
                         $stabCode .= "\x02\x00\x00\x00";
                         break;
                     case 'boolean':
                         $stabCode .= "\x03\x00\x00\x00";
                         break;
-                    case 'real': //is this correct ?
                     case 'level_var integer':
                         $stabCode .= "\x04\x00\x00\x00";
                         break;
@@ -314,7 +313,7 @@ class Build {
                         $stabCode .= "\x07\x00\x00\x00";
                         break;
     //                case 'level_var tlevelstate':
-                    case 'tLevelState':
+                    case 'state':
                         $stabCode .= "\x08\x00\x00\x00";
                         break;
     //                case 'unknown 0a':
