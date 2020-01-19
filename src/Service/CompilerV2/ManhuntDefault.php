@@ -15,6 +15,7 @@ class ManhuntDefault
 
     public $floatAllowedDeviation = [
 
+        '193.380859' => 193.380844,
         '100.409492' => 100.409485,
         '24.106951' => 24.1069527
     ];

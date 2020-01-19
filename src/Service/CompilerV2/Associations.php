@@ -357,6 +357,10 @@ class Associations
          */
         if (is_numeric($value)) {
 
+            $isNegateZero = false;
+            if (Helper::fromFloatToHex($value) === "00000080"){
+                $isNegateZero = true;
+            }
             //convert the string into a float/int
             $number = strpos($value, '.') !== false ?
                 (float)$value :
@@ -371,7 +375,7 @@ class Associations
                 $this->value = $compiler->gameClass->floatAllowedDeviation[(string)$this->value];
             }
 
-            if ($number < 0){
+            if ($number < 0 || $isNegateZero){
                 $this->negate = true;
                 $this->value *= -1;
             }

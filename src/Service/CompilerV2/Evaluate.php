@@ -627,7 +627,12 @@ class Evaluate{
                 new Evaluate($this->compiler, $association->start);
 
                 $compiler->evalVar->msg = sprintf("For statement");
-                $this->add('15000000');
+
+                if ($compiler->game == MHT::GAME_MANHUNT){
+                    $this->add('16000000');
+                }else{
+                    $this->add('15000000');
+                }
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
                 $this->add('01000000');
@@ -643,7 +648,13 @@ class Evaluate{
 
 
                 $compiler->evalVar->msg = sprintf("For statement");
-                $this->add('13000000');
+
+
+                if ($compiler->game == MHT::GAME_MANHUNT){
+                    $this->add('14000000');
+                }else{
+                    $this->add('13000000');
+                }
                 $this->add('02000000');
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');

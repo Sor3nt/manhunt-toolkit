@@ -619,7 +619,10 @@ class Compiler
                 if ($variable['size'] % 4 != 0){
                     $size += $variable['size'] % 4;
                 }else{
-                    $size += 4;
+                    if ($this->game == MHT::GAME_MANHUNT_2){
+                        $size += 4;
+
+                    }
                 }
             }
         }

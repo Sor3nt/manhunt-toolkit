@@ -983,7 +983,8 @@ class Manhunt extends ManhuntDefault
 
         'setentityscriptsfromentity' => [
             'name' => 'setentityscriptsfromentity',
-            'offset' => 'd8010000'
+            'offset' => 'd8010000',
+            'return' => 'integer'
         ],
 
 
@@ -2066,6 +2067,23 @@ class Manhunt extends ManhuntDefault
 		'isentityholdingammoweapon' => [
             'name' => 'IsEntityHoldingAmmoWeapon',
             'offset' => 'IsEntityHoldingAmmoWeapon'
+        ],
+
+		'iswhitenoisedisplaying' => [
+            'name' => 'IsWhiteNoiseDisplaying',
+            'offset' => 'e5020000'
+        ],
+
+		'mutilatehunter' => [
+            'name' => 'MutilateHunter',
+            'offset' => 'bd020000'
+        ],
+
+
+		'returnammoofinventoryweapon' => [
+            'name' => 'ReturnAmmoOfInventoryWeapon',
+            'offset' => 'dd020000',
+            'return' => 'integer'
         ],
 
     ];
