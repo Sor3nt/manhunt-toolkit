@@ -18,6 +18,27 @@ class Manhunt extends ManhuntDefault
     
     public $constants = [
 
+        'scripted_track_piggsy_grill1' => [
+            'offset' => '00000000'
+        ],
+
+        'aispeech_x1v1_attic_angry' => [
+            'offset' => '00000000'
+        ],
+        'ct_chainsaw' => [
+            'offset' => '6c000000'
+        ],
+        'ct_chainsaw_player' => [
+            'offset' => '6c000000'
+        ],
+        'scripted_track_ddeath' => [
+            'offset' => '53000000'
+        ],
+
+        'voice_cerberus2voice1' => [
+            'offset' => '27000000'
+        ],
+
         'aispeech_d1v1_grv_compound' => [
             'offset' => '78000000'
         ],
@@ -41,11 +62,11 @@ class Manhunt extends ManhuntDefault
         ],
 
         'aispeech_m1v1_uni_long_pain' => [
-            'offset' => 'aispeech_m1v1_uni_long_pain'
+            'offset' => '00000000'
         ],
 
         'aispeech_d1v1_drk_church2_start' => [
-            'offset' => 'aispeech_d1v1_drk_church2_start'
+            'offset' => '00000000'
         ],
 
         'ct_baseball_bat' => [
@@ -118,7 +139,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'mtt_offensive_hard' => [
-            'offset' => 'mtt_offensive_hard'
+            'offset' => '00000000'
         ],
 
 
@@ -167,7 +188,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'aispeech_h1v1_uni_long_pain' => [
-            'offset' => 'aispeech_h1v1_uni_long_pain'
+            'offset' => '00000000'
         ],
 
         'aispeech_h2v1_der_laughter' => [
@@ -211,7 +232,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'mtt_defensive_hard' => [
-            'offset' => 'mtt_defensive_hard'
+            'offset' => '00000000'
         ],
 
         'ct_knife' => [
@@ -258,7 +279,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'scripted_track_pdoor' => [
-            'offset' => 'scripted_track_pdoor'
+            'offset' => '55000000'
         ],
 
         'aispeech_d1v1_der_level_start' => [
@@ -298,18 +319,18 @@ class Manhunt extends ManhuntDefault
 
 
         'scripted_track_direct' => [
-            'offset' => 'scripted_track_direct'
+            'offset' => '52000000'
         ],
 
         'voice_piggsy1voice1' => [
-            'offset' => 'voice_piggsy1voice1'
+            'offset' => '2d000000'
         ],
 
         'searchreqid_runtoinvestigate' => [
-            'offset' => 'searchreqid_runtoinvestigate'
+            'offset' => '01000000'
         ],
         'searchreqid_negativechase' => [
-            'offset' => 'searchreqid_negativechase'
+            'offset' => '00000000'
         ],
         'weather_clear' => [
             'offset' => '05000000'
@@ -328,7 +349,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'aiscript_veryhighpriority' => [
-            'offset' => 'aiscript_veryhighpriority'
+            'offset' => '00000000'
         ],
 
         'aispeech_d1v1_trf_hoods_gladiator_court' => [
@@ -387,7 +408,7 @@ class Manhunt extends ManhuntDefault
             'offset' => '02000000'
         ],
         'aiscript_runmovespeed' => [
-            'offset' => 'aiscript_runmovespeed'
+            'offset' => '00000000'
         ],
         'hud_stamina' => [
             'offset' => '08000000'
@@ -534,11 +555,6 @@ class Manhunt extends ManhuntDefault
     ];
 
     public $functions = [
-
-        'this' => [
-            'name' => 'this',
-            'offset' => "49000000"
-        ],
 
         'sleep' => [
             'name' => 'Sleep',
@@ -950,7 +966,8 @@ class Manhunt extends ManhuntDefault
 
         'spawnmovingentity' => [
             'name' => 'spawnmovingentity',
-            'offset' => '79000000'
+            'offset' => '79000000',
+            'return' => 'entityptr',
         ],
 
         'playdirectorspeechplaceholder' => [
@@ -968,6 +985,16 @@ class Manhunt extends ManhuntDefault
             'name' => 'setentityscriptsfromentity',
             'offset' => 'd8010000'
         ],
+
+
+        /**
+         * Note: WriteDebug function is internal splitted!
+         */
+        'writedebug' => [
+            'name' => 'WriteDebug',
+            'offset' => '73000000'
+        ],
+
         'writedebugflush' => [
             'name' => 'writedebugflush',
             'offset' => '73000000'
@@ -1231,7 +1258,7 @@ class Manhunt extends ManhuntDefault
         'getentity' => [
             'name' => 'GetEntity',
             'offset' => '76000000',
-            'return' => 'Entity'
+            'return' => 'entityptr'
         ],
 
         'getplayerposition' => [
@@ -1323,7 +1350,7 @@ class Manhunt extends ManhuntDefault
 
         'aisetsubpacksearchparams' => [
             'name' => 'aisetsubpacksearchparams',
-            'offset' => 'aisetsubpacksearchparams'
+            'offset' => '97010000'
         ],
 
 
@@ -1334,7 +1361,7 @@ class Manhunt extends ManhuntDefault
 
         'loadfrontendaudiostream' => [
             'name' => 'loadfrontendaudiostream',
-            'offset' => 'loadfrontendaudiostream'
+            'offset' => 'c6020000'
         ],
 
         'showentity' => [
@@ -1503,12 +1530,12 @@ class Manhunt extends ManhuntDefault
 
         'scripthogprocessorend' => [
             'name' => 'scripthogprocessorend',
-            'offset' => 'scripthogprocessorend'
+            'offset' => '13020000'
         ],
 
         'scripthogprocessorstart' => [
             'name' => 'scripthogprocessorstart',
-            'offset' => 'scripthogprocessorstart'
+            'offset' => '12020000'
         ],
 
         'togglehudflag' => [
@@ -1523,7 +1550,8 @@ class Manhunt extends ManhuntDefault
 
         'getplayer' => [
             'name' => 'getplayer',
-            'offset' => '89000000'
+            'offset' => '89000000',
+            'return' => 'entityptr'
         ],
 
         'insidetrigger' => [
@@ -1762,7 +1790,8 @@ class Manhunt extends ManhuntDefault
 
         'spawnentitywithvelocity' => [
             'name' => 'spawnentitywithvelocity',
-            'offset' => '9e020000'
+            'offset' => '9e020000',
+            'return' => 'entityptr'
         ],
 
         'getentityname' => [
@@ -1815,7 +1844,7 @@ class Manhunt extends ManhuntDefault
 
         'aidefinegoalhideunnamedhunters' => [
             'name' => 'aidefinegoalhideunnamedhunters',
-            'offset' => 'aidefinegoalhideunnamedhunters'
+            'offset' => '49020000'
         ],
 
         'inittriggers' => [
@@ -1829,12 +1858,12 @@ class Manhunt extends ManhuntDefault
 
         'aidefinegoalgotoentityidle' => [
             'name' => 'aidefinegoalgotoentityidle',
-            'offset' => 'aidefinegoalgotoentityidle'
+            'offset' => 'd7010000'
         ],
 
         'aidefinegoalgotovector' => [
             'name' => 'aidefinegoalgotovector',
-            'offset' => 'aidefinegoalgotovector'
+            'offset' => '6f010000'
         ],
 
         'aidefinegoalguard' => [
@@ -1873,7 +1902,7 @@ class Manhunt extends ManhuntDefault
 
         'aidefinegoalmeleeattackvector' => [
             'name' => 'aidefinegoalmeleeattackvector',
-            'offset' => 'aidefinegoalmeleeattackvector'
+            'offset' => '66020000'
         ],
 
         'radarpositionsetentity' => [
@@ -1967,6 +1996,78 @@ class Manhunt extends ManhuntDefault
 			'return' => 'integer'
         ],
 	 
+		'aiisentityguard' => [
+            'name' => 'AIIsEntityGuard',
+            'offset' => '6c020000'
+        ],
+
+		'sethuntertauntprobability' => [
+            'name' => 'SetHunterTauntProbability',
+            'offset' => '16020000'
+        ],
+
+		'playfrontendaudiostreamoneshot' => [
+            'name' => 'PlayFrontEndAudioStreamOneShot',
+            'offset' => 'c8020000'
+        ],
+
+		'entityplaycutsceneanimation' => [
+            'name' => 'EntityPlayCutSceneAnimation',
+            'offset' => 'd6020000'
+        ],
+
+		'aiisinsubpack' => [
+            'name' => 'AIIsInSubPack',
+            'offset' => '65010000'
+        ],
+
+		'aistayinhuntenemy' => [
+            'name' => 'AIStayInHuntEnemy',
+            'offset' => '63020000'
+        ],
+
+
+		'removecurrentinventoryitem' => [
+            'name' => 'RemoveCurrentInventoryItem',
+            'offset' => 'bd000000'
+        ],
+
+		'isentitydying' => [
+            'name' => 'IsEntityDying',
+            'offset' => 'IsEntityDying'
+        ],
+
+		'aiisenemyinradius' => [
+            'name' => 'AIIsEnemyInRadius',
+            'offset' => 'AIIsEnemyInRadius'
+        ],
+
+		'ailookatentity' => [
+            'name' => 'AILookAtEntity',
+            'offset' => 'AILookAtEntity'
+        ],
+
+		'getinventoryitemfromname' => [
+            'name' => 'GetInventoryItemFromName',
+            'offset' => 'GetInventoryItemFromName'
+        ],
+
+		'subtractvectors' => [
+            'name' => 'SubtractVectors',
+            'offset' => '85010000'
+        ],
+
+		'aigethunterlastnodename' => [
+            'name' => 'AIGetHunterLastNodeName',
+            'offset' => 'AIGetHunterLastNodeName',
+            'return' => 'string'
+        ],
+
+		'isentityholdingammoweapon' => [
+            'name' => 'IsEntityHoldingAmmoWeapon',
+            'offset' => 'IsEntityHoldingAmmoWeapon'
+        ],
+
     ];
 
 

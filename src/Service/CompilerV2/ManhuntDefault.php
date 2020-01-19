@@ -63,6 +63,8 @@ class ManhuntDefault
      */
     public $functionForceFloat = [
 //        'round' => [true],
+        'sethuntertauntprobability' => [false, true],
+        'entityplaycutsceneanimation' => [false, false, true, false],
         'setambienttrackvolume' => [false, false, true],
         'sethuntergunfireminpause' => [false, true],
         'helisetorientation' => [false, true],

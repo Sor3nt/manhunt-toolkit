@@ -2,6 +2,7 @@
 
 namespace App\Service\CompilerV2;
 
+use App\MHT;
 use App\Service\Helper;
 use Exception;
 
@@ -1254,7 +1255,13 @@ class Evaluate{
                     $this->add($writeDebugFunction['offset'], "Offset");
 
                     if ($association->isLastWriteDebugParam === null || $association->isLastWriteDebugParam === true){
-                        $this->add('74000000');
+                        if ($compiler->game == MHT::GAME_MANHUNT){
+                            $this->add('73000000');
+
+                        }else{
+                            $this->add('74000000');
+
+                        }
                     }
                 }else{
 

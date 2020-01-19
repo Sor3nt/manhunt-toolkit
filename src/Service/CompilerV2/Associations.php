@@ -346,6 +346,7 @@ class Associations
             $this->type = Tokens::T_CONSTANT;
             $this->value = $value;
             $this->section = "header";
+
             $this->offset = Helper::fromHexToInt($constant['offset']);
             $this->varType = isset($constant['varType']) ? $constant['varType'] : 'integer';
             return;
@@ -473,14 +474,20 @@ class Associations
                 if ($compiler->consumeIfTrue("(")){
                     $parameters = $this->consumeParameters($compiler, $this->value);
 
-                    $parameterCount = 0;
-                    foreach ($parameters as $parameter) {
-                        $parameterCount += count($parameter['names']);
+                    if (count($parameters) == 0){
+                        $compiler->consumeIfTrue(')'); //Skip ")"
+                    }else{
+                        $parameterCount = 0;
+                        foreach ($parameters as $parameter) {
+                            $parameterCount += count($parameter['names']);
+                        }
+
+                        $compiler->offsetProcedureVariable = -12;
+
+                        $this->applyVariables($compiler, $parameters, true);
+
                     }
 
-                    $compiler->offsetProcedureVariable = -12;
-
-                    $this->applyVariables($compiler, $parameters, true);
                 }
 
                 // Return type

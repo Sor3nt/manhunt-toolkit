@@ -350,24 +350,33 @@ class Compiler
         if (!isset($this->strings4Script[$currentScriptName]))
             $this->strings4Script[$currentScriptName] = [];
 
-        $len = strlen($string) + 1;
+        $len = strlen($string);
+
 
         $newString = new Associations();
         $newString->value = $string;
         $newString->section = "header";
         $newString->offset = $this->offsetGlobalVariable;
         $newString->scriptName = $currentScriptName;
-        $newString->size = $len;
 
+        if ($this->game == MHT::GAME_MANHUNT){
+
+
+            if (4 - $len % 4 != 0) $len +=  4 - $len % 4;
+
+            $newString->size = $len;
+        }else{
+            $len += 1;
+            $newString->size = $len;
+        }
 
 
         $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
 
 
-//        if ($len != 1){
+        if ($this->game == MHT::GAME_MANHUNT_2){
             if (4 - $len % 4 != 0) $len += 4 - $len % 4;
-//        }
-//        var_dump('addString ->' . $string . " => " . $this->offsetGlobalVariable . " add " . $len);
+        }
 
         $this->offsetGlobalVariable += $len;
     }
@@ -1014,18 +1023,20 @@ class Compiler
                 $objectType = "state";
             }
 
+
+            /**
+             * anything is a boolean ? mkay
+             */
+            if ($this->game == MHT::GAME_MANHUNT){
+                $objectType = "boolean";
+            }
+
             $occurrences = [];
 
             $definitionCount = 0;
             foreach ($this->variables as $_variable) {
                 if ($_variable['name'] == $variable['name']){
 
-//                    if ($_variable['section'] == $variable['scriptName']) continue;
-
-//
-//if ($_variable['name'] == "triggername"){
-//    var_dump($_variable);
-//}
                     if ($definitionCount >= 1 ){
                         $offset = Helper::fromIntToHex($_variable['offset'] - $_variable['size']);
 
@@ -1055,6 +1066,10 @@ class Compiler
                 $hierarchieType = "ffffffff";
                 $offset = "ffffffff";
                 $size = "ffffffff";
+
+                if ($this->game == MHT::GAME_MANHUNT){
+                    $objectType = "ffffffff";
+                }
 
             }
 

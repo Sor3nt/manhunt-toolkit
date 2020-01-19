@@ -381,6 +381,7 @@ class EvaluateVariable{
 
             if ($type == Tokens::T_ADDITION) {
                 $this->add('50000000', 'T_ADDITION (float)');
+
             }else if ($type == Tokens::T_MULTIPLY){
                 $this->add('52000000', 'T_MULTIPLY (float)');
             }else if ($type == Tokens::T_SUBSTRACTION){
