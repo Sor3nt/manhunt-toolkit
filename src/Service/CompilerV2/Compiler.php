@@ -306,7 +306,7 @@ class Compiler
 
         return [
 
-            'CODE' => $this->codes,
+            'CODE' => $this->getCODE(),
             'DATA' => $this->generateDATA(),
             'STAB' => $this->generateSTAB(),
             'SCPT' => $this->generateSCPT(),
@@ -1020,6 +1020,12 @@ class Compiler
             foreach ($this->variables as $_variable) {
                 if ($_variable['name'] == $variable['name']){
 
+//                    if ($_variable['section'] == $variable['scriptName']) continue;
+
+//
+//if ($_variable['name'] == "triggername"){
+//    var_dump($_variable);
+//}
                     if ($definitionCount >= 1 ){
                         $offset = Helper::fromIntToHex($_variable['offset'] - $_variable['size']);
 

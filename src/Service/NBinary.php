@@ -53,10 +53,10 @@ class NBinary{
 
     public function jumpTo( $offset, $absolutePosition = true ){
         if ($absolutePosition == false){
-            if ($offset > $this->length()) die("jump to not possible, out of range => " . $offset . " max: " . $this->length());
+            if ($offset > $this->length()) throw new \Exception("jump to not possible, out of range => " . $offset . " max: " . $this->length());
             $this->current += $offset;
         }else{
-            if ($offset > $this->length()) die("jump to not possible, out of range => " . $offset . " max: " . $this->length());
+            if ($offset > $this->length()) throw new \Exception("jump to not possible, out of range => " . $offset . " max: " . $this->length());
             $this->current = $offset;
         }
     }

@@ -102,6 +102,7 @@ class Build {
     }
 
     private function buildCODE( $records ){
+//        var_dump($records['CODE']);exit;
         return $this->buildLabelSizeData("CODE", hex2bin(implode("", $records['CODE'])));
     }
 

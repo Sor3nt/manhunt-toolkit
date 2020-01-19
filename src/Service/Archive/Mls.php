@@ -4,7 +4,7 @@ namespace App\Service\Archive;
 use App\MHT;
 use App\Service\Archive\Mls\Build;
 use App\Service\Archive\Mls\Extract;
-use App\Service\Compiler\Compiler;
+use App\Service\CompilerV2\Compiler;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 
@@ -51,6 +51,13 @@ class Mls extends Archive {
     }
 
 
+    /**
+     * @param Finder $finder
+     * @param $game
+     * @param $platform
+     * @return array
+     * @throws \Exception
+     */
     private function prepareData( Finder $finder, $game, $platform ){
 
         $scripts = [];
@@ -78,15 +85,18 @@ class Mls extends Archive {
         }
 
         //for the supported files, we need to compile the src and generate the needed sections
-        $compiler = new Compiler();
+        $levelScriptCompiler = new Compiler($scripts[0]['SRCE'], $game, $platform);
+        $levelScriptCompiled = $levelScriptCompiler->compile();
 
-        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game, $platform);
+//        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game, $platform);
 
         foreach ($scripts as &$script) {
             if (!isset($script['CODE'])){
-                $compiler = new Compiler();
+                $compiler = new Compiler($script['SRCE'], $game, $platform);
+                $compiler->levelScript = $levelScriptCompiler;
+
                 $name = $script['NAME']['name'];
-                $script = $compiler->parse($script['SRCE'], $levelScriptCompiled, $game, $platform);
+                $script = $compiler->compile();
                 $script['NAME'] = [ 'name' => $name];
             }
         }
@@ -99,6 +109,7 @@ class Mls extends Archive {
      * @param $game
      * @param $platform
      * @return string
+     * @throws \Exception
      */
     public function pack( $scripts, $game, $platform){
 
@@ -117,53 +128,96 @@ class Mls extends Archive {
 
     public function getValidatedResults( $data, $game, $platform ){
 
-        $levelScript = false;
+        $levelScript = null;
 
         $results = [];
 
-        foreach ($data as $index => $mhsc) {
+        foreach ($data as $mhscIndex => $mhsc) {
 
 
 
 
             $scriptName = $mhsc['NAME']['name'];
 
-            $compiler = new Compiler();
             try{
-//                throw new \Exception("t");
+                $compiler = new Compiler($mhsc['SRCE'], $game, $platform);
+                $compiler->levelScript = $levelScript;
+                $subMls = $compiler->compile();
 
-                $compiled = $compiler->parse($mhsc['SRCE'], $levelScript, $game, $platform);
-
-                if ($index == 0){
+                if ($mhscIndex == 0){
                     //todo: check ENTT not the index
-                    $levelScript = $compiled;
+                    $levelScript = $compiler;
                 }
 
-                if ($compiled['CODE'] != $mhsc['CODE']){
+                if(!$compiler->validateCode($mhsc['CODE'])){
                     throw new \Exception('CODE did not match');
                 }
 
-                $results[ 'supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
+
+                foreach ($subMls as $index => $section) {
+#
+#                    //only used inside the compiler
+                    if ($index == "CODE") continue;
+                    if ($index == "extra") continue;
+
+                    //memory is not correct but works...
+                    if ($index == "DMEM") continue;
+                    if ($index == "SMEM") continue;
+
+                    //we do not generate the LINE (debug stuff)
+                    if ($index == "LINE") continue;
+                    if ($index == "STAB" && count($section) == 0) continue;
+
+                    if ($index == "DATA"){
+
+                        if (!isset($mhsc[$index])){
+
+                            if (
+                                count($section['const']) == 0 &&
+                                count($section['strings']) == 0
+                            ){
+                                continue;
+                            }
+                        }
+
+                        if ($mhsc[$index] != $section){
+                            unset($mhsc[$index]['byteReserved']);
+
+                        }
+                    }
+
+                    if ($index == "STAB"){
+                        foreach ($mhsc[$index] as &$mhl) {
+                            unset($mhl['nameGarbage']);
+                        }
+                    }
+
+                    if ($mhsc[$index] != $section){
+                        throw new \Exception($index . ' did not match');
+                    }
+                }
+
+                $results[ 'supported/' . $mhscIndex . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
 
             }catch(\Exception $e){
 
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.error' ] = $e->getMessage();
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.scpt' ] = $mhsc['SCPT'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.smem' ] = $mhsc['SMEM'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.dmem' ] = $mhsc['DMEM'];
-                $results[ 'not-supported/' . $index . "#" . $scriptName . '.entt' ] = $mhsc['ENTT'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.error' ] = $e->getMessage();
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.scpt' ] = $mhsc['SCPT'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.smem' ] = $mhsc['SMEM'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.dmem' ] = $mhsc['DMEM'];
+                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.entt' ] = $mhsc['ENTT'];
 
                 if (isset($mhsc['DATA'])){
-                    $results[ 'not-supported/' . $index . "#" . $scriptName . '.data' ] = $mhsc['DATA'];
+                    $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.data' ] = $mhsc['DATA'];
                 }
 
                 if (isset($mhsc['STAB'])) {
-                    $results[ 'not-supported/' . $index . "#" . $scriptName . '.stab' ] = $mhsc['STAB'];
+                    $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.stab' ] = $mhsc['STAB'];
                 }
             }
         }

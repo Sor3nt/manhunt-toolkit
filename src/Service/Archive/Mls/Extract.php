@@ -261,6 +261,14 @@ class Extract {
                         $number = 1.38;
                     }
 
+                    if ($number == -13.199999809265137){
+                        $number = -13.2;
+                    }
+
+                    if ($number == 7.800000190734863){
+                        $number = 7.8;
+                    }
+
                 }
 
                 $result['const'][] = $number;
@@ -419,7 +427,7 @@ class Extract {
 
 
                     default:
-
+var_dump($valueType);
                         $objectType = $valueType;
 
                         //                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));

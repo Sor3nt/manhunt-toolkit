@@ -223,6 +223,10 @@ class Evaluate{
 
                         new Evaluate($this->compiler, $argument['fallback'], $this->compiler->evalVar->msg);
 
+                        if ($argument['fallback']->size == null){
+                            throw new \Exception('Fallback size is null ?');
+                        }
+
                         $this->compiler->evalVar->readSize($argument['fallback']->size);
 
                         $this->compiler->evalVar->retString();
@@ -1486,8 +1490,6 @@ class Evaluate{
 
         $varType = $this->compiler->detectVarType($associations[0]);
 
-        var_dump("inital " . $varType);
-
         foreach ($associations as $index => $association) {
 
             if ($this->compiler->isTypeMathOperator($association->type)){
@@ -1589,9 +1591,6 @@ class Evaluate{
                     if ($varType == null){
                         throw new Exception("Unable to detect varType");
                     }
-
-                    var_dump("based on " . $varType);
-
 
                 }
 

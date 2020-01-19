@@ -11,6 +11,12 @@ class Helper{
         $array = $temp + $array;
     }
 
+    static function moveArrayIndexToBottom(&$array, $key) {
+        $value = $array[$key];
+        unset($array[$key]);
+        $array[$key] = $value;
+    }
+
     //some types are equal to other types. we do not need to duplicate the logic
     static function getAliasForType( $type ){
         return str_replace([
