@@ -102,6 +102,8 @@ class Compiler
 
     public $storedProcedureCallOffsets = [];
 
+    public $isGameSccSrc;
+
     public function debug($stuff, $exit = true){
         if ($this->debug){
             var_dump($stuff);
@@ -109,8 +111,10 @@ class Compiler
         }
     }
 
-    public function __construct($source, $game, $platform)
+    public function __construct($source, $game, $platform, $isGameSccSrc = false)
     {
+
+        $this->isGameSccSrc = $isGameSccSrc;
 
         $this->evalVar = new EvaluateVariable($this);
 
@@ -229,6 +233,15 @@ class Compiler
      * @throws Exception
      */
     public function compile(){
+
+
+        if ($this->isGameSccSrc == false){
+            $gameScriptCompiler = new Compiler($this->gameClass->gameSccSrc, $this->game, $this->platform, true);
+            $gameScriptCompiler->compile();
+            $this->gameScript = $gameScriptCompiler;
+        }
+
+
 
         while ($this->current < count($this->tokens)) {
 
@@ -476,7 +489,9 @@ class Compiler
                     if ($size % 4 != 0){
                         $size += $data['size'] % 4;
                     }else{
-                        $size += 4;
+                        if ($this->game == MHT::GAME_MANHUNT_2) {
+                            $size += 4;
+                        }
                     }
                 }
 

@@ -716,6 +716,7 @@ class Associations
             case '-':    $this->type = Tokens::T_SUBSTRACTION; break;
             case '*':    $this->type = Tokens::T_MULTIPLY; break;
             case '/':    $this->type = Tokens::T_DIVISION; break;
+            case 'div':    $this->type = Tokens::T_DIVISION; break;
             case ':=':   $this->type = Tokens::T_ASSIGN; break;
             case '=':    $this->type = Tokens::T_IS_EQUAL; break;
             case '<':    $this->type = Tokens::T_IS_SMALLER; break;

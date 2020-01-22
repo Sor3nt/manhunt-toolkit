@@ -99,7 +99,7 @@ class ManhuntDefault
         'aidefinegoalhidenamedhunter' => [false, false, false, false, true, false],
         'setplayerheading' => [true],
         'aientityplayanimlooped' => [false, false, true],
-        'aidefinegoalbebuddy' => [false, false, false, true],
+        'aidefinegoalbebuddy' => [false, false, false, true, false],
         'handcamsetall' => [false, true, true, true, true, true],
         'cameraforcelookatentity' => [false, false, false, false, true],
 

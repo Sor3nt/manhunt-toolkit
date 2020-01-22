@@ -18,6 +18,21 @@ class Manhunt extends ManhuntDefault
     
     public $constants = [
 
+        'weather_foggy' => [
+            'offset' => '04000000'
+        ],
+
+        'aispeech_d1v1_der_padlock' => [
+            'offset' => '31000000'
+        ],
+        'aispeech_d1v1_der_torture' => [
+            'offset' => '33000000'
+        ],
+
+        'aispeech_d1v1_der_stairs' => [
+            'offset' => '30000000'
+        ],
+
         'scripted_track_piggsy_grill1' => [
             'offset' => '00000000'
         ],
@@ -266,7 +281,7 @@ class Manhunt extends ManhuntDefault
             'offset' => '25000000'
         ],
         'voice_hooded1voice1' => [
-            'offset' => 'voice_hooded1voice1'
+            'offset' => '00000000'
         ],
         'ct_small_bat' => [
             'offset' => '21000000'
@@ -365,11 +380,11 @@ class Manhunt extends ManhuntDefault
         ],
 
         'hud_all_off' => [
-            'offset' => 'hud_all_off'
+            'offset' => '00000000'
         ],
 
         'mtt_training' => [
-            'offset' => 'mtt_training'
+            'offset' => '00000000'
         ],
 
         'hud_health' => [
@@ -399,7 +414,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'difficulty_easy' => [
-            'offset' => 'difficulty_easy'
+            'offset' => '00000000'
         ],
         'aispeech_d1v1_trf_hoods_level_start' => [
             'offset' => '27000000'
@@ -611,6 +626,7 @@ class Manhunt extends ManhuntDefault
         'graphmodifyconnections' => [
             'name' => 'graphmodifyconnections',
             'offset' => 'e8000000',
+            'return' => 'integer',
         ],
 
         'lockentity' => [
@@ -1010,19 +1026,19 @@ class Manhunt extends ManhuntDefault
         ],
         'writedebugobject' => [
             'name' => 'writedebugobject',
-            'offset' => 'writedebugobject'
+            'offset' => '00000000'
         ],
         'setmoveridleposition' => [
             'name' => 'setmoveridleposition',
-            'offset' => 'setmoveridleposition'
+            'offset' => '00000000'
         ],
         'movemovertoidleposition' => [
             'name' => 'movemovertoidleposition',
-            'offset' => 'movemovertoidleposition'
+            'offset' => '00000000'
         ],
         'setmoverspeed' => [
             'name' => 'setmoverspeed',
-            'offset' => 'setmoverspeed'
+            'offset' => '00000000'
         ],
         'switchlightoff' => [
             'name' => 'switchlightoff',
@@ -1095,8 +1111,8 @@ class Manhunt extends ManhuntDefault
         ],
         'rotateentityleft' => [
             'name' => 'rotateentityleft',
-            'offset' => '4d000000',
-            'return' => 'Boolean'
+            'offset' => '7d000000',
+            'return' => 'integer'
         ],
         'setmaxnumberofrats' => [
             'name' => 'setmaxnumberofrats',
@@ -1410,7 +1426,7 @@ class Manhunt extends ManhuntDefault
 
         'aidefinegoalbebuddy' => [
             'name' => 'aidefinegoalbebuddy',
-            'offset' => 'aidefinegoalbebuddy'
+            'offset' => '00000000'
         ],
 
         'aisetentitystayonpath' => [
@@ -1458,7 +1474,8 @@ class Manhunt extends ManhuntDefault
 
         'playsplinefiledefault' => [
             'name' => 'playsplinefiledefault',
-            'offset' => 'c9010000'
+            'offset' => 'c9010000',
+            'return' => 'integer'
         ],
 
         'issplineplaying' => [
@@ -1512,7 +1529,7 @@ class Manhunt extends ManhuntDefault
 
         'aimodifygoalcrouch' => [
             'name' => 'aimodifygoalcrouch',
-            'offset' => 'aimodifygoalcrouch'
+            'offset' => '00000000'
         ],
         'setweaponammo' => [
             'name' => 'setweaponammo',
@@ -1521,7 +1538,7 @@ class Manhunt extends ManhuntDefault
 
         'aisetbuddyfollow' => [
             'name' => 'aisetbuddyfollow',
-            'offset' => 'aisetbuddyfollow'
+            'offset' => '00000000'
         ],
 
         'aisethunteridledirection' => [
@@ -1617,7 +1634,8 @@ class Manhunt extends ManhuntDefault
 
         'newparticleeffect' => [
             'name' => 'newparticleeffect',
-            'offset' => 'a7000000'
+            'offset' => 'a7000000',
+            'return' => 'integer'
         ],
         'killthisscript' => [
             'name' => 'killthisscript',
@@ -1626,7 +1644,8 @@ class Manhunt extends ManhuntDefault
 
         'getentitymatrix' => [
             'name' => 'getentitymatrix',
-            'offset' => '0e010000'
+            'offset' => '0e010000',
+            'return' => 'integer'
         ],
 
         'attacheffecttomatrix' => [
@@ -1666,7 +1685,8 @@ class Manhunt extends ManhuntDefault
 
         'playscriptaudioslotloopedfromentity' => [
             'name' => 'playscriptaudioslotloopedfromentity',
-            'offset' => 'c2020000'
+            'offset' => 'c2020000',
+            'return' => 'integer'
         ],
 
         'aiisidle' => [
@@ -1913,7 +1933,8 @@ class Manhunt extends ManhuntDefault
 
         'getlastitempickedup' => [
             'name' => 'getlastitempickedup',
-            'offset' => 'c8010000'
+            'offset' => 'c8010000',
+            'return' => 'integer'
         ],
 
         'isnameditemininventory' => [
@@ -2035,22 +2056,22 @@ class Manhunt extends ManhuntDefault
 
 		'isentitydying' => [
             'name' => 'IsEntityDying',
-            'offset' => 'IsEntityDying'
+            'offset' => '00000000'
         ],
 
 		'aiisenemyinradius' => [
             'name' => 'AIIsEnemyInRadius',
-            'offset' => 'AIIsEnemyInRadius'
+            'offset' => '00000000'
         ],
 
 		'ailookatentity' => [
             'name' => 'AILookAtEntity',
-            'offset' => 'AILookAtEntity'
+            'offset' => '00000000'
         ],
 
 		'getinventoryitemfromname' => [
             'name' => 'GetInventoryItemFromName',
-            'offset' => 'GetInventoryItemFromName'
+            'offset' => '00000000'
         ],
 
 		'subtractvectors' => [
@@ -2060,13 +2081,13 @@ class Manhunt extends ManhuntDefault
 
 		'aigethunterlastnodename' => [
             'name' => 'AIGetHunterLastNodeName',
-            'offset' => 'AIGetHunterLastNodeName',
+            'offset' => '00000000',
             'return' => 'string'
         ],
 
 		'isentityholdingammoweapon' => [
             'name' => 'IsEntityHoldingAmmoWeapon',
-            'offset' => 'IsEntityHoldingAmmoWeapon'
+            'offset' => '00000000'
         ],
 
 		'iswhitenoisedisplaying' => [
@@ -2086,7 +2107,81 @@ class Manhunt extends ManhuntDefault
             'return' => 'integer'
         ],
 
+
+		'killgametext' => [
+            'name' => 'KillGameText',
+            'offset' => '07010000'
+        ],
+		'aiaddallhuntersinpackasleaderenemies' => [
+            'name' => 'AIAddAllHuntersInPackAsLeaderEnemies',
+            'offset' => '67010000'
+        ],
+
     ];
+
+    public $gameSccSrc = "{\$t-}	{	trace off 	}
+{	Program Description		}
+{							}
+SCRIPTMAIN	Game_Scripts;
+{ Entity To Run Script From 			}
+
+ENTITY
+	ManHunt : et_game;
+	
+
+VAR 
+{GAME SCOPED VARS}
+game_JournoStreetsTries,		
+game_WeaselsLeft,	
+willie_game_int,
+willie_game_int2,	
+game_int_global 	: integer;
+
+bHostage1,
+bHostage2,
+bHostage3,
+bHostage4			: boolean;
+
+fHostage1,
+fHostage2,
+fHostage3,
+fHostage4			: boolean;
+
+	
+{******************************************************}	
+
+SCRIPT	OnCreate;
+
+VAR
+
+{	Script Start	}
+begin
+	game_int_global := 11;
+	game_WeaselsLeft := 0;
+	willie_game_int := 0;
+	willie_game_int2 := 0;
+	
+	WriteDebug('game_int_global : ',	game_int_global);	
+	WriteDebug('Game_Scripts done');	
+	
+	{Init Chris game var for Journo streets}
+	game_JournoStreetsTries := 0;
+	
+	{Init Hostage Game Vars}
+	bHostage1	:= FALSE;
+	bHostage2	:= FALSE;
+	bHostage3	:= FALSE;
+	bHostage4	:= FALSE;
+	
+	{Init Hostage Game Vars}
+	fHostage1	:= FALSE;
+	fHostage2	:= FALSE;
+	fHostage3	:= FALSE;
+	fHostage4	:= FALSE;
+	
+	end;
+
+end.";
 
 
 //
