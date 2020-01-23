@@ -12,6 +12,10 @@ class Manhunt2 extends ManhuntDefault
         $this->functionEventDefinition = array_merge($this->functionEventDefinition, [
             '__default__' => '68000000'
         ]);
+
+        $this->functionForceFloat = array_merge($this->functionForceFloat, [
+            'aidefinegoalbebuddy' => [false, false, false, true, false],
+        ]);
     }
 
 

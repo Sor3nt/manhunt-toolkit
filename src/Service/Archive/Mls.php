@@ -166,7 +166,8 @@ class Mls extends Archive {
 
                     //we do not generate the LINE (debug stuff)
                     if ($index == "LINE") continue;
-                    if ($index == "STAB" && count($section) == 0) continue;
+
+                    if ($index == "STAB") continue;
 
                     if ($index == "DATA"){
 

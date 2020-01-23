@@ -628,11 +628,11 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("For statement");
 
-                if ($compiler->game == MHT::GAME_MANHUNT){
-                    $this->add('16000000');
-                }else{
+//                if ($compiler->game == MHT::GAME_MANHUNT){
+//                    $this->add('16000000');
+//                }else{
                     $this->add('15000000');
-                }
+//                }
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
                 $this->add('01000000');
@@ -650,11 +650,11 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("For statement");
 
 
-                if ($compiler->game == MHT::GAME_MANHUNT){
-                    $this->add('14000000');
-                }else{
+//                if ($compiler->game == MHT::GAME_MANHUNT){
+//                    $this->add('14000000');
+//                }else{
                     $this->add('13000000');
-                }
+//                }
                 $this->add('02000000');
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
@@ -679,30 +679,30 @@ class Evaluate{
                 }
 
                 $compiler->evalVar->msg = sprintf("For statement");
-                if ($compiler->game == MHT::GAME_MANHUNT){
-                    $this->add('2d000000');
-                    $this->add('04000000');
-                    $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
-                }else{
+//                if ($compiler->game == MHT::GAME_MANHUNT){
+//                    $this->add('2d000000');
+//                    $this->add('04000000');
+//                    $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
+//                }else{
                     $this->add('2f000000');
                     $this->add('04000000');
                     $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
-                }
+//                }
 
                 $this->add('3c000000', 'Jump to');
                 $this->add(Helper::fromIntToHex($startOffset * 4), 'Start Offset');
 
 
                 $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-                if ($compiler->game == MHT::GAME_MANHUNT) {
-                    $this->add('2e000000');
-                    $this->add('04000000');
-                    $this->add(Helper::fromIntToHex($association->childs[0]->offset), 'Variable offset');
-                }else{
+//                if ($compiler->game == MHT::GAME_MANHUNT) {
+//                    $this->add('2e000000');
+//                    $this->add('04000000');
+//                    $this->add(Helper::fromIntToHex($association->childs[0]->offset), 'Variable offset');
+//                }else{
                     $this->add('30000000');
                     $this->add('04000000');
                     $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4), 'Variable offset');
-                }
+//                }
                 break;
 
             case Tokens::T_CONDITION:
@@ -1265,7 +1265,23 @@ class Evaluate{
                                 $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
                                 break;
                             default:
-                                throw new Exception("Unknown WriteDebug function return " . $param->return);
+                                throw new Exception("Unknown WriteDebug function return " . $param->value);
+
+
+                        }
+                    }else if ($param->type == Tokens::T_VARIABLE) {
+                        switch ($param->varType){
+                            case 'integer':
+                                $writeDebugFunction = $compiler->gameClass->getFunction('writedebuginteger');
+                                break;
+                            case 'string':
+                                $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
+                                break;
+                            case 'float':
+                                $writeDebugFunction = $compiler->gameClass->getFunction('writedebugfloat');
+                                break;
+                            default:
+                                throw new Exception("Unknown WriteDebug function return " . $param->value);
 
 
                         }
@@ -1274,7 +1290,7 @@ class Evaluate{
                         throw new Exception("Unknown WriteDebug function for " . $param->varType);
                     }
 
-                    $this->add($writeDebugFunction['offset'], "Offset");
+                    $this->add($writeDebugFunction['offset'], "Offset " . $param->type . " " . $param->varType);
 
                     if ($association->isLastWriteDebugParam === null || $association->isLastWriteDebugParam === true){
                         if ($compiler->game == MHT::GAME_MANHUNT){

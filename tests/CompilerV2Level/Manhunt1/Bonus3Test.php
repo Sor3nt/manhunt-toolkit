@@ -7,12 +7,12 @@ use App\Service\Resources;
 use App\Tests\ValidateMls;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class Bonus2Test extends ValidateMls
+class Bonus3Test extends ValidateMls
 {
 
     public function testLevelScript()
     {
-        echo "\n* MLS: Testing Manhunt 1 PC (compile Bonus2) ==> ";
-        $this->process('/Archive/Mls/Manhunt1/PC/bonus2.mls', MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
+        echo "\n* MLS: Testing Manhunt 1 PC (compile Bonus3) ==> ";
+        $this->process('/Archive/Mls/Manhunt1/PC/bonus3.mls', MHT::GAME_MANHUNT, MHT::PLATFORM_PC);
     }
 }

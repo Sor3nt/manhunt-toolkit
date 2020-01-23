@@ -737,6 +737,7 @@ class Associations
             case 'end.':
             //Uhm its a mistake by the r* devs...
             case 'd.':
+            case '.':
             case ',':    $this->type = Tokens::T_NOP; break;
 
             default:

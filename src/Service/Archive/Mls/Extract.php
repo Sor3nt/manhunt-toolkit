@@ -292,6 +292,18 @@ class Extract {
 
             if ($this->game == MHT::GAME_MANHUNT){
                 $string = $binary->getString("\x00", true);
+
+                if (mb_strpos($string, "\xda") !== false){
+                    $parts = explode("\xda", $string);
+
+                    //remove empty entries
+                    $parts = array_filter($parts);
+                    foreach ($parts as $part) {
+                        $result['strings'][] = $part;
+                    }
+                    continue;
+//                    var_dump(array_filter($parts));exit;
+                }
             }else{
                 $string = $binary->getString("\xda", true);
 

@@ -144,12 +144,23 @@ class EvaluateVariable{
         ){
             $appendix = 'write to ' . $association->value;
 
-            $this->compiler->log(sprintf("Write to String"));
+            if ($association->isLevelVar) {
+                $this->compiler->log(sprintf("Write to LevelVar String"));
+                $this->add('1c000000', $appendix);
+                $this->add('04000000', $appendix);
+                $this->compiler->levelVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
+                $this->add(Helper::fromIntToHex($association->offset), 'String offset');
+                $this->add('20000000', $appendix);
 
-            $this->add($association->section == "header" ? '21000000' : '22000000', $appendix);
-            $this->add('04000000', $appendix);
-            $this->add('04000000', $appendix);
-            $this->add(Helper::fromIntToHex($association->offset), 'String offset');
+            }else{
+
+                $this->compiler->log(sprintf("Write to String"));
+
+                $this->add($association->section == "header" ? '21000000' : '22000000', $appendix);
+                $this->add('04000000', $appendix);
+                $this->add('04000000', $appendix);
+                $this->add(Helper::fromIntToHex($association->offset), 'String offset');
+            }
 
             $this->compiler->log(sprintf("Write size %s", $association->size));
             $this->compiler->evalVar->writeSize($association->size);
@@ -164,11 +175,18 @@ class EvaluateVariable{
 
         }else{
 
-            if ($association->isLevelVar){
+            if ($association->isLevelVar) {
                 $this->compiler->log(sprintf("Write to level var %s", $association->value));
                 $this->add('1a000000', 'LevelVar');
                 $this->add('01000000');
                 $this->compiler->levelVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
+                $this->add(Helper::fromIntToHex($association->offset), 'Offset');
+                $this->add('04000000');
+            } else if ($association->isGameVar){
+                $this->compiler->log(sprintf("Write to game var %s", $association->value));
+                $this->add('1d000000', 'GameVar');
+                $this->add('01000000');
+                $this->compiler->gameVarOccurrences[$association->value][] = count($this->compiler->codes) * 4;
                 $this->add(Helper::fromIntToHex($association->offset), 'Offset');
                 $this->add('04000000');
 
@@ -233,7 +251,7 @@ class EvaluateVariable{
         $type = is_null($type) ? $association->varType : $type;
 
         if (in_array($type,
-                ['real', 'float', 'state', 'eaiscriptpriority', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+                ['real', 'float', 'edoorstate', 'state', 'eaiscriptpriority', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
             ) !== false ){
             $this->readVariable($association);
         }

@@ -123,7 +123,9 @@ class Compiler
         $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2();
 
         $this->untouchedSource = $source;
+
         //a special comment
+        $source = str_replace("{OPEN THE DOORS}", "", $source);
         $source = str_replace("}}", "}", $source);
 
         // remove comments / unused code
@@ -146,6 +148,9 @@ class Compiler
          */
         //leftover from the exporter (todo)
         $source = str_replace("\00", "", $source);
+
+        //todo...
+        $source = str_replace("9-i", "9 - i", $source);
 
         //split the parts a little bit more (todo: combine them)
         $source = preg_replace("/\//", " / ", $source);
@@ -510,7 +515,9 @@ class Compiler
                     if ($data['size'] % 4 != 0){
                         $this->offsetScriptVariable += $data['size'] % 4;
                     }else{
-                        $this->offsetScriptVariable += 4;
+                        if ($this->game == MHT::GAME_MANHUNT_2) {
+                            $this->offsetScriptVariable += 4;
+                        }
                     }
                 }
 
@@ -1046,7 +1053,13 @@ class Compiler
              * anything is a boolean ? mkay
              */
             if ($this->game == MHT::GAME_MANHUNT){
-                $objectType = "boolean";
+
+
+                if (isset($this->records[$variable['type']])){
+                    $objectType = "vec3d";
+                }else{
+                    $objectType = "boolean";
+                }
             }
 
             $occurrences = [];
@@ -1101,8 +1114,15 @@ class Compiler
                 $offset = "ffffffff";
                 $size = "ffffffff";
 
+                if ($this->game == MHT::GAME_MANHUNT){
+                    $objectType = "feffffff";
+                }
+
             }
 
+            /**
+             * Looks like the objectType is not in use really...
+             */
             if ($objectType == "ecollectabletype") $objectType = "integer";
             if ($objectType == "entityptr") $objectType = "integer";
             if ($objectType == "array") $objectType = "integer";
