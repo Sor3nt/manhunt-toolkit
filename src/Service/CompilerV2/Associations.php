@@ -100,22 +100,6 @@ class Associations
     public $negate = null;
     public $scriptName = "";
 
-    public function toCsv(){
-        $infos = $this->__debugInfo();
-        $csv = "";
-        foreach ($infos as $key => $value) {
-            if (is_array($value)){
-
-                $csv .= '"' . implode(',', $value) . "\",";
-            }else{
-                $csv .= $value . ",";
-
-            }
-        }
-
-        return substr($csv, 0, -1);
-    }
-
     public function __debugInfo()
     {
 
@@ -719,8 +703,8 @@ class Associations
             case 'mod':  $this->type = Tokens::T_MOD; break;
             case '-':    $this->type = Tokens::T_SUBSTRACTION; break;
             case '*':    $this->type = Tokens::T_MULTIPLY; break;
+            case 'div':
             case '/':    $this->type = Tokens::T_DIVISION; break;
-            case 'div':    $this->type = Tokens::T_DIVISION; break;
             case ':=':   $this->type = Tokens::T_ASSIGN; break;
             case '=':    $this->type = Tokens::T_IS_EQUAL; break;
             case '<':    $this->type = Tokens::T_IS_SMALLER; break;

@@ -109,6 +109,10 @@ class ValidateMls extends KernelTestCase
                 }
             }
 
+            if ($testScript[$index] != $section){
+                var_dump($section);
+            }
+
             $this->assertEquals(
                 $testScript[$index],
                 $section,

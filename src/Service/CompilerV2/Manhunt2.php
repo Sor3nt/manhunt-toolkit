@@ -2,22 +2,8 @@
 
 namespace App\Service\CompilerV2;
 
-use App\Service\Compiler\Token;
-
 class Manhunt2 extends ManhuntDefault
 {
-
-    public function __construct()
-    {
-        $this->functionEventDefinition = array_merge($this->functionEventDefinition, [
-            '__default__' => '68000000'
-        ]);
-
-        $this->functionForceFloat = array_merge($this->functionForceFloat, [
-            'aidefinegoalbebuddy' => [false, false, false, true, false],
-        ]);
-    }
-
 
     public $constants = [
 
@@ -40,7 +26,6 @@ class Manhunt2 extends ManhuntDefault
         'pad_r1' => [
             'offset' => '80000000'
         ],
-
 
         'mover_accel_none' => [
             'offset' => '03000000'
@@ -657,7 +642,6 @@ class Manhunt2 extends ManhuntDefault
         ],
 
     ];
-
     public $functions = [
 //        'this' => [
 //            'name' => 'this',
@@ -1126,14 +1110,6 @@ class Manhunt2 extends ManhuntDefault
         'setdoorstate' => [
             'name' => 'SetDoorState',
             'offset' => '97000000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2: state
-             * - DOOR_CLOSING  => 3
-             */
-            'params' => ['Entity', 'integer'],
-            'desc' => ''
         ],
 
         'setswitchstate' => [
@@ -1185,25 +1161,11 @@ class Manhunt2 extends ManhuntDefault
         'aisethunteronradar' => [
             'name' => 'aisethunteronradar',
             'offset' => 'a8010000',
-            /**
-             * Parameters
-             * 1: ref to me (me[30])
-             * 2: boolean
-             */
-            'params' => ['string', 'Bollean'],
-            'desc' => 'Set the Hunter visibility on the Players Radar'
         ],
 
         'setnextlevelbyname' => [
             'name' => 'SetNextLevelByName',
             'offset' => '4c030000',
-            /**
-             * Parameters
-             * 1: string level name
-             * - A02_The_Old_House
-             */
-            'params' => ['string'],
-            'desc' => ''
         ],
 
         'aisetentityasleader' => [
@@ -1359,232 +1321,91 @@ class Manhunt2 extends ManhuntDefault
         'graphmodifyconnections' => [
             'name' => 'GraphModifyConnections',
             'offset' => 'e9000000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2:
-             * - AISCRIPT_GRAPHLINK_ALLOW_NOTHING => 0
-             * - AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING => 3
-             */
-            'params' => ['Entity', 'integer'],
-            'desc' => ''
         ],
 
         'unfreezeentity' => [
             'name' => 'UnFreezeEntity',
             'offset' => '38010000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             */
-            'params' => ['Entity'],
-            'desc' => ''
         ],
 
         'lockentity' => [
             'name' => 'LockEntity',
             'offset' => '98000000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             */
-            'params' => ['Entity'],
-            'desc' => ''
         ],
 
         'entityplayanim' => [
             'name' => 'EntityPlayAnim',
             'offset' => 'a1010000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2: animation id ?
-             * - PAT_raindow
-             * 3: active state?
-             * - true
-             */
-            'params' => ['Entity', 'string', 'integer'],
-            'desc' => ''
         ],
 
         'setentityscriptsfromentity' => [
             'name' => 'SetEntityScriptsFromEntity',
             'offset' => 'd9010000',
-            /**
-             * Parameters
-             * 1:
-             * - SLockerC_(O)
-             * 2:
-             * - SLockerC_(O)01
-             * - SLockerC_(O)02
-             */
-            'params' => ['string', 'string'],
-            'desc' => ''
         ],
 
         'entityignorecollisions' => [
             'name' => 'EntityIgnoreCollisions',
             'offset' => 'a2020000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2: state
-             * - true
-             * - false
-             */
-            'params' => ['Entity', 'integer'],
-            'desc' => ''
         ],
 
         'aientitycancelanim' => [
             'name' => 'AIEntityCancelAnim',
             'offset' => '17020000',
-            /**
-             * Parameters
-             * 1: Entity name
-             * - SobbingWoman(hunter)
-             * 2: animation name ?
-             * - BAT_INMATE_SMACK_HEAD_ANIM
-             */
-            'params' => ['string', 'string'],
-            'desc' => ''
         ],
 
         'aisetentityidleoverride' => [
             'name' => 'AISetEntityIdleOverRide',
             'offset' => 'b5010000',
-            /**
-             * Parameters
-             * 1: Entity name
-             * - SobbingWoman(hunter)
-             * 2: state 1 boolean
-             * 3: state 2 boolean
-             */
-            'params' => ['string', 'integer', 'integer'],
-            'desc' => ''
         ],
 
         'setentityinvulnerable' => [
             'name' => 'SetEntityInvulnerable',
             'offset' => '5e010000',
-            /**
-             * Parameters
-             * 1: result of getEntity
-             * 2: state boolean
-             */
-            'params' => ['Entity', 'integer'],
-            'desc' => ''
         ],
 
         'aimakeentityblind' => [
             'name' => 'AIMakeEntityBlind',
             'offset' => '71010000',
-            /**
-             * Parameters
-             * 1: Entity name
-             * - SobbingWoman(hunter)
-             * 2: state boolean
-             */
-            'params' => ['string', 'integer'],
-            'desc' => ''
         ],
 
         'aimakeentitydeaf' => [
             'name' => 'AIMakeEntityDeaf',
             'offset' => '72010000',
-            /**
-             * Parameters
-             * 1: Entity name
-             * - SobbingWoman(hunter)
-             * 2: state boolean
-             */
-            'params' => ['string', 'integer'],
-            'desc' => ''
         ],
 
         'aiaddhuntertoleadersubpack' => [
             'name' => 'AIAddHunterToLeaderSubpack',
             'offset' => '52010000',
-            /**
-             * Parameters
-             * 1: Entity name
-             * - leader(leader)
-             * 2: unknown string
-             * - subManWoman
-             * 3: Entity name
-             * - SobbingWoman(hunter)
-             */
-            'params' => ['string', 'string', 'string'],
-            'desc' => ''
         ],
 
         'playerdropbody' => [
             'name' => 'PlayerDropBody',
             'offset' => 'b4020000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
         ],
 
         'playerfullbodyanimdone' => [
             'name' => 'PlayerFullBodyAnimDone',
             'offset' => '96020000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
         ],
 
         'enableuserinput' => [
             'name' => 'EnableUserInput',
             'offset' => 'f5000000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
         ],
 
         'showentity' => [
             'name' => 'ShowEntity',
             'offset' => '82000000',
-            /**
-             * Parameters
-             * 1: result of getEntity
-             */
-            'params' => ['Entity'],
-            'desc' => ''
         ],
 
         'cutscenecamerainit' => [
             'name' => 'CutSceneCameraInit',
             'offset' => '5f030000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
         ],
 
         'cutscenecamerasetpos' => [
             'name' => 'CutSceneCameraSetPos',
             'offset' => '5a030000',
-            /**
-             * Parameters
-             * 1: float
-             * 2: float
-             * 3: float
-             * 4: float
-             */
-            'params' => ['Float', 'Float', 'Float', 'Float'],
-            'desc' => ''
         ],
 
         'cutscenecamerasettarget' => [
@@ -1595,103 +1416,36 @@ class Manhunt2 extends ManhuntDefault
         'cutscenecamerasetfov' => [
             'name' => 'CutSceneCameraSetFOV',
             'offset' => '5c030000',
-            /**
-             * Parameters
-             * 1: float
-             * 2: float
-             */
-            'params' => ['Float', 'Float'],
-            'desc' => ''
         ],
 
         'cutscenecamerasetroll' => [
             'name' => 'CutSceneCameraSetRoll',
             'offset' => '5d030000',
-            /**
-             * Parameters
-             * 1: float
-             * 2: float
-             */
-            'params' => ['Float', 'Float'],
-            'desc' => ''
         ],
 
         'cutscenecamerasethandycam' => [
             'name' => 'CutSceneCameraSetHandyCam',
             'offset' => '6d030000',
-            /**
-             * Parameters
-             * 1: state boolean
-             */
-            'params' => ['integer'],
-            'desc' => ''
         ],
 
         'aidefinegoalgotonodeidle' => [
             'name' => 'AIDefineGoalGotoNodeIdle',
             'offset' => 'b1010000',
-            /**
-             * Parameters
-             * 1: string
-             * - goalAmbush
-             * 2: string
-             * - ref to me (me[30])
-             * 3: state
-             * - AISCRIPT_HIGHPRIORITY => 1
-             * 4: string
-             * - AMBUSHNODE
-             * 5: state
-             * - AISCRIPT_RUNMOVESPEED => 0
-             * 6: state boolean
-             */
-            'params' => ['string', 'string', 'integer', 'string', 'integer', 'integer'],
-            'desc' => ''
         ],
 
         'aidefinegoalgotonode' => [
             'name' => 'AIDefineGoalGotoNode',
             'offset' => '6f010000',
-            /**
-             * Parameters
-             * 1: string
-             * - goalHideTwo
-             * 2: stringArray
-             * - ref to me (me[30])
-             * 3: state
-             * - AISCRIPT_HIGHPRIORITY => 1
-             * 4: string
-             * - HIDERTWO
-             * 5: state
-             * - AISCRIPT_RUNMOVESPEED => 0
-             * 6: state boolean
-             */
-            'params' => ['string', 'string', 'integer', 'string', 'integer', 'integer'],
-            'desc' => ''
         ],
 
         'setpedlockonable' => [
             'name' => 'SetPedLockonable',
             'offset' => '97020000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2: state boolean
-             */
-            'params' => ['Entity', 'integer'],
-            'desc' => ''
         ],
 
         'moveentity' => [
             'name' => 'MoveEntity',
             'offset' => '7d000000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2: ref to vec3d (3x float)
-             * 3: integer
-             */
-            'params' => ['Entity', 'vec3d', 'integer'],
-            'desc' => ''
         ],
 
         'setpedorientation' => [
@@ -1703,14 +1457,6 @@ class Manhunt2 extends ManhuntDefault
         'setmoverstate' => [
             'name' => 'SetMoverState',
             'offset' => '3a010000',
-            /**
-             * Parameters
-             * 1: result of GetEntity
-             * 2: integer
-             * - MOVER_FORWARD => 1
-             */
-            'params' => ['Entity', 'integer'],
-            'desc' => ''
         ],
 
         'aisetidlehomenode' => [
@@ -1722,141 +1468,58 @@ class Manhunt2 extends ManhuntDefault
         'radarpositionclearentity' => [
             'name' => 'RadarPositionClearEntity',
             'offset' => 'e1020000',
-            /**
-             * Parameters
-             * 1: result of getEntity
-             */
-            'params' => ['Entity'],
-            'desc' => ''
         ],
 
         'createboxtrigger' => [
             'name' => 'CreateBoxTrigger',
             'offset' => '28010000',
-            /**
-             * Parameters
-             * 1: vec3D
-             * 2: vec3D
-             * 3: String
-             * - triggerOutOfWindow
-             */
-            'params' => ['vec3d', 'vec3d', 'string'],
-            'desc' => ''
         ],
 
         'removethisscript' => [
             'name' => 'RemoveThisScript',
             'offset' => 'e8000000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
         ],
 
         'sethuntermeleetraits' => [
             'name' => 'SetHunterMeleeTraits',
             'offset' => '77020000',
-            /**
-             * Parameters
-             * 1: ref to this
-             * 2: int
-             * - MTT_HOOD_MEDIUM => 2
-             */
-            'params' => ['This', 'integer'],
-            'desc' => ''
         ],
 
         'aisethunteridleactionminmaxradius' => [
             'name' => 'AISetHunterIdleActionMinMaxRadius',
             'offset' => 'a4010000',
-            /**
-             * Parameters
-             * 1: string
-             * 2: state int
-             * - AISCRIPT_IDLE_WANDERSEARCH => 0
-             * 2: state int
-             * - AISCRIPT_HIGHPRIORITY => 1
-             * 3: int
-             * 4: int
-             * 5: float
-             */
-            'params' => ['string', 'integer', 'integer', 'integer', 'integer', 'Float'],
-            'desc' => ''
         ],
 
 
         'setpeddonotdecay' => [
             'name' => 'SetPedDoNotDecay',
             'offset' => '6b020000',
-            /**
-             * Parameters
-             * 1: ref to this
-             * 2: boolean
-             */
-            'params' => ['This', 'integer'],
-            'desc' => ''
         ],
 
         'enableuseable' => [
             'name' => 'EnableUseable',
             'offset' => 'e5020000',
-            /**
-             * Parameters
-             * 1: ref to this
-             * 2: boolean
-             */
-            'params' => ['This', 'integer'],
-            'desc' => ''
         ],
 
         'setmoveridleposition' => [
             'name' => 'SetMoverIdlePosition',
             'offset' => '3c010000',
-            /**
-             * Parameters
-             * 1: ref to this
-             * 2: vec3D
-             */
-            'params' => ['This', 'vec3d'],
-            'desc' => ''
         ],
 
         'movemovertoidleposition' => [
             'name' => 'MoveMoverToIdlePosition',
             'offset' => '3d010000',
-            /**
-             * Parameters
-             * 1: ref to this
-             * 2: vec3D
-             */
-            'params' => ['This', 'vec3d'],
-            'desc' => ''
         ],
 
         'getplayer' => [
             'name' => 'GetPlayer',
             'offset' => '8a000000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => '',
             'return' => 'entityptr'
         ],
-//
 
         'setmoverspeed' => [
             'name' => 'SetMoverSpeed',
             'offset' => '40010000',
-            /**
-             * Parameters
-             * none
-             */
-            'params' => [],
-            'desc' => ''
         ],
 
         'playaudiooneshotfromentity' => [
@@ -1869,54 +1532,27 @@ class Manhunt2 extends ManhuntDefault
         'playscriptaudiostreamfromentityauto' => [
             'name' => 'PlayScriptAudioStreamFromEntityAuto',
             'offset' => '6b030000',
-            /**
-             * Parameters
-             * 1: String
-             * - NEWLIFT
-             * 2: integer
-             * 3: result of GetPlayer
-             * 4: integer
-             */
-            'params' => ['string', 'integer', 'GetPlayer', 'integer'],
-            'desc' => ''
         ],
 
         'createspheretrigger' => [
             'name' => 'CreateSphereTrigger',
             'offset' => 'a3000000',
-            /**
-             * Parameters
-             * 1: Vec3D
-             * 2: Float
-             * 3: string
-             * - triggerVisionCheck
-             */
-            'params' => ['vec3d', 'Float', 'string'],
-            'desc' => ''
         ],
 
         'destroyentity' => [
             'name' => 'DestroyEntity',
             'offset' => 'a0020000',
-            'desc' => ''
         ],
 
         'getanimationlength' => [
             'name' => 'GetAnimationLength',
             'offset' => '49030000',
-            /**
-             * Parameters
-             * 1: string
-             */
-            'params' => ['string'],
-            'return' => 'integer',
-            'desc' => ''
+            'return' => 'integer'
         ],
 
         'unlockentity' => [
             'name' => 'UnLockEntity',
             'offset' => '99000000',
-            'desc' => ''
         ],
 
         'spawnentitywithdirection' => [
@@ -1928,13 +1564,7 @@ class Manhunt2 extends ManhuntDefault
         'getentityposition' => [
             'name' => 'GetEntityPosition',
             'offset' => '78000000',
-            /**
-             * Parameters
-             * 1: result of getEntity
-             */
-            'params' => ['Entity'],
             'return' => 'vec3d',
-            'desc' => ''
         ],
 
         'setcolourramp' => [
@@ -2004,16 +1634,7 @@ class Manhunt2 extends ManhuntDefault
         'aitriggersoundknownlocationnoradar' => [
             'name' => 'AITriggerSoundKnownLocationNoRadar',
             'offset' => 'b8020000',
-            /**
-             * Parameters
-             * 1: String
-             * - LURE_HIGH
-             * 2: Player
-             * - GetPlayer
-             */
-            'params' => ['string', 'Player'],
             'return' => 'integer',
-            'desc' => ''
         ],
 
         'spawnmovingentity' => [
@@ -2050,26 +1671,14 @@ class Manhunt2 extends ManhuntDefault
         'isgametextdisplaying' => [
             'name' => 'IsGameTextDisplaying',
             'offset' => '07010000',
-            /**
-             * Parameters
-             * - none
-             */
-            'params' => [],
             'return' => 'integer',
-            'desc' => ''
         ],
 
 
         'getlastitempickedup' => [
             'name' => 'GetLastItemPickedUp',
             'offset' => 'c9010000',
-            /**
-             * Parameters
-             * 1: player
-             */
-            'params' => ['Player'],
-            'return' => 'Item',
-            'desc' => ''
+            'return' => 'integer',
         ],
 
         'attachtoentity' => [
@@ -2190,10 +1799,7 @@ class Manhunt2 extends ManhuntDefault
         'calcdistancetoentity' => [
             'name' => 'CalcDistanceToEntity',
             'offset' => '1a030000',
-
-            'params' => ['EntityPtr'],
             'return' => 'float',
-            'desc' => ''
         ],
 
         'getplayerposition' => [
@@ -2312,18 +1918,12 @@ class Manhunt2 extends ManhuntDefault
         'sethunterhidehealth' => [
             'name' => 'SetHunterHideHealth',
             'offset' => 'ee010000',
-
-            'params' => [],
             'return' => 'vec3d',
-            'desc' => ''
         ],
         'aisetidlepatrolstop' => [
             'name' => 'AISetIdlePatrolStop',
             'offset' => 'a6010000',
-
-            'params' => ['StringArray', 'string', 'integer', 'integer'],
             'return' => 'vec3d',
-            'desc' => ''
         ],
 
         'switchlightoff' => [
@@ -2910,13 +2510,11 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
-
         'isaudiocompleted' => [
             'name' => 'IsAudioCompleted',
             'offset' => '61020000',
             'return' => 'integer'
         ],
-
 
 
         'temporarysetplayertofists' => [
@@ -2936,7 +2534,6 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '59000000',
             'return' => 'integer'
         ],
-
 
 
         'newparticleeffect' => [
@@ -2967,13 +2564,10 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
-
         'playscriptaudiostream' => [
             'name' => 'PlayScriptAudioStream',
             'offset' => 'cb020000'
         ],
-
-
 
 
         'isscriptaudiostreampreloaded' => [
@@ -3144,7 +2738,6 @@ class Manhunt2 extends ManhuntDefault
         ],
 
 
-
         'spawnstaticentity' => [
             'name' => 'SpawnStaticEntity',
             'offset' => '7b000000'
@@ -3192,12 +2785,7 @@ class Manhunt2 extends ManhuntDefault
             'offset' => 'de010000'
         ],
 
-
-
-
-
     ];
-
 
     public $gameSccSrc = "
 { !! THIS IS A GLOBAL FILE FOR THE ENTIRE GAME - EDIT WITH CAUTION !! }
@@ -3318,5 +2906,16 @@ script OnCreate;
 
 end.
         ";
+
+    public function __construct()
+    {
+        $this->functionEventDefinition = array_merge($this->functionEventDefinition, [
+            '__default__' => '68000000'
+        ]);
+
+        $this->functionForceFloat = array_merge($this->functionForceFloat, [
+            'aidefinegoalbebuddy' => [false, false, false, true, false],
+        ]);
+    }
 
 }

@@ -152,7 +152,7 @@ class Compiler
         //todo...
         $source = str_replace("9-i", "9 - i", $source);
 
-        //split the parts a little bit more (todo: combine them)
+        //split the parts a little bit more
         $source = preg_replace("/\//", " / ", $source);
         $source = preg_replace("/\(/", " ( ", $source);
         $source = preg_replace("/\)/", " ) ", $source);
@@ -168,12 +168,12 @@ class Compiler
         // "vel.x := vel.x  *  speed;" to "vel . x := vel . x  *  speed;"
         $source = preg_replace("/([a-zA-Z])\.([a-zA-Z])/", "$1 . $2", $source);
 
-        $source = preg_replace("/([a-zA-Z])\s?\-([0-9])/", "$1 - $2", $source);
+        $source = preg_replace("/([a-zA-Z])\s?-([0-9])/", "$1 - $2", $source);
 
         // "vel.x := vel1.x  *  speed;" to "vel . x := vel1 . x  *  speed;"
         $source = preg_replace("/([0-9])\.([a-zA-Z])/", "$1 . $2", $source);
 
-        $source = preg_replace("/(\])\.([a-zA-Z])/", "$1 . $2", $source);
+        $source = preg_replace("/(])\.([a-zA-Z])/", "$1 . $2", $source);
 
         $source = preg_replace("/\[/", " [ ", $source);
         $source = preg_replace("/]/", " ] ", $source);
@@ -853,7 +853,7 @@ class Compiler
                 break;
             case Tokens::T_FUNCTION:
                 if ($association->return == null){
-                    throw new \Exception("Unable to detect varType, RETURN missed for function " . $association->value);
+                    throw new Exception("Unable to detect varType, RETURN missed for function " . $association->value);
                 }
                 $varType = $association->return;
                 break;
@@ -870,7 +870,7 @@ class Compiler
                 $varType = "string";
                 break;
             default:
-                throw new \Exception("Unable to detect compareType for type " . $association->type);
+                throw new Exception("Unable to detect compareType for type " . $association->type);
                 break;
         }
 
@@ -1013,18 +1013,11 @@ class Compiler
                         $result['const'][] = $variable['value'];
                         break;
                     case 'string':
-                        $stringIndex = substr($variable['value'], 4);
-                        $string = $this->strings[$stringIndex];
-
-//                        if (!isset($result['byteReserved'])) $result['byteReserved'] = 0;
-//                        $result['byteReserved'] += strlen($string);
-
-//                        $result['const'][] = $string;
                         break;
 
                     default:
                         var_dump($variable);
-                        throw new \Exception("Unknown constant type " . $variable['type']);
+                        throw new Exception("Unknown constant type " . $variable['type']);
                         break;
 
                 }
@@ -1191,18 +1184,14 @@ class Compiler
                 $onTrigger = $this->gameClass->functionEventDefinition[$name];
             }
 
-
             $results[] = [
                 'name' => $name,
                 'onTrigger' => $onTrigger,
                 'scriptStart' => $scriptSize
             ];
-
         }
 
-
         return $results;
-
     }
 
     public function generateLine(){
