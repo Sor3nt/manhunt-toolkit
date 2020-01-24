@@ -2650,13 +2650,13 @@ class Manhunt extends ManhuntDefault
         'getentityname' => [
             'name' => 'getentityname',
             'offset' => '85000000',
-            'return' => Token::T_STRING
+            'return' => 'string'
         ],
 
         'gethunterareaname' => [
             'name' => 'gethunterareaname',
             'offset' => '1e010000',
-            'return' => Token::T_STRING
+            'return' => 'string'
         ],
 
         'airemoveallgoalsfromsubpack' => [

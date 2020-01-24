@@ -3,7 +3,6 @@
 namespace App\Service\CompilerV2;
 
 use App\MHT;
-use App\Service\Compiler\Token;
 use App\Service\Helper;
 use Exception;
 
@@ -230,7 +229,7 @@ class Associations
 
 //                    var_dump($params->childs[$current + 1]->type);
                     if (
-                        $param->type == Token::T_CONDITION ||
+                        $param->type == Tokens::T_CONDITION ||
                         (
                             isset($params->childs[$current + 1]) &&
                             $compiler->isTypeMathOperator($params->childs[$current + 1]->type)
@@ -243,7 +242,7 @@ class Associations
                         $math->usedinFunction = $compiler->createVariableAssociation( $function);
                         $math->usedinFunction->varType = null;
 
-                        if ($param->type == Token::T_CONDITION){
+                        if ($param->type == Tokens::T_CONDITION){
                             $math->childs = (new RPN())->convertToReversePolishNotation($param->childs);
 
                             $current = $current - 2;
@@ -645,7 +644,7 @@ class Associations
                 $case = new Associations();
                 $this->cases[] = $case;
 
-                $case->type = Token::T_IF_CASE;
+                $case->type = Tokens::T_IF_CASE;
 
                 /** @var Associations[] $conditions */
                 $conditions = $this->associateUntil($compiler, $this->type == Tokens::T_IF ? Tokens::T_THEN : Tokens::T_DO);

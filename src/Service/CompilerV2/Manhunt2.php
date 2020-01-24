@@ -1190,7 +1190,7 @@ class Manhunt2 extends ManhuntDefault
              * 1: ref to me (me[30])
              * 2: boolean
              */
-            'params' => [Token::T_STRING, 'Bollean'],
+            'params' => ['string', 'Bollean'],
             'desc' => 'Set the Hunter visibility on the Players Radar'
         ],
 
@@ -1202,7 +1202,7 @@ class Manhunt2 extends ManhuntDefault
              * 1: string level name
              * - A02_The_Old_House
              */
-            'params' => [Token::T_STRING],
+            'params' => ['string'],
             'desc' => ''
         ],
 
@@ -1403,7 +1403,7 @@ class Manhunt2 extends ManhuntDefault
              * 3: active state?
              * - true
              */
-            'params' => ['Entity', Token::T_STRING, 'integer'],
+            'params' => ['Entity', 'string', 'integer'],
             'desc' => ''
         ],
 
@@ -1418,7 +1418,7 @@ class Manhunt2 extends ManhuntDefault
              * - SLockerC_(O)01
              * - SLockerC_(O)02
              */
-            'params' => [Token::T_STRING, Token::T_STRING],
+            'params' => ['string', 'string'],
             'desc' => ''
         ],
 
@@ -1446,7 +1446,7 @@ class Manhunt2 extends ManhuntDefault
              * 2: animation name ?
              * - BAT_INMATE_SMACK_HEAD_ANIM
              */
-            'params' => [Token::T_STRING, Token::T_STRING],
+            'params' => ['string', 'string'],
             'desc' => ''
         ],
 
@@ -1460,7 +1460,7 @@ class Manhunt2 extends ManhuntDefault
              * 2: state 1 boolean
              * 3: state 2 boolean
              */
-            'params' => [Token::T_STRING, 'integer', 'integer'],
+            'params' => ['string', 'integer', 'integer'],
             'desc' => ''
         ],
 
@@ -1485,7 +1485,7 @@ class Manhunt2 extends ManhuntDefault
              * - SobbingWoman(hunter)
              * 2: state boolean
              */
-            'params' => [Token::T_STRING, 'integer'],
+            'params' => ['string', 'integer'],
             'desc' => ''
         ],
 
@@ -1498,7 +1498,7 @@ class Manhunt2 extends ManhuntDefault
              * - SobbingWoman(hunter)
              * 2: state boolean
              */
-            'params' => [Token::T_STRING, 'integer'],
+            'params' => ['string', 'integer'],
             'desc' => ''
         ],
 
@@ -1514,7 +1514,7 @@ class Manhunt2 extends ManhuntDefault
              * 3: Entity name
              * - SobbingWoman(hunter)
              */
-            'params' => [Token::T_STRING, Token::T_STRING, Token::T_STRING],
+            'params' => ['string', 'string', 'string'],
             'desc' => ''
         ],
 
@@ -1644,7 +1644,7 @@ class Manhunt2 extends ManhuntDefault
              * - AISCRIPT_RUNMOVESPEED => 0
              * 6: state boolean
              */
-            'params' => [Token::T_STRING, Token::T_STRING, 'integer', Token::T_STRING, 'integer', 'integer'],
+            'params' => ['string', 'string', 'integer', 'string', 'integer', 'integer'],
             'desc' => ''
         ],
 
@@ -1665,7 +1665,7 @@ class Manhunt2 extends ManhuntDefault
              * - AISCRIPT_RUNMOVESPEED => 0
              * 6: state boolean
              */
-            'params' => [Token::T_STRING, Token::T_STRING, 'integer', Token::T_STRING, 'integer', 'integer'],
+            'params' => ['string', 'string', 'integer', 'string', 'integer', 'integer'],
             'desc' => ''
         ],
 
@@ -1740,7 +1740,7 @@ class Manhunt2 extends ManhuntDefault
              * 3: String
              * - triggerOutOfWindow
              */
-            'params' => ['vec3d', 'vec3d', Token::T_STRING],
+            'params' => ['vec3d', 'vec3d', 'string'],
             'desc' => ''
         ],
 
@@ -1782,7 +1782,7 @@ class Manhunt2 extends ManhuntDefault
              * 4: int
              * 5: float
              */
-            'params' => [Token::T_STRING, 'integer', 'integer', 'integer', 'integer', 'Float'],
+            'params' => ['string', 'integer', 'integer', 'integer', 'integer', 'Float'],
             'desc' => ''
         ],
 
@@ -1877,7 +1877,7 @@ class Manhunt2 extends ManhuntDefault
              * 3: result of GetPlayer
              * 4: integer
              */
-            'params' => [Token::T_STRING, 'integer', 'GetPlayer', 'integer'],
+            'params' => ['string', 'integer', 'GetPlayer', 'integer'],
             'desc' => ''
         ],
 
@@ -1891,7 +1891,7 @@ class Manhunt2 extends ManhuntDefault
              * 3: string
              * - triggerVisionCheck
              */
-            'params' => ['vec3d', 'Float', Token::T_STRING],
+            'params' => ['vec3d', 'Float', 'string'],
             'desc' => ''
         ],
 
@@ -1908,7 +1908,7 @@ class Manhunt2 extends ManhuntDefault
              * Parameters
              * 1: string
              */
-            'params' => [Token::T_STRING],
+            'params' => ['string'],
             'return' => 'integer',
             'desc' => ''
         ],
@@ -2011,7 +2011,7 @@ class Manhunt2 extends ManhuntDefault
              * 2: Player
              * - GetPlayer
              */
-            'params' => [Token::T_STRING, 'Player'],
+            'params' => ['string', 'Player'],
             'return' => 'integer',
             'desc' => ''
         ],
@@ -2321,7 +2321,7 @@ class Manhunt2 extends ManhuntDefault
             'name' => 'AISetIdlePatrolStop',
             'offset' => 'a6010000',
 
-            'params' => ['StringArray', Token::T_STRING, 'integer', 'integer'],
+            'params' => ['StringArray', 'string', 'integer', 'integer'],
             'return' => 'vec3d',
             'desc' => ''
         ],
@@ -2628,7 +2628,7 @@ class Manhunt2 extends ManhuntDefault
         'aigethunterlastnodename' => [
             'name' => 'AIGetHunterLastNodeName',
             'offset' => '77010000',
-            'return' => Token::T_STRING
+            'return' => 'string'
         ],
 
         'aidefinegoalguardlookatentity' => [

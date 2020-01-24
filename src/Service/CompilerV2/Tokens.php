@@ -16,6 +16,7 @@ namespace App\Service\CompilerV2;
     const T_INT                         = 'T_INT';
     const T_STRING                      = 'T_STRING';
     const T_FLOAT                       = 'T_FLOAT';
+    const T_IF_CASE                        = 'T_IF_CASE';
 
     const T_BOOLEAN                     = 'T_BOOLEAN';
     const T_ARRAY                       = 'T_ARRAY';
