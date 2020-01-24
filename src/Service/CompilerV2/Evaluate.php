@@ -628,11 +628,20 @@ class Evaluate{
 
                 $compiler->evalVar->msg = sprintf("For statement");
 
-//                if ($compiler->game == MHT::GAME_MANHUNT){
-//                    $this->add('16000000');
-//                }else{
+                if (
+                    $compiler->game == MHT::GAME_MANHUNT &&
+                    ($association->end->type == Tokens::T_INT || $association->end->type == Tokens::T_VARIABLE)
+                ){
+                    if ($association->childs[0]->section == "script"){
+                        $this->add('15000000');
+
+                    }else{
+                        $this->add('16000000');
+                    }
+
+                }else{
                     $this->add('15000000');
-//                }
+                }
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
                 $this->add('01000000');
@@ -650,11 +659,20 @@ class Evaluate{
                 $compiler->evalVar->msg = sprintf("For statement");
 
 
-//                if ($compiler->game == MHT::GAME_MANHUNT){
-//                    $this->add('14000000');
-//                }else{
+                if (
+                    $compiler->game == MHT::GAME_MANHUNT &&
+                    ($association->end->type == Tokens::T_INT || $association->end->type == Tokens::T_VARIABLE)
+                ){
+                    if ($association->childs[0]->section == "script"){
+                        $this->add('13000000');
+
+                    }else{
+                        $this->add('14000000');
+
+                    }
+                }else{
                     $this->add('13000000');
-//                }
+                }
                 $this->add('02000000');
                 $this->add('04000000');
                 $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
@@ -679,30 +697,51 @@ class Evaluate{
                 }
 
                 $compiler->evalVar->msg = sprintf("For statement");
-//                if ($compiler->game == MHT::GAME_MANHUNT){
-//                    $this->add('2d000000');
-//                    $this->add('04000000');
-//                    $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
-//                }else{
+                if (
+                    $compiler->game == MHT::GAME_MANHUNT &&
+                    ($association->end->type == Tokens::T_INT || $association->end->type == Tokens::T_VARIABLE)
+                ){
+                    if ($association->childs[0]->section == "script"){
+                        $this->add('2f000000');
+                        $this->add('04000000');
+                        $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
+
+                    }else{
+                        $this->add('2d000000');
+                        $this->add('04000000');
+                        $this->add(Helper::fromIntToHex($association->childs[0]->offset  ), 'Variable offset');
+
+                    }
+                }else{
                     $this->add('2f000000');
                     $this->add('04000000');
                     $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4  ), 'Variable offset');
-//                }
+                }
 
                 $this->add('3c000000', 'Jump to');
                 $this->add(Helper::fromIntToHex($startOffset * 4), 'Start Offset');
 
 
                 $compiler->codes[$endOffset]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-//                if ($compiler->game == MHT::GAME_MANHUNT) {
-//                    $this->add('2e000000');
-//                    $this->add('04000000');
-//                    $this->add(Helper::fromIntToHex($association->childs[0]->offset), 'Variable offset');
-//                }else{
+                if (
+                    $compiler->game == MHT::GAME_MANHUNT &&
+                    ($association->end->type == Tokens::T_INT || $association->end->type == Tokens::T_VARIABLE)
+                ){
+                    if ($association->childs[0]->section == "script") {
+                        $this->add('30000000');
+                        $this->add('04000000');
+                        $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4), 'Variable offset');
+                    }else{
+                        $this->add('2e000000');
+                        $this->add('04000000');
+                        $this->add(Helper::fromIntToHex($association->childs[0]->offset), 'Variable offset');
+
+                    }
+                }else{
                     $this->add('30000000');
                     $this->add('04000000');
                     $this->add(Helper::fromIntToHex($association->childs[0]->offset - 4), 'Variable offset');
-//                }
+                }
                 break;
 
             case Tokens::T_CONDITION:
@@ -1096,8 +1135,15 @@ class Evaluate{
 
                     if($param->type == Tokens::T_STRING){
                         if (strlen($param->value) !== 1){
-                            $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
-                            $this->compiler->evalVar->readSize( $string->size );
+                            if ($compiler->game == MHT::GAME_MANHUNT){
+                                $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][$param->value];
+                                $this->compiler->evalVar->readSize( $string->size );
+
+                            }else{
+                                $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
+                                $this->compiler->evalVar->readSize( $string->size );
+
+                            }
                         }
                     }
 

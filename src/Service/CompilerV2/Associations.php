@@ -2,6 +2,7 @@
 
 namespace App\Service\CompilerV2;
 
+use App\MHT;
 use App\Service\Compiler\Token;
 use App\Service\Helper;
 use Exception;
@@ -397,7 +398,11 @@ class Associations
             $this->value = $compiler->strings[$stringIndex];
 
             /** @var Associations $string */
-            $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($this->value)];
+            if ($compiler->game == MHT::GAME_MANHUNT){
+                $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][$this->value];
+            }else{
+                $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($this->value)];
+            }
             $this->scriptName = $string->scriptName;
             $this->size = $string->size;
             $this->offset = $string->offset;

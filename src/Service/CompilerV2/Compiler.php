@@ -356,14 +356,25 @@ class Compiler
         $currentScriptName = strtolower($currentScriptName);
         $stringIndex = substr($string, 4);
         $string = $this->strings[$stringIndex];
-
-        if (
-            $currentScriptName != "" && // we are inside s const section...
-            isset($this->strings4Script[$currentScriptName]) &&
-            isset($this->strings4Script[$currentScriptName][strtolower($string)])
-        ){
-            return;
+        if ($this->game == MHT::GAME_MANHUNT){
+            if (
+                $currentScriptName != "" && // we are inside s const section...
+                isset($this->strings4Script[$currentScriptName]) &&
+                isset($this->strings4Script[$currentScriptName][$string])
+            ){
+                return;
+            }
+        }else{
+            if (
+                $currentScriptName != "" && // we are inside s const section...
+                isset($this->strings4Script[$currentScriptName]) &&
+                isset($this->strings4Script[$currentScriptName][strtolower($string)])
+            ){
+                return;
+            }
         }
+
+
 
         if (!isset($this->strings4Script[$currentScriptName]))
             $this->strings4Script[$currentScriptName] = [];
@@ -379,8 +390,10 @@ class Compiler
 
         if ($this->game == MHT::GAME_MANHUNT){
 
+//            echo " Offset: " . $newString->offset . " Len Ori: " . $len;
 
             if (4 - $len % 4 != 0) $len +=  4 - $len % 4;
+//            echo " Len Calc: " . $len . " " . $string . "\n";
 
             $newString->size = $len;
         }else{
@@ -389,7 +402,11 @@ class Compiler
         }
 
 
-        $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
+        if ($this->game == MHT::GAME_MANHUNT){
+            $this->strings4Script[$currentScriptName][$string] = $newString;
+        }else{
+            $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
+        }
 
 
         if ($this->game == MHT::GAME_MANHUNT_2){

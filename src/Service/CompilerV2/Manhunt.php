@@ -26,6 +26,70 @@ class Manhunt extends ManhuntDefault
             'offset' => '99000000'
         ],
 
+        'XXX' => [
+            'offset' => '99000000'
+        ],
+
+        'XXX' => [
+            'offset' => '99000000'
+        ],
+
+        'voice_smiley2voice2' => [
+            'offset' => '1c000000'
+        ],
+
+        'aispeech_d1v1_jal_end_level' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_d1v1_jal_door_locked' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_d1v1_jal_low_level_clear' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_d1v1_jal_reward' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_d1v1_jal_go_shower' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_d1v1_jal_cellblock_start' => [
+            'offset' => '99000000'
+        ],
+
+        'ct_hammer' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_d1v1_mth_greenhouse' => [
+            'offset' => '80000000'
+        ],
+
+        'aispeech_d1v1_mth_bricked_up' => [
+            'offset' => '83000000'
+        ],
+
+        'aispeech_d1v1_mth_asylum_start' => [
+            'offset' => '7d000000'
+        ],
+
+        'aispeech_d1v1_mth_meet_fug' => [
+            'offset' => '81000000'
+        ],
+
+        'sfx_script_slot_wall_fall' => [
+            'offset' => 'f8360000'
+        ],
+
+        'sfx_script_slot_toggle_electro' => [
+            'offset' => 'ee360000'
+        ],
+
 
         'aispeech_d1v1_bod_rescued_4' => [
             'offset' => '55000000'
@@ -606,7 +670,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'aispeech_d1v1_drk_church2_start' => [
-            'offset' => '00000000'
+            'offset' => '64000000'
         ],
 
         'ct_baseball_bat' => [
@@ -2075,7 +2139,7 @@ class Manhunt extends ManhuntDefault
 
         'aisetbuddyfollow' => [
             'name' => 'aisetbuddyfollow',
-            'offset' => '00000000'
+            'offset' => '6d010000'
         ],
 
         'aisethunteridledirection' => [
@@ -2951,6 +3015,36 @@ class Manhunt extends ManhuntDefault
 		'aiisenemy' => [
             'name' => 'AIIsEnemy',
             'offset' => '68010000'
+        ],
+
+		'isitemininventory' => [
+            'name' => 'IsItemInInventory',
+            'offset' => 'c0000000',
+            'return' => 'integer'
+        ],
+
+		'inventoryweapongetammoamount' => [
+            'name' => 'InventoryWeaponGetAmmoAmount',
+            'offset' => 'b7010000',
+            'return' => 'integer'
+        ],
+
+		'inventoryweapongetreserveammoamount' => [
+            'name' => 'InventoryWeaponGetReserveAmmoAmount',
+            'offset' => 'b8010000',
+            'return' => 'integer'
+        ],
+
+		'hasplayerarrivedatnode' => [
+            'name' => 'HasPlayerArrivedAtNode',
+            'offset' => 'HasPlayerArrivedAtNode',
+            'return' => 'integer'
+        ],
+
+		'aisetidlepatrolstopdirection' => [
+            'name' => 'AISetIdlePatrolStopDirection',
+            'offset' => 'a6010000',
+            'return' => 'integer'
         ],
 
     ];
