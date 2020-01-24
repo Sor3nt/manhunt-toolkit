@@ -1185,6 +1185,7 @@ class Evaluate{
                                     $param->varType == "eaicombattype" ||
                                     $param->varType == "ecollectabletype" ||
                                     $param->varType == "effectptr" ||
+                                    $param->varType == "mhfxptr" ||
                                     $param->varType == "matrixptr" ||
                                     $param->varType == "entityptr" ||
                                     $param->varType == "eaiscriptpriority" ||

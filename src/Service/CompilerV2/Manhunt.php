@@ -26,12 +26,242 @@ class Manhunt extends ManhuntDefault
             'offset' => '99000000'
         ],
 
+
         'XXX' => [
             'offset' => '99000000'
         ],
 
-        'XXX' => [
+
+        'aispeech_d1v1_fal_end_scene_continued' => [
+            'offset' => '01000000'
+        ],
+
+
+        'sfx_script_slot_hostage_female_gag_scream' => [
             'offset' => '99000000'
+        ],
+
+
+        'sfx_script_slot_hostage_male_gag_scream' => [
+            'offset' => '99000000'
+        ],
+
+
+        'aispeech_d1v1_fal_end_scene_her' => [
+            'offset' => '62000000'
+        ],
+
+
+        'sfx_script_slot_hostage_female_gag_moan' => [
+            'offset' => '0b370000'
+        ],
+
+
+        'aispeech_d1v1_fal_end_scene_him' => [
+            'offset' => '61000000'
+        ],
+
+
+        'aispeech_d1v1_fal_end_scene_them' => [
+            'offset' => '60000000'
+        ],
+
+
+        'sfx_script_slot_hostage_male_gag_moan' => [
+            'offset' => '0e370000'
+        ],
+
+
+        'scripted_track_malltv' => [
+            'offset' => '56000000'
+        ],
+
+
+        'sfx_script_slot_hunter_breathing' => [
+            'offset' => 'e4360000'
+        ],
+
+
+        'aispeech_d1v1_fal_found_tv_power_switch' => [
+            'offset' => '5e000000'
+        ],
+
+
+        'aispeech_d1v1_fal_found_tv' => [
+            'offset' => '5d000000'
+        ],
+
+        'aispeech_d1v1_fal_found_camera' => [
+            'offset' => '5c000000'
+        ],
+
+        'aispeech_d1v1_fal_found_tape' => [
+            'offset' => '5b000000'
+        ],
+
+        'aispeech_d1v1_fal_found_gun' => [
+            'offset' => '99000000'
+        ],
+
+        'aispeech_i3v1_uni_crys' => [
+            'offset' => '08000000'
+        ],
+
+        'voice_innocent2voice1' => [
+            'offset' => '08000000'
+        ],
+
+        'voice_innocent3voice1' => [
+            'offset' => '0a000000'
+        ],
+
+        'aispeech_d1v1_fal_power_on' => [
+            'offset' => '5f000000'
+        ],
+
+        'aispeech_j1v1_jur_freak' => [
+            'offset' => '3f000000'
+        ],
+
+        'aispeech_p2v1_jur_go_generator_again' => [
+            'offset' => '43000000'
+        ],
+
+        'aispeech_j1v1_jur_phew' => [
+            'offset' => '40000000'
+        ],
+
+        'aispeech_p2v1_jur_go_generator' => [
+            'offset' => '42000000'
+        ],
+
+        'aispeech_p2v2_jur_is_cop_okay' => [
+            'offset' => '47000000'
+        ],
+
+        'aispeech_p2v1_jur_bitch' => [
+            'offset' => '41000000'
+        ],
+
+        'aispeech_p2v1_jur_man_down' => [
+            'offset' => '44000000'
+        ],
+
+        'aispeech_p2v2_jur_bitch' => [
+            'offset' => '45000000'
+        ],
+
+        'ct_nightstick' => [
+            'offset' => '1c000000'
+        ],
+
+        'aispeech_p2v2_jur_man_down' => [
+            'offset' => '46000000'
+        ],
+
+        'aispeech_p3v1_jur_in_casino' => [
+            'offset' => '4a000000'
+        ],
+
+        'aispeech_j1v1_jur_flat' => [
+            'offset' => '3c000000'
+        ],
+
+        'aispeech_j1v1_jur_health' => [
+            'offset' => '3e000000'
+        ],
+
+
+        'aispeech_p2v2_jur_hunt_player' => [
+            'offset' => '48000000'
+        ],
+
+
+        'aispeech_p3v2_jur_heard_guns' => [
+            'offset' => '49000000'
+        ],
+
+
+        'scripted_track_journo' => [
+            'offset' => '50000000'
+        ],
+
+
+        'aispeech_j1v1_jur_alone' => [
+            'offset' => '3a000000'
+        ],
+
+
+        'aispeech_s2v1_cbl_fug_finish' => [
+            'offset' => '1d000000'
+        ],
+
+
+        'voice_smiley1voice2' => [
+            'offset' => '1a000000'
+        ],
+
+
+        'aispeech_d1v1_mth_doors_open' => [
+            'offset' => '82000000'
+        ],
+
+
+        'aispeech_s2v1_asy_open_door' => [
+            'offset' => '16000000'
+        ],
+
+
+        'aispeech_s2v1_asy_shut_up' => [
+            'offset' => '18000000'
+        ],
+
+
+        'aispeech_s2v1_asy_go_machine' => [
+            'offset' => '13000000'
+        ],
+
+
+        'aispeech_s2v1_asy_machine_on' => [
+            'offset' => '12000000'
+        ],
+
+
+        'aispeech_s2v1_asy_ignore_lure' => [
+            'offset' => '14000000'
+        ],
+
+
+        'aispeech_s3v1_asy_open_door' => [
+            'offset' => '17000000'
+        ],
+
+
+        'aispeech_s1v1_asy_open_door' => [
+            'offset' => '15000000'
+        ],
+
+
+        'mtt_counter_hard' => [
+            'offset' => '15000000'
+        ],
+
+
+        'aispeech_d1v1_mth_head' => [
+            'offset' => '7f000000'
+        ],
+
+
+        'holster_belt_rear' => [
+            'offset' => '04000000'
+        ],
+
+        'holster_belt_left' => [
+            'offset' => '03000000'
+        ],
+
+        'aispeech_d1v1_mth_drop_weapons' => [
+            'offset' => '7e000000'
         ],
 
         'voice_smiley2voice2' => [
@@ -55,7 +285,7 @@ class Manhunt extends ManhuntDefault
         ],
 
         'aispeech_d1v1_jal_go_shower' => [
-            'offset' => '99000000'
+            'offset' => '88000000'
         ],
 
         'aispeech_d1v1_jal_cellblock_start' => [
@@ -1674,7 +1904,8 @@ class Manhunt extends ManhuntDefault
         ],
         'createkillablemhfx' => [
             'name' => 'createkillablemhfx',
-            'offset' => 'f1020000'
+            'offset' => 'f1020000',
+            'return' => 'integer'
         ],
         'createmhfx' => [
             'name' => 'createmhfx',
@@ -2994,7 +3225,8 @@ class Manhunt extends ManhuntDefault
 
 		'isplayercarryingbody' => [
             'name' => 'IsPlayerCarryingBody',
-            'offset' => 'IsPlayerCarryingBody'
+            'offset' => 'b0020000',
+            'return' => 'integer'
         ],
 
 		'playerdropbody' => [
@@ -3009,7 +3241,8 @@ class Manhunt extends ManhuntDefault
 
 		'getindexfrominventoryitemtype' => [
             'name' => 'GetIndexFromInventoryItemType',
-            'offset' => 'c5000000'
+            'offset' => 'c5000000',
+            'return' => 'integer',
         ],
 
 		'aiisenemy' => [
@@ -3037,7 +3270,7 @@ class Manhunt extends ManhuntDefault
 
 		'hasplayerarrivedatnode' => [
             'name' => 'HasPlayerArrivedAtNode',
-            'offset' => 'HasPlayerArrivedAtNode',
+            'offset' => '8f020000',
             'return' => 'integer'
         ],
 
@@ -3045,6 +3278,54 @@ class Manhunt extends ManhuntDefault
             'name' => 'AISetIdlePatrolStopDirection',
             'offset' => 'a6010000',
             'return' => 'integer'
+        ],
+
+		'getindexfrominventoryitemname' => [
+            'name' => 'GetIndexFromInventoryItemName',
+            'offset' => 'c4000000',
+            'return' => 'integer'
+        ],
+
+		'setinventoryitemascurrent' => [
+            'name' => 'SetInventoryItemAsCurrent',
+            'offset' => 'bf000000',
+        ],
+
+		'playerplayfullbodyanim' => [
+            'name' => 'PlayerPlayFullBodyAnim',
+            'offset' => '91020000',
+        ],
+
+		'getexecutiontype' => [
+            'name' => 'GetExecutionType',
+            'offset' => 'f0020000',
+            'return' => 'integer'
+        ],
+
+		'whitenoiseset' => [
+            'name' => 'WhiteNoiseSet',
+            'offset' => 'd8020000'
+        ],
+
+		'hastimerended' => [
+            'name' => 'HasTimerEnded',
+            'offset' => 'd1020000',
+            'return' => 'integer'
+        ],
+
+		'aiisguardidle' => [
+            'name' => 'AIIsGuardIdle',
+            'offset' => 'ef020000'
+        ],
+
+		'aidoesleaderhavesubpack' => [
+            'name' => 'AIDoesLeaderHaveSubpack',
+            'offset' => 'e9020000'
+        ],
+
+		'airemovesubpackfromleader' => [
+            'name' => 'AIRemoveSubPackFromLeader',
+            'offset' => '50010000'
         ],
 
     ];

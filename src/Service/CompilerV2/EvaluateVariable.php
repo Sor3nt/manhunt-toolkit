@@ -251,7 +251,7 @@ class EvaluateVariable{
         $type = is_null($type) ? $association->varType : $type;
 
         if (in_array($type,
-                ['real', 'float', 'edoorstate', 'state', 'eaiscriptpriority', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
+                ['real', 'float', 'mhfxptr', 'edoorstate', 'state', 'eaiscriptpriority', 'entityptr', 'effectptr', 'matrixptr',  'boolean', 'integer', 'eaicombattype', 'ecollectabletype']
             ) !== false ){
             $this->readVariable($association);
         }

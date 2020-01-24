@@ -15,6 +15,7 @@ class ManhuntDefault
 
     public $floatAllowedDeviation = [
 
+        '255.31781' => 255.3178,
         '193.380859' => 193.380844,
         '100.409492' => 100.409485,
         '24.106951' => 24.1069527
@@ -65,6 +66,7 @@ class ManhuntDefault
     public $functionForceFloat = [
 //        'round' => [true],
 
+        'aiisenemyinradius' => [false, false, true],
         'playsplinefile' => [false, true, false, false, false],
         'sethuntertauntprobability' => [false, true],
         'entityplaycutsceneanimation' => [false, false, true, false],
