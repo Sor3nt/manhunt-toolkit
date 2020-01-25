@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\MHT;
+use App\Service\Archive\Ifp;
 use App\Service\Archive\Mls;
 use App\Service\Resources;
 use Symfony\Component\Console\Command\Command;
@@ -22,6 +23,8 @@ class UnpackCommand extends Command
             ->setDescription('Unpack a Manhunt file.')
             ->addArgument('file', InputArgument::REQUIRED, 'This file will be extracted')
             ->addOption('only-unzip', null, null, 'Will only unzip the file')
+            ->addOption('unzip-only', null, null, 'Will only unzip the file')
+            ->addOption('keep-order', null, null, 'Will only unzip the file')
             ->addOption(
                 'game',
                 null,
@@ -37,6 +40,7 @@ class UnpackCommand extends Command
                 'pc,ps2,psp,wii,xbox?',
                 MHT::PLATFORM_AUTO
             )
+
         ;
     }
 
@@ -46,7 +50,7 @@ class UnpackCommand extends Command
         $file = $input->getArgument('file');
         $game = $input->getOption('game');
         $platform = $input->getOption('platform');
-
+        $keepOrder = $input->getOption('keep-order');
 
         if ($game !== MHT::GAME_AUTO){
             if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2){
@@ -96,6 +100,11 @@ class UnpackCommand extends Command
         $output->writeln( sprintf('Identify file as %s ', $handler->name));
         $output->write( sprintf('Processing %s ', $file));
 
+//        $handler->keepOrder = true;
+        if (isset($handler->keepOrder)){
+            $handler->keepOrder = $keepOrder;
+        }
+//
         $results = $handler->unpack( $resource->getInput(), $game, $platform );
 
         if ($handler instanceof Mls){

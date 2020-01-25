@@ -8,7 +8,7 @@ use App\Service\NBinary;
 class Extract {
 
 
-    public $keepOrder = false;
+    public $keepOrder = true;
 
 
 

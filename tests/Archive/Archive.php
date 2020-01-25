@@ -40,8 +40,12 @@ class Archive extends KernelTestCase
             'command'  => $command->getName(),
             'file' => $file,
             '--game' => $game,
-            '--platform' => $platform,
+            '--platform' => $platform
         ];
+
+        if ($cmd == "unpack"){
+            $options['--keep-order'] = true;
+        }
 
         $commandTester->execute($options);
 

@@ -11,7 +11,7 @@ class Ifp extends Archive
 
     public static $supported = 'ifp';
 
-    public $keepOrder = true;
+    public $keepOrder = false;
 
     /**
      * @param $pathFilename
@@ -400,22 +400,12 @@ class Ifp extends Archive
 
             if ($frameType == 3) {
 
-                if (isset($resultBone['direction'])){
-                    $resultBone['direction'] = [
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048
-                    ];
-
-                //fallback for older mht exports
-                }else{
-                    $resultBone['unknown1'] = $binary->consume(2, NBinary::HEX);
-                    $resultBone['unknown2'] = $binary->consume(2, NBinary::HEX);
-                    $resultBone['unknown3'] = $binary->consume(2, NBinary::HEX);
-                    $resultBone['unknown4'] = $binary->consume(2, NBinary::HEX);
-
-                }
+                $resultBone['direction'] = [
+                    $binary->consume(2, NBinary::INT_16) / 2048,
+                    $binary->consume(2, NBinary::INT_16) / 2048,
+                    $binary->consume(2, NBinary::INT_16) / 2048,
+                    $binary->consume(2, NBinary::INT_16) / 2048
+                ];
 
 
 
