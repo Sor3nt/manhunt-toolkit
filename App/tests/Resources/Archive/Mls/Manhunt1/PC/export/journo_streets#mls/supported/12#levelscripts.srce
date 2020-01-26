@@ -1,0 +1,84 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	SWAT_GUARD2		:	et_name;
+
+VAR
+
+SCRIPT OnCreate;
+BEGIN
+
+	SetHunterHitAccuracy(GetEntityName(this),65);	
+	SetHunterBlockAccuracy(GetEntityName(this),45);
+	
+	setHunterHideHealth(GetEntityName(this),0);
+
+End;
+
+SCRIPT OnHighSightingOrAbove;
+BEGIN
+	writedebug('SWAT_GUARD2: OnHighSightingOrAbove');
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team2_1') then AISetEntityIdleOverRide('Team2_1',FALSE,FALSE);	
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team2_2') then AISetEntityIdleOverRide('Team2_2',FALSE,FALSE);
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team2_3') then AISetEntityIdleOverRide('Team2_3',FALSE,FALSE);
+	ScriptHogProcessorEnd;		
+			
+	
+	if (GetPlayerAreaName <> 'aiclubbalcony') 
+		then RunScript('SWAT_GUARD2','RemoveCoveringFire');
+	
+End;
+
+SCRIPT OnDeath;
+BEGIN
+	if AIisGoalNameInSubPack('LEADER','CLUB_TEAM1','gDO_COVERING_FIRE4')
+		then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM1','gDO_COVERING_FIRE4');
+	removethisscript;
+End;
+
+SCRIPT CoveringFire;
+BEGIN		
+	writedebug('Cover Fire ', GetEntityName(this));				
+	AIDefineGoalGoToNode('gGO_COVERING_FIRE4','SWAT_GUARD2',AISCRIPT_VERYHIGHPRIORITY,'cover_fire4',AISCRIPT_RUNMOVESPEED,TRUE);	
+	AIAddGoalForSubpack('LEADER','CLUB_TEAM1','gGO_COVERING_FIRE4');	
+	removethisscript	
+End;
+
+SCRIPT OnHunterReachedNode;
+Begin
+	runScript(GetEntityName(this),AIGetHunterLastNodeName(this));
+End;
+
+SCRIPT Cover_Fire4;
+VAR
+vGuardDirection	: vec3d;
+BEGIN		
+	writedebug('Reached Cover Fire ', GetEntityName(this));		
+	vGuardDirection := GetEntityPosition(GetEntity('ShootHere2'));
+	AIDefineGoalShootVector('gDO_COVERING_FIRE4','SWAT_GUARD2',AISCRIPT_HIGHPRIORITY,'cover_fire4',vGuardDirection);	
+	AIAddGoalForSubpack('LEADER','CLUB_TEAM1','gDO_COVERING_FIRE4');					
+	removethisscript;
+End;
+
+SCRIPT RemoveCoveringFire;
+BEGIN
+	
+	if AIisGoalNameInSubPack('LEADER','CLUB_TEAM1','gDO_COVERING_FIRE4') then 
+	begin
+		AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM1','gDO_COVERING_FIRE4');
+		RunScript('CLUB2','RemoveCoveringFire');
+		RunScript('CLUB3','RemoveCoveringFire');		
+		RunScript('SWAT_GUARD','RemoveCoveringFire');
+		RemoveThisScript;
+	end;
+	
+End;
+
+END. {end of Scripts}

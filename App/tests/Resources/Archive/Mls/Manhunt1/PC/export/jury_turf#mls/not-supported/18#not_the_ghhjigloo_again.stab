@@ -1,0 +1,20 @@
+[
+    {
+        "name": "status",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            52,
+            384,
+            564
+        ]
+    },
+    {
+        "name": "status",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    }
+]

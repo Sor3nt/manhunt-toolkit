@@ -1,0 +1,659 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+Estate_Ext		:	et_level;
+
+{******** THIS IS THE INIT SCRIPT FOR THE ESTATE GARDENS ********}
+CONST
+
+
+TYPE
+
+VAR
+{globals}
+vStart							: vec3d;
+vEnd							: vec3d;
+vGuardDirection 				: vec3d;
+Vpoz							: vec3d;
+
+{LEVEL SCOPED VARS}
+level_bIsAlertOn,			
+flag_end_trigger_created		: boolean;	
+flag_snipers_dead				: integer;
+flag_player_in_spawn_trigger	: integer;
+flag_anyone_in_spawn_trigger	: integer;
+willie_game_int					: game_var integer; {Used for checks to see if the cutscene has played}
+door_opening_firsttime			: integer;
+
+flag_bodycheck_Cerb02			: integer;
+flag_bodycheck_Cerb03			: integer;
+flag_bodycheck_Cerb04			: integer;
+MaxHunterNumber					: integer;
+MaxHunterExecutions				: integer;
+test_flag						: integer;
+
+
+{************************ FUNCTION HEADERS ************************}
+PROCEDURE InitAreas (); FORWARD;
+PROCEDURE InitTriggers(); FORWARD;
+PROCEDURE InitGameText(); FORWARD; 
+{********************* END OF FUNCTION HEADERS *********************}
+
+
+{************************ LEVEL SCRIPTS ************************}
+
+SCRIPT OnCreate;
+VAR
+vDirection	:	vec3d;
+i			: 	integer;
+BEGIN
+
+WriteDebug('ESTATE Level Init');
+
+{ShowTriggers(TRUE);}
+
+AIClearAllActiveAreaAssociations;
+
+SetMaxNumberOfRats(0);
+
+SetLevelGoal('GOAL1');
+
+{Init the level scoped vars}	
+level_bIsAlertOn := FALSE;
+flag_end_trigger_created := FALSE;
+flag_snipers_dead := 0;
+flag_player_in_spawn_trigger := 0;
+flag_anyone_in_spawn_trigger := 0;
+door_opening_firsttime := 0;
+
+flag_bodycheck_Cerb02 := 0;
+flag_bodycheck_Cerb03 := 0;
+flag_bodycheck_Cerb04 := 0;
+test_flag := 0;
+
+SetNumberOfKillableHuntersInLevel(20,10);
+
+{Flag stuff for the sniper cutscene}
+if (GetPlayerLevelRestarts = 0) then
+begin
+	willie_game_int := 0;
+	WriteDebug('SNIPER CUT VALUE =', willie_game_int);
+end;
+
+WriteDebug('SNIPER CUT VALUE =', willie_game_int);
+
+WriteDebug('huntersKill =' , MaxHunterNumber);
+WriteDebug('huntersExecute =' , MaxHunterExecutions);	
+
+SwitchLitterOn(FALSE);
+ForceWeatherType(WEATHER_FOGGY,TRUE);
+
+WriteDebug('player in spawn trigger',flag_player_in_spawn_trigger);
+WriteDebug('number of restarts',GetPlayerLevelRestarts);
+
+{checks to see if checkpoint two has been used and 1 has not}
+	if (NIL = GetEntity('Gen_Save_Point01')) then
+	begin
+		if (NIL <> GetEntity('Gen_Save_Point')) then
+		begin
+			KillEntity(GetEntity('Gen_Save_Point'));
+			WriteDebug('Save point one has been destroyed as 2 has been used but 1 has not');
+		end;
+		
+	end;
+
+	{Add the player}		
+	AIAddPlayer('player');
+	
+	{Add Piggsy}
+	if(nil <> GetEntity('Piggsy')) then
+	begin
+		AIAddEntity('Piggsy');		
+		AISetEntityAsLeader('Piggsy');
+				
+		AIAddSubpackForLeader('Piggsy','sPiggsy');
+		AIAddHunterToLeaderSubPack('Piggsy','sPiggsy','Piggsy');
+		
+		AIDefineGoalHuntEnemy('gHuntPig', 'Piggsy',false,4);		
+	end;
+		
+	{define the goals}
+	AIDefineGoalHuntEnemy('gHuntPlayer', 'player',false,8);
+		
+	{*** PIGGSY FAKE FIGHT GOAL DEFINITIONS ***}
+	{ used to be walk speed but player could see this happening}
+	AIDefineGoalGotoNode('gPigMove','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,'PigMove',AISCRIPT_RUNMOVESPEED,TRUE); 
+		
+	SetVector(vDirection,0.4,0.0,-0.9); {Guard in section beside locked gates}
+	AIDefineGoalGuardDirection('gSculpt_Gard_Guard',AISCRIPT_HIGHPRIORITY,'Sculpt_Gard_Guard',0.0,0.0,1,vDirection); 			
+	AIGuardModifyShootOutsideRadius('gSculpt_Gard_Guard',TRUE);
+	AIDefineGoalGuardDirection('gSculpt_Gard_GuardLow',AISCRIPT_LOWPRIORITY,'Sculpt_Gard_Guard',5.0,5.0,1,vDirection);
+	AIGuardModifyShootOutsideRadius('gSculpt_Gard_GuardLow',TRUE);
+
+	SetVector(vDirection,-70.8,4.1,51.9); {OLD VALUES -1.0,-0.2,1.0}
+	AIDefineGoalGuardDirection('gLockUp_Guard',AISCRIPT_HIGHPRIORITY,'LockUp_Guard',3.0,3.0,1,vDirection);
+	AIGuardModifyShootOutsideRadius('gLockUp_Guard',TRUE);
+	AIDefineGoalGuardDirection('gLockUp_Guard2',AISCRIPT_LOWPRIORITY,'LockUp_Guard',10.0,10.0,1,vDirection);			
+	AIGuardModifyShootOutsideRadius('gLockUp_Guard2',TRUE);
+	AIDefineGoalGuard('gCheckInsideLockUp',AISCRIPT_HIGHPRIORITY,'Lock_Up_Home',10.0,10.0,2);
+	AIGuardModifyShootOutsideRadius('gCheckInsideLockUp',TRUE);
+	
+	{has to bedone to stop errors after save points }
+	if (NIL <> GetEntity('Cerb_Start01')) then
+	AIDefineGoalGotoNode('gCheckInside','Cerb_Start01',AISCRIPT_MEDIUMPRIORITY,'Lock_Up_Home2',AISCRIPT_RUNMOVESPEED,TRUE);
+			
+	AIDefineGoalGotoNode('gCerberusGo','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'Tower_Run_To',AISCRIPT_RUNMOVESPEED,TRUE); {was Home3}
+	
+	AIDefineGoalGuard('gGuardMaze',AISCRIPT_HIGHPRIORITY,'Guard_Maze',0.5,1.0,1);
+	AIGuardModifyShootOutsideRadius('gGuardMaze',TRUE);
+		
+	{ALERT MANAGER HIGH GUARD GOALS}
+	AIDefineGoalGuardLookAtEntity('gAlert_Guard01',AISCRIPT_HIGHPRIORITY,'Cover_Exit',0.5,2.0,1,'player');
+	AIGuardModifyShootOutsideRadius('gAlert_Guard01',TRUE);
+	
+	{CERB MANSION GOAL DEFINITIONS}
+	AIDefineGoalGuard('gGuardian01',AISCRIPT_MEDIUMPRIORITY,'Home_Guardian01',0.5,30.0,1); 			
+	AIGuardModifyShootOutsideRadius('gGuardian01',TRUE);
+	
+	{has to be done to stop errors after save points}
+	if (NIL <> GetEntity('Guardian01')) then
+	AIDefineGoalGoToNode('gGuardian01_Go','Guardian01',AISCRIPT_LOWPRIORITY,'Alt_Home_Maze2',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	{define the sniper goals}	
+	AIDefineGoalGuard('gSnipeFront1',AISCRIPT_HIGHPRIORITY,'camp1_snipe1',0.5,0.5,1);
+	AIDefineGoalGuard('gSnipeFront2',AISCRIPT_HIGHPRIORITY,'camp2_snipe1',0.5,0.5,1);
+	AIGuardModifyShootOutsideRadius('gSnipeFront1',TRUE);
+	AIGuardModifyShootOutsideRadius('gSnipeFront2',TRUE);
+		
+	{goals to guard the top of the stairs}
+	SetVector(vDirection,-0.9,-0.3,0.2); 
+	AIDefineGoalGuardDirection('GoalGuardStairs1',AISCRIPT_HIGHPRIORITY,'Step_Guard1',0.0,0.0,1,vDirection);
+	AIGuardModifyShootOutsideRadius('GoalGuardStairs1',TRUE);
+	
+	{goals to guard the top of the stairs}
+	SetVector(vDirection,-0.9,-0.3,0.2); 
+	AIDefineGoalGuardDirection('GoalGuardStairs3',AISCRIPT_MEDIUMPRIORITY,'Step_Guard1',0.0,0.0,1,vDirection);
+	AIGuardModifyShootOutsideRadius('GoalGuardStairs3',TRUE);
+	
+	SetVector(vDirection,-0.9,-0.3,-0.2);
+	AIDefineGoalGuardDirection('GoalGuardStairs2',AISCRIPT_HIGHPRIORITY,'Step_Guard2',0.0,0.0,1,vDirection);
+	AIGuardModifyShootOutsideRadius('GoalGuardStairs2',TRUE);
+	
+	SetVector(vDirection,-0.9,-0.3,-0.2);
+	AIDefineGoalGuardDirection('GoalGuardStairs4',AISCRIPT_MEDIUMPRIORITY,'Step_Guard2',0.0,0.0,1,vDirection);
+	AIGuardModifyShootOutsideRadius('GoalGuardStairs4',TRUE);
+		
+	
+	{Add the LEADER and his enemy}
+	if(nil <> GetEntity('LEADER')) then 
+	begin
+		AIAddEntity('LEADER');
+		AISetEntityAsLeader('LEADER');
+		AIAddLeaderEnemy('LEADER','player');
+		
+		AIEntityAlwaysEnabled('LEADER');
+		AISetLeaderInvisible('LEADER');
+		
+		{Create the subpacks}
+		AIAddSubpackForLeader('LEADER','CERB1');
+		AIAddAreaForSubPack('CERB1','aiLockUp');
+		AIAddAreaForSubPack('CERB1','aiLockUpInside');
+		AIAddAreaForSubPack('CERB1','aiGardenEnt');
+		
+		AIAddSubpackForLeader('LEADER','CERB1_GUARDS');
+		AIAddAreaForSubPack('CERB1_GUARDS','aiLockUp');
+		AIAddAreaForSubPack('CERB1_GUARDS','aiLockUpInside');
+		AIAddAreaForSubPack('CERB1_GUARDS','aiGardenEnt');
+		AIAddAreaForSubPack('CERB1_GUARDS','aiGazebo');
+						
+		AIAddSubpackForLeader('LEADER','CERBERUS');
+		AIAddAreaForSubPack('CERBERUS','aiCerberus');
+		AIAddAreaForSubPack('CERBERUS','aiMansionFront');
+		AIAddAreaForSubPack('CERBERUS','aiGazebo');
+		AIAddAreaForSubPack('CERBERUS','aiGardenEnt');
+				
+		AIAddSubpackForLeader('LEADER','CERB_MANSION');
+		AIAddAreaForSubPack('CERB_MANSION','aiMansionInside');
+		AIAddAreaForSubPack('CERB_MANSION','aiCerberus');
+		AIAddAreaForSubPack('CERB_MANSION','aiMansionFront');
+		AIAddAreaForSubPack('CERB_MANSION','aiGazebo');
+		AIAddAreaForSubPack('CERB_MANSION','aiMaze');
+		{AISubpackStayInTerritory('LEADER','CERB_MANSION',TRUE);}
+		
+		AIAddSubpackForLeader('LEADER','Subpack_Grave_Hedges');
+		AIAddAreaForSubPack('Subpack_Grave_Hedges','aiGaveHedges');
+		AIAddAreaForSubPack('Subpack_Grave_Hedges','aiCerberus');
+		{AISubpackStayInTerritory('LEADER','Subpack_Grave_Hedges',TRUE);}
+								
+		{The 4 guys in the tower on the left hand side of the mansion}
+		AIAddSubpackForLeader('LEADER','Subpack_Mansion2');
+		AIAddAreaForSubPack('Subpack_Mansion2','aiMansionFront');
+		AIAddAreaForSubPack('Subpack_Mansion2','aiCerberus');
+		
+		{two guards at the end of the level}
+		AIAddSubpackForLeader('LEADER','Subpack_Endlevel');
+		AIAddAreaForSubPack('Subpack_Endlevel','aiMansionFront');
+		AISubpackStayInTerritory('LEADER','Subpack_Endlevel',TRUE);
+							
+		{hide the leader from the radar}
+		AISetHunterOnRadar('LEADER',false);
+		
+		AIAddSubpackForLeader('LEADER','Subpack_Maze');
+		AIAddAreaForSubPack('Subpack_Maze','aiMaze');
+		AISubpackStayInTerritory('LEADER','Subpack_Maze',TRUE);
+		
+		{Subpack of guys guarding the stairs}
+		AIAddSubpackForLeader('LEADER','Subpack_Mansion3');
+		AIAddAreaForSubPack('Subpack_Mansion3','aiCerberus');
+		{AISubpackStayInTerritory('LEADER','Subpack_Mansion3',TRUE);}
+				
+		{ADD THE NO-ENEMIES LEADER TO BE USED IN CASE CERTAIN HUNTERS SHOULD NOT FIGHT THE PLAYER}
+		if(nil <> GetEntity('LEADER_NOENEMY')) then 
+		begin
+			AIAddEntity('LEADER_NOENEMY');
+			AISetEntityAsLeader('LEADER_NOENEMY');		
+			AIEntityAlwaysEnabled('LEADER_NOENEMY');
+			AISetHunterOnRadar('LEADER_NOENEMY',false);	
+			AISetLeaderInvisible('LEADER_NOENEMY');
+						
+			AIAddSubpackForLeader('LEADER_NOENEMY','NoEnemySubPack');
+			
+			if (NIL <> GetEntity ('Piggsy')) then
+			begin
+				AIAddAllHuntersInPackAsLeaderEnemies('Piggsy','LEADER_NOENEMY');
+				AIAddLeaderEnemy('LEADER_NOENEMY','Piggsy');
+			end;
+						
+		end;
+				
+		{Creates the leader for the snipers}
+		if(nil <> GetEntity('LEADER_SNIPER')) then
+		begin
+			AIAddEntity('LEADER_SNIPER');
+			AISetEntityAsLeader('LEADER_SNIPER');		
+			AIEntityAlwaysEnabled('LEADER_SNIPER');
+			AISetHunterOnRadar('LEADER_SNIPER',false);	
+			AIAddLeaderEnemy('LEADER_SNIPER','player');	
+			AISetLeaderInvisible('LEADER_SNIPER');
+			{Create the subpack}
+			AIAddSubpackForLeader('LEADER_SNIPER','Subpack_Sniper');
+		end;
+					
+		{Init the areas - ALWAYS AFTER ALL THE LEADERS ARE INITIALISED}		
+		InitAreas;	
+			
+		{ADD THE HUNTERS on the map}
+		
+	{*** CERB1 running at player after START ***}
+		if(nil <> GetEntity('Cerb02')) then 
+		begin
+			AIAddEntity('Cerb02');
+			{AIAddHunterToLeaderSubPack('LEADER','CERB1','Cerb02');}
+			AIAddHunterToLeaderSubPack('LEADER','CERB1_GUARDS','Cerb02')
+		end;
+		
+		if(nil <> GetEntity('Cerb03')) then 
+		begin
+			AIAddEntity('Cerb03');
+			{AIAddHunterToLeaderSubPack('LEADER','CERB1','Cerb03');}
+			AIAddHunterToLeaderSubPack('LEADER','CERB1_GUARDS','Cerb03')					
+		end;
+		
+		if(nil <> GetEntity('Cerb04')) then 
+		begin
+			AIAddEntity('Cerb04');
+			{AIAddHunterToLeaderSubPack('LEADER','CERB1','Cerb04');}
+			AIAddHunterToLeaderSubPack('LEADER','CERB1_GUARDS','Cerb04')					
+		end;		
+		
+		
+		if(nil <> GetEntity('Cerb_Guard01')) then 
+		begin
+			AIAddEntity('Cerb_Guard01');
+			AIAddHunterToLeaderSubPack('LEADER','CERB1_GUARDS','Cerb_Guard01');					
+		end;
+		
+		{The GUYS that DIE or doomed to die at the beginning}
+		
+		if(nil <> GetEntity('Cerb_Start01')) then 
+		begin
+			AIAddEntity('Cerb_Start01');
+			AIAddHunterToLeaderSubPack('LEADER','CERB1_GUARDS','Cerb_Start01')
+			{AIAddHunterToLeaderSubPack('LEADER_START_GUY','Subpack_Start_Guy','Cerb_Start01');}
+		end;
+		
+		if(nil <> GetEntity('Cerb_Start02')) then 
+		begin
+			AIAddEntity('Cerb_Start02');
+			AIAddHunterToLeaderSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerb_Start02');					
+		end;
+				
+		{*** CERBERUS IN MAIN GARDEN ***}
+		if(nil <> GetEntity('Cerberus01')) then
+		begin
+			AIAddEntity('Cerberus01');
+		end;			
+		
+		if(nil <> GetEntity('Cerberus02')) then 
+		begin
+			AIAddEntity('Cerberus02');
+		end;
+				
+		{	CERBERUS pack attacking piggsy and then moved to huntPlayer subpack
+			Cerberus04,  Cerberus05, Cerberus06, Cerberus07 
+			full init in trigger: PigAttack											}		
+		if(nil <> GetEntity('Cerberus04')) then 
+		begin
+			AIAddEntity('Cerberus04');
+		end;
+		
+		if(nil <> GetEntity('Cerberus05')) then 
+		begin
+			AIAddEntity('Cerberus05');
+		end;
+		
+		if(nil <> GetEntity('Cerberus06')) then 
+		begin
+			AIAddEntity('Cerberus06');
+		end;
+				
+		{	Second group of guys that get out of mansion to proivide extra firepower
+			Cerberus08, Cerberus09, Cerberus10, Cerberus11 
+			full init in trigger: Cerberus_GO											}
+		if(nil <> GetEntity('Cerberus08')) then 
+		begin
+			AIAddEntity('Cerberus08');
+			AIAddHunterToLeaderSubPack('LEADER','Subpack_Mansion3','Cerberus08');				
+		end;
+		
+		if(nil <> GetEntity('Cerberus09')) then 
+		begin
+			AIAddEntity('Cerberus09');
+			AIAddHunterToLeaderSubPack('LEADER','Subpack_Mansion3','Cerberus09');								
+		end;
+		
+		if(nil <> GetEntity('Cerberus10')) then 
+		begin
+			AIAddEntity('Cerberus10');
+			AIAddHunterToLeaderSubPack('LEADER','Subpack_Mansion2','Cerberus10');			
+		end;
+		
+		if(nil <> GetEntity('Cerberus11')) then 
+		begin
+			AIAddEntity('Cerberus11');
+			AIAddHunterToLeaderSubPack('LEADER','Subpack_Mansion2','Cerberus11');			
+		end;
+		
+		{Guy guarding the maze}
+		if(nil <> GetEntity('Cerberus12')) then 
+		begin
+			AIAddEntity('Cerberus12');
+			AIAddHunterToLeaderSubPack('LEADER','Subpack_Maze','Cerberus12');
+		end;
+		
+		{*** CERBERUS IN MANSION ***}
+		if(nil <> GetEntity('Guardian01')) then 
+		begin
+			AIAddEntity('Guardian01');
+			AIAddHunterToLeaderSubPack('LEADER','CERB_MANSION','Guardian01');					
+		end; 
+		
+		if(nil <> GetEntity('Guardian02')) then 
+		begin
+			AIAddEntity('Guardian02');
+			AIAddHunterToLeaderSubPack('LEADER','CERB_MANSION','Guardian02');					
+		end;
+		
+		if(nil <> GetEntity('Sniper01')) then 
+		begin
+			AIAddEntity('Sniper01');
+			AIAddHunterToLeaderSubPack('LEADER_SNIPER','Subpack_Sniper','Sniper01');					
+		end;
+		
+		if(nil <> GetEntity('Sniper02')) then 
+		begin
+			AIAddEntity('Sniper02');
+			AIAddHunterToLeaderSubPack('LEADER_SNIPER','Subpack_Sniper','Sniper02');					
+		end;
+		
+		{Hunters in the maze}
+		
+		if (nil <> GetEntity('Hunter_Maze1')) then
+		begin
+			AIAddEntity('Hunter_Maze1');
+			AIAddHunterToLeaderSubpack('LEADER','Subpack_Maze','Hunter_Maze1');
+			{Patrol idle routes added in the hunter file}
+		end;
+		
+		if (nil <> GetEntity('Hunter_Maze2')) then
+		begin
+			AIAddEntity('Hunter_Maze2');
+			AIAddHunterToLeaderSubpack('LEADER','Subpack_Maze','Hunter_Maze2');
+			{Patrol idle routes added in the hunter file}
+		end;
+		
+		{two guards at the end of the level}
+					
+		IF (nil	<> GetEntity('Hunter_End2')) then
+		begin
+			AIAddEntity('Hunter_End2');
+			AIAddHunterToLeaderSubpack('LEADER','Subpack_Endlevel','Hunter_End2');
+		end;
+	
+		{Add the BASIC goals to the subpacks - other goals are inside each hunter's script }
+		if(nil <> GetEntity('Piggsy')) then AIAddGoalForSubpack('LEADER_NOENEMY','NoEnemySubPack','gHuntPig');
+		
+		{AIAddGoalForSubpack('LEADER_START_GUY','Subpack_Start_Guy','gHuntPlayer');}
+				
+		{AIAddGoalForSubpack('LEADER','CERB1','gHuntPlayer');}
+				
+		{hunt goal added once the switch has been activated in the garage}
+		AIAddGoalForSubpack('LEADER','CERB1_GUARDS','gSculpt_Gard_Guard');
+		
+		AIAddGoalForSubpack('LEADER','CERBERUS','gHuntPlayer');
+		AIAddGoalForSubpack('LEADER','Subpack_Grave_Hedges','gHuntPlayer');
+								
+		AIAddGoalForSubpack('LEADER','CERB_MANSION','gHuntPlayer');
+		AIAddGoalForSubpack('LEADER','CERB_MANSION','gGuardian01');
+		
+		AIAddGoalForSubpack('LEADER','Subpack_Endlevel','gHuntPlayer');
+		
+		AIAddGoalForSubpack('LEADER_SNIPER','Subpack_Sniper','gSnipeFront2');				
+		AIAddGoalForSubpack('LEADER_SNIPER','Subpack_Sniper','gSnipeFront1');
+				
+		AIAddGoalForSubpack('LEADER','Subpack_Mansion3','gHuntPlayer');
+		AIAddGoalForSubpack('LEADER','Subpack_Mansion3','GoalGuardStairs1');
+		AIAddGoalForSubpack('LEADER','Subpack_Mansion3','GoalGuardStairs2');
+						
+		
+		{New subpack for the 2 guys that come from the mansion tower}
+		{AIAddGoalForSubpack('LEADER','Subpack_Mansion2','gHuntPlayer');}
+		
+		{Subpack In The Maze}
+		AIAddGoalForSubpack('LEADER','Subpack_Maze','gHuntPlayer');
+		AIAddGoalForSubpack('LEADER','Subpack_Maze','gGuardMaze');
+		
+		{Set the combat types per subpack}		
+		AISetSubpackCombatType('LEADER_NOENEMY','NoEnemySubPack',COMBATTYPEID_COVER);
+		
+		{AISetSubpackCombatType('LEADER','CERB1',COMBATTYPEID_COVER);}
+		AISetSubpackCombatType('LEADER','CERB1_GUARDS',COMBATTYPEID_COVER);
+				
+		AISetSubpackCombatType('LEADER','CERBERUS',COMBATTYPEID_COVER);
+				
+		AISetSubpackCombatType('LEADER','CERB_MANSION',COMBATTYPEID_COVER);
+		
+		AISetSubpackCombatType('LEADER_SNIPER','Subpack_Sniper',COMBATTYPEID_COVER);
+		
+		AISetSubpackCombatType('LEADER','Subpack_Mansion2',COMBATTYPEID_COVER);
+		
+		AISetSubpackCombatType('LEADER','Subpack_Maze',COMBATTYPEID_COVER);
+		
+		{AISetSubpackCombatType('LEADER_START_GUY','Subpack_Start_Guy',COMBATTYPEID_COVER);}
+		
+		{Guys who initially get attacked by pigsy}
+		AISetSubpackCombatType('LEADER','Subpack_Grave_Hedges',COMBATTYPEID_COVER);
+		
+		{guys at the end of the level}
+		AISetSubpackCombatType('LEADER','Subpack_Endlevel',COMBATTYPEID_COVER);
+		
+		{Guys guarding the staris}
+		AISetSubpackCombatType('LEADER','Subpack_Mansion3',COMBATTYPEID_COVER);
+						
+		{set the search parameters}		
+		aiSetSearchParams('default',25.0,FALSE,10.0,90,0,0,0);
+			
+	end;
+		
+	InitTriggers;
+	InitGameText;	
+
+		
+	
+end; {end OnCreate}
+
+{************************ END OF OnCREATE ************************}
+
+{********************************* FUNCTION DECLARATIONS *********************************}
+
+PROCEDURE InitAreas ;
+BEGIN
+	
+	{ENTITY ACTIVATION AREAS}
+	
+	AIAssociateOneActiveAreaWithPlayerArea('aiMaze','aiMansionFront');
+	AIAssociateOneActiveAreaWithPlayerArea('aiMansionFront','aiMaze');	
+	
+	AIAssociateOneActiveAreaWithPlayerArea('aiCerberus','aiMansionFront');
+	AIAssociateOneActiveAreaWithPlayerArea('aiMansionFront','aiCerberus');
+	
+	AIAssociateTwoActiveAreasWithPlayerArea('aiLockUpInside','aiLockUp','aiGardenEnt');
+	AIAssociateTwoActiveAreasWithPlayerArea('aiLockUp','aiGardenEnt','aiLockUpInside');
+	
+	AIAssociateThreeActiveAreasWithPlayerArea('aiGardenEnt','aiLockUp','aiLockUpInside','aiGazebo');			
+	AIAssociateThreeActiveAreasWithPlayerArea('aiCerberus','aiGazebo','aiMaze','aiGaveHedges');
+	AIAssociateThreeActiveAreasWithPlayerArea('aiMaze','aiGazebo','aiCerberus','aiGaveHedges');
+	AIAssociateThreeActiveAreasWithPlayerArea('aiGaveHedges','aiGazebo','aiCerberus','aiMaze');
+	
+	AIAssociateFourActiveAreasWithPlayerArea('aiCerberus','aiSniperRoof2','aiMansionFront','aiSniperRoof1','aiGazebo');
+	AIAssociateFourActiveAreasWithPlayerArea('aiGazebo','aiMaze','aiCerberus','aiGaveHedges','aiGardenEnt');	
+	AIAssociateFourActiveAreasWithPlayerArea('aiMansionFront','aiSniperRoof1','aiSniperRoof2','aiMansionInside','aiCerberus');
+	AIAssociateFourActiveAreasWithPlayerArea('aiSniperRoof1','aiMansionFront','aiSniperRoof2','aiMansionInside','aiCerberus');
+	AIAssociateFourActiveAreasWithPlayerArea('aiSniperRoof2','aiMansionFront','aiSniperRoof1','aiMansionInside','aiCerberus');
+	AIAssociateFourActiveAreasWithPlayerArea('aiMansionInside','aiSniperRoof2','aiMansionFront','aiSniperRoof1','aiCerberus');
+		
+End; {of InitAreas}
+
+
+
+
+{*****************************************************}
+
+
+PROCEDURE InitTriggers;
+BEGIN
+	{*** Level Triggers ***}
+	
+	setVector(vStart,0.1,0.1,0.1);
+	setVector(vEnd,-0.2,0.2,0.2);
+	
+	if (nil = GetEntity('Garden_Manager')) then CreateBoxTrigger(vStart,vEnd,'Garden_Manager');
+		
+	{setVector(vStart,0.2,0.2,0.2);
+	setVector(vEnd,-0.3,0.3,0.3);
+	
+	if (nil = GetEntity('Alert_Manager')) then CreateBoxTrigger(vStart,vEnd,'Alert_Manager');}
+	
+	setVector(vStart,0.4,0.4,0.4);
+	setVector(vEnd,-0.4,0.4,0.4);
+	
+	if (nil = GetEntity('Hunters_Generator')) then CreateBoxTrigger(vStart,vEnd,'Hunters_Generator');
+	
+	{Trigger outside of the garage}
+	
+	{setVector(vStart,-120.3,3.6,60.0);
+	setVector(vEnd,-66.5,10.8,42.8);
+
+	if(
+	(nil = GetEntity('Cerb1_MoveIN'))
+	AND
+	(NIL <> GetEntity('Gen_Save_Point'))
+	) then CreateBoxTrigger(vStart,vEnd,'Cerb1_MoveIN');}
+	
+{creates the cerberus go trigger}
+	setVector(vStart,45.6,0.8,18.1);	
+	if (NIL = GetEntity('Cerberus_GO')) then
+	begin
+		CreateSphereTrigger(vStart,3.5,'Cerberus_GO');
+		WriteDebug('CERBERUS_GO TRIGGER HAS BEEN CREATED');
+	end;
+	
+{Creates the sniper box trigger}
+	SetVector(vStart,101.4,3.4,-2.7);
+	SetVector(vEnd,109.2,9.6,6.6);
+	
+	if (IsEntityAlive('Sniper01')
+	AND 
+	IsEntityAlive('Sniper02'))
+	then CreateBoxTrigger(vStart,vEnd,'SniperTrigger');
+		
+{Creates the Pigsy attack trigger}	
+	SetVector(vStart,28.1,1.6,15.55);
+	SetVector(vEnd,37.68,9.0,36.0);
+	
+	if (nil = GetEntity('PigAttack')) then CreateBoxTrigger(vStart,vEnd,'PigAttack');
+	
+{ *** Creates the end of level trigger *** }
+	SetVector(vStart,177.3,-1.0,82.0);
+	SetVector(vEnd,181.0,0.0,88.4);
+			
+	if flag_end_trigger_created = FALSE then
+	begin
+		CreateBoxTrigger(vStart,vEnd,'LevelEndTrigger');
+		flag_end_trigger_created := TRUE;
+	end;
+		
+{Creates the sniper cutscene trigger}
+	WriteDebug('Level restarts =',GetPlayerLevelRestarts);
+		
+	SetVector(vStart,45.7,0.8,18.1);
+	
+	if (willie_game_int = 0) then
+		CreateSphereTrigger(vStart,3.5,'SniperCut');
+		
+{creates the trigger to check if the player is in the area for the hunter spawn}		
+	SetVector(vStart,158.8,10.0,92.0);
+	SetVector(vEnd,184.1,0.0,82.0);
+	CreateBoxTrigger(vStart,vEnd,'SpawnTrigger');
+	
+{creates Trigger2 to check no two hunters get spawned on top of each other}
+	SetVector(vStart,176.4,-1.0,82.9);
+	CreateSphereTrigger(vStart,3.0,'SpawnTrigger2');
+	
+		
+End; {of InitTriggers}
+
+
+
+{*****************************************************}
+
+
+
+PROCEDURE InitGameText;
+BEGIN
+
+	SetGameTextTeleType(false);
+
+End; {of InitGameText}
+
+
+
+{*****************************************************}
+
+END. {end of LevelScripts}
+
+
+
+
+
+   

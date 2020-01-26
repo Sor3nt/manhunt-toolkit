@@ -1,0 +1,11 @@
+{
+    "const": [],
+    "strings": [
+        "Upt_Elevator_DoorIL_(SD)",
+        "Upt_Elevator_DoorIR_(SD)",
+        "real_asylum_elev",
+        "Upt_Elevator_DoorUL_(SD)",
+        "Upt_Elevator_DoorUR_(SD)"
+    ],
+    "byteReserved": 28
+}

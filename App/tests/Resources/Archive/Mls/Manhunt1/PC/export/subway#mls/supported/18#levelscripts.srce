@@ -1,0 +1,34 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Team3_2		:	et_name;
+
+VAR
+bIsMovingIn		: 	boolean;
+
+level_bPowerIsOn	: 	level_var	boolean;
+
+SCRIPT OnCreateHunter;
+VAR
+BEGIN
+	
+	SetHunterHitAccuracy(GetEntityName(this),45);
+	SetHunterHideHealth(GetEntityName(this),0);		
+	
+	bIsMovingIn	:= TRUE;		
+End;
+
+
+SCRIPT OnHunterReachedNode;
+BEGIN
+
+if bIsMovingIn then
+begin
+	bIsMovingIn := FALSE;
+	AIAddGoalForSubpack('LEADER','Team3','gTeam3_2CheckPlayer');	
+	AISetIdleHomeNode('Team3_2',''); 	
+	AISetHunterIdlePatrol('Team3_2',AISCRIPT_IDLE_PATROL,AISCRIPT_VERYHIGHPRIORITY,1000,8000,'Patrol_Team3_2');
+end;
+
+End;
+END. {end of Scripts}

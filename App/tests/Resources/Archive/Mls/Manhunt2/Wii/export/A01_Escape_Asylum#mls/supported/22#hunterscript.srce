@@ -1,0 +1,55 @@
+scriptmain HunterScript;
+
+entity RadarTut(hunter): et_name;
+
+
+script Init;
+
+VAR
+	twitch : boolean;
+	pos : vec3d;
+
+begin
+	SetPedDoNotDecay(this, TRUE);
+	AIAddEntity('RadarTut(hunter)');
+	RegisterNonExecutableHunterInLevel;
+
+	{ Make character unlockonable, invulnerable, unexecutable }
+	SetPedLockonable(this, FALSE);
+	SetEntityInvulnerable(this, TRUE);
+	SetHunterExecutable(this, FALSE);
+
+	AISetEntityIdleOverride('RadarTut(hunter)', TRUE, TRUE);
+
+{	AIEntityPlayAnimLooped('RadarTut(hunter)', 'BAT_INMATE_IDLELOOP_WOUNDED_ANIM', -1.0);}
+	
+	If IsPlayerWalking then sleep(1500);
+	
+	{TEMP}
+	PlayScriptAudioStreamFromEntityAuto('DYINGGUY', 127, this, 127);
+
+{	AIEntityCancelAnim('RadarTut(hunter)', 'BAT_INMATE_IDLELOOP_WOUNDED_ANIM');}
+
+	AIEntityPlayAnim('RadarTut(hunter)', 'BAT_INMATE_DYING_WOUNDED_ANIM');
+
+	Sleep(3000);
+	
+	writedebug('create trigger');
+	
+	SetVector(pos, -13.3019, 6.21721, 0.898605);
+	CreateSphereTrigger(pos, 1.27602, 'triggerDeadTwitch');
+
+	AIEntityCancelAnim('RadarTut(hunter)', 'BAT_INMATE_DYING_WOUNDED_ANIM');
+
+	AIEntityPlayAnimLooped('RadarTut(hunter)', 'BAT_INMATE_DEATHPOSE_WOUNDED_ANIM', -1.0);
+
+	{KillEntityWithoutAnim(this);}
+		
+	{while not IsScriptAudioStreamCompleted do sleep(10);
+	PlayScriptAudioStreamFromEntityAuto('WT2', 100, this ,10);}
+	
+
+end;
+
+
+end.

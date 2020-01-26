@@ -1,0 +1,38 @@
+scriptmain RadioTrigger;
+
+ENTITY
+	triggerRadioChatter : et_name;
+	
+VAR
+	IDSamp : integer;
+	played : boolean;
+	
+script OnCreate;
+begin
+	played := FALSE;
+end;
+	
+script OnEnterTrigger;
+begin
+
+	{PlayDirectorSpeechPlaceholder('RAD1_A');
+	sleep(2000);}
+	
+	{if played = false then
+	begin
+		PlayScriptAudioStreamFromEntityAuto('WT3', 100, GetPlayer ,10);
+  	played := TRUE;
+  end;
+  
+  IDSamp := PlayAudioLoopedFromEntity(GetPlayer,'LEVEL','TV1',50, 50);
+	while not IsScriptAudioStreamCompleted do sleep(10);}
+	{DestroyEntity(this);}
+
+end;
+
+script OnLeaveTrigger;
+begin
+	{EndAudioLooped(IDSamp);}
+end;
+
+end.

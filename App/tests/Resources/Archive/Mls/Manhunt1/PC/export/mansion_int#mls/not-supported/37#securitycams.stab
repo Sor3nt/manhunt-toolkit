@@ -1,0 +1,34 @@
+[
+    {
+        "name": "alarmboxeffect",
+        "nameGarbage": "000188eef80158eff80150f0f80140f1f801",
+        "offset": "58000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "barehuntersspawning",
+        "nameGarbage": "00000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    },
+    {
+        "name": "smyname",
+        "nameGarbage": "006374735c4b6f6a616b5c6c6576656c735c4d616e73696f6e",
+        "offset": "5c000000",
+        "size": 20,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "striggername",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "70000000",
+        "size": 32,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

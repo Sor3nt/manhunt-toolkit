@@ -1,0 +1,18 @@
+SCRIPTMAIN	HunterMazeScripts;
+
+ENTITY
+Hunter_Maze2		:	et_name;
+
+SCRIPT OnCreate;
+begin
+	AISetIdleHomeNode('Hunter_Maze2','Hunter_Maze2_Home');
+	AISetHunterIdlePatrol('Hunter_Maze2',AISCRIPT_IDLE_PATROL,AISCRIPT_MEDIUMPRIORITY,1000,8000,'Maze_Path2');		
+	AISetIdlePatrolStop('Hunter_Maze2','Maze_Path2_Stop1',5,TRUE);
+	AISetIdlePatrolStop('Hunter_Maze2','Maze_Path2_Stop1',5,FALSE);
+	AISetIdlePatrolStop('Hunter_Maze2','Maze_Path2_Stop2',5,TRUE);
+	AISetIdlePatrolStop('Hunter_Maze2','Maze_Path2_Stop2',5,FALSE);
+	AISetIdlePatrolStop('Hunter_Maze2','Maze_Path2_Stop3',5,TRUE);
+	AISetIdlePatrolStop('Hunter_Maze2','Maze_Path2_Stop3',5,FALSE);
+end;
+
+END. {end of Scripts}

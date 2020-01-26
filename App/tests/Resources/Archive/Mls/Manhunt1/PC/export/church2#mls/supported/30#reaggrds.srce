@@ -1,0 +1,85 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	ReAggrds;
+
+ENTITY
+	Trigger_10		:	et_name;
+
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+VAR
+
+  gates1 : integer;
+  
+SCRIPT OnCreate;
+BEGIN
+
+	gates1 := 1;
+	TriggerAddEntityClass(this, COL_HUNTER );
+	
+END;
+
+SCRIPT THERE;
+BEGIN
+
+	gates1 := 0;
+
+END;
+
+SCRIPT OnEnterTrigger;
+{ Entity To Run Script From }
+
+VAR
+
+pDoor  : EntityPtr;
+boxA   : vec3d;
+
+BEGIN
+	
+
+	pDoor := Getentity('Tramp');
+	
+	If InsideTrigger(this, pDoor)	OR EnteredTrigger(this, pDoor)then
+	 begin
+	
+		pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)05');
+	   	PlayScriptAudioSlotOneShotFromEntity(pDoor, 0, -1, -1); 		
+		SetDoorState(pDoor, DOOR_CLOSED);
+		UnLockEntity(pDoor);
+		
+		pDoor := GetEntity('Trigger02');
+		UnFreezeEntity(pDoor);
+	    ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));
+	    			
+		removethisscript;
+		
+	end;
+	
+	if InsideTrigger(this, GetPlayer) OR EnteredTrigger(this, GetPlayer) then
+	 begin
+		
+		if gates1 = 1
+		 then begin
+		 
+		{	SetGameTextDisplayTime(5000);	    
+		    PlayDirectorSpeechPlaceHolder('GATE2');}
+		    
+		    SetVector(boxA, -170.4, 4.1, 242.8);
+			PlayDirectorSpeech( boxA, AISPEECH_D1V1_DRK_NO_TRAMP_AT_GATE, 127, 30);
+					    
+			gates1 := 0;							
+		{	removethisscript;}
+			
+	    end;
+	end;
+				
+END;
+
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END.

@@ -1,0 +1,23 @@
+{
+    "const": [],
+    "strings": [
+        "Cameras_Control",
+        "MonitorsOn",
+        "MonitorsOff",
+        "CJ_MONITER",
+        "MonitorOn",
+        "CJ_MONITER05",
+        "CJ_MONITER06",
+        "CJ_MONITER07",
+        "CJ_MONITER",
+        "MonitorOff",
+        "CJ_MONITER05",
+        "CJ_MONITER06",
+        "CJ_MONITER07",
+        "Cameras_Control GetSwitchState: ",
+        "Cameras_Control",
+        "MonitorsOn",
+        "MonitorsOff"
+    ],
+    "byteReserved": 4
+}

@@ -1,0 +1,61 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	CarPark2;
+ENTITY
+	hCarPark2		:	et_name;
+
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+SCRIPT OnHighSightingOrAbove;
+
+VAR
+
+BEGIN
+
+		AISubpackStayInTerritory( 'hLeader', 'sCar2', FALSE );
+
+		removethisscript;
+		
+end;
+
+SCRIPT OnDeath;
+
+VAR
+	thecarpark : level_var integer;
+
+BEGIN
+	
+	    thecarpark := thecarpark + 1;
+
+		AISubpackStayInTerritory( 'hLeader', 'sCar2', FALSE );
+
+	    
+		if thecarpark = 1 then runscript('player','DEAD1');
+		if thecarpark = 2 then runscript('player','DEAD2');
+		
+		removethisscript;
+
+		
+END;
+
+SCRIPT OnStartExecution;
+VAR
+
+BEGIN
+		
+	sleep(8500);
+	
+	runscript('player', 'ONCE');
+	
+	removethisscript;
+
+
+END;
+	
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END.

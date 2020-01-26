@@ -1,0 +1,43 @@
+[
+    {
+        "name": "driverfail",
+        "nameGarbage": "00000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            1544159232
+        ]
+    },
+    {
+        "name": "llevelstate",
+        "nameGarbage": "0000000000773a5c4d616e68756e74325c41737365",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "tLevelState",
+        "occurrences": [
+            3893952512,
+            3424321536
+        ]
+    },
+    {
+        "name": "reminderrun",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "b4020000",
+        "size": 4,
+        "hierarchieType": "01000000",
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "setgoal",
+        "nameGarbage": "00000000000000000000000000000000000000000000000000",
+        "offset": "bc020000",
+        "size": 4,
+        "hierarchieType": "01000000",
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

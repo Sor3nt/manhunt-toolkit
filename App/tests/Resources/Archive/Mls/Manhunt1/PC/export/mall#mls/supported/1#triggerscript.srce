@@ -1,0 +1,15 @@
+SCRIPTMAIN	TriggerScript;
+
+ENTITY
+TriggerTemplate	:	et_name;
+
+SCRIPT OnEnterTrigger;
+BEGIN
+IF (InsideTrigger(this,GetPlayer) OR EnteredTrigger(this,GetPlayer)) THEN
+	BEGIN
+		RunScript('LEADER',GetEntityName(this));
+		DestroyEntity(this);
+	END;
+END;
+
+END.

@@ -1,0 +1,31 @@
+[
+    {
+        "name": "elevpos",
+        "nameGarbage": "00000000000000000000000000000000000000000000000000",
+        "offset": "94000000",
+        "size": 12,
+        "hierarchieType": "01000000",
+        "objectType": "vec3d",
+        "occurrences": []
+    },
+    {
+        "name": "lelevatorlevel",
+        "nameGarbage": "0000773a5c4d616e68756e74325c41737365",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "tLevelState",
+        "occurrences": [
+            1744896000
+        ]
+    },
+    {
+        "name": "pos",
+        "nameGarbage": "0078013200000000000000000000000000000000000000000000000000",
+        "offset": "88000000",
+        "size": 12,
+        "hierarchieType": "01000000",
+        "objectType": "vec3d",
+        "occurrences": []
+    }
+]

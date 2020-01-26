@@ -1,0 +1,950 @@
+scriptmain hunterScript;
+entity leader(leader) : et_name;
+const playerName = 'player(player)';
+	leaderName = 'leader(leader)';
+	goalHuntPlayer = 'goalHuntPlayer';
+	subHunt = 'subHunt';
+	subHuntMelee = 'subHuntMelee';
+	
+var
+	pos : vec3d;
+	pos2 : vec3d;
+	vel : vec3d;
+	speed : Real;
+	flick : integer;
+	SampleID : integer;
+	ShelvesFallen : Level_Var Boolean;
+	QTMIntroSkipped : Boolean;
+	QTMIntroRun : Boolean;
+	QTMText : Boolean;
+	FirstQTMCamDone : Boolean;
+	DannySeen : level_var Boolean;
+	
+script OnCreate;
+	begin
+		AISetHunterOnRadar(leaderName, false);
+		AISetEntityAsLeader(leaderName);
+		AISetLeaderInvisible(leaderName);
+		AIEntityAlwaysEnabled(leaderName);
+		AIAddLeaderEnemy(leaderName, playerName);
+		AIDefineGoalHuntEnemy(goalHuntPlayer, playerName, true, 4);
+		AIDefineGoalHuntEnemy('goalHuntPlayer1', playerName, true, 4);
+		AIAddSubPackForLeader(leaderName, 'subDud');
+		AISetSubpackCombatType(leaderName, 'subDud', COMBATTYPEID_OPEN_MELEE);
+		AIAddSubPackForLeader(leaderName, 'subHuntMelee');
+		AISetSubpackCombatType(leaderName, 'subHuntMelee', COMBATTYPEID_OPEN_MELEE);
+		AIAddGoalForSubpack(leaderName, 'subHuntMelee', goalHuntPlayer);
+		AIAddSubPackForLeader(leaderName, 'subHuntMelee1');
+		AISetSubpackCombatType(leaderName, 'subHuntMelee1', COMBATTYPEID_OPEN_MELEE);
+		AIAddGoalForSubpack(leaderName, 'subHuntMelee1', 'goalHuntPlayer1');
+		AIAddEntity('leo(hunter)');
+		HideEntity(GetEntity('leo(hunter)'));
+ 		runscript('leo(hunter)', 'LeoCreate');
+		SampleID := 0;
+		DannySeen := false;
+		RegisterNonExecutableHunterInLevel;
+		if(GetEntity('Gen_Save_Point') <> nil) then begin
+			AIAddEntity('h11(hunter)');
+			AIAddEntity('hQTM(hunter)');
+			RunScript('leader(leader)', 'FirstCutscene');
+		end;
+	end;
+
+script TurnDreamRampOn;  begin SetColourRamp('FE_superdreamramps', 4, 0.05); Sleep(50); SetColourRamp('FE_dreamramps', 1, 1.0); end;
+script TurnDreamRampOff; begin SetColourRamp('FE_superdreamramps', 4, 0.05); Sleep(50); SetColourRamp('FE_colramps', 1, 4.0); end;
+
+script Skip_CutAudio; 
+begin EndScriptAudioStream; 
+end;
+
+script Skip_Empty; 
+	begin 
+	writedebug('skip empty');
+	end;
+
+
+script FirstCutscene;
+	var pos : vec3d;
+	begin
+		QTMIntroSkipped := False;
+		QTMIntroRun := false;
+		QTMText := false;
+		FirstQTMCamDone := false;
+		SetHunterMute(getentity('h11(hunter)'), true);
+		SetHunterMute(getentity('h12(hunter)'), true);
+		SetHunterMute(getentity('hQTM(hunter)'), true);
+		HideEntity(getentity('leo(hunter)'));
+		AIDefineGoalGotoNodeIdle('gQTMDoor', 'hQTM(hunter)', AISCRIPT_HIGHPRIORITY, 'nQTMPathStart', AISCRIPT_WALKMOVESPEED, TRUE);
+		AIDefineGoalGotoNodeIdle('gQTMEnd', 'hQTM(hunter)', AISCRIPT_HIGHPRIORITY, 'pQTMStop01', AISCRIPT_WALKMOVESPEED, TRUE);
+	
+		SetQTMBaseProbability(100.0);
+		SetQTMSoundProbabilityModifier(100.0);
+		SetQTMStaminaProbabilityModifier(100.0);
+		SetQTMDeadBodyProbabilityModifier(100.0);
+		
+		CutSceneStart;		
+			{CutsceneRegisterSkipScript(this, 'Skip_QTM');				}
+			AICutSceneEntityEnable('hQTM(hunter)', true);
+			AICutSceneEntityEnable('h11(hunter)', true);
+			AICutSceneEntityEnable('h12(hunter)', true);		
+		
+		CutsceneCameraInit;		
+			CutscenecameraSetPos(0.0, -94.38, -1.52, 86.74);
+			CutscenecameraSetTarget(0.0, -86.38, 0.44, 101.94);
+			CutscenecameraSetPos(9.0, -90.57, -1.53, 84.75);
+			CutscenecameraSetTarget(9.0, -80.99, 0.87, 103.35);
+			CutsceneCameraSetFOV(0.0, 90.0);
+			CutsceneCameraSetFOV(9.0, 80.0);
+			CutSceneCameraSetHandyCam(false);
+
+		CutscenecameraStart;
+			PlayScriptAudioStreamAuto('INTRO', 127);
+			sleep(500);
+			FrisbeeSpeechPlay('LEO1', 127, 30);	
+			sleep(1000);
+			AIAddGoalForSubpack('leader(leader)', 'subHuntMelee', 'gQTMDoor'); 
+			sleep(2000);
+			FrisbeeSpeechPlay('DAN1', 127, 30);
+			sleep(1800);
+			FrisbeeSpeechPlay('Leo2', 127, 30);	
+			Sleep(2500);
+			FrisbeeSpeechPlay('Dan2', 127, 30);	
+			Sleep(2500);
+		
+			FirstQTMCamDone := True;
+	
+		CutsceneCameraInit;			
+			CutscenecameraSetPos(0.0, -83.9, 0.39, 111.0);
+			CutscenecameraSetTarget(0.0, -82.32, -0.5, 99.73);
+			CutscenecameraSetPos(9.0, -87.03, -1.6, 111.22);
+			CutscenecameraSetTarget(9.0, -83.81, 0.5, 99.87);
+			CutsceneCameraSetFOV(0.0, 90.0);
+			CutsceneCameraSetFOV(9.0, 50.0);
+			CutSceneCameraSetHandyCam(false);
+
+		CutscenecameraStart;
+			QTMIntroRun := TRUE;
+			AIEntityCancelAnim('hQTM(hunter)', 'BAT_DOUBLETAKE_ANIM');
+			SetPedOrientation(getentity('hQTM(hunter)'), 0);
+			SetVector(pos, -84.2873, -1.65008, 95.0992);
+			moveentity(getentity('hQTM(hunter)'), pos, 0);
+			AIRemoveGoalFromSubpack('leader(leader)', 'subHuntMelee', 'gQTMDoor'); 
+			sleep(100);
+			{AIAddGoalForSubpack('leader(leader)', 'subHuntMelee', 'gQTMEnd'); 					}
+			FrisbeeSpeechPlay('LEO3', 127, 30);	
+			while NOT FrisbeeSpeechIsFinished('LEO3') do sleep(10);
+			DisplayGameText('QTMTUT1');
+			AITriggerSoundNoRadar('LURE_MEDIUM', GetPlayer);			
+			Sleep(4500);
+			DisplayGameText('QTMTUT2');
+			Sleep(4500);
+			QTMText := true;
+		CutsceneEnd(false);
+	
+		destroyentity(getentity('h11(hunter)'));
+	
+		writedebug('AFTER CUTSCENEEND');
+		LockPed('leo(hunter)', true);	
+		SetVector(pos, -92.0431, -1.3, 59.4066);
+		MoveEntity(GetEntity('h12(hunter)'), pos, 1);
+		AISetEntityIdleOverride('h12(hunter)', true, true);
+		SetHunterMute(getentity('h12(hunter)'), false);
+		SetHunterMute(getentity('hQTM(hunter)'), false);
+		sleep(500);
+		
+		{AITriggerSoundNoRadar('LURE_MEDIUM', GetPlayer);}
+		AISetHunterIdlePatrol('hQTM(hunter)', AISCRIPT_IDLE_PATROL, AISCRIPT_HIGHPRIORITY, 3000, 5000, 'h11Path');
+		AISetIdlePatrolStop('hQTM(hunter)', 'h11stop2', 4, true);	
+		AISetIdlePatrolStop('hQTM(hunter)', 'h11stop', 10, true);	
+		{AISetIdlePatrolStop('hQTM(hunter)', 'nQTMWait1', 4, true);}
+		AISetEntityStayOnPath('hQTM(hunter)', true);
+	end;
+
+
+{script Skip_QTM;
+begin
+	writedebug('QTM Sequence skipped');
+	QTMIntroSkipped := True;
+	FirstQTMCamDone := True;
+	runscript(getentityname(this), 'Skip_QTMRUN');
+end;
+
+
+script Skip_QTMRUN;	
+begin
+	sleep(300);	
+	while FirstQTMCamDone = False do sleep(10);
+
+	if QTMIntroRun = false then
+	begin
+	CutSceneStart;
+		AICutSceneEntityEnable('hQTM(hunter)', true);
+		CutsceneCameraInit;
+			
+			CutscenecameraSetPos(0.0, -83.9, 0.39, 111.0);
+			CutscenecameraSetTarget(0.0, -82.32, -0.5, 99.73);
+			CutscenecameraSetPos(9.0, -87.03, -1.6, 111.22);
+			CutscenecameraSetTarget(9.0, -83.81, 0.0, 99.87);
+			CutsceneCameraSetFOV(0.0, 90.0);
+			CutsceneCameraSetFOV(9.0, 50.0);
+			CutSceneCameraSetHandyCam(false);
+
+			CutscenecameraStart;
+			writedebug('SKIPPED SCENE REPLACEMENT');
+			
+			AIEntityCancelAnim('hQTM(hunter)', 'BAT_DOUBLETAKE_ANIM');
+			SetPedOrientation(getentity('hQTM(hunter)'), 0);
+			sleep(100);
+			SetVector(pos, -84.2873, -1.65008, 95.0992);
+			moveentity(getentity('hQTM(hunter)'), pos, 0);
+			AIRemoveGoalFromSubpack('leader(leader)', 'subHuntMelee', 'gQTMDoor'); 
+			sleep(100);
+		
+			sleep(300);
+			FrisbeeSpeechPlay('Dan2', 127, 30);	
+			DisplayGameText('QTMTUT1');
+			Sleep(2000);
+			FrisbeeSpeechPlay('LEO3', 127, 30);	
+			DisplayGameText('QTMTUT1');
+			AITriggerSoundNoRadar('LURE_MEDIUM', GetPlayer);			
+			Sleep(4000);
+			DisplayGameText('QTMTUT2');
+			Sleep(5000);
+			QTMText := true;
+		CutsceneEnd(false);
+		QTMIntroSkipped := False;
+		
+		while QTMIntroSkipped = true do sleep(10);
+		writedebug('AFTER CUTSCENEEND');
+		LockPed('leo(hunter)', true);	
+		SetVector(pos, -92.0431, -1.3, 59.4066);
+		MoveEntity(GetEntity('h12(hunter)'), pos, 1);
+		AISetIdlePatrolStop('hQTM(hunter)', 'h11stop2', 4, true);		
+		AISetEntityIdleOverride('h12(hunter)', true, true);
+		SetHunterMute(getentity('h12(hunter)'), false);
+		SetHunterMute(getentity('hQTM(hunter)'), false);
+	
+		sleep(500);
+		
+
+		AISetHunterIdlePatrol('hQTM(hunter)', AISCRIPT_IDLE_PATROL, AISCRIPT_MEDIUMPRIORITY, 3000, 5000, 'h11Path');
+		AISetIdlePatrolStop('hQTM(hunter)', 'nQTMWait1', 4, true);
+		
+		
+	end
+	
+	else
+	
+	begin
+		if QTMText = false then
+		begin
+		DisplayGameText('QTMTUT1');
+		AITriggerSoundNoRadar('LURE_MEDIUM', GetPlayer);			
+		Sleep(3000);
+		DisplayGameText('QTMTUT2');
+		Sleep(4000);
+		end;
+	end;
+end;	}	
+		
+
+script Skip_ClimbTut;
+	var pos : vec3d;
+	begin
+		runscript('leader(leader)', 'Skip_ClimbTutScript');
+	end;
+
+script Skip_ClimbTutScript;
+	var pos : vec3d;
+	begin
+		sleep(500);
+		SetVector(pos, -83.1, -1.8, 71.0);
+		MoveEntity(GetPlayer, pos, 0);
+	end;
+
+
+script ClimbTut;
+	var pos, pos2 : vec3d;
+	begin
+		AISetEntityIdleOverride('h12(hunter)', false, true);
+		AIMakeEntityBlind('h12(hunter)', 0);
+		AIMakeEntityDeaf('h12(hunter)', 0);
+		AISetIdleHomeNode('h12(hunter)', 'h12stop');
+		AIEntityGoHomeIfIdle('h12(hunter)');
+		if(IsPlayerPositionKnown) then DisplayGameText('CLIMB') else begin
+			SetPlayerControllable(true);
+			SetVector(pos, -83.1, -1.8, 71.0);
+			SetPlayerGoToNode('nClimbTut', pos, true);
+			CutsceneCameraInit;
+				CutscenecameraSetPos(0.0, -75.97, 0.4, 60.45);
+				CutscenecameraSetTarget(0.0, -84.0001, -0.148437, 69.3606);
+				CutscenecameraSetTarget(4.0, -84.0001, -0.148437, 61.132);
+				CutscenecameraSetTarget(20.0, -84.0001, -0.148437, 69.3606);
+				CutsceneCameraSetFOV(0.0, 60.0);
+				CutsceneCameraSetFOV(5.0, 30.0);
+				CutsceneCameraSetRoll(0.0, 0.0);
+				CutSceneCameraSetHandyCam(false);
+			CutsceneStart;
+				PlayScriptAudioStreamAuto('HUNTNIS1', 127);
+				AICutSceneEntityEnable('h12(hunter)', true);
+				CutscenecameraStart;
+				DisplayGameText('CLIMB');
+				CutsceneRegisterSkipScript(this, 'Skip_ClimbTut');
+				Sleep(4500);
+			CutsceneEnd(false);
+			SetPedOrientation(GetPlayer, -90);
+		end;
+		AISetHunterIdlePatrol('h12(hunter)', AISCRIPT_IDLE_PATROL, AISCRIPT_MEDIUMPRIORITY, 3000, 5000, 'h12Path');
+		AISetIdlePatrolStop('h12(hunter)', 'h12stop', 6, true);
+		AIMakeEntityBlind('h12(hunter)', 1);
+		AIMakeEntityDeaf('h12(hunter)', 1);
+	end;
+
+
+script HouseCutscene;
+	begin
+		CutsceneCameraInit;
+			CutscenecameraSetPos(0.0, -70.4, 0.94, 54.5);
+			CutscenecameraSetTarget(0.0, 40.4011, 10.21, -18.4734);
+			CutscenecameraSetTarget(4.63333, 61.8268, 10.21, 9.65613);
+			CutsceneCameraSetFOV(0.0, 70.0);
+			CutSceneCameraSetHandyCam(false);
+		CutSceneStart;
+			CutscenecameraStart;
+			RunScript('leader(leader)', 'TurnDreamRampOn');
+			CutsceneRegisterSkipScript(this, 'Skip_Empty');
+			PlayScriptAudioStreamAuto('FLASH1', 127);
+			Sleep(1150);
+			ShowEntity(GetEntity('A02_FlashbackGarden'));
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.2, 0.1);
+			Sleep(50);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.6, 0.1);
+			Sleep(200);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.0, 0.1);
+			Sleep(50);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.3, 0.1);
+			Sleep(100);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.7, 0.1);
+			Sleep(200);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.2, 0.1);
+			Sleep(50);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.7, 0.1);
+			Sleep(150);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.0, 0.1);
+			Sleep(50);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.6, 0.1);
+			Sleep(200);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.0, 0.1);
+			Sleep(50);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.2, 0.1);
+			Sleep(50);
+			SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.0, 0.1);
+			Sleep(3600);
+		CutSceneEnd(false);
+		EnableAction(4, false);
+		RunScript('leader(leader)', 'TurnDreamRampOff');
+		Runscript('swing_tyre', 'MakeTyreSwing');
+		SetEntityFade(GetEntity('A02_FlashbackGarden'), 0.0, 0.0);
+		HideEntity(GetEntity('A02_FlashbackGarden'));
+		HideEntity(GetEntity('A02_FlashbackTVStack'));
+		sleep(500);
+		FrisbeeSpeechPlay('HOUSE', 127, 30);
+		while NOT FrisbeeSpeechIsFinished('HOUSE') do sleep(10);
+		{PlayScriptAudioStreamAuto('HOUSE', 127);}
+		EnableAction(4, true);
+	end;
+
+
+script FenceFlashback;
+	begin
+		CutSceneStart;
+			CutsceneCameraInit;
+				CutscenecameraSetPos(0.0, -51.3934, 4.73385, 46.3652);
+				CutscenecameraSetPos(16.0, -51.3934, 8.4843, 45.3652);
+				CutscenecameraSetTarget(0.0, -47.8871, 0.576339, 42.24);
+				CutscenecameraSetTarget(5.0, -47.8871, 0.576339, 45.2701);
+				CutsceneCameraSetFOV(0.0, 65.0);
+				CutsceneCameraSetRoll(0.0, 0.0);
+				CutSceneCameraSetHandyCam(false);
+			CutscenecameraStart;
+				RunScript('leader(leader)', 'TurnDreamRampOn');
+				PlayScriptAudioStreamFromPosAuto('FLSHBK', 127, GetCameraPosition, 127);
+				AIAddEntity('danny(hunter)actor');
+				RegisterNonExecutableHunterInLevel;
+				SetPlayerControllable(true);
+				AILookAtEntity('player(player)', 'danny(hunter)actor');
+				CutsceneRegisterSkipScript(this, 'Skip_Empty');
+				SetPedLockonable(GetEntity('danny(hunter)actor'), false);
+				SetHunterExecutable(GetEntity('danny(hunter)actor'), false);
+				SetEntityInvulnerable(GetEntity('danny(hunter)actor'), true);
+				SetPedLockonable(GetEntity('danny(hunter)actor'), false);
+				AISetEntityAllowSurprise('danny(hunter)actor', false);
+				AISetIdleHomeNode('danny(hunter)actor', 'nFenceLeap');
+				SetHunterMute(GetEntity('danny(hunter)actor'), true);
+				SetHunterRunTime('danny(hunter)actor', 20);
+				AISetHunterOnRadar('danny(hunter)actor', false);
+				AIAddHunterToLeaderSubpack('leader(leader)', 'subDud', 'danny(hunter)actor');
+				AISetHunterIdlePatrol('danny(hunter)actor', AISCRIPT_IDLE_PATROL, AISCRIPT_MEDIUMPRIORITY, 3000, 5000, 'ppFence');
+				SetJitterEffect(GetEntity('danny(hunter)actor'), true);
+				Sleep(1000);
+				SetJitterEffect(GetEntity('danny(hunter)actor'), false);
+				Sleep(700);
+				SetJitterEffect(GetEntity('danny(hunter)actor'), true);
+				Sleep(1000);
+				SetJitterEffect(GetEntity('danny(hunter)actor'), false);
+				Sleep(700);
+				SetJitterEffect(GetEntity('danny(hunter)actor'), true);
+				Sleep(1000);
+				AISetEntityIdleOverride('danny(hunter)actor', false, false);
+				AISetEntityCrouch('danny(hunter)actor', true);
+		CutSceneEnd(false);
+		Sleep(500);
+		RunScript('leader(leader)', 'TurnDreamRampOff');
+		if(GetEntity('danny(hunter)actor') <> nil) then DestroyEntity(GetEntity('danny(hunter)actor'));
+	end;
+
+
+script WifeGhost;
+	begin
+		EndScriptAudioStream;
+		EnableAction(4, false);
+		SetDoorOverrideAngle('doorBack_(D)', -90);
+		PlayScriptAudioStreamAuto('FLASH2', 127);
+		RunScript('leader(leader)', 'TurnDreamRampOn');
+		EntityPlayAnim(GetEntity('A02FB_DannysWifeWashing'), 'BAT_WIFE_WASHING_ANIM', false);
+		SetEntityFade(GetEntity('A02FB_DannysWifeWashing'), 0.45, 0.1);
+		ShowEntity(GetEntity('A02FB_DannysWifeWashing'));
+		sleep(500);
+		SetEntityFade(GetEntity('A02FB_DannysWifeWashing'), 0.0, 0.5);
+		Sleep(500);
+		DestroyEntity(GetEntity('A02FB_DannysWifeWashing'));
+		RunScript('leader(leader)', 'TurnDreamRampOff');
+		SetDoorOverrideAngle('doorBack_(D)', 0);
+		sleep(1000);
+		FrisbeeSpeechPlay('DAN9', 127, 100);
+		sleep(2500);
+		EnableAction(4, true);
+	end;
+
+
+script StartDaughterAnim;
+var pos : vec3d;
+	show : boolean;
+	begin
+		RunScript('leader(leader)', 'TurnDreamRampOn');
+		PlayScriptAudioStreamAuto('HAUNT1', 127);		
+		sleep(2000);		
+		Sleep(100);
+		ShowEntity(GetEntity('A02FB_DannysDaughter'));
+		SetEntityFade(GetEntity('A02FB_DannysDaughter'), 0.0, 0.1);
+		sleep(100);
+		SetEntityFade(GetEntity('A02FB_DannysDaughter'), 0.45, 1.0);
+		EntityPlayAnim(GetEntity('A02FB_DannysDaughter'), 'BAT_DAUGHTER_RUNB_ANIM', false);
+		sleep(1500);
+		SetEntityFade(GetEntity('A02FB_DannysDaughter'), 0.0, 1.0);
+		Sleep(1000);
+		DestroyEntity(GetEntity('A02FB_DannysDaughter'));
+		RunScript('leader(leader)', 'TurnDreamRampOff');	
+		sleep(1000);
+		FrisbeeSpeechPlay('DAN12', 127, 100);
+	end;
+
+
+script StartDaughterAnimBasement;
+	begin
+		SetEntityFade(GetEntity('A02FB_DannysDaughter01'), 0.2, 1.0);
+		ShowEntity(GetEntity('A02FB_DannysDaughter01'));
+		EntityPlayAnim(GetEntity('A02FB_DannysDaughter01'), 'BAT_WIFE_WASHING_ANIM', true);
+	end;
+	
+	
+script StartDaughterAnimBasementClear;
+	begin
+		SetEntityFade(GetEntity('A02FB_DannysDaughter01'), 0.0, 0.5);
+		sleep(700);
+		HideEntity(GetEntity('A02FB_DannysDaughter01'));
+	end;	
+
+
+script StartBoyAnim2;
+	var pos: vec3d;
+	begin
+		EnableAction(4, false);
+		PlayScriptAudioStreamAuto('BOY', 127);	
+		SetEntityFade(GetEntity('A02FB_DannysSon'), 0.0, 0.1);
+		RunScript('leader(leader)', 'TurnDreamRampOn');		
+		SetVector(pos, -61.8685, -4.72464, 39.7686);
+		MoveEntity(GetEntity('A02FB_DannysSon02'), pos, 0);
+		ShowEntity(GetEntity('A02FB_DannysSon02'));
+		SetEntityFade(GetEntity('A02FB_DannysSon'), 0.3, 0.5);
+		EntityPlayAnim(GetEntity('A02FB_DannysSon02'), 'BAT_SON_CRY_ANIM', true);
+		Sleep(1000);
+		SetEntityFade(GetEntity('A02FB_DannysSon'), 0.0, 0.5);
+		sleep(500);
+		DestroyEntity(GetEntity('A02FB_DannysSon02'));
+		RunScript('leader(leader)', 'TurnDreamRampOff');
+		EnableAction(4, true);
+	end;	
+	
+
+script GetFlashLight;
+	var pos : vec3d;
+	begin
+		while not (IsEntityAlive('leo(hunter)')) do 
+			begin
+				writedebug('LEO IS NOT ALIVE');
+				sleep(10);
+			end;
+			
+		EndScriptAudioStream;
+		
+		CutSceneStart;
+		LockPed('leo(hunter)', false);
+		showentity(getentity('leo(hunter)'));
+		writedebug('HALL CAM LEO VISIBLE');
+		SetVector(pos, -60.4411, -1.6, 32.21);
+		MoveEntity(Getplayer, pos, 0);	
+		writedebug('HALL CAM PLAYER MOVED');
+		
+		CutsceneCameraInit;
+		writedebug('HALL CAM 01');
+		
+			CutscenecameraSetPos(0.0, -61.49, -1.23, 35.28);
+			CutscenecameraSetPos(5.0, -63.49, -1.23, 35.28);			
+			CutscenecameraSetTarget(0.0, -61.49, -0.37, 32.69);
+			CutscenecameraSetTarget(5.0, -63.49, -0.37, 32.69);		
+			CutsceneCameraSetFOV(0.0, 85.0);
+			CutsceneCameraSetRoll(0.0, -5.0);
+			CutSceneCameraSetHandyCam(true);
+
+			CutsceneRegisterSkipScript(this, 'Skip_CutAudio');
+			AISetEntityIdleOverride('leo(hunter)', false, true);
+			AICutSceneEntityEnable('leo(hunter)', true);
+			SetPlayerControllable(true);
+			
+			sleep(50);
+			SetVector(pos, -63.6464, -0.497826, 32.4462);
+			SetPlayerGoToNode('h22cutscene', pos, true);	
+			writedebug('HALL CAM PLAYER MOVING');
+			sleep(50);
+					
+			CutscenecameraStart;		
+				
+			PlayScriptAudioStreamAuto('HALL', 127);
+
+			writedebug('HALL CAM AUDIO STARTED');
+			Sleep(2500);
+			{PlayScriptAudioStreamFromEntityAux('DAN3', 127, GetPlayer, 100);}
+			
+			CutsceneCameraInit;
+			writedebug('HALL CAM 02');
+			CutscenecameraSetPos(0.0, -62.89, -0.3, 33.15);
+			CutscenecameraSetTarget(0.0, -64.76, 0.4, 31.30);
+			CutsceneCameraSetFOV(0.0, 90.0);
+			CutsceneCameraSetRoll(0.0, 10.0);
+			CutSceneCameraSetHandyCam(false);
+			CutscenecameraStart;	
+			
+			SetVector(pos, -60.0682, -0.498579, 32.011);
+			MoveEntity(GetEntity('leo(hunter)'), pos, 0);
+			setpedorientation(GetEntity('leo(hunter)'), -90);
+			AILookAtEntity('player(player)', 'leo(hunter)');
+			
+			sleep(800);
+			AISetIdleHomeNode('leo(hunter)', 'nCut2'); 
+			{AIAddHunterToLeaderSubpack('leader(leader)', 'subDud', 'leo(hunter)');}
+			SetStreamLipsyncSpeaker(GetPlayer,true);
+			FrisbeeSpeechPlay('DAN3', 127, 30);
+			while NOT FrisbeeSpeechIsFinished('DAN3') do sleep(10);
+			AIEntityGoHomeIfIdle('leo(hunter)');
+			
+			CutsceneCameraInit;
+			writedebug('HALL CAM 03');
+			CutscenecameraSetPos(0.0, -62.61, 0.1, 32.69);		
+			CutscenecameraSetTarget(0.0, -61.40, 0.3, 32.161);			
+			CutsceneCameraSetFOV(0.0, 90.0);
+			CutsceneCameraSetRoll(0.0, 5.0);
+			CutSceneCameraSetHandyCam(true);
+			CutscenecameraStart;
+			sleep(300);
+			SetStreamLipsyncSpeaker(GetEntity('leo(hunter)'),true);
+			FrisbeeSpeechPlay('LEO4', 127, 30);
+			sleep(1000);			
+			CutsceneCameraInit;
+			writedebug('HALL CAM 04');
+			CutscenecameraSetPos(0.0, -63.2, 0, 35.67);		
+			CutscenecameraSetTarget(0.0, -63.2, 0, 32.67);			
+			CutsceneCameraSetFOV(0.0, 90.0);
+			CutsceneCameraSetRoll(0.0, 5.0);
+			CutSceneCameraSetHandyCam(true);
+			CutscenecameraStart;			
+
+			Sleep(3500);
+			CutSceneEnd(false);
+			
+
+			ClearLevelGoal('GOAL_31');
+			SetLevelGoal('GOAL_4');
+			SetVector(pos, -86.4556, -1.5159, 100.656);
+			MoveEntity(GetEntity('leo(hunter)'), pos, 0);
+			LockPed('leo(hunter)', true);
+			HideEntity(GetEntity('leo(hunter)'));
+			Sleep(100);		
+			SetVector(pos, -62.43, -1.6, 32.36);
+			MoveEntity(GetEntity('player(player)'), pos, 0);
+			SetPedOrientation(GetPlayer, -45);
+			
+			DisplayGameText('GOD_4');
+			
+			sleep(500);
+			FrisbeeSpeechPlay('LEO8', 127, 30);
+			SampleID := PlayAudioLoopedFromEntity(GetEntity('TV_PileA'), 'LEVEL', 'STATIC2', 50, 20);	
+			RadarCreateBlip(GetEntityPosition(GetEntity('TV_PileA')), 25.0);
+	end;
+
+script IsMyWifeDialog;
+	begin
+		KillSubtitleText;
+		CutsceneCameraInit;
+			{FMVGrabSceneStart('Family Photo');}
+			CutscenecameraSetPos(0.0, -63.6557, 0.192578, 30.7568);
+			CutscenecameraSetTarget(0.0, -65.7874, 0.580608, 30.2682);
+			CutsceneCameraSetFOV(0.0, 70.0);
+			CutSceneCameraSetHandyCam(true);
+		CutSceneStart;
+			CutscenecameraStart;
+			CutSceneRegisterSkipScript(this, 'Skip_Empty');
+			RunScript('leader(leader)', 'TurnDreamRampOn');
+			PlayScriptAudioStreamAuto('FLASHPIC', 127);	
+			Sleep(1100);
+			SetEntityFade(GetEntity('fam_pic_d04'), 0.0, 0.01);
+			ShowEntity(GetEntity('fam_pic_d04'));
+			SetEntityFade(GetEntity('fam_pic_d04'), 0.8, 0.3);
+			Sleep(1500);
+			SetEntityFade(GetEntity('fam_pic_d04'), 0.0, 1.5);
+			Sleep(2200);
+		CutSceneEnd(false);
+			SetVector(pos, -64.38, -1.5, 31.0);
+			MoveEntity(GetPlayer, pos, 0);
+			SetPedOrientation(GetPlayer, -90);
+		RunScript('leader(leader)', 'TurnDreamRampOff');
+		HideEntity(GetEntity('fam_pic_d04'));
+		sleep(1200);
+		{FrisbeeSpeechPlay('LEO5', 127, 30);}
+		{FMVGrabSceneEnd;}
+	end;
+	
+	
+script BouncyBall;
+	begin
+		PlayScriptAudioStreamFromEntityAuto('GHOSON4', 80, GetEntity('Searchable03_(O)'), 20);
+		SetVector(pos, -63.8, 1.0, 40.47);
+		SetVector(vel, 0.82, 0.08, 0.67);	
+		speed := 5.0;
+		vel.x := vel.x * speed;
+		vel.y := vel.y * speed;
+		vel.z := vel.z * speed;
+		SpawnEntityWithVelocity('KidBall', pos, 'kidball01', vel);
+		{writedebug('KIDBALL CREATED');}
+	end;
+	
+script TVCutscene;
+	var pos: vec3d;
+		i: integer;
+	begin
+		KillSubtitleText;
+		EnableAction(1, false);
+		DisableUserInput;		
+		CutsceneCameraInit;
+			CutscenecameraSetPos(0.0, -58.266, 0.31, 27.706);
+			CutscenecameraSetTarget(0.0, -57.837, -0.038, 27.028);
+			CutsceneCameraSetFOV(0.0, 90.0);
+		CutSceneStart;
+			CutscenecameraStart;
+			PlayScriptAudioStreamAuto('HAUNT3', 127);	
+			HideEntity(GetPlayer);
+			CutSceneRegisterSkipScript(this, 'Skip_Empty');
+			RunScript('leader(leader)', 'TurnDreamRampOn');			
+			Sleep(100);
+			ShowEntity(GetEntity('A02_FlashbackTVStack'));
+			EntityPlayAnim(GetEntity('A02_FlashbackTVStack'), 'BAT_FLASHBACKTVSTACK_ANIM', false);
+			Sleep(4500);		
+			{HideEntity(GetEntity('A02_FlashbackTVStack'));
+			DestroyEntity(GetEntity('A02_FlashbackTVStack'));
+			sleep(1500);}
+		CutsceneEnd(false);
+			SetVector(pos, -56.72, -1.66, 27.081);
+			MoveEntity(GetPlayer, pos, 0);
+			SetPedOrientation(GetPlayer, 180);					
+			RunScript('leader(leader)', 'TurnDreamRampOff');
+			DestroyEntity(GetEntity('A02_FlashbackTVStack'));
+			sleep(500);
+			ShowEntity(GetPlayer);
+			{SetPlayerControllable(TRUE);}
+			FrisbeeSpeechPlay('DAN10', 127, 15);		
+			PlayerPlayFullBodyAnim('BAT_FLASHBACK_REACTION_ANIM');
+			sleep(2500);
+			PlayerFullBodyAnimDone;	
+			sleep(500);
+			EnableUserInput;
+			EnableAction(1, true);
+			{SetPlayerControllable(FALSE);}
+	
+			{Add Bouncy Ball Trigger}
+			SetVector(pos, -64.657, -0.922267, 31.8466);
+			SetVector(pos2, -61.3199, 0.853746, 32.0792);
+			CreateBoxTrigger(pos, pos2, 'tBall');
+			SetEntityScriptsFromEntity('genTrigger', 'tBall');
+
+	end;
+
+
+
+script StartSecondWave;
+	var pos, pos2: vec3d;
+	begin
+		SetQTMBaseProbability(100.0);
+
+		if(GetEntity('tTV') <> nil) then 
+		begin
+		writedebug('DESTROYING tTV and TV_PileAScreenFx');
+		DestroyEntity(GetEntity('tTV'));
+		end;
+		if(GetEntity('TV_PileAScreenFx') <> nil) then DestroyEntity(GetEntity('TV_PileAScreenFx'));
+		if(GetEntity('tWife') <> nil) then DestroyEntity(GetEntity('tWife'));
+		if(GetEntity('tGirl01') <> nil) then DestroyEntity(GetEntity('tGirl01'));
+		if(GetEntity('tGirl01Stop') <> nil) then DestroyEntity(GetEntity('tGirl01Stop'));
+		EndScriptAudioStream;
+		
+		AIAddEntity('h21(hunter)');
+		AIAddEntity('h22(hunter)');
+		SetEntityScriptsFromEntity('h21(hunter)', 'h22(hunter)');
+		Sleep(50);
+		AISetEntityIdleOverride('h21(hunter)', true, false);
+		AISetEntityIdleOverride('h22(hunter)', true, false);
+		setscriptaudiostreamocclusion(true);
+		sleep(1000);
+		PlayScriptAudioStreamFromEntityAuto('BGCRSH', 127, GetEntity('h22(hunter)'), 80);
+		RadarCreateBlip(GetEntityPosition(GetEntity('h22(hunter)')), 25.0);
+		sleep(100);
+		RadarCreateBlip(GetEntityPosition(GetEntity('h22(hunter)')), 25.0);
+		sleep(100);
+		RadarCreateBlip(GetEntityPosition(GetEntity('h22(hunter)')), 25.0);
+		sleep(100);
+		RadarCreateBlip(GetEntityPosition(GetEntity('h22(hunter)')), 25.0);
+		sleep(100);
+		RadarCreateBlip(GetEntityPosition(GetEntity('h22(hunter)')), 25.0);
+		sleep(500);
+		
+		PlayScriptAudioStreamFromEntityAuto('SEQ2', 127, GetEntity('h22(hunter)'), 100);
+		{extracted camera scene below}
+		AISetIdleHomeNode('h21(hunter)', 'nCut2');
+		AIEntityGoHomeIfIdle('h21(hunter)');	
+		
+		AISetIdleHomeNode('h22(hunter)', 'nCutBase');
+		AIEntityGoHomeIfIdle('h22(hunter)');	
+		sleep(1000);
+		
+
+		
+		{SetVector(pos, -64.0319, -2.25, 40.2436);
+		MoveEntity(GetEntity('h21(hunter)'), pos, 0);}
+		SetPedOrientation(GetEntity('h21(hunter)'), -90);
+		AISetEntityIdleOverride('h21(hunter)', false, false);
+		AISetEntityIdleOverride('h22(hunter)', false, false);
+		
+		PlayScriptAudioStreamFromEntityAuto('WD11', 127, getentity('h21(hunter)'), 100);
+		while ((not IsScriptAudioStreamCompleted) and (DannySeen = false)) do 
+		begin
+		sleep(10);
+		end;
+		EndScriptAudioStream;	
+		sleep(500);
+		
+		if DannySeen <> true then
+		begin
+		PlayScriptAudioStreamFromEntityAuto('CHK4', 127, getentity('h22(hunter)'), 100);
+		while ((not IsScriptAudioStreamCompleted) and (DannySeen = false)) do sleep(10);
+		end;
+		EndScriptAudioStream;		
+		
+		
+		{RunScript('h21(hunter)', 'RandomSpeech');
+		RunScript('h22(hunter)', 'RandomSpeech');}
+		Sleep(100);
+		RunScript('h21(hunter)', 'PickWanderNode_2nd');
+		RunScript('h22(hunter)', 'PickWanderNode_Base');
+		setscriptaudiostreamocclusion(false);
+		SetHunterMute(GetEntity('h21(hunter)'), false);
+		SetHunterMute(GetEntity('h22(hunter)'), false);
+		setscriptaudiostreamocclusion(true);
+		HideEntity(getentity('leo(hunter)'));	
+	end;
+
+script JumpAttackTut;
+	begin
+		
+		AIAddSubPackForLeader(leaderName, 'subJumpTut');
+		AISetSubpackCombatType(leaderName, 'subJumpTut', COMBATTYPEID_OPEN_MELEE);
+		AIAddGoalForSubpack(leaderName, 'subJumpTut', goalHuntPlayer);
+		
+		AIAddEntity('hJumpAttack(hunter)');	
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subJumpTut', 'hJumpAttack(hunter)');
+		SetHunterMute(getentity('hJumpAttack(hunter)'), true);
+		{AISetHunterIdlePatrol('hJumpAttack(hunter)', AISCRIPT_IDLE_PATROL, AISCRIPT_MEDIUMPRIORITY, 3000, 5000, 'hJumpAttackPath');}
+		
+		AIDefineGoalGotoNodeIdle('gJumpTutTarget', 'hJumpAttack(hunter)', AISCRIPT_HIGHPRIORITY, 'nJumpTutStand', AISCRIPT_WALKMOVESPEED, TRUE);
+		SetVector(pos, -0.1, 0.0, 0.99);
+		AISetHunterHomeNodeDirection('hJumpAttack(hunter)', 'nJumpTutStand', pos);
+		AISetHunterOnRadar('hJumpAttack(hunter)', true);
+		AIEntityIgnoreDeadBodies('hJumpAttack(hunter)', true);
+		AIMakeEntityBlind('hJumpAttack(hunter)', 0);
+		AIMakeEntityDeaf('hJumpAttack(hunter)', 0);
+		SetEntityScriptsFromEntity('h21(hunter)', 'hJumpAttack(hunter)');
+		SetPlayerControllable(true);
+		CutsceneCameraInit;
+			CutscenecameraSetPos(0.0, -51.06, 2.66, 45.65);
+			CutscenecameraSetPos(10.0, -52.77, 5.67, 41.6);
+			CutscenecameraSetTarget(0.0, -58.66, -0.12, 49.03);
+			CutscenecameraSetTarget(10.0, -59.72, 0.42, 44.69);
+			
+			CutsceneCameraSetFOV(0.0, 85.0);
+			CutSceneCameraSetHandyCam(false);
+		CutSceneStart;
+				{STEVE}
+				SetVector(pos, -56.09, 2.4, 42.391);
+				moveentity(getplayer, pos, 0);
+				SetPedOrientation(GetPlayer, 10);
+				ClearLevelGoal('GOAL_61');
+				SetLevelGoal('GOAL_7');
+				DisplayGameText('KILLHNT');
+				
+			CutscenecameraStart;
+			CutsceneRegisterSkipScript(this, 'Skip_Empty');
+			AICutSceneEntityEnable('hJumpAttack(hunter)', true);
+			Sleep(100);
+			AIAddGoalForSubpack('leader(leader)', 'subJumpTut', 'gJumpTutTarget'); 					
+			PlayScriptAudioStreamFromEntityAuto('CHK3', 127, GetEntity('hJumpAttack(hunter)'), 30);
+			Sleep(4200);
+			FrisbeeSpeechPlay('HUNT1', 127, 15);
+			Sleep(3500);
+			DisplayGameText('JUMPTUT');
+			Sleep(5000);
+		CutSceneEnd(false);		
+		SetVector(pos, -57.9476, -0.49858, 45.9304);
+		moveentity(getentity('hJumpAttack(hunter)'), pos, 0);
+		SetPedOrientation(getentity('hJumpAttack(hunter)'), 0);
+		SetHunterMute(getentity('hJumpAttack(hunter)'), false);
+		Sleep(2000);
+		AIMakeEntityBlind('hJumpAttack(hunter)', 1);
+		AIMakeEntityDeaf('hJumpAttack(hunter)', 1);
+	end;
+
+script FallingShelf;
+	begin
+		entityignorecollisions(getentity('Falling_Shelves'), true);
+		if (GetEntity('Falling_Shelves_vertColl') <> NIL) then destroyentity(getentity('Falling_Shelves_vertColl'));
+		{writedebug('Falling_Shelves_vertColl SHOULD BE GONE');}
+		EntityPlayAnim(GetEntity('Falling_Shelves'), 'EAT_FALLING_SHELVES_ANIM', false);
+		EntityPlayAnim(GetEntity('Falling_Shelves01'), 'EAT_FALLING_SHELVES_ANIM', false);
+		
+		SetVector(pos, -68.3527, -4.762, 39.855);
+		moveentity(GetEntity('Falling_Shelves_Coll'), pos, 0);
+		{pos := getentityposition(getentity('Falling_Shelves_Coll'));
+		pos.y := pos.y + 1.9;}
+		moveentity(GetEntity('Falling_Shelves_Coll'), pos, 0);
+		ShelvesFallen := True;
+		Sleep(800);
+		PlayScriptAudioStreamFromEntityAuto('BGCRSH', 127, GetEntity('Falling_Shelves'), 15);
+		AITriggerSound('LURE_HIGH', GetPlayer);
+		destroyentity(getentity('tFallingShelf'));
+	end;
+
+script BathroomBreak;
+	begin
+		EnableGraphConnection('nBoard1', 'nBoard2', true, true);
+		AIAddEntity('h23(hunter)');
+		SetEntityScriptsFromEntity('h21(hunter)', 'h23(hunter)');
+		Sleep(100);
+		AISetIdleHomeNode('h23(hunter)', 'nBoard1');
+		AIEntityGoHomeIfIdle('h23(hunter)');
+		Sleep(100);
+		SetPedOrientation(GetEntity('h23(hunter)'), 180);
+		AISetEntityIdleOverride('h23(hunter)', false, true);
+		InflictDamage(GetEntity('A02_BreakableGlass'), 10000, ARM_HEAVY);
+		Sleep(100);
+		HideEntity(GetEntity('Breakable_Planks_START'));
+		ShowEntity(GetEntity('Breakable_Planks'));
+		AIEntityPlayAnim('h23(hunter)', 'BAT_IDLE_AMBUSH_FWD_ANIM');
+		EntityPlayAnim(GetEntity('Breakable_Planks'), 'EAT_SMASH_WOODPLANKS_ANIM', false);
+		{Sleep(300);}
+		SetVector(pos, -58.6652, 3.27389, 39.9671);
+		PlayScriptAudioStreamFromPosAuto('OLD_HOUS', 127, pos, 127);
+		Sleep(300);
+		EntityPlayAnim(GetEntity('Breakable_Planks'), 'EAT_BREAK_WOODPLANKS_ANIM', false);
+		{Sleep(1000);}
+		AIMakeEntityBlind('h23(hunter)', 1);
+		AIMakeEntityDeaf('h23(hunter)', 1);
+		Sleep(500);
+		DestroyEntity(GetEntity('Breakable_Planks'));
+		ShowEntity(GetEntity('Breakable_Planks_END'));
+		Sleep(100);
+		AITriggerSound('LURE_MEDIUM', GetPlayer);
+		Sleep(300);
+		AITriggerSound('LURE_MEDIUM', GetPlayer);
+		Sleep(600);
+		AITriggerSound('LURE_MEDIUM', GetPlayer);
+		Sleep(1000);
+		RunScript('h23(hunter)', 'PickWanderNode_2nd');
+	end;
+	
+	script Flicker;
+		begin		
+			RadarCreateBlip(GetEntityPosition(GetEntity('TV_PileAScreenFx')), 25.0);
+			flick := 0;
+			if(SampleID > 0) then EndAudioLooped(SampleID);
+			SampleID := PlayAudioLoopedFromEntity(GetEntity('TV_PileA'), 'LEVEL', 'STATIC1', 100, 20);	
+			while (flick < 12) do begin
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 0);
+			sleep(66);
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 1);
+			sleep(33);
+			flick := flick + 1;
+			RadarCreateBlip(GetEntityPosition(GetEntity('TV_PileAScreenFx')), 25.0);
+			end;
+			hideentity(getentity('TV_PileAScreenFx'));
+			if(SampleID > 0) then EndAudioLooped(SampleID);
+			sleep (1000);
+			SampleID := PlayAudioLoopedFromEntity(GetEntity('TV_PileA'), 'LEVEL', 'STATIC1', 60, 20);	
+			showentity(getentity('TV_PileAScreenFx'));
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 2);
+			sleep(100);
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 3);
+			sleep(50);
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 2);
+			sleep(100);
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 3);
+			sleep(50);
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 2);
+			sleep(100);
+			SetCurrentLod(getentity('TV_PileAScreenFx'), 3);
+			sleep(100);						
+			destroyentity(GetEntity('TV_PileAScreenFx'));
+			if(SampleID > 0) then EndAudioLooped(SampleID);		
+				
+			SetVector(pos, -57.6659, -1.80352, 25.4995);
+			SetVector(pos2, -55.3687, 0.814423, 27.133);
+			CreateBoxTrigger(pos, pos2, 'tTV');
+			SetEntityScriptsFromEntity('genTrigger', 'tTV');
+			
+									
+		end;	
+
+script CreatePicTrigger;
+		begin
+		SetVector(pos, -64.8306, -0.922267, 29.4853);
+		SetVector(pos2, -63.9717, 0.849306, 31.161);
+		CreateBoxTrigger(pos, pos2, 'tWife');
+		SetEntityScriptsFromEntity('genTrigger', 'tWife');
+		end;
+end.

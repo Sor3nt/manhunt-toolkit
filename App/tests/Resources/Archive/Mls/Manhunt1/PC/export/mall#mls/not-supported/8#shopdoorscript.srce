@@ -1,0 +1,60 @@
+SCRIPTMAIN	ShopdoorScript;
+
+ENTITY
+CJ_SHOPDOOR1_(D)	:	et_name;
+
+VAR
+levelstatus	: level_var integer;
+
+SCRIPT OnCreate;
+BEGIN
+UnFreezeEntity(this);
+
+CASE levelstatus OF
+0,1,2:
+BEGIN
+SetDoorState(this,DOOR_CLOSED);
+LockEntity(this);
+GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+END;
+3:
+BEGIN
+IF GetEntity('CJ_HANDYCAM_(CT)') = NIL THEN
+	BEGIN
+		SetDoorState(this,DOOR_CLOSED);
+		UnlockEntity(this);
+		GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		SetDoorOverrideAngle(GetEntityName(this),135);
+	END;
+END;
+END;{case}
+END;
+
+SCRIPT H9H10H11Unlock;
+BEGIN
+SetDoorState(this,DOOR_CLOSED);
+UnlockEntity(this);
+GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+
+WHILE ((IsEntityAlive('HUNTER9')) AND ( GetHunterAreaName(GetEntity('HUNTER9')) = 'aibar')) OR 
+		((IsEntityAlive('HUNTER10')) AND ( GetHunterAreaName(GetEntity('HUNTER10')) = 'aibar')) OR
+		((IsEntityAlive('HUNTER11')) AND ( GetHunterAreaName(GetEntity('HUNTER11')) = 'aibar')) DO sleep(1);
+
+WriteDebug('they have all the bar locking the door');
+
+sleep(500);
+
+SetDoorState(this,DOOR_CLOSED);
+LockEntity(this);
+GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+END;
+
+SCRIPT Unlock;
+BEGIN
+SetDoorState(this,DOOR_CLOSED);
+UnlockEntity(this);
+GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+SetDoorOverrideAngle(GetEntityName(this),135);
+END;
+
+END.

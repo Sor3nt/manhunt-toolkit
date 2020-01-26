@@ -1,0 +1,325 @@
+SCRIPTMAIN LevelScript;
+
+ENTITY
+Asylum	:	et_level;
+
+VAR 
+flag_player_spotted				: integer;
+vDirection						: vec3d;
+vStart							: vec3d;
+vEnd							: vec3d;
+vPoz							: vec3d;
+flag_cutscene_played_tower		: integer;
+flag_cutscene_played_guard		: integer;
+flag_hunter_tower_dead			: integer;
+willie_game_int					: game_var integer; {var used to say if the player has the head or not}
+willie_game_int2				: game_var integer; {Used to indicate if the door was destroyed or not}
+tower_door_destroyed			: integer;
+number_dead_searchlight			: integer;
+machine_switched_on				: integer;
+flag_doing_wandersearch			: integer;
+flag_go_home_idle				: integer;
+flag_level_goals				: integer;
+flag_warddoor_closed			: integer;
+flag_investigate_machine		: integer;
+monkey_reached_node				: integer;
+flag_player_carrying_gas_can 	: integer;
+flag_hunter_in_switch_trigger	: integer;
+flag_goto_first_time			: integer;
+DoingDoorClose					: boolean;
+
+SCRIPT OnCreate;
+begin
+		
+{ShowTriggers(TRUE);}
+
+SetNumberOfKillableHuntersInLevel(23,10);
+
+SetMaxNumberOfRats(2);
+
+flag_player_spotted := 0;
+flag_cutscene_played_tower := 0;
+flag_hunter_tower_dead := 0;
+number_dead_searchlight := 0;
+machine_switched_on := 0;
+flag_doing_wandersearch	:= 0;
+flag_go_home_idle	:= 0;
+flag_warddoor_closed := 0;
+flag_investigate_machine := 0;
+monkey_reached_node := 0;
+flag_player_carrying_gas_can := 0;
+flag_hunter_in_switch_trigger := 0;
+flag_goto_first_time := 0;
+
+	if ( NIL <> (GetEntity('ExecutionLight'))) then
+	begin
+		SwitchLightOff(GetEntity('ExecutionLight'));
+	end;
+
+{Script to get wheather the player has the hunters head or not}
+	if (GetPlayerLevelRestarts = 0)then willie_game_int := 0;
+	
+{Stops the door cutscene playing again if the save point is gone}
+	if(NIL <> GetEntity('UsedSwitch')) then flag_cutscene_played_tower := 0
+	else flag_cutscene_played_tower := 1;
+						
+	if (NIL <> GetEntity('Gas_Can')) then
+	begin
+		WriteDebug('gas can is created in level');
+		
+		IF SetEntityScriptsFromEntity('Exploder_Drum','Gas_Can') then
+			WriteDebug('gas can has exploder drum script');
+	end;
+	
+	if (willie_game_int2 < 2) then
+	begin
+		if (NIL = GetEntity('SpawningPistol')) then
+		begin
+			SetVector(vPoz,107.5,0.8,-39.9);
+			SpawnMovingEntity('6Shooter_(CT)',vPoz,'SpawningPistol');
+			WriteDebug('Pistol ammo has been spawned');
+		end;
+		
+	end;
+	
+{Adds the player to the game}
+	AIAddPlayer('player');
+	
+	if (IsEntityAlive('player')) then
+	begin
+		if (GetPlayerAreaName = 'aiward' ) then
+		begin
+			willie_game_int2 :=0;
+			WriteDebug('flag door destroyed = 0');
+		end;
+		
+	end;
+	
+	if (willie_game_int2 <> 2 ) then
+	begin
+		willie_game_int2 := 0;	
+	end; 
+	
+	IF GetPlayerLevelRestarts = 0 THEN
+	BEGIN
+		if(IsEntityAlive('Hunter1_Tower')) then
+		begin
+			SetVector(vStart,148.2,13.9,-43.1);
+			MoveEntity(GetEntity('Hunter1_Tower'),vStart,0);
+		end;
+		
+	END;
+		
+{--GOALS--}
+	AIDefineGoalHuntEnemy('GoalHuntPlayer','player',FALSE,8);
+	
+{Goal for hunters walking inside the electro room}
+	if (NIL <> GetEntity('WORKSHOPHUNTER')) then	
+	begin
+		AIDefineGoalGotoNode('GoalGotoElectroman','WORKSHOPHUNTER',AISCRIPT_MEDIUMPRIORITY,'ElectroLure',AISCRIPT_WALKMOVESPEED,TRUE);
+		AIDefineGoalGotoNode('GoalGotoWardHome','WORKSHOPHUNTER',AISCRIPT_MEDIUMPRIORITY,'Whunter1_Home',AISCRIPT_WALKMOVESPEED,TRUE);
+		AIDefineGoalGotoNode('GoalGotoDoorSide','WORKSHOPHUNTER',AISCRIPT_HIGHPRIORITY,'Whunter1_Home2',AISCRIPT_WALKMOVESPEED,TRUE);
+	end;
+
+{Goal so armed hunter in searchlight area}
+	SetVector(vDirection,1.0,0.0,-0.1);
+	AIDefineGoalGuardDirection('GoalGuardSearchlight',AISCRIPT_MEDIUMPRIORITY,'Hunter4_Search_Guard',0.0,0.0,1,vDirection); 
+	AIGuardModifyShootOutsideRadius('GoalGuardSearchlight',TRUE);
+	
+{goal to allow hunter to move if all the others are dead}
+	SetVector(vDirection,1.0,0.0,-0.1);
+	AIDefineGoalGuardDirection('GoalGuardSearchlight2',AISCRIPT_LOWPRIORITY,'Hunter4_Search_Guard',0.0,0.0,1,vDirection); 
+	AIGuardModifyShootOutsideRadius('GoalGuardSearchlight2',TRUE);
+		
+{Goal for hunter5_green to guard the bricked up door}
+	SetVector(vDirection,-1.0,0.0,-0.0);
+	AIDefineGoalGuardDirection('GoalGuardPetrol',AISCRIPT_HIGHPRIORITY,'Hunter5_Green_Home',0.5,0.5,1,vDirection); 
+	AIGuardModifyShootOutsideRadius('GoalGuardPetrol',TRUE);
+	
+{Goal for Greenhouse hunters to guard the gate into the tower}
+	SetVector(vDirection,-0.2,-0.0,-1.0);
+	AIDefineGoalGuardDirection('GoalGuardGate',AISCRIPT_HIGHPRIORITY,'Guard_Gate',0.5,0.5,1,vDirection); 
+	AIGuardModifyShootOutsideRadius('GoalGuardGate',TRUE);	
+		
+{Goal for hunter1 in the tower to guard the way in}
+	SetVector(vDirection,0.1,0.0,1.0);
+	AIDefineGoalGuardDirection('GoalGuardRamp',AISCRIPT_HIGHPRIORITY,'Hunter1_Tower_Home',0.0,0.0,1,vDirection); 
+	AIGuardModifyShootOutsideRadius('GoalGuardRamp',TRUE);
+			
+{LEADER_STARTGUYS}
+	AIAddEntity('LEADER_STARTGUYS');
+	AISetEntityAsLeader('LEADER_STARTGUYS');
+	AIAddLeaderEnemy('LEADER_STARTGUYS','player');
+	AIEntityAlwaysEnabled('LEADER_STARTGUYS');
+	AISetLeaderInvisible('LEADER_STARTGUYS');
+	AISetHunterOnRadar('LEADER_STARTGUYS',FALSE);
+
+{Subpack of one guy in the warehouse}
+	AIAddSubPackForLeader('LEADER_STARTGUYS','Subpack_Workshop');
+	AISetSubpackCombatType('LEADER_STARTGUYS','Subpack_Workshop',COMBATTYPEID_MELEE);
+	AIAddAreaForSubPack('Subpack_Workshop','aiWard');
+	AIAddAreaForSubPack('Subpack_Workshop','aiWard2');
+								
+	AIAddGoalForSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalHuntPlayer');
+		
+{LEADER}
+	AIAddEntity('LEADER');
+	AISetEntityAsLeader('LEADER');
+	AIAddLeaderEnemy('LEADER','player');
+	AIEntityAlwaysEnabled('LEADER');
+	AISetLeaderInvisible('LEADER');
+	AISetHunterOnRadar('LEADER',FALSE);
+			
+{Subpack for the guys in the searchlight courtyard}
+	AIAddSubPackForLeader('LEADER','Subpack_Searchlight');
+	AISetSubpackCombatType('LEADER','Subpack_Searchlight',COMBATTYPEID_MELEE);
+	AIAddAreaForSubPack('Subpack_Searchlight','aiSearchlight');
+	AIAddAreaForSubPack('Subpack_Searchlight','aiSearchStairs');
+		
+	AIAddGoalForSubpack('LEADER','Subpack_Searchlight','GoalHuntPlayer');
+		
+{New Subpack for the hunter with the gun in searchlight area}
+	AIAddSubPackForLeader('LEADER','Subpack_Searchlight_Gun');
+	AISetSubpackCombatType('LEADER','Subpack_Searchlight_Gun',COMBATTYPEID_OPEN);
+	AIAddAreaForSubPack('Subpack_Searchlight_Gun','aiSearchStairs');
+	AISubpackStayInTerritory('LEADER','Subpack_Searchlight_Gun',TRUE);
+				
+	AIAddGoalForSubpack('LEADER','Subpack_Searchlight_Gun','GoalHuntPlayer');
+	{AIAddGoalForSubpack('LEADER','Subpack_Searchlight_Gun','GoalGuardSearchlight');}
+		
+{Subpack for the guys in the garden section}
+	AIAddSubPackForLeader('LEADER','Subpack_Greenhouse');
+	AISetSubpackCombatType('LEADER','Subpack_Greenhouse',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Greenhouse','aiGreenhouse');
+	AIAddAreaForSubPack('Subpack_Greenhouse','aitower');
+	AISubpackStayInTerritory('LEADER','Subpack_Greenhouse',TRUE);
+				
+	AIAddGoalForSubpack('LEADER','Subpack_Greenhouse','GoalHuntPlayer');
+	AIAddGoalForSubpack('LEADER','Subpack_Greenhouse','GoalGuardGate');
+	
+{Subpack for the guy5 in the garden section to guard his own area Tower}
+	AIAddSubPackForLeader('LEADER','Subpack_Greenhouse2');
+	AISetSubpackCombatType('LEADER','Subpack_Greenhouse2',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Greenhouse2','aiGreenhouse');
+	AIAddAreaForSubPack('Subpack_Greenhouse2','aitower');
+	AISubpackStayInTerritory('LEADER','Subpack_Greenhouse2',TRUE);	
+	
+	AIAddGoalForSubpack('LEADER','Subpack_Greenhouse2','GoalHuntPlayer');
+	AIAddGoalForSubpack('LEADER','Subpack_Greenhouse2','GoalGuardPetrol');
+		
+{Subpack for the guys in the building section}
+	AIAddSubPackForLeader('LEADER','Subpack_Building');
+	AISetSubpackCombatType('LEADER','Subpack_Building',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Building','aiBuildingArea1');
+	AIAddAreaForSubPack('Subpack_Building','aiBuildingArea3');
+	AIAddAreaForSubPack('Subpack_Building','aiBuildingArea4');
+	AIAddAreaForSubPack('Subpack_Building','aiRoof');
+	AIAddAreaForSubPack('Subpack_Building','aitower');
+	AISubpackStayInTerritory('LEADER','Subpack_Building',TRUE);
+		
+{Subpack for the guys in the building1 section on the ground floor}
+	AIAddSubPackForLeader('LEADER','Subpack_Building1');
+	AISetSubpackCombatType('LEADER','Subpack_Building1',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Building1','aiBuildingArea1');
+	AISubpackStayInTerritory('LEADER','Subpack_Building1',TRUE);
+		
+{Subpack for the guys in the building3 section on the ground floor}
+	AIAddSubPackForLeader('LEADER','Subpack_Building3');
+	AISetSubpackCombatType('LEADER','Subpack_Building3',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Building3','aiBuildingArea3');
+	AISubpackStayInTerritory('LEADER','Subpack_Building3',TRUE);
+		
+{Subpack for the guys in the building4 section on the second floor}
+	AIAddSubPackForLeader('LEADER','Subpack_Building4');
+	AISetSubpackCombatType('LEADER','Subpack_Building4',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Building4','aiBuildingArea4');
+	AISubpackStayInTerritory('LEADER','Subpack_Building4',TRUE);
+		
+{Subpack for the guys in the building roof section}
+	AIAddSubPackForLeader('LEADER','Subpack_Building_Roof');
+	AISetSubpackCombatType('LEADER','Subpack_Building_Roof',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Building_Roof','aiRoof');
+	AISubpackStayInTerritory('LEADER','Subpack_Building_Roof',TRUE);
+	
+{Subpack for the guys in the building roof section with melee weapons}
+	AIAddSubPackForLeader('LEADER','Subpack_Building_Roof2');
+	AISetSubpackCombatType('LEADER','Subpack_Building_Roof2',COMBATTYPEID_OPEN_MELEE);
+	AIAddAreaForSubPack('Subpack_Building_Roof2','aiRoof');
+	AISubpackStayInTerritory('LEADER','Subpack_Building_Roof2',TRUE);
+			
+{Subpack for the guy inside the tower}
+	AIAddSubPackForLeader('LEADER','Subpack_Tower');
+	AISetSubpackCombatType('LEADER','Subpack_Tower',COMBATTYPEID_COVER);
+	AIAddAreaForSubPack('Subpack_Tower','aiTower');
+	AISubpackStayInTerritory('LEADER','Subpack_Tower',TRUE);		
+	
+{----AREA ACTIVATION TO ALLOW APPEARANCE OF MORE THAN 16 HUNTERS----}
+{cutscene edit, to allow hunters to appear on roof when player is in workshop}		
+
+IF GetPlayerLevelRestarts >0 THEN
+	BEGIN
+	AIClearAllActiveAreaAssociations;
+	AIAssociateThreeActiveAreasWithPlayerArea('aiWard','aiSearchlight','aiWard2','aiSearchStairs');
+	AIAssociateThreeActiveAreasWithPlayerArea('aiSearchlight','aiWard','aiWard2','aiSearchStairs');
+	AIAssociateThreeActiveAreasWithPlayerArea('aiWard2','aiWard','aiSearchlight','aiSearchStairs');
+	AIAssociateThreeActiveAreasWithPlayerArea('aiSearchStairs','aiWard2','aiWard','aiSearchlight');
+	AIAssociateThreeActiveAreasWithPlayerArea('aiTower','aiGreenhouse','aiTowerLeft','aiRoof');
+	
+	AIAssociateFourActiveAreasWithPlayerArea('aiGreenhouse','aiSearchlight','aiTower','aiTowerLeft','aiSearchStairs');		
+	AIAssociateFourActiveAreasWithPlayerArea('aiTowerLeft','aiGreenhouse','aiBuildingArea1','aiTower','aiRoof');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBuildingArea1','aiTowerLeft','aiTower','aiBuildingArea4','aiBuildingArea3');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBuildingArea3','aiTower','aiRoof','aiBuildingArea1','aiBuildingArea4');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBuildingArea4','aiTower','aiRoof','aiBuildingArea1','aiBuildingArea3');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoof','aiTower','aiBuildingArea1','aiBuildingArea3','aiBuildingArea4');
+	END
+ELSE
+	BEGIN
+	AIClearAllActiveAreaAssociations;
+	AIAssociateFourActiveAreasWithPlayerArea('aiWard','aiSearchlight','aiRoof','aiWard2','aiSearchStairs');
+	END;
+
+{checks to see if the second save point has been used if so the 1st one is deleted }	
+	if (NIL = GetEntity('Gen_Save_Point')) then
+	begin 
+		if (NIL <> GetEntity('Gen_Save_Point01')) then
+		begin
+			KillEntity(GetEntity('Gen_Save_Point01'));
+			WriteDebug('Save point one has been destroyed as 2 has been used but 1 has not');
+		end;
+		
+	end;
+	
+	if ((NIL = GetEntity('Gen_Save_Point'))
+	OR
+	(NIL = GetEntity('Gen_Save_Point01'))) then
+	begin
+		if (willie_game_int2 = 1) then
+		begin
+			willie_game_int2 :=2;
+			WriteDebug('value of door destroyed' ,willie_game_int2);
+		end;
+	end;
+	
+		 
+
+{-------------GAME TRIGGERS----------------------}
+
+	
+{Trigger that checks wheather to create a gas can or not}
+	SetVector(vStart,143.3,0.6,-31.0);
+	CreateSphereTrigger(vStart,1.0,'Can_Create_Trigger');		
+	TriggerAddEntityClass(GetEntity('Can_Create_Trigger'),COL_BASIC);
+	
+	SetVector(vStart,134.0,0.3,-105.9);
+	SetVector(vEnd,125.0,3.0,-101.1);
+	CreateBoxTrigger(vStart,vEnd,'ward_door_trigger');
+	
+	if (NIL = GetEntity('SwitchTrigger')) then
+	begin
+		SetVector(vStart,131.9,0.3,-110.7);
+		CreateSphereTrigger(vStart,3.0,'SwitchTrigger');
+	end;
+	
+end;
+
+END. {End of file}  

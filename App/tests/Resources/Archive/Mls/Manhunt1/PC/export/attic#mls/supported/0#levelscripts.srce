@@ -1,0 +1,439 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Attic		:	et_level;
+
+{******** THIS IS THE INIT SCRIPT FOR THE ESTATE GARDENS ********}
+CONST
+
+TYPE
+
+VAR
+{globals}
+vStart				: vec3d;
+vEnd				: vec3d;
+vPos			 	: vec3d;
+
+{LEVEL SCOPED VARS}
+iExecutionsCount	: integer;
+iChainsawLocation	: integer;
+
+{************************ FUNCTION HEADERS ************************}
+PROCEDURE InitAreas (); FORWARD;
+PROCEDURE InitTriggers(); FORWARD;
+PROCEDURE InitGameText(); FORWARD; 
+{********************* END OF FUNCTION HEADERS *********************}
+
+
+{************************ LEVEL SCRIPTS ************************}
+
+SCRIPT OnCreate;
+VAR
+vDirection	:	vec3d;
+
+BEGIN
+
+AIClearAllActiveAreaAssociations;
+
+writeDebug('ATTIC Level Init');
+
+{Init the level scoped vars}	
+iExecutionsCount := 0;
+iChainsawLocation := 0;
+
+	{Add the player}		
+	AIAddPlayer('player');
+	
+	{define generic hunt goal}
+	AIDefineGoalHuntEnemy('gHuntPlayer', 'player',FALSE,4); 
+	AIDefineGoalHideUnnamedHunters('goalHIDE_HIGH',AISCRIPT_HIGHPRIORITY,'player',1);
+	AIDefineGoalHideUnnamedHunters('goalHIDE_VERYHIGH',AISCRIPT_VERYHIGHPRIORITY,'player',1);
+	
+	{*** SPECIFIC GOAL DEFINITIONS ***}
+	
+	AIDefineGoalGotoEntityIdle('gPiggsyGetToPlayer','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'player',AISCRIPT_RUNMOVESPEED,TRUE);		
+	
+	{the goal below is used to send piggsy near player when he sniff him, to be replaced with a
+	more uncertain goto NEAR player when AI function is available}
+	{*}AIDefineGoalGotoEntityIdle('gPiggsySniffToPlayer','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'player',AISCRIPT_WALKMOVESPEED,TRUE);	
+	
+	SetVector(vDirection,171.737,28.425,-4.228);		
+	AIDefineGoalMeleeAttackVector('gAttackDoor','Piggsy',AISCRIPT_VERYHIGHPRIORITY,'GateToAttic',vDirection);
+	
+	SetVector(vDirection,178.0,33.7,-60.8);		
+	AIDefineGoalMeleeAttackVector('gAttackDoor2','Piggsy',AISCRIPT_VERYHIGHPRIORITY,'RunAway',vDirection);
+		
+	AIDefineGoalGotoNode('gPiggsyGoGate','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,'GateToAttic',AISCRIPT_RUNMOVESPEED,FALSE);
+	AIDefineGoalGotoNode('gPiggsyGoWait1','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,'Pig_Wait1',AISCRIPT_RUNMOVESPEED,TRUE);
+	AIDefineGoalGotoNode('gPiggsyGoAttic','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,'AtticHome',AISCRIPT_RUNMOVESPEED,FALSE);
+	AIDefineGoalGotoNode('gPiggsyGoCower2','EVERYONE',AISCRIPT_HIGHPRIORITY,'Cower2',AISCRIPT_RUNMOVESPEED,FALSE);
+	
+	SetVector(vDirection,178.3,33.7,-61.5);	
+	AIDefineGoalGotoVector('gRunAway','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,'RunAway',vDirection,AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	{SetVector(vDirection,0.68,-0.24,-0.68);	}
+	AIDefineGoalGuard('gAttic_Guard',AISCRIPT_MEDIUMPRIORITY,'AtticHome',0.5,4.5,1); 			
+	
+	AIDefineGoalGuardLookAtEntity('gPig_Wait1',AISCRIPT_HIGHPRIORITY,'Pig_Wait1',0.5,4.5,1,'player'); 			
+	
+	AIDefineGoalGuardLookAtEntity('gByTowerDoor',AISCRIPT_HIGHPRIORITY,'RunAway',2.0,4.0,1,'player'); 			
+	
+	AIDefineGoalGotoNode('gStark_RunHere','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,'Stark_RunHere',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	{CERB GOALS}		
+	AIDefineGoalGotoNode('gMoveIn','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'Piggsy_Home1',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	AIDefineGoalGuard('gGuard_1',AISCRIPT_HIGHPRIORITY,'GUARD_1',0.5,0.5,1); 
+	AIGuardModifyShootOutsideRadius('gGuard_1',TRUE);
+	
+	AIDefineGoalGuard('gGuard_Low',AISCRIPT_LOWPRIORITY,'GUARD_1',0.5,0.5,1); 
+	AIGuardModifyShootOutsideRadius('gGuard_Low',TRUE); {to make one guy lurable eventually}	
+				
+	AIDefineGoalGuard('gGuard_2',AISCRIPT_HIGHPRIORITY,'GUARD_2',0.5,0.5,1); 			
+	AIGuardModifyShootOutsideRadius('gGuard_2',TRUE);
+	
+	{Add the LEADER and his enemy}
+	if(nil <> GetEntity('Piggsy')) then 
+	begin
+		AIAddEntity('Piggsy');
+		AISetEntityAsLeader('Piggsy');
+		AIAddLeaderEnemy('Piggsy','player');
+		
+		AIEntityAlwaysEnabled('Piggsy');
+		
+		{Create the subpacks}
+		AIAddSubpackForLeader('Piggsy','PiggsyPack');
+		
+		AIAddHunterToLeaderSubPack('Piggsy','PiggsyPack','Piggsy');					
+					
+		{hide the leader from the radar}
+		AISetHunterOnRadar('Piggsy',false);
+			
+		{Add the BASIC goals to the subpacks - other goals are inside each hunter's script }		
+		AiAddGoalForSubPack('Piggsy','PiggsyPack','gHuntPlayer');
+		
+		{Set the combat types per subpack}		
+		AISetSubpackCombatType('Piggsy','PiggsyPack',COMBATTYPEID_MELEE);
+					
+		{set the search parameters}		
+	
+		aiSetSearchParams('Piggsy_Search',50.0,TRUE,8.0,100,0,0,15);
+		aiSetSearchParams('Piggsy_Invest',50.0,TRUE,8.0,75,0,0,15);
+		AISetSubPackSearchParams('Piggsy','PiggsyPack',SEARCHREQID_NEGATIVECHASE,'Piggsy_Search');
+		AISetSubPackSearchParams('Piggsy','PiggsyPack',SEARCHREQID_RUNTOINVESTIGATE,'Piggsy_Invest');
+		
+		AISetEntityVoiceID('Piggsy',VOICE_PIGGSY1VOICE1);
+					
+	end;
+	
+	if(nil <> GetEntity('Starkweather')) then 
+	begin
+		AIAddEntity('Starkweather');
+		AISetEntityAsLeader('Starkweather');
+		AIAddLeaderEnemy('Starkweather','player');
+		
+		{AIEntityAlwaysEnabled('Starkweather');}
+		AISetHunterOnRadar('Starkweather',false);
+		
+		{Create the subpacks}
+		AIAddSubpackForLeader('Starkweather','sStarkweather');
+		AIAddSubpackForLeader('Starkweather','sStarkweather_NoGun');
+		
+		AIAddHunterToLeaderSubPack('Starkweather','sStarkweather_NoGun','Starkweather');					
+				
+		{Set the combat types per subpack}		
+		AISetSubpackCombatType('Starkweather','sStarkweather',COMBATTYPEID_COVER);
+		AISetSubpackCombatType('Starkweather','sStarkweather_NoGun',COMBATTYPEID_MELEE);
+					
+	end;
+	
+	{Add the LEADER and his enemy}
+	if(nil <> GetEntity('LEADER')) then 
+	begin
+		AIAddEntity('LEADER');
+		AISetEntityAsLeader('LEADER');
+		AIAddLeaderEnemy('LEADER','player');
+		AISetLeaderInvisible('LEADER');
+		AIEntityAlwaysEnabled('LEADER');
+		
+		{Create the subpacks}
+		AIAddSubpackForLeader('LEADER','CERBS');						
+			
+		{hide the leader from the radar}
+		AISetHunterOnRadar('LEADER',false);
+				
+		{ADD THE HUNTERS on the map}
+		
+		if(nil <> GetEntity('Guard01')) then
+		begin
+			AIAddEntity('Guard01');
+			AIAddHunterToLeaderSubPack('LEADER','CERBS','Guard01');					
+		end;
+		
+		if(nil <> GetEntity('Guard02')) then
+		begin
+			AIAddEntity('Guard02');
+			AIAddHunterToLeaderSubPack('LEADER','CERBS','Guard02');					
+		end;
+		
+		if(nil <> GetEntity('Guard03')) then
+		begin
+			AIAddEntity('Guard03');
+			AIAddHunterToLeaderSubPack('LEADER','CERBS','Guard03');					
+		end;
+		
+		if(nil <> GetEntity('Guard04')) then
+		begin
+			AIAddEntity('Guard04');
+			AIAddHunterToLeaderSubPack('LEADER','CERBS','Guard04');					
+		end;
+		
+		if(nil <> GetEntity('Guard05')) then
+		begin
+			AIAddEntity('Guard05');
+			AIAddHunterToLeaderSubPack('LEADER','CERBS','Guard05');					
+		end;
+		
+		{Set the combat types per subpack}		
+		AISetSubpackCombatType('LEADER','CERBS',COMBATTYPEID_COVER);
+				
+		AiAddGoalForSubPack('LEADER','CERBS','gHuntPlayer');
+		
+	end;
+	
+	{The Starkweather death model is a PED!!!}
+	if(nil <> GetEntity('Sw_Bod_Gore')) then 
+	begin
+		AIAddEntity('Sw_Bod_Gore');						
+		AISetHunterOnRadar('Sw_Bod_Gore',false);
+		AISetLeaderInvisible('Sw_Bod_Gore');
+	end;
+	
+	{Init the areas - ALWAYS AFTER ALL THE LEADERS ARE INITIALISED}		
+	InitAreas;	
+
+	InitTriggers;
+	InitGameText;
+	
+	{Hide the PART 2 grate model and move it out of the way}
+	if (NIL <> GetEntity('Piggsy_Grill_PART2'))then
+	begin
+		SetVector(vStart,170.691,132.653,-61.254); {100 added to Y to get coll out of way}
+		MoveEntity(GetEntity('Piggsy_Grill_PART2'),vStart,0);
+		HideEntity(GetEntity('Piggsy_Grill_PART2')); 
+	end;
+	
+	{hide the cut-scene version of the chainsaw}
+	if (NIL <> GetEntity('Cutscene_Chainsaw'))then
+	begin				
+		HideEntity(GetEntity('Cutscene_Chainsaw')); 
+	end;
+	
+	{hide the real door to Attic}
+	if (NIL <> GetEntity('CJ_CHAINDOOR2_(D)'))then
+	begin				
+		HideEntity(GetEntity('CJ_CHAINDOOR2_(D)')); 
+	end;
+	
+	{hide the real door to Starkweather}
+	if (NIL <> GetEntity('CJ_CHAINDOOR2_(D)01'))then
+	begin				
+		HideEntity(GetEntity('CJ_CHAINDOOR2_(D)01')); 
+	end;
+	
+	{Hide piggsy's chopped arms}
+	if (NIL <> GetEntity('Pig_Arms'))then
+	begin				
+		HideEntity(GetEntity('Pig_Arms')); 
+	end;
+		
+	if (NIL = GetEntity('Piggsy'))then
+	begin
+		{*** this is a RELOAD - put re-init of shit all in there}
+		
+		{enable nodes by piggsy's door to attic}
+		GraphModifyConnections(GetEntity('CameraLook3'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		
+		LoadFrontEndAudioStream(SCRIPTED_TRACK_DIRECT);
+		
+		{pig chopped arms are visible}
+		if (NIL <> GetEntity('Pig_Arms')) then ShowEntity(GetEntity('Pig_Arms'));
+		
+		{init the broken grill down the hole}
+		if (NIL <> GetEntity('Piggsy_Grill_PART2'))then
+		begin
+			ShowEntity(GetEntity('Piggsy_Grill_PART2'));
+			setVector(vPos,170.691,0.576,-65.853);
+			MoveEntity(GetEntity('Piggsy_Grill_PART2'),vPos,0); 					
+			EntityPlayAnim(GetEntity('Piggsy_Grill_PART2'),'Idle_Att_Grill_Rest',FALSE);
+		end;
+		
+		{Init of dead pig down the hole}
+		SetVector(vPos,170.74,0.21,-60.576);			
+		SpawnMovingEntity('Pig_BodF1',vPos,'DeadPig');
+		AIaddEntity('DeadPig');
+		AISetEntityIdleOverRide('DeadPig',TRUE,TRUE);
+		SetPedOrientation(GetEntity('DeadPig'),90);
+		AIEntityPlayAnim('DeadPig','IdleLoop_Att_Pig_Dead');								
+		
+		{the door that piggsy cuts open}	
+		if NIL <> GetEntity('CJ_CHAINDOOR2_(D)') then
+		begin
+			ShowEntity(GetEntity('CJ_CHAINDOOR2_(D)')); 
+			UnFreezeEntity(GetEntity('CJ_CHAINDOOR2_(D)'));	
+			UnLockEntity(GetEntity('CJ_CHAINDOOR2_(D)'));	
+			
+			SetDoorOpenAngleIn(GetEntity('CJ_CHAINDOOR2_(D)'),90.0);	
+			SetDoorOpenAngleOut(GetEntity('CJ_CHAINDOOR2_(D)'),90.0);
+		end;	
+		
+		{player's facing the door}
+		SetPlayerHeading(100);
+		
+		{create a chainsaw if player hasnt got one}
+		runScript('player','GiveMeAChainSaw');		
+		
+	end
+	else LoadFrontEndAudioStream(SCRIPTED_TRACK_PDOOR); {NOT A RELOAD!!!}
+		 
+	
+	SetNumberOfKillableHuntersInLevel(6,3);
+	
+	SetMaxNumberOfRats(0);	
+	
+end; {end OnCreate}
+
+{************************ END OF OnCREATE ************************}
+
+
+
+
+{************************ OTHER SCRIPTS ************************}
+
+SCRIPT ChangingOfTheGuard;
+Begin
+
+	If (AINumberInSubPack('LEADER','CERBS') <= 2 ) then 
+	begin
+		
+		ScriptHogProcessorStart;
+		if AIisGoalNameInSubPack('LEADER','CERBS','gGuard_1')		
+			then AIRemoveGoalFromSubPack('LEADER','CERBS','gGuard_1');
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;	
+		if NOT AIisGoalNameInSubPack('LEADER','CERBS','gGuard_Low')		
+			then AIAddGoalForSubPack('LEADER','CERBS','gGuard_Low');
+		ScriptHogProcessorEnd;
+				
+	end;
+End;
+
+{********************* END OF OTHER SCRIPTS *********************}
+
+
+
+
+
+
+{********************************* FUNCTION DECLARATIONS *********************************}
+
+PROCEDURE InitAreas ;
+BEGIN
+	
+	{ENTITY ACTIVATION AREAS}	
+	
+	AIAssociateFourActiveAreasWithPlayerArea('aiFloor2','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiFloor2','aiRoom3','aiRoom4','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiFloor2','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+	
+	AIAssociateFourActiveAreasWithPlayerArea('aiBathroom','aiFloor2','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBathroom','aiRoom3','aiRoom4','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBathroom','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+	
+	AIAssociateFourActiveAreasWithPlayerArea('aiBedroom','aiBathroom','aiFloor2','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBedroom','aiRoom3','aiRoom4','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiBedroom','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom1','aiBathroom','aiBedroom','aiFloor2','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom1','aiRoom3','aiRoom4','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom1','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom2','aiBathroom','aiBedroom','aiRoom1','aiFloor2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom2','aiRoom3','aiRoom4','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom2','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+	
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom3','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom3','aiFloor2','aiRoom4','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom3','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom4','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom4','aiRoom3','aiFloor2','aiRoom5','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom4','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom5','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom5','aiRoom3','aiRoom4','aiFloor2','aiRoom6');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom5','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom6','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom6','aiRoom3','aiRoom4','aiRoom5','aiFloor2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiRoom6','aiCorrToAttic','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiCorrToAttic','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiCorrToAttic','aiRoom3','aiRoom4','aiRoom5','aiFloor2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiCorrToAttic','aiRoom6','aiAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiAttic','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiAttic','aiRoom3','aiRoom4','aiRoom5','aiFloor2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiAttic','aiRoom6','aiCorrToAttic','aiCommTower','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiCommTower','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiCommTower','aiRoom3','aiRoom4','aiRoom5','aiFloor2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiCommTower','aiRoom6','aiCorrToAttic','aiAttic','aiStairsTower');
+
+	AIAssociateFourActiveAreasWithPlayerArea('aiStairsTower','aiBathroom','aiBedroom','aiRoom1','aiRoom2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiStairsTower','aiRoom3','aiRoom4','aiRoom5','aiFloor2');
+	AIAssociateFourActiveAreasWithPlayerArea('aiStairsTower','aiRoom6','aiCorrToAttic','aiAttic','aiCommTower');
+
+End; {of InitAreas}
+
+
+
+
+{*****************************************************}
+
+
+PROCEDURE InitTriggers;
+BEGIN
+	{*** Level Triggers ***}
+	
+	{NOTE: Detections 1 & 2 are placed in MAX as sphere triggers}
+	setVector(vStart,150.255,23.0,4.8);
+	setVector(vEnd,155.861,26.0,-3.079);
+	if (nil = GetEntity('Piggsy_Detection3')) then CreateBoxTrigger(vStart,vEnd,'Piggsy_Detection3');
+	
+	{showTriggers(TRUE);}
+	
+End; {of InitTriggers}
+
+
+
+{*****************************************************}
+
+
+
+PROCEDURE InitGameText;
+BEGIN
+
+	SetGameTextTeleType(false);
+
+End; {of InitGameText}
+
+
+
+{*****************************************************}
+
+
+
+
+END. {end of LevelScripts} 

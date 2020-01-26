@@ -1,0 +1,14 @@
+[
+    {
+        "name": "level_barecamerason",
+        "nameGarbage": "00000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            24,
+            1432,
+            1560
+        ]
+    }
+]

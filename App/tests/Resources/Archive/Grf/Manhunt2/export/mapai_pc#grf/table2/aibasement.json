@@ -1,0 +1,462 @@
+[
+    {
+        "id": 1,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -7.8900909423828125,
+            1,
+            36.58992004394531
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 1,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 4,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 2,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 3,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 6,
+                "unknownNumber": 0,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 54,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -7.972060203552246,
+            1,
+            38.134029388427734
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 2,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 0,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.857097148895264,
+            1,
+            37.78215408325195
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 0,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 3,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 4,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 1,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.808423042297363,
+            1,
+            35.36286544799805
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 2,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 4,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 0,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 5,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -7.841416835784912,
+            1,
+            34.170631408691406
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 0,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 2,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 3,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 59,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.133944034576416,
+            1.08788001537323,
+            33.70934295654297
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 3,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.8086419105529785,
+            1,
+            27.474628448486328
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 15,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 17,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 14,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.759966850280762,
+            1,
+            25.055339813232422
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 16,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 14,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 15,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 18,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 55,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -7.823974132537842,
+            1,
+            24.73582649230957
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 17,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 14,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 50,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -9.825203895568848,
+            1.1921099424362183,
+            3.8829169273376465
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 44,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 46,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 213,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 51,
+        "groupIndex": 0,
+        "commandName": "LEODISONE",
+        "position": [
+            -7.541312217712402,
+            2.027164936065674,
+            3.8829169273376465
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 45,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 47,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 62,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.6002302169799805,
+            3.0767641067504883,
+            3.868072032928467
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 46,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 48,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 60,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -2.7407610416412354,
+            3.852350950241089,
+            3.7668418884277344
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 47,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 49,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 61,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -2.707688093185425,
+            3.896259069442749,
+            1.1241480112075806
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 48,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 50,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 63,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -5.390796184539795,
+            4.2964558601379395,
+            1.1634060144424438
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 49,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 51,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    },
+    {
+        "id": 64,
+        "groupIndex": 0,
+        "commandName": "",
+        "position": [
+            -12.928706169128418,
+            1,
+            3.4299049377441406
+        ],
+        "rotation": 0.5,
+        "unknown": [],
+        "unknown2": [],
+        "waypoints": [
+            {
+                "linkId": 44,
+                "unknownNumber": 3,
+                "unknown3": []
+            },
+            {
+                "linkId": 43,
+                "unknownNumber": 0,
+                "unknown3": []
+            },
+            {
+                "linkId": 45,
+                "unknownNumber": 3,
+                "unknown3": []
+            }
+        ]
+    }
+]

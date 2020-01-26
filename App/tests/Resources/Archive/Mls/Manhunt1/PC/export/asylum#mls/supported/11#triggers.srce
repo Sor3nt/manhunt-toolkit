@@ -1,0 +1,12 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+Hunter1_Tower_h		:	et_name;
+
+SCRIPT OnCreate;
+begin
+	RunScript('player','OnPickUpInventoryItem');
+	WriteDebug('HeadCheck has been run');
+end;
+
+END.

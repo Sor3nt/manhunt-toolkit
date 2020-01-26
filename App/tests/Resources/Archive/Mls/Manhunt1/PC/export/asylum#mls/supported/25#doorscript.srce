@@ -1,0 +1,40 @@
+SCRIPTMAIN DOORScript;
+
+ENTITY
+Gen_Interior_WoodDoor_(D)23	:	et_name;
+
+VAR
+guarddoor1	:	EntityPtr;
+guarddoor2	:	EntityPtr;
+
+SCRIPT OnCreate;
+begin
+	guarddoor1 := getEntity('Gen_Interior_WoodDoor_(D)23'); 
+	
+	UnfreezeEntity(guarddoor1);
+	SetDoorState(guarddoor1,DOOR_CLOSED);
+	LockEntity(guarddoor1);
+	SetDoorOpenAngleIn(guarddoor1,130.0);
+	SetDoorOpenAngleOut(guarddoor1,130.0);
+	GraphModifyConnections(guarddoor1, AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+	
+	guarddoor2 := getEntity('Gen_Interior_WoodDoor_(D)25'); 
+	
+	UnfreezeEntity(guarddoor2);
+	SetDoorState(guarddoor2,DOOR_CLOSED);
+	LockEntity(guarddoor2);
+	SetDoorOpenAngleIn(guarddoor2,130.0);
+	SetDoorOpenAngleOut(guarddoor2,130.0);
+end;
+
+SCRIPT Open;
+begin
+	SetDoorState(guarddoor1,DOOR_CLOSED);
+	UnLockEntity(guarddoor1);
+	GraphModifyConnections(guarddoor1,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+	
+	SetDoorState(guarddoor2,DOOR_CLOSED);
+	UnLockEntity(guarddoor2);
+end;
+	
+END. {End of file}

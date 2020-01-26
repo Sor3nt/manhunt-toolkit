@@ -1,0 +1,146 @@
+[
+    {
+        "name": "bfirstregroup",
+        "nameGarbage": "00000000000000000000000000000000000000",
+        "offset": "f0150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "bfirstrun",
+        "nameGarbage": "0000000000000000000000000000000000000000000000",
+        "offset": "ec150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "bgoalsdefined",
+        "nameGarbage": "00000000000000000000000000000000000000",
+        "offset": "f8150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "ihuntersregrouping",
+        "nameGarbage": "0000000000000000000000000000",
+        "offset": "d0150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "ihunterssweeping",
+        "nameGarbage": "00000000000000000000000000000000",
+        "offset": "cc150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "ihunterszeroingin",
+        "nameGarbage": "000000000000000000000000000000",
+        "offset": "c8150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "isschedulerrunning",
+        "nameGarbage": "0000000000000000000000000000",
+        "offset": "f4150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "iteam2active",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "d8150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "iteam2left",
+        "nameGarbage": "00000000000000000000000000000000000000000000",
+        "offset": "d4150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "sspotter",
+        "nameGarbage": "000000000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            35884,
+            37588,
+            38712,
+            39836
+        ]
+    },
+    {
+        "name": "tloclastdone_regroup",
+        "nameGarbage": "000000000000000000000000",
+        "offset": "e0150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "tloclastdone_sweep",
+        "nameGarbage": "0000000000000000000000000000",
+        "offset": "e4150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "tloclastsighting",
+        "nameGarbage": "00000000000000000000000000000000",
+        "offset": "e8150000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "tlocnewteamlocation",
+        "nameGarbage": "00000000000000000000000000",
+        "offset": "00000000",
+        "size": 4,
+        "objectType": "vec3d",
+        "occurrences": []
+    },
+    {
+        "name": "tteamtask",
+        "nameGarbage": "0000000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            16924,
+            41536,
+            42136,
+            42696,
+            42820,
+            42840,
+            42964,
+            42984,
+            43108,
+            43128,
+            43252,
+            43264,
+            43768,
+            44488,
+            44816,
+            44840,
+            44964,
+            46512
+        ]
+    }
+]

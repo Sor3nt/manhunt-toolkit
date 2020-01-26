@@ -1,0 +1,334 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	OfficesSetup;
+
+
+ENTITY
+	TOfficesSetup	:	et_name;
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+
+
+
+
+
+SCRIPT 	OnEnterTrigger;
+
+VAR
+		pPlayer			:	EntityPtr;
+		pDoor			:	EntityPtr;
+		vecPos			:	Vec3d;
+		vecView			:	Vec3d;
+		SetCurrent		:	BOOLEAN;
+		pSpawned		:	EntityPtr;
+		spawnVec		:	Vec3d;
+		moveVec			:	Vec3d;
+
+
+		begin
+		pPlayer := GetPlayer;
+			
+		if(InsideTrigger(this, pPlayer) OR EnteredTrigger(this, pPlayer)) then
+		begin
+					
+			
+								
+
+					
+		SLEEP(1000);
+	
+	
+		SetCurrent:=TRUE;
+
+	
+	
+
+ 	{ Set up the vectors }
+
+      	SetVector(vecPos, -162.6, 11.0, 48.7);
+
+        SetVector(vecView, 0.2, -0.1, -1.0);
+
+
+        CutSceneStart;
+     
+
+        { Set the cameras position }
+
+        setcameraposition(vecPos);
+
+        { Set the cameras view }
+
+        setcameraview(vecView);
+        
+					
+			
+     
+
+       
+			
+	
+		PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_GRV_LEFT_WORKS,-1,200);
+		
+			
+			
+			IF GetEntity('Hunter_Suite1') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Suite1');
+			SetHunterDropAmmo(GetEntity('Hunter_Suite1'),4);
+			{AISetEntityAsLeader('Hunter_Suite1');
+			AIAddLeaderEnemy('Hunter_Suite1', 'player');}
+
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sSuite1');
+			AIAddAreaForSubPack('sSuite1', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sSuite1', 'Hunter_Suite1');
+			AIAddGoalForSubPack('Leader_Pharm', 'sSuite1', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sSuite1', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sSuite1', 'gSuite1');
+		
+			
+			end;
+			
+		
+			IF GetEntity('Hunter_Suite2') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Suite2');
+				SetHunterDropAmmo(GetEntity('Hunter_Suite2'),4);
+		{	AISetEntityAsLeader('Hunter_Suite2');
+			AIAddLeaderEnemy('Hunter_Suite2', 'player');}
+
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sSuite2');
+			AIAddAreaForSubPack('sSuite2', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sSuite2', 'Hunter_Suite2');
+			AIAddGoalForSubPack('Leader_Pharm', 'sSuite2', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sSuite2', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sSuite2', 'gSuite2');
+		
+			AISetHunterIdleActionMinMaxRadius('Hunter_Suite2', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);
+			end;
+			
+			
+			
+			
+			IF GetEntity('Hunter_Suite3') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Suite3');
+				SetHunterDropAmmo(GetEntity('Hunter_Suite3'),4);
+			{AISetEntityAsLeader('Hunter_Suite3');
+			AIAddLeaderEnemy('Hunter_Suite3', 'player');
+			}
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sSuite3');
+			AIAddAreaForSubPack('sSuite3', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sSuite3', 'Hunter_Suite3');
+			AIAddGoalForSubPack('Leader_Pharm', 'sSuite3', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sSuite3', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sSuite3', 'gSuite3');
+	
+		
+			AISetHunterIdleActionMinMaxRadius('Hunter_Suite3', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);
+			end;
+			
+			
+			
+			IF GetEntity('Hunter_Suite4') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Suite4');
+				SetHunterDropAmmo(GetEntity('Hunter_Suite4'),4);
+			{AISetEntityAsLeader('Hunter_Suite4');
+			AIAddLeaderEnemy('Hunter_Suite4', 'player');
+			}
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sSuite4');
+			AIAddAreaForSubPack('sSuite4', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sSuite4', 'Hunter_Suite4');
+			AIAddGoalForSubPack('Leader_Pharm', 'sSuite4', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sSuite4', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sSuite4', 'gSuite4');
+		
+			AISetHunterIdleActionMinMaxRadius('Hunter_Suite4', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);
+			end;
+			
+			{PlayDirectorSpeechPlaceHolder('COMMIT');}
+		
+			
+			IF IsEntityAlive('Hunter_Rabbit2') = TRUE THEN
+			begin
+				DestroyEntity(GetEntity('Hunter_Rabbit2'));
+			end;
+		
+
+			
+			
+			SLEEP(4000);
+			AITriggerSoundKnownLocationNoRadar('GUN_SHOT', GetPlayer);
+			
+			
+			
+			
+			SetVector(spawnvec, -169.7, 7.8, 35.2);
+			pSpawned:= SpawnMovingEntity('Ino_BodB1', spawnvec, 'Hunter_Control1');
+			CreateInventoryItem(CT_SAWNOFF, pSpawned, SetCurrent);
+			AddAmmoToInventoryWeapon(pSpawned, CT_SAWNOFF, 150);
+			
+			IF GetEntity('Hunter_Control1') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Control1');
+				SetHunterDropAmmo(GetEntity('Hunter_Control1'),4);
+			{AISetEntityAsLeader('Hunter_Suite4');
+			AIAddLeaderEnemy('Hunter_Suite4', 'player');
+			}
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sControl1');
+			AIAddAreaForSubPack('sControl1', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sControl1', 'Hunter_Control1');
+			AIAddGoalForSubPack('Leader_Pharm', 'sControl1', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sControl1', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sControl1', 'gControl1');
+		
+			{AISetHunterIdleActionMinMaxRadius('Hunter_Suite4', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);}
+			end;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			SetVector(spawnvec, -153.5, 1.04, 55.3);
+			pSpawned:= SpawnMovingEntity('Ino_BodS1', spawnvec, 'Hunter_Recept2');
+			CreateInventoryItem(CT_6SHOOTER, pSpawned, SetCurrent);
+			AddAmmoToInventoryWeapon(pSpawned, CT_6SHOOTER, 150);
+			
+			IF GetEntity('Hunter_Recept2') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Recept2');
+				SetHunterDropAmmo(GetEntity('Hunter_Recept2'),6);
+			{AISetEntityAsLeader('Hunter_Suite4');
+			AIAddLeaderEnemy('Hunter_Suite4', 'player');
+			}
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sRecept2');
+			AIAddAreaForSubPack('sRecept2', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sRecept2', 'Hunter_Recept2');
+			AIAddGoalForSubPack('Leader_Pharm', 'sRecept2', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sRecept2', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sRecept2', 'gRecept2');
+		
+			{AISetHunterIdleActionMinMaxRadius('Hunter_Suite4', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);}
+			end;
+			
+			
+			
+			
+			
+			
+			SetVector(spawnvec, -156.0, 1.0, 59.8);
+			pSpawned:= SpawnMovingEntity('Ino_BodM1', spawnvec, 'Hunter_Recept1');
+			CreateInventoryItem(CT_6SHOOTER, pSpawned, SetCurrent);
+			AddAmmoToInventoryWeapon(pSpawned, CT_6SHOOTER, 100);
+			
+			IF GetEntity('Hunter_Recept1') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Recept1');
+				SetHunterDropAmmo(GetEntity('Hunter_Recept1'),6);
+			{AISetEntityAsLeader('Hunter_Suite4');
+			AIAddLeaderEnemy('Hunter_Suite4', 'player');
+			}
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sRecept1');
+			AIAddAreaForSubPack('sRecept1', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sRecept1', 'Hunter_Recept1');
+			AIAddGoalForSubPack('Leader_Pharm', 'sRecept1', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sRecept1', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sRecept1', 'gRecept1');
+		
+			{AISetHunterIdleActionMinMaxRadius('Hunter_Suite4', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);}
+			end;
+			
+			
+			
+			SetVector(spawnvec, -163.2, 1.0, 55.6);
+			pSpawned:= SpawnMovingEntity('Ino_BodB1', spawnvec, 'Hunter_Recept4');
+			CreateInventoryItem(CT_SAWNOFF, pSpawned, SetCurrent);
+			AddAmmoToInventoryWeapon(pSpawned, CT_SAWNOFF, 150);
+			
+			IF GetEntity('Hunter_Recept4') <> NIL THEN
+			begin
+			AIAddEntity('Hunter_Recept4');
+				SetHunterDropAmmo(GetEntity('Hunter_Recept4'),4);
+			{AISetEntityAsLeader('Hunter_Suite4');
+			AIAddLeaderEnemy('Hunter_Suite4', 'player');
+			}
+
+			AIAddSubPackForLeader('Leader_Pharm', 'sRecept4');
+			AIAddAreaForSubPack('sRecept4', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Leader_Pharm', 'sRecept4', 'Hunter_Recept4');
+			AIAddGoalForSubPack('Leader_Pharm', 'sRecept4', 'gHuntPlayer');
+	
+			AISetSubPackCombatType('Leader_Pharm', 'sRecept4', COMBATTYPEID_COVER);
+			AIAddGoalForSubpack('Leader_Pharm', 'sRecept4', 'gRecept4');
+		
+			{AISetHunterIdleActionMinMaxRadius('Hunter_Suite4', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,30);}
+			end;
+	
+			
+			
+			AITriggerSoundKnownLocationNoRadar('GUN_SHOT', GetPlayer);
+			
+			
+	
+ 			CutSceneEnd(false);
+ 	
+ 		
+ 
+	
+			ClearLevelGoal('GOAL5');
+    		SetLevelGoal('GOAL6');
+				
+				
+			
+			
+				
+				
+				
+				
+				
+					
+						
+			RemoveThisScript;
+
+				
+			end;
+
+	end;
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END.   

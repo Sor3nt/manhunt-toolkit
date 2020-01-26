@@ -1,0 +1,28 @@
+[
+    {
+        "name": "level_bpowerison",
+        "nameGarbage": "00000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    },
+    {
+        "name": "smyname",
+        "nameGarbage": "00000000000000000000000000000000000000000000000000",
+        "offset": "14010000",
+        "size": 32,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "sspotter",
+        "nameGarbage": "000000000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            952
+        ]
+    }
+]

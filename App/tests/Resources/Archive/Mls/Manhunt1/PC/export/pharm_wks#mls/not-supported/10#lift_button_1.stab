@@ -1,0 +1,30 @@
+[
+    {
+        "name": "boxa",
+        "offset": "24010000",
+        "size": 12,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "boxb",
+        "offset": "30010000",
+        "size": 12,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "pplatform",
+        "offset": "14010000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "vidlestate",
+        "offset": "18010000",
+        "size": 12,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

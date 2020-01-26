@@ -1,0 +1,44 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+	plyleft		:	et_name;
+VAR
+
+ once : boolean;
+{This sphere is attached to the buddy and detects weapons that he can pickup and use}
+SCRIPT OnCreate;
+VAR
+BEGIN
+
+	once := FALSE;
+	
+END;
+
+SCRIPT OnLeaveTrigger;
+VAR
+
+boxA : vec3d;
+
+BEGIN
+
+		if LeftTrigger(this,GetPlayer) then
+		 BEGIN	
+				 		
+			AISetBuddyWait('Tramp');
+					 	
+		 	if once = FALSE then
+		 	 begin
+							
+				SetVector(boxA, -230.4, 3.4, 142.2);
+				PlayDirectorSpeech( boxA, AISPEECH_D1V1_DRK_TRAMP_LEFT_BEHIND, 127, 255);
+
+				once := TRUE;
+
+		 	end;
+		 		
+		END; 
+
+END;
+
+END.
+

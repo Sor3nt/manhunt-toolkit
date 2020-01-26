@@ -1,0 +1,44 @@
+SCRIPTMAIN	MansionGuysScripts;
+
+ENTITY
+Cerberus10		:	et_name;
+
+SCRIPT OnCreate;
+begin
+	AISetIdleHomeNode('Cerberus10','Cerberus10_Home');
+	
+	if ( NIL <> GetEntity('Gen_Save_Point')) then
+	begin
+		AISetEntityIdleOverRide('Cerberus10',TRUE,TRUE);
+		WriteDebug('CERBERUS10 FORCED TO IDLE');	
+	end;
+	
+end;
+
+SCRIPT OnHunterReachedNode;
+begin
+	AISetIdleHomeNode('Cerberus10','Cerberus10_Home2');
+	AISetHunterIdleActionMinMaxRadius('Cerberus10',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,120,360,20.0);
+		
+	if (NIL <> GetEntity('Cerberus11')) then
+	begin
+	
+		if IsEntityAlive('Cerberus11') then
+		begin
+			AISetIdleHomeNode('Cerberus11','Cerberus11_Home2');
+			AISetHunterIdleActionMinMaxRadius('Cerberus11',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,120,360,20.0);
+			RemoveScript('Cerberus11','OnHunterReachedNode');
+		end;
+		
+	end;
+	
+	RemoveScript('Cerberus10','OnHunterReachedNode');
+	
+end;
+
+SCRIPT OnDeath;
+begin
+	runScript('Hunters_Generator','OnAlert');
+end;
+
+END. {end of Scripts}

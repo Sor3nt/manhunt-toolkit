@@ -1,0 +1,214 @@
+scriptmain PickmanScript;
+
+ENTITY
+	pickman(hunter) : et_name;
+	
+VAR
+	leoIsReady : level_var boolean;
+	approached : integer;	
+
+script OnCreate;
+begin
+	
+	AIAddEntity('PickmanHelp(hunter)');
+	AiAddEntity('PickOrderly(hunter)');
+	AISetHunterOnRadar('PickOrderly(hunter)', FALSE);
+	AISetHunterOnRadar('PickmanHelp(hunter)', FALSE);
+	AISetHunterOnRadar('pickman(hunter)', FALSE);
+	{AISetHunterOnRadar('pickman(leader)', FALSE);
+	AIEntityAlwaysEnabled('pickman(leader)');
+	AISetEntityAsLeader('pickman(leader)');
+	AIAddSubpackForLeader('pickman(leader)', 'pickmanPack');
+	AIAddSubpackForLeader('pickman(leader)', 'pickmanPack2');}
+
+	{AIAddHunterToLeaderSubpack('pickman(leader)', 'pickmanPack', 'pickman(leader)');}
+	writedebug('PICCCKMAAAN1');
+	
+	{while leoIsReady = FALSE do
+		sleep(10);}
+
+	writedebug('PICCCKMAAAN2');
+	
+	AIAddHunterToLeaderSubpack('leo(leader)','pickpack','pickman(hunter)');
+	
+	AiDefineGoalGotoNodeIdle('gEscapeFirst', 'pickman(hunter)', AISCRIPT_HIGHPRIORITY, 'PICKMANSTART', AISCRIPT_WALKMOVESPEED, TRUE);
+	AiDefineGoalGotoNodeIdle('gEscapeFirst2', 'PickmanHelp(hunter)', AISCRIPT_HIGHPRIORITY, 'PICKMANHELPSTART', AISCRIPT_WALKMOVESPEED, TRUE);
+	AiDefineGoalGotoNodeIdle('gEscape', 'pickman(hunter)', AISCRIPT_HIGHPRIORITY, 'PICKMANEND', AISCRIPT_WALKMOVESPEED, TRUE);
+	AISetIdleHomeNode('pickman(hunter)', 'PICKMANSTART');
+	
+	SetHunterExecutable(GetEntity('pickman(hunter)'), FALSE);
+ 	AISetEntityAllowSurprise('pickman(hunter)', FALSE);
+ 	SetHunterHideHealth('pickman(hunter)', 0);
+ 
+	{AISetHunterIdleActionMinMax('pickman(hunter)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_HIGHPRIORITY, 2000, 5000);}
+	PlayerIgnoreThisEntity(GetEntity('pickman(hunter)'), TRUE);
+	SetPedLockonable(GetEntity('pickman(hunter)'), FALSE);	
+	
+	{Add his helper}
+	AISetHunterOnRadar('pickman(hunter)', FALSE);
+	AISetHunterOnRadar('PickmanHelp(hunter)', FALSE);
+
+	AIAddHunterToLeaderSubpack('leo(leader)', 'pickpack', 'PickmanHelp(hunter)');
+	
+	AISetIdleHomeNode('PickmanHelp(hunter)', 'PICKMANHELPSTART');
+	
+	SetHunterExecutable(GetEntity('PickmanHelp(hunter)'), FALSE);
+ 	AISetEntityAllowSurprise('PickmanHelp(hunter)', FALSE);
+ 	SetHunterHideHealth('PickmanHelp(hunter)', 0);
+ 	
+ 	AiSetEntityIdleOverride('pickman(hunter)', TRUE, TRUE);
+ 	AiSetEntityIdleOverride('PickmanHelp(hunter)', TRUE, TRUE);
+ 
+	{AISetHunterIdleActionMinMax('PickmanHelp(hunter)', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_HIGHPRIORITY, 2000, 5000);}
+	PlayerIgnoreThisEntity(GetEntity('PickmanHelp(hunter)'), TRUE);
+	SetPedLockonable(GetEntity('PickmanHelp(hunter)'), FALSE);	
+	AiDefineGoalGotoNodeIdle('gEscape2', 'PickmanHelp(hunter)', AISCRIPT_HIGHPRIORITY, 'PICKMANHELPEND', AISCRIPT_RUNMOVESPEED, TRUE);
+	AiDefineGoalGotoNodeIdle('gEscape2Walk', 'PickmanHelp(hunter)', AISCRIPT_HIGHPRIORITY, 'PICKMANHELPEND', AISCRIPT_WALKMOVESPEED, TRUE);
+	AiDefineGoalGotoNodeIdle('gHelpPush', 'PickmanHelp(hunter)', AISCRIPT_HIGHPRIORITY, 'PICKMANHELPPUSH', AISCRIPT_WALKMOVESPEED, TRUE);
+		
+end;
+
+
+script MakePickmanRunRoundCorner;
+
+VAR
+	pos, pos2 : vec3D;
+	Door : entityPtr;
+begin
+	
+	{PlayDirectorSpeechPlaceholder('PIC1_A');
+	sleep(2000);}
+	
+	AiSetEntityIdleOverride('pickman(hunter)', FALSE, FALSE);
+ 	AiSetEntityIdleOverride('PickmanHelp(hunter)', FALSE, FALSE);
+ 	 		
+ 	
+	RunScript('pickman(hunter)', 'Beats');
+	{AISetHunterOnRadar('pickman(hunter)', TRUE);
+	AISetHunterOnRadar('PickmanHelp(hunter)', TRUE);
+	AISetHunterOnRadar('PickOrderly(hunter)', TRUE);}
+	
+	approached := 0;
+	while approached = 0 do
+	begin
+		if InsideTrigger(GetEntity('triggerPickmanSecond'), GetPlayer) then
+			approached := 1;
+	end;
+	
+	if approached = 1 then
+	begin
+	
+		SetVector(pos, -33.6009, 6.60602, 53.6307);
+		SetVector(pos2, -24.2423, 8.09243, 58.7609);
+		CreateBoxTrigger(pos, pos2, 'triggerPickmanGo');
+		
+		AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gEscapeFirst');
+		sleep(300);
+	 	AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gEscapeFirst2');	
+		PlayScriptAudioStreamFromEntityAuto('PICK1', 90, this ,30);
+		while not IsScriptAudioStreamCompleted do sleep(10);
+	 
+		while (AIIsGoalNameInSubpack('leo(leader)', 'pickpack', 'gEscapeFirst')) do sleep(10);
+
+		if InsideTrigger(GetEntity('triggerPickmanGo'), GetPlayer) then
+		begin
+			PlayScriptAudioStreamFromEntityAuto('PICK2', 90, GetEntity('pickman(hunter)'), 30);       	
+	 		while not IsScriptAudioStreamCompleted do sleep(10);
+		end;
+	  		
+		{run round the corner}	
+		AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gEscape');
+		AISetIdleHomeNode('pickman(hunter)', 'PICKMANEND');
+		SetEntityInvulnerable(GetEntity('PickmanHelp(hunter)'), TRUE);
+		AISetIdleHomeNode('PickmanHelp(hunter)', 'PICKMANHELPPUSH');
+		sleep(2000);
+		AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gHelpPush');
+		sleep(3000);
+		HunterUseSwitch(GetEntity('PickmanHelp(hunter)'), GetEntity('buttonReznik(S)'));
+		{AiEntityPlayAnim('PickmanHelp(hunter)', 'BAT_USE_BUTTON_ANIM');}
+		sleep(2700);
+	
+		{EFFECT HERE}	
+		sleep(400);
+		EntityPlayAnim(GetEntity('elev_switch_faulty_reznik'), 'PAT_ELEC01', TRUE);
+		PlayAudioOneShotFromEntity(GetEntity('elev_switch_faulty_reznik'), 'LEVEL', 'SPARKS', 127, 30);
+		sleep(400);
+		UnLockEntity(GetEntity('pickmanDoor(SD)'));
+		GraphModifyConnections(GetEntity('pickmanDoor(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		SetSlideDoorAjarDistance(GetEntity('pickmanDoor(SD)'), 0.2);
+		SetDoorState(GetEntity('pickmanDoor(SD)'), DOOR_OPENING);
+		
+		HunterUseSwitch(GetEntity('PickmanHelp(hunter)'), GetEntity('buttonReznik(S)'));
+		sleep(2200);
+		
+		HunterUseSwitch(GetEntity('PickmanHelp(hunter)'), GetEntity('buttonReznik(S)'));
+		sleep(1000);
+		
+		{SetPedOrientation(GetEntity('PickmanHelp(hunter)'), 90);}
+		{AIEntityPlayAnim('PickmanHelp(hunter)', 'ASY_INMATE_BARS_4');}
+	
+		if InsideTrigger(GetEntity('triggerPickmanGo'), GetPlayer) then
+		begin
+			PlayScriptAudioStreamFromEntityAuto('NUA3', 90,  GetEntity('PickmanHelp(hunter)') ,30);       	
+			while not IsScriptAudioStreamCompleted do sleep(10);
+		end;
+	  
+		AILookAtEntity('PickmanHelp(hunter)', 'player(player)');
+		sleep(600);
+		AIEntityPlayAnim('PickmanHelp(hunter)', 'BAT_IDLE_ACTION_AWARE_03_ANIM');
+	  
+		if InsideTrigger(GetEntity('triggerPickmanGo'), GetPlayer) then
+		begin
+			PlayScriptAudioStreamFromEntityAuto('NUA4', 90,  GetEntity('PickmanHelp(hunter)') ,30);
+			while not IsScriptAudioStreamCompleted do sleep(10);
+		end;
+		
+{		AIEntityCancelAnim('PickmanHelp(hunter)', 'ASY_INMATE_BARS_4');}
+		
+		AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gEscape2');
+		AISetIdleHomeNode('PickmanHelp(hunter)', 'PICKMANHELPEND');
+		
+		sleep(7000);
+		SetEntityFade(this, 0.0, 1.0);
+		sleep(7000);
+		SetEntityFade(GetEntity('PickmanHelp(hunter)'), 0.0, 1.0);
+	end
+	else
+	begin
+		AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gEscape');
+		AISetIdleHomeNode('pickman(hunter)', 'PICKMANEND');
+		sleep(300);
+		AIAddGoalForSubpack('leo(leader)', 'pickpack', 'gEscape2Walk');
+		AISetIdleHomeNode('PickmanHelp(hunter)', 'PICKMANHELPEND');
+	end;
+	
+		
+end;
+
+script Beats;
+begin
+	
+	EntityIgnoreCollisions(GetEntity('PickCrazy(hunter)'), TRUE);
+	
+	AIAddHunterToLeaderSubpack('leo(leader)', 'pickpack', 'PickOrderly(hunter)');
+	
+	AIDefineGoalGotoNodeIdle('goalBeaterWalkOff', 'PickOrderly(hunter)', AISCRIPT_HIGHPRIORITY, 'BEATSPOS', AISCRIPT_WALKMOVESPEED, TRUE);
+	
+	PlayScriptAudioStreamFromEntityAuto('BEAT2', 127, GetEntity('PickOrderly(hunter)'), 30);
+	
+	AIEntityPlayAnim('PickOrderly(hunter)', 'ASY_INMATE_BEATING1A');
+	EntityPlayAnim(GetEntity('PickCrazy(hunter)'), 'ASY_INMATE_BEATING1V', false);
+	
+	sleep(6666);
+	
+	approached := 2;
+	
+	AIEntityCancelAnim('PickOrderly(hunter)', 'ASY_INMATE_BEATING1A');
+	AIAddGoalForSubpack('leo(leader)', 'pickpack', 'goalBeaterWalkOff');
+	
+	while (AIIsGoalNameInSubpack('leo(leader)', 'pickpack', 'goalBeaterWalkOff')) do sleep(10);
+	DestroyEntity(GetEntity('PickOrderly(hunter)'));
+	
+end;
+
+end.

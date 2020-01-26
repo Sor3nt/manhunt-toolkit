@@ -1,0 +1,3 @@
+. Could not convert Value :. Arround here 
+
+... ) CASE levelstatus OF 0 , 1 , 2 ->:<- BEGIN SetDoorState ( this , DOOR_CLOSED ) LockEntity ( this ...

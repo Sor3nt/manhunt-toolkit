@@ -1,0 +1,47 @@
+scriptmain HunterScript;
+
+entity MeleeTut(hunter) : et_name;
+
+
+var
+    me : string[30];
+
+
+script Init;
+begin
+    me := GetEntityName(this);
+
+    WriteDebug(me, ' : Init');
+
+    { Initialize AI }
+	AIAddEntity(me);
+	AIAddHunterToLeaderSubpack('leader(leader)', 'subMeleeTut', me);
+
+	AISetHunterIdlePatrol(me, AISCRIPT_IDLE_PATROL, AISCRIPT_HIGHPRIORITY, 2000, 5000, 'PathMental');
+	writedebug('*********************PATROL ORDER GIVEN**************************');
+
+	{ Don't show this hunter on radar }
+	AISetHunterOnRadar(me, FALSE);
+
+	{AIEntityPlayAnimLooped(me, 'BAT_IDLELOOP_IDLE_ANIM', 0.0);}
+
+	{AISetHunterIdleAction(me, AISCRIPT_IDLE_SPEECH, AISCRIPT_HIGHPRIORITY);}
+
+    { This hunter may not be pushed away }
+	{LockPed(me, TRUE);}
+end;
+
+
+{script OnDamage;
+begin
+    if me = 'MeleeTut(hunter)' then
+    begin}
+    	{ Bring up tutorial text about health and cursor colors on being hit once }
+    	{DisplayGameText('MELE5');
+    end;
+
+	RemoveThisScript;
+end;}
+
+
+end.

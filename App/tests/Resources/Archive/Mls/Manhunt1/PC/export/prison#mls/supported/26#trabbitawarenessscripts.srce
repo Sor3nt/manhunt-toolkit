@@ -1,0 +1,71 @@
+
+{$t-}	{	trace off 					}
+{	Program Description					}
+{										}
+
+SCRIPTMAIN		TRabbitAwarenessScripts;
+
+{ Entity To Run Script From 			}
+ENTITY
+	TRabbitAwareness	:	et_name;
+{ User Defined Constant declarations	}
+  
+{--------------------------------------}
+
+
+
+SCRIPT OnEnterTrigger;
+
+VAR
+	spawnVec	:	Vec3d;
+	lineA		:	Vec3d;
+	lineB		:	Vec3d;
+	pSpawned	:	EntityPtr;
+	pPlayer		:	EntityPtr;
+	SetCurrent	:	BOOLEAN;
+	
+
+begin
+	
+	pPlayer:= GetPlayer;
+	
+	SetCurrent:=TRUE;
+	
+	
+	
+	IF(InsideTrigger(this, pPlayer) OR EnteredTrigger(this, pPlayer)) THEN
+	begin
+	
+		IF GetEntity('Hunter_Rabbit4') <> NIL THEN
+		begin		
+			Writedebug('Rabbit awareness triggered');
+			{PlayDirectorSpeechPlaceHolder('HNTCTRL');}
+			
+			AITriggerSoundKnownLocationNoRadar('GUN_SHOT', GetPlayer);
+		
+			{PlayDirectorSpeechPlaceHolder('HNTCTRL');}
+			{AISetEntityIdleOverRide('Hunter_Rabbit4', TRUE, TRUE);	
+			SLEEP(1000);
+	
+			AIEntityPlayAnimLooped('Hunter_Rabbit4', 'IdleLoop_Cower', 0.0);
+			LockPed('Hunter_Rabbit4', TRUE);
+				}
+			
+			RemoveThisScript;
+		end;
+	
+			
+			
+			
+			
+		
+				
+			{AIEntityPlayAnimLooped('Hunter_Rabbit4', 'IdleLoop_Cower', 0.0);}
+				
+				
+	
+	end;
+	
+end;
+	
+end.

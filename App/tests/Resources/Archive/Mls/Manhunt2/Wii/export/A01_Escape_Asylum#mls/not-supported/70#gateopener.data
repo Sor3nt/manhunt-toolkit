@@ -1,0 +1,15 @@
+{
+    "const": [],
+    "strings": [
+        "Door_Indicator_Main",
+        "gate02(SD)",
+        "Door_Indicator_Main",
+        "BB3",
+        "BB3_A",
+        "gate01(SD)",
+        "SkipOpenCloseScene",
+        "BB2",
+        "BB2_A"
+    ],
+    "byteReserved": 48
+}

@@ -1,0 +1,25 @@
+{
+    "frameTimeCount": 30,
+    "bones": [
+        {
+            "boneId": 1001,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            -0.04345703125,
+                            -0.13525390625,
+                            0.05859375,
+                            1.994140625
+                        ]
+                    }
+                ],
+                "lastFrameTime": 30
+            }
+        }
+    ],
+    "unknown5": "00004040",
+    "entry": []
+}

@@ -1,0 +1,370 @@
+SCRIPTMAIN SECTION1Script;
+
+ENTITY
+WORKSHOPHUNTER	:	et_name;
+
+VAR
+flag_doing_wandersearch			: level_var integer;
+flag_go_home_idle				: level_var integer;
+machine_switched_on				: level_var integer;
+flag_level_goals				: level_var integer;
+Vpoz							: Vec3D;
+flag_hunter_react				: integer;
+flag_warddoor_closed			: level_var integer;
+flag_investigate_machine		: level_var integer;
+flag_hunter_link_blocked		: integer;
+flag_hunter_in_switch_trigger	: level_var integer;
+flag_goto_first_time			: level_var integer;
+DoingDoorClose					: level_var boolean;
+
+SCRIPT OnCreate;
+begin
+	flag_hunter_react := 0;
+	flag_hunter_link_blocked :=0;
+
+	AIAddEntity('WORKSHOPHUNTER');
+	SetHunterSkin(this,2);
+	SetHunterHeadSkin(this,2);
+	
+	AISetEntityVoiceID('WORKSHOPHUNTER',VOICE_SMILEY2VOICE1);
+		
+	AIAddHunterToLeaderSubpack('LEADER_STARTGUYS','Subpack_Workshop','WORKSHOPHUNTER');
+	SetHunterTauntProbability('WORKSHOPHUNTER',10.0);
+	SetHunterMeleeTraits(GetEntity('WORKSHOPHUNTER'),MTT_COUNTER_HARD);
+	SetHunterHitAccuracy('WORKSHOPHUNTER',50);
+	SetHunterHideHealth('WORKSHOPHUNTER',0);
+	
+	AISetEntityIdleOverRide('WORKSHOPHUNTER',TRUE,TRUE);
+	AISetHunterOnRadar('WORKSHOPHUNTER',FALSE);
+	
+	SetVector(Vpoz,-0.1,0.0,1.0);
+	AISetHunterHomeNodeDirection('WORKSHOPHUNTER','Whunter1_Home',Vpoz);
+			
+	if (NIL = GetEntity('Gen_Save_Point'))
+	OR (NIL = GetEntity('Gen_Save_Point01')) then
+	begin						
+		if (NIL <> GetEntity('WORKSHOPHUNTER')) then 
+		DestroyEntity(GetEntity('WORKSHOPHUNTER'));
+	end;
+				
+end;
+
+SCRIPT OnVeryLowHearingOrAbove;
+begin
+
+	if (flag_investigate_machine = 0) then
+	begin
+		if(		
+		(GetPlayerAreaName = 'aiward')
+		OR 
+		(EnteredTrigger(GetEntity('ward_door_trigger'),GetPlayer))		
+		OR 
+		(InsideTrigger(GetEntity('ward_door_trigger'),GetPlayer))		
+		) then
+		begin
+			if (IsEntityAlive('WORKSHOPHUNTER')) then
+			begin
+				if (flag_hunter_react = 0) then
+				begin
+					if (GetHunterAreaName(GetEntity('WORKSHOPHUNTER')) = 'aiward2') then
+					begin
+						if (machine_switched_on = 0) then
+						begin
+							if (flag_warddoor_closed = 1) then
+							begin
+								if (AIIsIdle('WORKSHOPHUNTER')) then
+								begin
+									if (IsEntityAlive('WORKSHOPHUNTER')) then
+									begin
+										PlayHunterSpeech('WORKSHOPHUNTER',VOICE_SMILEY2VOICE1,AISPEECH_S2V1_ASY_IGNORE_LURE);
+									end;
+							
+									AISetEntityIdleOverRide('WORKSHOPHUNTER',FALSE,FALSE);
+									AISetHunterOnRadar('WORKSHOPHUNTER',FALSE);
+									AIMakeEntityBlind('WORKSHOPHUNTER',0);
+									AIMakeEntityDeaf('WORKSHOPHUNTER',0);
+									
+									if not (AIIsGoalNameInSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoDoorSide')) then
+									begin
+										AISetIdleHomeNode('WORKSHOPHUNTER','Whunter1_Home2');
+										AIAddGoalForSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoDoorSide');
+									end;
+										
+									flag_hunter_react := 1;
+									RemoveThisScript;
+									
+								end;
+								
+							end;
+							
+						end;
+				
+					end;
+					
+				end;
+				
+			end;
+		
+		end;
+		
+	end;
+
+end;
+
+SCRIPT MachineTurnedOn;
+begin
+	
+	if (IsEntityAlive('WORKSHOPHUNTER')) then
+	begin
+			
+		if (GetHunterAreaName(GetEntity('WORKSHOPHUNTER')) = 'aiward2') then
+		begin
+			Sleep(2000);
+			
+			if (IsEntityAlive('WORKSHOPHUNTER')) then
+			begin
+				PlayHunterSpeech('WORKSHOPHUNTER',VOICE_SMILEY2VOICE1,AISPEECH_S2V1_ASY_MACHINE_ON);
+			end;
+						
+			Sleep(5000); {TEST STUFF TO GIVE ME TIME TO HIDE}
+		end;
+		
+		AISetHunterOnRadar('WORKSHOPHUNTER',TRUE);				
+		AISetEntityIdleOverRide('WORKSHOPHUNTER',FALSE,FALSE);
+		AIMakeEntityBlind('WORKSHOPHUNTER',1);
+		AIMakeEntityDeaf('WORKSHOPHUNTER',1);
+		
+		RunScript('der_meshgate_(D)','Open');
+				
+		if (AIIsGoalNameInSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoDoorSide')) then
+		begin
+			AIRemoveGoalFromSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoDoorSide');
+		end;
+		
+		if not (AIIsGoalNameInSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoElectroman')) then
+		begin
+		
+			AIAddGoalForSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoElectroman');
+			AISetIdleHomeNode('WORKSHOPHUNTER','ElectroLure');
+			AISetHunterIdleActionMinMaxRadius('WORKSHOPHUNTER',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,1000,5000,-1.0);
+			WriteDebug('MACHINE SWITCHED ON - HUNTER BEEN TOLD TO GOTO ELECTROLURE');
+		
+			while (IsHunterSpeechPlaying) Do Sleep(1);
+		
+			if (GetHunterAreaName(GetEntity('WORKSHOPHUNTER')) = 'aiward2') then
+			begin
+				if (machine_switched_on = 1) then
+				begin
+					if (IsEntityAlive('WORKSHOPHUNTER')) then
+					begin
+						PlayHunterSpeech('WORKSHOPHUNTER',VOICE_SMILEY2VOICE1,AISPEECH_S2V1_ASY_GO_MACHINE);
+					end;
+					
+				end;
+				
+			end;
+					
+		end;
+			
+	end;
+		
+end;
+
+SCRIPT OnHunterReachedNode;
+begin
+
+	WriteDebug('HUNTER HAS REACHED A NODE');
+	flag_goto_first_time := 1;
+
+	if (IsEntityAlive('WORKSHOPHUNTER')) then
+	begin
+		if(AIGetHunterLastNodeName(this)='...ERROR...INVALID...NODE...NAME...') then
+		begin
+			flag_hunter_link_blocked :=1;
+			RunScript('WORKSHOPHUNTER','LinkBlocked');
+						
+			if (GetHunterAreaName(GetEntity('WORKSHOPHUNTER')) = 'aiward2') then
+			begin
+				if (flag_investigate_machine =1)then
+				begin
+					RunScript('WORKSHOPHUNTER','MachineTurnedOn');
+				end;
+				
+			end; 
+			
+		end;
+		
+	end;
+
+{player has arrived at the machine as should investigate}	
+	if (IsEntityAlive('WORKSHOPHUNTER')) then
+	begin
+		if(AIGetHunterLastNodeName(this)='ElectroLure') then
+		begin
+			WriteDebug('ARRIVED AT MACHINE');
+						
+			if (GetHunterAreaName(GetEntity('WORKSHOPHUNTER')) = 'aiward') then
+			begin
+				flag_investigate_machine :=0;
+				
+				flag_hunter_react := 0; {TEST STUFF}
+							
+				if (AIIsGoalNameInSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoElectroman')) then
+				begin
+					AIRemoveGoalFromSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoElectroman');
+				end;
+								
+				if (machine_switched_on = 1) then
+				begin
+					HunterUseSwitch(GetEntity('WORKSHOPHUNTER'),(GetEntity('Gen_MainPower_Lever_(S)')));
+				end;
+													
+			end;
+				
+		end;
+				
+	end;
+	
+{Hunter has reached the safe room and should be idle here }
+	if(AIGetHunterLastNodeName(this)='Whunter1_Home2') then
+	begin
+		WriteDebug('HUNTER REACHED WHUNTER1_HOME2');
+		if (flag_hunter_react = 1) then
+		begin
+			AISetEntityIdleOverRide('WORKSHOPHUNTER',TRUE,TRUE);
+			if (AIIsGoalNameInSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoDoorSide')) then 
+			begin
+				AIRemoveGoalFromSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoDoorSide');
+			end;
+		end;
+		
+	end;
+
+end;
+
+SCRIPT OnEntityUsedSwitch;
+begin
+	if (IsEntityAlive('WORKSHOPHUNTER')) then
+	begin
+		PlayHunterSpeech('WORKSHOPHUNTER',VOICE_SMILEY2VOICE1,AISPEECH_S2V1_ASY_SHUT_UP);
+		AICancelHunterIdleAction('WORKSHOPHUNTER',AISCRIPT_IDLE_WANDERSEARCH);
+				
+		Sleep(2000);
+		AISetHunterIdleActionMinMaxRadius('WORKSHOPHUNTER',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,1000,5000,50.0);	
+		WriteDebug('OEUS - SET TO WANDERSEARCH 50 METERS');
+	end;
+	
+end;
+
+SCRIPT LinkBlocked;
+begin
+	if flag_hunter_link_blocked = 1 then
+	begin
+		Sleep(10000);
+		flag_hunter_link_blocked :=0;
+		RunScript('WORKSHOPHUNTER','OnHunterIdle');
+	end;
+end;
+
+SCRIPT OnHunterIdle;
+begin
+
+	WriteDebug('flag_hunter_react', flag_hunter_react);
+	WriteDebug('flag_goto_first_time', flag_goto_first_time);
+	WriteDebug('flag_hunter_link_blocked', flag_hunter_link_blocked);
+
+	if (machine_switched_on = 1) then
+	begin
+		if (flag_hunter_in_switch_trigger = 1) then
+		begin
+			if (IsEntityAlive('WORKSHOPHUNTER')) then
+			begin
+				HunterUseSwitch(GetEntity('WORKSHOPHUNTER'),(GetEntity('Gen_MainPower_Lever_(S)')));
+			end;	
+		end
+		else
+		begin
+			if not (AIIsGoalNameInSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoElectroman')) then
+			begin
+				AIAddGoalForSubpack('LEADER_STARTGUYS','Subpack_Workshop','GoalGotoElectroman');
+				AISetIdleHomeNode('WORKSHOPHUNTER','ElectroLure');
+				AISetHunterIdleActionMinMaxRadius('WORKSHOPHUNTER',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,1000,5000,-1.0);
+				WriteDebug('IDLE - TOLD TO GOTO ELECTRO LURE');
+			end;
+			
+		end;	
+	end
+	else
+	begin
+		if (IsEntityAlive('WORKSHOPHUNTER')) then
+		begin
+			if (flag_warddoor_closed = 0) then
+			begin
+				AICancelHunterIdleAction('WORKSHOPHUNTER',AISCRIPT_IDLE_WANDERSEARCH);
+				Sleep(500);
+				AISetHunterIdleActionMinMaxRadius('WORKSHOPHUNTER',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,1000,5000,50.0);
+				WriteDebug('IDLE - SET TO WANDERSEARCH 50 METERS');
+			end;
+			
+		end;
+		
+	end;
+
+end;
+				
+SCRIPT OnDeath;
+begin
+		
+	if (NIL = GetEntity('Gen_Save_Point'))
+	OR (NIL = GetEntity('Gen_Save_Point01')) then
+	begin
+		RunScript('Gen_Interior_WoodDoor_(D)01','Open');
+		RunScript('der_meshgate_(D)','Open');	
+	end
+	else
+	begin
+		if (IsEntityAlive('player')) then
+		begin
+			PlayDirectorSpeech(GetEntityPosition(GetPlayer),AISPEECH_D1V1_MTH_DOORS_OPEN,-1,-1);
+			
+			Sleep(500);
+			
+			if (IsScriptAudioSlotLoaded(1)) then {door open}
+			begin
+				if (NIL <> GetEntity('Gen_Interior_WoodDoor_(D)01')) then
+				begin
+					PlayScriptAudioSlotOneShotFromEntity(GetEntity('Gen_Interior_WoodDoor_(D)01'),1,-1,-1);
+				end;
+				
+			end;
+			
+		end;
+		
+		RunScript('Gen_Interior_WoodDoor_(D)01','Open');
+		RunScript('der_meshgate_(D)','Open');
+						
+		WHILE (IsDirectorSpeechPlaying) DO Sleep(100);
+			
+	end;
+	
+	if (IsEntityAlive('Hunter1_Search')) then
+	begin
+		AISetHunterOnRadar('Hunter1_Search',TRUE);
+		AISetEntityIdleOverRide('Hunter1_Search',FALSE,FALSE);
+	end;
+	
+	if (IsEntityAlive('Hunter2_Search')) then
+	begin
+		AISetHunterOnRadar('Hunter2_Search',TRUE);
+		AISetEntityIdleOverRide('Hunter2_Search',FALSE,FALSE);
+	end;
+	
+	if (IsEntityAlive('Hunter3_Search')) then
+	begin
+		AISetHunterOnRadar('Hunter3_Search',TRUE);
+		AISetEntityIdleOverRide('Hunter3_Search',FALSE,FALSE);
+	end;
+		
+end;
+		
+END. {End of file}

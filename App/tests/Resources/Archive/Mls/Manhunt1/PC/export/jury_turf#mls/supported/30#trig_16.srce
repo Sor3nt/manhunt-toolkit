@@ -1,0 +1,201 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	trig_16;
+
+ENTITY
+	Trigger_16		:	et_name;
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+VAR
+	proper : level_var integer;
+
+PROCEDURE HudFlashMan;
+BEGIN
+
+	HUDToggleFlashFlags(HUD_MAN, TRUE);
+	Sleep(5000);
+	HUDToggleFlashFlags(HUD_MAN, FALSE);
+	
+END;
+
+PROCEDURE HudFlashMan2;
+BEGIN
+
+	HUDToggleFlashFlags(HUD_MAN, TRUE);
+	SetPlayerStatusFlash(TRUE);
+ 	Sleep(6000);
+	SetPlayerStatusFlash(FALSE);
+	HUDToggleFlashFlags(HUD_MAN, FALSE);
+		
+END;
+
+SCRIPT OnEnterTrigger;
+
+VAR
+
+BEGIN
+
+	if InsideTrigger(this, GetPlayer) OR EnteredTrigger(this, GetPlayer) then
+	 begin
+
+		proper := 5;	
+
+	end;
+	
+END;
+
+SCRIPT OnLeaveTrigger;
+
+VAR
+
+BEGIN
+
+	if LeftTrigger(this, GetPlayer)  then
+	 begin
+	 
+		proper := 0;	
+	
+	end;
+
+END;
+
+
+
+SCRIPT ENTERED;
+
+VAR
+
+	pDoor   : EntityPtr;
+	boxA	: vec3d;
+	vecView : vec3d;
+	vecPos : vec3d;
+
+BEGIN
+
+		CutSceneStart; 
+							     
+		HandCamSetAllEffects(FALSE);
+		HandCamSetOtherEffects(TRUE); 
+		
+		if not ThisLevelBeenCompletedAlready then
+	 	 if FALSE = HasCutSceneBeenPlayed(10) then
+	      begin  
+
+			DrawHud(True);
+			
+		    SetVector(vecPos, 403.3, 0.1, -79.0);
+		
+		    SetVector(vecView, 0.7, -0.6, -0.5);
+		
+		    setcameraposition(vecPos);
+		
+		    setcameraview(vecView);
+		    
+		    SetVector(boxA, 408.4, -4.4, -82.5);
+		    pDoor := getplayer;
+			MoveEntity(pDoor, boxA, 1);	
+					
+			AICutSceneEntityEnable('hArena', TRUE);
+				
+			sleep(1000);					
+		
+			SetGameTextDisplayTime(5000);	
+			DisplayGameText('H_WAIT');
+			
+			ToggleHudFlag(HUD_MAN, TRUE);	
+			HudFlashMan;	
+			
+			ToggleHudFlag(HUD_MAN, FALSE);
+				
+			SetGameTextDisplayTime(6000);	
+			DisplayGameText('H_WAIT1');
+			sleep(6000);
+			
+			SetGameTextDisplayTime(6000);	
+			DisplayGameText('H_WAIT2');
+		
+			HudFlashMan2;	
+			
+			HandCamSetAllEffects(TRUE);
+			DrawHud(FALSE);
+		
+		end;
+		
+		SetVector(vecPos,392.958,-4.4,-93.692);
+		MoveEntity(GetEntity('hArena'),vecPos,0);
+					
+		AICutSceneEntityEnable('hArena', TRUE);
+					
+		AIAddGoalForSubPack('hLeader','sArena','gHunt');	
+		AIRemoveGoalFromSubpack('hLeader','sArena','gWait');
+			
+		AISetHunterIdlePatrol('hArena',AISCRIPT_IDLE_PATROL,AISCRIPT_VERYHIGHPRIORITY,21,21,'AIPath01');
+							
+	    SetVector(vecPos, 405.5, 1.7, -70.7);
+	
+	    SetVector(vecView, -0.3, -0.2, -0.9);
+		
+	    setcameraposition(vecPos);
+		
+	    setcameraview(vecView);
+	    
+        SetVector(vecView, 0.0, 1.0, 0.0);	       
+	    pDoor := GetEntity('hArena');
+	    CameraForceLookAtEntity(pDoor,vecView,TRUE,FALSE,0);
+		
+		SetGameTextDisplayTime(7000);
+		
+		if not ThisLevelBeenCompletedAlready then
+	 	 if FALSE = HasCutSceneBeenPlayed(10) then
+	      begin  
+	      
+	 	  	MarkCutSceneAsPlayed(10);
+	 	  	DisplayGameText('H_HERE');
+
+		end;
+		 
+	    SetVector(boxA, 408.4, -4.4, -82.1);
+	    pDoor := getplayer;
+		MoveEntity(pDoor, boxA, 1);	
+			
+		SetPlayerHeading(270);
+
+		AIMakeEntityBlind('hArena',7);
+		AIMakeEntityDeaf('hArena',7);
+		
+		sleep(7000);
+		
+        AISetHunterIdlePatrol('hArena',AISCRIPT_IDLE_PATROL,AISCRIPT_VERYHIGHPRIORITY,1000,2000,'AIPath01');
+
+        AISetIdlePatrolStop('hArena','arena2',4,FALSE);                
+
+        AISetIdlePatrolStop('hArena','arena2',4,TRUE);
+
+        AISetIdlePatrolStop('hArena','arena',4,TRUE);       
+
+        AISetIdlePatrolStop('hArena','arena',4,FALSE);
+					
+		CameraStopLookAtEntity(	FALSE, 0);
+
+		HandCamSetAllEffects(TRUE);
+		HandCamSetOtherEffects(FALSE); 
+					     
+		CutSceneEnd(FALSE); 
+			
+ 		AISetHunterOnRadar('hArena', TRUE);  		
+		    
+		ClearLevelGoal('GOAL3'); 	    
+		SetLevelGoal('GOAL4'); 
+		SetLevelGoal('GOAL4A'); 
+		    		
+		removethisscript;
+
+END;
+	
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END.

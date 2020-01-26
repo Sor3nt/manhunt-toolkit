@@ -1,0 +1,3 @@
+. Could not convert Value repeat. Arround here 
+
+... : integer speed : integer BEGIN speed := 60 ->repeat<- for i := 1 to 30 do begin RotateEntityLeft ( ...

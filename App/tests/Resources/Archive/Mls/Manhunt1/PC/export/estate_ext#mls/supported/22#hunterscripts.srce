@@ -1,0 +1,119 @@
+SCRIPTMAIN	HunterScripts;
+
+ENTITY
+Cerb04		:	et_name;
+
+VAR
+sMyName		: string[32];
+flag_bodycheck_Cerb04	: level_var integer;
+
+SCRIPT OnCreate;
+begin
+	sMyname		:= getEntityName(this);	
+	AISetIdleHomeNode(sMyname,'Cerb04_Home');
+	AIEntityIgnoreDeadBodies('Cerb04',TRUE);
+		
+	AISetHunterIdlePatrol('Cerb04',AISCRIPT_IDLE_PATROL,AISCRIPT_MEDIUMPRIORITY,1000,8000,'Cerb04_Path');		
+	AISetIdlePatrolStop('Cerb04','Cerb04_Path_Stop1',5,TRUE);
+	AISetIdlePatrolStop('Cerb04','Cerb04_Path_Stop1',5,FALSE);
+	AISetIdlePatrolStop('Cerb04','Cerb04_Path_Stop2',5,TRUE);
+	AISetIdlePatrolStop('Cerb04','Cerb04_Path_Stop2',5,FALSE);
+	
+	if(NIL = GetEntity('Gen_Save_Point'))
+	OR(NIL = GetEntity('Gen_Save_Point01')) then 
+	begin						
+		if (NIL <> GetEntity('Cerb04')) then 
+		DestroyEntity(GetEntity('Cerb04'));
+	end;
+		
+end;
+
+SCRIPT BodyCheck;
+begin
+
+	if (flag_bodycheck_Cerb04 = 0) then
+	begin
+		if (IsEntityAlive('Cerb04')) then 
+		begin
+			AIEntityIgnoreDeadBodies('Cerb04',FALSE);
+			flag_bodycheck_Cerb04 := 1;
+			RemoveThisScript;
+		end;
+	end;
+	
+end;
+
+
+{
+SCRIPT OnMediumHearingOrAbove;
+VAR
+iCerbsLeft	: integer;
+begin
+	if IsEntityAlive(sMyname) then
+	begin
+		if AIisInSubPack('LEADER','CERB1_GUARDS',sMyname) then
+		begin
+			iCerbsLeft := AINumberInSubPack('LEADER', 'CERB1');
+			if ( iCerbsLeft = 0) then AIRemoveGoalFromSubpack('LEADER','CERB1_GUARDS','gLockUp_Guard');
+		end;
+				
+	end;
+	
+end;
+
+SCRIPT OnMediumSightingOrAbove;
+VAR
+iCerbsLeft	: integer;
+begin
+	if IsEntityAlive(sMyname) then
+	begin
+		if AIisInSubPack('LEADER','CERB1_GUARDS',sMyname) then
+		begin
+			iCerbsLeft := AINumberInSubPack('LEADER', 'CERB1');
+			if ( iCerbsLeft = 0) then AIRemoveGoalFromSubpack('LEADER','CERB1_GUARDS','gLockUp_Guard');
+		end;
+				
+	end;
+	
+end;
+
+SCRIPT OnHunterIdle;
+begin
+	if (NIL = GetEntity('Cerb1_MoveIN')) then runScript('Garden_Manager','SetIdleCerb1');	
+end;
+
+SCRIPT OnDeath;
+begin
+	SetPedDecayInstantly(this);
+	RunScript('Cerb04','DeathCheck');
+end;
+	
+SCRIPT DeathCheck;
+VAR
+iCerbsLeft	: integer;
+begin
+	if IsEntityAlive('Cerb03') then
+	begin	
+		if AIisInSubPack('LEADER','CERB1','Cerb03') then
+		begin
+			iCerbsLeft := AINumberInSubPack('LEADER', 'CERB1');
+			if (iCerbsLeft = 1) then
+			begin
+				if not AIIsGoalNameInSubpack('LEADER','CERB1','gLockUp_Guard2') then
+				begin
+					RemoveScript('Cerb02','DeathCheck');
+					AIRemoveGoalFromSubpack('LEADER','CERB1','gLockUp_Guard');
+					AIAddGoalForSubpack('LEADER','CERB1','gLockUp_Guard2');
+					WriteDebug('hunter has changed to lockupguard goal two');
+				end;
+				
+			end;
+			
+		end;
+			
+	end;
+	
+end;
+}
+
+END. {end of Scripts}

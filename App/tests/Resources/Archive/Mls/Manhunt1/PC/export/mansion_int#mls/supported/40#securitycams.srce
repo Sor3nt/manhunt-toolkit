@@ -1,0 +1,129 @@
+SCRIPTMAIN	SecurityCams;
+
+ENTITY
+	SecurityCam_02 	:	et_name;
+
+{SCRIPT FOR A STATIC SECURITY CAMERA}
+
+CONST
+	ALARM_FLASH_ON_INACTIVE		= 0.5;
+	ALARM_FLASH_OFF_INACTIVE	= 0.5;
+	ALARM_FLASH_ON_ACTIVE		= 0.05;
+	ALARM_FLASH_OFF_ACTIVE		= 0.05;
+	
+VAR
+AlarmBoxEffect	: EffectPtr;
+sMyName			: string[20];
+sTriggerName 	: string[32];
+
+bAreHuntersSpawning : level_var boolean;
+
+
+SCRIPT OnCreate;
+VAR
+vS				: vec3d;
+vE				: vec3d;
+rRadius			: real;
+AlarmBoxMatrix	: MatrixPtr;
+AlarmVec		: Vec3d;
+
+BEGIN
+	
+	sMyName := GetEntityName(this);		
+	StringCat(sTriggerName,sMyName,'_Trig');
+
+	
+	if (GetDamage(this) < 1000) then 
+	begin
+		if (NIL <> GetEntity(sTriggerName)) then KillEntity(GetEntity(sTriggerName));
+		removeScript(GetEntityName(this),'OnDamage');
+		removethisscript;
+	end;
+	
+	writedebug('',sMyName,'# LOD: ', GetNumLODLevels(this));
+	
+	{Trigger In Max}
+
+	{assign the script template to the camera trigger}
+	ASSERT(SetEntityScriptsFromEntity('Cam_Trig_Templ',sTriggerName));
+	
+	{*** Light Effect Init ***}
+	
+	{ Get a new effect based on the template 			}
+	AlarmBoxEffect := NewParticleEffect('AlarmBox');
+
+	{ Get the Position (MATRIX) of this entity }
+	AlarmBoxMatrix := GetEntityMatrix(this);
+	{ Attach it to this entities matrix} 
+	AttachEffectToMatrix(AlarmBoxEffect, AlarmBoxMatrix);
+
+	{ Need to offset it to be in front of this entity }
+
+	AlarmVec.y := 0.3;
+	SetEffectPosition(AlarmBoxEffect, AlarmVec);
+
+	{ Set the Effect to 'Reset Alarm Condition }
+	{ incase the effect template gets modified }
+	RunScript(sMyName, 'GreenLightOn');
+
+	{ Create and Start the effect	}	
+	CreateEffect(AlarmBoxEffect);
+End;
+
+SCRIPT RedLightOn ;
+VAR
+rgbabox	:	RGBAInt;
+
+BEGIN
+	rgbabox.red		:=255;
+	rgbabox.green	:=0;
+	rgbabox.blue	:=0;
+	rgbabox.alpha	:=200;
+
+	{ Set Start and End RGBA Values (Both are the same)}
+	SetEffectRGBAStart(AlarmBoxEffect, rgbabox);
+	SetEffectRGBAEnd(AlarmBoxEffect, rgbabox);
+	SetEffectPauseCycle(AlarmBoxEffect, ALARM_FLASH_ON_ACTIVE);
+	SetEffectPauseLength(AlarmBoxEffect, ALARM_FLASH_OFF_ACTIVE);
+	SetEffectRadius(AlarmBoxEffect, 0.05);
+
+	rgbabox.red:=255;
+	rgbabox.green:=102;
+	rgbabox.blue:=102;
+	rgbabox.alpha:=125;
+	
+	
+	
+End;
+
+SCRIPT GreenLightOn;
+VAR
+rgbaStart	:	RGBAInt;
+BEGIN
+	rgbaStart.red	:=0;
+	rgbaStart.green	:=255;
+	rgbaStart.blue	:=0;
+	rgbaStart.alpha	:=200;
+
+	{ Set Start and End RGBA Values (Both are the same)}
+	SetEffectRGBAStart(AlarmBoxEffect, rgbaStart);
+	SetEffectRGBAEnd(AlarmBoxEffect, rgbaStart);
+	SetEffectPauseCycle(AlarmBoxEffect, ALARM_FLASH_ON_INACTIVE);
+	SetEffectPauseLength(AlarmBoxEffect, ALARM_FLASH_OFF_INACTIVE);
+	SetEffectRadius(AlarmBoxEffect, 0.05);	
+	
+End;
+
+SCRIPT OnDamage;
+BEGIN
+	
+	{CAMERAS CAN BE SHOT BUT THEY IMMEDIATELY RAISE THE ALERT}
+		
+	runscript(sTriggerName,'OnAlert');
+	
+	KillEffect(AlarmBoxEffect);
+		
+	removethisscript;
+End;
+
+END. 

@@ -1,0 +1,23 @@
+SCRIPTMAIN ObjectScript;
+
+ENTITY
+CJ_WASTEBIN_(F)	:	et_name;
+
+VAR
+FireEffect,SmokeEffect	:	EffectPtr;
+FireMatrix,SmokeMatrix	: 	MatrixPtr;
+EffectPos,EffectDir		: 	Vec3d;
+
+SCRIPT OnCreate;
+
+BEGIN
+
+	
+	CreateMhFx('FLM001', GetEntityPosition(this), FALSE);
+
+
+END;
+
+
+
+END.

@@ -1,0 +1,113 @@
+scriptmain StealthyThree;
+
+entity StealthTutThree(hunter) : et_name;
+
+var
+    me : string[30];
+    stealthTutSpotted : level_var integer;
+    speechSaid : boolean;
+   	stealthThreeLooper : level_var boolean;
+    stealthThreeHeard : level_var boolean;
+    stealthThreeDone : level_var boolean;
+    stealthThreeFacingYou : level_var boolean;
+
+
+script Init;
+begin
+    me := GetEntityName(this);
+
+    WriteDebug(me, ' : Init');
+
+    { Initialize AI }
+	{AIAddEntity(me);}
+	AIAddHunterToLeaderSubpack('leader(leader)', 'subStealthTut3', me);
+
+	AISetEntityIdleOverRide(me, FALSE, FALSE);
+
+	AISetHunterIdlePatrol(me,AISCRIPT_IDLE_PATROL, AISCRIPT_HIGHPRIORITY, 2000, 5000, 'pathstealththree');
+	AISetIdlePatrolStop(me,'STOPSTEALTHTWO', 2, true);
+	{AIMakeEntityDeaf(me, 0);}
+	AIMakeEntityBlind(me, 0);
+	
+	speechSaid := FALSE;
+	
+	RadarPositionSetEntity(this, MAP_COLOR_HUNTER_IDLE);
+	AIDefineGoalGotoNode('goalHideThree', me, AISCRIPT_HIGHPRIORITY, 'HIDERTHREE', AISCRIPT_RUNMOVESPEED, TRUE);
+end;
+
+script OnLowHearingOrAbove;
+begin
+	  if stealthThreeLooper = TRUE then
+  		stealthThreeHeard := TRUE;
+end;
+
+script ShitOnMe;
+VAR
+	pos : vec3d;
+	orient : real;
+begin
+	
+	RadarPositionClearEntity(this);
+	
+	CutSceneStart;
+			orient := GetPedOrientation(GetPlayer);
+			CutSceneRegisterSkipScript(this, 'SkipMe');
+		
+			CutsceneCameraInit;
+			CutscenecameraSetPos(0.0, -43.9962, 1.91624, 32.7128);
+			CutscenecameraSetTarget(0.0, -71.1981, -4.72559, 42.0793);
+			CutsceneCameraSetFOV(0.0, 45.0);
+			CutsceneCameraSetRoll(0.0, 0.0);
+			CutSceneCameraSetHandyCam(false);
+			CutscenecameraStart;
+
+			AISetEntityIdleOverride(GetEntityName(this), TRUE, TRUE);
+		
+			SetVector(pos, -44.687,  0, 38.396);
+			MoveEntity(GetPlayer, pos, 1);
+			SetPedOrientation(GetPlayer, 0);
+			
+			SetVector(pos, -47.867, 0, 34.31);
+			MoveEntity(this, pos, 1); 	
+			SetPedOrientation(this, 0);
+					
+			PlayScriptAudioStreamAuto('SFAIL3', 127);
+			
+			PlayerPlayFullBodyAnim('ASY_STEALTHFAIL_P3');
+			AiEntityPlayAnim(GetEntityName(this), 'ASY_STEALTHFAIL_A3');
+		
+			EntityPlayAnim(GetEntity('A01_cameratripodShitter'), 'ASY_STEALTHFAIL_C3', false);
+			
+			sleep(3666);
+			
+		CutSceneEnd(false);
+		PlayerFullBodyAnimDone;
+		SetPedOrientation(GetPlayer, orient);
+		
+		{Play brush anim}
+	{	DisableUSerInput;
+		PlayerPlayFullBodyAnim('ASY_IDLE_WIPEOFF_ANIM');}
+		
+		AISetEntityIdleOverride(GetEntityName(this), FALSE, FALSE);
+		AIEntityCancelAnim(me, 'ASY_STEALTHFAIL_A3');
+		
+		stealthThreeDone := TRUE;
+		stealthTutSpotted := stealthTutSpotted + 1;
+		DestroyEntity(GetEntity('A01_cameratripodShitter'));
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		PlayScriptAudioStreamFromEntityAuto('LN3', 100, this ,10);
+		while not IsScriptAudioStreamCompleted do sleep(10);		
+	
+	{AIMakeEntityDeaf(me, 0);
+	AIMakeEntityBlind(me, 0);}
+	
+end;
+
+script SkipMe;
+begin
+	PlayerFullBodyAnimDone;
+	AIEntityCancelAnim(GetEntityName(this), 'ASY_STEALTHFAIL_A3');
+end;
+
+
+end.

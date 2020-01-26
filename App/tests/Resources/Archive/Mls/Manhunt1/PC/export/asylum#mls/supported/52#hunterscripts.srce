@@ -1,0 +1,36 @@
+SCRIPTMAIN HunterScripts;
+
+ENTITY
+Hunter3_Green	:	et_name;
+
+SCRIPT OnCreate;
+begin
+	AIAddEntity('Hunter3_Green');
+	SetHunterSkin(this,1);
+	SetHunterHeadSkin(this,1);
+	AIAddHunterToLeaderSubpack('LEADER','Subpack_Greenhouse','Hunter3_Green');
+	AISetIdleHomeNode('Hunter3_Green','Hunter3_Green_Home');
+	SetHunterHitAccuracy('Hunter3_Green',50);
+	
+	AISetHunterIdlePatrol('Hunter3_Green',AISCRIPT_IDLE_PATROL,AISCRIPT_MEDIUMPRIORITY,1000,8000,'Green_Path3');		
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop1',5,TRUE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop1',5,FALSE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop2',5,TRUE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop2',5,FALSE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop3',5,TRUE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop3',5,FALSE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop4',5,TRUE);
+	AISetIdlePatrolStop('Hunter3_Green','Green_Path3_Stop4',5,FALSE);
+	
+	if (NIL = GetEntity('Gen_Save_Point')) then
+	begin
+		if (NIL <> GetEntity('Hunter3_Green')) then
+		begin 
+			DestroyEntity(GetEntity('Hunter3_Green'));
+		end;
+	
+	end;
+	
+end;
+
+END. {End of file}

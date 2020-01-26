@@ -1,0 +1,35 @@
+SCRIPTMAIN ObjectScript;
+
+ENTITY
+SecurityCameras :	et_name;
+
+SCRIPT Scan;
+VAR
+i	: integer;
+BEGIN
+RotateEntityLeft(this,45);
+
+WHILE TRUE DO
+	BEGIN
+	
+		FOR i := 1 TO 90 DO
+			BEGIN
+			sleep(1);
+			RotateEntityLeft(this,-1);
+			END;
+		
+		sleep(3500);
+		
+		FOR i := 1 TO 90 DO
+			BEGIN
+			sleep(1);
+			RotateEntityLeft(this,1);
+			END;
+		
+		sleep(3500);
+		
+	END;
+END;
+
+
+END.

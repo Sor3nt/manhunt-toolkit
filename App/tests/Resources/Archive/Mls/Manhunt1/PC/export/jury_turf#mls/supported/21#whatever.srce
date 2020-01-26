@@ -1,0 +1,81 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	Whatever;
+ENTITY
+	Trigger_06		:	et_name;
+
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+PROCEDURE HudFlashHealth;
+BEGIN
+
+	HUDToggleFlashFlags(HUD_HEALTH, TRUE);
+	Sleep(8000);
+	HUDToggleFlashFlags(HUD_HEALTH, FALSE);
+	
+END; { PROCEDURE }
+
+SCRIPT OnEnterTrigger;
+
+
+VAR
+
+	pDoor   : EntityPtr;
+	boxA	: vec3d;
+	vecView : vec3d;
+	vecPos  : vec3d;
+	
+BEGIN
+	
+	if InsideTrigger(this, GetPlayer) OR EnteredTrigger(this, GetPlayer) then
+	 begin
+	 
+	   if not ThisLevelBeenCompletedAlready then
+		if FALSE = HasCutSceneBeenPlayed(3) then
+		 begin  
+								 
+			MarkCutSceneAsPlayed(3); 
+					    
+	    	CutSceneStart;	    
+	 				
+			DrawHud(True);
+	
+			HandCamSetAllEffects(TRUE);
+				    
+			ASSERT(PlaySplineFileDefault('FOLLOW2'));
+			ASSERT(PlaySplineFileDefault('LOOKAT2'));
+			
+			SetGameTextDisplayTime(8000);		
+			DisplayGameText('H_HEAL');
+			
+			ToggleHudFlag(HUD_HEALTH, TRUE);	
+			HudFlashHealth;
+						    
+		    while IsSplinePlaying 
+		    do sleep(100);
+	         
+	  		HandCamSetAllEffects(TRUE);
+	 		HandCamSetOtherEffects(FALSE); 		
+	 		
+	        CutSceneEnd(false);
+	   	    
+			HandCamSetAllEffects(TRUE);
+			SetHudFlag(HUD_ALL_ON);	
+		
+	    end;
+						 	
+		removethisscript;
+			    		
+	end;	
+		
+END;
+	
+	
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END.

@@ -1,0 +1,90 @@
+SCRIPTMAIN DOORScript;
+
+ENTITY
+der_meshgate_(D) :	et_name;
+
+VAR
+warddoor				:	EntityPtr;
+flag_warddoor_closed	: level_var integer;
+DoingDoorClose			: level_var boolean;
+
+SCRIPT OnCreate;
+begin
+	warddoor := getEntity('der_meshgate_(D)'); 
+	UnfreezeEntity(warddoor);
+	SetDoorState(warddoor,DOOR_CLOSED);
+	LockEntity(warddoor);
+	flag_warddoor_closed := 1;
+	SetDoorOpenAngleIn(warddoor,90.0);
+	SetDoorOpenAngleOut(warddoor,90.0);
+	GraphModifyConnections(warddoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+	
+	if(NIL = GetEntity('Gen_Save_Point'))
+	OR(NIL = GetEntity('Gen_Save_Point01')) then 
+	begin
+		RunScript('der_meshgate_(D)','Open');
+		WriteDebug('Save points have gone so open door');	
+	end;
+	
+end;
+
+SCRIPT Open;
+begin
+	warddoor := getEntity('der_meshgate_(D)');
+	UnLockEntity(warddoor);
+	GraphModifyConnections(warddoor,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+	flag_warddoor_closed := 0;
+end;
+
+SCRIPT Close;
+begin
+	warddoor := getEntity('der_meshgate_(D)');
+	
+	DoingDoorClose := TRUE;
+	 
+	WriteDebug('CLOSE - WAITING FOR THE DOOR TO CLOSE');	
+	WHILE (GetDoorState(GetEntity('der_meshgate_(D)')) <> DOOR_CLOSED) DO Sleep(1);
+	WriteDebug('CLOSE - DOOR HAS NOW CLOSED');
+	
+	ScriptHogProcessorStart;
+		
+	if (NIL <> GetEntity('der_meshgate_(D)')) then
+	begin
+		if (IsEntityAlive('WORKSHOPHUNTER')) then
+		begin
+			if (GetHunterAreaName(GetEntity('WORKSHOPHUNTER')) = 'aiward2') then
+			begin
+				if (AIIsIdle('WORKSHOPHUNTER')) then
+				begin
+					LockEntity(warddoor);
+					GraphModifyConnections(warddoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+					flag_warddoor_closed := 1;
+				end;
+				
+			end
+			else
+			begin
+				warddoor := getEntity('der_meshgate_(D)');
+				UnLockEntity(warddoor);
+				GraphModifyConnections(warddoor,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+				flag_warddoor_closed := 0;
+			end;
+			
+		end
+		else
+		begin
+			warddoor := getEntity('der_meshgate_(D)');
+			UnLockEntity(warddoor);
+			GraphModifyConnections(warddoor,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+			flag_warddoor_closed := 0;
+		end;
+		
+	end;
+	
+	ScriptHogProcessorEnd;
+	
+	DoingDoorClose := FALSE;
+	
+end;
+		
+END. {End of file}

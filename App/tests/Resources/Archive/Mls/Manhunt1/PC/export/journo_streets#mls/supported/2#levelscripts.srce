@@ -1,0 +1,23 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	CLUB7		:	et_name;
+
+
+SCRIPT OnCreate;
+BEGIN	
+		
+	SetHunterHitAccuracy(GetEntityName(this),65);	
+	SetHunterBlockAccuracy(GetEntityName(this),45);	
+	
+	setHunterHideHealth(GetEntityName(this),0);	
+
+	
+End;
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	AISetHunterIdleActionMinMaxRadius('CLUB8',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,120,360,10.0);		
+End;
+
+END. {end of Scripts}

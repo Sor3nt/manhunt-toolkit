@@ -1,0 +1,301 @@
+SCRIPTMAIN LevelScript;
+
+ENTITY
+Cellblock	:	et_level;
+
+VAR
+willie_game_int	: game_var integer;
+
+levelstatus		:	integer;
+
+SCRIPT OnCreate;
+VAR
+vecA,vecB	: Vec3D;
+
+BEGIN
+AIAddPlayer('player');
+
+{--TEXT SHIT--}
+SetGameTextDisplayTime(5000);
+SetGameTextTeleType(FALSE);
+
+{--CUTSCENE SHIT--}
+HandCamSetVideoEffectTimeCode	(FALSE);
+HandCamSetVideoEffectRecordDot	(FALSE);
+HandCamSetVideoEffectFuzz		(FALSE);
+HandCamSetVideoEffectScrollBar	(FALSE);
+	
+{-- ATMOSPHERE --}
+SetMaxNumberOfRats(0);
+SwitchLitterOn(FALSE);
+
+{--LEVEL STATUS--}
+IF GetPlayerAreaName = 'aimeleearea0' THEN levelstatus:=0
+ELSE levelstatus := 2;
+
+IF GetPlayerLevelRestarts = 0 THEN
+	BEGIN
+		SetVector(vecA,115.0,0.1,20.0);
+		MoveEntity(GetPlayer,vecA,0);
+		
+		AIDefineGoalGotoNodeIdle('goalRUNCUT','EVERYONE',AISCRIPT_LOWPRIORITY,'runcutscene',AISCRIPT_RUNMOVESPEED,FALSE);
+	END;
+	
+{--GOALS--}
+AIDefineGoalHuntEnemy('goalMELEE','player',TRUE,5);
+AIDefineGoalHuntEnemy('goalGUN','player',TRUE,15);
+
+{--SEARCH PARAMS--}
+AISetSearchParams('searchNegativeChase',15.0,FALSE,6.0,40,0,0,30);
+AISetSearchParams('searchInvestigate',20.0,FALSE,6.0,25,0,0,10);
+
+{--LEADER--}
+AIAddEntity('LEADER');
+AISetEntityAsLeader('LEADER');
+AIAddLeaderEnemy('LEADER', 'player');
+
+AISetLeaderInvisible('LEADER');
+
+{--AREA ACTIVATION--}
+
+AIClearAllActiveAreaAssociations;
+
+{melee areas}
+AIAssociateThreeActiveAreasWithPlayerArea('aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+AIAssociateThreeActiveAreasWithPlayerArea('aimeleearea1','aimeleearea0','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimeleearea2','aimeleearea0','aimeleearea1','aimeleearea3','aigunarea1');
+AIAssociateFourActiveAreasWithPlayerArea('aimeleearea3','aimeleearea0','aimeleearea1','aimeleearea2','aigunarea1');
+
+{gun areas}
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea1','aibuffer1','aigunarea2','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea1','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea2','aibuffer1','aigunarea1','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea2','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea3','aigunarea1','aigunarea2','aigunarea4','aigunarea5');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea3','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+AIAssociateTwoActiveAreasWithPlayerArea('aigunarea3','aibuffer1','aibuffer2');
+
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea4','aigunarea1','aigunarea2','aigunarea3','aigunarea5');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea4','aigunarea6','aigunarea7','aibuffer1','aibuffer2');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea4','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea5','aigunarea1','aigunarea2','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea5','aigunarea6','aigunarea7','aibuffer1','aibuffer2');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea5','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea6','aigunarea1','aigunarea2','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea6','aigunarea5','aigunarea7','aibuffer1','aibuffer2');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea6','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea7','aigunarea1','aigunarea2','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea7','aigunarea5','aigunarea6','aibuffer1','aibuffer2');
+AIAssociateFourActiveAreasWithPlayerArea('aigunarea7','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+{bufferareas}
+AIAssociateFourActiveAreasWithPlayerArea('aibuffer1','aigunarea1','aigunarea2','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aibuffer1','aigunarea5','aigunarea6','aigunarea7','aibuffer2');
+AIAssociateFourActiveAreasWithPlayerArea('aibuffer1','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIAssociateFourActiveAreasWithPlayerArea('aibuffer2','aigunarea1','aigunarea2','aigunarea3','aigunarea4');
+AIAssociateFourActiveAreasWithPlayerArea('aibuffer2','aigunarea5','aigunarea6','aigunarea7','aibuffer1');
+AIAssociateFourActiveAreasWithPlayerArea('aibuffer2','aimeleearea0','aimeleearea1','aimeleearea2','aimeleearea3');
+
+AIEntityAlwaysEnabled('LEADER');
+
+
+{LEVEL START}
+
+IF levelstatus = 0 THEN
+	BEGIN
+	{WILLIES BONUS}
+	IF willie_game_int <> 1 THEN
+		BEGIN
+			DestroyEntity(GetEntity('Shotgun_(CT)'));
+			DestroyEntity(GetEntity('CJ_SHOTGUN_AMMO_(CT)01'));
+			DestroyEntity(GetEntity('CJ_SHOTGUN_AMMO_(CT)'));
+		END;
+			
+	{--MELEE SUBPACKS--}
+	{subMELEE - for spawned hunters}
+	AIAddSubPackForLeader('LEADER','subMELEE');
+	
+	AISetSubpackCombatType('LEADER','subMELEE', COMBATTYPEID_OPEN_MELEE);
+	
+	AIAddAreaForSubPack('subMELEE','aimeleearea0');
+	AIAddAreaForSubPack('subMELEE','aimeleearea1');
+	AIAddAreaForSubPack('subMELEE','aimeleearea2');
+	AIAddAreaForSubPack('subMELEE','aimeleearea3');
+	
+	AISubpackStayInTerritory('LEADER','subMELEE',TRUE);
+	
+	AIAddGoalForSubpack('LEADER','subMELEE','goalMELEE');
+	
+	{subBAT - for batman so he does interfere with subMELEE checks}
+	AIAddSubPackForLeader('LEADER','subBAT');
+	
+	AISetSubpackCombatType('LEADER','subBAT', COMBATTYPEID_OPEN_MELEE);
+	
+	AIAddAreaForSubPack('subBAT','aimeleearea1');
+	AIAddAreaForSubPack('subBAT','aimeleearea1');
+	AIAddAreaForSubPack('subBAT','aimeleearea2');
+	AIAddAreaForSubPack('subBAT','aimeleearea3');
+	
+	AISubpackStayInTerritory('LEADER','subBAT',TRUE);
+	
+	AIAddGoalForSubpack('LEADER','subBAT','goalMELEE');
+	
+	{TRIGGERS}
+	SetVector(vecA,63.9,0.5,-60.0);
+	SetVector(vecB,70.5,0.5,-60.0);
+	CreateLineTrigger(vecA,vecB,'SavePointRadius');
+	END;
+
+
+{--GUN SUBPACKS--}
+{subFug}
+AIAddSubpackForLeader('LEADER','subFug');
+AISetSubpackCombatType('LEADER','subFug',COMBATTYPEID_OPEN_MELEE);
+AIAddGoalForSubpack('LEADER','subFug','goalGUN');
+
+AIAddAreaForSubPack('subFug','aimeleearea1');
+AIAddAreaForSubPack('subFug','aimeleearea1');
+AIAddAreaForSubPack('subFug','aimeleearea2');
+AIAddAreaForSubPack('subFug','aimeleearea3');
+
+AIAddAreaForSubpack('subFug','aiGunArea1');
+AIAddAreaForSubpack('subFug','aiGunArea2');
+AIAddAreaForSubpack('subFug','aiGunArea3');
+AIAddAreaForSubpack('subFug','aiGunArea4');
+
+AISubpackStayInTerritory('LEADER','subFug',TRUE);
+
+{subGunArea2}
+AIAddSubpackForLeader('LEADER','subGunArea2');
+AISetSubpackCombatType('LEADER','subGunArea2',COMBATTYPEID_COVER);
+AIAddGoalForSubpack('LEADER','subGunArea2','goalGUN');
+
+AIAddAreaForSubpack('subGunArea2','aiGunArea1');
+AIAddAreaForSubpack('subGunArea2','aiGunArea2');
+
+AISubpackStayInTerritory('LEADER','subGunArea2',TRUE);
+
+{subGunArea3}
+AIAddSubpackForLeader('LEADER','subGunArea3');
+AISetSubpackCombatType('LEADER','subGunArea3',COMBATTYPEID_COVER);
+AIAddGoalForSubpack('LEADER','subGunArea3','goalGUN');
+
+AIAddAreaForSubpack('subGunArea3','aiGunArea3');
+
+AISubpackStayInTerritory('LEADER','subGunArea3',TRUE);
+
+{subGunArea4}
+AIAddSubpackForLeader('LEADER','subGunArea4');
+AISetSubpackCombatType('LEADER','subGunArea4',COMBATTYPEID_COVER);
+AIAddGoalForSubpack('LEADER','subGunArea4','goalGUN');
+
+AIAddAreaForSubpack('subGunArea4','aiGunArea4');
+
+AISubpackStayInTerritory('LEADER','subGunArea4',TRUE);
+
+{subGunArea5}
+AIAddSubpackForLeader('LEADER','subGunArea5');
+AISetSubpackCombatType('LEADER','subGunArea5',COMBATTYPEID_COVER);
+AIAddGoalForSubpack('LEADER','subGunArea5','goalGUN');
+
+AIAddAreaForSubpack('subGunArea5','aiGunArea5');
+
+AISubpackStayInTerritory('LEADER','subGunArea5',TRUE);
+
+{subGunArea6}
+AIAddSubpackForLeader('LEADER','subGunArea6');
+AISetSubpackCombatType('LEADER','subGunArea6',COMBATTYPEID_COVER);
+AIAddGoalForSubpack('LEADER','subGunArea6','goalGUN');
+
+AIAddAreaForSubpack('subGunArea6','aiGunArea6');
+
+AISubpackStayInTerritory('LEADER','subGunArea6',TRUE);
+
+
+{GOALS}
+
+{subGunArea2 Forward & Back guard goals}
+SetVector(vecA,0.9,-0.3,-0.3);
+AIDefineGoalGuardDirection('goalFA2P1',AISCRIPT_HIGHPRIORITY,'guardFA2P1',1.5,1.5,1,vecA);
+SetVector(vecA,-0.1,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA2P2',AISCRIPT_HIGHPRIORITY,'guardFA2P2',1.5,1.5,1,vecA);
+SetVector(vecA,0.2,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA2P3',AISCRIPT_HIGHPRIORITY,'guardFA2P3',1.5,1.5,1,vecA);
+
+SetVector(vecA,-0.1,0.0,1.0);
+AIDefineGoalGuardDirection('goalBA2P1',AISCRIPT_HIGHPRIORITY,'guardBA2P1',1.5,1.5,1,vecA);
+SetVector(vecA,0.3,0.0,0.9);
+AIDefineGoalGuardDirection('goalBA2P2',AISCRIPT_HIGHPRIORITY,'guardBA2P2',1.5,1.5,1,vecA);
+SetVector(vecA,-0.1,0.0,1.0);
+AIDefineGoalGuardDirection('goalBA2P3',AISCRIPT_HIGHPRIORITY,'guardBA2P3',1.5,1.5,1,vecA);
+
+{subGunArea3 Forward & Back guard goals}
+SetVector(vecA,0.3,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA3P1',AISCRIPT_HIGHPRIORITY,'guardFA3P1',1.5,1.5,1,vecA);
+SetVector(vecA,-0.1,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA3P2',AISCRIPT_HIGHPRIORITY,'guardFA3P2',1.5,1.5,1,vecA);
+SetVector(vecA,-0.2,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA3P3',AISCRIPT_HIGHPRIORITY,'guardFA3P3',1.5,1.5,1,vecA);
+
+SetVector(vecA,-0.1,-0.0,1.0);
+AIDefineGoalGuardDirection('goalBA3P1',AISCRIPT_HIGHPRIORITY,'guardBA3P1',1.5,1.5,1,vecA);
+SetVector(vecA,0.4,0.0,0.9);
+AIDefineGoalGuardDirection('goalBA3P2',AISCRIPT_HIGHPRIORITY,'guardBA3P2',1.5,1.5,1,vecA);
+SetVector(vecA,-0.1,0.0,1.0);
+AIDefineGoalGuardDirection('goalBA3P3',AISCRIPT_HIGHPRIORITY,'guardBA3P3',1.5,1.5,1,vecA);
+
+{subGunArea4 Forward & Back guard goals}
+SetVector(vecA,-0.2,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA4P1',AISCRIPT_HIGHPRIORITY,'guardFA4P1',1.5,1.5,1,vecA);
+SetVector(vecA,0.2,0.0,-1.0);
+AIDefineGoalGuardDirection('goalFA4P2',AISCRIPT_HIGHPRIORITY,'guardFA4P2',1.5,1.5,1,vecA);
+
+SetVector(vecA,1.0,0.0,-0.2);
+AIDefineGoalGuardDirection('goalBA4P1',AISCRIPT_HIGHPRIORITY,'guardBA4P1',1.5,1.5,1,vecA);
+SetVector(vecA,1.0,0.0,0.3);
+AIDefineGoalGuardDirection('goalBA4P2',AISCRIPT_HIGHPRIORITY,'guardBA4P2',1.5,1.5,1,vecA);
+
+{subGunArea5 Forward & Back guard goals}
+SetVector(vecA,-1.0,0.0,-0.2);
+AIDefineGoalGuardDirection('goalFA5P1',AISCRIPT_HIGHPRIORITY,'guardFA5P1',1.5,1.5,1,vecA);
+SetVector(vecA,-1.0,0.0,0.0);
+AIDefineGoalGuardDirection('goalFA5P2',AISCRIPT_HIGHPRIORITY,'guardFA5P2',1.5,1.5,1,vecA);
+
+SetVector(vecA,1.0,0.0,-0.3);
+AIDefineGoalGuardDirection('goalBA5P1',AISCRIPT_HIGHPRIORITY,'guardBA5P1',1.5,1.5,1,vecA);
+SetVector(vecA,1.0,0.0,0.0);
+AIDefineGoalGuardDirection('goalBA5P2',AISCRIPT_HIGHPRIORITY,'guardBA5P2',1.5,1.5,1,vecA);
+
+{subGunArea6 Forward guard goals}
+SetVector(vecA,-1.0,0.0,0.2);
+AIDefineGoalGuardDirection('goalFA6P1',AISCRIPT_HIGHPRIORITY,'guardFA6P1',1.5,1.5,1,vecA);
+SetVector(vecA,-1.0,0.0,-0.1);
+AIDefineGoalGuardDirection('goalFA6P2',AISCRIPT_HIGHPRIORITY,'guardFA6P2',1.5,1.5,1,vecA);
+
+{--TRIGGERS--}
+SetVector(vecA,143.9,0.0,-5.1);
+SetVector(vecB,136.8,2.0,8.9);
+CreateBoxTrigger(VecA,vecB,'PlayerStatus');
+
+SetVector(vecA,145.5,0.2,1.9);
+CreateSphereTrigger(vecA,1.0,'LevelEnd');
+
+{--END DOOR--}
+UnfreezeEntity(GetEntity('Bow_Interior_PrisonGate_(D)07'));
+LockEntity(GetEntity('Bow_Interior_PrisonGate_(D)07'));
+GraphModifyConnections(GetEntity('Bow_Interior_PrisonGate_(D)07'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+{--STATS--}
+SetNumberOfKillableHuntersInLevel(18,5);
+END;
+
+END.
+
+ 

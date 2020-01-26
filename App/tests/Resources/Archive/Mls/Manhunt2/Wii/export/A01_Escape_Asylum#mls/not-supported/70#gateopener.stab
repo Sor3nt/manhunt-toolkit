@@ -1,0 +1,114 @@
+[
+    {
+        "name": "acellhaschanged",
+        "nameGarbage": "0000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            3422552064,
+            470351872,
+            1343029248,
+            3558080512,
+            1746403328,
+            1410990080,
+            3826974720
+        ]
+    },
+    {
+        "name": "cellfiveopen",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            1812070400,
+            3289251840
+        ]
+    },
+    {
+        "name": "cellfouropen",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            4160815104,
+            1343094784
+        ]
+    },
+    {
+        "name": "celloneopen",
+        "nameGarbage": "0000000000773a5c4d616e68756e74325c41737365",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            604045312,
+            2081226752
+        ]
+    },
+    {
+        "name": "celltwoopen",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            2214658048,
+            3691839488
+        ]
+    },
+    {
+        "name": "checkopenerneeded",
+        "nameGarbage": "000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": [
+            1610612736
+        ]
+    },
+    {
+        "name": "closecutsceneplayed",
+        "nameGarbage": "00000000000000000000000000",
+        "offset": "98000000",
+        "size": 4,
+        "hierarchieType": "01000000",
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "firstcutsceneplayed",
+        "nameGarbage": "00000000000000000000000000",
+        "offset": "9c000000",
+        "size": 4,
+        "hierarchieType": "01000000",
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "opencutsceneplayed",
+        "nameGarbage": "0000000000000000000000000000",
+        "offset": "94000000",
+        "size": 4,
+        "hierarchieType": "01000000",
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "pos",
+        "nameGarbage": "0078013200000000000000000000000000000000000000000000000000",
+        "offset": "a0000000",
+        "size": 12,
+        "hierarchieType": "01000000",
+        "objectType": "vec3d",
+        "occurrences": []
+    }
+]

@@ -1,0 +1,35 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Team2_3		:	et_name;
+
+VAR
+
+SCRIPT OnCreate;
+BEGIN
+		
+	SetHunterHitAccuracy(GetEntityName(this),65);	
+	SetHunterBlockAccuracy(GetEntityName(this),45);
+	setHunterHideHealth(GetEntityName(this),0);
+		
+	AISetHunterIdleAction('Team2_3',AISCRIPT_IDLE_SPEECH,AISCRIPT_VERYHIGHPRIORITY);
+	
+End;
+
+SCRIPT OnMediumHearingOrAbove;
+BEGIN
+	
+	AISetHunterIdleAction('Team2_3',AISCRIPT_IDLE_SPEECH,AISCRIPT_LOWPRIORITY);
+	
+	removethisscript;
+End;
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	
+	AISetHunterIdleAction('Team2_3',AISCRIPT_IDLE_SPEECH,AISCRIPT_LOWPRIORITY);
+		
+	removethisscript;
+End;
+
+END. {end of Scripts}

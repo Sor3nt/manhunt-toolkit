@@ -1,0 +1,991 @@
+SCRIPTMAIN PlayerScript;
+
+ENTITY
+player	:	et_name;
+
+VAR
+{game}
+willie_game_int	: game_var integer;
+
+{level}
+levelstatus	: level_var	integer;
+
+{global - melee}
+MeleeCounter,subpackLIMIT,subpackCURRENT	: integer;
+redDONE,yellowDONE,disgetham				: boolean;
+
+weapon	: eCollectableType;
+
+{global - gun}			
+currentarea,abovestatus	: integer;
+cameraPos,cameraView	: Vec3D;
+GivenNewGoal,AllowEnd	: boolean;
+
+hunter	: string[32];
+SMILEY1name,SMILEY2name,SMILEY3name	: string[64];
+
+
+{***************************************}
+{** START OF PROCEDURES AND FUNCTIONS **}
+{***************************************}
+
+
+{PROCEDURE TO START MELEE HUNTERS FOR FIRST PART OF THE LEVEL}
+
+PROCEDURE StartMeleeHunter(hunterstatus:integer);
+VAR
+num			: string[8];
+model,home	: string[32];
+
+random		: integer;
+spawnvec,direction 	: Vec3D;
+
+BEGIN
+MeleeCounter:=MeleeCounter+1;
+
+IntegerToString(num,MeleeCounter);
+StringCat(hunter,'MELEE',num);
+
+CASE hunterstatus OF
+1: {S1 HUNTER}
+BEGIN
+	SetVector(spawnvec,115.0,5.0,26.4);
+	SetVector(direction,0.0,0.0,-1.0);
+	
+	home:=('S1HOME');
+		
+	SMILEY1name:=hunter;
+	model:=('Smi_BodS1');
+END;
+
+2: {M1 HUNTER}
+BEGIN
+	SetVector(spawnvec,111.0,5.0,26.7);
+	SetVector(direction,0.8,-0.1,-0.5);
+	home:=('S2HOME');
+		
+	SMILEY2name:=hunter;
+	model:=('Smi_BodM1');
+END;
+
+3: {B1 HUNTER}
+BEGIN
+	SetVector(spawnvec,118.2,5.0,26.8);
+	SetVector(direction,-0.7,0.0,-0.7);
+	
+	home:=('S3HOME');
+	
+	SMILEY3name:=hunter;
+	model:=('Smi_BodB1');
+END;
+
+END;{case}
+
+SpawnEntityWithDirection(model,spawnvec,hunter,direction);
+
+AIAddEntity(hunter);
+AIAddHunterToLeaderSubpack('LEADER','subMELEE',hunter);
+
+AISetIdleHomeNode(hunter,home);
+AISetHunterIdleActionMinMaxRadius(hunter,AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,2000,2000,-1);
+
+AISetEntityAllowSurprise(hunter,FALSE);
+
+SetEntityScriptsFromEntity('MeleeTemplate',hunter);
+
+CASE hunterstatus OF
+2:RunScript(SMILEY2name,'HunterDelay2');
+3:RunScript(SMILEY3name,'HunterDelay3');
+END;{case}
+
+{**********  SAFETY  ***********}
+{kill old hunters (if dead) so there isnt too many active AI hunters}
+IF MeleeCounter > 7 THEN
+	BEGIN
+		IntegerToString(num,(MeleeCounter)-7);
+		StringCat(hunter,'MELEE',num);
+		
+		IF (GetEntity(hunter) <> NIL) AND (NOT IsEntityAlive(hunter)) THEN
+			BEGIN
+				SetPedDecayInstantly(GetEntity(hunter));
+			END;
+	END;
+	
+END;
+
+
+{PROCEDURE ASSIGNS FORWARD AND BACK GUARD GOALS FOR UPSTAIRS GUN HUNTERS}
+PROCEDURE SubpackGuardStatus(status : integer;subpack,F1,F2,F3,B1,B2,B3 : string);
+BEGIN
+
+CASE status OF
+1:
+BEGIN
+
+{remove any back guard goals ** SAFETY}
+IF AIIsGoalNameInSubpack('LEADER',subpack,B1) THEN AIRemoveGoalFromSubpack('LEADER',subpack,B1);
+IF AIIsGoalNameInSubpack('LEADER',subpack,B2) THEN AIRemoveGoalFromSubpack('LEADER',subpack,B2);
+IF B3 <> 'NONE' THEN
+	BEGIN
+		IF AIIsGoalNameInSubpack('LEADER',subpack,B3) THEN AIRemoveGoalFromSubpack('LEADER',subpack,B3);
+	END;
+
+{add forward guard goals}
+IF NOT AIIsGoalNameInSubpack('LEADER',subpack,F1) THEN AIAddGoalForSubpack('LEADER',subpack,F1);
+IF NOT AIIsGoalNameInSubpack('LEADER',subpack,F2) THEN AIAddGoalForSubpack('LEADER',subpack,F2);
+IF F3 <> 'NONE' THEN
+	BEGIN
+		IF NOT AIIsGoalNameInSubpack('LEADER',subpack,F3) THEN AIAddGoalForSubpack('LEADER',subpack,F3);
+	END;
+	
+WriteDebug('Adding forward guard goals for ',subpack);
+END;
+	
+2:
+BEGIN
+
+{remove back and forward guard goals}
+IF AIIsGoalNameInSubpack('LEADER',subpack,B1) THEN AIRemoveGoalFromSubpack('LEADER',subpack,B1);
+IF AIIsGoalNameInSubpack('LEADER',subpack,B2) THEN AIRemoveGoalFromSubpack('LEADER',subpack,B2);
+IF B3 <> 'NONE' THEN
+	BEGIN
+		IF AIIsGoalNameInSubpack('LEADER',subpack,B3) THEN AIRemoveGoalFromSubpack('LEADER',subpack,B3);
+	END;
+
+IF AIIsGoalNameInSubpack('LEADER',subpack,F1) THEN AIRemoveGoalFromSubpack('LEADER',subpack,F1);
+IF AIIsGoalNameInSubpack('LEADER',subpack,F2) THEN AIRemoveGoalFromSubpack('LEADER',subpack,F2);
+IF F3 <> 'NONE' THEN
+	BEGIN
+		IF AIIsGoalNameInSubpack('LEADER',subpack,F3) THEN AIRemoveGoalFromSubpack('LEADER',subpack,F3);
+	END;
+	
+WriteDebug('removing guard goals for ',subpack);
+END;
+
+3:
+BEGIN
+
+{remove any forward guard goals ** SAFETY}
+IF AIIsGoalNameInSubpack('LEADER',subpack,F1) THEN AIRemoveGoalFromSubpack('LEADER',subpack,F1);
+IF AIIsGoalNameInSubpack('LEADER',subpack,F2) THEN AIRemoveGoalFromSubpack('LEADER',subpack,F2);
+IF F3 <> 'NONE' THEN
+	BEGIN
+		IF AIIsGoalNameInSubpack('LEADER',subpack,F3) THEN AIRemoveGoalFromSubpack('LEADER',subpack,F3);
+	END;
+
+{add back guard goals}
+IF NOT AIIsGoalNameInSubpack('LEADER',subpack,B1) THEN AIAddGoalForSubpack('LEADER',subpack,B1);
+IF NOT AIIsGoalNameInSubpack('LEADER',subpack,B2) THEN AIAddGoalForSubpack('LEADER',subpack,B2);
+IF B3 <> 'NONE' THEN
+	BEGIN
+		IF NOT AIIsGoalNameInSubpack('LEADER',subpack,B3) THEN AIAddGoalForSubpack('LEADER',subpack,B3);
+	END;
+	
+WriteDebug('Adding backward guard goals for ',subpack);
+END;
+
+END; {case}
+
+END;
+
+
+{FUNCTION TO RETURN STATUS OF PLAYER TO SEE IF HE CAN END THE LEVEL}
+FUNCTION CheckPlayerStatus: integer; FORWARD;
+
+FUNCTION CheckPlayerStatus;
+VAR
+fnum		: string[8];
+hunterf		: string[32];
+f,totaldead	: integer;
+active		: boolean;
+
+BEGIN
+active:=FALSE;
+f:=1;
+totaldead:=0;
+
+WHILE NOT active AND (f < 14) DO
+
+	BEGIN
+		IntegerToString(fnum,f);
+		StringCat(hunterf,'GUN',fnum);
+		
+		IF NOT IsEntityAlive(hunterf) THEN totaldead:=totaldead+1
+		ELSE IF NOT AIIsIdle(hunterf) THEN 
+			BEGIN
+			active:=TRUE;
+			WriteDebug(hunterf,'is not idle');
+			END;
+					
+		f:=f+1;	
+	END;
+
+IF NOT IsEntityAlive('FUG') THEN totaldead:=totaldead+1
+ELSE IF NOT AIIsIdle('FUG') THEN active:=TRUE;
+
+{CheckPlayerStatus Values}
+
+{1 = Not all dead but alive hunters are active (dont open the door)}
+{2 = Not all dead but alive hunters are idle (open the door)}
+{3 = All dead (open the door)}
+
+IF active THEN CheckPlayerStatus:=1
+ELSE IF totaldead = 14 THEN CheckPlayerStatus:=3
+ELSE CheckPlayerStatus:=2;
+END;
+
+
+
+	{**********************}
+	{** START OF SCRIPTS **}
+	{**********************}
+
+
+SCRIPT OnCreate;
+VAR
+Pos		: Vec3D;
+
+BEGIN
+ClearAllLevelGoals;
+
+IF GetPlayerLevelRestarts = 0 THEN
+	BEGIN
+		SetVector(cameraPos,115.4,3.9,15.3);
+		SetVector(cameraView,-0.1,-0.5,0.9);
+		
+		CutSceneStart;
+		
+		SetCameraPosition(cameraPos);
+		SetCameraView(cameraView);
+		
+		HandCamSetVideoEffectFuzz(FALSE);
+		HandCamSetVideoEffectScrollBar(FALSE);
+		
+		SetPlayerControllable(TRUE);
+		SetVector(Pos,115.0,0.0,15.0);  
+		SetPlayerGotoNode('playerstop1', Pos, TRUE);
+		
+		SetVector(Pos,71.6,0.5,1.9);
+		CreateSphereTrigger(Pos,1.0,'Hammer1');
+		SetEntityScriptsFromEntity('HammerTemplate','Hammer1');
+		
+		SetVector(Pos,68.2,0.5,-1.4);
+		CreateSphereTrigger(Pos,1.0,'Hammer2');
+		SetEntityScriptsFromEntity('HammerTemplate','Hammer2');
+		
+		SetVector(Pos,65.7,0.5,1.9);
+		CreateSphereTrigger(Pos,1.0,'Hammer3');
+		SetEntityScriptsFromEntity('HammerTemplate','Hammer3');
+		
+		WHILE NOT HasPlayerArrivedAtNode DO sleep(10);
+				
+		SetPlayerControllable(FALSE);
+				
+		sleep(200);
+		
+		CutSceneEnd(FALSE);
+		END;
+		
+IF levelstatus = 0 THEN
+	BEGIN
+		RadarPositionSetEntity(GetEntity('StartHammer'), MAP_COLOR_GREEN);
+		
+		redDONE:=FALSE;
+		yellowDONE:=FALSE;
+		disgetham:=TRUE;
+		
+		SubpackLimit:=3;
+		MeleeCounter:=0;
+		
+		SMILEY1name:='';
+		SMILEY2name:='';
+		SMILEY3name:='';
+		
+		weapon:= CT_HAMMER;
+		
+		SetLevelGoal('GOAL0');
+		PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_JAL_CELLBLOCK_START,-1,-1);
+		
+		sleep(100);
+		
+		WHILE IsDirectorSpeechPlaying DO sleep(1);
+		
+		sleep(100);
+		
+		IF disgetham THEN DisplayGameText('GETHAM');
+	END
+ELSE IF levelstatus = 2 THEN
+	BEGIN
+		SetLevelGoal('GOAL3');
+		PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_JAL_GO_SHOWER,-1,-1);
+	END;
+
+
+abovestatus:=0;
+currentarea:=1;
+
+GivenNewGoal:=FALSE;
+AllowEnd:=FALSE;
+END;
+
+
+SCRIPT OnPickUpInventoryItem;
+BEGIN
+IF GetLastItemPickedUp(this) = weapon THEN
+	BEGIN
+		CASE levelstatus OF
+		0:
+		BEGIN
+		RunScript('player','GotHammer');
+		disgetham:=FALSE;
+		END;
+		1:RunScript('player','GotBat');
+		END;{case}
+	END
+ELSE IF (GetLastItemPickedUp(this) = CT_SHOTGUN) AND (GetPlayerAreaName = 'aigunarea1') AND (willie_game_int = 1) THEN
+	BEGIN
+		RunScript(GetEntityName(this),'BonusSpeech');
+		RemoveThisScript;
+	END;
+END;
+
+SCRIPT BonusSpeech;
+BEGIN
+WHILE IsDirectorSpeechPlaying DO sleep(1);
+PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_JAL_REWARD,-1,-1);
+RemoveThisScript;
+END;
+
+
+	{********************************}
+	{** EXECUTION SPECIFIC SCRIPTS **}
+	{********************************}
+
+
+
+SCRIPT REDExecution;
+BEGIN
+IF GetCurrentInventoryItemType(this) = weapon THEN
+	BEGIN
+		IF (NOT redDONE) THEN
+			BEGIN
+				redDONE:=TRUE;
+				CASE levelstatus OF
+				0:ClearLevelGoal('GOAL1P2');
+				1:ClearLevelGoal('GOAL2P2');
+				END;{case}
+				
+				IF yellowDONE AND (weapon = CT_HAMMER) THEN RunScript(GetEntityName(this),'StartBat')
+				ELSE IF yellowDONE AND (weapon = CT_BASEBALL_BAT) THEN RunScript(GetEntityName(this),'OpenDoor')
+				ELSE RunScript(GetEntityName(this),'HunterStatus');
+			END
+		
+		ELSE RunScript(GetEntityName(this),'HunterStatus');
+	END
+ELSE
+	BEGIN
+		IF (levelstatus = 1) AND (IsNamedItemInInventory(this,CT_BASEBALL_BAT) <> -1) THEN
+			BEGIN
+				IF (NOT redDONE) OR (NOT yellowDONE) THEN
+					BEGIN
+						WHILE IsExecutionInProgress DO sleep(1);
+						DisplayGameText('USEBAT');
+						RunScript(GetEntityName(this),'HunterStatus');
+					END;
+			END
+			
+		ELSE RunScript(GetEntityName(this),'HunterStatus');
+	END;
+END;
+
+
+SCRIPT YELLOWExecution;
+BEGIN
+IF GetCurrentInventoryItemType(this) = weapon THEN
+	BEGIN
+		IF (NOT yellowDONE) THEN
+			BEGIN
+				yellowDONE:=TRUE;
+				
+				CASE levelstatus OF
+				0:ClearLevelGoal('GOAL1P1');
+				1:ClearLevelGoal('GOAL2P1');
+				END;{case}
+				
+				IF redDONE AND (weapon = CT_HAMMER) THEN RunScript(GetEntityName(this),'StartBat')
+				ELSE IF redDONE AND (weapon = CT_BASEBALL_BAT) THEN RunScript(GetEntityName(this),'OpenDoor')
+				ELSE RunScript(GetEntityName(this),'HunterStatus');
+			END
+		
+		ELSE RunScript(GetEntityName(this),'HunterStatus');
+	END
+ELSE
+	BEGIN
+		IF (levelstatus = 1) AND (IsNamedItemInInventory(this,CT_BASEBALL_BAT) <> -1) THEN
+			BEGIN
+				IF (NOT redDONE) OR (NOT yellowDONE) THEN
+					BEGIN
+						WHILE IsExecutionInProgress DO sleep(1);
+						DisplayGameText('USEBAT');
+						RunScript(GetEntityName(this),'HunterStatus');
+					END;
+			END
+		ELSE RunScript(GetEntityName(this),'HunterStatus');
+	END;
+END;
+
+
+SCRIPT HunterStatus;
+BEGIN
+WHILE IsExecutionInProgress DO sleep(1);
+subpackCURRENT:= AINumberInSubpack('LEADER','subMELEE');
+IF (subpackCURRENT = 0) THEN RunScript(GetEntityName(this),'HunterReplacement');
+END;
+
+
+{REPLENISH SUBPACK IF LOWER THAN LIMIT AND EXECUTIONS HAVENT BEEN DONE}
+SCRIPT HunterReplacement;
+BEGIN
+
+WHILE GetPlayerAreaName = 'aimeleearea0' DO sleep(1);
+
+IF (NOT redDONE) OR (NOT yellowDONE) THEN
+	BEGIN
+	subpackCURRENT:= AINumberInSubpack('LEADER','subMELEE');
+	
+	IF subpackCURRENT < subpackLIMIT THEN
+		BEGIN
+			{HUNTER1}
+			IF NOT IsEntityAlive(SMILEY1name) THEN StartMeleeHunter(1);					
+			
+			{HUNTER2}
+			IF NOT IsEntityAlive(SMILEY2name) THEN StartMeleeHunter(2);
+			
+			{HUNTER3}
+			IF NOT IsEntityAlive(SMILEY3name) THEN StartMeleeHunter(3);
+		END;
+	END;
+END;
+
+
+SCRIPT NearHammer;
+BEGIN
+disgetham:=FALSE;
+SetVector(cameraPos,65.9,4.4,4.3);
+SetVector(cameraView,0.5,-0.7,-0.5);
+
+CutSceneStart;
+
+SetCameraPosition(cameraPos);
+SetCameraView(cameraView);
+
+HandCamSetVideoEffectFuzz(FALSE);
+HandCamSetVideoEffectScrollBar(FALSE);
+HandCamSetVideoEffectRecordDot(FALSE);
+
+sleep(1000);
+
+WHILE IsDirectorSpeechPlaying DO sleep(1);
+sleep(50);
+	
+DisplayGameText('GODHAM');
+
+SetZoomLerp(1.0,0.6,5);
+
+DestroyEntity(GetEntity('Hammer1'));
+DestroyEntity(GetEntity('Hammer2'));
+DestroyEntity(GetEntity('Hammer3'));
+
+sleep(5000);
+
+CutSceneEnd(FALSE);
+END;
+
+
+SCRIPT GotHammer;
+BEGIN
+RadarPositionClearEntity(GetEntity('StartHammer'));
+
+IF GetPlayerLevelRestarts <> 0 THEN
+	BEGIN
+	WHILE IsDirectorSpeechPlaying DO sleep(1);
+	sleep(50);
+	DisplayGameText('GODHAM');
+	END
+ELSE RunScript('player','EnterFirst');
+
+RunScript(GetEntityName(this),'HunterReplacement');
+ClearLevelGoal('GOAL0');
+SetLevelGoal('GOAL1P1');
+SetLevelGoal('GOAL1P2');
+RemoveThisScript;
+END;
+
+
+SCRIPT EnterFirst;
+BEGIN
+SetVector(cameraPos,115.4,3.9,15.3);
+SetVector(cameraView,-0.1,-0.5,0.9);
+		
+CutSceneStart;
+		
+SetCameraPosition(cameraPos);
+SetCameraView(cameraView);
+		
+HandCamSetVideoEffectFuzz(FALSE);
+HandCamSetVideoEffectScrollBar(FALSE);
+
+sleep(1000);
+
+AICutSceneEntityEnable('MELEE1',TRUE);
+AICutSceneEntityEnable('MELEE2',TRUE);
+AICutSceneEntityEnable('MELEE3',TRUE);
+
+AIAddGoalForSubpack('LEADER','subMELEE','goalRUNCUT');
+
+sleep(6000);
+
+CutSceneEnd(FALSE);
+
+sleep(100);
+
+AIRemoveGoalFromSubpack('LEADER','subMELEE','goalRUNCUT');
+END;
+
+
+SCRIPT StartBat;
+VAR
+drop,dir : Vec3D;
+
+BEGIN
+
+WHILE IsExecutionInProgress DO sleep(1);
+
+SetVector(drop,115.4,6.8,19.7);
+SetVector(dir,0.0,0.0,-1.0);
+SpawnEntityWithDirection('Smi_BodB1',drop,'BATMAN',dir);
+
+SetVector(cameraPos,115.4,3.9,15.3);
+SetVector(cameraView,-0.1,-0.5,0.9);
+		
+CutSceneStart;
+		
+SetCameraPosition(cameraPos);
+SetCameraView(cameraView);
+		
+HandCamSetVideoEffectFuzz(FALSE);
+HandCamSetVideoEffectScrollBar(FALSE);
+
+SetZoomLerp(1.0,0.3,4);
+
+sleep(2000);
+
+DisplayGameText('GETBAT');
+
+weapon:=CT_BASEBALL_BAT;
+
+yellowDONE:=FALSE;
+redDONE:=FALSE;
+
+levelstatus:=1;
+
+sleep(5000);
+
+SetLevelGoal('GOAL1P3');
+
+CutSceneEnd(FALSE);
+
+AIRemoveGoalFromSubpack('LEADER','subBAT','goalBATENTER');
+
+sleep(3000);
+
+SetVector(cameraPos,70.5,4.8,-36.1);
+SetVector(cameraView,-0.2,-0.2,-1.0);
+
+RunScript(GetEntityName(this),'HunterStatus');
+END;
+
+SCRIPT GotBat;
+BEGIN
+ClearLevelGoal('GOAL1P3');
+SetLevelGoal('GOAL2P1');
+SetLevelGoal('GOAL2P2');
+DisplayGameText('GODBAT');
+END;
+
+	{**************************}
+	{** GUN SPECIFIC SCRIPTS **}
+	{**************************}
+
+SCRIPT OpenDoor;
+BEGIN
+WHILE IsExecutionInProgress DO sleep(1);
+
+sleep(1500);
+
+WHILE IsDirectorSpeechPlaying DO sleep(1);
+
+sleep(1000);
+
+CutSceneStart;
+SetCameraPosition(cameraPos);
+SetCameraView(cameraView);	
+
+WHILE IsDirectorSpeechPlaying DO sleep(1);
+
+PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_JAL_LOW_LEVEL_CLEAR,-1,-1);
+
+ClearLevelGoal('GOAL1');
+SetLevelGoal('GOAL2');
+
+sleep(2000);
+RunScript('Pri_Slide_CellDoor_(SD)01','Open');
+
+IF GetEntity('MELEE01') <> NIL THEN AIIgnoreEntityIfDead('MELEE01');
+IF GetEntity('MELEE02') <> NIL THEN AIIgnoreEntityIfDead('MELEE02');
+IF GetEntity('MELEE03') <> NIL THEN AIIgnoreEntityIfDead('MELEE03');
+IF GetEntity('MELEE04') <> NIL THEN AIIgnoreEntityIfDead('MELEE04');
+
+sleep(6000);
+
+levelstatus :=2;
+
+CutSceneEnd(FALSE);
+END;
+
+
+SCRIPT StartGun;
+VAR
+cnum		: string[8];
+hunterAI	: string[32];
+c			: integer;
+
+BEGIN
+{RunScript('Pri_Slide_CellDoor_(SD)01','Close');}
+ClearLevelGoal('GOAL2');
+sleep(1000);
+
+RunScript('FUG','EnterCutScene');
+RunScript('FUG','StartAI');
+
+RunScript(GetEntityName(this),'MeleeCleaner');
+FOR c:= 1 TO 13 DO
+	BEGIN
+	IntegerToString(cnum,c);
+	StringCat(hunterAI,'GUN',cnum);
+	
+	RunScript(hunterAI,'StartAI');
+	END;
+	
+SetLevelGoal('GOAL3');
+
+RemoveThisScript;
+END;
+
+{USED FOR REMOVING ALL BODIES ON BOTTOM FLOOR}
+SCRIPT MeleeCleaner;
+VAR
+meleenum	: string[8];
+meleeBODY	: string[32];
+counter		: integer;
+
+BEGIN
+FOR counter:= 1 TO meleecounter DO
+	BEGIN
+	IntegerToString(meleenum,counter);
+	StringCat(meleeBODY,'MELEE',meleenum);
+	
+	IF GetEntity(meleeBODY) <> NIL THEN SetPedDecayInstantly(GetEntity(meleeBODY));
+	END;
+
+END;
+
+
+SCRIPT SeenBody;
+VAR
+anum		: string[8];
+hunterBODY	: string[32];
+a			: integer;
+
+
+BEGIN
+abovestatus:=1;
+
+FOR a:= 1 TO 13 DO
+	BEGIN
+	IntegerToString(anum,a);
+	StringCat(hunterBODY,'GUN',anum);
+	
+	IF IsEntityAlive(hunterBODY) THEN RunScript(hunterBODY,'Alert');
+	END;
+
+RemoveThisScript;
+END;
+
+
+SCRIPT SeenPlayer;
+VAR
+bnum			: string[8];
+hunterPLAYER	: string[32];
+b				: integer;
+
+
+BEGIN
+abovestatus:=2;
+RunScript('player','UpdateAreaGoals');
+IF currentarea > 3 THEN RunScript('player','SubpackCheck');
+
+FOR b:= 1 TO 13 DO
+	BEGIN
+	IntegerToString(bnum,b);
+	StringCat(hunterPLAYER,'GUN',bnum);
+	
+	IF IsEntityAlive(hunterPLAYER) THEN RunScript(hunterPLAYER,'Alert');
+	END;
+
+RemoveThisScript;
+END;
+
+
+{GUN COMBAT SCRIPTS}
+SCRIPT OnPlayerEnterArea;
+BEGIN
+RunScript('player',GetPlayerAreaName);
+END;
+
+SCRIPT aimeleearea3;
+BEGIN
+currentarea:=0;
+END;
+
+SCRIPT aigunarea1;
+BEGIN
+currentarea:=1;
+IF abovestatus = 2 THEN RunScript('player','UpdateAreaGoals');
+END;
+
+SCRIPT aigunarea2;
+BEGIN
+currentarea:=2;
+IF abovestatus = 2 THEN RunScript('player','UpdateAreaGoals');
+END;
+
+SCRIPT aigunarea3;
+BEGIN
+currentarea:=3;
+IF abovestatus = 2 THEN RunScript('player','UpdateAreaGoals');
+END;
+
+SCRIPT aigunarea4;
+BEGIN
+currentarea:=4;
+IF abovestatus = 2 THEN 
+	BEGIN
+	RunScript('player','UpdateAreaGoals');
+	RunScript('player','SubpackCheck');
+	END;
+END;
+
+SCRIPT aigunarea5;
+BEGIN
+currentarea:=5;
+IF abovestatus = 2 THEN 
+	BEGIN
+	RunScript('player','UpdateAreaGoals');
+	RunScript('player','SubpackCheck');
+	END;
+END;
+
+SCRIPT aigunarea6;
+BEGIN
+currentarea:=6;
+IF abovestatus = 2 THEN 
+	BEGIN
+	RunScript('player','UpdateAreaGoals');
+	RunScript('player','SubpackCheck');
+	END;
+END;
+
+SCRIPT aigunarea7;
+BEGIN
+currentarea:=7;
+IF abovestatus = 2 THEN 
+	BEGIN
+	RunScript('player','UpdateAreaGoals');
+	RunScript('player','SubpackCheck');
+	END;
+END;
+
+{SET FORWARD AND BACK GUARD GOALS FOR COVER COMBAT}
+
+SCRIPT UpdateAreaGoals;
+VAR
+i,sub,GuardStatus	 : integer;
+
+BEGIN
+
+FOR i:= 1 TO 5 DO
+	
+	BEGIN
+	sub:=0;
+	sub:=i+1;
+		
+	IF sub > currentarea THEN GuardStatus:=1
+	ELSE IF sub = currentarea THEN GuardStatus:=2	
+	ELSE IF sub < currentarea THEN GuardStatus:=3;	
+	
+	CASE sub OF
+				
+	2:
+	BEGIN
+	IF currentarea=0 THEN SubpackGuardStatus(2,'subGunArea2','goalFA2P1','goalFA2P2','goalFA2P3','goalBA2P1','goalBA2P2','goalBA2P3')
+	ELSE SubpackGuardStatus(GuardStatus,'subGunArea2','goalFA2P1','goalFA2P2','goalFA2P3','goalBA2P1','goalBA2P2','goalBA2P3');
+	END;
+	3:SubpackGuardStatus(GuardStatus,'subGunArea3','goalFA3P1','goalFA3P2','goalFA3P3','goalBA3P1','goalBA3P2','goalBA3P3');
+	4:SubpackGuardStatus(GuardStatus,'subGunArea4','goalFA4P1','goalFA4P2','NONE','goalBA4P1','goalBA4P2','NONE');
+	5:SubpackGuardStatus(GuardStatus,'subGunArea5','goalFA5P1','goalFA5P2','NONE','goalBA5P1','goalBA5P2','NONE');
+	6:
+	BEGIN
+		IF currentarea=7 THEN SubpackGuardStatus(2,'subGunArea6','goalFA6P1','goalFA6P2','NONE','goalBA6P1','goalBA6P2','NONE')
+		ELSE SubpackGuardStatus(GuardStatus,'subGunArea6','goalFA6P1','goalFA6P2','NONE','goalBA6P1','goalBA6P2','NONE');			
+	END;
+	
+	END;{case}
+	
+	
+	END;
+			
+END;
+
+
+{SCRIPT THAT MOVES HUNTERS FORWARD TOWARDS SHOWERBLOCK IF SUBPACK IS EMPTY}
+SCRIPT SubpackCheck;
+VAR
+ID									: string[8];
+subpackCHECK,subpackMOVE,huntername	: string[32];
+
+SUBcheck,SUBmove,total,i	: integer;
+
+BEGIN
+
+IF currentarea > 3 THEN
+	BEGIN 
+		
+		SUBcheck:=currentarea-1;
+		
+		WHILE SUBcheck > 2 DO
+		BEGIN		
+			IntegerToString(ID,SUBcheck);
+			StringCat(subpackCHECK,'subGunArea',ID);
+			
+			IF AINumberInSubpack('LEADER',subpackCHECK) = 0 THEN
+			BEGIN 
+				
+				SUBmove:=SUBcheck-1;
+				IntegerToString(ID,SUBmove);
+				StringCat(subpackMOVE,'subGunArea',ID);
+				
+				total:= AINumberInSubpack('LEADER',subpackMOVE);
+				
+				IF total > 0 THEN 
+				
+					BEGIN
+						FOR i := 1 TO total DO 
+							BEGIN
+								AIReturnSubpackEntityName('LEADER',subpackMOVE,1,huntername);
+								AIRemoveHunterFromLeaderSubpack('LEADER',huntername);
+						
+								IF IsEntityAlive(huntername) THEN AIAddHunterToLeaderSubpack('LEADER',subpackCHECK,huntername);
+							
+								WriteDebug('hunter ',huntername,' has been moved from ',subpackMOVE,' into ',subpackCHECK);
+							END; 
+					END; 
+			END; 
+			SUBcheck:=SUBcheck-1;
+		END;
+	
+	END; 
+END; 
+
+
+SCRIPT GetStatus;
+BEGIN
+WHILE InsideTrigger(GetEntity('PlayerStatus'),this) OR EnteredTrigger(GetEntity('PlayerStatus'),this) DO
+	BEGIN
+		CASE CheckPlayerStatus OF
+		1:RunScript('player','NewGoal');
+		2:IF (NOT GivenNewGoal) THEN AllowEnd:=TRUE;
+		3:AllowEnd:=TRUE;
+		END;	
+		
+		sleep(10);
+	END;
+
+END;
+
+SCRIPT NewGoal;
+BEGIN
+WriteDebug('NEW GOAL ADDED');
+AllowEnd:=FALSE;
+GivenNewGoal:=TRUE;
+PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_JAL_DOOR_LOCKED,-1,-1);
+ClearLevelGoal('GOAL3');
+SetLevelGoal('GOAL4');
+RemoveThisScript;
+END;
+
+
+SCRIPT RemoveNewGoal;
+BEGIN
+IF GivenNewGoal AND (CheckPlayerStatus = 3) THEN
+	BEGIN
+		AllowEnd:=TRUE;
+		ClearLevelGoal('GOAL4');
+		SetLevelGoal('GOAL5');
+	END;
+END;
+
+
+SCRIPT EndLevel;
+VAR
+endpos	: Vec3D;
+
+BEGIN
+IF AllowEnd THEN
+	BEGIN
+	SetVector(cameraPos,166.9,2.1,2.0);
+	SetVector(cameraView,-0.9,-0.3,-0.0);
+	
+	CutSceneStart;
+	
+	SetCameraPosition(cameraPos);
+	SetCameraView(cameraView);
+	
+	HandCamSetVideoEffectScrollBar(FALSE);
+	
+	UnlockEntity(GetEntity('Bow_Interior_PrisonGate_(D)07'));
+	GraphModifyConnections(GetEntity('Bow_Interior_PrisonGate_(D)07'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+
+	SetPlayerControllable(TRUE);
+	SetVector(endpos,165.0,0.0,2.0);  
+	SetPlayerGotoNode('playerend', endpos, TRUE);
+	
+	PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_JAL_END_LEVEL,-1,-1);
+	
+	sleep(100);
+	
+	WHILE IsDirectorSpeechPlaying DO sleep(1);
+	
+	sleep(1000);
+	
+	CutSceneEnd(FALSE);
+	
+	sleep(100);
+	
+	SetLevelCompleted;
+	END;
+
+END;
+
+
+END. 

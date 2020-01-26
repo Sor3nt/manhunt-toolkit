@@ -1,0 +1,166 @@
+[
+    {
+        "name": "abovestatus",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "98070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "allowend",
+        "nameGarbage": "000000000000000000000000000000000000000000000000",
+        "offset": "b8070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "camerapos",
+        "nameGarbage": "0000000000000000000000000000000000000000000000",
+        "offset": "9c070000",
+        "size": 12,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "cameraview",
+        "nameGarbage": "00000000000000000000000000000000000000000000",
+        "offset": "a8070000",
+        "size": 12,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "currentarea",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "94070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "disgetham",
+        "nameGarbage": "0000000000000000000000000000000000000000000000",
+        "offset": "8c070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "givennewgoal",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "b4070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "hunter",
+        "nameGarbage": "0000000000000000000000000000000000000000000000000000",
+        "offset": "bc070000",
+        "size": 32,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "levelstatus",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            13608,
+            14568,
+            15088,
+            16244,
+            17044,
+            17908,
+            18708,
+            24200,
+            26464
+        ]
+    },
+    {
+        "name": "meleecounter",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "78070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "reddone",
+        "nameGarbage": "00000000000000000000000000000000000000000000000000",
+        "offset": "84070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "smiley1name",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "dc070000",
+        "size": 64,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "smiley2name",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "1c080000",
+        "size": 64,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "smiley3name",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "5c080000",
+        "size": 64,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "subpackcurrent",
+        "nameGarbage": "000000000000000000000000000000000000",
+        "offset": "80070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "subpacklimit",
+        "nameGarbage": "0000000000000000000000000000000000000000",
+        "offset": "7c070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "weapon",
+        "nameGarbage": "0000000000000000000000000000000000000000000000000000",
+        "offset": "90070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "willie_game_int",
+        "nameGarbage": "0000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "feffffff",
+        "occurrences": [
+            15604
+        ]
+    },
+    {
+        "name": "yellowdone",
+        "nameGarbage": "00000000000000000000000000000000000000000000",
+        "offset": "88070000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

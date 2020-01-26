@@ -1,0 +1,28 @@
+{
+    "const": [],
+    "strings": [
+        "_TrigB",
+        "PLAYER IN CAMERA TRIGGER: ",
+        "FULL VIEW EXISTS: ",
+        "PLAYER IN FULL VIEW",
+        "CHECKING CAMERA DAMAGE: ",
+        "RedLightOn",
+        "OnAlert",
+        "PLAYER NOT IN FULL VIEW",
+        "***FULL VIEW DOES NOT EXISTS: ",
+        "PLAYER LEFT CAMERA TRIGGER: ",
+        "GreenLightOn",
+        "OnAlert: ",
+        "level_bAreCamerasOn: ",
+        "LEADER",
+        "player",
+        "Issuing FIRST TIME CAMERA message from: ",
+        "CAMERA",
+        "GUN_SHOT",
+        "Hunters_Generator",
+        "OnAlert",
+        "Alert_Manager",
+        "RaiseAlert"
+    ],
+    "byteReserved": 28
+}

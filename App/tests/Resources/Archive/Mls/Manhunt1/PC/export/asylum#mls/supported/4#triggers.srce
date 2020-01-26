@@ -1,0 +1,470 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+LevelEndTrigger1		:	et_name;
+	
+VAR
+willie_game_int	: game_var integer; {game integer for the hunter head}
+Vpos			: vec3D;
+	
+Script OnCreate;
+begin
+	TriggerAddEntityClass(this, COL_DEADPEDJOEY);
+	TriggerAddEntityClass(this,COL_HUNTER);
+end;
+
+SCRIPT OnEnterTrigger; 
+VAR
+iTime,status	: integer;
+bLoop			: boolean;
+
+begin
+
+	While(IsExecutionInProgress) DO Sleep(1000);
+
+	sleep(10);
+	status:=0;
+	WriteDebug('player got head from hunter' ,willie_game_int);
+	
+	if InsideTrigger(this, GetPlayer) then
+	begin
+		if EnteredTrigger(this,(GetEntity('Hunter1_Tower')))
+		or InsideTrigger(this,(GetEntity('Hunter1_Tower'))) then
+		begin
+			WriteDebug('Entered - Hunter1_Tower');
+			{player has body}
+			status:=1;
+		end;
+	
+		if willie_game_int = 1 then
+		begin
+			{player has head}
+			WriteDebug('willie_game_int !');
+			status:=status+2;
+		end;
+		
+		WriteDebug('status=',status);
+	end;
+	
+if status = 0 then
+begin
+	{DO WHILE LOOP}
+	RunScript(GetEntityName(this),'WhileLoop');
+end
+else
+	begin
+	
+	CASE status OF
+	1:
+	begin
+		WriteDebug('status : 1');
+				
+		CutSceneStart;
+									
+		if (IsEntityAlive('player')) then
+	    begin
+	    	AICutSceneEntityEnable('player',TRUE);
+	   	end;
+		
+		SetPlayerControllable(true);
+	
+{SHOT 1 - player reaches area}
+		
+		SetVector(Vpos,161.3,17.4,-65.9);
+		SetCameraPosition(Vpos);
+		
+		SetVector(Vpos,-0.3,-0.5,0.8);
+		SetCameraView(Vpos);
+		
+		SetVector(Vpos,158.7,13.9,-61.4);
+		SetPlayerGoToNode('Player_Cut_Stop1',Vpos,TRUE);
+		
+		SetZoomLerp(1.0,0.6,5);
+		
+		iTime := 0;
+		bLoop := TRUE;
+		While( bLoop AND (NOT HasPlayerArrivedAtNode ) )do 
+		begin
+			Sleep(1000);
+			iTime := iTime + 1;
+			if (iTime >= 10) then 
+			begin
+				SetVector(Vpos,158.7,13.9,-61.4);
+				MoveEntity(GetPlayer,Vpos,0);
+				bLoop := FALSE;
+			end;
+		end;
+						
+		RunScript('Gen_Interior_WoodDoor_(D)26','open');
+		WriteDebug('door into jump area opened');
+		
+		if (IsEntityAlive('player')) then
+		begin
+			PlayDirectorSpeech(GetEntityPosition(GetPlayer),AISPEECH_D1V1_MTH_DROP_WEAPONS,-1,-1);
+		end;
+											
+		PlayerDropBody;
+		While (IsPlayerCarryingBody) do sleep(1);
+				
+		WHILE (IsDirectorSpeechPlaying) DO Sleep(100);
+		
+		Sleep(500);
+												
+{Player walks away from the camera into the nest room}
+		SetVector(Vpos,167.1,13.9,-61.2);
+		SetPlayerGoToNode('Player_End_Jump',Vpos,TRUE);
+		
+		TemporarySetPlayerToFists;
+		
+		Sleep(800);
+						
+		SetVector(Vpos,174.3,18.1,-61.2);
+		SetCameraPosition(Vpos);
+						
+		SetVector(Vpos,-0.9,-0.4,-0.0);
+		SetCameraView(Vpos);
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BACK,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BACK,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,1);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_RIGHT,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_RIGHT,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,2);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_LEFT,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_LEFT,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,3);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_REAR,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_REAR,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,4);
+		end;
+				
+		iTime := 0;
+		bLoop := TRUE;
+		While( bLoop AND (NOT HasPlayerArrivedAtNode ) )do 
+		begin
+			Sleep(1000);
+			iTime := iTime + 1;
+			if (iTime >= 10) then 
+			begin
+				SetVector(Vpos,168.6,15.2,-60.8);
+				MoveEntity(GetPlayer,Vpos,0);
+				bLoop := FALSE;
+			end;
+		end;
+			
+		CutSceneEnd(FALSE);
+		
+		ClearLevelGoal('GOAL4');
+				
+		SetLevelCompleted;
+		KillEntity(this);
+	end;
+	2:
+	begin
+		WriteDebug('status : 2');
+				
+		CutSceneStart;
+								
+		if (IsEntityAlive('player')) then
+	    begin
+	    	AICutSceneEntityEnable('player',TRUE);
+	    	TemporarySetPlayerToFists;
+	    end;
+		
+		SetPlayerControllable(true);
+				
+		if (GetIndexFromInventoryItemName(GetPlayer,'Hunter1_Tower_h') <> -1) then
+		begin
+			SetInventoryItemAsCurrent(GetPlayer,4);
+		end;
+				
+		if (IsPlayerCarryingBody) then
+		begin
+			PlayerDropBody;
+		end;
+		
+		While (IsPlayerCarryingBody) do sleep(1);
+				
+		SetVector(Vpos,161.3,17.4,-65.9);
+		SetCameraPosition(Vpos);
+				
+		SetVector(Vpos,-0.3,-0.5,0.8);
+		SetCameraView(Vpos);
+				
+		SetVector(Vpos,158.7,13.9,-61.4);
+		SetPlayerGoToNode('Player_Cut_Stop1',Vpos,TRUE);
+		
+		SetZoomLerp(1.0,0.6,5);
+				
+		iTime := 0;
+		bLoop := TRUE;
+		While( bLoop AND (NOT HasPlayerArrivedAtNode ) )do 
+		begin
+			Sleep(1000);
+			iTime := iTime + 1;
+			if (iTime >= 10) then 
+			begin
+				SetVector(Vpos,158.7,13.9,-61.4);
+				MoveEntity(GetPlayer,Vpos,0);
+				bLoop := FALSE;
+			end;
+		end;
+		
+		SetPlayerHeading(160);
+		
+		RunScript('Gen_Interior_WoodDoor_(D)26','open');
+		WriteDebug('door into jump area opened');
+		
+		if (willie_game_int = 1) then
+		begin
+														
+			PlayerPlayFullBodyAnim('Idle_Player_Hold_Up_Head');
+			Sleep(3000);
+		
+			if (IsEntityAlive('player')) then
+			begin
+				PlayDirectorSpeech(GetEntityPosition(GetPlayer),AISPEECH_D1V1_MTH_HEAD,-1,-1);
+			end;
+		
+			Sleep(100);
+				
+			WHILE (IsDirectorSpeechPlaying) DO Sleep(1000);
+			
+			Sleep(500);
+		
+			PlayerFullBodyAnimDone;
+			
+		end;
+												
+{Player walks away from the camera into the nest room}
+		
+		SetVector(Vpos,167.1,13.9,-61.2);
+		SetPlayerGoToNode('Player_End_Jump',Vpos,TRUE);
+		WriteDebug('Player told to walk to the hole at the end of the level');
+		
+		TemporarySetPlayerToFists;
+		
+		Sleep(800);
+				
+		SetVector(Vpos,174.3,18.1,-61.2);
+		SetCameraPosition(Vpos);
+						
+		SetVector(Vpos,-0.9,-0.4,-0.0);
+		SetCameraView(Vpos);
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BACK,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BACK,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,1);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_RIGHT,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_RIGHT,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,2);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_LEFT,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_LEFT,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,3);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_REAR,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_REAR,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,4);
+		end;
+							
+		iTime := 0;
+		bLoop := TRUE;
+		While( bLoop AND (NOT HasPlayerArrivedAtNode ) )do 
+		begin
+			Sleep(1000);
+			iTime := iTime + 1;
+			if (iTime >= 8) then 
+			begin
+				SetVector(Vpos,168.6,15.2,-60.8);
+				MoveEntity(GetPlayer,Vpos,0);
+				bLoop := FALSE;
+			end;
+		end;
+		
+		CutSceneEnd(FALSE);
+		
+		ClearLevelGoal('GOAL4');
+				
+		SetLevelCompleted;
+		killEntity(this);			
+		
+	end;
+	3:
+	begin
+		
+		WriteDebug('status : 3');
+				
+		CutSceneStart;
+									
+		if (IsEntityAlive('player')) then
+	    begin
+	    	AICutSceneEntityEnable('player',TRUE);
+	   	end;
+		
+		SetPlayerControllable(true);
+			
+		SetVector(Vpos,161.3,17.4,-65.9);
+		SetCameraPosition(Vpos);
+				
+		SetVector(Vpos,-0.3,-0.5,0.8);
+		SetCameraView(Vpos);
+		
+		if (GetIndexFromInventoryItemName(GetPlayer,'Hunter1_Tower_h') <> -1) then
+		begin
+			SetInventoryItemAsCurrent(GetPlayer,4);
+		end;
+			
+		if (IsPlayerCarryingBody) then
+		begin
+			PlayerDropBody;
+		end;
+			
+		While (IsPlayerCarryingBody) do sleep(1000);
+				
+		SetVector(Vpos,158.7,13.9,-61.4);
+		SetPlayerGoToNode('Player_Cut_Stop1',Vpos,TRUE);
+		
+		SetZoomLerp(1.0,0.6,5);
+				
+		iTime := 0;
+		bLoop := TRUE;
+		While( bLoop AND (NOT HasPlayerArrivedAtNode ) )do 
+		begin
+			Sleep(1000);
+			iTime := iTime + 1;
+			if (iTime >= 10) then 
+			begin
+				SetVector(Vpos,158.7,13.9,-61.4);
+				MoveEntity(GetPlayer,Vpos,0);
+				bLoop := FALSE;
+			end;
+		end;
+				
+		RunScript('Gen_Interior_WoodDoor_(D)26','open');
+		WriteDebug('door into jump area opened');
+		
+		if (willie_game_int = 1) then
+		begin
+															
+			PlayerPlayFullBodyAnim('Idle_Player_Hold_Up_Head');
+			Sleep(3000);
+		
+			if (IsEntityAlive('player')) then
+			begin
+				PlayDirectorSpeech(GetEntityPosition(GetPlayer),AISPEECH_D1V1_MTH_HEAD,-1,-1);
+			end;
+			
+			Sleep(100);	
+				
+			WHILE (IsDirectorSpeechPlaying) DO Sleep(1000);
+			
+			Sleep(500);
+		
+			PlayerFullBodyAnimDone;
+			
+		end;
+									
+{Player walks away from the camera into the nest room}
+			
+		SetVector(Vpos,167.1,13.9,-61.2);
+		SetPlayerGoToNode('Player_End_Jump',Vpos,TRUE);
+		
+		TemporarySetPlayerToFists;
+		
+		Sleep(800);
+					
+		SetVector(Vpos,174.3,18.1,-61.2);
+		SetCameraPosition(Vpos);
+		
+		SetVector(Vpos,-0.9,-0.4,-0.0);
+		SetCameraView(Vpos);
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BACK,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BACK,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,1);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_RIGHT,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_RIGHT,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,2);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_LEFT,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_LEFT,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,3);
+		end;
+		
+		if (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_REAR,0))
+		OR (HasPlayerWeaponTypeAtSlot(HOLSTER_BELT_REAR,1)) THEN
+		begin
+			RemoveItemFromInventoryAtSlot(GetPlayer,4);
+		end;
+			
+		iTime := 0;
+		bLoop := TRUE;
+		While( bLoop AND (NOT HasPlayerArrivedAtNode ) )do 
+		begin
+			Sleep(1000);
+			iTime := iTime + 1;
+			if (iTime >= 10) then 
+			begin
+				SetVector(Vpos,168.6,15.2,-60.8);
+				MoveEntity(GetPlayer,Vpos,0);
+				bLoop := FALSE;
+			end;
+		end;
+		
+		CutSceneEnd(FALSE);
+		
+		ClearLevelGoal('GOAL4');
+				
+		SetLevelCompleted;
+		killEntity(this);			
+			
+	end;
+	
+	end;{case}
+		
+	end;
+
+end;
+
+SCRIPT WhileLoop;
+begin
+	while (InsideTrigger(this,GetPlayer)) or (EnteredTrigger(this,GetPlayer)) do
+	begin
+		if (willie_game_int = 1) then
+		begin
+			KillScript(GetEntityName(this),'OnEnterTrigger');
+			sleep(1);
+			RunScript(GetEntityName(this),'OnEnterTrigger');
+			RemoveThisScript;
+		end;
+		sleep(500);
+	end;
+	
+end;
+
+END. {END OF FILE}

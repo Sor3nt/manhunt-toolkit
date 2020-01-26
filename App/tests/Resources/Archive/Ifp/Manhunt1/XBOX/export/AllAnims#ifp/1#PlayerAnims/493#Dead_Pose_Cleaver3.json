@@ -1,0 +1,448 @@
+{
+    "frameTimeCount": 30,
+    "bones": [
+        {
+            "boneId": 1000,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "position": [
+                            0.0029296875,
+                            0.15576171875,
+                            -0.00244140625
+                        ]
+                    },
+                    {
+                        "position": [
+                            0.0029296875,
+                            0.15576171875,
+                            -0.00244140625
+                        ]
+                    }
+                ]
+            },
+            "unknown1": "da07",
+            "unknown2": "01f8",
+            "unknown3": "c307",
+            "unknown4": "6008"
+        },
+        {
+            "boneId": 1045,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            1,
+                            1,
+                            -0.99951171875,
+                            1
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1094,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            0.09521484375,
+                            0,
+                            1.99755859375
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1095,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0.04931640625,
+                            -0.10791015625,
+                            -0.0888671875,
+                            1.99462890625
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1096,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0.0009765625,
+                            -0.09521484375,
+                            0.01171875,
+                            1.99755859375
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1040,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            0,
+                            0,
+                            2
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1001,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            -1.470703125,
+                            -0.32177734375,
+                            -0.00537109375,
+                            1.31591796875
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1003,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "position": [
+                            -0.02392578125,
+                            0.0517578125,
+                            0.00146484375
+                        ]
+                    },
+                    {
+                        "position": [
+                            -0.02392578125,
+                            0.0517578125,
+                            0.00146484375
+                        ]
+                    }
+                ]
+            },
+            "unknown1": "5006",
+            "unknown2": "b40e",
+            "unknown3": "e8ff",
+            "unknown4": "f5ff"
+        },
+        {
+            "boneId": 1039,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            -0.94384765625,
+                            -0.22607421875,
+                            -0.24169921875,
+                            1.7314453125
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1020,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            0.80419921875,
+                            0,
+                            1.8310546875
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1021,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            1.69970703125,
+                            0.3154296875,
+                            -0.0732421875,
+                            1.0029296875
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1057,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "position": [
+                            -0.02392578125,
+                            -0.05126953125,
+                            0.00146484375
+                        ]
+                    },
+                    {
+                        "position": [
+                            -0.02392578125,
+                            -0.05126953125,
+                            0.00146484375
+                        ]
+                    }
+                ]
+            },
+            "unknown1": "4af8",
+            "unknown2": "040e",
+            "unknown3": "0500",
+            "unknown4": "fcff"
+        },
+        {
+            "boneId": 1093,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            1.49609375,
+                            0.60791015625,
+                            0.15966796875,
+                            1.1689453125
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1074,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            0.7421875,
+                            0,
+                            1.857421875
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1075,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            1.74560546875,
+                            -0.18212890625,
+                            0.3427734375,
+                            -0.89501953125
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1023,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "position": [
+                            -0.12109375,
+                            0.1064453125,
+                            0.01171875
+                        ]
+                    },
+                    {
+                        "position": [
+                            -0.12109375,
+                            0.1064453125,
+                            0.01171875
+                        ]
+                    }
+                ]
+            },
+            "unknown1": "0404",
+            "unknown2": "a408",
+            "unknown3": "55f4",
+            "unknown4": "6105"
+        },
+        {
+            "boneId": 1002,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            0.54150390625,
+                            0,
+                            1.92529296875
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1019,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0.19189453125,
+                            -0.15283203125,
+                            0.10986328125,
+                            1.98193359375
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1024,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            -1.41357421875,
+                            0,
+                            1.4140625
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1077,
+            "frameType": 3,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "position": [
+                            -0.12109375,
+                            -0.10595703125,
+                            0.01171875
+                        ]
+                    },
+                    {
+                        "position": [
+                            -0.12109375,
+                            -0.10595703125,
+                            0.01171875
+                        ]
+                    }
+                ]
+            },
+            "unknown1": "ad01",
+            "unknown2": "01f6",
+            "unknown3": "d0f3",
+            "unknown4": "e3fd"
+        },
+        {
+            "boneId": 1056,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            0.41650390625,
+                            0,
+                            1.9560546875
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1073,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            -0.03662109375,
+                            0.14404296875,
+                            -0.12255859375,
+                            1.99072265625
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "boneId": 1078,
+            "frameType": 1,
+            "startTime": 30,
+            "frames": {
+                "frames": [
+                    {
+                        "quat": [
+                            0,
+                            -1.41357421875,
+                            0,
+                            1.4140625
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "unknown5": "00000040",
+    "entry": []
+}

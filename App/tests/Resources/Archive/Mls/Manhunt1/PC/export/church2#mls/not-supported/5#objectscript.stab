@@ -1,0 +1,10 @@
+[
+    {
+        "name": "i",
+        "nameGarbage": "000000726f6a656374735c6b6f6a616b5c6c6576656c735c43687572636832",
+        "offset": "00000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

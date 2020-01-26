@@ -1,0 +1,42 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Cop11		:	et_name;
+
+VAR
+
+
+SCRIPT OnCreate;
+BEGIN
+	
+	if NOT AIIsGoalNameInSubpack('LEADER','Cops','gCop11_Guard') 
+		then AIAddGoalForSubpack('LEADER','Cops','gCop11_Guard');
+
+	
+End;
+
+SCRIPT OnHighSightingOrAbove;
+BEGIN	
+
+	if AIIsGoalNameInSubpack('LEADER','Cops','gCop11_Guard') 
+		then AIRemoveGoalFromSubpack('LEADER','Cops','gCop11_Guard');
+	
+	AISetHunterIdleActionMinMaxRadius('Cop11',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,1000,5000,30.0);	
+	removethisscript;
+	
+End;
+
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	AISetEntityIdleOverRide(GetEntityName(this),FALSE,FALSE);
+	removethisscript;
+End;
+
+SCRIPT OnDeath;
+BEGIN
+	if AIIsGoalNameInSubpack('LEADER','Cops','gCop11_Guard') 
+		then AIRemoveGoalFromSubpack('LEADER','Cops','gCop11_Guard');
+End;
+
+END. {end of Scripts}

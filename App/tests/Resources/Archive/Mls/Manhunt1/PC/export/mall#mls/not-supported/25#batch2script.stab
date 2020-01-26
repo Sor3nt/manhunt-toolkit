@@ -1,0 +1,20 @@
+[
+    {
+        "name": "levelstatus",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            188
+        ]
+    },
+    {
+        "name": "vec",
+        "nameGarbage": "005803bc00000000000000000000000000000000000000000000000000",
+        "offset": "34000000",
+        "size": 12,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

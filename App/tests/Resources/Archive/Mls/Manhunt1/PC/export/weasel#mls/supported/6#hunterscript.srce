@@ -1,0 +1,52 @@
+SCRIPTMAIN	HunterScript;
+
+ENTITY
+HUNTER09	:	et_name;
+
+SCRIPT OnCreate;
+BEGIN
+AIAddEntity('HUNTER09');
+
+AIAddHunterToLeaderSubpack('LEADER','RoofTop','HUNTER09');
+
+SetHunterHideHealth('HUNTER09',100);
+
+CreateInventoryItem(CT_SMALL_BAT,this,TRUE);
+	
+AISetHunterIdleActionMinMaxRadius('HUNTER09',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_HIGHPRIORITY,30,120,7.0);
+
+END;
+
+
+SCRIPT OnHighSighting;
+BEGIN
+
+	runScript(GetEntityName(this),'AudioCallHelp');
+		
+	sleep(20000);
+
+End;
+
+SCRIPT OnHunterIdle;
+BEGIN
+	AIEntityGoHomeIfIdle(GetEntityName(this));
+	KillScript(GetEntityName(this),'AudioCallHelp');
+	KillScript(GetEntityName(this),'OnHighSighting');
+END;
+
+SCRIPT AudioCallHelp;
+BEGIN
+	AIPlayCommunication(GetEntityName(this),'ShoutForHelp','Pain');
+	sleep(120000);
+End;
+
+
+SCRIPT OnDeath;
+BEGIN
+	sleep(1000);
+
+	runscript('player','DeathCheck');
+	
+End;
+
+END.

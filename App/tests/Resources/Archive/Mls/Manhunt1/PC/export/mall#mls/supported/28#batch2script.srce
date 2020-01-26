@@ -1,0 +1,72 @@
+SCRIPTMAIN Batch2Script;
+
+ENTITY
+HUNTER9	:	et_name;
+
+VAR
+levelstatus	: level_var integer;
+vec			: Vec3D;
+
+SCRIPT OnCreate;
+BEGIN
+AIAddEntity(GetEntityName(this));
+
+AISetEntityVoiceID(GetEntityName(this),VOICE_INNOCENT1VOICE1);
+SetHunterSkin(this,1);
+SetHunterHeadSkin(this,1);
+
+AISetHunterOnRadar(GetEntityName(this),FALSE);
+SetPedLockonable(this,FALSE);
+SetEntityInvulnerable(this,TRUE);
+
+IF levelstatus = 1 THEN RunScript('HUNTER9','StartInBar');
+
+AIIgnoreEntityIfDead(GetEntityName(this));
+END;
+
+SCRIPT StartInBar;
+BEGIN
+AIAddHunterToLeaderSubpack('LEADER','subMall5',GetEntityName(this));
+
+SetHunterHideHealth(GetEntityName(this),0);
+SetHunterDropAmmo(this,4);
+
+AIDefineGoalGotoNode('goalGOTO9',GetEntityName(this),AISCRIPT_HIGHPRIORITY,'coverH9',AISCRIPT_RUNMOVESPEED,TRUE);
+
+AISetEntityAllowSurprise(GetEntityName(this),FALSE);
+AISetIdleHomeNode(GetEntityName(this),'');
+
+AISetEntityIdleOverride(GetEntityName(this),TRUE,TRUE);
+END;
+
+
+SCRIPT StartHunt;
+BEGIN
+SetPedLockonable(this,TRUE);
+SetEntityInvulnerable(this,FALSE);
+AISetEntityIdleOverride(GetEntityName(this),FALSE,FALSE);
+AIAddGoalForSubpack('LEADER','subMall5','goalGOTO9');
+RemoveThisScript;
+END;
+
+
+SCRIPT OnLowSightingOrAbove;
+BEGIN
+AISetHunterOnRadar(GetEntityName(this),TRUE);
+RemoveThisScript;
+END;
+
+
+SCRIPT OnHunterReachedNode;
+BEGIN
+AISetHunterOnRadar(GetEntityName(this),TRUE);
+RemoveThisScript;
+END;
+
+SCRIPT MoveTosubMall6;
+BEGIN
+IF IsEntityAlive(GetEntityName(this)) THEN AIRemoveHunterFromLeaderSubpack('LEADER',GetEntityName(this));
+IF IsEntityAlive(GetEntityName(this)) THEN AIAddHunterToLeaderSubpack('LEADER','subMall6',GetEntityName(this));
+END;
+
+END.

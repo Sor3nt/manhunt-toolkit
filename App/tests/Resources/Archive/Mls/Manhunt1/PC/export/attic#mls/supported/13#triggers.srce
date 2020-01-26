@@ -1,0 +1,233 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+	CerbMoveIn		:	et_name;
+
+VAR
+
+SCRIPT OnCreate; 
+BEGIN
+	TriggerAddEntityClass(this, COL_HUNTER);			
+End;
+
+SCRIPT OnEnterTrigger;
+BEGIN
+	
+	if ( EnteredTrigger(this,GetPlayer) or InsideTrigger(this,GetPlayer) ) then
+	begin
+		if (AInumberInSubPack('LEADER','CERBS') = 0) then 
+		begin			
+			{runScript('Starkweather','CutScene');}
+			KillEntity(this);
+		end;
+	end;
+	
+		
+End;
+
+SCRIPT CERBSCutScene;
+VAR
+vPos	: vec3d;
+BEGIN
+
+				
+	CutSceneStart;
+
+		EntityIgnoreCollisions(GetEntity('Piggsy_Chain_Door01'),TRUE);	
+		EntityIgnoreCollisions(GetEntity('CJ_STARK_DESK'),TRUE);	
+		
+		
+		if IsGameTextDisplaying then KillGameText;
+		
+		SetPlayerControllable(TRUE);
+				
+		AICutSceneAllEntitiesEnable(TRUE);
+		
+		{SHOT 1:}	
+							
+		ScriptHogProcessorStart;
+		setVector(vPos,192.937,35.297,-60.305);
+		SetCameraPosition(vPos);
+		
+		SetVector(vPos,0.0,0.0,0.0);
+		CameraForceLookAtEntity(GetEntity('CameraLook14'),vPos,FALSE,FALSE,0.0);
+		ScriptHogProcessorEnd;		
+		
+		PlayFrontEndAudioStreamOneShot(127);
+					
+		PlayHunterSpeechPlaceholder('DIR');
+			
+		SetVector(vPos,197.801,33.586,-61.601);
+		EntityPlayCutSceneAnimation(GetEntity('Starkweather'), vPos, 180, 'Idle_Cerb_Sw_Sc1');									
+		
+		SetVector(vPos,196.01, 33.586,-60.999);
+		EntityPlayCutSceneAnimation(GetEntity('Guard01'), vPos, 180, 'Idle_Cerb_1_Sc1');
+	
+		SetVector(vPos,195.211, 33.586,-62.58);
+		EntityPlayCutSceneAnimation(GetEntity('Guard02'), vPos, 180, 'Idle_Cerb_2_Sc1');
+		
+		SetVector(vPos,195.537, 33.586,-60.043);
+		EntityPlayCutSceneAnimation(GetEntity('Guard03'), vPos, 180, 'Idle_Cerb_3_Sc1');
+		
+		SetVector(vPos,196.679, 33.586,-63.249);
+		EntityPlayCutSceneAnimation(GetEntity('Guard04'), vPos, 180, 'Idle_Cerb_4_Sc1');
+		
+		SetVector(vPos,196.529, 33.586,-62.097);
+		EntityPlayCutSceneAnimation(GetEntity('Guard05'), vPos, 180, 'Idle_Cerb_5_Sc1');
+		
+		sleep(2500);				
+		
+		SetVector(vPos,177.676,32.776,-61.167);
+		EntityPlayCutSceneAnimation(GetPlayer, vPos, 180, 'Idle_Cerb_P_Sc3');
+		
+		SetVector(vPos,183.255,33.068,-59.864);
+		EntityPlayCutSceneAnimation(GetEntity('Guard01'), vPos, 180, 'Idle_Cerb_1_Sc2');
+		
+		SetVector(vPos,179.806,32.87,-62.485);
+		EntityPlayCutSceneAnimation(GetEntity('Guard02'), vPos, 180, 'Idle_Cerb_2_Sc2');
+		
+		SetVector(vPos,180.267,32.886,-60.317);
+		EntityPlayCutSceneAnimation(GetEntity('Guard03'), vPos, 180, 'Idle_Cerb_3_Sc2');
+		
+		SetVector(vPos,183.291,33.038,-63.046);
+		EntityPlayCutSceneAnimation(GetEntity('Guard04'), vPos, 180, 'Idle_Cerb_4_Sc2');
+		
+		SetVector(vPos,181.167,32.927,-61.404);
+		EntityPlayCutSceneAnimation(GetEntity('Guard05'), vPos, 180, 'Idle_Cerb_5_Sc2');
+
+		sleep(166);
+		
+		{SHOT 2:}
+		CameraStopLookAtEntity(FALSE,0.0);	
+				
+		ScriptHogProcessorStart;
+		setVector(vPos,183.988,34.845,-61.3);
+		SetCameraPosition(vPos);
+		
+		SetVector(vPos,0.0,0.0,0.0);
+		CameraForceLookAtEntity(GetEntity('CameraLook15'),vPos,FALSE,FALSE,0.0);
+		ScriptHogProcessorEnd;
+		
+		KillSubtitleText;
+		
+		sleep(2667);
+						
+		{SHOT 3: }		
+		CameraStopLookAtEntity(FALSE,0.0);	
+			
+		ScriptHogProcessorStart;
+		setVector(vPos,176.042,34.264,-58.617);
+		SetCameraPosition(vPos);
+		
+		SetVector(vPos,0.0,0.0,0.0);
+		CameraForceLookAtEntity(GetEntity('CameraLook16'),vPos,FALSE,FALSE,0.0);
+		ScriptHogProcessorEnd;
+			
+		EntityPlayAnim(GetEntity('Piggsy_Chain_Door01'),'Idle_Cerb_Door_Sc3',FALSE);
+		
+		sleep(1467);
+		
+		{SHOT 4: }		
+		CameraStopLookAtEntity(FALSE,0.0);		
+		
+		ScriptHogProcessorStart;
+		setVector(vPos,183.988,34.845,-61.3);
+		SetCameraPosition(vPos);
+		
+		SetVector(vPos,0.0,0.0,0.0);
+		CameraForceLookAtEntity(GetEntity('CameraLook16'),vPos,FALSE,FALSE,0.0);
+		ScriptHogProcessorEnd;
+		
+		sleep(633);
+		
+		{SHOT 5: }		
+		CameraStopLookAtEntity(FALSE,0.0);			
+				
+		ScriptHogProcessorStart;
+		setVector(vPos,170.722,34.501,-68.516);
+		SetCameraPosition(vPos);
+		
+		SetVector(vPos,0.0,0.0,0.0);
+		CameraForceLookAtEntity(GetEntity('CameraLook17'),vPos,FALSE,FALSE,0.0);
+		ScriptHogProcessorEnd;
+		
+		sleep(1400);
+		
+		{SHOT 6: }
+		CameraStopLookAtEntity(FALSE,0.0);	
+	
+		ScriptHogProcessorStart;
+		setVector(vPos,175.428,34.996,-65.262);
+		SetCameraPosition(vPos);
+		
+		SetVector(vPos,0.0,0.0,0.0);
+		CameraForceLookAtEntity(GetEntity('CameraLook18'),vPos,FALSE,FALSE,0.0);
+		ScriptHogProcessorEnd;
+		
+		
+		sleep(1700);
+		
+		{END}
+		CameraStopLookAtEntity(FALSE,0.0);					
+		SetPlayerControllable(FALSE);
+		
+		EntityIgnoreCollisions(GetEntity('CJ_STARK_DESK'),FALSE);
+		
+		LoadFrontEndAudioStream(SCRIPTED_TRACK_DDOOR); 		 
+				
+	CutSceneEnd(FALSE);
+	
+		{Set Up Simulation for CutScene}
+		
+		SetVector(vPos,163.924,25.522,-60.936);		
+		MoveEntity(GetPlayer,vPos,0);
+		SetPlayerHeading(10);
+		
+		SetVector(vPos,175.757,32.77,-65.776);
+		MoveEntity(GetEntity('Guard01'),vPos,0);
+		
+		SetVector(vPos,176.793,32.77,-63.121);
+		MoveEntity(GetEntity('Guard02'),vPos,0);
+		
+		SetVector(vPos,174.87,32.77,-59.332);
+		MoveEntity(GetEntity('Guard03'),vPos,0);
+		
+		SetVector(vPos,175.506,32.77,-61.213);
+		MoveEntity(GetEntity('Guard04'),vPos,0);
+		
+		SetVector(vPos,177.239,32.77,-60.297);
+		MoveEntity(GetEntity('Guard05'),vPos,0);
+				
+		AISetHunterOnRadar('Guard01',TRUE);
+		AISetHunterOnRadar('Guard02',TRUE);
+		AISetHunterOnRadar('Guard03',TRUE);
+		AISetHunterOnRadar('Guard04',TRUE);
+		AISetHunterOnRadar('Guard05',TRUE);		
+					
+	AISetEntityIdleOverRide('Guard01',FALSE,FALSE);
+	AISetEntityIdleOverRide('Guard02',FALSE,FALSE);
+	AISetEntityIdleOverRide('Guard03',FALSE,FALSE);
+	AISetEntityIdleOverRide('Guard04',FALSE,FALSE);
+	AISetEntityIdleOverRide('Guard05',FALSE,FALSE);
+	
+	RunScript('Guard01','GetPath');
+	RunScript('Guard02','GetPath');
+	RunScript('Guard03','GetPath');
+	RunScript('Guard04','GetPath');
+	RunScript('Guard05','GetPath');
+							
+	AIAddGoalForSubPack('LEADER','CERBS','gMoveIn');
+		
+	AIAddGoalForSubPack('LEADER','CERBS','gGuard_1');
+	AIAddGoalForSubPack('LEADER','CERBS','gGuard_2');
+		
+	GraphModifyConnections(GetEntity('CJ_CHAINDOOR2_(D)01'),AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+
+	EntityIgnoreCollisions(GetEntity('Piggsy_Chain_Door01'),FALSE);	
+		
+	removethisscript;
+
+End;
+
+
+END.

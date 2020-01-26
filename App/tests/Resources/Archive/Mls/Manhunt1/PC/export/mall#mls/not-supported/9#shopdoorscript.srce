@@ -1,0 +1,44 @@
+SCRIPTMAIN	ShopdoorScript;
+
+ENTITY
+CJ_SHOPDOOR3_(D)	:	et_name;
+
+VAR
+levelstatus	: level_var	integer;
+
+SCRIPT OnCreate;
+BEGIN
+UnfreezeEntity(this);
+
+CASE levelstatus OF
+0,1: 
+	BEGIN
+		LockEntity(this);
+		GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_NOTHING);
+	END;
+2,3:
+	BEGIN
+		UnlockEntity(this);
+		GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		SetDoorOverrideAngle(GetEntityName(this),135);
+	END;
+END;{case}
+
+END;
+
+SCRIPT Unlock;
+BEGIN
+UnlockEntity(this);
+GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+END;
+
+SCRIPT ForceOpen;
+BEGIN
+UnlockEntity(this);
+GraphModifyConnections(this, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+
+SetDoorOverrideAngle(GetEntityName(this),135);
+END;
+
+
+END.

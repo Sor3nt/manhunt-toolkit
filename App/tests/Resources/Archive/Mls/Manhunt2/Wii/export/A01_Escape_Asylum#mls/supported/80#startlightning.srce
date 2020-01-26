@@ -1,0 +1,21 @@
+scriptmain StartLightning;
+
+ENTITY
+	triggerStartLightning	: et_name;
+	
+script OnEnterTrigger;
+
+VAR
+	pos, pos2 : vec3d;
+
+begin
+		
+		SetVector(pos, 1.10478, 17.3008, -11.7105);
+		SetVector(pos2, 36.2764, 29.1025, 11.6745);
+		CreateBoxTrigger(pos, pos2, 'triggerLightning');
+		
+		RemoveThisScript;
+		
+end;
+
+end.

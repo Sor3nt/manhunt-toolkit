@@ -1,0 +1,26 @@
+[
+    {
+        "name": "binnocent_game_on",
+        "nameGarbage": "000000000000000000000000000000",
+        "offset": "c8000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "bjurygamestarts",
+        "nameGarbage": "0000000000000000000000000000000000",
+        "offset": "c4000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "btrophyhasbeentaken",
+        "nameGarbage": "00000000000000000000000000",
+        "offset": "cc000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

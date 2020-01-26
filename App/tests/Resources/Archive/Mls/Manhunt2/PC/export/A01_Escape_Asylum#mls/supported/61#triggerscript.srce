@@ -1,0 +1,24 @@
+scriptmain TriggerScript;
+
+entity triggerSavePoint2 : et_name;
+
+type
+	tLevelState = ( StartOfLevel, PickedUpSyringe, InOffice, LuredHunter, KilledHunter, BeforeElevator, LeftElevator, BeforeBeasts, SpottedByCamera, TurnedOnTV, InCarPark, EndOfLevel );
+
+
+var
+	lLevelState : level_var tLevelState;
+
+
+script OnEnterTrigger;
+begin
+	WriteDebug(GetEntityName(this), ' : OnEnterTrigger');
+
+    lLevelState := BeforeBeasts;
+    RunScript('A01_Escape_Asylum', 'OnLevelStateSwitch');
+
+	RemoveEntity(this);
+end;
+
+
+end.

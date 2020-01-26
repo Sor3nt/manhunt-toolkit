@@ -1,0 +1,44 @@
+scriptmain hunterScript;
+entity hQTM(hunter) : et_name;
+var	
+	self : string[32];
+	pauseset : boolean;
+	
+script OnCreate;
+	begin
+		self := GetEntityName(this);
+		AIAddHunterToLeaderSubpack('leader(leader)', 'subHuntMelee', self);
+		{AIMakeEntityDeaf(self, 0);
+		AIMakeEntityBlind(self, 0);}
+		AISetIdleHomeNode(self, '');
+		SetHunterRunTime(self, 20);
+		AISetHunterOnRadar(self, true);
+		pauseset := false;
+	end;
+
+script OnDeath;
+	var pos : vec3d;
+	begin
+		pos := GetEntityPosition(this);
+		pos.y := pos.y + 0.4;
+		if(GetDamage(GetPlayer) < 45) then SpawnMovingEntity('G_First_Aid_(CT)', pos, 'ScriptCreateName');
+	end;
+
+script OnHunterReachedNode;
+	begin
+		if (AIGetHunterLastNodeName(this) = 'nQTMPathStart') then
+		begin
+			AiEntityPlayAnim('hQTM(hunter)', 'BAT_DOUBLETAKE_ANIM');
+		end;
+		
+		if (AIGetHunterLastNodeName(this) = 'nQTMWait1') and (pauseset = false) then
+		begin
+		AISetIdlePatrolStop('hQTM(hunter)', 'pQTMStop01', 4, true);
+		pauseset := true;
+		end;
+		
+	end;
+	
+
+	
+end.

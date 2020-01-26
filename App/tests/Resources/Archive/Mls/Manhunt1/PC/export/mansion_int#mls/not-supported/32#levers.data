@@ -1,0 +1,17 @@
+{
+    "const": [],
+    "strings": [
+        "CJ_IND_LIGHT",
+        "GreenLightOn",
+        "RedLightOn",
+        "GetSwitchState: ",
+        "Hunters_Generator",
+        "LeverSpawnHunters",
+        "CJ_IND_LIGHT",
+        "GreenLightOn",
+        "Mansion_Int",
+        "LevelGoals",
+        "LIFT"
+    ],
+    "byteReserved": 4
+}

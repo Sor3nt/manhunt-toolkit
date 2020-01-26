@@ -1,0 +1,12 @@
+SCRIPTMAIN TRIGGERScript;
+{TRIGGER AREA FOR DUMPING KEY HUNTER TO OPEN SECTIONDOOR1}
+
+ENTITY
+Asylum_Victim	:	et_name;
+
+SCRIPT OnCreate;
+begin
+	EntityPlayAnim(GetEntity('Asylum_Victim'),'ASY_Victim_Rest_Loop',TRUE);
+end;
+
+END.

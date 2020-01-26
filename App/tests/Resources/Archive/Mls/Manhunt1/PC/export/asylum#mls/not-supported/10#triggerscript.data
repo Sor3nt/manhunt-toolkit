@@ -1,0 +1,25 @@
+{
+    "const": [],
+    "strings": [
+        "SMOKE ON =",
+        "Asylum_Victim",
+        "LURE_MEDIUM",
+        "ASY_Victim_Shock_End",
+        "Dynamic_light1_(L)",
+        "SMOKE ON =",
+        "FXSMOK1",
+        "MACHINE OFF SMOKE ON =",
+        "MACHINE OFF PARTICLES KILLED",
+        "ASY_Victim_Rest_Loop",
+        "machine can be switched on again",
+        "ASY_Victim_Shock_Loop",
+        "WORKSHOPHUNTER",
+        "MachineTurnedOn",
+        "MACHINE SWITCHED ON = ",
+        "Gen_MainPower_Lever_(S)",
+        "SmokeCheck",
+        "SMOKE CHECK SMOKE ON =",
+        "FXSMOK4"
+    ],
+    "byteReserved": 36
+}

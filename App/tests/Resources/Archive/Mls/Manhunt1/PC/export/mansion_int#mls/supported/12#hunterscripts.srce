@@ -1,0 +1,87 @@
+SCRIPTMAIN	HunterScripts;
+
+ENTITY
+	Guard12		:	et_name;
+
+
+VAR
+bInAlertPosition	: boolean;
+
+{LEVEL SCOPED VARS}
+level_bIsAlertOn	: level_var boolean;
+bMapNotAquired		: level_var boolean;
+sLastDeadHunter		: level_var string[32];
+
+SCRIPT OnCreate;
+BEGIN
+	
+	AISetEntityAllowSurprise(getEntityName(this),FALSE);
+	SetHunterHideHealth(getEntityName(this),0);	
+		
+	AICancelHunterIdleAction(getEntityName(this),AISCRIPT_IDLE_STANDSTILL);
+	sleep(1000);
+	runscript(getEntityName(this),'GetPath');
+End;
+
+
+
+SCRIPT OnHighSightingOrAbove;
+BEGIN
+	
+	if NOT level_bIsAlertOn then runscript('Alert_Manager','RaiseAlert')
+	else runscript('Alert_Manager','AreaCheck');
+	
+		
+End;
+
+
+
+SCRIPT OnHighHearingOrAbove;
+BEGIN
+
+	{Check if the player is holding a gun, it means the guard has heard a definite gunshot}
+			
+	if IsEntityHoldingAmmoWeapon(GetPlayer) then
+	begin
+		if NOT level_bIsAlertOn	then runscript('Alert_Manager','RaiseAlert')					
+		else Runscript('Alert_Manager','AreaCheck');		
+	end;
+	
+End;
+
+SCRIPT GetPath;
+BEGIN
+
+	AISetIdleHomeNode('Guard12','');
+	
+	AICancelHunterIdleAction(getEntityName(this),AISCRIPT_IDLE_STANDSTILL);
+	AICancelHunterIdleAction(getEntityName(this),AISCRIPT_IDLE_SPEECH);
+		
+	AISetHunterIdlePatrol('Guard12',AISCRIPT_IDLE_PATROL,AISCRIPT_VERYHIGHPRIORITY,1000,5000,'Patrol_Guard12');
+	
+	AISetHunterIdleActionMinMax(getEntityName(this),AISCRIPT_IDLE_STANDSTILL,AISCRIPT_MEDIUMPRIORITY,5,10);	
+	AISetHunterIdleAction(getEntityName(this),AISCRIPT_IDLE_SPEECH,AISCRIPT_LOWPRIORITY);
+		
+	sleep(10000);
+	
+	AISetHunterIdlePatrol('Guard12',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,45,360,'Patrol_Guard12');
+	
+	{AISetIdlePatrolStop('Guard11','ADD_A_STOP_HERE',4,TRUE);	
+	AISetIdlePatrolStop('Guard11','ADD_A_STOP_HERE',4,FALSE);}
+	
+	removethisscript;
+End;
+
+SCRIPT OnHunterIdle;
+BEGIN
+	if level_bIsAlertOn then runscript('Alert_Manager','WaitToResetAlert');
+End;
+
+SCRIPT OnDeath;
+BEGIN
+	If bMapNotAquired then runscript('Mansion_Int','InitMap');
+	sLastDeadHunter := GetEntityName(this);
+	if level_bIsAlertOn then Runscript('Alert_Manager','DetectCamping');
+End;
+
+END. {end of Scripts}

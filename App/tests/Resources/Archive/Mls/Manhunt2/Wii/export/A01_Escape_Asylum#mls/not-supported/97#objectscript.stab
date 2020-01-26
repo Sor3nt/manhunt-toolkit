@@ -1,0 +1,55 @@
+[
+    {
+        "name": "arrived",
+        "nameGarbage": "00000000000000000000000000000000000000000000000000",
+        "offset": "04060000",
+        "size": 4,
+        "hierarchieType": "01000000",
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "gelevatorpos",
+        "nameGarbage": "00000000773a5c4d616e68756e74325c41737365",
+        "offset": "ec050000",
+        "size": 12,
+        "hierarchieType": "01000000",
+        "objectType": "vec3d",
+        "occurrences": []
+    },
+    {
+        "name": "lelevatorlevel",
+        "nameGarbage": "000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "tLevelState",
+        "occurrences": [
+            2483027968,
+            1946222592,
+            3423010816,
+            940900352
+        ]
+    },
+    {
+        "name": "llevelstate",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "tLevelState",
+        "occurrences": [
+            402653184,
+            1410662400
+        ]
+    },
+    {
+        "name": "switchready",
+        "nameGarbage": "000000000000000000000000000000000000000000",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "hierarchieType": "ffffffff",
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

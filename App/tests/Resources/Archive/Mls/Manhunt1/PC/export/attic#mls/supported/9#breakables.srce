@@ -1,0 +1,30 @@
+SCRIPTMAIN	Breakables;
+
+ENTITY
+	Piggsy_Chain_Door	:	et_name;
+
+{THIS SCRIPT IS USED PURELY TO FIX A CLASS A IF PLAYER IS CHEATING WITH GUNS}
+
+VAR
+
+SCRIPT OnDamage; 
+BEGIN	
+	
+	if (IsNamedItemInInventory(GetPlayer,CT_CHAINSAW_PLAYER) <> -1) then
+	begin		
+		
+		if NOT IsEntityAlive('Piggsy') then 
+		begin			
+			
+			EntityIgnoreCollisions(this,TRUE);
+						
+			GraphModifyConnections(GetEntity('CameraLook3'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+						
+			DestroyEntity(this);
+		end;
+		
+	end;
+			
+End;         
+
+END. 

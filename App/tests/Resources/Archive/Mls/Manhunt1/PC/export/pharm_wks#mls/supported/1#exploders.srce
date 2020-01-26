@@ -1,0 +1,50 @@
+SCRIPTMAIN	Exploders;
+
+ENTITY
+	Tranq_Drum		:	et_name;
+
+{THIS IS A SCRIPT TEMPLATE FOR A TRANQUILLISER CHEMICAL DRUM}
+
+SCRIPT OnBeingShot;
+VAR
+vDrumPoz                     : vec3d;
+
+BEGIN
+
+	{Create FX of explosion}
+	
+	vDrumPoz:= GetEntityPosition(this);
+	
+	CreateMhFx('Drum_Explode',vDrumPoz,TRUE);
+	
+	{Create Tranq Shot}                      
+	
+	vDrumPoz.Y := vDrumPoz.Y + 0.2;
+	
+	CreateAndFireWeapon('TranqBarrel', vDrumPoz); 
+				
+	KillEntity(this);
+END;
+
+SCRIPT OnStartExploding;
+VAR
+vDrumPoz                     : vec3d;
+
+BEGIN
+
+	{Create FX of explosion}
+	
+	vDrumPoz:= GetEntityPosition(this);
+	
+	CreateMhFx('Drum_Explode',vDrumPoz,TRUE);
+	
+	{Create Tranq Shot}                      
+	
+	vDrumPoz.Y := vDrumPoz.Y + 0.2;
+	
+	CreateAndFireWeapon('TranqBarrel', vDrumPoz); 
+				
+	KillEntity(this);
+END;
+
+END.

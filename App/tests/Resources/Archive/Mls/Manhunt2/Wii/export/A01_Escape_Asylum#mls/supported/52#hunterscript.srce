@@ -1,0 +1,34 @@
+scriptmain HunterScript;
+
+entity fighter02(hunter) : et_name;
+
+var
+	me : string[30];
+
+
+script OnCreate;
+begin
+    me := GetEntityName(this);
+
+    WriteDebug(me, ' : OnCreate');
+
+	{ Make character unlockonable, invulnerable, unexecutable }
+	SetPedLockonable(this, FALSE);
+	SetEntityInvulnerable(this, TRUE);
+	SetHunterExecutable(this, FALSE);
+
+	AISetHunterOnRadar(me, FALSE);
+
+	RunScript(me, 'Animate');
+end;
+
+
+script Animate;
+begin
+    WriteDebug(me, ' : Animate');
+
+    AIEntityPlayAnimLooped(me, 'BAT_INMATE_SMACK_HEAD_ANIM', 0.0);
+end;
+
+
+end.

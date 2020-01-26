@@ -1,0 +1,15 @@
+scriptmain EntityScript;
+
+ENTITY
+	tLockerTut1 : et_name;
+	
+script OnEnterTrigger;
+VAR
+	pos : vec3d;
+begin
+	WriteDebug('tLockerTut1 Entered');
+	DisplayGameText('OPEN_WII');
+	
+	RemoveThisScript;
+end;
+end.

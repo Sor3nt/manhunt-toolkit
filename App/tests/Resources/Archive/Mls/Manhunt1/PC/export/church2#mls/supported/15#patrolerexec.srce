@@ -1,0 +1,22 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+SCRIPTMAIN	Patrolerexec;
+ENTITY
+
+	hGhost		:	et_name;
+	
+VAR
+
+SCRIPT OnDeath;
+
+BEGIN
+					
+	runscript('player','BUG');
+
+	removethisscript;	
+	
+END;
+
+
+END.

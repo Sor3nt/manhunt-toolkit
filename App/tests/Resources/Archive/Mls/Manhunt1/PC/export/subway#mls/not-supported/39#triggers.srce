@@ -1,0 +1,1358 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+	Hunters_Generator1		:	et_name;
+
+CONST
+MAX_HUNTERS_IN_TEAM	 = 3; 	{If you change this number check the goal definitions as well!!}
+NAME_SIZE			 = 32; 	{size of strings containing hunter names}
+
+TYPE
+tLocation		= 	(None, Tracks, Station, PowerStation);
+
+VAR
+{LOOP VARS}
+iHuntersZeroingIn	: 	integer;
+iHuntersSweeping	:	integer;
+iHuntersReGrouping	:	integer;
+
+{ This is the number of hunters left (in team 2) }
+{ Never use it directly always call AINumberInSubPack('LEADER', 'Team2') }
+{ and store the value in this variable }
+iTeam2Left			:	integer;
+{ This is the number of hunters Active (in team 2) i.e. Alive and NOT Idle}
+{ Never use it directly always call GetHuntersDoingStuff }
+{ and store the value in this variable }
+iTeam2Active		:	integer;
+
+{SCHEDULER VARS}
+tlocNewTeamLocation		: tLocation;
+tlocLastDone_Regroup	: tLocation; {None, Tracks, Station}
+tlocLastDone_Sweep		: tLocation; {None, Tracks, Station}
+tlocLastSighting		: tLocation; {None, Tracks, Station}
+bFirstRun,
+bFirstRegroup,
+IsSchedulerRunning,
+bGoalsDefined			: boolean;
+				
+
+{LEVEL SCOPED VARS}
+tTeamTask				: level_var		integer;
+sSpotter				: level_var 	string[40];
+
+{************************ FUNCTION HEADERS ************************}
+
+PROCEDURE	SpawnTeam; FORWARD;
+
+FUNCTION  	SpawnHunterInPackAtVectorWithWeapon(VAR vGuyPoz : vec3d ; sWeapon : eCollectableType; iAmmo : integer ; sName, sType, sPack : string) : entityptr; FORWARD;	
+FUNCTION 	DefineGoalsForTeam(): boolean; FORWARD;
+FUNCTION 	RemoveGoalDefinitionsFromTeam(): boolean; FORWARD;
+FUNCTION	FindBestPlaceToGo : tLocation; FORWARD;
+PROCEDURE 	ReGroup; FORWARD;
+FUNCTION 	GetHuntersDoingStuff : integer; FORWARD;
+FUNCTION	CreateTeam2IfEmpty : boolean; FORWARD;
+PROCEDURE 	SweepHere({VAR} tPlayerArea : tLocation); FORWARD;
+PROCEDURE 	SpawnTeam2AtTracks;  FORWARD;
+PROCEDURE 	SpawnTeamAtStat;  FORWARD;
+PROCEDURE 	PowerStationSweep; FORWARD;
+PROCEDURE 	StationSweep; FORWARD;
+PROCEDURE 	TunnelSweep; FORWARD;
+PROCEDURE 	ZeroIn; FORWARD;
+{********************* END OF FUNCTION HEADERS *********************}
+
+{*********************    SCRIPTS     *********************
+***** Event / Called from Other Entity Events *******
+SCRIPT TeamScheduler;
+SCRIPT OnCreate;
+SCRIPT Team2HunterCreated;
+SCRIPT Team2HunterSightedPlayer;
+SCRIPT Team2HunterReachedNode;
+SCRIPT Team2HunterIdle;
+SCRIPT Team2HunterDied;
+SCRIPT Reset;
+SCRIPT Retreat;
+********************** END OF SCRIPTS *********************}
+
+
+
+SCRIPT OnCreate;
+{ Init the var that contains the players location 		}
+{ All other Variables will be set when the scheduler	}
+{ is ran for the first time								}
+BEGIN
+	tlocLastDone_Regroup	:= None;
+	tlocLastDone_Sweep		:= None;
+	tlocLastSighting	 	:= None;
+	tlocNewTeamLocation		:= None; 
+	
+	bGoalsDefined			:= FALSE;
+	bFirstRun				:= TRUE;
+	bFirstRegroup			:= FALSE;
+	iTeam2Left 				:= 0;
+	
+	IsSchedulerRunning 		:= FALSE;
+	
+END;
+
+{********************* SCHEDULER SCRIPTS *********************}
+
+SCRIPT StartHunterGenerator;
+BEGIN
+	
+	{Re-Init all the scheduler VARS}
+	tlocLastDone_Regroup	:= None;
+	tlocLastDone_Sweep		:= None;
+	tlocLastSighting	 	:= None;
+	tlocNewTeamLocation		:= None; 
+	
+	bGoalsDefined			:= FALSE;
+	bFirstRun				:= TRUE;
+	bFirstRegroup			:= FALSE;
+	iTeam2Left 				:= 0;
+	tTeamTask				:= 0;
+	
+	IsSchedulerRunning 		:= FALSE;
+	
+	{ If none - CreateTeam2IfEmpty  will create team and return true }
+	if CreateTeam2IfEmpty then
+	begin				
+		while (AINumberInSubPack('LEADER', 'Team2') < 3) do sleep(1000);			
+	end;
+	
+	sleep(1000);
+	
+	RunScript('Hunters_Generator1', 'TeamScheduler');
+	
+End;
+
+SCRIPT TeamScheduler;
+{ Call CreateTeam2IfEmpty which will		}
+{ create a new Team if the team is empty	}
+{ If it returns false (Team NOT Empty)		}
+
+{ else if Regroup Needed then Regroup 		}
+{ else if Sweep Needed then Sweep 			}
+{ else if ZeroIn Needed then ZeroIn			}
+
+VAR
+sHunterName				: string[32];
+sCurrentPlayerArea		: string[32];
+tWhereToSweep			: tLocation;
+BEGIN
+
+	writedebug('------------ RUNNING TeamScheduler------------');
+	writedebug('TeamScheduler Current TeamTask :',tTeamTask);	
+	
+		IsSchedulerRunning := TRUE;
+		iTeam2Left := AINumberInSubPack('LEADER', 'Team2');
+					
+		if(iTeam2Left = 0) then
+		begin
+			writedebug('TeamScheduler : No Hunters left - SCHEDULER TERMINATED!');
+			KILLSCRIPT('Hunters_Generator1', 'TeamScheduler');
+		end
+		else { 1, 2 or 3 left}
+		begin
+		
+			{ If they have all finished what they are doing }			
+			
+		{-------------------------ACTIONS DIARY-------------------------}		
+			if(GetHuntersDoingStuff = 0) then
+			begin				
+				
+				if(tTeamTask = 0 {nothing}) then
+				begin
+					{ Doing Nothing -  Do a regroup }					
+					tTeamTask := 1; { regrouping }
+				end
+				else if(tTeamTask = 1 {regrouping}) then
+				begin
+					{ Finished regrouping - do a sweep}					
+					tTeamTask := 2; { Sweeping }
+				end
+				else if (tTeamTask = 2 {Sweeping}) then
+				begin
+					{ Finished Sweeping - do a ReGroup}					
+					tTeamTask := 1; { Regrouping }
+				end
+				else if (tTeamTask = 3 {Zero In}) then
+				begin
+					{ Finished Zero In - do a Sweep}					
+					tTeamTask := 2; { Sweeping }
+				end;					
+				
+				case tTeamTask of
+					0 : {None}
+					begin
+						WriteDebug('Team has nothing to do, hunters IDLE');
+						ReGroup;
+					end;
+					1 : {Regrouping}
+					begin
+						WriteDebug('Regrouping');
+						ReGroup;											
+					end;
+					2 : {Sweeping}
+					begin
+						WriteDebug('Sweeping');
+						tWhereToSweep := FindBestPlaceToGo;						
+						SweepHere(tWhereToSweep);						
+					end;
+					
+				end;
+					
+			end
+			else if(tTeamTask = 3) then
+			begin
+				ZeroIn;	
+				while AIisEnemyInSight('LEADER','player',AISCRIPT_HIGHPRIORITY) do sleep(1);			
+				{EXTRA SLEEP FOR THE SEARCH TO TIME OUT}
+				sleep(20000);
+			end;
+			
+		end;
+	{-----------------------------------------------------------------------}
+	
+
+	if AINumberInSubPack('LEADER', 'Team2') =  0 then
+	begin
+		WriteDebug('TeamScheduler BAD THING : None In SubPack');		
+		KILLSCRIPT('Hunters_Generator1', 'TeamScheduler');
+	end;
+	
+	writedebug('TeamScheduler Last TeamTask :',tTeamTask);
+	writedebug('------------ TeamScheduler END OF SCHEDULE ------------');	
+	bFirstRun := FALSE; {always set it to false after the first schedule}
+	IsSchedulerRunning := FALSE;
+End;
+
+
+{************************ FUNCTION DECLARATIONS ************************}
+
+FUNCTION CreateTeam2IfEmpty;
+{ If Team2 Is empty then kill scheduler script				}
+{ Kill any control scripts. 								}
+{ Spawn a new team 											}
+{ then Reset all the scheduler Variables 					}
+{ sleep for a bit before Running the schedular script again	}
+{ and return TRUE											}
+{ If Team2 Is NOT empty then return FALSE					}
+BEGIN
+	WriteDebug('CreateTeam2IfEmpty ');
+
+	if AINumberInSubPack('LEADER', 'Team2') = 0 then
+	begin
+		WriteDebug('CreateTeam2IfEmpty : SpawningTeam');
+				
+		{then spawn}
+		SpawnTeam;
+
+		{*** INIT the VARS used by the SCHEDULER ***}
+		tTeamTask := 0; {None}
+		CreateTeam2IfEmpty := true;
+		writedebug('------------ CreateTeam2IfEmpty IS TRUE ------------');
+	end
+	else
+	begin
+		CreateTeam2IfEmpty := false;
+		writedebug('------------ CreateTeam2IfEmpty IS FALSE ------------');
+	end;
+END;
+
+{*********}
+
+PROCEDURE SpawnTeam2AtTracks;
+VAR
+vPoz			:	vec3d;
+sHunterName		:	string[32];
+pEntity			: 	EntityPtr;
+BEGIN
+{GENERAL NOTE: 
+	to spawn more than one team at a time just create a global var 
+	that will be used as parameter within the spawn script}
+		
+	writedebug('----------------------------------------------------------------');
+	writedebug('SCHEDULER: new Team needed - SPAWNING THE TEAM at the TRACKS now');
+	writedebug('----------------------------------------------------------------');
+
+	ASSERT(AINumberInSubPack('LEADER', 'Team2') = 0);
+	
+	{First remove all Goal Definitions for the old Team}
+	while NOT RemoveGoalDefinitionsFromTeam do sleep(1); 
+						
+	SetVector(vPoz,84.171,-36.6,232.886);		
+	pEntity := SpawnHunterInPackAtVectorWithWeapon(vPoz,CT_SHOTGUN_TORCH,4,'','Cop_BodM1','Team2');
+	sHunterName := getEntityName(pEntity);
+	writedebug('Assigning Template1 Script to ',sHunterName);
+	ASSERT(Setentityscriptsfromentity('Template1',sHunterName));
+	runscript(sHunterName,'OnCreateHunter');
+		
+	SetVector(vPoz,85.019,-36.6,231.783);
+	pEntity := SpawnHunterInPackAtVectorWithWeapon(vPoz,CT_SHOTGUN_TORCH,4,'','Cop_BodM1','Team2');		
+	sHunterName := getEntityName(pEntity);
+	writedebug('Assigning Team2_2 Template Script to ',sHunterName);
+	ASSERT(Setentityscriptsfromentity('Template2',sHunterName));
+	runscript(sHunterName,'OnCreateHunter');
+	
+	SetVector(vPoz,82.376,-36.6,230.292);
+	pEntity := SpawnHunterInPackAtVectorWithWeapon(vPoz,CT_SHOTGUN_TORCH,4,'','Cop_BodM1','Team2');		
+	sHunterName := getEntityName(pEntity);
+	writedebug('Assigning Team2_3 Template Script to ',sHunterName);
+	ASSERT(Setentityscriptsfromentity('Template3',sHunterName));
+	runscript(sHunterName,'OnCreateHunter');		
+	
+	while NOT DefineGoalsForTeam do sleep(1);
+
+	tlocLastDone_Regroup := Tracks;
+End; {of SpawnTeamAtTrack}
+
+{*********}
+
+PROCEDURE SpawnTeamAtStat;
+VAR
+vPoz	:	vec3d;
+sHunterName	: string[32];
+pEntity		: EntityPtr;
+BEGIN
+	writedebug('-----------------------------------------------------------------');
+	writedebug('SCHEDULER: new Team needed - SPAWNING THE TEAM at the STATION now');
+	writedebug('-----------------------------------------------------------------');
+
+	ASSERT(AINumberInSubPack('LEADER', 'Team2') = 0);
+
+	while NOT RemoveGoalDefinitionsFromTeam do sleep(1); 
+	
+	vPoz := GetEntityPosition(GetEntity('Marker_Team2_1'));	
+	pEntity := SpawnHunterInPackAtVectorWithWeapon(vPoz,CT_SHOTGUN_TORCH,4,'','Cop_BodM1','Team2');
+	sHunterName := getEntityName(pEntity);
+	writedebug('Assigning Template1 Script to ',sHunterName);
+	ASSERT(Setentityscriptsfromentity('Template1',sHunterName));
+	runscript(sHunterName,'OnCreateHunter');
+		
+	
+	vPoz := GetEntityPosition(GetEntity('Marker_Team2_2'));		
+	pEntity := SpawnHunterInPackAtVectorWithWeapon(vPoz,CT_SHOTGUN_TORCH,4,'','Cop_BodM1','Team2');		
+	sHunterName := getEntityName(pEntity);
+	writedebug('Assigning Template2 Script to ',sHunterName);
+	ASSERT(Setentityscriptsfromentity('Template2',sHunterName));
+	runscript(sHunterName,'OnCreateHunter');
+		
+	vPoz := GetEntityPosition(GetEntity('Marker_Team2_3'));	
+	pEntity := SpawnHunterInPackAtVectorWithWeapon(vPoz,CT_SHOTGUN_TORCH,4,'','Cop_BodM1','Team2');		
+	sHunterName := getEntityName(pEntity);
+	writedebug('Assigning Template3 Script to ',sHunterName);
+	ASSERT(Setentityscriptsfromentity('Template3',sHunterName));
+	runscript(sHunterName,'OnCreateHunter');
+	
+	while NOT DefineGoalsForTeam do sleep(1);
+		
+	tlocLastDone_Regroup := Station;
+
+End; {of SpawnTeamAtStat}
+
+
+{*********}
+
+PROCEDURE SpawnTeam; 
+{ Calculate the area to spawn team2 in					}
+{ If ALL of team 3 are Alive - spawn at the Tracks		}
+{ else if they have never regrouped before				}
+{ (this is first spawn) - spawn at the Tracks.			}
+{ else Randomly choose between the Station and Tracks	} 
+BEGIN
+
+{ May have to do this check yet - though the chances of them all being in the dying state are slim}
+{	if (
+	(isEntityAlive('Team3_1'))
+	AND
+	(isEntityAlive('Team3_2'))
+	AND
+	(isEntityAlive('Team3_1'))
+	)then sArea := Tracks
+}
+	writedebug('----------- SPAWN TEAM ----------------------');
+	
+	if (NIL = GetEntity('Gen_Save_Point')) then
+	begin
+		
+		{don't spawn at the track if player is reloading from save on tracks!}
+		writedebug('Spawning: SpawnTeamAtStat');
+		SpawnTeamAtStat;
+
+	end
+	else 
+	begin
+		{if they have never regrouped, this is the first spawn} 
+		if tlocLastDone_Regroup = None then 
+		begin
+			writedebug('tlocLastDone_Regroup = None');
+			writedebug('Spawning: SpawnTeam2AtTracks');
+			SpawnTeam2AtTracks;
+		end			
+		else 
+		begin			
+			if (GetPlayerAreaName <> 'aientrystation') then 
+			begin
+				writedebug('Spawning: SpawnTeamAtStat');
+				SpawnTeamAtStat;				
+			end
+			else 
+			begin
+				writedebug('Spawning: SpawnTeam2AtTracks');
+				SpawnTeam2AtTracks;
+			end;
+		end;
+	end;
+	
+End;
+
+
+{*****************************************************}
+
+FUNCTION DefineGoalsForTeam;
+VAR
+vDirection	:	vec3d;
+numHunters	:	integer;
+sHunterName	:   string[32];
+BEGIN
+	
+	{*** GOAL DEFINITIONS FOR SQUAD BEHAVIOUR*** }			
+	WriteDebug('DefineGoalsForTeam');	
+
+	writedebug('----------- DefineGoalsForTeam ----------------------');
+	numHunters := AINumberInSubPack('LEADER', 'Team2');
+	if(numHunters  <> MAX_HUNTERS_IN_TEAM) then
+	begin
+		Writedebug('DefineGoalsForTeam - WORST THING EVER Hunters Not equal MAX_HUNTERS_IN_TEAM');		
+		KillthisScript;
+	end;
+	
+	{HUNTER #1}	
+	if (AINumberInSubPack('LEADER', 'Team2') >= 1) then
+		AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName);
+	
+	Sleep(1);	
+	
+	{Tunnel Sweep}
+	AIDefineGoalGotoNode('gTunnel1Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'End_Tunnel1',AISCRIPT_WALKMOVESPEED,TRUE);
+	{Station Sweep}	
+	AIDefineGoalGotoNode('gStation1Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Station_Sweep1',AISCRIPT_WALKMOVESPEED,TRUE);
+	AIDefineGoalGotoNode('gStation1bSweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Station_Sweep2',AISCRIPT_WALKMOVESPEED,TRUE);
+	{PowerStation Sweep}
+	AIDefineGoalGotoNode('gPStation1Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'PStation_Sweep1',AISCRIPT_RUNMOVESPEED,TRUE);
+	{ReGroup Track}
+	AIDefineGoalGotoNode('gTeam2_1ReGroupTrk',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Arrive_Team2_1',AISCRIPT_RUNMOVESPEED,TRUE);
+	{ReGroup Station}
+	AIDefineGoalGotoNode('gTeam2_1ReGroupSta',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Arrive_Station',AISCRIPT_RUNMOVESPEED,TRUE);
+	{Zero In}	
+	AIDefineGoalGotoEntity('gTeam2_1ZeroIn',sHunterName,AISCRIPT_HIGHPRIORITY,'player',AISCRIPT_RUNMOVESPEED,TRUE);
+			
+			
+	{HUNTER #2}	
+	if (AINumberInSubPack('LEADER', 'Team2') >= 2) then
+		AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName);
+	
+	{Tunnel Sweep}
+	AIDefineGoalGotoNode('gTunnel2Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'End_Tunnel2',AISCRIPT_WALKMOVESPEED,TRUE);
+	{Station Sweep}	
+	AIDefineGoalGotoNode('gStation2Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Station_Sweep3',AISCRIPT_WALKMOVESPEED,TRUE);
+	{PowerStation Sweep}
+	AIDefineGoalGotoNode('gPStation2Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'PStation_Sweep2',AISCRIPT_RUNMOVESPEED,TRUE);
+	{ReGroup Track}
+	AIDefineGoalGotoNode('gTeam2_2ReGroupTrk',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Arrive_Team2_1',AISCRIPT_RUNMOVESPEED,TRUE);
+	{ReGroup Station}
+	AIDefineGoalGotoNode('gTeam2_2ReGroupSta',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Arrive_Station',AISCRIPT_RUNMOVESPEED,TRUE);
+	{Zero In}
+	AIDefineGoalGotoEntity('gTeam2_2ZeroIn',sHunterName,AISCRIPT_HIGHPRIORITY,'player',AISCRIPT_RUNMOVESPEED,TRUE);	
+		
+	{HUNTER #3}
+	if (AINumberInSubPack('LEADER', 'Team2') >= 3) then
+		AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName);
+			
+	{Tunnel Sweep}
+	AIDefineGoalGotoNode('gTunnel3Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'End_Tunnel3',AISCRIPT_WALKMOVESPEED,TRUE);
+	{Station Sweep}	
+	SetVector(vDirection,0.4,-0.2,0.9);
+	AIDefineGoalGuardDirection('gStation3Sweep',AISCRIPT_LOWPRIORITY,'Arrive_Team2_1',2.0,30.0,1,vDirection);
+	{PowerStation Sweep}
+	AIDefineGoalGotoNode('gPStation3Sweep',sHunterName,AISCRIPT_MEDIUMPRIORITY,'PStation_Sweep3',AISCRIPT_RUNMOVESPEED,TRUE);
+	{ReGroup Track}
+	AIDefineGoalGotoNode('gTeam2_3ReGroupTrk',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Arrive_Team2_1',AISCRIPT_RUNMOVESPEED,TRUE);
+	{ReGroup Station}	
+	AIDefineGoalGotoNode('gTeam2_3ReGroupSta',sHunterName,AISCRIPT_MEDIUMPRIORITY,'Arrive_Station',AISCRIPT_RUNMOVESPEED,TRUE);
+	{Zero In}	
+	AIDefineGoalGotoEntity('gTeam2_3ZeroIn',sHunterName,AISCRIPT_HIGHPRIORITY,'player',AISCRIPT_RUNMOVESPEED,TRUE);	
+	
+	WriteDebug('DefineGoalsForTeam - end');	
+	
+	bGoalsDefined			:= TRUE;
+	
+	DefineGoalsForTeam 		:= TRUE;
+	
+End;
+
+{*****************************************************}
+
+
+FUNCTION RemoveGoalDefinitionsFromTeam; 
+BEGIN
+
+	WriteDebug('RemoveGoalDefinitionsFromTeam');	
+	
+	bGoalsDefined	:= FALSE;
+	
+	AIDeleteGoalDefinition('gTunnel1Sweep');
+	AIDeleteGoalDefinition('gStation1Sweep');
+	AIDeleteGoalDefinition('gStation1bSweep');
+	AIDeleteGoalDefinition('gPStation1Sweep');
+	AIDeleteGoalDefinition('gTeam2_1ReGroupTrk');
+	AIDeleteGoalDefinition('gTeam2_1ReGroupTrk');
+	AIDeleteGoalDefinition('gTeam2_1ReGroupSta');
+	AIDeleteGoalDefinition('gTeam2_1ZeroIn');
+	AIDeleteGoalDefinition('gTunnel2Sweep');
+	AIDeleteGoalDefinition('gStation2Sweep');
+	AIDeleteGoalDefinition('gPStation2Sweep');
+	AIDeleteGoalDefinition('gTeam2_2ReGroupTrk');
+	AIDeleteGoalDefinition('gTeam2_2ReGroupSta');
+	AIDeleteGoalDefinition('gTeam2_2ZeroIn');
+	AIDeleteGoalDefinition('gTunnel3Sweep');
+	AIDeleteGoalDefinition('gStation3Sweep');
+	AIDeleteGoalDefinition('gPStation3Sweep');
+	AIDeleteGoalDefinition('gTeam2_3ReGroupTrk');
+	AIDeleteGoalDefinition('gTeam2_3ReGroupSta');
+	AIDeleteGoalDefinition('gTeam2_3ZeroIn');
+	WriteDebug('RemoveGoalDefinitionsFromTeam - end');	
+	
+	RemoveGoalDefinitionsFromTeam := TRUE;
+End;
+
+{*****************************************************}
+
+
+FUNCTION  SpawnHunterInPackAtVectorWithWeapon; 
+{VAR vGuyPoz : vec3d ; sWeapon : eCollectableType; iAmmo : integer ; sName, sType, sPack : string} 
+VAR
+pNewEntity	: entityptr;
+sEntityName	: string[32];
+BEGIN
+	
+	if (sName = '') then pNewEntity := SpawnMovingEntity(sType,vGuyPoz,'ScriptCreateName')
+	else pNewEntity := SpawnMovingEntity(sType,vGuyPoz,sName);
+	writedebug('pNewEntity: ',GetEntityName(pNewEntity));
+			
+	if(true = CreateInventoryItem(sWeapon, pNewEntity, TRUE))  then
+	begin        
+    	writedebug('CreateInventoryItem returned TRUE');    	
+    	AddAmmoToInventoryWeapon(pNewEntity, sWeapon, iAmmo);
+    	SetHunterDropAmmo(pNewEntity,iAmmo);
+    end; 
+    
+    
+    		
+    if(nil <> pNewEntity) then 
+	begin
+		sEntityName := GetEntityName(pNewEntity);
+		AIAddEntity(sEntityName);
+		AIAddHunterToLeaderSubPack('LEADER',sPack,sEntityName);	
+		AISetIdleHomeNode(sEntityName,'');										
+	end;  			
+    	
+    SpawnHunterInPackAtVectorWithWeapon := pNewEntity;    	
+	
+End;
+
+
+{************************************************}
+
+
+FUNCTION FindBestPlaceToGo;
+VAR
+numTeam3	:	integer;
+numGuards	:	integer;
+sPlayerArea	:	string[32];
+BEGIN
+	writeDebug('Finding the Best Place for the Team to Go...');
+
+	sPlayerArea := GetPlayerAreaName;
+	
+	numTeam3 := AINumberInSubPack('LEADER', 'Team3');
+	if(numTeam3 = 3) then
+	begin
+		writedebug('Team3 is still at the station, better look at the Tracks');
+		FindBestPlaceToGo := Tracks {No need to add more hunters to the station}
+	end	
+	else
+	begin
+		writedebug('Team3 is gone. Player is now:', sPlayerArea);
+		{now let's see WHERE the player is to determine the location}
+		if (sPlayerArea = 'aientrystation') then FindBestPlaceToGo := Station		
+		else if (sPlayerArea = 'aitrack1') then FindBestPlaceToGo := Tracks
+		else if (sPlayerArea = 'aiservicetrack') then FindBestPlaceToGo := Tracks
+		else if (sPlayerArea = 'aideadtrack') then FindBestPlaceToGo := Tracks		
+		else
+		begin
+			numGuards := 0; { AINumberInSubPack('LEADER', 'Guard');}
+			if (numGuards = 0) AND (sPlayerArea = 'aipowerstation') then
+			begin
+				FindBestPlaceToGo := PowerStation;
+			end
+			else
+			begin
+				FindBestPlaceToGo := None; {I cannot determine where the player is!}
+			end;			
+		end;
+		{ADD NEW AREAS HERE WHEN THEY GET CREATED}
+	end;
+End;
+
+{*****************************************************}
+
+PROCEDURE ReGroup;
+VAR
+tLocNewTeamLocation	: tLocation;
+sHunterName			: String[32];
+BEGIN
+
+	{ These lines came from ReGroupStation and ReGroupTracks }
+	writedebug('ReGroup: **WARNING REMOVING ALL GOALS NOW');
+	AIRemoveAllGoalsFromSubpack('LEADER','Team2');
+	AIAddGoalForSubpack('LEADER','Team2','gHuntPlayer');
+	SetGameTextDisplayTime(6000);				
+	
+	{Assert(bGoalsDefined);}
+	
+	while NOT bGoalsDefined do Sleep(10);
+	
+	if bFirstRegroup then tLocNewTeamLocation := Tracks							
+	else tLocNewTeamLocation := FindBestPlaceToGo;
+	
+	if (tLocNewTeamLocation = Tracks) then
+	begin
+		writedebug('-----------------------------------------------------');
+		writedebug('SCHEDULER: I am ordering a REGROUP at the TRACKS now');
+		writedebug('-----------------------------------------------------');
+
+		{HUNTER #1}	
+		if (AINumberInSubPack('LEADER', 'Team2') >= 1) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gTeam2_1ReGroupTrk');					
+			end;
+		end;
+				
+		{HUNTER #2}
+		if (AINumberInSubPack('LEADER', 'Team2') >= 2) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gTeam2_2ReGroupTrk');
+			end;
+		end;
+		{HUNTER #3}
+		if (AINumberInSubPack('LEADER', 'Team2') >= 3) then
+		begin		
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gTeam2_3ReGroupTrk');
+			end;
+		end;
+		
+		
+		
+		bFirstRegroup := FALSE;
+		tlocLastDone_Regroup := Tracks;
+	end
+	else
+	begin
+		writedebug('----------------------------------------------------');
+		writedebug('SCHEDULER: I am ordering a REGROUP at the STATION now');
+		writedebug('----------------------------------------------------');
+			
+		{HUNTER #1}	
+		if (AINumberInSubPack('LEADER', 'Team2') >= 1) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gTeam2_1ReGroupSta');								
+			end;
+		end;
+		{HUNTER #2}	
+		if (AINumberInSubPack('LEADER', 'Team2') >= 2) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gTeam2_2ReGroupSta');				
+			end;
+		end;
+		{HUNTER #3}	
+		if (AINumberInSubPack('LEADER', 'Team2') >= 3) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gTeam2_3ReGroupSta');				
+			end;
+		end;		
+		
+		bFirstRegroup := FALSE;
+		tlocLastDone_Regroup := Station;
+		
+		end;			
+
+End;
+
+
+
+{************************************************}
+
+
+
+PROCEDURE SweepHere; {PARAM:tPlayerArea}
+VAR
+iRandomChoice	: integer;
+BEGIN
+	
+	writedebug('--------------------------------------------');
+	writedebug('SCHEDULER:SweepHere Start');
+	writedebug('--------------------------------------------');
+				
+	{- Check if the player is where they had the last sighting -} 
+	if (tPlayerArea = tlocLastSighting) then	
+	begin
+		
+		CASE tPlayerArea OF
+		
+		Station:
+			begin
+		
+				writedebug('--------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a STATION SWEEP now');
+				writedebug('--------------------------------------------');
+				
+				StationSweep;		
+				
+				tlocLastDone_Sweep	:= Station;		
+			end;
+	
+		Tracks:
+			begin		
+				writedebug('-------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a TUNNEL SWEEP now');
+				writedebug('-------------------------------------------');
+				
+				TunnelSweep;
+						
+				tlocLastDone_Sweep	:= Tracks;
+			end;
+			
+		PowerStation:
+			begin		
+				writedebug('-------------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a POWERSTATION SWEEP now');
+				writedebug('-------------------------------------------------');
+				
+				PowerStationSweep;
+				
+				tlocLastDone_Sweep	:= PowerStation;
+			end;
+		else: {DEFAULT}
+			begin	
+				writedebug('--------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a DEFAULT SWEEP now');
+				writedebug('--------------------------------------------');
+				
+				runscript('Hunters_Generator1','TunnelSweep');
+						
+				tlocLastDone_Sweep	:= Tracks;
+			end;
+		end; {of CASE}
+	end
+	{------------------------------------------------}
+	{- Check if they already swept that area before -}
+	else if (tPlayerArea <>  tlocLastDone_Sweep) then	
+	begin
+		CASE tPlayerArea OF
+		
+		Station:
+			begin
+		
+				writedebug('--------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a STATION SWEEP now');
+				writedebug('--------------------------------------------');
+				
+				StationSweep;
+				
+				tlocLastDone_Sweep	:= Station;		
+			end;
+	
+		Tracks:
+			begin		
+				writedebug('-------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a TUNNEL SWEEP now');
+				writedebug('-------------------------------------------');
+
+				TunnelSweep;
+						
+				tlocLastDone_Sweep	:= Tracks;
+			end;
+			
+		PowerStation:
+			begin		
+				writedebug('-------------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a POWERSTATION SWEEP now');
+				writedebug('-------------------------------------------------');
+				
+				PowerStationSweep;
+				
+				tlocLastDone_Sweep	:= PowerStation;
+			end;
+		else: {DEFAULT}
+			begin	
+				writedebug('--------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a DEFAULT SWEEP now');
+				writedebug('--------------------------------------------');
+				
+				TunnelSweep;
+						
+				tlocLastDone_Sweep	:= Tracks;
+			end;
+		end; {of CASE}
+	end
+	else 
+	{------------------------------------------------}
+	{- Pick at RANDOM -}
+	begin
+		iRandomChoice := RandNum(3);
+		
+		CASE iRandomChoice OF 
+		
+		0:
+			begin
+		
+				writedebug('--------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a STATION SWEEP now');
+				writedebug('--------------------------------------------');
+				
+				StationSweep;
+				
+				tlocLastDone_Sweep	:= Station;		
+			end;
+	
+		1:
+			begin		
+				writedebug('-------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a TUNNEL SWEEP now');
+				writedebug('-------------------------------------------');
+
+				TunnelSweep;
+						
+				tlocLastDone_Sweep	:= Tracks;
+			end;
+			
+		2:
+			begin		
+				writedebug('-------------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a POWERSTATION SWEEP now');
+				writedebug('-------------------------------------------------');
+				
+				PowerStationSweep;
+				
+				tlocLastDone_Sweep	:= PowerStation;
+			end;
+		else: {DEFAULT}
+			begin	
+				writedebug('--------------------------------------------');
+				writedebug('SCHEDULER: I am ordering a DEFAULT SWEEP now');
+				writedebug('--------------------------------------------');
+				
+				TunnelSweep;
+						
+				tlocLastDone_Sweep	:= Tracks;
+			end;
+		end; {of CASE}
+
+	end;		
+	
+	writedebug('--------------------------------------------');
+	writedebug('SCHEDULER:SweepHere End');
+	writedebug('--------------------------------------------');
+	
+End;
+
+PROCEDURE TunnelSweep;
+VAR
+iTeamCount 		: integer; 
+sHunterName		: string[32];
+BEGIN		
+		 		
+		writedebug('Team is now sweeping the tunnels');
+		
+		{Assert(bGoalsDefined);}
+		
+		while NOT bGoalsDefined do sleep(10);
+		
+		writedebug('TunnelSweep: **WARNING REMOVING ALL GOALS NOW');
+		AIRemoveAllGoalsFromSubpack('LEADER','Team2');
+		AIAddGoalForSubpack('LEADER','Team2','gHuntPlayer');
+		
+		iTeamCount := 0;
+		ScriptHogProcessorStart;
+	
+		if (AINumberInSubPack('LEADER', 'Team2') >= 1) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName) then
+			begin		
+				AIAddGoalForSubpack('LEADER','Team2','gTunnel1Sweep');		
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Assigned gTunnel1Sweep to: ', sHunterName);		
+				iTeamCount := iTeamCount +1;
+								
+			end;
+		end;		
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 2) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName) then
+			begin			
+				
+				AIAddGoalForSubpack('LEADER','Team2','gTunnel2Sweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Assigned gTunnel2Sweep to: ', sHunterName);			
+				iTeamCount := iTeamCount +1;
+			end;
+		end;
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 3) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName) then
+			begin			
+							
+				AIAddGoalForSubpack('LEADER','Team2','gTunnel3Sweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Assigned gTunnel3Sweep to: ', sHunterName);			
+				iTeamCount := iTeamCount +1;
+			end;	
+		end;
+		ScriptHogProcessorEnd;
+		
+		if (iTeamCount <= 0) then 
+		begin
+			writedebug('WARNING: ** No One is left in the TEAM to perform a SWEEP **');
+						
+		end;	
+			
+End; {end of TunnelSweep}
+
+
+{*********}
+
+
+PROCEDURE StationSweep;
+VAR
+iTeamCount 		: integer;
+sHunterName		: string[32]; 
+BEGIN		
+		 		
+		writedebug('Team is now sweeping the Station');
+		
+		{Assert(bGoalsDefined);}
+		
+		while NOT bGoalsDefined do Sleep(10);
+						
+		writedebug('StationSweep: **WARNING REMOVING ALL GOALS NOW');
+		AIRemoveAllGoalsFromSubpack('LEADER','Team2');
+		AIAddGoalForSubpack('LEADER','Team2','gHuntPlayer');
+		
+		iTeamCount := 0;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 1) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName) then
+			begin			
+			
+				if (nil <> GetEntity('Toppled_Locker')) then {if the service door HAS been blocked}
+				AIAddGoalForSubpack('LEADER','Team2','gStation1Sweep')
+				else
+				AIAddGoalForSubpack('LEADER','Team2','gStation1bSweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Sending to Station: ', sHunterName);
+				iTeamCount := iTeamCount +1;					
+				
+			end;
+		end;
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 2) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName) then
+			begin	
+							
+				AIAddGoalForSubpack('LEADER','Team2','gStation2Sweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Sending to Station: ', sHunterName);
+				iTeamCount := iTeamCount +1;
+			end;
+		end;
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 3) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName) then
+			begin	
+				
+				AIAddGoalForSubpack('LEADER','Team2','gStation3Sweep');			
+				
+				sleep(1000);
+				runscript('Hunters_Generator1','Sweep3Done'); {he does not sweep, he is guarding!}
+				
+				writedebug('Left In Tunnel: ', sHunterName);
+				iTeamCount := iTeamCount +1;
+			end;	
+		end;
+		ScriptHogProcessorEnd;
+		
+		if (iTeamCount <= 0) then 
+		begin
+			writedebug('WARNING: ** No One is left in the TEAM to perform a SWEEP **');			
+		end;
+End;	
+
+{*********}
+
+PROCEDURE PowerStationSweep;
+VAR
+iTeamCount 		: integer; 
+sHunterName		: string[32];
+BEGIN		
+		 		
+		writedebug('Team is now sweeping the PowerStation');
+		
+		{Assert(bGoalsDefined);}
+		
+		while NOT bGoalsDefined do Sleep(10);
+		
+		writedebug('PowerStationSweep: **WARNING REMOVING ALL GOALS NOW');
+		AIRemoveAllGoalsFromSubpack('LEADER','Team2');
+		AIAddGoalForSubpack('LEADER','Team2','gHuntPlayer');
+		
+		iTeamCount := 0;
+
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 1) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName) then
+			begin
+				AIAddGoalForSubpack('LEADER','Team2','gPStation1Sweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Sending to PowerStation: ', sHunterName);
+				iTeamCount := iTeamCount +1;				
+				
+			end;
+		end;
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 2) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName) then
+			begin			
+				
+				AIAddGoalForSubpack('LEADER','Team2','gPStation2Sweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Sending to PowerStation: ', sHunterName);
+				iTeamCount := iTeamCount +1;
+			end;
+		end;
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 3) then
+		begin
+			if AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName) then
+			begin			
+							
+				AIAddGoalForSubpack('LEADER','Team2','gPStation3Sweep');			
+				
+				runscript(sHunterName,'SetTeamSweeping'); 
+				
+				writedebug('Sending to PowerStation: ', sHunterName);
+				iTeamCount := iTeamCount +1;
+			end;	
+		end;
+		ScriptHogProcessorEnd;
+		
+		if (iTeamCount <= 0) then 
+		begin
+			writedebug('WARNING: ** No One is left in the TEAM to perform a SWEEP **');			
+		end;
+End;
+
+{************************************************}
+
+FUNCTION GetHuntersDoingStuff ; { returns int }
+VAR
+	sHunterName			:	string[32];
+	curHunter			: 	integer;
+	numHunters			: 	integer;
+	huntersDoingStuff	: 	integer;
+BEGIN
+	huntersDoingStuff := 0;	
+	
+	ScriptHogProcessorStart;
+	numHunters := AINumberInSubPack('LEADER', 'Team2');
+	for curHunter := 1 to numHunters do
+	begin
+		{if the subpack array goes out of synch is a problem - terminate}
+		if (numHunters = AINumberInSubPack('LEADER', 'Team2')) then 
+		begin				
+			AIReturnSubpackEntityName('LEADER', 'Team2', curHunter, sHunterName);
+			if (false = AIIsIdle(sHunterName)) then
+			begin
+				huntersDoingStuff := huntersDoingStuff + 1;
+			end;
+		
+		end
+		else 
+		begin			
+			huntersDoingStuff := 0;
+		end;
+	end;
+	ScriptHogProcessorEnd;
+	
+	GetHuntersDoingStuff := huntersDoingStuff;
+End;
+
+{************************************************}
+
+PROCEDURE ZeroIn;
+VAR
+iTeamCounter	: integer;
+sHunterName1	: string[40];
+sHunterName2	: string[40];
+sHunterName3	: string[40];
+BEGIN
+
+	writedebug('------------------------------------------------------');
+	writedebug('SCHEDULER: ZERO IN - Spotter: ', sSpotter);
+	writedebug('------------------------------------------------------');
+
+	sHunterName1 := 'NOBODY';
+	sHunterName2 := 'NOBODY';
+	sHunterName3 := 'NOBODY';
+	
+		writedebug('ZeroIn: **WARNING REMOVING ALL GOALS NOW');
+		AIRemoveAllGoalsFromSubpack('LEADER','Team2');
+		AIAddGoalForSubpack('LEADER','Team2','gHuntPlayer');	
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 1) then AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName1);
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 2) then AIReturnSubpackEntityName('LEADER', 'Team2', 2, sHunterName2);
+		ScriptHogProcessorEnd;
+		
+		ScriptHogProcessorStart;
+		if (AINumberInSubPack('LEADER', 'Team2') >= 3) then AIReturnSubpackEntityName('LEADER', 'Team2', 3, sHunterName3);
+		ScriptHogProcessorEnd;
+			
+			if (sSpotter = sHunterName1) then 
+			begin				
+				writedebug('Target Sighted by: ',sHunterName1);
+				runscript(sHunterName1,'SetHasZeroedIn');
+				iTeamCounter := 2;				
+								
+				if isEntityAlive(sHunterName2) then 
+				begin					
+					AIAddGoalForSubpack('LEADER','Team2','gTeam2_2ZeroIn');					
+				end					
+				else iTeamCounter := iTeamCounter - 1 ;
+								
+				if isEntityAlive(sHunterName3) then 
+				begin 					
+					AIAddGoalForSubpack('LEADER','Team2','gTeam2_3ZeroIn');									
+				end
+				else iTeamCounter := iTeamCounter - 1 ;	
+								
+				if ( iTeamCounter <=0) then
+				begin
+					writedebug('WARNING: ** No One is left in the TEAM to perform a ZERO IN **');					
+				end;				
+				
+			end
+			
+			else if(sSpotter = sHunterName2) then 								
+			
+			begin
+				writedebug('Target Sighted by: ', sHunterName2);
+				runscript(sHunterName2,'SetHasZeroedIn');
+				iTeamCounter := 2;
+								
+				if IsEntityAlive(sHunterName1) then 
+				begin					
+					AIAddGoalForSubpack('LEADER','Team2','gTeam2_1ZeroIn'); 										
+				end
+				else iTeamCounter := iTeamCounter - 1 ;
+					
+				if IsEntityAlive(sHunterName3) then				 
+				begin					
+					AIAddGoalForSubpack('LEADER','Team2','gTeam2_3ZeroIn');					
+				end
+				else iTeamCounter := iTeamCounter - 1 ;	
+				
+				if ( iTeamCounter <=0) then
+				begin
+					writedebug('WARNING: ** No One is left in the TEAM to perform a ZERO IN **');					
+				end;				
+				
+			end			
+			
+			else if(sSpotter = sHunterName3) then 				
+			begin				
+				writedebug('Target Sighted by: ', sHunterName3);
+				runscript(sHunterName3,'SetHasZeroedIn');
+				iTeamCounter := 2;
+												
+				if IsEntityAlive(sHunterName1) then				 
+				begin					
+					AIAddGoalForSubpack('LEADER','Team2','gTeam2_1ZeroIn');										
+				end
+				
+				else iTeamCounter := iTeamCounter - 1 ;
+					
+				if IsEntityAlive(sHunterName2) then 
+				begin					
+					AIAddGoalForSubpack('LEADER','Team2','gTeam2_2ZeroIn');					
+				end
+				
+				else iTeamCounter := iTeamCounter - 1 ;	
+				
+				if ( iTeamCounter <=0) then
+				begin
+					writedebug('WARNING: ** No One is left in the TEAM to perform a ZERO IN **');					
+				end;				
+				
+			end;
+		
+End;
+
+{****************************************************************************************
+								OTHER SCRIPTS
+*****************************************************************************************}
+SCRIPT  Team2HunterCreated;
+BEGIN
+	WriteDebug('Team2HunterCreated');
+
+END;
+
+SCRIPT Team2HunterSightedPlayer;
+BEGIN
+	writedebug('Team2HunterSightedPlayer - tTeamTask: ',tTeamTask);
+	if (tTeamTask <> 3) then
+	begin
+		tTeamTask := 3; { ASSIGN TASK: Zeroing In}
+		KillScript('Hunters_Generator1', 'TeamScheduler');
+		sleep(500);
+		RunScript('Hunters_Generator1', 'TeamScheduler');	
+		runscript('Alert_Manager','RaiseAlert');
+	end;
+END;
+
+SCRIPT Team2HunterReachedNode;
+BEGIN	
+	{WriteDebug('Team2HunterReachedNode - Others Doing Stuff: ',GetHuntersDoingStuff);}	
+	while IsSchedulerRunning do sleep(1);
+	sleep(500);
+	RunScript('Hunters_Generator1', 'TeamScheduler');
+END;
+
+SCRIPT Team2HunterIdle;
+BEGIN	
+	{WriteDebug('Team2HunterIdle - Others Doing Stuff: ',GetHuntersDoingStuff);}	
+	while IsSchedulerRunning do sleep(1);
+	sleep(500);
+	RunScript('Hunters_Generator1', 'TeamScheduler');
+END;
+
+
+SCRIPT Team2HunterDied;
+BEGIN
+	while IsSchedulerRunning do sleep(1);
+	iTeam2Active := AINumberInSubPack('LEADER', 'Team2');
+	If (AINumberInSubPack('LEADER', 'Team2') = 0) then
+	begin
+		WriteDebug('Team2HunterDied - All Hunters Dead - Scheduler TERMINATED');
+		KillScript('Hunters_Generator1', 'TeamScheduler');
+	end;
+END;
+
+{
+SCRIPT Reset;
+BEGIN
+	sleep(1000);
+	RunScript('Hunters_Generator1', 'TeamScheduler');
+End;
+}
+
+SCRIPT Retreat;
+VAR
+sHunterName	: string[40];
+
+BEGIN
+	{NOT USED ANYMORE}
+	writedebug('----------- RETREAT ----------------------');
+
+	{ Should finish anyway - but just in case }
+	killscript('Hunters_Generator1','TeamScheduler');
+
+	tTeamTask := 0; {Nothing}
+
+	AIReturnSubpackEntityName('LEADER', 'Team2', 1, sHunterName);
+	writedebug('Hunter Retreating: ', sHunterName);
+
+	while( IsEntityAlive(sHunterName)) do 
+	begin
+		writedebug('sHunterName Is ALIVE');
+		if AIisEnemyInRadius(sHunterName,'',30.0) then 
+		begin
+			writedebug('sHunterName Is IN Radius');
+			sleep(1)
+		end
+		else 
+		begin
+			writedebug('sHunterName Is NOT IN RADIUS');
+			RemoveEntity(GetEntity(sHunterName));
+			WriteDebug('bAlive is false - removeentity called');
+		end;
+	end;
+
+	{ Need to spawn a new team }	
+	runscript('Hunters_Generator1','TeamScheduler'); 
+End;
+
+
+{****************************************************************************************}
+
+END. {of Hunters_Generator1}
+   

@@ -1,0 +1,129 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Team1_3		:	et_name;
+
+VAR
+bIsCharging		: 	boolean;
+bGoToPosition	: 	boolean;
+bRadioIn		: 	boolean;
+
+level_bPowerIsOn	: 	level_var	boolean;
+
+SCRIPT OnCreate;
+VAR
+BEGIN
+			
+	bIsCharging := FALSE;	
+	bGoToPosition := FALSE;
+	bRadioIn := FALSE;
+		
+	SetHunterHideHealth(GetEntityName(this),0);
+	
+	AICancelHunterIdleAction('Team1_3',AISCRIPT_IDLE_STANDANIMS);	
+	AICancelHunterIdleAction('Team1_3',AISCRIPT_IDLE_SPEECH);
+		
+	AIAddGoalForSubpack('LEADER','Team1','gStart_TEAM1_3');
+	AISetEntityVoiceID('Team1_3',VOICE_POLICE3VOICE2);	
+	
+	AICancelHunterIdleAction('Team1_3',AISCRIPT_IDLE_SPEECH);
+	
+End;
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	
+	if bGoToPosition then 
+	begin
+		if AIIsGoalNameInSubpack('LEADER','Team1','gTEAM1_3') 
+			then AIRemoveGoalFromSubPack('LEADER','Team1','gTEAM1_3');
+	
+		removethisscript;	
+	end;
+	
+	if bRadioIn then 
+	begin
+		if AIIsGoalNameInSubpack('LEADER','Team1','gHold_TEAM1_3') 
+			then AIRemoveGoalFromSubPack('LEADER','Team1','gHold_TEAM1_3');
+	
+		removethisscript;
+	end;
+	
+	
+End;
+
+SCRIPT GoToHoldPosition;
+VAR
+iRandChoice	:	integer;
+BEGIN
+		
+	iRandChoice := RandNum(6)+1;
+	
+	writeDebug('Team1_3 Hold Choice: ',iRandChoice);
+	
+	if AIIsGoalNameInSubpack('LEADER','Team1','gStart_TEAM1_3')
+		then AIRemoveGoalFromSubpack('LEADER','Team1','gStart_TEAM1_3');	
+	
+	if ( iRandChoice <= 3 ) 
+	then 
+	begin
+		AIDefineGoalGuard('gTEAM1_3',AISCRIPT_MEDIUMPRIORITY,'Hold_TEAM1_3',5.0,15.0,1);
+		AIGuardModifyShootOutsideRadius('gTEAM1_3',TRUE);
+	end
+	else 
+	begin
+		AIDefineGoalGotoNode('gTEAM1_3','Team1_3',AISCRIPT_MEDIUMPRIORITY,'Charge_Team1_3',AISCRIPT_RUNMOVESPEED,TRUE);						
+		bIsCharging := TRUE;
+	end;
+	
+	if NOT AIIsGoalNameInSubpack('LEADER','Team1','gTEAM1_3') 
+		then AIAddGoalForSubpack('LEADER','Team1','gTEAM1_3');
+	
+	bGoToPosition := TRUE;
+End;
+
+SCRIPT RadioIn;
+VAR
+iRandChoice		: integer;
+vStart			: vec3d;
+vEnd			: vec3d;
+BEGIN
+	
+	iRandChoice := RandNum(6)+1;
+	writeDebug('Team1_3 RadioIn Choice: ',iRandChoice);
+		
+	if ( iRandChoice <= 3 ) {send this guy to the node to be used by Team1_2!}
+	then AIDefineGoalGuard('gHold_TEAM1_3',AISCRIPT_MEDIUMPRIORITY,'Hold_TEAM1_2',7.0,30.0,1)
+	else AIDefineGoalGuard('gHold_TEAM1_3',AISCRIPT_HIGHPRIORITY,'Hold_TEAM1_2',7.0,15.0,1); 
+	
+	if NOT AIIsGoalNameInSubpack('LEADER','Team1','gHold_TEAM1_3') 
+		then AIAddGoalForSubpack('LEADER','Team1','gHold_TEAM1_3');
+	
+	bRadioIn	:= TRUE;
+	
+	writeDebug('Team1_3 is radioing in');	
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team1_3') 
+		then PlayHunterSpeech('Team1_3',VOICE_POLICE3VOICE2,AISPEECH_P3V2_SUB_SEAL_THIS_PLACE);
+	ScriptHogProcessorEnd;							
+	
+	removethisscript;
+End;
+
+SCRIPT OnHunterReachedNode;
+BEGIN
+	if bIsCharging then
+	begin
+		AISetIdleHomeNode('Team1_3','Charge_Team1_3');
+		AICancelHunterIdleAction('Team1_3',AISCRIPT_IDLE_SPEECH);
+		AISetHunterIdleActionMinMaxRadius('Team1_3',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,1200,1800,25.0);
+	end;
+End;
+
+SCRIPT OnDeath;
+BEGIN
+	AiIgnoreEntityIfDead(GetEntityName(this));
+End;
+
+END. {end of Scripts}

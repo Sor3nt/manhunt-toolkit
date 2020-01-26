@@ -1,0 +1,17 @@
+scriptmain TriggerScript;
+
+entity triggerStartExecTut2 : et_name;
+
+
+script OnEnterTrigger;
+begin
+	WriteDebug(GetEntityName(this), ' : OnEnterTrigger');
+
+	AIMakeEntityDeaf('ExecTut02(hunter)', 1);
+	AIMakeEntityBlind('ExecTut02(hunter)', 1);
+	
+	RemoveEntity(this);
+end;
+
+
+end.

@@ -1,0 +1,86 @@
+SCRIPTMAIN HunterScripts;
+
+ENTITY
+Hunter3_Search	:	et_name;
+
+VAR
+flag_player_spotted		: level_var integer;
+number_dead_searchlight	: level_var integer;
+
+SCRIPT OnCreate;
+begin
+	AIAddEntity('Hunter3_Search');
+	SetHunterSkin(this,0);
+	SetHunterHeadSkin(this,1);
+	
+	AISetEntityVoiceID('Hunter3_Search',VOICE_SMILEY2VOICE1);
+	
+	AIAddHunterToLeaderSubpack('LEADER','Subpack_Searchlight','Hunter3_Search');
+	AISetIdleHomeNode('Hunter3_Search','Hunter3_Search_Home');
+	SetHunterHitAccuracy('Hunter3_Search',50);
+	SetHunterHideHealth('Hunter3_Search',0);
+	AISetHunterOnRadar('Hunter3_Search',FALSE);
+	AISetEntityIdleOverRide('Hunter3_Search',TRUE,TRUE);
+				
+	AISetHunterIdlePatrol('Hunter3_Search',AISCRIPT_IDLE_PATROL,AISCRIPT_MEDIUMPRIORITY,1000,8000,'Search_Path3');		
+	AISetIdlePatrolStop('Hunter3_Search','Search_Path3_Stop1',5,TRUE);
+	AISetIdlePatrolStop('Hunter3_Search','Search_Path3_Stop1',5,FALSE);
+	AISetIdlePatrolStop('Hunter3_Search','Search_Path3_Stop2',5,TRUE);
+	AISetIdlePatrolStop('Hunter3_Search','Search_Path3_Stop2',5,FALSE);
+	
+	{CreateInventoryItem(CT_HAMMER,(GetEntity('Hunter3_Search')),TRUE);}
+	
+	if (NIL = GetEntity('Gen_Save_Point'))
+	OR (NIL = GetEntity('Gen_Save_Point01')) then
+	begin						
+		if (NIL <> GetEntity('Hunter3_Search')) then 
+		DestroyEntity(GetEntity('Hunter3_Search'));
+	end;
+	
+end;
+	
+SCRIPT OnMediumSightingOrAbove;
+begin
+	if (flag_player_spotted = 0) then
+	begin
+		flag_player_spotted := 1;
+		WriteDebug('player been spotted',flag_player_spotted);
+		RunScript('CJ_METALDOOR2_(D)','Close');
+		
+		if (GetPlayerAreaName = 'aisearchlight')
+		OR (GetPlayerAreaName = 'aisearchstairs') then
+		begin
+			if (IsEntityAlive('Hunter3_Search')) then
+			begin
+				PlayHunterSpeech('Hunter3_Search',VOICE_SMILEY2VOICE1,AISPEECH_S2V1_ASY_CLOSE_DOOR);
+			end;
+							
+		end;
+		
+	end;
+	
+end;
+
+SCRIPT OnHighHearingOrAbove;
+begin
+	if (flag_player_spotted = 0) then
+	begin
+		flag_player_spotted := 1;
+		WriteDebug('player been spotted',flag_player_spotted);
+		RunScript('CJ_METALDOOR2_(D)','Close');
+		
+		if (GetPlayerAreaName = 'aisearchlight')
+		OR (GetPlayerAreaName = 'aisearchstairs') then
+		begin
+			if (IsEntityAlive('Hunter3_Search')) then
+			begin
+				PlayHunterSpeech('Hunter3_Search',VOICE_SMILEY2VOICE1,AISPEECH_S2V1_ASY_CLOSE_DOOR);
+			end;
+							
+		end;
+		
+	end;
+	
+end;
+
+END. {End of file}

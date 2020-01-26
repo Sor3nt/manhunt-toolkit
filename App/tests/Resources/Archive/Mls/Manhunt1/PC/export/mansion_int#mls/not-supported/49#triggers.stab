@@ -1,0 +1,57 @@
+[
+    {
+        "name": "barehuntersspawning",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            8660,
+            9944,
+            10028,
+            12536,
+            12904,
+            12988,
+            15376,
+            17100,
+            17184,
+            19040
+        ]
+    },
+    {
+        "name": "i",
+        "offset": "08000000",
+        "size": 4,
+        "objectType": "vec3d",
+        "occurrences": []
+    },
+    {
+        "name": "iguards_spanwed_so_far",
+        "offset": "60050000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "isampleplay",
+        "offset": "5c050000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "level_bisalerton",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            19084
+        ]
+    },
+    {
+        "name": "sstring32",
+        "offset": "38050000",
+        "size": 32,
+        "objectType": "boolean",
+        "occurrences": []
+    }
+]

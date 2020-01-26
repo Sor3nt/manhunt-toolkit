@@ -1,0 +1,78 @@
+{
+    "record": "dom_A",
+    "internalName": "woman(hunter)",
+    "entityClass": "Hunter_Inst",
+    "position": {
+        "x": 2.194135904312134,
+        "y": 8.63363265991211,
+        "z": 6.528919219970703
+    },
+    "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": -0.6338499784469604,
+        "w": 0.7734559774398804
+    },
+    "parameters": [
+        {
+            "parameterId": "bcd42800",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "ecbdb0d9",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "05098c97",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "b3f90806",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "b4f90806",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "b5f90806",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "weapon",
+            "type": "int",
+            "value": "not defined"
+        },
+        {
+            "parameterId": "5c0ac4ce",
+            "type": "int",
+            "value": 7
+        },
+        {
+            "parameterId": "775a62a7",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "7eb4d520",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "7c1309af",
+            "type": "boo",
+            "value": 0
+        }
+    ]
+}

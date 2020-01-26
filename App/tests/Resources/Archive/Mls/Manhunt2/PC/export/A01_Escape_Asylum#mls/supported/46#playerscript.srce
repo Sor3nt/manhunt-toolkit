@@ -1,0 +1,651 @@
+scriptmain PlayerScript;
+
+entity
+	player(player): et_name;
+	
+type
+	tLevelState = ( StartOfLevel, PickedUpSyringe, InOffice, LuredHunter, KilledHunter, BeforeElevator, LeftElevator, BeforeBeasts, SpottedByCamera, TurnedOnTV, InCarPark, EndOfLevel );
+
+
+var
+	lLevelState : level_var tLevelState;
+  lBeastCutsceneSyncFlag : level_var boolean;
+	lLoadingFlag : level_var boolean;
+{	officeKeyPickedUp : level_var boolean;}
+	medicinePlayed : boolean;
+	driverFail : level_var boolean;
+	reminderSet : level_var boolean;
+	bMeleeTutDone: level_var boolean;
+	
+script OnCreate;
+begin
+	medicinePlayed := FALSE;
+end;
+
+script OnPickUpInventoryItem;
+VAR
+	Door : entityPtr;
+begin
+	
+	{Is this the health tutorial?}
+	if (GetLastItemPickedUp(GetPlayer) = CT_G_FIRST_AID) and (medicinePlayed = FALSE) then
+	begin
+		
+		{PlayAudioLoopedFromEntity(GetPlayer,'LEVEL','ALARM',127, 50);}
+		
+		medicinePlayed := TRUE;
+		
+		while IsGameTextDisplaying do
+			Sleep(100);
+			
+		DisplayGameText('CAMREST');
+	
+		HUDToggleFlashFlags(HID_HEALTHBAR_PLAYER, TRUE);
+	
+		Sleep(100);
+		while IsGameTextDisplaying do
+			Sleep(100);
+	
+		HUDToggleFlashFlags(HID_HEALTHBAR_PLAYER, FALSE);
+	
+		ToggleHudFlag(HID_HEALTHBAR_PLAYER, TRUE);
+	end;
+	
+	if bMeleeTutDone AND (IsNamedItemInInventory(GetPlayer, CT_SYRINGE ) <> -1) then
+	begin
+		RadarPositionClearEntity(GetEntity('SyringeTarget'));
+		ClearLevelGoal('GOAL2C');
+		
+		if GetEntity('triggerSyringeRemind') <> NIL then begin
+			DestroyEntity(GetEntity('triggerSyringeRemind'));
+		end;
+		
+		AIEntityCancelAnim('leo(hunter)', 'BAT_IDLELOOP_IDLE_ANIM');
+		
+		{ GAV - Added this to ensure the door opens }
+		AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE1');
+		AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE2');
+		AIEntityCancelAnim('leo(hunter)', 'ASY_LEO_IDLE3');
+
+		if GetEntity('leo(hunter)') <> NIL then
+		begin
+			AIAddGoalForSubpack('leo(leader)', 'leopack', 'goalLeoLeave');
+		end;
+				
+		{Open sliding door }
+		Door := GetEntity('asylum_cell_door_slide_(SD)');
+
+		while (AIIsGoalNameInSubpack('leo(leader)', 'leopack', 'goalLeoLeave')) do sleep(100);
+		DestroyEntity(GetEntity('leo(hunter)'));
+						
+		UnLockEntity(Door);
+		GraphModifyConnections(Door, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+			
+		Sleep(50);
+		SetSlideDoorAjarDistance(Door, 1.1);
+		SetDoorState(Door, DOOR_OPENING);
+		
+		{Make Sure This Doesn't Happen Twice}
+		bMeleeTutDone := FALSE;
+	end;
+	
+end;
+
+
+script OnEnteredSafeZone;
+begin
+	WriteDebug('player : OnEnteredSafeZone');
+
+	
+	if (lLoadingFlag <> TRUE) then
+	begin
+    	ClearLevelGoal('GOAL4');
+    	SetLevelGoal('SZT_A');
+
+		{DisplayGameText('HIDE2');}
+
+		{HUDToggleFlashFlags(HID_STATUS_ICON, TRUE);}
+
+		{Sleep(100);
+		while IsGameTextDisplaying do
+			Sleep(100);
+
+		HUDToggleFlashFlags(HID_STATUS_ICON, FALSE);}
+
+		{ToggleHudFlag(HID_STATUS_ICON, TRUE);}
+		while IsGameTextDisplaying do sleep(10);
+		{Display safe shadow stuff}
+		HUDToggleFlashFlags(HID_HEALTHBAR_PLAYER, TRUE);
+	
+		
+		DisplayGameText('HIDE2');
+		while IsGameTextDisplaying do sleep(10);
+		
+		HUDToggleFlashFlags(HID_HEALTHBAR_PLAYER, FALSE);
+	end;
+	
+	sleep(2000);
+	ClearLevelGoal('SZT_A');
+	
+	RemoveThisScript;
+
+end;
+
+
+{ ***** CUT-SCENE SCRIPTS ***** }
+
+script PickUpPhoneCutScene;
+var
+	pos : Vec3D;
+
+begin
+	{ HUD must be visible during cutscenes }
+	{SetShowHudInCutscene(TRUE);}
+	If GetEntity('ExecTut(hunter)') <> NIL then
+	begin
+		
+		AiSetEntityIdleOverride('ExecTut(hunter)', FALSE, FALSE);
+		
+		SetVector(pos, -16.633, 5.955, 37.832);
+		MoveEntity(GetEntity('ExecTut(hunter)'), pos, 1);
+		
+		SetPedOrientation(GetEntity('ExecTut(hunter)'), 0);
+		
+		AiEntityPlayAnimLooped('ExecTut(hunter)', 'ASY_SECURITY_IDLE1', 0.0);		
+		AISetHunterOnRadar('ExecTut(hunter)', TRUE);
+	end;
+	
+	SetVector(pos, -16.6148, 7.02854, 34.9394);
+	CreateSphereTrigger(pos, 0.714741, 'TriggerHunterDoor');
+	{RadarPositionSetEntity(GetEntity('ExecTut(hunter)'), MAP_COLOR_YELLOW);}
+
+	{Runscript('ExecTut(hunter)', 'Init');}
+	RadarPositionClearEntity(GetEntity('triggerBlipHealth'));
+	
+	CutsceneStart;
+
+	{RadarPositionSetEntity(GetEntity('ExecTut(hunter)'), MAP_COLOR_YELLOW);}
+
+	{AICutSceneEntityEnable('ExecTut(hunter)', TRUE);}
+
+	
+
+		
+		SetVector(pos, -14.5906, 8.41449, 36.0878);
+		SetCameraPosition(pos);
+		SetVector(pos, -0.743977, -0.340377, 0.575015);
+		SetCameraView(pos);
+		SetZoomLerp(0.814214, 0.814214, 0.1);
+		
+		CutSceneRegisterSkipScript(this, 'SkipPickUpPhoneCutScene');
+		
+		PlayScriptAudioStreamAuto('NURSELIFT', 127);
+	
+   	sleep(4200);
+
+ 	CutSceneEnd(FALSE);
+
+	SetVector(pos, -20.3505, 6.698, 32.6684);
+	CreateSphereTrigger(pos, 0.51468, 'triggerHideBlip');
+	
+	RadarPositionSetEntity(GetEntity('triggerHideBlip'), MAP_COLOR_BLUE);
+	
+	SetVector(pos, -20.3201, 7.04834, 41.2578);
+	CreateSphereTrigger(pos, 0.5, 'triggerHideBlip2');
+
+	SetVector(pos, -20.3201, 7.04834, 33.1513);
+	CreateSphereTrigger(pos, 0.5, 'triggerHideBlip3');
+	
+	SetVector(pos, -11.4334, 7.04834, 33.1513);
+	CreateSphereTrigger(pos, 0.5, 'triggerHideBlip4');
+
+	{RunScript('ExecTut(hunter)', 'StopPatrol');}
+
+	{RadarPositionClearEntity(GetEntity('ExecTut(hunter)'));}
+	{RadarPositionSetEntity(GetEntity('ExecTut(hunter)'), MAP_COLOR_YELLOW);}
+
+	{ HUD must no longer be visible during cutscenes }
+	SetShowHudInCutscene(FALSE);
+	ToggleHudFlag(HID_ALL_PLAYER_ITEMS, TRUE);
+	
+	If GetEntity('ExecTut(hunter)') <> NIL then
+	begin
+		AIMakeEntityBlind('ExecTut(hunter)', 1);
+		AIMakeEntityDeaf('ExecTut(hunter)', 1);
+		AISetEntityIdleOverRide('ExecTut(hunter)', TRUE, FALSE);
+	end;
+	{RadarPositionClearEntity(GetEntity('ExecTut(hunter)'));}
+
+	sleep(100);
+	
+	FrisbeeSpeechPlay('BLOCK', 127, 50);
+	sleep(2000);
+	
+	DisplayGameText('LUR1');
+	SetLevelGoal('GOAL4B');
+			
+	{LINE BREAK BECAUSE IT'S TOO LONG}
+	while (NOT InsideTrigger(GetEntity('triggerHideBlip'), GetPlayer)) AND (NOT InsideTrigger(GetEntity('triggerHideBlip2'), GetPlayer)) AND (NOT InsideTrigger(GetEntity('triggerHideBlip3'), GetPlayer))
+	 AND (NOT InsideTrigger(GetEntity('triggerHideBlip4'), GetPlayer)) AND (IsEntityAlive('ExecTut(hunter)')) do sleep(10);
+	
+	RadarPositionClearEntity(GetEntity('triggerHideBlip'));
+		
+	while IsGameTextDisplaying do sleep(10);
+	DisplayGameText('LUR2');
+		
+	if 	IsEntityAlive('ExecTut(hunter)') then
+	begin
+		PlayScriptAudioStreamFromEntityAuto('WT4', 127, GetEntity('CJ_MONITER01'), 30);
+		while not IsScriptAudioStreamCompleted do sleep(50);
+		
+		if 	IsEntityAlive('ExecTut(hunter)') then
+			PlayScriptAudioStreamFromEntityAuto('WT5', 127, GetEntity('CJ_MONITER01'), 30);
+		
+		while not IsScriptAudioStreamCompleted do sleep(50);
+		
+		if 	IsEntityAlive('ExecTut(hunter)') then
+			PlayScriptAudioStreamFromEntityAuto('WT6', 127, GetEntity('CJ_MONITER01'), 30);	while not IsScriptAudioStreamCompleted do sleep(50);
+	end;
+	
+	
+end;
+
+
+script SkipPickUpPhoneCutScene;
+begin
+	{if GetDifficultyLevel <> DIFFICULTY_NORMAL then
+	begin
+       	SetLevelGoal('GOAL3');
+
+		HUDToggleFlashFlags(HID_RADAR, FALSE);
+
+		ToggleHudFlag(HID_RADAR, TRUE);
+	end
+	else
+	begin
+       	SetLevelGoal('GOAL3B');
+	end;}
+
+{	SetLevelGoal('GOAL4');}
+
+    KillScript('ExecTut(hunter)', 'BeNoisy');
+end;
+
+
+
+script ExecTut2CutScene;
+var
+    pos : Vec3D;
+
+begin
+	CutSceneStart;
+
+		{SetVector(pos, 3.10781, 22.6035, 47.2971);
+		MoveEntity(GetPlayer, pos, 1);}
+	
+	    { Enable hunters during cut-scene }
+		AICutSceneEntityEnable('ExecTut02(hunter)', TRUE);
+		AIMakeEntityDeaf('ExecTut02(hunter)', 0);
+		AIMakeEntityBlind('ExecTut02(hunter)', 0);
+		CutSceneRegisterSkipScript(this, 'EmptySkipCutScene');
+		CutsceneCameraInit;
+		CutscenecameraSetPos(0.0, -43.9962, 1.91624, 32.7128);
+		CutscenecameraSetTarget(0.0, -71.1981, -4.72559, 42.0793);
+		CutsceneCameraSetFOV(0.0, 45.0);
+		CutsceneCameraSetRoll(0.0, 0.0);
+		CutSceneCameraSetHandyCam(false);
+		CutscenecameraStart;
+			
+		EntityPlayAnim(GetEntity('A01_cameratripodTVRoom'), 'EAT_TVROOM_CAM_ANIM', false);
+		
+		PlayScriptAudioStreamAuto('LOONIES', 127);
+	
+		
+	
+	    DisplayGameText('EXEC2');
+	
+		Sleep(100);
+		while IsGameTextDisplaying do
+			Sleep(100);
+	
+	    DisplayGameText('EXEC3');
+	
+	    Sleep(100);
+	    while IsGameTextDisplaying do
+	    	Sleep(100);
+	    	
+	    DisplayGameText('EXEC9');
+	    
+	    Sleep(100);
+	    while IsGameTextDisplaying do
+	    	Sleep(100);
+
+    CutSceneEnd(FALSE);
+    
+    SetVector(pos, 10.6307, 23.9706, 49.5786);
+		CreateSphereTrigger(pos, 2.77741, 'triggerWindowReminder');
+            
+    AIMakeEntityDeaf('ExecTut02(hunter)', 1);
+		AIMakeEntityBlind('ExecTut02(hunter)', 1);
+		
+		{PLAY LIGHTNING EFFECT}
+		RunScript('player(player)', 'TVRoomLightning');
+		
+		while (NOT InsideTrigger(GetEntity('triggerWindowReminder'), GetPlayer)) do sleep(1);
+		DestroyEntity(GetEntity('triggerWindowReminder'));
+		
+		DisplayGameText('GLAS1');
+  
+		{Radar Objective on Glass}
+		SetVector(pos, 13.735, 22, 48.463);
+		CreateSphereTrigger(pos, 0.5, 'GlassOBJ');
+		RadarPositionSetEntity(GetEntity('GlassOBJ'), MAP_COLOR_LOCATION);  
+  
+  	{sleep(15000);
+  
+    if GetEntity('plaza_lobbyglass_break') <> NIL then
+ 	 	begin
+  		reminderSet := TRUE;
+  		DisplayGameText('GLAS2');
+  		RadarPositionSetEntity(GetEntity('plaza_lobbyglass_break'), MAP_COLOR_BLUE);
+  		SetLevelGoal('BTW1');
+  	end;}
+		
+	{	while lLevelState <> InCarPark do
+		begin
+			PlayAudioOneShotFromEntity(GetEntity('TVLoonie01(hunter)'), 'LEVEL', 'DAYROOM_1', 127, 50);
+			sleep(RandNum(1000));
+			PlayAudioOneShotFromEntity(GetEntity('TVLoonie02(hunter)'), 'LEVEL', 'DAYROOM_2', 127, 50);
+			sleep(4000);
+		end;}
+		
+		{PlayScriptAudioStreamFromEntityAuto('LOONIES2', 50, GetEntity('TVLoonie01(hunter)'),40);}
+				
+end;
+
+script TVRoomLightning;
+VAR
+	randFlash : integer;
+begin
+	while lLevelState <> InCarPark do
+	begin
+		writedebug('on');
+		SetCurrentLod(GetEntity('A01_DayRmFlash'), 1);
+		{SwitchLightOn(GetEntity('LightningLight_(L)'));}
+		SetColourRamp('FE_colramps', 4, 0.2);
+		sleep(15);
+		{Play sound}
+		SetCurrentLod(GetEntity('A01_DayRmFlash'), 0);
+		SetColourRamp('FE_colramps', 1, 0.2);
+		sleep(15);
+		SetCurrentLod(GetEntity('A01_DayRmFlash'), 1);
+		SetColourRamp('FE_colramps', 4, 0.2);
+		
+		sleep(RandNum(300)+100);
+		
+		randFlash := RandNum(3);
+		if randFlash = 0 then		
+			PlayScriptAudioStreamFromEntityAuto('LGHTN1', 100, GetPlayer, 40)
+		else if randFlash = 1 then
+			PlayScriptAudioStreamFromEntityAuto('LGHTN2', 100, GetPlayer, 40)
+		else if randFlash = 2 then
+			PlayScriptAudioStreamFromEntityAuto('LGHTN3', 100, GetPlayer, 40);
+		
+		SetCurrentLod(GetEntity('A01_DayRmFlash'), 0);
+		SetColourRamp('FE_colramps', 1, 0.2);
+		sleep(RandNum(10000)+25000);
+	end;
+end;
+
+
+script InCarParkCutScene;
+var
+    pos, pos2 : Vec3D;
+
+begin
+	    
+	
+	CutSceneStart;
+	
+	CutSceneRegisterSkipScript(this, 'EmptySkipCutScene');
+	
+	{ === Cutscene Camera Animation Block (CameraCarPark) === }
+	CutsceneCameraInit;
+	{
+	CutscenecameraSetPos(0.0, 13.9259, 26.0065, 44.9982);
+	CutscenecameraSetPos(2.13333, 13.9259, 26.0065, 44.9982);
+	CutscenecameraSetPos(7.0, 26.6513, 21.3658, 37.5712);
+	
+	CutscenecameraSetTarget(0.0, 31.1649, 17.4082, 39.7273);
+	CutscenecameraSetTarget(2.13333, 31.1649, 17.4082, 39.7273);
+	CutscenecameraSetTarget(7.0, 45.7668, 17.3157, 33.4378);
+	
+	CutsceneCameraSetFOV(0.0, 45.0);
+	
+	CutsceneCameraSetRoll(0.0, 0.0);
+	CutsceneCameraSetRoll(2.13333, 0.0);
+	CutsceneCameraSetRoll(7.0, 0.0);
+	
+	CutSceneCameraSetHandyCam(true);
+	CutscenecameraStart;}
+	{ === End Cutscene Camera Animation Block (CameraCarPark) === }
+
+
+
+   { FrisbeeSpeechPlay('ESCAP', 75, 25);
+    sleep(1000);
+    while not FrisbeeSpeechIsFinished('ESCAP') do
+        sleep(50);}
+        
+    {PlayDirectorSpeechPlaceholder('END1_A');
+
+    sleep(3000);}
+    {SetVector(pos,26.6513, 21.3658, 37.5712);
+    PlayScriptAudioStreamFromPosAuto('LEO19', 100, pos ,50);       	
+    while not IsScriptAudioStreamCompleted do sleep(10);}
+    
+
+    {PlayDirectorSpeechPlaceHolder('END2_A');
+    
+    sleep(4000);}
+    
+		SetVector(pos, 17.3972, 25.6494, 47.7307);
+		SetCameraPosition(pos);
+		SetVector(pos, 0.828659, -0.389122, -0.402378);
+		SetCameraView(pos);
+		SetZoomLerp(0.514214, 0.514214, 0.1);
+		
+	{	PlayScriptAudioStreamFromEntityAuto('TD1', 100, GetEntity('DriverEndScene(hunter)'), 100);
+		sleep(100);
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		PlayScriptAudioStreamFromEntityAuto('NUH1', 100, GetEntity('DriverEndScene(hunter)'), 100);
+		sleep(100);
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		PlayScriptAudioStreamFromEntityAuto('TD2', 100, GetEntity('DriverEndScene(hunter)'), 100);
+		sleep(100);
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		PlayScriptAudioStreamFromEntityAuto('NUH2', 100, GetEntity('DriverEndScene(hunter)'), 100);
+		sleep(100);
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		PlayScriptAudioStreamFromEntityAuto('TD3', 100, GetEntity('DriverEndScene(hunter)'), 100);
+		sleep(100);
+		while not IsScriptAudioStreamCompleted do sleep(10);}
+		
+		
+		
+{		PlayDirectorSpeechPlaceholder('DRV1_A');
+		sleep(1500);
+		PlayDirectorSpeechPlaceholder('DRV2_A');
+		sleep(3000);
+		PlayDirectorSpeechPlaceholder('DRV3_A');
+		sleep(2500);
+		PlayDirectorSpeechPlaceholder('DRV4_A');
+		sleep(2500);
+		PlayDirectorSpeechPlaceholder('DRV5_A');
+		sleep(2500);
+		PlayDirectorSpeechPlaceholder('DRV6_A');
+		sleep(2500);
+		PlayDirectorSpeechPlaceholder('DRV7_A');
+		sleep(3000);}
+		sleep(100);
+		FrisbeeSpeechPlay('ESCAP', 75, 50);
+		sleep(2900);
+		{PlayScriptAudioStreamAuto('DRV6', 100);
+		while not IsScriptAudioStreamCompleted do sleep(10);
+		PlayScriptAudioStreamAuto('DRV7', 100);
+		while not IsScriptAudioStreamCompleted do sleep(10);}
+		
+{		PlayScriptAudioStreamAuto('ESCAP', 100);
+		while not IsScriptAudioStreamCompleted do sleep(10);}
+
+		    
+	CutSceneEnd(false);
+	
+{	if GetEntity('GuardEndScene(hunter)') <> NIL then
+	
+		DestroyEntity(GetEntity('GuardEndScene(hunter)'));
+		
+	if GetEntity('DriverEndScene(hunter)') <> NIL then
+		HideEntity(GetEntity('DriverEndScene(hunter)'));}
+
+end;
+
+
+script EndOfLevelCutScene;
+var
+    pos : Vec3D;
+
+begin
+	CutsceneStart;
+	
+	PlayScriptAudioStreamAuto('TRUCK', 127);
+
+	CutsceneRegisterSkipScript(GetEntity('player(player)'), 'EmptySkipCutScene');
+
+	{ start truck and get out of the level }
+	SetVector(pos, 25.71, 20.95, 29.55);
+	SetCameraPosition(pos);
+
+	SetVector(pos, 0.455, -0.211, 0.86);
+	SetCameraView(pos);
+
+	ShowEntity(GetEntity('Truck_Asyl_Endcutscene'));
+{	ShowEntity(GetEntity('Player_Asyl_Endcutscene'));}
+	SetVector(pos, 7.62717, 17.1512, 23.7161);
+	MoveEntity(GetEntity('DE_GarbageTruckA'), pos, 1);
+	MoveEntity(GetPlayer, pos, 1);
+
+	{EntityPlayAnim(GetEntity('Player_Asyl_Endcutscene'),'ASYLUM_ENDCUTSCENE_PLAYER',false);}
+	PlayerPlayFullBodyAnim('ASYLUM_ENDCUTSCENE_PLAYER');
+	EntityPlayAnim(GetEntity('Truck_Asyl_Endcutscene'),'ASYLUM_ENDCUTSCENE_TRUCK',false);
+
+	Sleep(500);
+
+	Sleep(6000);
+
+	CutsceneEnd(false);
+end;
+
+script CarParkSpotlight;
+VAR
+	pos : vec3d;
+begin
+	InitSpotlight('SPOT_1', GetEntity('CourtLight'), 20.0, 20.0);
+	SetSpotlightTransitionTime('SPOT_1', 0.0);
+	
+	SetVector(pos, 27.6392, 17.1234, 42.7228);
+	SetSpotlightTarget('SPOT_1', pos);
+	
+	SetSpotlightTransitionTime('SPOT_1', 2.8);
+	
+	SetVector(pos, 25.8265, 17.1234, 61.0366);
+	SetSpotlightTarget('SPOT_1', pos);
+	
+	sleep(3000);
+	
+	while TRUE do
+	begin
+		SetVector(pos, 14.1537, 17.9953, 66.3714);
+		SetSpotlightTarget('SPOT_1', pos);
+		sleep(3000);
+		
+		SetVector(pos, 23.0, 17.9953, 66.3714);
+		SetSpotlightTarget('SPOT_1', pos);
+		sleep(3000);
+	end;
+	
+end;
+
+script FlickeringLightsLeft;
+begin
+	while lLevelState <> InCarPark do
+	begin
+		{ON}
+		{SetCurrentLOD(GetEntity('Asylum_flicker_left'), 1);}
+		HideEntity(GetEntity('Asylum_flicker_left'));
+		SwitchLightOn(GetEntity('industrial_lightB(L)10'));
+
+		sleep(RandNum(1000));
+		
+		{OFF}
+		{SetCurrentLOD(GetEntity('Asylum_flicker_left'), 0);}
+		ShowEntity(GetEntity('Asylum_flicker_left'));
+		SwitchLightOff(GetEntity('industrial_lightB(L)10'));
+		
+		sleep(RandNum(1500));
+	end;
+end;
+
+script FlickeringLightsRight;
+begin
+	while lLevelState <> InCarPark do
+	begin
+		{ON}
+		{SetCurrentLOD(GetEntity('Asylum_flicker_right'), 1);}
+		SwitchLightOn(GetEntity('industrial_lightB(L)08'));
+		HideEntity(GetEntity('Asylum_flicker_right'));
+
+		sleep(RandNum(1000));
+		
+		{OFF}
+		{SetCurrentLOD(GetEntity('Asylum_flicker_right'), 0);}
+		SwitchLightOff(GetEntity('industrial_lightB(L)08'));
+		ShowEntity(GetEntity('Asylum_flicker_right'));
+		
+		sleep(RandNum(1500));
+	end;
+end;
+
+script FlickeringLightsHall;
+begin
+	while lLevelState <> InCarPark do
+	begin
+		{ON}
+		{SetCurrentLOD(GetEntity('Asylum_flicker_mainstart'), 1);}
+		SwitchLightOn(GetEntity('industrial_lightB(L)72'));
+		HideEntity(GetEntity('Asylum_flicker_mainstart'));
+
+		sleep(RandNum(1000));
+		
+		{OFF}
+		{SetCurrentLOD(GetEntity('Asylum_flicker_mainstart'), 0);}
+		SwitchLightOff(GetEntity('industrial_lightB(L)72'));
+		ShowEntity(GetEntity('Asylum_flicker_mainstart'));
+		
+		sleep(RandNum(1500));
+	end;
+end;
+
+script EmptySkipCutScene;
+begin
+end;
+
+script WaitForMe;
+begin
+		{while (NOT InsideTrigger(GetEntity('triggerOutOfWindow'), GetPlayer)) do sleep(10);
+	
+		PlayScriptAudioStreamFromEntityAuto('LGHTN2', 127, GetPlayer, 40);}
+end;
+
+end.
+  

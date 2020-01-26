@@ -1,0 +1,650 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+	Alert_Manager		:	et_name;
+
+VAR
+
+{LEVEL SCOPED VARS}
+level_bIsAlertOn			: level_var boolean;
+
+{********************************* FUNCTION HEADERS *************************************}
+FUNCTION GetHuntersDoingStuff(VAR sLeader,sSubpack : string) : integer; FORWARD;
+FUNCTION CalculatePlayerDistanceFromHunter (VAR sHunterName : string) : integer; FORWARD;
+{******************************* END OF FUNCTION HEADERS ********************************}
+
+SCRIPT OnCreate;
+BEGIN
+	level_bIsAlertOn := FALSE;
+End;
+
+SCRIPT FlatAlert;
+VAR
+i,
+iGoalsToAdd		: integer;
+
+BEGIN
+
+	If NOT level_bIsAlertOn then
+	begin	
+		
+		level_bIsAlertOn := TRUE;
+		
+		iGoalsToAdd := (AINumberInSubPack('LEADER','FLAT_GUYS') - 1);
+		
+		if 	(iGoalsToAdd > 0) then 	
+		begin
+		
+			for i := 1 to iGoalsToAdd do
+			begin
+				
+				CASE i of
+				
+				1: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD1')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD2');
+					
+				2: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD2')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD2');
+					
+				3: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD3')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD3');
+				
+				4: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD4')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD4');
+				
+				5: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD5')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD5');
+				
+				6: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD6')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD6');
+				
+				7: If NOT AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD7')
+					then AIaddGoalForSubPack('LEADER','FLAT_GUYS','gFLATGUARD7');
+				
+				end;
+			
+			end;
+			
+			runScript('Alert_Manager','WaitToResetAlert');
+			
+		end;		
+	
+	end;
+	
+End;
+
+SCRIPT WaitToResetAlert;
+BEGIN
+	
+	Sleep(20000);
+	
+	while (GetHuntersDoingStuff('LEADER','FLAT_GUYS') > 0) do 
+	begin
+		
+		if (AINumberInSubPack('LEADER','FLAT_GUYS') < 7) then
+		begin
+			If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD1')
+				then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD1');		 		
+		end
+		else
+		if (AINumberInSubPack('LEADER','FLAT_GUYS') < 6) then
+		begin
+			 If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD2')
+				then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD2');		 		
+		end
+		else
+		if (AINumberInSubPack('LEADER','FLAT_GUYS') < 5) then
+		begin
+			 If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD3')
+				then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD3');		 		
+		end
+		else
+		if (AINumberInSubPack('LEADER','FLAT_GUYS') < 4) then
+		begin
+			 If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD4')
+				then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD4');		 		
+		end
+		else
+		if (AINumberInSubPack('LEADER','FLAT_GUYS') < 3) then
+		begin
+			 If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD5')
+				then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD5');		 		
+		end
+		else
+		if (AINumberInSubPack('LEADER','FLAT_GUYS') < 2) then
+		begin
+			 If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD6')
+				then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD6');		 		
+		end;
+				
+		sleep(10000);
+		
+	end;
+	
+	If AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD1')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD1');
+		
+	If  AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD2')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD2');
+		
+	If  AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD3')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD3');
+	
+	If  AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD4')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD4');
+	
+	If  AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD5')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD5');
+	
+	If  AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD6')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD6');
+	
+	If  AIisGoalNameInSubPack('LEADER','FLAT_GUYS','gFLATGUARD7')
+		then AIRemoveGoalFromSubPack('LEADER','FLAT_GUYS','gFLATGUARD7');
+	
+	level_bIsAlertOn := FALSE;
+	
+End;
+
+SCRIPT PlayerCopKiller;
+BEGIN
+	writedebug('Dead cop seen...');	
+	{Sleep cycle to let the cop do his body investigation}
+	sleep(10000);
+	runscript('Alert_Manager','SwapToGuns1');
+	runscript('Alert_Manager','SwapToGuns2');
+	runscript('Alert_Manager','SwapToGuns3');
+	
+End;
+
+SCRIPT PlayerPacking;
+BEGIN
+	writedebug('player seen packing a gun...');	
+	{a minimal delay to avoid cops with super-relexes}
+	sleep(5000);	
+	runscript('Alert_Manager','SwapToGuns1');
+	runscript('Alert_Manager','SwapToGuns2');
+	runscript('Alert_Manager','SwapToGuns3');	
+	
+End;
+
+SCRIPT SwapToGuns1;
+VAR
+iSlot : integer;
+BEGIN	
+
+if (IsEntityAlive('STREET1') ) then
+begin
+	while AIIsEnemyInRadius('STREET1','player',5.0) do 
+	begin
+		sleep(1000); 
+		if NOT IsEntityAlive('STREET1') then removethisscript;
+	end;
+end
+else removethisscript;
+
+writedebug('SwapToGuns1');
+
+ScriptHogProcessorStart;		
+	if (IsEntityAlive('STREET1') ) then
+	if(NOT AIIsEnemyInRadius('STREET1','player',2.5)) then	
+	if(IsNamedItemInInventory(GetEntity('STREET1'),CT_6SHOOTER) = -1)then 
+	begin
+		if(true = CreateInventoryItem(CT_6SHOOTER, GetEntity('STREET1'), FALSE))  then
+		begin
+			iSlot := GetIndexFromInventoryItemType(GetEntity('STREET1'),CT_6SHOOTER);
+			SetInventoryItemAsCurrent(GetEntity('STREET1'),iSlot);
+			AddAmmoToInventoryWeapon(GetEntity('STREET1'), CT_6SHOOTER, 6);			
+			
+			AIRemoveHunterFromLeaderSubPack('LEADER','STREET1');
+			AIAddHunterToLeaderSubPack('LEADER','TUNNEL_GUARD_GUNS','STREET1');							
+		end;
+	 end;
+ScriptHogProcessorEnd;
+
+End;
+
+SCRIPT SwapToGuns2;
+VAR
+iSlot : integer;
+BEGIN
+
+if (IsEntityAlive('STREET2') ) then
+begin
+	while AIIsEnemyInRadius('STREET2','player',5.0) do 
+	begin
+		sleep(1000); 
+		if NOT IsEntityAlive('STREET2') then removethisscript;
+	end;
+end
+else removethisscript;
+
+writedebug('SwapToGuns2');
+
+ScriptHogProcessorStart;	
+	if (IsEntityAlive('STREET2') ) then
+	if(NOT AIIsEnemyInRadius('STREET2','player',2.5)) then	
+	if(IsNamedItemInInventory(GetEntity('STREET2'),CT_6SHOOTER) = -1)then  	
+	begin
+		if(true = CreateInventoryItem(CT_6SHOOTER, GetEntity('STREET2'), FALSE))  then
+		begin
+			iSlot := GetIndexFromInventoryItemType(GetEntity('STREET2'),CT_6SHOOTER);
+			SetInventoryItemAsCurrent(GetEntity('STREET2'),iSlot);
+			AddAmmoToInventoryWeapon(GetEntity('STREET2'), CT_6SHOOTER, 6);
+			
+			AIRemoveHunterFromLeaderSubPack('LEADER','STREET2');
+			AIAddHunterToLeaderSubPack('LEADER','TUNNEL_GUARD_GUNS','STREET2');				    	
+		end;
+	end;
+ScriptHogProcessorEnd;
+End;
+
+
+SCRIPT SwapToGuns3;
+VAR
+iSlot : integer;
+BEGIN
+
+if (IsEntityAlive('GUARD2') ) then
+begin
+	while AIIsEnemyInRadius('GUARD2','player',5.0) do 
+	begin
+		sleep(1000); 
+		if NOT IsEntityAlive('GUARD2') then removethisscript;
+	end;
+end
+else removethisscript;
+
+writedebug('SwapToGuns4');
+ScriptHogProcessorStart;	
+	if (IsEntityAlive('GUARD2')) then
+	if(NOT AIIsEnemyInRadius('GUARD2','player',2.5)) then	
+	if(IsNamedItemInInventory(GetEntity('GUARD2'),CT_6SHOOTER) = -1)then  
+	begin
+		if(true = CreateInventoryItem(CT_6SHOOTER, GetEntity('GUARD2'), FALSE))  then
+		begin
+			iSlot := GetIndexFromInventoryItemType(GetEntity('GUARD2'),CT_6SHOOTER);
+			SetInventoryItemAsCurrent(GetEntity('GUARD2'),iSlot);
+			AddAmmoToInventoryWeapon(GetEntity('GUARD2'), CT_6SHOOTER, 16);    
+			
+			AIRemoveHunterFromLeaderSubPack('LEADER','GUARD2');
+			AIAddHunterToLeaderSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2');				 
+		end;
+	end;	
+ScriptHogProcessorEnd;		
+End;
+
+
+SCRIPT CheckTunnelPosChange;
+BEGIN
+	{check if player is not inside the tunnel}
+
+	if ( GetPlayerAreaName = 'aistreetsect1')	then
+	begin	
+			
+		if isEntityAlive('STREET1')	 then
+		begin
+			if aiIsInSubpack('LEADER','TUNNEL_GUARD','STREET1') then
+			begin
+				{set him to guard the entrance of the tunnel}
+				AIRemoveHunterFromLeaderSubPack('LEADER','STREET1');
+				AIAddHunterToLeaderSubPack('LEADER','STREET_GUYS','STREET1');			
+				AISetHunterIdleActionMinMaxRadius('STREET1',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_HIGHPRIORITY,20,120,40.0);		
+			end;
+		end;	
+		
+		if isEntityAlive('GUARD2') then
+		begin
+			if aiIsInSubpack('LEADER','TUNNEL_GUARD','GUARD2') then
+			begin
+				{set him to guard the entrance of the tunnel}
+				AIRemoveHunterFromLeaderSubPack('LEADER','GUARD2');
+				AIAddHunterToLeaderSubPack('LEADER','STREET_GUYS','GUARD2');
+				AISetHunterIdleActionMinMaxRadius('GUARD2',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_HIGHPRIORITY,20,120,40.0);				
+			end;
+		end;
+	
+	end;
+
+	if ( AINumberInSubPack('LEADER','TUNNEL_GUARD') = 0) then removethisscript;
+	
+End;
+
+SCRIPT PlayerSneakingInClub;
+BEGIN
+	
+	writedebug('PlayerSneakingInClub');
+	
+	if IsEntityAlive('SNIPER') then
+	begin
+
+		{add a guard goal here to keep CLUB_TEAM1 and CLUB_TEAM2 away from sniping position for a while}
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1');
+		
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2');
+		
+	end
+	else
+	begin
+		
+		if AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1')
+			then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1');
+	
+		if AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2')
+			then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2');
+		
+	end;
+	
+	{activate the patrols inside the club}		
+	runScript('CLUB1','GetPath');
+	
+End;
+
+SCRIPT PlayerOutOfClub;
+BEGIN
+	
+	writedebug('PlayerOutOfClub');
+	
+	if AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1')
+		then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1');
+	
+	if AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2')
+		then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2');
+End;
+	
+SCRIPT ClubAttack;
+VAR
+sAreaName	: string[32];
+
+BEGIN
+	
+	writedebug('ClubAttack!');
+	
+	{add a guard goal here to keep CLUB_TEAM2 away from sniping position for a while}
+	if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2')
+		then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2');	
+	
+	{remove the guard for CLUB_TEAM1 if it is there so they can cover fire}	
+	if AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1')
+		then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM1','gGuard_CLUB_T1');	
+	
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB1') then
+	begin
+		AICancelHunterIdleAction('CLUB1',AISCRIPT_IDLE_SPEECH);
+		AICancelHunterIdleAction('CLUB1',AISCRIPT_IDLE_PATROL);
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB2') then
+	begin
+		AICancelHunterIdleAction('CLUB2',AISCRIPT_IDLE_SPEECH);
+		AICancelHunterIdleAction('CLUB2',AISCRIPT_IDLE_WANDERSEARCH);
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB3') then
+	begin
+		AICancelHunterIdleAction('CLUB3',AISCRIPT_IDLE_SPEECH);
+		AICancelHunterIdleAction('CLUB3',AISCRIPT_IDLE_WANDERSEARCH);
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB4') then
+	begin
+		AICancelHunterIdleAction('CLUB4',AISCRIPT_IDLE_SPEECH);
+		AICancelHunterIdleAction('CLUB4',AISCRIPT_IDLE_WANDERSEARCH);
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB5') then
+	begin
+		AICancelHunterIdleAction('CLUB5',AISCRIPT_IDLE_SPEECH);
+		AICancelHunterIdleAction('CLUB5',AISCRIPT_IDLE_WANDERSEARCH);
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB6') then
+	begin
+		AICancelHunterIdleAction('CLUB6',AISCRIPT_IDLE_SPEECH);	
+		AICancelHunterIdleAction('CLUB6',AISCRIPT_IDLE_WANDERSEARCH);
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB1') then
+		AICancelHunterIdleAction('CLUB1',AISCRIPT_IDLE_WANDERSEARCH);
+	ScriptHogProcessorEnd;			 
+
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB1') then
+		AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gCLUB1_GOTO');
+	ScriptHogProcessorEnd;
+	
+	sAreaName := GetPlayerAreaName;	
+		
+	if (sAreaName = 'aiclubbalcony') then 
+	begin
+		runscript('SWAT_GUARD','CoveringFire');				
+		runscript('CLUB2','CoveringFire');	
+		runscript('CLUB3','CoveringFire');			
+		runscript('SWAT_GUARD2','CoveringFire');
+	end;
+	
+	AITriggerSoundNoRadar('GUN_SHOT',GetPlayer);
+		
+	while( 
+	(GetPlayerAreaName = 'aiclubbalcony') 
+	AND		
+	(AINumberInSubPack('LEADER','CLUB_TEAM1') > 0)
+	) do sleep(60);
+	
+	{now the other boys run in - less time to snipe then though}
+	
+	if AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2')
+		then AIRemoveGoalFromSubPack('LEADER','CLUB_TEAM2','gGuard_CLUB_T2');
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB4') then	 
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gCLUB4_GOTO')		
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gCLUB4_GOTO');
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB5') then	 	
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gCLUB5_GOTO')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gCLUB5_GOTO');
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB5') then	 		
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gCLUB6_GOTO')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gCLUB6_GOTO');
+	ScriptHogProcessorEnd;
+	
+	AITriggerSoundNoRadar('GUN_SHOT',GetPlayer);
+		
+	sleep(500);
+	if IsEntityAlive('CLUB2') 
+		then if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gCLUB2_GOTO')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gCLUB2_GOTO');	
+	
+	if IsEntityAlive('CLUB3')
+		then if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gCLUB3_GOTO')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gCLUB3_GOTO');
+	
+	sleep(4000); {give time to the goals to get added}
+		
+	{in case the other boys in TEAM1 are still alive}	
+	RunScript('SWAT_GUARD','RemoveCoveringFire');
+	RunScript('SWAT_GUARD2','RemoveCoveringFire');
+	RunScript('CLUB2','RemoveCoveringFire');
+	RunScript('CLUB3','RemoveCoveringFire');
+	
+	removethisscript;
+	
+End;
+
+SCRIPT StreetAttack;
+BEGIN
+	
+	writedebug('StreetAttack!');
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB1') then
+		AICancelHunterIdleAction('CLUB1',AISCRIPT_IDLE_SPEECH);
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB2') then
+		AICancelHunterIdleAction('CLUB2',AISCRIPT_IDLE_SPEECH);
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB3') then		
+		AICancelHunterIdleAction('CLUB3',AISCRIPT_IDLE_SPEECH);
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB4') then
+		AICancelHunterIdleAction('CLUB4',AISCRIPT_IDLE_SPEECH);
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;	
+	if IsEntityAlive('CLUB5') then
+		AICancelHunterIdleAction('CLUB5',AISCRIPT_IDLE_SPEECH);
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;	
+	if IsEntityAlive('CLUB6') then
+		AICancelHunterIdleAction('CLUB6',AISCRIPT_IDLE_SPEECH);	
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB1') then
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gCLUB1_GOSTREET')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gCLUB1_GOSTREET');
+	ScriptHogProcessorEnd;	
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB2') then
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gCLUB2_GOSTREET')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gCLUB2_GOSTREET');
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB3') then
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM1','gCLUB3_GOSTREET')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM1','gCLUB3_GOSTREET');
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB4') then
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gCLUB4_GOSTREET')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gCLUB4_GOSTREET');
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB5') then
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gCLUB5_GOSTREET')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gCLUB5_GOSTREET');
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('CLUB6') then
+		if NOT AIIsGoalNameInSubPack('LEADER','CLUB_TEAM2','gCLUB6_GOSTREET')
+			then AIAddGoalForSubPack('LEADER','CLUB_TEAM2','gCLUB6_GOSTREET');
+	ScriptHogProcessorEnd;
+	
+	runscript('CLUB1','SetWander');
+	runscript('CLUB2','SetWander');
+	runscript('CLUB3','SetWander');
+	runscript('CLUB4','SetWander');
+	runscript('CLUB5','SetWander');
+	runscript('CLUB6','SetWander');
+	
+	runscript('player','DetectClubEntry');
+	
+	removethisscript;
+	
+End;
+
+SCRIPT SubwaySniperDead;
+BEGIN
+	writedebug('Alert_Manager: SubwaySniperDead');
+	AIRemoveGoalFromSubPack('LEADER','SUBWAY_GUYS','gGuard_Subway_All');	
+	AIAddGoalForSubPack('LEADER','SUBWAY_GUYS','gGuard_Subway_One');	
+	removethisscript;
+End;
+
+
+
+{********************************* FUNCTION DECLARATIONS *********************************}
+
+FUNCTION GetHuntersDoingStuff ; 
+{ PAR sSubpack, sLeader : string, returns int }
+VAR
+ sHunterName   : string[32];
+ curHunter   :  integer;
+ numHunters   :  integer;
+ huntersDoingStuff :  integer;
+BEGIN
+
+ huntersDoingStuff := 0;
+ 
+ ScriptHogProcessorStart;
+ 
+ numHunters := AINumberInSubPack(sLeader, sSubpack);
+ 
+ for curHunter := 1 to numHunters do
+ begin
+ 
+  	AIReturnSubpackEntityName(sLeader, sSubpack, curHunter, sHunterName);
+  	if (false = AIIsIdle(sHunterName)) then
+  	begin
+   		huntersDoingStuff := huntersDoingStuff + 1;
+  	end; 			
+ end;
+ 
+ ScriptHogProcessorEnd;
+ 
+ GetHuntersDoingStuff := huntersDoingStuff;
+
+
+
+End;
+
+
+
+{*****************************************************}
+
+
+
+FUNCTION CalculatePlayerDistanceFromHunter; 
+{PAR sHunterName}
+VAR
+vPlayerPoz		: vec3d;
+vHunterPoz		: vec3d;
+vHunterPlayer	: vec3d;
+
+BEGIN
+	
+	vPlayerPoz:= getPlayerPosition;
+	vHunterPoz:= getEntityPosition(GetEntity(sHunterName));	
+	
+	SubtractVectors(vHunterPlayer, vPlayerPoz,vHunterPoz);	
+	CalculatePlayerDistanceFromHunter := ( (vHunterPlayer.x * vHunterPlayer.x) + (vHunterPlayer.y * vHunterPlayer.y)+ (vHunterPlayer.z * vHunterPlayer.z) );	
+	
+End;
+
+
+
+END. 

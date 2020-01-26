@@ -1,0 +1,114 @@
+scriptmain LiftLoon01;
+
+entity LiftLoonie01(hunter) : et_name;
+
+
+var
+    me : string[30];
+    lButtonTutRemoved :  level_var boolean;
+
+
+script Init;
+VAR
+	pos : vec3d;
+	animLength : integer;
+begin
+    me := GetEntityName(this);
+
+    WriteDebug(me, ' : Init');
+
+    { Initialize AI }
+	{AIAddHunterToLeaderSubpack('leader(leader)', 'subMeleeTut', me);}
+	
+	
+	{AISetHunterIdleActionMinMax(me, AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY, 1, 2);}
+	
+	AIDefineGoalGotoNodeIdle('goalAmbush', me, AISCRIPT_HIGHPRIORITY, 'AMBUSHNODE', AISCRIPT_RUNMOVESPEED, TRUE);
+
+	SetPedLockonable(GetEntity('LiftLoonie01(hunter)'), FALSE);
+
+	AiMakeEntityDeaf(me, 0);
+	AiMakeEntityBlind(me, 0);
+	AIAddHunterToLeaderSubpack('leader2(leader)', 'subBeast1', me);
+
+	{while GetMoverState(GetEntity('real_asylum_elev')) <> MOVER_STOPPED do sleep(10);}
+	while lButtonTutRemoved <> TRUE do sleep(10);
+	
+	pos := GetEntityPosition(GetEntity('real_asylum_elev'));
+	while pos.y < 20.0 do
+	begin
+		pos := GetEntityPosition(GetEntity('real_asylum_elev'));
+		sleep(10);
+	end;
+	
+	SetMoverState(GetEntity('real_asylum_elev'), MOVER_STOPPED);
+					
+	SetVector(pos, -25.075, 24.09, 35.504);
+	MoveEntity(GetEntity('LiftLoonie01(hunter)'), pos, 1);
+	SetPedOrientation(GetEntity('LiftLoonie01(hunter)'), 55);
+	
+	SetVector(pos, -27.644, 24.09, 34.947);
+{	MoveEntity(GetEntity('DeadLiftGuy(hunter)'), pos, 1); 	
+	SetPedOrientation(GetEntity('DeadLiftGuy(hunter)'), 150);}
+	
+	AiEntityPlayAnim('LiftLoonie01(hunter)', 'ASY_NURSE_ATTACK4A');
+	{AiEntityPlayAnim('DeadLiftGuy(hunter)', 'ASY_NURSE_ATTACK4V');}
+	EntityIgnoreCollisions(GetEntity('DeadLiftGuy(hunter)'),TRUE);
+	EntityPlayAnim(GetEntity('DeadLiftGuy(hunter)'), 'ASY_NURSE_ATTACK4V', FALSE);
+	
+	sleep(1500);
+	
+	SetMoverState(GetEntity('real_asylum_elev'), MOVER_FORWARD);
+
+	animLength := GetAnimationLength('ASY_NURSE_ATTACK4A');
+	animLength := animLength - 1500;
+	sleep(animLength);
+	
+	{RUNS OFF}
+	{KillEntityWithoutAnim(GetEntity('DeadLiftGuy(hunter)'));}
+	{AIEntityCancelAnim('DeadLiftGuy(hunter)', 'ASY_NURSE_ATTACK4V');}
+	AIAddGoalForSubpack('leader2(leader)', 'subBeast1', 'goalAmbush'); 
+	AISetIdleHomeNode(me, 'AMBUSHNODE');
+	
+
+	{ Don't show this hunter on radar }
+	AISetHunterOnRadar(me, FALSE);
+
+	{AIEntityPlayAnimLooped(me, 'BAT_IDLELOOP_IDLE_ANIM', 0.0);}
+
+	{AISetHunterIdleAction(me, AISCRIPT_IDLE_SPEECH, AISCRIPT_HIGHPRIORITY);}
+
+    { This hunter may not be pushed away }
+	{LockPed(me, TRUE);}
+end;
+
+script SkipMe;
+begin
+end;
+
+script GreenWeaponTxt;
+begin
+	sleep(9000);
+	DisplayGameText('SYR2');
+end;
+
+script OnDeath;
+begin
+	
+	while IsExecutionInProgress do sleep(10);
+	{PlayScriptAudioStreamFromEntityAux('DANR1', 100, GetPlayer, 50);}
+	{if NOT IsPlayerPositionKnown then
+	begin
+		DisableUserInput;
+		sleep(400);
+		PlayerPlayFullBodyAnim('ASY_REACTKILL_3');
+		sleep(3500);
+		PlayerFullBodyAnimDone;
+		EnableUserInput;
+	end;}
+	
+	RemoveThisScript;
+end;
+
+end.
+

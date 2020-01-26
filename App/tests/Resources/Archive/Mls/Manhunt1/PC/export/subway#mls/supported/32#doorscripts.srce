@@ -1,0 +1,57 @@
+SCRIPTMAIN	DoorScripts;
+
+ENTITY
+	Gen_Lock01	:	et_name;
+
+{THIS IS ACTUALLY A BREAKABLE LOCK}
+
+VAR
+pdoor	: entityptr;
+
+SCRIPT OnCreate;
+BEGIN
+
+	{padlock shite here} 
+	pdoor := getEntity('CJ_BREAKABLE3_(D)01');
+
+	UnfreezeEntity(pdoor);	
+	SetDoorState(pdoor, DOOR_CLOSED);
+	LockEntity(pdoor);
+	ASSERT(GraphModifyConnections(pdoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+
+End;                       
+
+SCRIPT OnUseableAnimFinished; 
+BEGIN
+	
+	UnfreezeEntity(pdoor);
+	SetDoorState(pdoor, DOOR_CLOSED);
+	UnLockEntity(pdoor);
+
+	ASSERT(GraphModifyConnections(pdoor,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));
+
+End;
+
+SCRIPT OnBeingShot;                                                                                
+BEGIN
+	
+	UnfreezeEntity(pdoor);
+	SetDoorState(pdoor, DOOR_CLOSED);
+	UnLockEntity(pdoor);
+
+	ASSERT(GraphModifyConnections(pdoor,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));
+	
+End;
+
+SCRIPT OnDestroy;                                                                                
+BEGIN
+	
+	UnfreezeEntity(pdoor);
+	SetDoorState(pdoor, DOOR_CLOSED);
+	UnLockEntity(pdoor);
+
+	ASSERT(GraphModifyConnections(pdoor,AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));
+	
+End;
+
+END. 

@@ -1,0 +1,41 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Team1_1		:	et_name;
+
+VAR
+
+SCRIPT OnCreate;
+BEGIN
+
+	AISetEntityIdleOverRide('Team1_1',TRUE,TRUE);
+
+	SetHunterHitAccuracy(GetEntityName(this),65);	
+	SetHunterBlockAccuracy(GetEntityName(this),45);
+	
+	setHunterHideHealth(GetEntityName(this),0);
+
+End;
+
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team1_1') then AISetEntityIdleOverRide('Team1_1',FALSE,FALSE);
+	ScriptHogProcessorEnd;	
+		
+	removethisscript;
+End;
+
+SCRIPT OnMediumHearingOrAbove;
+BEGIN
+	
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team1_1') then AISetEntityIdleOverRide('Team1_1',FALSE,FALSE);
+	ScriptHogProcessorEnd;
+		
+	removethisscript;
+
+End;
+
+END. {end of Scripts}

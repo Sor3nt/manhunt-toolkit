@@ -1,0 +1,24 @@
+scriptmain Door3BugFix;
+
+ENTITY
+	triggerDoor3Bugfix : et_name;
+	
+VAR
+	cellFourOpen : level_var boolean;
+	
+script OnEnterTrigger;
+begin
+	if (GetDoorState(GetEntity('cell4_(SD)')) = DOOR_CLOSED) then
+	begin
+		GraphModifyConnections(GetEntity('cell4_(SD)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		SetDoorState(GetEntity('cell4_(SD)'), DOOR_OPENING);
+		cellFourOpen := TRUE;
+		RunScript('ButtonCell4_(S)', 'BlinkGreen');
+		SetCurrentLod(GetEntity('Door_Indicator4'), 1);
+		KillScript('gate02(SD)', 'CheckForOpen');
+		RunScript('gate02(SD)', 'CheckForOpen');
+	end;
+	
+end;
+
+end.

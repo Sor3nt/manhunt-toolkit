@@ -1,0 +1,14 @@
+{
+    "const": [],
+    "strings": [
+        "LEADER",
+        "subMall7",
+        "goalGOTO15",
+        "coverH15",
+        "",
+        "LEADER",
+        "subMall7",
+        "goalCOVERH15"
+    ],
+    "byteReserved": 16
+}

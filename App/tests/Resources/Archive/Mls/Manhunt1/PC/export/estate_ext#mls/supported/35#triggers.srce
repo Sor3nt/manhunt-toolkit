@@ -1,0 +1,99 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+PigAttack		:	et_name;
+
+VAR
+iAllDone		: integer;
+{LEVEL SCOPED VARS}
+
+
+SCRIPT OnCreate;
+BEGIN
+	WriteDebug('PigAttack: OnCreate');
+	iAllDone := 0;
+	
+	if (NIL = GetEntity('Piggsy')) then 
+	begin
+		RemoveScript('PigAttack','OnEnterTrigger');		
+		RemoveThisScript;
+	end;
+		
+	if(NIL = GetEntity('Gen_Save_Point01'))
+	or(NIL = GetEntity('Gen_Save_Point')) then 
+	begin
+		RemoveScript('PigAttack','OnEnterTrigger');
+		RemoveThisScript;
+	end;
+	
+End;
+
+SCRIPT OnEnterTrigger; 
+BEGIN
+	
+	if EnteredTrigger(this, GetPlayer) OR InsideTrigger(this, GetPlayer) then
+	begin
+		WriteDebug('PigAttack: Player in Trigger');			
+		{*******************************************************************}	
+		writedebug('Cerberus attacking pig');	
+		
+		if(nil <> GetEntity('Cerberus04')) then 
+		begin
+			if IsEntityAlive('Cerberus04') then
+			begin
+				if NOT (AIIsInSubPack('LEADER','Subpack_Grave_Hedges','Cerberus04')) then
+				begin
+					if NOT (AIIsInSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus04')) then
+					begin		
+						AIAddHunterToLeaderSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus04');
+					end;
+					
+				end;
+				
+			end;
+			
+		end;
+		
+		if(nil <> GetEntity('Cerberus05')) then 
+		begin
+			if IsEntityAlive('Cerberus05') then
+			begin
+				if NOT (AIIsInSubPack('LEADER','Subpack_Grave_Hedges','Cerberus05')) then
+				begin
+					if NOT (AIIsInSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus05')) then
+					begin
+						AIAddHunterToLeaderSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus05');
+					end;
+					
+				end;
+				
+			end;
+			
+		end;
+		
+		if(nil <> GetEntity('Cerberus06')) then 
+		begin
+			if IsEntityAlive('Cerberus06') then
+			begin
+				if NOT (AIIsInSubPack('LEADER','Subpack_Grave_Hedges','Cerberus06')) then
+				begin
+					if NOT (AIIsInSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus06')) then
+					begin
+						AIAddHunterToLeaderSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus06');
+					end;
+					
+				end;
+				
+			end;
+			
+		end;
+							
+		RunScript('Piggsy','PigMove');
+		WriteDebug('HUNTERS SHOULD ATTACK PIGGSY');
+		removethisscript;
+		
+	end;
+	
+end;
+
+END.

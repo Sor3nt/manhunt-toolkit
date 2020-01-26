@@ -1,0 +1,1031 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN LevelScripts;
+
+ENTITY
+	Church2	:	et_level;
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+VAR
+	stopped  : integer;
+	
+SCRIPT	OnCreate;
+
+VAR
+
+	SetCurrent : boolean;
+	pDoor : EntityPtr;
+	boxA  : vec3d;
+	boxB  : vec3d;
+	Vman  : vec3d;
+	RND   : integer;
+		
+BEGIN
+	
+	RND := randnum(2);
+		
+	SetMaxNumberOfRats(4);
+			
+	AIClearAllActiveAreaAssociations;
+	
+	SetNumberOfKillableHuntersInLevel(19, 12);
+		
+ 	AIAssociateOneActiveAreaWithPlayerArea('aiGarage', 'aiSubway');
+   	AIAssociateOneActiveAreaWithPlayerArea('aiSubway', 'aiGarage'); 	
+   	AIAssociateOneActiveAreaWithPlayerArea('aiSubway', 'aiHouse'); 
+    AIAssociateOneActiveAreaWithPlayerArea('aiStreets', 'aiGate');  
+    AIAssociateOneActiveAreaWithPlayerArea('aiGate', 'aiStreets');    
+    AIAssociateOneActiveAreaWithPlayerArea('aiBackAlley', 'aiAlley');    
+    AIAssociateOneActiveAreaWithPlayerArea('aiGrave', 'aiGrave2');  
+    AIAssociateOneActiveAreaWithPlayerArea('aiGrave2', 'aiGrave');  
+ 
+    AIAssociateOneActiveAreaWithPlayerArea('aiGrave', 'aiBetween');  
+    AIAssociateOneActiveAreaWithPlayerArea('aiBetween', 'aiTheEndBit');
+    AIAssociateOneActiveAreaWithPlayerArea('aiBetween', 'aiGrave');    
+    AIAssociateOneActiveAreaWithPlayerArea('aiTheEndBit', 'aiBetween');
+                  				
+	if GetEntity('Gen_Save_Point03') <> NIL	then
+	 begin	
+	
+    	SetVector(boxA, -224.1, 4.9, 147.4);
+		pDoor := SpawnMovingEntity('Tramp',boxA,'Tramp');
+		AIAddEntity('Tramp');
+	
+		AISetHunterAsHostage('Tramp', TRUE);
+							    
+	end;
+	
+ 	if GetEntity('Gen_Save_Point01') = NIL then
+		if GetEntity('Tramp') = NIL then
+		 begin
+				
+	    	SetVector(boxA, -238.9, 3.3, 239.7);
+			pDoor := SpawnMovingEntity('Tramp',boxA,'Tramp');
+			AIAddEntity('Tramp');
+		{	pDoor := GetEntity('Tramp');		
+			RadarPositionSetEntity(pDoor, MAP_COLOR_GREEN);	}
+							
+		end;
+		
+ 	
+ 	if GetEntity('Gen_Save_Point02') = NIL then
+	 	if GetEntity('Tramp') = NIL	then
+	 	 begin	
+		 
+	    	SetVector(boxA, -171.3, 3.3, 249.0);
+			pDoor := SpawnMovingEntity('Tramp',boxA,'Tramp');
+			AIAddEntity('Tramp');
+			{pDoor := GetEntity('Tramp');		
+			RadarPositionSetEntity(pDoor, MAP_COLOR_GREEN);}
+										
+		 end;
+			
+		
+ 	if GetEntity('Gen_Save_Point') = NIL then
+		if GetEntity('Tramp') = NIL	then
+		 begin	
+		
+	    	SetVector(boxA, -236.8, 3.3, 179.5);
+			pDoor := SpawnMovingEntity('Tramp',boxA,'Tramp');
+			AIAddEntity('Tramp');
+		{	pDoor := GetEntity('Tramp');		
+			RadarPositionSetEntity(pDoor, MAP_COLOR_GREEN);}	
+				
+	    end;
+			
+	
+ 	if GetEntity('Gen_Save_Point03') = NIL	then
+		if GetEntity('Tramp') = NIL	then
+		 begin	
+			
+	    	SetVector(boxA, -193.5, 5.6, 132.4);
+			pDoor := SpawnMovingEntity('Tramp',boxA,'Tramp');
+			AIAddEntity('Tramp');
+			pDoor := GetEntity('Tramp');		
+		{	RadarPositionSetEntity(pDoor, MAP_COLOR_GREEN);	
+			AISetHunterAsHostage('Tramp', FALSE);}
+								
+	    end;
+		
+	AIDefineGoalGotoNodeIdle('gOto','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'Goto',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	AIDefineGoalGotoNodeIdle('gShadow','EVERYONE',AISCRIPT_HIGHPRIORITY,'shadow',AISCRIPT_WALKMOVESPEED,TRUE);
+	
+	AIDefineGoalGotoNodeIdle('gNoiseGoto','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'noise',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	AIDefineGoalGotoNodeIdle('gMano','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'mano',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	AIDefineGoalGotoNodeIdle('gMaso','EVERYONE',AISCRIPT_LOWPRIORITY,'maso',AISCRIPT_RUNMOVESPEED,TRUE);
+	
+	AIDefineGoalGotoNodeIdle('gWilson','EVERYONE',AISCRIPT_LOWPRIORITY,'wilson',AISCRIPT_RUNMOVESPEED,TRUE);
+
+	AIDefineGoalGotoNodeIdle('gUnder','EVERYONE',AISCRIPT_MEDIUMPRIORITY,'underpass',AISCRIPT_RUNMOVESPEED,TRUE);
+
+	AIDefineGoalHuntEnemy('gHunted', 'player', TRUE, 16);
+	
+	SetVector(Vman, -0.6, -0.0, -0.8);	
+	AIDefineGoalGuardDirection('gTrampGuard', AISCRIPT_MEDIUMPRIORITY, 'TrampGuard', 0.1, 16.0, 8, Vman);
+	
+	SetVector(Vman, 0.9, -0.0, -0.5);	
+	AIDefineGoalGuardDirection('gGuardAlley', AISCRIPT_MEDIUMPRIORITY, 'guardalley', 20.0, 20.0, 8, Vman);
+	
+	SetVector(Vman, 1.0, -0.0, -0.1);	
+	AIDefineGoalGuardDirection('gGraveG', AISCRIPT_MEDIUMPRIORITY, 'shotgun', 0.1, 8.0, 8, Vman);
+	
+{	SetVector(Vman, 1.0, -0.0, -0.1);	
+	AIDefineGoalGuardDirection('gMaso', AISCRIPT_MEDIUMPRIORITY, 'maso', 0.1, 8.0, 8, Vman);}
+	
+	SetVector(Vman, 1.0, 0.1, 0.1);
+	AIDefineGoalGuardDirection('gBarrel1', AISCRIPT_MEDIUMPRIORITY, 'barrel1', 0.1, 10.0, 8, Vman);
+	
+	SetVector(Vman, 1.0, 0.1, 0.1);
+	AIDefineGoalGuardDirection('gBarrel2', AISCRIPT_MEDIUMPRIORITY, 'barrel2', 5.0, 15.0, 8, Vman);
+	
+	SetVector(Vman, 0.4, -0.1, 0.9);
+	AIDefineGoalGuardDirection('gBarrel3', AISCRIPT_MEDIUMPRIORITY, 'barrel3', 0.1, 10.0, 8, Vman);
+	
+	SetVector(Vman, 0.0, 0.1, -1.0);
+	AIDefineGoalGuardDirection('gBarrel4', AISCRIPT_MEDIUMPRIORITY, 'barrel4', 0.1, 10.0, 8, Vman);
+	
+	SetVector(Vman, 0.0,-0.1, -1.0);
+	AIDefineGoalGuardDirection('gBarrel5', AISCRIPT_MEDIUMPRIORITY, 'barrel5', 0.1, 10.0, 8, Vman);
+		
+	SetVector(Vman, 0.4, -0.1, 0.9);
+	AIDefineGoalGuardDirection('gFire1', AISCRIPT_LOWPRIORITY, 'fire1', 0.1, 30.0, 8, Vman);
+	
+	SetVector(Vman, 0.6, 0.0, -0.8);	
+	AIDefineGoalGuardDirection('gFire2', AISCRIPT_LOWPRIORITY, 'fire2', 0.1, 30.0, 8, Vman);
+	
+	SetVector(Vman, -0.9, -0.1, -0.4);
+	AIDefineGoalGuardDirection('gFire3', AISCRIPT_LOWPRIORITY, 'fire3', 0.1, 30.0, 8, Vman);
+			
+	SetVector(Vman, 0.8, 0.1, 0.2);	
+	AIDefineGoalGuardDirection('gPoker1', AISCRIPT_MEDIUMPRIORITY, 'poker1', 0.1, 10.0, 8, Vman);
+			
+	SetVector(Vman, -0.8, -0.1, -0.2);	
+	AIDefineGoalGuardDirection('gPoker2', AISCRIPT_MEDIUMPRIORITY, 'poker2', 0.1, 10.0, 8, Vman);
+			
+	AIDefineGoalHuntEnemy('gHuntTramp', 'Tramp', TRUE, 16);
+	
+	AIAddPlayer('player');
+	   
+	if GetEntity('hLeader') <> NIL then
+	 begin
+					
+		AIAddEntity('hLeader');
+		AISetLeaderInvisible('hLeader');
+		AISetEntityAsLeader('hLeader');
+		AIAddLeaderEnemy('hLeader', 'player');
+		AIAddLeaderEnemy('hLeader', 'Tramp');
+								
+		AIAddSubPackForLeader('hLeader','sHuntTramp');
+		AIAddGoalForSubPack('hLeader','sHuntTramp','gHuntTramp');
+		AIAddGoalForSubPack('hLeader','sHuntTramp','gHunted');		
+
+		AIAddSubPackForLeader('hLeader','sHunt');
+		AIAddGoalForSubPack('hLeader','sHunt','gHunted');
+		AIAddGoalForSubPack('hLeader','sHunt','gHuntTramp');
+									
+		AIAddSubPackForLeader('hLeader','sGraveG');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hLeader','sGraveG','gGraveG');
+		
+		AIAddSubPackForLeader('hLeader','sGrave2');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hLeader','sGrave2','gHunted');
+		AIAddGoalForSubPack('hLeader','sGrave2','gHuntTramp');
+					
+		AIAddSubPackForLeader('hLeader','sEndGun');                                                                                                                                                                                     
+					
+		AIAddSubPackForLeader('hLeader','sMaso');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hLeader','sMaso','gMaso');
+							
+		AIAddSubPackForLeader('hLeader','sHuntHouse');
+		AIAddGoalForSubPack('hLeader','sHuntHouse','gHunted');
+		AIAddGoalForSubPack('hLeader','sHuntHouse','gHuntTramp');
+						
+		AIAddSubPackForLeader('hLeader','sHuntSubway');
+		AIAddGoalForSubPack('hLeader','sHuntSubway','gHunted');
+		AIAddGoalForSubPack('hLeader','sHuntSubway','gHuntTramp');
+				
+		AIAddSubPackForLeader('hLeader','sGrave');
+				
+		AIAddSubPackForLeader('hLeader','sStreet');
+		AIAddGoalForSubPack('hLeader','sStreet','gHunted');
+		AIAddGoalForSubPack('hLeader','sStreet','gHuntTramp');
+						
+		AIAddSubPackForLeader('hLeader','sPoker1');
+		AIAddGoalForSubPack('hLeader','sPoker1','gPoker1');
+		
+		AIAddSubPackForLeader('hLeader','sPoker2');
+		AIAddGoalForSubPack('hLeader','sPoker2','gPoker2');
+		
+		AIAddSubPackForLeader('hLeader','sTrampGuard');
+		AIAddGoalForSubPack('hLeader','sTrampGuard','gTrampGuard');
+								
+		AISetSubpackCombatType('hLeader','sGraveG',COMBATTYPEID_OPEN);
+		AISetSubpackCombatType('hLeader','sGrave2',COMBATTYPEID_OPEN);
+		AISetSubpackCombatType('hLeader','sEndGun',COMBATTYPEID_COVER);
+		AISetSubpackCombatType('hLeader','sMaso',COMBATTYPEID_OPEN);
+
+		AIAddAreaForSubpack('sHuntSubway', 'aiSubway');	
+		AIAddAreaForSubpack('sHuntHouse', 'aiHouse');
+		AIAddAreaForSubpack('sGrave', 'aiGrave2');	
+							
+	{	AISubpackStayInTerritory( 'hLeader', 'sHuntSubway', TRUE );}
+									
+		AISetHunterOnRadar('hLeader', FALSE);
+		
+		if GetEntity('hGraveGuard') <> NIL then
+		 begin		
+			AIAddEntity('hGraveGuard');		
+			AIAddHunterToLeaderSubPack('hLeader','sGraveG','hGraveGuard');
+ 			AISetIdleHomeNode('hGraveGuard', '');
+ 			pDoor := GetEntity('hGraveGuard');
+			SetPedSkinTextureID(pDoor,0);				
+		end;		
+		
+		if GetEntity('hHouse3') <> NIL then
+		 begin		
+			AIAddEntity('hHouse3');		
+			AISetIdleHomeNode('hHouse3', '');
+			AISetHunterIdlePatrol('hHouse3',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,1000,5000,'AIPath01');
+			AISetHunterIdleActionMinMax('hHouse3', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+     		AISetIdlePatrolStop('hHouse3','housecall',3,TRUE); 
+			AISetIdlePatrolStop('hHouse3','housecall1',3,FALSE);				
+			SetHunterRunTime('hHouse3',20);
+			Sethunterhidehealth('hHouse3', 10);
+			AISetEntityStayOnPath('hHouse3', TRUE);
+			pDoor := GetEntity('hHouse3');
+			SetPedSkinTextureID(pDoor,1);			
+		end;
+
+		if GetEntity('hSubway2') <> NIL then
+		 begin		
+			AIAddEntity('hSubway2');		
+			AISetHunterIdlePatrol('hSubway2',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,1000,5000,'AIPath04');
+			AISetHunterIdleActionMinMax('hSubway2', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+     		AISetIdlePatrolStop('hSubway2','tunnel1',2,TRUE); 
+			AISetIdlePatrolStop('hSubway2','tunnel2',2,FALSE);	
+			AISetIdleHomeNode('hSubway2', '');
+			SetHunterRunTime('hSubway2',20);
+			Sethunterhidehealth('hSubway2', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sHuntSubway','hSubway2');
+		end;	
+		
+		if GetEntity('hSubway1') <> NIL then
+		 begin		
+			AIAddEntity('hSubway1');		
+			AISetHunterIdleActionMinMaxRadius('hSubway1', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hSubway1', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+			AISetIdleHomeNode('hSubway1', '');
+			SetHunterRunTime('hSubway1',20);
+			Sethunterhidehealth('hSubway1', 10);
+			AISetEntityAllowSurprise('hSubway1', FALSE);
+			AISetHunterOnRadar('hSubway1',FALSE);			
+			pDoor := GetEntity('hSubway1');
+			SetPedSkinTextureID(pDoor,1);	
+											
+			if RND = 1 then
+			 begin
+			
+				pDoor := GetEntity('hSubway1');
+				SetVector(boxA, -160.5, 1.8, 214.5);
+				MoveEntity(pDoor, boxA, 1);	
+				
+			end;
+			
+		end;	
+
+		if GetEntity('hGrave1') <> NIL then
+		 begin	
+			AIAddEntity('hGrave1');		
+			AISetHunterIdleActionMinMaxRadius('hGrave1', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hGrave1', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+			AISetIdleHomeNode('hGrave1', '');
+			SetHunterRunTime('hGrave1',20);
+			Sethunterhidehealth('hGrave1', 10);
+ 			pDoor := GetEntity('hGrave1');
+			SetPedSkinTextureID(pDoor,0);
+			AISetHunterOnRadar('hGrave1',FALSE); 
+			AISetEntityAllowSurprise('hGrave1', FALSE);						
+		end;
+		
+		if GetEntity('hGrave2') <> NIL then
+		 begin	
+			AIAddEntity('hGrave2');		
+			AISetHunterIdlePatrol('hGrave2',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,1000,5000,'AIPath02');
+     		AISetIdlePatrolStop('hGrave2','stopgrave1',2,TRUE); 
+      		AISetIdlePatrolStop('hGrave2','stopgrave1',2,FALSE); 
+			AISetIdlePatrolStop('hGrave2','stopgrave2',2,TRUE);
+     		AISetIdlePatrolStop('hGrave2','stopgrave2',2,FALSE); 
+			aiMakeEntityBlind('hGrave2', 0);
+			aiMakeEntityDeaf('hGrave2', 0);						
+			AISetIdleHomeNode('hGrave2', '');
+			SetHunterRunTime('hGrave2',20);
+			Sethunterhidehealth('hGrave2', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sGrave2','hGrave2');	
+   			pDoor := GetEntity('hGrave2');
+			SetPedSkinTextureID(pDoor,0);					
+		end;
+						
+		if GetEntity('hTrampGuard') <> NIL then
+		 begin	
+			AIAddEntity('hTrampGuard');	
+			AISetIdleHomeNode('hTrampGuard', '');
+			SetHunterRunTime('hTrampGuard',20);
+			SetHunterhidehealth('hTrampGuard', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sTrampGuard','hTrampGuard');
+			AISetHunterIdleAction('hTrampGuard', AISCRIPT_IDLE_SPEECH, AISCRIPT_HIGHPRIORITY);
+			pDoor := GetEntity('hTrampGuard');
+			SetPedSkinTextureID(pDoor,0);			
+		end;
+		
+		if GetEntity('Gen_Save_Point03') = NIL then
+		 begin 
+			 		
+			if GetEntity('Tramp') <> NIL then
+			 begin
+		 
+				AISetEntityAsLeader('Tramp');
+				AIDefineGoalBeBuddy('gTrampy', 'Tramp','player', 'Timer404', 2);			
+				AIAddSubPackForLeader('Tramp','sTrampy');
+				AIAddGoalForSubPack('Tramp','sTrampy','gTrampy');
+		 		AISetIdleHomeNode('Tramp', '');
+	 			AIAddHunterToLeaderSubPack('Tramp','sTrampy','Tramp');
+ 							
+				runscript('Tramp','LEFT');
+					    		
+				AIEntityAlwaysEnabled('Tramp');
+								
+			end;	
+				
+		end;
+		 		
+		if GetEntity('Tramp') <> NIL then
+		 begin
+
+			AIEntityAlwaysEnabled('Tramp');
+							
+		end;
+					   	
+		end;
+
+		if GetEntity('hEndGun1') <> NIL then
+		 begin		
+			AIAddEntity('hEndGun1');		
+			AISetIdleHomeNode('hEndGun1', '');
+			SetHunterRunTime('hEndGun1',20);
+			Sethunterhidehealth('hEndGun1', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sEndGun','hEndGun1');
+ 			pDoor := GetEntity('hEndGun1');
+			SetPedSkinTextureID(pDoor,1);			
+			
+		end;
+		if GetEntity('hEndGun2') <> NIL then
+		 begin		
+			AIAddEntity('hEndGun2');		
+			AISetIdleHomeNode('hEndGun2', '');
+			SetHunterRunTime('hEndGun2',20);
+			Sethunterhidehealth('hEndGun2', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sEndGun','hEndGun2');
+ 			pDoor := GetEntity('hEndGun2');
+			SetPedSkinTextureID(pDoor,0);			
+		end;
+		if GetEntity('hEndGun3') <> NIL then
+		 begin		
+			AIAddEntity('hEndGun3');		
+			AISetIdleHomeNode('hEndGun3', '');
+			SetHunterRunTime('hEndGun3',20);
+			Sethunterhidehealth('hEndGun3', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sEndGun','hEndGun3');
+ 			pDoor := GetEntity('hEndGun3');
+			SetPedSkinTextureID(pDoor,0);			
+			
+		end;
+		if GetEntity('hEndGun4') <> NIL then
+		 begin		
+			AIAddEntity('hEndGun4');		
+			AISetIdleHomeNode('hEndGun4', '');
+			SetHunterRunTime('hEndGun4',20);
+			Sethunterhidehealth('hEndGun4', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sEndGun','hEndGun4');
+ 			pDoor := GetEntity('hEndGun4');
+			SetPedSkinTextureID(pDoor,1);			
+		end;
+		
+		if GetEntity('hEndGun6') <> NIL then
+		 begin		
+			AIAddEntity('hEndGun6');		
+			AISetIdleHomeNode('hEndGun6', '');
+			Sethunterhidehealth('hEndGun6', 10);
+			AIAddHunterToLeaderSubPack('hLeader','sEndGun','hEndGun6');
+ 			pDoor := GetEntity('hEndGun6');
+			SetPedSkinTextureID(pDoor,0);			
+		end;
+		
+		RunScript('Church2', 'Expansion');
+	
+{	ShowTriggers(True);}
+
+end;
+
+script Expansion;
+
+VAR
+
+	pDoor : entityptr;
+	boxA  : vec3d;
+	boxB  : vec3d;
+	vecPos : vec3d;
+	vecView : vec3d;
+	RND : integer;
+
+BEGIN
+
+		RND := randnum(2);
+			
+		SetGameTextTeleType(FALSE);
+	
+		SetGameTextBoxPosition(0.05, 0.05);
+		
+		SetGameTextDisplayTime(3000);
+		
+		SetGameTextBoxSize(0.40,0.40);
+
+		if GetEntity('Gen_Save_Point03') <> NIL	then
+		 begin
+		 
+			SetLevelGoal('GOAL1');
+	 
+	  		if GetPlayerLevelRestarts = 0 then
+			 begin	
+			 											
+						
+				CutSceneStart;
+				
+				HandCamSetAllEffects(TRUE);
+ 								
+				if GetEntity('hTrampGuard') <> NIL then
+				 begin	
+				 	
+					AICutSceneEntityEnable('hTrampGuard', TRUE);
+					
+				end;
+				
+			    SetVector(vecPos,-233.6, 7.4, 140.6);
+			
+			    SetVector(vecView, 0.8, -0.4, 0.5);
+			
+			    setcameraposition(vecPos);
+			
+			    setcameraview(vecView);	
+	 	
+				SetZoomLerp(0.5, 1.0, 6);
+	 	
+			{	SetZoomLerp(1.0, 2.0, 6);}
+			    
+		{		Setdirectorspeechtime(5000);	    
+			    PlayDirectorSpeechPlaceHolder('START');	}
+			    
+				SetVector(boxA, -230.4, 3.4, 142.2);
+		 		PlayDirectorSpeech( boxA, AISPEECH_D1V1_DRK_CHURCH2_START, 127, 60);
+ 							    
+			    sleep(10000);
+						    			
+			    SetVector(vecPos,-230.5, 3.8, 139.2);
+			
+			    SetVector(vecView, 0.1, 0.2, 1.0);
+			
+			    setcameraposition(vecPos);
+			
+			    setcameraview(vecView);		
+	  			
+				SetZoomLerp(0.8, 1.0, 4);
+	
+			{	AISetEntityVoiceID ('Tramp', VOICE_TRAMP1VOICE1);	
+				PlayHunterSpeech('Tramp', VOICE_TRAMP1VOICE1, AISPEECH_T1V1_TRM_SING);
+							    
+			    sleep(2000);
+			    
+			    SetGameTextDisplayTime(3000);
+				AISetEntityVoiceID ('hTrampGuard', VOICE_INNOCENT2VOICE1);	
+				PlayHunterSpeech('hTrampGuard', VOICE_INNOCENT2VOICE1, AISPEECH_I2V1_TRM_SHUT_UP);}
+								    
+			    sleep(4200);
+						    			
+		        CutSceneEnd(false);
+		
+				HandCamSetAllEffects(TRUE);
+				SetHudFlag(HUD_ALL_ON);
+				
+			end;
+				
+		end;
+		
+	if GetEntity('hBarman') <> NIL then
+	 begin	
+		  	
+		AIAddEntity('hBarman');
+		AISetEntityAsLeader('hBarman');
+		AISetLeaderInvisible('hBarman');
+				
+		AIAddLeaderEnemy('hBarman', 'player');
+		AIAddLeaderEnemy('hBarman', 'Tramp');
+														
+		AIAddSubPackForLeader('hBarman','sHuntGarage');
+		AIAddGoalForSubPack('hBarman','sHuntGarage','gHunted');
+		AIAddGoalForSubPack('hBarman','sHuntGarage','gHuntTramp');
+		
+		AIAddSubPackForLeader('hBarman','sFire1');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hBarman','sFire1','gFire1');
+		AIAddGoalForSubPack('hBarman','sFire1','gHunted');
+		AIAddGoalForSubPack('hBarman','sFire1','gHuntTramp');
+		
+		AIAddSubPackForLeader('hBarman','sFire2');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hBarman','sFire2','gFire2');	
+		AIAddGoalForSubPack('hBarman','sFire2','gHunted');	
+		AIAddGoalForSubPack('hBarman','sFire2','gHuntTramp');
+			
+		AIAddSubPackForLeader('hBarman','sFire3');                                                                                                                                                                                    
+		AIAddGoalForSubPack('hBarman','sFire3','gFire3');
+		AIAddGoalForSubPack('hBarman','sFire3','gHunted');
+		AIAddGoalForSubPack('hBarman','sFire3','gHuntTramp');
+									
+		AIAddSubPackForLeader('hBarman','sUnder');                                                                                                                                                                                     
+						
+		AIAddSubPackForLeader('hBarman','sBarrel3');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hBarman','sBarrel3','gBarrel3');
+		AIAddGoalForSubPack('hBarman','sBarrel3','gHunted');		
+		AIAddGoalForSubPack('hBarman','sBarrel3','gHuntTramp');
+		
+		AIAddSubPackForLeader('hBarman','sBarrel2');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hBarman','sBarrel2','gHunted');		
+		AIAddGoalForSubPack('hBarman','sBarrel2','gHuntTramp');
+							
+		AIAddSubPackForLeader('hBarman','sBarrel4');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hBarman','sBarrel4','gBarrel4');
+		AIAddGoalForSubPack('hBarman','sBarrel4','gHunted');		
+		AIAddGoalForSubPack('hBarman','sBarrel4','gHuntTramp');		
+			
+		AIAddSubPackForLeader('hBarman','sBarrel5');                                                                                                                                                                                     
+		AIAddGoalForSubPack('hBarman','sBarrel5','gBarrel5');
+		AIAddGoalForSubPack('hBarman','sBarrel5','gHunted');		
+		AIAddGoalForSubPack('hBarman','sBarrel5','gHuntTramp');	
+	
+		AIAddSubPackForLeader('hBarman','sFence');    
+		AIAddGoalForSubPack('hBarman','sFence','gHunted');	
+		AIAddGoalForSubPack('hBarman','sFence','gHuntTramp');
+		
+		AIAddAreaForSubpack('sFire1', 'aiStreets');	
+		AIAddAreaForSubpack('sFire2', 'aiStreets');	
+		AIAddAreaForSubpack('sFire3', 'aiStreets');					
+		AIAddAreaForSubpack('sFence', 'aiAlley');
+		AIAddAreaForSubpack('sBarrel3', 'aiHouse');
+		AIAddAreaForSubpack('sBarrel4', 'aiHouse');
+		AIAddAreaForSubpack('sBarrel5', 'aiHouse');
+		AIAddAreaForSubpack('sBarrel2', 'aiHouse');		
+		AIAddAreaForSubpack('sHuntGarage', 'aiGarage');		
+			
+		AISetSubpackCombatType('hBarman','sBarrel3',COMBATTYPEID_OPEN_MELEE);
+		AISetSubpackCombatType('hBarman','sBarrel4',COMBATTYPEID_OPEN_MELEE);
+		AISetSubpackCombatType('hBarman','sBarrel5',COMBATTYPEID_OPEN_MELEE);
+		AIAddAreaForSubpack('sUnder', 'aiSubway');	
+				
+		AISubpackStayInTerritory( 'hBarman', 'sBarrel3', TRUE );		
+									
+		if GetEntity('hGhost1') <> NIL then
+		 begin		
+			AIAddEntity('hGhost1');		
+			AISetHunterIdleActionMinMaxRadius('hGhost1', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hGhost1', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+			AISetIdleHomeNode('hGhost1', '');
+			SetHunterRunTime('hGhost1',20);
+			Sethunterhidehealth('hGhost1', 10);
+			AIAddHunterToLeaderSubPack('hBarman','sHuntGarage','hGhost1');
+   			pDoor := GetEntity('hGhost1');
+			SetPedSkinTextureID(pDoor,1);			
+		end;
+		if GetEntity('hSpooky2') <> NIL then
+		 begin		
+			AIAddEntity('hSpooky2');		
+			AISetHunterIdleActionMinMaxRadius('hSpooky2', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hSpooky2', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+			AISetIdleHomeNode('hSpooky2', '');
+			SetHunterRunTime('hSpooky2',20);
+			Sethunterhidehealth('hSpooky2', 10);
+			AIAddHunterToLeaderSubPack('hBarman','sHuntGarage','hSpooky2');
+   			pDoor := GetEntity('hSpooky2');
+			SetPedSkinTextureID(pDoor,1);			
+		end;			
+		if GetEntity('hGhost') <> NIL then
+		 begin		
+			AIAddEntity('hGhost');		
+			AISetIdleHomeNode('hGhost', '');
+			AISetHunterIdlePatrol('hGhost',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,1000,5000,'AIPath05');
+			AISetHunterIdleActionMinMax('hGhost', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+     		AISetIdlePatrolStop('hGhost','bus1',2,TRUE); 
+			AISetIdlePatrolStop('hGhost','bus2',2,FALSE);			
+			Sethunterhidehealth('hGhost', 10);
+			AIAddHunterToLeaderSubPack('hBarman','sHuntGarage','hGhost');
+   			pDoor := GetEntity('hGhost');
+			SetPedSkinTextureID(pDoor,0);			
+		end;
+		if GetEntity('hFire1') <> NIL then
+		 begin		
+			AIAddEntity('hFire1');	
+			AIAddHunterToLeaderSubPack('hBarman','sFire1','hFire1');
+			AISetHunterIdleActionMinMaxRadius('hFire1', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hFire1', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);			
+			SetHunterRunTime('hFire1',20);
+			Sethunterhidehealth('hFire1', 0);			
+ 			AISetIdleHomeNode('hFire1', '');
+			pDoor := GetEntity('hFire1');
+			SetPedSkinTextureID(pDoor,0); 	
+		end;
+		if GetEntity('hBack') <> NIL then
+		 begin		
+			AIAddEntity('hBack');		
+			AIAddHunterToLeaderSubPack('hBarman','sBarrel2','hBack');
+			AISetHunterIdlePatrol('hBack',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,1000,5000,'AIPath06');
+			AISetHunterIdleActionMinMax('hBack', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+     		AISetIdlePatrolStop('hBack','path2',3,TRUE); 
+			AISetIdlePatrolStop('hBack','path1',3,FALSE);			
+			SetHunterRunTime('hBack',20);
+			Sethunterhidehealth('hBack', 10);			
+ 			AISetIdleHomeNode('hBack', '');
+   			pDoor := GetEntity('hBack');
+			SetPedSkinTextureID(pDoor,0);				
+		end;		
+		if GetEntity('hBarrel3') <> NIL then
+		 begin		
+			AIAddEntity('hBarrel3');		
+			AIAddHunterToLeaderSubPack('hBarman','sBarrel3','hBarrel3');
+			SetHunterRunTime('hBarrel3',20);
+			Sethunterhidehealth('hBarrel3', 10);			
+ 			AISetIdleHomeNode('hBarrel3', '');
+   			pDoor := GetEntity('hBarrel3');
+			SetPedSkinTextureID(pDoor,1);				
+		end;
+		if GetEntity('hBarrel4') <> NIL then
+		 begin		
+			AIAddEntity('hBarrel4');		
+			AIAddHunterToLeaderSubPack('hBarman','sBarrel4','hBarrel4');
+			SetHunterRunTime('hBarrel4',20);
+			Sethunterhidehealth('hBarrel4', 10);			
+ 			AISetIdleHomeNode('hBarrel4', '');
+   			pDoor := GetEntity('hBarrel4');
+			SetPedSkinTextureID(pDoor,0);		
+		end;
+		if GetEntity('hBarrel5') <> NIL then
+		 begin		
+			AIAddEntity('hBarrel5');		
+			AIAddHunterToLeaderSubPack('hBarman','sBarrel5','hBarrel5');
+			SetHunterRunTime('hBarrel5',20);
+			Sethunterhidehealth('hBarrel5', 10);			
+ 			AISetIdleHomeNode('hBarrel5', '');
+ 			pDoor := GetEntity('hBarrel5');
+			SetPedSkinTextureID(pDoor,2); 				
+		end;										
+		if GetEntity('hFire2') <> NIL then
+		 begin	
+		 	
+			AIAddEntity('hFire2');	
+			AIAddHunterToLeaderSubPack('hBarman','sFire2','hFire2');
+			AISetHunterIdleActionMinMaxRadius('hFire2', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hFire2', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+			SetHunterRunTime('hFire2',20);
+			Sethunterhidehealth('hFire2', 30);			
+ 			AISetIdleHomeNode('hFire2', '');
+   			pDoor := GetEntity('hFire2');
+			SetPedSkinTextureID(pDoor,1);
+		end;
+		if GetEntity('hFence') <> NIL then
+		 begin	
+		 	
+			AIAddEntity('hFence');	
+			AISetHunterIdlePatrol('hFence',AISCRIPT_IDLE_PATROL,AISCRIPT_HIGHPRIORITY,1000,5000,'AIPath03');
+     		AISetIdlePatrolStop('hFence','mano',4,TRUE); 
+      		AISetIdlePatrolStop('hFence','prana',1,TRUE);     		
+			SetHunterRunTime('hFence',20);
+			Sethunterhidehealth('hFence', 40);			
+ 			AISetIdleHomeNode('hFence', '');
+			aiaddhuntertoleadersubpack('hBarman', 'sFence', 'hFence');						
+  			pDoor := GetEntity('hFence');
+			SetPedSkinTextureID(pDoor,0);			
+		end;
+				
+		if GetEntity('hFire3') <> NIL then
+		 begin		
+		 
+			AIAddEntity('hFire3');		
+			AIAddHunterToLeaderSubPack('hBarman','sFire3','hFire3');
+			AISetHunterIdleActionMinMaxRadius('hFire3', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,50);			
+			AISetHunterIdleActionMinMax('hFire3', AISCRIPT_IDLE_STANDSTILL, AISCRIPT_LOWPRIORITY,1,2);
+			SetHunterRunTime('hFire3',20);
+			Sethunterhidehealth('hFire3', 30);			
+ 			AISetIdleHomeNode('hFire3', '');	
+ 			pDoor := GetEntity('hFire3');
+			SetPedSkinTextureID(pDoor,1); 	
+									
+		end;
+														
+		end;
+			
+		SetGameTextDisplayTime(4000);
+		
+		if GetEntity('Gen_Save_Point03') <> NIL	then
+		 begin
+		
+	    SetVector(boxA, -226.8, 4.9, 144.6);
+		CreateSphereTrigger( boxA, 1.0, 'Trigger_01');
+		
+		end;	
+		
+	    SetVector(boxA, -284.4, 4.4, 228.8);
+	    SetVector(boxB, -284.4, 4.4, 243.5);
+		CreateLineTrigger( boxA, boxB, 'Trigger_02' );
+		
+		if GetEntity('Gen_Save_Point03') <> NIL	then
+		 begin						
+		    SetVector(boxA, -188.7, 6.5, 129.7);
+		    SetVector(boxB, -192.2, 6.5, 122.6);
+			CreateLineTrigger( boxA, boxB, 'Trigger_03' );
+		end;
+					
+	    SetVector(boxA, -322.3, 3.7, 214.4);
+	    SetVector(boxB, -322.0, 3.7, 227.6);
+		CreateLineTrigger( boxA, boxB, 'Trigger_04' );
+									
+	    SetVector(boxA, -188.7, 6.5, 129.7);
+	    SetVector(boxB, -192.2, 6.5, 122.6);
+		CreateLineTrigger( boxA, boxB, 'Trigger_07' );	
+		
+		if GetEntity('Gen_Save_Point03') <> NIL	then
+		 begin
+					
+		    SetVector(boxA, -193.6, 6.5, 139.2);
+		    SetVector(boxB, -185.8, 6.5, 135.7);
+			CreateLineTrigger( boxA, boxB, 'Trigger_06' );	
+		
+		end;
+			
+	    SetVector(boxA, -180.3, 6.3, 269.0);
+		CreateSphereTrigger( boxA, 2.0, 'Trigger_05');
+		
+		if GetEntity('Gen_Save_Point') <> NIL then
+		 begin					
+		 												
+		    SetVector(boxA, -228.1, 4.2, 179.6);
+		    SetVector(boxB, -227.8, 4.2, 184.3);
+			CreateLineTrigger( boxA, boxB, 'Trigger_09' );	
+		
+		end;	
+		
+		if GetEntity('Gen_Save_Point') <> NIL then
+		 begin		
+		 												
+		    SetVector(boxA, -197.6, 4.2, 143.5);
+		    SetVector(boxB, -183.2, 4.2, 171.6);
+			CreateLineTrigger( boxA, boxB, 'Trigger_08' );	
+			
+		end;
+				
+		if GetEntity('Gen_Save_Point02') <> NIL	then
+		 begin				
+		 
+		    SetVector(boxA, -170.4, 4.1, 242.8);
+		    SetVector(boxB, -166.8, 4.1, 241.9);
+			CreateLineTrigger( boxA, boxB, 'Trigger_10' );	
+		
+		end;	
+									
+	    SetVector(boxA, -275.5, 6.0, 228.6);
+	    SetVector(boxB, -276.1, 6.0, 222.5);
+		CreateLineTrigger( boxA, boxB, 'Trigger_11' );	
+		
+		if GetEntity('Gen_Save_Point01') <> NIL	then
+		 begin	
+		 									
+		    SetVector(boxA, -219.2, 4.1, 271.7);
+		    SetVector(boxB, -226.6, 4.1, 270.4);
+			CreateLineTrigger( boxA, boxB, 'Trigger_12' );
+		
+		end;	
+
+	{	if GetEntity('Gen_Save_Point01') <> NIL	then
+		 begin	
+				
+		    SetVector(boxA, -180.8, 5.9, 270.8);
+			CreateSphereTrigger( boxA, 2.0, 'Trigger_13');
+		
+		end;}
+					
+		if GetEntity('Gen_Save_Point02') <> NIL	then
+		 begin
+				
+		    SetVector(boxA, -236.4, 3.3, 189.6);
+			CreateSphereTrigger( boxA, 3.0, 'Trigger_14');
+			
+		end;
+																				
+		if GetEntity('Gen_Save_Point03') <> NIL	then
+		 begin
+												
+		  {  SetVector(boxA, -211.7, 4.5, 122.9);
+			CreateSphereTrigger( boxA, 3.0, 'Trigger_15');}
+			
+		end;
+		
+	    SetVector(boxA, -239.7, 4.3, 245.5);
+		CreateSphereTrigger( boxA, 2.0, 'Trigger_16');
+		
+	    SetVector(boxA, -239.9, 3.3, 240.9);
+		CreateSphereTrigger( boxA, 2.0, 'Trigger_17');
+		
+	    SetVector(boxA, -303.7, 3.8, 221.3);
+		CreateSphereTrigger( boxA, 2.0, 'Trigger_18');		
+		
+	    SetVector(boxA, -267.1, 4.7, 205.6);
+		CreateSphereTrigger( boxA, 3.0, 'Trigger_19');	
+		
+	    SetVector(boxA, -248.1, 3.6, 239.4);
+		CreateSphereTrigger( boxA, 2.4, 'Trigger_20');	
+
+	    SetVector(boxA, -171.5, 1.8, 210.6);
+		CreateSphereTrigger( boxA, 2.0, 'Trigger_21');
+		
+	    SetVector(boxA, -224.2, 3.3, 178.9);
+		CreateSphereTrigger( boxA, 5.0, 'Trigger_22');
+		
+	    SetVector(boxA, -168.6, 2.8, 239.2);
+		CreateSphereTrigger( boxA, 5.0, 'Trigger_23');
+		
+	    SetVector(boxA, -222.9, 4.3, 276.1);
+		CreateSphereTrigger( boxA, 5.0, 'Trigger_24');
+		
+	    SetVector(boxA, -273.4, 6.2, 225.3);
+		CreateSphereTrigger( boxA, 5.0, 'Trigger_25');
+																																							
+		AIEntityAlwaysEnabled('hBarman');
+		AIEntityAlwaysEnabled('Tramp');
+		AIEntityAlwaysEnabled('hLeader');
+    
+		pDoor := GetEntity('Trigger03');
+	    ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+	    
+   		if GetEntity('Der_Breakable_Window_Glass') <> NIL then
+   		 begin 
+		 
+			pDoor := GetEntity('Der_Breakable_Window_Glass');
+		    ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+		    
+		end;
+		
+		pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)04');
+		ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+		UnFreezeEntity(pDoor);
+		SetDoorOpenAngleIn(pDoor,90);
+		SetDoorOpenAngleOut(pDoor,90);
+		
+		if GetEntity('Gen_Save_Point') <> NIL then
+		 begin    	
+		 						
+			LockEntity(pDoor);
+			
+		end;
+		
+		pDoor := GetEntity('der_meshgate_(D)');
+		UnFreezeEntity(pDoor);
+		SetDoorOpenAngleIn(pDoor,90);
+		SetDoorOpenAngleOut(pDoor,90);
+					
+		if GetEntity('Gen_Maintenance_MetalDoor_(D)') <> NIL then
+		 begin	
+		 
+			pDoor := GetEntity('Gen_Maintenance_MetalDoor_(D)');
+			UnFreezeEntity(pDoor);
+			SetDoorOpenAngleIn(pDoor,100);
+			SetDoorOpenAngleOut(pDoor,100);			
+			LockEntity(pDoor);
+			
+		end;
+		
+		if GetEntity('Gen_E_L_MeshGLeft_(D)07') <> NIL then
+		 begin	
+		
+			pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)07');
+			SetDoorOpenAngleIn(pDoor,90);
+			SetDoorOpenAngleOut(pDoor,90);			
+		    ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));			
+			UnFreezeEntity(pDoor);
+			LockEntity(pDoor);
+			
+		end;
+	
+		pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)06');
+		UnFreezeEntity(pDoor);
+		SetDoorOpenAngleIn(pDoor,90);
+		SetDoorOpenAngleOut(pDoor,90);
+			
+		pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)05');
+		UnFreezeEntity(pDoor);
+		SetDoorOpenAngleIn(pDoor,90);
+		SetDoorOpenAngleOut(pDoor,90);
+	
+		if GetEntity('Gen_Save_Point02') <> NIL	then
+		 begin			
+		 			
+			LockEntity(pDoor);
+			pDoor := GetEntity('Trigger02');
+		    ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+		    			
+		end;
+				
+		pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)');
+		UnFreezeEntity(pDoor);
+		SetDoorOpenAngleIn(pDoor,90);
+		SetDoorOpenAngleOut(pDoor,90);	
+		SetDoorState(pDoor, DOOR_CLOSED);
+		
+		if GetEntity('Gen_Save_Point03') <> NIL	then
+		 begin	
+		 					
+			LockEntity(pDoor);
+			pDoor := GetEntity('Trigger04');
+		    ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+		    			
+		end;
+		if GetEntity('Gen_Save_Point02') = NIL then
+		 begin				
+			 		
+			if GetEntity('hSubway2') <> NIL then
+			 begin	
+			  
+			  pDoor := GetEntity('hSubway2');
+			  DestroyEntity(pDoor);
+			  
+			end;
+			if GetEntity('hSubway1') <> NIL then
+			 begin	
+			  
+			  pDoor := GetEntity('hSubway1');
+			  DestroyEntity(pDoor);
+			  
+			end;
+			    		    		
+		end;	
+							
+		pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)06');
+		UnFreezeEntity(pDoor);
+		LockEntity(pDoor);
+		
+		if GetEntity('Gen_Save_Point01') <> NIL	then
+		 begin	
+		 		
+			pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)02');
+			ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));		
+			UnFreezeEntity(pDoor);
+			LockEntity(pDoor);
+			
+			pDoor := GetEntity('Gen_E_L_MeshGLeft_(D)01');
+			ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_NOTHING));		
+			UnFreezeEntity(pDoor);
+			LockEntity(pDoor);		
+		
+		end;
+				
+		AISetHunterOnRadar('hLeader',FALSE);
+		AISetHunterOnRadar('hBarman',FALSE);
+		
+		pDoor := getentity('CJ_WASTEBIN_(F)');			
+		LockEntity(pDoor);	
+		
+		pDoor := getentity('CJ_WASTEBIN_(F)02');			
+		LockEntity(pDoor);		
+			
+		pDoor := getentity('CJ_WASTEBIN_(F)03');			
+		LockEntity(pDoor);	
+			
+		pDoor := getentity('CJ_WASTEBIN_(F)04');			
+		LockEntity(pDoor);	
+			
+		pDoor := getentity('CJ_WASTEBIN_(F)05');			
+		LockEntity(pDoor);			
+		
+		if GetEntity('Gen_Save_Point03') = NIL then
+		 begin 
+			 		
+			if GetEntity('Tramp') <> NIL then
+			 begin
+
+				sleep(2000);
+ 	    		AISetBuddyFollow('Tramp');
+				
+			end;	
+				
+		end;
+END;
+
+END.   

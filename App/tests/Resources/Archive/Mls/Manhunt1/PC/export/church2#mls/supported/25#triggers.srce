@@ -1,0 +1,59 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+	FindAGunTrigger		:	et_name;
+
+{This sphere is attached to the buddy and detects weapons that he can pickup and use}
+
+SCRIPT OnEnterTrigger;
+VAR
+
+	i, 
+	iCount, 
+	iNEntitiesInSphere,
+	iFXIDX				: integer;
+	sEntityName			: string[32];
+	sEntityName6		: string[6];
+	vDirection			: vec3d;
+
+BEGIN
+
+		{check for fist aid collision}
+		if EnteredTriggerType(this,EC_COLLECTABLE) OR InsideTriggerType(this, EC_COLLECTABLE) then
+		 begin
+		 			
+			iNEntitiesInSphere := GetNumberOfTypesInsideTrigger(this,EC_COLLECTABLE);
+			
+			for iCount := 1 to iNEntitiesInSphere do
+			 begin
+				
+				sEntityName := GetNameOfTypeInTriggerFromIndex(this,EC_COLLECTABLE,iCount);
+				
+				sEntityName6 	:= sEntityName;
+		
+				if (
+				(sEntityName6 = 'G_Firs') 
+				AND
+				(GetDamage(GetEntity('Tramp')) < 100) 
+				)then
+				begin
+					{*** Journo talking animation shite ***}
+		{			SetGameTextDisplayTime(5000);					
+					DisplayGameText('PICK');	}	
+					{*** End of Journo talking animation shite ***}	
+					
+					sEntityName := GetNameOfTypeInTriggerFromIndex(this,EC_COLLECTABLE,iCount);
+					killEntity(GetEntity(sEntityName));
+					
+					SetDamage(GetEntity('Tramp'),100);
+									
+				end;				
+							
+			end;
+				
+		end; 
+
+End;
+
+END.
+

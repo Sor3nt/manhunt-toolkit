@@ -1,0 +1,125 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Team1_2		:	et_name;
+
+VAR
+bHasRadioedIn	:	boolean;
+bIsGuarding		:	boolean;
+
+level_bPowerIsOn	: 	level_var	boolean;
+
+SCRIPT OnCreate;
+BEGIN
+	bHasRadioedIn 	:= FALSE;
+	bIsGuarding		:= FALSE;
+		
+	SetHunterHideHealth(GetEntityName(this),0);
+	AISetEntityVoiceID('Team1_2',VOICE_POLICE2VOICE2);
+	
+	AICancelHunterIdleAction('Team1_2',AISCRIPT_IDLE_SPEECH);
+	
+End;
+
+SCRIPT OnMediumHearingOrAbove;
+BEGIN	
+	runScript('TurnCops','ShitItsCash');
+End;
+
+SCRIPT RunAway;
+BEGIN
+	AICancelHunterIdleAction('Team1_2',AISCRIPT_IDLE_STANDANIMS);	
+	AICancelHunterIdleAction('Team1_2',AISCRIPT_IDLE_SPEECH);
+	
+	AIAddGoalForSubpack('LEADER','Team1','gTeam1_2GoTo');
+	writeDebug('Team1_2: RunAway');
+	killScript('Team1_2','OnSpeak');
+	removeScript('Team1_2','OnSpeak');		
+	removethisscript;
+End;
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	if bIsGuarding then 
+	begin
+		if AIIsGoalNameInSubpack('LEADER','Team1','gHold_TEAM1_2')
+			then AIRemoveGoalFromSubPack('LEADER','Team1','gHold_TEAM1_2');
+		bIsGuarding := FALSE;
+		removethisscript;
+	end;
+	
+End;
+
+SCRIPT OnHunterReachedNode;
+VAR
+iRandChoice		:	integer;
+vLockerPos		:	vec3d;
+vLockerView		:	vec3d;
+BEGIN
+	
+	runscript('Team1_2','RadioIn');	
+			
+	if NOT AIIsGoalNameInSubpack('LEADER','Team1','gHold_TEAM1_2')
+			then AIAddGoalForSubpack('LEADER','Team1','gHold_TEAM1_2');
+		
+	bIsGuarding := TRUE;	
+		
+	{if the player is not around...}
+	if(
+	(NOT AIisEnemyInRadius('Team1_2','player',6.0)) 
+	AND {...the door is closed...}
+	(GetDoorState(GetEntity('Gen_Maintenance_MetalDoor_(D)01'))=DOOR_CLOSED)
+	)then
+	begin
+		runscript('Team1_3','GoToHoldPosition');
+				
+		{lock the door}
+		UnFreezeEntity(GetEntity('Gen_Maintenance_MetalDoor_(D)01'));
+		LockEntity(GetEntity('Gen_Maintenance_MetalDoor_(D)01'));
+		
+		{block the connection}
+		ASSERT(GraphModifyConnections(GetEntity('Gen_Maintenance_MetalDoor_(D)01'), AISCRIPT_GRAPHLINK_ALLOW_NOTHING));
+						
+	end;
+	
+	sleep(5000);
+	
+	AItriggerSoundNoRadar('GUN_SHOT',GetPlayer);
+	
+End;
+
+SCRIPT RadioIn;
+VAR
+vStart				: vec3d;
+vEnd				: vec3d;
+BEGIN
+
+	{create trigger area so that he starts shooting when player is in corridor}
+	
+	setVector(vStart,147.6,-35.7,350.5);
+	setVector(vEnd,148.8,-32.7,353.5);
+	CreateBoxTrigger(vStart,vEnd,'PowerOff_Speech');
+		
+	ScriptHogProcessorStart;
+	if IsEntityAlive('Team1_3') then		
+	begin
+		PlayHunterSpeech('Team1_3',VOICE_POLICE3VOICE2,AISPEECH_P3V2_SUB_SEAL_THIS_PLACE);
+		bHasRadioedIn := TRUE;
+	end;
+	ScriptHogProcessorEnd;	
+	
+	removethisscript;
+	
+End;
+
+SCRIPT OnDeath;
+BEGIN
+	if AIIsGoalNameInSubpack('LEADER','Team1','gHold_TEAM1_2')
+		then AIRemoveGoalFromSubPack('LEADER','Team1','gHold_TEAM1_2');
+		
+	if NOT bHasRadioedIn then runscript('Team1_3','RadioIn');
+	
+	AiIgnoreEntityIfDead(GetEntityName(this));
+End;
+
+END. {end of Scripts}

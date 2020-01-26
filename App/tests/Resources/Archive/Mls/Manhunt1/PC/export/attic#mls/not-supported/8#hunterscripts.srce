@@ -1,0 +1,720 @@
+SCRIPTMAIN	HunterScripts;
+
+ENTITY
+	Piggsy				:	et_name;
+
+CONST
+SECS_BEFORE_DETECTION		= 15000;
+TIME_TO_GET_BORED_OF_PLAYER = 25000;
+
+VAR
+sNewHomeNode			: string[15];
+pPiggsy					: entityptr;
+bChansawOn,
+bRetreat,
+bRestoreIdleScripts,
+bPlayerSeen,
+bSniffingPlayer,
+bHasEnemy,
+bIsPlayingHitAnim,
+bPlayTiredAnim	 		: boolean;
+
+{LEVEL SCOPED VARS}
+iExecutionsCount		: level_var integer;
+
+{********************************* FUNCTION HEADERS *************************************}
+FUNCTION CalculatePlayerDistanceByPosition (VAR vHunterPoz: vec3d) : integer; FORWARD;
+{******************************* END OF FUNCTION HEADERS ********************************}
+
+SCRIPT OnCreate;
+VAR
+BEGIN
+		
+	{Init a few internal flags}
+	bRestoreIdleScripts	:= FALSE;
+	bRetreat 			:= FALSE;	
+	bPlayerSeen			:= FALSE;
+	bSniffingPlayer 	:= FALSE;
+	bIsPlayingHitAnim 	:= FALSE;
+	bPlayTiredAnim 		:= FALSE;
+	bHasEnemy			:= TRUE;	
+			
+	SetHunterHideHealth('Piggsy',0);
+		
+	AICancelHunterIdleAction('Piggsy',AISCRIPT_IDLE_SPEECH);
+	AICancelHunterIdleAction('Piggsy',AISCRIPT_IDLE_STANDANIMS);
+	AICancelHunterIdleAction('Piggsy',AISCRIPT_IDLE_MOVEANIMS);
+		
+	CreateInventoryItem(CT_CHAINSAW,this,TRUE); {<-- Give piggsy a CHAINSAW}		
+	bChansawOn := FALSE;
+		
+	{Force him idle until player hits trigger}
+	AISetEntityIdleOverRide('Piggsy',TRUE,TRUE);	
+	AISetIdleHomeNode('Piggsy','');		
+	
+	AISetEntityAllowSurprise('Piggsy',FALSE);
+	
+	SetDamage(this,150);
+		
+End;
+
+{SCRIPT BrickDetector;
+VAR
+vOffSetPos	: vec3d;
+pTrigger	: entityPtr;
+
+BEGIN
+	
+	SetVector(vOffSetPos,0.0,0.5,0.0);
+	pTrigger := CreateSphereTrigger(vOffSetPos,2.0,'BrickDetector');				
+	TriggerAddEntityClass(pTrigger, COL_WEAPON);	
+	TriggerAddEntityClass(pTrigger, COL_COLLECTABLE);
+	TriggerAddEntityClass(pTrigger, COL_BASIC);
+	TriggerAddEntityClass(pTrigger, COL_RESPONDER);
+	TriggerAddEntityClass(pTrigger, COL_SHOT);
+	AttachToEntity(pTrigger, this);
+		
+End;}
+
+SCRIPT PiggsyJumpOut;
+BEGIN	
+	
+	writedebug('PiggsyJumpOut - START');
+	
+	AISetIdleHomeNode('Piggsy','Piggsy_Home1');
+	
+	AISetHunterIdleActionMinMaxRadius('Piggsy',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,1000,10000,60.0);
+		
+	bRestoreIdleScripts := TRUE;		
+	
+	SetLevelGoal('GOAL1');
+	
+	sleep(10000);
+	
+	runScript('Piggsy','DetectionLoop');	
+	runScript('Piggsy','OnHunterIdle');
+	
+	AISetEntityAllowSurprise('Piggsy',TRUE);	
+	
+	writedebug('PiggsyJumpOut - END');
+	removethisscript;
+	
+End;
+
+SCRIPT DetectionLoop;
+VAR
+iPigDistance,
+iPigStoredDistance,
+iSniffTimeLeft		: integer;
+sPlayerArea,
+sPigArea			: string[32];
+vPigPosition		: vec3d;
+BEGIN
+	
+	writeDebug('DetectionLoop: Start');
+	writeDebug('-------------------------------------------');
+	
+		
+	while( isEntityAlive('Piggsy') AND (NOT IsEntityDying('Piggsy')) ) do
+	begin
+		
+		sPlayerArea := GetPlayerAreaName;
+		sPigArea := GetHunterAreaName(GetEntity('Piggsy'));
+		
+		if( 
+		AIIsEnemyInRadius('Piggsy','player',12) 
+		AND 
+		(NOT AIisEnemyInSight('Piggsy','player',AISCRIPT_MEDIUMPRIORITY)) 
+		AND
+		(sPlayerArea = sPigArea)
+		AND
+		(NOT bChansawOn)
+		)then 
+		begin			
+			writeDebug('DetectionLoop: Piggsy Snifing Start');
+			bSniffingPlayer := TRUE;
+			
+			if ( isEntityAlive('Piggsy') AND (NOT IsEntityDying('Piggsy')) ) then
+			begin			
+				killscript('Piggsy','CountDownToDetection');
+				
+				ScriptHogProcessorStart;
+				if bRestoreIdleScripts then
+				begin
+					{*** SNIFFING ANIMATION ***}
+					AISetEntityIdleOverRide('Piggsy',TRUE,TRUE);	{ need to idle ??}			
+					AIEntityPlayAnim(GetEntityName(this),'Idle_Piggsy_Sniff');								
+					writeDebug('DetectionLoop: Piggsy Playing Snifing Anim');				
+					{*** End of SNIFFING ANIMATION ***}
+				end;		
+				ScriptHogProcessorEnd;
+				
+				{Store current Pig position to avoid cheating because he rotates, shifting}
+				vPigPosition := GetEntityPosition(this);
+				
+				{Store the current distance from the player}		
+				iPigStoredDistance := CalculatePlayerDistanceByPosition(vPigPosition);
+				
+			
+				{Idle Pig to play scripted animation}					
+				AICancelHunterIdleAction('Piggsy',AISCRIPT_IDLE_WANDERSEARCH);
+								
+				sleep(6000);
+											
+				if( 
+				isEntityAlive('Piggsy') 
+				AND 
+				(NOT IsEntityDying('Piggsy')) 
+				AND
+				NOT bPlayerSeen
+				) then
+				begin				
+					AISetEntityIdleOverRide('Piggsy',FALSE,FALSE); {need to remove idle??}				
+					AILookAtEntity('Piggsy','player');														
+				end;				
+								
+				{re-add the wander search}
+				AISetHunterIdleActionMinMaxRadius('Piggsy',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,1000,10000,60.0);	
+									
+				{if the player has been sighted this script will not continue}			
+				if NOT bPlayerSeen then
+				begin
+					{Now recalculate the distance using the stored position}
+					iPigDistance := CalculatePlayerDistanceByPosition(vPigPosition);
+					
+					{if this distance is different the player MUST have moved closer}
+					if (iPigDistance < iPigStoredDistance) then {the player has moved closer}
+					begin
+						{Send Piggsy to search around the player}						
+						ScriptHogProcessorStart;
+						if NOT AIisGoalNameInSubPack('Piggsy','PiggsyPack','gPiggsySniffToPlayer')
+							then AIAddGoalForSubPack('Piggsy','PiggsyPack','gPiggsySniffToPlayer');
+						ScriptHogProcessorEnd;
+						writeDebug('DetectionLoop: Player moved closer, piggsy goes to him.');						
+					end;				
+				
+				end;				
+			
+			end;	
+		end;
+		
+		bSniffingPlayer := FALSE;
+	
+		writeDebug('DetectionLoop: End of Loop Pass');
+		writeDebug('-------------------------------------------');	
+		sleep(10000);	
+	end;	
+	
+End;
+
+SCRIPT OnHunterIdle;
+BEGIN
+	WriteDebug('Piggsy Is Idle');
+			
+	sleep(1000);	
+	
+	if NOT bRetreat then AISetHunterOnRadar('Piggsy',FALSE);
+	
+	if bRestoreIdleScripts AND (NOT bSniffingPlayer) then 
+		runscript('Piggsy','CountDownToDetection');	
+	
+	if bRestoreIdleScripts AND (NOT bSniffingPlayer) then 
+		runScript('Piggsy','DetectionLoop');
+	
+	if ( bChansawOn AND (GetInventoryItemFromName(this, 'Chainsaw_(CT)') <> NIL) ) then
+	begin		
+		bChansawOn := FALSE;
+	end;	
+		
+End;
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	
+	killscript('Piggsy','CountDownToDetection');	
+	
+	sleep(1000);
+		
+	if bSniffingPlayer then
+	begin
+		KillScript('Piggsy','DetectionLoop');
+		sleep(3000);
+		AISetEntityIdleOverRide('Piggsy',FALSE,FALSE);
+		RunScript ('Piggsy','PlayerSeen');
+		SetHunterExecutable(this, TRUE); 
+		bSniffingPlayer := FALSE;		
+	end;
+	
+	if NOT bRetreat then AISetHunterOnRadar('Piggsy',TRUE);	
+	 		
+	if ( (NOT bChansawOn ) AND (GetInventoryItemFromName(this, 'Chainsaw_(CT)') <> NIL) ) then
+	begin		
+		bChansawOn := TRUE;	
+	end;
+	
+
+		
+End;
+
+SCRIPT OnHighSightingOrAbove;
+BEGIN
+	if bRetreat then 
+	begin
+		if bPlayTiredAnim then
+		begin
+			bPlayTiredAnim := FALSE;
+			AISetEntityIdleOverRide('Piggsy',FALSE,FALSE);
+			PlayHunterSpeech('Piggsy',VOICE_PIGGSY1VOICE1,AISPEECH_X1V1_ATTIC_ANGRY);
+			AIEntityCancelAnim('Piggsy','IdleLoop_Att_Piggsy_Cower');		
+			runScript('Piggsy','PlayerSeenRetreat');
+		end;
+	end;
+End;
+
+SCRIPT PlayerSeen;
+BEGIN
+	bPlayerSeen := TRUE;
+	while AIisEnemyInSight('Piggsy','player',AISCRIPT_MEDIUMPRIORITY) do 
+	begin
+		sleep(1);
+		if( IsEntityDying('Piggsy') or (NOT(isEntityAlive('Piggsy'))) )then killthisscript;
+	end;
+	bPlayerSeen := FALSE;	
+End;
+
+SCRIPT PlayerSeenRetreat;
+BEGIN
+
+	if NOT AIisGoalNameInSubPack('Piggsy','PiggsyPack','gPiggsyGoCower2')
+		then AIAddGoalForSubPack('Piggsy','PiggsyPack','gPiggsyGoCower2');	
+	
+	removethisscript;
+End;
+
+SCRIPT OnMediumHearingOrAbove;
+BEGIN
+	sleep(1000);	
+	killscript('Piggsy','CountDownToDetection');
+	bSniffingPlayer := FALSE;	
+
+	AISetEntityIdleOverRide('Piggsy',FALSE,FALSE);
+
+	if NOT bRetreat then  AISetHunterOnRadar('Piggsy',TRUE);	
+	
+	if bRetreat then 
+	begin
+		if bPlayTiredAnim then
+		begin		
+			bPlayTiredAnim := FALSE;
+			AISetEntityIdleOverRide('Piggsy',FALSE,FALSE);
+			PlayHunterSpeech('Piggsy',VOICE_PIGGSY1VOICE1,AISPEECH_X1V1_ATTIC_ANGRY);
+			AIEntityCancelAnim('Piggsy','IdleLoop_Att_Piggsy_Cower');		
+			runScript('Piggsy','PlayerSeenRetreat');
+		end;
+	end;
+		
+End;
+
+SCRIPT CountDownToDetection;
+VAR
+i,
+iTempDistance,
+iClosestMarkerDist	: integer;
+vPlayerPoz,		
+vMarkerPoz,		
+vMarkerPlayer		: vec3d;
+sMarkerName			: string[15];
+BEGIN	
+	
+	writedebug('CountDownToDetection: Started');
+	
+	{This script will send piggsy towards the player to keep him busy}
+	
+	sleep(SECS_BEFORE_DETECTION);
+	
+	writedebug('CountDownToDetection: Setting Wander-Search near player');
+	
+	iClosestMarkerDist := 2147482999;
+	sNewHomeNode := 'UNKNOWN';	
+	
+	for i := 1 to 12 do
+	begin				
+			
+		CASE i of
+			 1 : sMarkerName := 'Piggsy_Home1';
+			 2 : sMarkerName := 'Piggsy_Home2';
+			 3 : sMarkerName := 'Piggsy_Home3';
+			 4 : sMarkerName := 'Piggsy_Home4';
+			 5 : sMarkerName := 'Piggsy_Home5';
+			 6 : sMarkerName := 'Piggsy_Home6';
+			 7 : sMarkerName := 'Piggsy_Home7';
+			 8 : sMarkerName := 'Piggsy_Home8';
+			 9 : sMarkerName := 'Piggsy_Home9';
+			10 : sMarkerName := 'Piggsy_Home10';
+			11 : sMarkerName := 'Piggsy_Home11';
+			12 : sMarkerName := 'Piggsy_Home12';
+		end;
+		
+		vPlayerPoz:= getPlayerPosition;	
+		vMarkerPoz:= getEntityPosition(GetEntity(sMarkerName));	
+	
+		SubtractVectors(vMarkerPlayer, vPlayerPoz,vMarkerPoz);	
+		iTempDistance := ( (vMarkerPlayer.x * vMarkerPlayer.x) + (vMarkerPlayer.y * vMarkerPlayer.y)+ (vMarkerPlayer.z * vMarkerPlayer.z) );	
+						
+		{see if this distance is good to be stored as the closest}
+		if (iTempDistance < iClosestMarkerDist) then 
+		begin			
+			iClosestMarkerDist := iTempDistance;
+			sNewHomeNode := sMarkerName;				
+		end;
+								
+	end;			
+	 
+	Writedebug('CountDownToDetection: sNewHomeNode= ',sNewHomeNode);	
+	
+	if (sNewHomeNode <> 'UNKNOWN') then 
+	begin
+		
+		AISetIdleHomeNode('Piggsy',sNewHomeNode);
+		AISetHunterIdleActionMinMaxRadius('Piggsy',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,1000,10000,60.0);	
+		AIEntityGoHomeIfIdle('Piggsy');
+	end;
+	
+	{sleep(SECS_BEFORE_DETECTION*1000);}
+	sleep(25000);
+	
+	if AIisIdle('Piggsy') then runscript('Piggsy','OnHunterIdle');
+	
+End; 
+
+
+SCRIPT OnStartExecution; 
+VAR
+vSpawnVect		: vec3d;
+i,
+iTempDistance,
+iClosestMarkerDist	: integer;
+vPlayerPoz,		
+vMarkerPoz,		
+vMarkerPlayer		: vec3d;
+sMarkerName			: string[15];
+pInv				: entityPtr;
+
+BEGIN	
+			
+	bRestoreIdleScripts := FALSE;
+	
+	AISetEntityIdleOverRide('Piggsy',FALSE,FALSE);
+	
+	KillScript('Piggsy','DetectionLoop');
+	KillScript('Piggsy','CountDownToDetection');
+		
+	iExecutionsCount := iExecutionsCount + 1;
+	
+	if 	(iExecutionsCount >= 3) then 
+	begin
+		while IsExecutionInProgress do sleep(1);
+		runScript('Piggsy','Retreat');
+		removethisscript;
+	end;
+		
+	i := (RandNum(12) + 1);
+	
+	CASE i of
+		 1 : sMarkerName := 'Piggsy_Home1';
+		 2 : sMarkerName := 'Piggsy_Home2';
+		 3 : sMarkerName := 'Piggsy_Home3';
+		 4 : sMarkerName := 'Piggsy_Home4';
+		 5 : sMarkerName := 'Piggsy_Home5';
+		 6 : sMarkerName := 'Piggsy_Home6';
+		 7 : sMarkerName := 'Piggsy_Home7';
+		 8 : sMarkerName := 'Piggsy_Home8';
+		 9 : sMarkerName := 'Piggsy_Home9';
+		10 : sMarkerName := 'Piggsy_Home10';
+		11 : sMarkerName := 'Piggsy_Home11';
+		12 : sMarkerName := 'Piggsy_Home12';
+	end;	
+
+	AIDefineGoalGotoNode('gPiggsyEscape','EVERYONE',AISCRIPT_VERYHIGHPRIORITY,sMarkerName,AISCRIPT_RUNMOVESPEED,TRUE);
+
+	while IsExecutionInProgress do sleep(1);
+	
+	AIAddGoalForSubPack('Piggsy', 'PiggsyPack','gPiggsyEscape');
+	
+	sleep(1000);
+	
+	AIDeleteGoalDefinition('gPiggsyEscape');
+	
+	sleep(10000);
+	
+	bRestoreIdleScripts := TRUE;
+	runScript('Piggsy','OnHunterIdle');	
+
+End;
+
+SCRIPT Retreat;
+BEGIN
+	
+	KillScript('Piggsy','CountDownToDetection');
+	KillScript('Piggsy','DetectionLoop');	
+	RemoveScript('Piggsy','CountDownToDetection');
+	Removescript('Piggsy','DetectionLoop');	
+	
+	AISetHunterOnRadar('Piggsy',TRUE);	
+	
+	GraphModifyConnections(GetEntity('CameraLook3'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+		
+	sleep(500);
+		
+	AIAddGoalForSubPack('Piggsy','PiggsyPack','gPiggsyGoGate');
+		
+	bRestoreIdleScripts := FALSE;
+		
+	removethisscript;
+End;
+
+SCRIPT OnHunterReachedNode;
+VAR
+sString32		: string[32];
+BEGIN
+
+	
+	sString32 := AIGetHunterLastNodeName(this);
+	writedebug('PIGGSY sLastNodeReached: ', sString32);
+	
+	if sString32 = '...ERROR...INVALID...NODE...NAME...' 
+	then AISetEntityIdleOverRide('Piggsy',FALSE,FALSE)	
+	else runscript('Piggsy',sString32);	
+		
+End;
+
+
+SCRIPT GateToAttic;
+VAR
+vPos			: vec3d;
+BEGIN		
+		
+	if AIisGoalNameInSubPack('Piggsy','PiggsyPack','gPiggsyGoGate')
+		then AIRemoveGoalFromSubPack('Piggsy','PiggsyPack','gPiggsyGoGate');	
+
+		CutSceneStart;
+		PlayFrontEndAudioStreamOneShot(127);		
+							
+			AICutSceneAllEntitiesEnable(TRUE);
+			
+			if (GetPlayerAreaName = 'airoom6') then
+			begin
+				SetVector(vPos,168.0,23.0,4.15);
+				MoveEntity(GetPlayer,vPos,0);
+				SetPedOrientation(GetPlayer,140);
+			end;
+			
+			SetVector(vPos,171.5,29.89,-0.83);
+			SetCameraPosition(vPos);
+		
+			SetVector(vPos,0.0,0.0,0.0);
+			CameraForceLookAtEntity(GetEntity('CameraLook3'),vPos,FALSE,FALSE,0.0);
+			
+			SetVector(vPos,170.479,27.009,-3.139);								
+			EntityPlayCutSceneAnimation(GetEntity('Piggsy'), vPos, 180, 'Idle_Att_Door_Piggsy');
+			EntityPlayAnim(GetEntity('Piggsy_Chain_Door'),'Idle_Att_Door_DOOR',FALSE);
+			sleep(3000);                              
+			
+			CameraStopLookAtEntity(FALSE,0.0);			
+		
+			LoadFrontEndAudioStream(SCRIPTED_TRACK_PIGGSY_GRILL1);
+		
+		CutSceneEnd(FALSE);
+			
+			SetVector(vPos,171.197,32.5,-30.209);
+			MoveEntity(GetEntity('Piggsy'),vPos,0);
+			
+			DestroyEntity(GetEntity('Piggsy_Chain_Door'));				
+			
+			sleep(500);
+			{Replace it with a new - already broken - door}					
+			ShowEntity(GetEntity('CJ_CHAINDOOR2_(D)')); 
+			UnFreezeEntity(GetEntity('CJ_CHAINDOOR2_(D)'));	
+			UnLockEntity(GetEntity('CJ_CHAINDOOR2_(D)'));	
+		
+			SetDoorOpenAngleIn(GetEntity('CJ_CHAINDOOR2_(D)'),90.0);	
+			SetDoorOpenAngleOut(GetEntity('CJ_CHAINDOOR2_(D)'),90.0);
+			
+		{AIAddGoalForSubPack('Piggsy','PiggsyPack','gPiggsyGoWait1');}
+		
+		AIAddGoalForSubPack('Piggsy','PiggsyPack','gPiggsyGoAttic');
+				
+		SetHunterTauntProbability('Piggsy',99);
+		
+		removethisscript;
+		
+End;
+
+{SCRIPT Pig_Wait1;
+BEGIN
+	
+	bRetreat := TRUE;
+	
+	runScript('Piggsy','BrickDetector');
+	
+	SetPedOrientation(this,-180);
+	SetHunterMeleeTraits(this,MTT_DEFENSIVE_HARD);
+	
+	AISetIdleHomeNode('Piggsy','Pig_Wait1');		
+	sleep(1000);				
+	AIAddGoalForSubPack('Piggsy','PiggsyPack','gPig_Wait1');
+	
+	removethisscript;
+
+End;
+}
+
+SCRIPT AtticHome;
+VAR
+vDirection	: vec3d;
+
+BEGIN
+	
+	if AIisGoalNameInSubPack('Piggsy','PiggsyPack','gPiggsyGoAttic')
+		then AIRemoveGoalFromSubPack('Piggsy','PiggsyPack','gPiggsyGoAttic');						
+						
+	bRetreat := TRUE;
+		
+	{SetVector(vDirection,0.68,-0.24,-0.68);	}
+	AISetIdleHomeNode('Piggsy','AtticHome');	
+	
+	AISetEntityIdleOverRide('Piggsy',TRUE,TRUE);
+	AIEntityPlayAnimLooped('Piggsy','IdleLoop_Att_Piggsy_Cower',-1);
+	bPlayTiredAnim := TRUE;
+		
+End;
+
+SCRIPT Cower2;
+BEGIN
+	
+	AISetIdleHomeNode('Piggsy','Cower2');
+	
+	if AIisGoalNameInSubPack('Piggsy','PiggsyPack','gPiggsyGoCower2')
+		then AIRemoveGoalFromSubPack('Piggsy','PiggsyPack','gPiggsyGoCower2');	
+	
+	AISetEntityIdleOverRide('Piggsy',TRUE,TRUE);
+	AIEntityPlayAnimLooped('Piggsy','IdleLoop_Att_Piggsy_Cower',-1);
+	bPlayTiredAnim := TRUE;
+		
+End;
+
+{SCRIPT RunAway;
+VAR
+bCycle 	: boolean;
+iTimes	: integer;
+vView  	: vec3d;
+
+BEGIN
+		
+		bIsPlayingHitAnim := TRUE;
+		
+		Removescript('Piggsy','OnMediumSightingOrAbove');
+		Removescript('Piggsy','OnMediumHearingOrAbove');
+		
+		SetVector(vView, 0.1, -0.2, 1.0);
+		AISetHunterHomeNodeDirection('Piggsy','RunAway', vView);
+		AICancelHunterIdleAction('Piggsy',AISCRIPT_IDLE_WANDERSEARCH);
+		
+		if NOT AIisGoalNameInSubPack('Piggsy','PiggsyPack','gAttackDoor2')
+			then AIAddGoalForSubPack('Piggsy','PiggsyPack','gAttackDoor2');			
+				
+		While NOT AIisEnemyInRadius('Piggsy','player',10.0) do sleep(1);
+		
+		sleep(5000);
+		
+		ScriptHogProcessorStart;
+		if AIisGoalNameInSubPack('Piggsy','PiggsyPack','gAttackDoor2')
+			then AIRemoveGoalFromSubPack('Piggsy','PiggsyPack','gAttackDoor2');					
+		ScriptHogProcessorEnd;
+		
+		bIsPlayingHitAnim := FALSE;
+		
+		ScriptHogProcessorStart;
+		if NOT AIisGoalNameInSubPack('Piggsy','PiggsyPack','gByTowerDoor')
+				then AIAddGoalForSubPack('Piggsy','PiggsyPack','gByTowerDoor');	
+		ScriptHogProcessorEnd;
+				
+		AITriggerSoundKnownLocationNoRadar('LURE_HIGH',GetPlayer);
+							
+		removethisscript;
+End;}
+
+SCRIPT OnDeath;
+BEGIN	
+	ClearLevelGoal('GOAL1');
+End;
+
+SCRIPT OnBeingShot;
+VAR
+vPos	: vec3d;
+BEGIN
+	{*** this is here purely in case the player cheats}
+	
+	If NIL <> GetEntity('WeakGrate_Trigger') then KillEntity(GetEntity('WeakGrate_Trigger'));
+	
+	if( 
+	(GetDamage(this) <= 10) 
+	AND
+	IsEntityHoldingAmmoWeapon(GetPlayer)
+	)then 
+	begin
+		ScriptHogProcessorStart;		
+		RemoveScript('Piggsy','OnHunterIdle');				
+		RemoveScript('Piggsy','CountDownToDetection');
+		Removescript('Piggsy','DetectionLoop');		
+		ScriptHogProcessorEnd;
+		
+		LoadFrontEndAudioStream(SCRIPTED_TRACK_DIRECT);
+		
+		killEntity(this);
+	end;
+	
+	
+End;
+
+SCRIPT OnStartExploding;
+VAR
+vPos	: vec3d;
+BEGIN
+
+	{*** this is here purely in case the player cheats}
+	
+	If NIL <> GetEntity('WeakGrate_Trigger') then KillEntity(GetEntity('WeakGrate_Trigger'));
+	
+	ScriptHogProcessorStart;	
+	RemoveScript('Piggsy','OnHunterIdle');				
+	RemoveScript('Piggsy','CountDownToDetection');
+	Removescript('Piggsy','DetectionLoop');		
+	ScriptHogProcessorEnd;
+		
+	LoadFrontEndAudioStream(SCRIPTED_TRACK_DIRECT);
+	
+	killEntity(this);	
+	
+End;
+
+{*****************************************************}
+
+
+
+FUNCTION CalculatePlayerDistanceByPosition; 
+{PAR vHunterPoz}
+VAR
+vPlayerPoz		: vec3d;
+vHunterPlayer	: vec3d;
+
+BEGIN
+	
+	vPlayerPoz:= getPlayerPosition;		
+	
+	SubtractVectors(vHunterPlayer, vPlayerPoz,vHunterPoz);	
+	CalculatePlayerDistanceByPosition := ( (vHunterPlayer.x * vHunterPlayer.x) + (vHunterPlayer.y * vHunterPlayer.y)+ (vHunterPlayer.z * vHunterPlayer.z) );	
+	
+End;
+
+END.  

@@ -1,0 +1,13 @@
+scriptmain EntityScript;
+
+ENTITY
+	buttonElevatorLowerFAULTY_(S) : et_name;
+	
+script OnUseByPlayer;
+begin
+	EntityPlayAnim(GetEntity('elev_switch_faulty_fx'), 'PAT_ELEC01', TRUE);
+	PlayAudioOneShotFromEntity(GetEntity('elev_switch_faulty_fx'), 'LEVEL', 'SPARKS', 127, 30);
+	RemoveThisScript;
+end;
+
+end.

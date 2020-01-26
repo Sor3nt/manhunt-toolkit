@@ -1,0 +1,778 @@
+SCRIPTMAIN		Triggers;
+
+ENTITY
+	Alert_Manager			:	et_name;
+
+CONST
+WAIT_IN_ALERT					= 10000; {before normal alert guards are removed }
+WAIT_IN_HIGH_ALERT				= 25000; {before HIGH guards are removed }
+PERC_DEATHS_DEFINING_A_CAMPER	= 50; {% hunters killed in the same room that define a camper}
+PERC_DEATHS_FOR_CHIEF_CUT		= 50; {% hunters killed necessary to trigger cut-scene}
+SECS_SPENT_COUNTERING_CAMPER	= 40; {seconds spent by hunter(s) countering a camper}
+SECS_SPENT_SEEKING_DEAD			= 35; {seconds spent by hunter(s) reaching last dead body}
+
+VAR
+sString32,
+sClosestHunter,
+sSecondClosestHunter,
+sStoredAlertArea			: string[32];
+i,
+iMANSION_GUARDS_OnAlert,
+iMANSION2_GUARDS_OnAlert		: integer;
+bGuard10Secure,
+bGuard11Secure,
+bPlayerCamper,				
+bHighAlert,
+bIsAttackInProgress,
+bCounteringCamper 			: boolean;
+
+{LEVEL SCOPED VARS}
+level_bIsAlertOn			: level_var boolean;
+sLastDeadHunter				: level_var string[32];
+bHasChiefCutPlayed			: level_var boolean;
+
+{********************************* FUNCTION HEADERS *************************************}
+FUNCTION GetHuntersDoingStuff(VAR sLeader,sSubpack : string) : integer; FORWARD;
+FUNCTION CalculatePlayerDistanceFromHunter (VAR sHunterName : string) : integer; FORWARD;
+PROCEDURE SetSubPackGoalsPerArea(); FORWARD;
+{******************************* END OF FUNCTION HEADERS ********************************}
+
+SCRIPT OnCreate;
+BEGIN
+	
+	bGuard10Secure 				:= FALSE;
+	bGuard11Secure 				:= FALSE;	
+	bPlayerCamper 				:= FALSE;
+	bHighAlert 					:= FALSE;
+	bIsAttackInProgress 		:= FALSE;
+	bCounteringCamper 			:= FALSE;
+	i 							:= 0;	
+	sClosestHunter				:= 'Nobody';
+	sSecondClosestHunter 		:= 'Nobody';
+	sStoredAlertArea			:= 'Nowere';
+	
+	sleep(500);
+		
+	iMANSION_GUARDS_OnAlert := AINumberInSubPack('LEADER','MANSION_GUARDS') ;		
+	iMANSION2_GUARDS_OnAlert := AINumberInSubPack('LEADER','MANSION2_GUARDS');		
+		
+End;
+
+SCRIPT RaiseAlert;
+VAR
+sArea				: string[32];
+i,iNumberInSubPack	: integer;
+BEGIN
+{
+	SCRIPT DESCRIPTION: 
+	This script raises the alert in the mansion. 
+	
+	BEHAVIOUR: 
+	The alert consists of a number of medium priority goals to bring the hunters 
+	in good positions surrounding the player from all entrances and ways in.	
+	The core of the goals selection is in a procedure called SetSubPackGoalsPerArea.
+	
+}
+	if NOT level_bIsAlertOn then
+	begin
+		
+		writeDebug('ALERT_MANAGER: *** THE ALERT IN THE MANSION HAS BEEN RAISED ***');
+		
+		
+		sArea := GetPlayerAreaName;
+		sStoredAlertArea := GetPlayerAreaName;		
+					
+		{QUESTION: SHOULD I ALSO SPAWN REINFORCEMENTS AFTER A NUMBER OF SIGHTINGS?}
+		{CODE MISSING - SCRIPT CALL AVAILABLE IN Cam_Trig_Templ}
+		
+		{now raise the level alert}
+		sleep(100);
+		level_bIsAlertOn := TRUE;
+		bHighAlert := FALSE;
+		
+		{Add the ALERT GUARD GOALS}		
+		SetSubPackGoalsPerArea;
+			
+		{Set the guards that protect the chief according to his position}		
+		if IsEntityAlive('CHIEF') then 
+			sArea := GetHunterAreaName(GetEntity('CHIEF'))
+		else sArea := 'Nowere';
+		
+		if ( sArea = 'aibilliard') then
+		begin
+			{Limit the BODYGUARDS strictly to their territories}	
+			AISubpackStayInTerritory('LEADER2','BODYGUARDS',TRUE);	
+			if NOT AIIsGoalNameInSubpack('LEADER2','BODYGUARDS','gBilliard_Guard01')
+				then AIAddGoalForSubPack('LEADER2','BODYGUARDS','gBilliard_Guard01');
+			if NOT AIIsGoalNameInSubpack('LEADER2','BODYGUARDS','gBilliard_Guard02')
+				then AIAddGoalForSubPack('LEADER2','BODYGUARDS','gBilliard_Guard02');
+			if NOT AIIsGoalNameInSubpack('LEADER2','BODYGUARDS','gBilliard_Guard03')
+				then AIAddGoalForSubPack('LEADER2','BODYGUARDS','gBilliard_Guard03');
+			if NOT AIIsGoalNameInSubpack('LEADER2','BODYGUARDS','gBilliard_Guard04')
+				then AIAddGoalForSubPack('LEADER2','BODYGUARDS','gBilliard_Guard04');
+		
+			if NOT AIIsGoalNameInSubpack('LEADER2','CHIEF','gChiefStay_Billiard')			
+				then AIAddGoalForSubPack('LEADER2','CHIEF','gChiefStay_Billiard'); 
+		end
+		else if ( sArea = 'aiarmoury') then
+		begin				
+			if NOT AIIsGoalNameInSubpack('LEADER2','BODYGUARDS','gProtectChief')
+				then AIAddGoalForSubPack('LEADER2','BODYGUARDS','gProtectChief');
+				
+			if NOT AIIsGoalNameInSubpack('LEADER2','CHIEF','gChiefStay_Armoury')
+				then AIAddGoalForSubPack('LEADER2','CHIEF','gChiefStay_Armoury');	
+		end;
+		
+		runScript('Alert_Manager','WaitToResetAlert');
+		
+	end;
+
+End;
+
+SCRIPT AreaCheck;
+VAR
+sArea				: string[32];
+
+BEGIN
+{
+	SCRIPT DESCRIPTION: 
+	If the alert is ON, this script checks if the player has moved and updates
+	the guard goals of the hunters accordingly to avoid loss of synch with the 
+	player's movement around the place.  
+	
+	BEHAVIOUR: 
+	This script is called by the player OnEnterArea and is 	just another call to 
+	the SetSubPackGoalsPerArea procedure.
+	
+}	
+	sArea := GetPlayerAreaName;
+
+	if (
+	level_bIsAlertOn 
+	AND 
+	(NOT bHighAlert )
+	AND
+	(NOT bIsAttackInProgress)
+	AND
+	(NOT bCounteringCamper) 	 
+	AND
+	(sArea <> sStoredAlertArea)
+	)then
+	begin		
+		
+		sStoredAlertArea := sArea;
+						
+		writeDebug('AreaCheck: Changing Area');
+		{re-run the procedure to set the goals per area}
+		SetSubPackGoalsPerArea;		
+					
+	end;
+	
+End;
+
+SCRIPT DetectCamping;
+VAR
+
+sCurrentPlayerArea	: string[32];
+iInitialHunters,
+iCurrentHunters,
+iDeathPercentage	: integer;
+vPlayerPoz			: vec3d;
+
+BEGIN
+{
+	SCRIPT DESCRIPTION: 
+	This script checks if the player is camping (killing lots of hunters without moving).
+	
+	BEHAVIOUR: 
+	The script keeps looping for the duration of the alert and keeps checking the 
+	player's area against a stored area. If this does not change and the death toll is 
+	on the raise then eventually the percentage (constant)PERC_DEATHS_DEFINING_A_CAMPER 
+	is reached - which in turn flags the player as a camper.
+}
+	iDeathPercentage := 0;
+	
+	If level_bIsAlertOn AND (NOT bPlayerCamper) then 
+	begin	
+			
+			writeDebug('DetectCamping: sStoredAlertArea is ',sStoredAlertArea);
+			if (sStoredAlertArea = '') then 
+			begin	
+				writeDebug('DetectCamping: sStoredAlertArea is corrupted - updating');
+				sStoredAlertArea := GetPlayerAreaName;
+			end;
+			
+			sCurrentPlayerArea := GetPlayerAreaName;
+			
+			if (sCurrentPlayerArea = sStoredAlertArea) then
+			begin			
+
+				iCurrentHunters := AINumberInSubPack('LEADER','MANSION_GUARDS');						
+				if (iMANSION_GUARDS_OnAlert > 0)
+					then iDeathPercentage := Round((iCurrentHunters*100)/iMANSION_GUARDS_OnAlert)
+					else iDeathPercentage := 0;
+					
+				writedebug('iMANSION_GUARDS_OnAlert: ',iMANSION_GUARDS_OnAlert,' iMANSION2_GUARDS_OnAlert: ',iMANSION2_GUARDS_OnAlert);
+				writedebug('MANSION_GUARDS: iCurrentHunters: ',iCurrentHunters,' iDeathPercentage: ',iDeathPercentage);
+				
+				if (iDeathPercentage > PERC_DEATHS_DEFINING_A_CAMPER) then 				
+				begin
+					iCurrentHunters := AINumberInSubPack('LEADER','MANSION2_GUARDS');						
+					if (iMANSION2_GUARDS_OnAlert > 0)
+						then iDeathPercentage := Round((iCurrentHunters*100)/iMANSION2_GUARDS_OnAlert)
+						else iDeathPercentage := 0;
+					writedebug('MANSION2_GUARDS: iCurrentHunters: ',iCurrentHunters,' iDeathPercentage: ',iDeathPercentage);
+				end;				
+					
+				if  (iDeathPercentage <= PERC_DEATHS_DEFINING_A_CAMPER) 					
+					then Runscript('Alert_Manager','SetPlayerAsCamper');  					
+								
+			end;
+				
+	end;
+		
+End;
+
+SCRIPT SetPlayerAsCamper;
+BEGIN
+{
+	SCRIPT DESCRIPTION: 
+	If the alert is still on this script flags the player as camper and countermeasures 
+	are deployed.  
+	
+	BEHAVIOUR: 
+	A simple flag checker-setter with 2 calls to other "counter-measure" scripts. 
+	
+}
+	if level_bIsAlertOn then
+	begin
+		{This is called by Hunters_Detector if no hunters are around the camping player}
+		writedebug('Player you are a CAMPER!');					
+						
+		bPlayerCamper := TRUE;					
+					
+		RunScript('Alert_Manager','HighAlert');
+						
+		while NOT bHighAlert do sleep(500);	
+		
+		RunScript('Alert_Manager','CamperCounterMeasures');	
+	end;
+	
+End;
+
+SCRIPT HighAlert;
+VAR
+iNumberInSubPack	: integer;
+BEGIN
+{
+	SCRIPT DESCRIPTION: 
+	This script raises the HIGH alert in the mansion - this happens only if the player
+	is detected as camping.  
+	
+	BEHAVIOUR: 
+	The HIGH alert goals are all HIGH priority. The guards are now fairly static to avoid
+	even more camping. A couple of guys are isolated and sent to the player to keep him 
+	on the run - performed by the CamperCounterMeasures script - 
+	but no more hunters are "sacrifical victims" other than those 2. 
+}	
+	
+	WriteDebug('HIGH ALERT RAISED');
+	
+	if ( 
+	level_bIsAlertOn
+	AND	
+	(NOT bHighAlert) 
+	)then 
+	begin	 	
+	 	
+	 	sStoredAlertArea := GetPlayerAreaName;	 	
+	 	
+	 	{Remove ALL the goals to get rid of the LOW priority ALERT GUARDS}
+		
+		AIRemoveAllGoalsFromSubPack('LEADER','MANSION_GUARDS');
+		AIRemoveAllGoalsFromSubPack('LEADER','MANSION2_GUARDS');		
+		AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gHuntPlayer');
+		AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gHuntPlayer');
+		
+		
+		i:=0;
+		iNumberInSubPack := AINumberInSubpack('LEADER','MANSION_GUARDS');
+		
+		for i := 1 to iNumberInSubPack do
+		begin
+			CASE i OF
+			{ADD HIGH PRIORITY GUARDS TO MANSION GUARDS}
+			1: 	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard01_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard01_HIGH');
+			2:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard02_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard02_HIGH');
+			3:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_HIGH');			
+			4:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard07_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard07_HIGH');
+			5:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_HIGH');
+			6:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard09_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard09_HIGH');
+			end;
+		end;
+		
+				
+		{Mansion Section 2}
+		i:=0;
+		iNumberInSubPack := AINumberInSubpack('LEADER','MANSION2_GUARDS');
+		
+		
+		for i := 1 to iNumberInSubPack do
+		begin
+			CASE i OF
+			{ADD HIGH PRIORITY GUARDS TO MANSION2 GUARDS}	
+			4:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gA_StairsRight_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gA_StairsRight_HIGH');
+			5:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gA_CorridorEnt1_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gA_CorridorEnt1_HIGH');	
+			6:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gA_StairsLeft_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gA_StairsLeft_HIGH');
+			7:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gA_Ground2Tower_HIGH')
+					then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gA_Ground2Tower_HIGH');			
+			end;		
+		end;
+				
+		bHighAlert := TRUE;	 
+				
+	end;
+	
+End;
+
+SCRIPT WaitToResetAlert;
+VAR
+iGuardsAliveAndActive,
+iClosestHunterDist,
+iTempDistance,
+iNumberInSubPack,
+i,
+iCurrentHunters,
+iDeathPercentage			: integer;
+sHunter,
+sClosestHunter				: string[32];
+sChiefArea					: string[20];
+BEGIN
+{
+	SCRIPT DESCRIPTION: 
+	This script waits until all hunters are idle before resetting the alert in the mansion. 
+	
+	BEHAVIOUR: 
+	Resetting the alert simply means removing all the guard goals and letting all hunters
+	go back to their home node. 
+	Also - the CHIEF needs to be re-assigned his guard goal (to keep him static) or a hide
+	goal in case all his bodyguards are dead. 	
+}	
+
+iGuardsAliveAndActive		:= 0;
+
+writedebug('CHECK to reset Alert');
+
+if level_bIsAlertOn	then 
+begin	 	
+	{now start checking...}	
+	
+	sleep(WAIT_IN_ALERT);
+				
+	while level_bIsAlertOn do
+	begin						
+		
+		if bHighAlert then sleep(WAIT_IN_HIGH_ALERT);
+
+		while bIsAttackInProgress do sleep(1);
+		
+		while bCounteringCamper do sleep(1);
+		
+			{Count the entities still alive and idle}		
+			iGuardsAliveAndActive := ( 
+			GetHuntersDoingStuff('LEADER','MANSION_GUARDS') 
+			+ 
+			GetHuntersDoingStuff('LEADER2','BODYGUARDS') 
+			+ 
+			GetHuntersDoingStuff('LEADER','MANSION2_GUARDS') );	
+				
+			writedebug('iGuardsAliveAndActive: ', iGuardsAliveAndActive);
+			 
+			if (iGuardsAliveAndActive = 0) then 
+			begin
+				{Remove ALL the goals to get rid of the ALERT GUARDS}
+				AIRemoveAllGoalsFromSubPack('LEADER','MANSION_GUARDS');
+				AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gHuntPlayer');
+								
+				AIRemoveAllGoalsFromSubPack('LEADER','MANSION2_GUARDS');
+				AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gHuntPlayer');	
+								
+				AIRemoveAllGoalsFromSubPack('LEADER2','BODYGUARDS');
+				AIAddGoalForSubPack('LEADER2','BODYGUARDS','gHuntPlayer');
+								
+				AIRemoveAllGoalsFromSubPack('LEADER2','CHIEF');
+				AIAddGoalForSubPack('LEADER2','CHIEF','gHuntPlayer');		
+										
+				If IsEntityAlive('CHIEF') 
+				then
+				begin					
+					if (AINumberInSubPack('LEADER2','BODYGUARDS') > 0 ) then
+					begin
+						sChiefArea := GetHunterAreaName(GetEntity('CHIEF'));			
+						if ( sChiefArea = 'aibilliard') then
+						begin
+							
+							AISubpackStayInTerritory('LEADER2','BODYGUARDS',FALSE);					
+						
+							if NOT AIIsGoalNameInSubpack('LEADER2','CHIEF','gChiefStay_Billiard')
+								then AIAddGoalForSubPack('LEADER2','CHIEF','gChiefStay_Billiard'); 
+						end
+						else						
+							if NOT AIIsGoalNameInSubpack('LEADER2','CHIEF','gChiefStay_Armoury')
+								then AIAddGoalForSubPack('LEADER2','CHIEF','gChiefStay_Armoury');	
+
+					end;					
+						
+				end;
+							
+				runscript('Guard07','CheckToGuardBalcony');	 
+									
+				for i := 1 to AINumberInSubPack('LEADER','MANSION_GUARDS') do
+				begin								
+					AIReturnSubpackEntityName('LEADER','MANSION_GUARDS', i, sHunter);				
+					{send the hunter back home}
+					if IsEntityAlive(sHunter) then AIEntityGoHomeIfIdle(sHunter);								
+				end;
+				
+				for i := 1 to AINumberInSubPack('LEADER','MANSION2_GUARDS') do
+				begin			
+					AIReturnSubpackEntityName('LEADER','MANSION2_GUARDS', i, sHunter);				
+					{send the hunter back home}
+					if IsEntityAlive(sHunter) then AIEntityGoHomeIfIdle(sHunter);				
+				end;			
+				
+				sleep(1000); {let the AI deal with all the goals}
+				
+				bHighAlert			:= FALSE; {all idle, remove the HIGH alert}
+				bPlayerCamper 		:= FALSE; {remove camper status for player}
+				level_bIsAlertOn 	:= FALSE; {all idle, remove the alert}
+						
+				writeDebug('ALERT_MANAGER: *** REMOVED THE ALERT LEVEL IN THE MANSION ***');
+				
+				{CHIEF CUT SCENE HOOK - if % OF THE MANSION SUBPACK IS GONE}
+				iCurrentHunters := AINumberInSubPack('LEADER','MANSION_GUARDS');						
+				if (iMANSION_GUARDS_OnAlert >0)
+					then iDeathPercentage := Round((iCurrentHunters*100)/iMANSION_GUARDS_OnAlert)
+					else iDeathPercentage := 0;
+				writedebug('CHIEF CUT SCENE HOOK iDeathPercentage: ',iDeathPercentage);
+				if (iDeathPercentage <= PERC_DEATHS_FOR_CHIEF_CUT) then 	
+				begin
+					if NOT bHasChiefCutPlayed then runscript('Mansion_Int','CUT_CHIEF_TO_SAFETY');	
+				end;
+				
+			end
+			else sleep(1000);		
+		
+	end;	
+	
+end;
+
+End;
+
+SCRIPT CutSceneUpdate;
+BEGIN
+		
+	if (AINumberInSubPack('LEADER','MANSION_GUARDS') = 0) then runscript('Mansion_Int','CUT_CHIEF_TO_SAFETY');	
+		
+End;
+
+SCRIPT Guard10Secure;
+BEGIN
+	bGuard10Secure := TRUE;
+	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs1')
+		then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs1');
+End;
+
+SCRIPT Guard11Secure;
+BEGIN
+	bGuard11Secure := TRUE;
+	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs2')
+		then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs2');
+End;
+
+SCRIPT RemoveChiefSecurity;
+BEGIN
+	if bGuard10Secure then
+	begin
+		bGuard10Secure := FALSE; 
+		if AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs1')
+			then AIRemoveGoalFromSubPack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs1');
+	end;
+	
+	if bGuard11Secure then
+	begin
+		bGuard11Secure := FALSE; 
+		if AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs2')
+			then AIRemoveGoalFromSubPack('LEADER','MANSION_GUARDS','gChiefGuard_Stairs2');
+	end;
+	
+End;
+
+{********************************* FUNCTION DECLARATIONS *********************************}
+
+FUNCTION GetHuntersDoingStuff ; 
+{ PAR sSubpack, sLeader : string, returns int }
+VAR
+ sHunterName   : string[32];
+ curHunter   :  integer;
+ numHunters   :  integer;
+ huntersDoingStuff :  integer;
+BEGIN
+
+ huntersDoingStuff := 0;
+ numHunters := AINumberInSubPack(sLeader, sSubpack);
+ 
+ for curHunter := 1 to numHunters do
+ begin
+  
+  	ScriptHogProcessorStart;
+
+	  	if (numHunters =  AINumberInSubPack(sLeader, sSubpack)) then
+	  	begin
+		  	
+		  	AIReturnSubpackEntityName(sLeader, sSubpack, curHunter, sHunterName);
+		  
+		  	if (false = AIIsIdle(sHunterName)) then
+		  	begin
+		  		 huntersDoingStuff := huntersDoingStuff + 1;
+		  	end;
+	  	
+	  	end
+	  	else huntersDoingStuff := 0;
+
+  	ScriptHogProcessorEnd;
+  	  
+ end;
+ 
+ GetHuntersDoingStuff := huntersDoingStuff;
+
+End;
+
+
+
+{*****************************************************}
+
+
+
+FUNCTION CalculatePlayerDistanceFromHunter; 
+{PAR sHunterName}
+VAR
+vPlayerPoz		: vec3d;
+vHunterPoz		: vec3d;
+vHunterPlayer	: vec3d;
+
+BEGIN
+	
+	vPlayerPoz:= getPlayerPosition;
+	vHunterPoz:= getEntityPosition(GetEntity(sHunterName));	
+	
+	SubtractVectors(vHunterPlayer, vPlayerPoz,vHunterPoz);	
+	CalculatePlayerDistanceFromHunter := ( (vHunterPlayer.x * vHunterPlayer.x) + (vHunterPlayer.y * vHunterPlayer.y)+ (vHunterPlayer.z * vHunterPlayer.z) );	
+	
+End;
+
+{***************************************************************}
+
+PROCEDURE SetSubPackGoalsPerArea;
+VAR
+sArea				: string[32];
+i,iNumberInSubPack	: integer;
+
+BEGIN		
+
+		sArea := GetPlayerAreaName;
+	
+		{Mansion Section 1}
+		iNumberInSubPack := AINumberInSubpack('LEADER','MANSION_GUARDS');
+		
+		if (iNumberInSubPack > 2) then
+		begin
+				
+			if (sArea = 'aicellar') then
+			begin
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED');
+							
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED');			
+				
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard07_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard07_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aicorridor1') then
+			begin
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aicorridor2') then
+			begin
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aicorridor3') then
+			begin
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aitransit') then
+			begin
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'ailibrary') then
+			begin					
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard07_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard07_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aivestibule') then
+			begin			
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED');						
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aidinningroom') then
+			begin							
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard03_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard03_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard09_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard09_MED');						
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'aibar') then
+			begin				
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED');			
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED');			
+				ScriptHogProcessorEnd;
+			end
+			else if (sArea = 'ailounge') then
+			begin
+				ScriptHogProcessorStart;
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED');
+				if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard09_MED')
+					then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard09_MED');
+				ScriptHogProcessorEnd;
+			end
+			else 	
+			begin			
+				for i := 1 to iNumberInSubPack do
+				begin
+				writedebug('ALERT_MANAGER CANNOT LOCATE PLAYER AREA');
+					ScriptHogProcessorStart;
+					CASE i OF				
+					3: 	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard01_MED');
+					4:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard02_MED');				
+					5:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard04_MED');
+					6:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard05_MED');
+					7:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard06_MED');
+					8:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard07_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard07_MED');
+					9:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard08_MED');
+					10:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION_GUARDS','gAlert_Guard09_MED')
+							then AIAddGoalForSubPack('LEADER','MANSION_GUARDS','gAlert_Guard09_MED');					
+					end;
+					ScriptHogProcessorEnd;
+				end;
+			end;
+		end;
+				
+		{Mansion Section 2}
+		ScriptHogProcessorStart;
+		if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gSecurityCam_07')
+			then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gSecurityCam_07');				
+		ScriptHogProcessorEnd;
+		
+		i:=0;
+		iNumberInSubPack := AINumberInSubpack('LEADER','MANSION2_GUARDS');
+				
+		if (iNumberInSubPack > 2) then
+		begin
+			for i := 1 to iNumberInSubPack do
+			begin
+				ScriptHogProcessorStart;
+				CASE i OF			
+				2:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gGUARD_Corridor4')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gGUARD_Corridor4');				
+				3:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gAlert_StairsRight')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gAlert_StairsRight');
+				4:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gAlert_StairsLeft')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gAlert_StairsLeft');
+				5:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gAlert_Ground2Tower')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gAlert_Ground2Tower');
+				6:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gAlert_Basemt2Tower')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gAlert_Basemt2Tower');
+				7:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gAlert_CorridorEnt1')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gAlert_CorridorEnt1');	
+				8:	if NOT AIIsGoalNameInSubpack('LEADER','MANSION2_GUARDS','gAlert_CorridorEnt3')
+						then AIAddGoalForSubPack('LEADER','MANSION2_GUARDS','gAlert_CorridorEnt3');
+				end;		
+				ScriptHogProcessorEnd;
+			end;
+		end;
+
+
+End;
+
+END. 

@@ -1,0 +1,63 @@
+SCRIPTMAIN	DoorScripts;
+
+ENTITY
+	Turnstiles	:	et_name;
+
+
+VAR
+pdoor	: entityptr;
+
+SCRIPT OnCreate; 
+BEGIN
+
+	{Turnstiles are ONE WAY ONLY} 
+	
+	{Entry Station - They are all Entry Only}
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)08');	
+	UnfreezeEntity(pdoor);
+	LockEntity(pdoor);
+	
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)11');	
+	UnfreezeEntity(pdoor);
+	LockEntity(pdoor);
+					
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)09');	
+	UnfreezeEntity(pdoor);
+	LockEntity(pdoor);			
+	
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)10');	
+	UnfreezeEntity(pdoor);
+	LockEntity(pdoor);
+	
+			
+	{Exit Station - Left Side is Leave the Platform Only}
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)01');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleIn(pdoor, 0.5); 
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)02');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleIn(pdoor, 0.5); 	
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)03');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleOut(pdoor, 0.5); 
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleOut(pdoor, 0.5); 
+	
+	{Exit Station - Right Side is Enter the Platform Only}	
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)05');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleIn(pdoor, 0.5); 
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)07');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleIn(pdoor, 0.5);
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)06');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleOut(pdoor, 0.5); 
+	pdoor := getEntity('Gen_Subway_Turnstile_Gate_(D)04');	
+	UnfreezeEntity(pdoor);
+	SetDoorOpenAngleOut(pdoor, 0.5); 
+	
+End;                       
+
+END. 

@@ -1,0 +1,30 @@
+scriptmain TriggerScript;
+
+entity triggerSprintTut1 : et_name;
+
+
+script OnEnterTrigger;
+var
+	pos, pos2 : vec3d;
+
+begin
+	WriteDebug(GetEntityName(this), ' : OnEnterTrigger');
+
+	sleep(1000);
+
+	if GetDifficultyLevel <> DIFFICULTY_NORMAL then
+	begin
+		DisplayGameText('H_RUNB');
+	end
+	else
+	begin
+		DisplayGameText('H_RUN');
+	end;
+
+   	SetLevelGoal('GOAL1B');
+
+	RemoveEntity(this);
+end;
+
+
+end.

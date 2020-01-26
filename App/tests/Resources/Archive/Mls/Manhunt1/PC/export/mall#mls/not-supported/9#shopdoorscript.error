@@ -1,0 +1,3 @@
+. Could not convert Value :. Arround here 
+
+... ( this ) CASE levelstatus OF 0 , 1 ->:<- BEGIN LockEntity ( this ) GraphModifyConnections ( this , AISCRIPT_GRAPHLINK_ALLOW_NOTHING ...

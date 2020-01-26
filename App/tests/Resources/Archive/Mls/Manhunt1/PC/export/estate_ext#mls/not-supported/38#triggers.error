@@ -1,0 +1,3 @@
+. Could not convert Value AIReturnSubpackEntityName. Arround here 
+
+... ) for curHunter := 1 to numHunters do begin ->AIReturnSubpackEntityName<- ( 'str_28' , sSubpack , curHunter , sHunterName ) if ...

@@ -1,0 +1,351 @@
+scriptmain LevelScripts;
+entity A02_The_Old_House : et_level;
+type tLevelState = ( StartOfLevel, House, Basement );
+var lLevelState : tLevelState;
+	debugJump : boolean;
+	freshLoad : boolean;
+	lCurrentAmbientAudioTrack : integer;
+	AtHouseNoCrowbar : boolean;
+	MonitorDead : boolean;
+	hunterCrowbar : entityptr;
+	boxesFound : integer;
+	pos, pos2: vec3d;
+	Room1, Room2, Room3, Room4, Room5 : Integer;
+	StashFound : Boolean;
+	MirrorCrackd : Boolean;
+	ShelvesFallen : Boolean;
+	SearchableUsed1 : Boolean;
+	SearchableUsed2 : Boolean;
+	SearchableUsed3 : Boolean;
+	SearchableUsed4 : Boolean;
+	SearchableUsed5 : Boolean;
+	SearchableUsed6 : Boolean;
+	SearchableUsed7 : Boolean;
+	SearchableUsed8 : Boolean;
+	SearchableUsed9 : Boolean;
+	TVPileState : Boolean;
+	DannySeen : Boolean;
+
+script OnCreate;
+	var ent : entityptr;
+		pos, pos2: vec3d;
+		killableHunters : integer;
+	begin
+		killableHunters := 6;
+		
+		SetMaxScoreForLevel(killableHunters * 4);
+		SetColourRamp('FE_colramps', 1, 4.0);
+		
+		SetQTMBaseProbability(0.0);
+		SetQTMSoundProbabilityModifier(0.0);
+		SetQTMStaminaProbabilityModifier(0.0);
+		SetQTMDeadBodyProbabilityModifier(0.0);
+		SetQTMLength(3.0);
+		SetQTMPresses(1);		
+		
+		freshLoad := true;
+		debugJump := false;
+		AtHouseNoCrowbar := false;
+		MonitorDead := false;
+		hunterCrowbar := nil;
+
+		SetNextLevelByName('A04_SM_Nightclub');
+		ShowTriggers(false);
+		SetMaxNumberOfRats(0);
+		EnableJumpAttacks(true);
+		AIAddPlayer('player(player)');
+		AIAddEntity('leader(leader)');		
+		EnableGraphConnection('nBoard1', 'nBoard2', false, true);
+		HideEntity(GetEntity('A02_FlashbackGarden'));
+		HideEntity(GetEntity('A02_FlashbackTVStack'));
+		if (getentity('A02FB_DannysSon')) <> NIL then
+		begin
+		HideEntity(GetEntity('A02FB_DannysSon'));
+		end;
+		
+		if (getentity('A02FB_DannysSon02')) <> NIL then
+		begin		
+		HideEntity(GetEntity('A02FB_DannysSon02'));
+		end;
+		
+		if (getentity('A02FB_DannysDaughter')) <> NIL then
+		begin			
+		HideEntity(GetEntity('A02FB_DannysDaughter'));
+		end;
+		
+		if (getentity('A02FB_DannysDaughter01')) <> NIL then
+		begin	
+		HideEntity(GetEntity('A02FB_DannysDaughter01'));
+		end;
+		
+		if (getentity('A02FB_DannysWifeWashing')) <> NIL then
+		begin			
+		HideEntity(GetEntity('A02FB_DannysWifeWashing'));
+		end;
+		
+		HideEntity(GetEntity('fam_pic_d04'));
+		HideEntity(GetEntity('Syringe_(CT)'));
+		{HideEntity(GetEntity('Crowbar_(CT)01'));}
+		HideEntity(GetEntity('Breakable_Planks_END'));
+		HideEntity(GetEntity('Breakable_Planks'));
+		HideEntity(GetEntity('SmallSpyCamera'));
+		HideEntity(GetEntity('A02_MirrorHole'));
+		HideEntity(GetEntity('wifeghost'));
+		HideEntity(GetEntity('bear01'));
+		HideEntity(GetEntity('bear02'));
+
+		HideEntity(getentity('leo(hunter)'));
+
+		RegisterNonExecutableHunterInLevel;
+		SetVector(pos, 0.0, 0.0, 0.0);
+		CreateSphereTrigger(pos, 1, 'genTrigger');
+		{particles}
+		EntityPlayAnim(GetEntity('PFX15'), 'PAT_DUSTBEAM', false); 
+		EntityPlayAnim(GetEntity('PFX16'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX17'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX18'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX19'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX20'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX21'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX22'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX23'), 'PAT_DUSTBEAM', false);
+		EntityPlayAnim(GetEntity('PFX24'), 'PAT_DUSTBEAM', false);
+		{EntityPlayAnim(GetEntity('PFX25'), 'MOTHS02', false);
+		EntityPlayAnim(GetEntity('PFX26'), 'MOTHS01', false);
+		EntityPlayAnim(GetEntity('PFX27'), 'MOTHS02', false);
+		EntityPlayAnim(GetEntity('PFX28'), 'MOTHS02', false);}
+
+		
+		SetVector(pos, -79.0, -1.8, 51.2);
+		SetVector(pos2, -77.0, -1.8, 51.2);
+		CreateCrawlTrigger(pos, pos2, 'tCrawl_Fence');
+	
+		SetVector(pos, -65.0, -4.8, 40.0);
+		SetVector(pos2, -64.0, -4.8, 40.0);
+		CreateCrawlTrigger(pos, pos2, 'tCrawl_Basement1');
+	
+		SetVector(pos, -61.0, -4.8, 40.0);
+		SetVector(pos2, -62.0, -4.8, 40.0);
+		CreateCrawlTrigger(pos, pos2, 'tCrawl_Basement2');
+
+		{ HACK - remove saw and bag }
+		if(GetEntity('Circular_Saw_(CT)')) <> nil then DestroyEntity(GetEntity('Circular_Saw_(CT)'));
+		if(GetEntity('Bag_(CT)01')) <> nil then DestroyEntity(GetEntity('Bag_(CT)01'));
+		{ HACK - move other bag }
+		SetVector(pos, -86.023201, -1.160184, 100.409492);
+		if(GetEntity('Bag_(CT)')) <> nil then MoveEntity(GetEntity('Bag_(CT)'), pos, 0);			
+		
+		{ Done }
+		RunScript('A02_The_Old_House', 'LoadFromSavePoint');
+		WriteDebug('Level created...');
+	end;
+
+script LoadFromSavePoint;
+	var pos, pos2 : vec3d;
+	begin
+		{ HACK - remove saw and bag }
+		if(GetEntity('Circular_Saw_(CT)')) <> nil then DestroyEntity(GetEntity('Circular_Saw_(CT)'));
+		if(GetEntity('Bag_(CT)01')) <> nil then DestroyEntity(GetEntity('Bag_(CT)01'));
+		
+		{WriteDebug('LEO SHOULD BE VISIBLE');}
+		HideEntity(getentity('leo(hunter)'));
+		{WriteDebug('LEO SHOULD BE VISIBLE');}
+		WriteDebug('++++++++++++++++++ Setting level state to StartOfLevel ++++++++++++++++++');
+		lLevelState := StartOfLevel;
+		if(GetEntity('Gen_Save_Point') = nil) then begin
+			WriteDebug('++++++++++++++++++ Setting level state to House ++++++++++++++++++');
+			lLevelState := House;
+		end else DeactivateSavePoint(GetEntity('Gen_Save_Point'));
+		if(GetEntity('Gen_Save_Point01') = nil) then begin
+			WriteDebug('++++++++++++++++++ Setting level state to Basement ++++++++++++++++++');
+			lLevelState := Basement;
+		end else DeactivateSavePoint(GetEntity('Gen_Save_Point01'));
+		{ Hack start point and weapons }
+			if(freshLoad) then begin WriteDebug('Loading from fresh...');
+				{ House }
+			{	debugJump := true;
+				lLevelState := House;
+				AddItemToInventory(GetPlayer, SpawnMovingEntity('Crowbar_(CT)', pos, 'ScriptCreateName'));
+				SetVector(pos, -66.6, -1.4, 51.7);
+				MoveEntity(GetPlayer, pos, 0);}
+				{ Basement }
+			{	debugJump := true;
+				lLevelState := House;
+				SetVector(pos, -55.9, -4.8, 37.2);
+				MoveEntity(GetPlayer, pos, 0);}
+			end;
+		{ Load states }
+		if((lLevelState <> StartOfLevel) and (not debugJump)) then begin
+			{WriteDebug('Setting ambient track to: ', lCurrentAmbientAudioTrack);}
+			SetAmbientAudioTrack(lCurrentAmbientAudioTrack);
+		end;
+		if(lLevelState = StartOfLevel) then begin
+			WriteDebug('================================== Loading StartOfLevel ==================================');
+				SetLevelGoal('GOAL_1');
+				Room1 := 0;
+				Room2 := 0;
+				Room3 := 0;
+				Room4 := 0;
+				Room5 := 0;
+				SearchableUsed1 := FALSE;
+				SearchableUsed2 := FALSE;
+				SearchableUsed3 := FALSE;
+				SearchableUsed4 := FALSE;
+				SearchableUsed5 := FALSE;
+				SearchableUsed6 := FALSE;
+				SearchableUsed7 := FALSE;
+				SearchableUsed8 := FALSE;
+				SearchableUsed9 := FALSE;		
+				TVPileState := false;		
+				RunScript('genTrigger', 'CreateStartTriggers');
+				pos := GetEntityPosition(GetEntity('h12(hunter)'));
+				hunterCrowbar := SpawnMovingEntity('Crowbar_(CT)', pos, 'ScriptCreateName');
+				AddItemToInventory(GetEntity('h12(hunter)'), hunterCrowbar);
+				HideEntity(getentity('leo(hunter)'));
+				MirrorCrackd := False;
+				ShelvesFallen := False;
+
+			WriteDebug('================================== Loaded StartOfLevel ==================================');
+		end;
+		if(lLevelState = House) then begin
+			WriteDebug('================================== Loading House ==================================');
+				SetLevelGoal('GOAL_31');
+				RunScript('genTrigger', 'CreateHouseTriggers');
+				{RunScript('genTrigger', 'CreateHouseTriggers_PreFlashlight');}
+				UnLockEntity(GetEntity('doorBack_(D)'));
+				GraphModifyConnections(GetEntity('doorBack_(D)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+				HideEntity(getentity('leo(hunter)'));
+				
+				if TVPileState = False then
+				begin
+				SetCurrentLod(getentity('TV_PileA'), 0);
+				end
+				else
+				begin
+				SetCurrentLod(getentity('TV_PileA'), 1);
+				end;				
+							
+			WriteDebug('================================== Loaded House ==================================');
+		end;
+		if(lLevelState = Basement) then begin
+			WriteDebug('================================== Loading Basement ==================================');
+				ClearLevelGoal('GOAL_4');
+				ClearLevelGoal('GOAL_41');
+				ClearLevelGoal('GOAL_42');
+				ClearLevelGoal('GOAL_43');
+				SetLevelGoal('GOAL_6');
+				Runscript('A02_The_Old_House', 'OpenAfterLoad');
+				RunScript('genTrigger', 'CreateBasementTriggers');
+				RadarPositionSetEntity(GetEntity('Wash_Bowl_Old'), MAP_COLOR_LOCATION);
+				if(GetEntity('r_dot01') <> nil) then RadarPositionClearEntity(GetEntity('r_dot01'));
+				if(GetEntity('r_dot02') <> nil) then RadarPositionClearEntity(GetEntity('r_dot02'));
+				if(GetEntity('r_dot03') <> nil) then RadarPositionClearEntity(GetEntity('r_dot03'));
+				if(GetEntity('r_dot04') <> nil) then RadarPositionClearEntity(GetEntity('r_dot04'));
+				if(GetEntity('r_dot05') <> nil) then RadarPositionClearEntity(GetEntity('r_dot05'));
+				UnLockEntity(GetEntity('doorBack_(D)'));
+				GraphModifyConnections(GetEntity('doorBack_(D)'), AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING);
+				
+				if (StashFound = true) and (ShelvesFallen = true) then
+					begin
+						entityignorecollisions(getentity('Falling_Shelves'), true);
+						
+						if (GetEntity('Falling_Shelves_vertColl') <> NIL) then destroyentity(getentity('Falling_Shelves_vertColl'));
+
+						EntityPlayAnim(GetEntity('Falling_Shelves'), 'EAT_FALLING_SHELVES_ANIM', false);
+						EntityPlayAnim(GetEntity('Falling_Shelves01'), 'EAT_FALLING_SHELVES_ANIM', false);
+						SetVector(pos, -68.3527, -4.762, 39.855);
+						moveentity(GetEntity('Falling_Shelves_Coll'), pos, 0);
+					end;
+					HideEntity(getentity('leo(hunter)'));
+					RunScript('leader(leader)', 'StartSecondWave');
+				Sleep(1000);
+				DisplayGameText('BATH');
+				if MirrorCrackd = true then begin
+				ShowEntity(GetEntity('SmallSpyCamera'));	
+				ShowEntity(GetEntity('A02_MirrorHole'));	
+				end;
+
+				
+				if TVPileState = False then
+				begin
+				SetCurrentLod(getentity('TV_PileA'), 0);
+				end
+				else
+				begin
+				SetCurrentLod(getentity('TV_PileA'), 1);
+				end;
+
+			WriteDebug('================================== Loaded Basement ==================================');
+		end;
+		{ Don't save this as true }
+		freshLoad := true;
+	end;
+
+	script OpenAfterLoad;
+	begin
+		if SearchableUsed1 then begin
+		{EntityPlayAnim(GetEntity('Searchable01_(O)'), 'EAT_OPENABLE_2DOOR_ANIM_WOOD', FALSE); 	}
+		SetCurrentLod(getentity('Searchable01_(O)'), 2);
+		UseableSetState(getentity('Searchable01_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable01_(O)'), false);
+		end;
+		
+		if SearchableUsed2 then begin
+		{EntityPlayAnim(GetEntity('Searchable02_(O)'), 'EAT_OPENABLE_HINGELID_ANIM_WOOD', FALSE);		}
+		SetCurrentLod(getentity('Searchable02_(O)'), 2);
+		UseableSetState(getentity('Searchable02_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable02_(O)'), false);
+		end;
+		
+		if SearchableUsed3 then begin
+		{EntityPlayAnim(GetEntity('Searchable03_(O)'), 'EAT_OPENABLE_2DOOR_ANIM_WOOD', FALSE); 		}
+		SetCurrentLod(getentity('Searchable03_(O)'), 2);
+		UseableSetState(getentity('Searchable03_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable03_(O)'), false);
+		end;
+			
+		if SearchableUsed4 then begin
+		{EntityPlayAnim(GetEntity('Searchable04_(O)'), 'EAT_OPENABLE_HINGELID_ANIM_WOOD', FALSE); }
+		SetCurrentLod(getentity('Searchable04_(O)'), 2);
+		UseableSetState(getentity('Searchable04_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable04_(O)'), false);
+		end;	
+		
+		if SearchableUsed5 then begin
+		{EntityPlayAnim(GetEntity('Searchable05_(O)'), 'EAT_OPENABLE_2DOOR_ANIM_WOOD', FALSE); }
+		SetCurrentLod(getentity('Searchable05_(O)'), 2);
+		UseableSetState(getentity('Searchable05_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable05_(O)'), false);
+		end;	
+	
+		if SearchableUsed6 then begin
+		{EntityPlayAnim(GetEntity('Searchable06_(O)'), 'EAT_OPENABLE_2DOOR_ANIM_WOOD', FALSE); }
+		SetCurrentLod(getentity('Searchable06_(O)'), 2);
+		UseableSetState(getentity('Searchable06_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable06_(O)'), false);
+		end;	
+	
+		if SearchableUsed7 then begin
+		{EntityPlayAnim(GetEntity('Searchable07_(O)'), 'EAT_OPENABLE_HINGELID_ANIM_WOOD', FALSE); }
+		SetCurrentLod(getentity('Searchable07_(O)'), 2);
+		UseableSetState(getentity('Searchable07_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable07_(O)'), false);
+		end;
+	
+		if SearchableUsed8 then begin
+		{EntityPlayAnim(GetEntity('Searchable08_(O)'), 'EAT_OPENABLE_HINGELID_ANIM_WOOD', FALSE); }
+		SetCurrentLod(getentity('Searchable08_(O)'), 2);
+		UseableSetState(getentity('Searchable08_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable08_(O)'), false);
+		end;	
+		
+		if SearchableUsed9 then begin
+		{EntityPlayAnim(GetEntity('Searchable09_(O)'), 'EAT_OPENABLE_HINGELID_ANIM_WOOD', FALSE); 		}
+		SetCurrentLod(getentity('Searchable09_(O)'), 2);
+		UseableSetState(getentity('Searchable09_(O)'), USEABLE_ON);
+		EnableUseable(getentity('Searchable09_(O)'), false);
+		end;						
+	end;
+	
+end.
+ 

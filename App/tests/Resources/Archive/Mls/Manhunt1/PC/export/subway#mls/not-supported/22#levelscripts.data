@@ -1,0 +1,20 @@
+{
+    "const": [],
+    "strings": [
+        "Hunter Created: ",
+        "Entrance_Tunnel1",
+        "Patrol_Team2_1",
+        "Hunters_Generator1",
+        "Team2HunterCreated",
+        "Hunters_Generator1",
+        "Team2HunterReachedNode",
+        "Hunters_Generator1",
+        "Team2HunterSightedPlayer",
+        "Hunters_Generator1",
+        "Team2HunterIdle",
+        "Hunter Dead: ",
+        "Hunters_Generator1",
+        "Team2HunterDied"
+    ],
+    "byteReserved": 76
+}

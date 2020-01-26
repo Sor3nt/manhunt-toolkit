@@ -1,0 +1,19 @@
+SCRIPTMAIN	Scripts;
+
+ENTITY
+Sw_Bod_Gore	:	et_name;
+
+SCRIPT OnDeath;
+BEGIN
+	
+	sleep(500);
+	
+	while isExecutionInProgress do sleep(1);
+	while isCutSceneInProgress do sleep(1);	
+	
+	SetLevelCompleted;
+	
+End;
+
+
+END.

@@ -1,0 +1,508 @@
+
+{$t-}	{	trace off 					}
+{	Program Description					}
+{										}
+
+SCRIPTMAIN		SnareTrigger;
+
+{ Entity To Run Script From 			}
+ENTITY
+	tSnare	:	et_name;
+{ User Defined Constant declarations	}
+  
+{--------------------------------------}
+
+SCRIPT		OnEnterTrigger;
+{ User Defined Constant declarations	}
+
+VAR
+	pPlayer			: EntityPtr;
+	pDoor			: EntityPtr;
+	pSpawned		: EntityPtr;
+	moveRab4		: Vec3d;
+	vecFace			: Vec3d;
+	FacingVec		: Vec3d;
+	spawnvec		: Vec3d;
+	vecPos			: Vec3d;
+	vecView			: Vec3d;
+	SetCurrent		: BOOLEAN;
+
+{	Script Start						}
+begin
+
+	pPlayer:= GetPlayer;
+	
+	SetCurrent:=true;
+
+	
+	IF(InsideTrigger(this, pPlayer) OR EnteredTrigger(this, pPlayer)) THEN
+	begin
+		
+
+		{DisableUserInput;
+		ClearInputStates;}
+		
+		
+ 	{ Set up the vectors }
+ 	
+
+        SetVector(vecPos, 294.9, 10.5, -2.2);
+
+        SetVector(vecView, -1.0, -0.1, 0.2);
+
+		{ForceWeatherType(WEATHER_THUNDERSTORM, TRUE); }
+        CutSceneStart;
+     	AICutSceneEntityEnable('Hunter_Rabbit4', TRUE);
+     	RadarPositionSetEntity(GetEntity('Hunter_Rabbit4'), MAP_COLOR_GREEN);
+
+        { Set the cameras position }
+
+        setcameraposition(vecPos);
+
+        { Set the cameras view }
+
+        setcameraview(vecView);
+        
+       
+  	
+
+  	
+  	
+  	
+		{PlayAudioOneShotFromPos(GetPlayerPosition, SFX_R1V1_SPECIFIC_PRISON_2  , -1,200);}
+		
+		PlayHunterSpeech('Hunter_Rabbit4',VOICE_BUNNY1VOICE1,AISPEECH_B1V1_PRS_GET_ME_OUT);
+		
+		
+		SwitchLightOn(GetEntity('Dynamic_light09_(L)'));
+  
+  		
+  		
+  		
+  		SLEEP(2000);
+  		
+  		IF AIIsGoalNameInSubPack('Hunter_Rabbit4', 'sFollowMe4', 'gSnareWR1') = TRUE THEN
+  		begin
+  		AIRemoveGoalFromSubPack('Hunter_Rabbit4', 'sFollowMe4', 'gSnareWR1');
+  		end;
+  		
+  		
+  		AttachToEntity(GetEntity('TRabbitAwareness'), GetEntity('Hunter_Rabbit4'));
+  		
+  		{ShowTriggers(true);}
+  		AIAddGoalForSubPack('Hunter_Rabbit4', 'sFollowMe4', 'gSnareWR2');
+  		SetVector(vecFace, 0.8, -0.1, 0.6);
+  		AISetHunterHomeNodeDirection('Hunter_Rabbit4', 'Node_Snare2', vecFace);
+  		
+  		{SLEEP(3000);}
+  		
+  		
+  		{SetVector(spawnvec, 343.67, -0.2, -90.47);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbGate2');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 75);
+	
+		
+		SetVector(spawnvec, 341.11, -0.2, -90.63);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbGate3');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 75);
+  		
+		SetVector(spawnvec, 338.87, -0.2, -88.03);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbGate4');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 75);
+		
+		
+		SetVector(spawnvec, 353.52, -0.1, -89.19);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbGate6');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 75);
+	
+		
+		SetVector(spawnvec, 355.75, -0.4, -88.40);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbGate7');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 75);
+  		
+		SetVector(spawnvec, 354.35, -0.2, -84.3);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbGate8');
+		CreateInventoryItem(CT_SNIPER_RIFLE, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SNIPER_RIFLE, 75);}
+		
+		SetVector(spawnvec, 324.7, 19.2, -27.7);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_CerbTower');
+		CreateInventoryItem(CT_SNIPER_RIFLE, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SNIPER_RIFLE, 75);
+		
+		
+		
+		
+		
+		AIDeleteGoalDefinition('gBlock1A');
+		AIDeleteGoalDefinition('gBlock1B');
+		AIDeleteGoalDefinition('gBlock1C');
+		AIDeleteGoalDefinition('gBlock2A');
+		AIDeleteGoalDefinition('gBlock2B');
+		AIDeleteGoalDefinition('gBlock2C');
+		AIDeleteGoalDefinition('gBlock3A');
+		AIDeleteGoalDefinition('gBlock3B');
+		AIDeleteGoalDefinition('gBlock3C');
+		AIDeleteGoalDefinition('gBlock4A');
+		AIDeleteGoalDefinition('gBlock4B');
+		AIDeleteGoalDefinition('gBlock4C');
+		
+		AIDeleteGoalDefinition('gWR1');
+		AIDeleteGoalDefinition('gWR2');
+		AIDeleteGoalDefinition('gWR3');
+		AIDeleteGoalDefinition('gWR4');
+		AIDeleteGoalDefinition('gWR5');
+		AIDeleteGoalDefinition('gWR6');
+		AIDeleteGoalDefinition('gWR7');
+		
+		AIDeleteGoalDefinition('SeekCover1A');
+		AIDeleteGoalDefinition('SeekCover1B');
+		AIDeleteGoalDefinition('SeekCover1C');
+		
+		AIDeleteGoalDefinition('gOrbit1A');
+		AIDeleteGoalDefinition('gOrbit1B');
+		AIDeleteGoalDefinition('gOrbit1C');
+		
+		AIDeleteGoalDefinition('gScrew');
+		AIDeleteGoalDefinition('gScrewWalk');
+		
+	{	AIDefineGoalGuard('gCerbGate1', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate1', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate2', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate2', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate3', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate3', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate4', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate4', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate5', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate1', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate6', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate2', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate7', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate3', 0.0, 0.0, 2);
+		AIDefineGoalGuard('gCerbGate8', AISCRIPT_HIGHPRIORITY, 'Node_CerbGate4', 0.0, 0.0, 2);
+		
+	}	
+		
+		SetVector(FacingVec, 0.9, -0.1, 0.4);
+		AIDefineGoalGuardDirection('gCerbTower', AISCRIPT_HIGHPRIORITY, 'Node_CerbTower', 0.0, 10.0, 2, FacingVec);
+		
+		
+		
+{
+		
+		IF GetEntity('Hunter_CerbGate1') <> NIL THEN
+		begin
+	
+			
+			AIAddSubPackForLeader('leader1', 'sCerbGate1');
+			AIAddAreaForSubPack('sCerbGate1', 'aiPrison');
+		
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate1', 'Hunter_CerbGate1');
+			AISetSubPackCombatType('leader1', 'sCerbGate1', COMBATTYPEID_COVER);
+			AIAddGoalForSubPack('leader1', 'sCerbGate1', 'gSnarePlayer');
+			
+			AIAddGoalForSubPack('leader1', 'sCerbGate1', 'gCerbGate1');
+			AIAddGoalForSubPack('leader1', 'sCerbGate1', 'gCerbGate5');
+
+			
+			AISetEntityAllowSurprise('Hunter_CerbGate1', FALSE);
+			
+			AIMakeEntityDeaf('Hunter_CerbGate1', 0);
+			AIMakeEntityBlind('Hunter_CerbGate1', 0);
+		end;
+  		
+  		IF GetEntity('Hunter_CerbGate5') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate5');
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate1', 'Hunter_CerbGate5');
+			AISetSubPackCombatType('leader1', 'sCerbGate1', COMBATTYPEID_COVER);
+			AISetEntityAllowSurprise('Hunter_CerbGate5', FALSE);
+			AIMakeEntityDeaf('Hunter_CerbGate5', 0);
+			AIMakeEntityBlind('Hunter_CerbGate5', 0);
+		end;
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		IF GetEntity('Hunter_CerbGate2') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate2');
+			
+			
+			AIAddSubPackForLeader('leader1', 'sCerbGate2');
+			AIAddAreaForSubPack('sCerbGate2', 'aiPrison');
+		
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate2', 'Hunter_CerbGate2');
+			AISetSubPackCombatType('leader1', 'sCerbGate2', COMBATTYPEID_COVER);
+			AIAddGoalForSubPack('leader1', 'sCerbGate2', 'gSnarePlayer');
+			
+			AIAddGoalForSubPack('leader1', 'sCerbGate2', 'gCerbGate2');
+			AIAddGoalForSubPack('leader1', 'sCerbGate2', 'gCerbGate6');
+			
+			
+			AISetEntityAllowSurprise('Hunter_CerbGate2', FALSE);
+			AIMakeEntityDeaf('Hunter_CerbGate2', 0);
+			AIMakeEntityBlind('Hunter_CerbGate2', 0);
+		end;
+		
+  		IF GetEntity('Hunter_CerbGate6') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate6');	
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate2', 'Hunter_CerbGate6');
+			AISetSubPackCombatType('leader1', 'sCerbGate2', COMBATTYPEID_COVER);
+			AISetEntityAllowSurprise('Hunter_CerbGate6', FALSE);
+				AIMakeEntityDeaf('Hunter_CerbGate6', 0);
+				AIMakeEntityBlind('Hunter_CerbGate6', 0);
+		end;
+  		
+  		IF GetEntity('Hunter_CerbGate3') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate3');
+	
+		
+			AIAddSubPackForLeader('leader1', 'sCerbGate3');
+			AIAddAreaForSubPack('sCerbGate3', 'aiPrison');
+		
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate3', 'Hunter_CerbGate3');
+			AISetSubPackCombatType('leader1', 'sCerbGate3', COMBATTYPEID_COVER);
+			AIAddGoalForSubPack('leader1', 'sCerbGate3', 'gSnarePlayer');
+			
+			AIAddGoalForSubPack('leader1', 'sCerbGate3', 'gCerbGate3');
+			AIAddGoalForSubPack('leader1', 'sCerbGate3', 'gCerbGate7');
+		
+			AISetEntityAllowSurprise('Hunter_CerbGate3', FALSE);
+				AIMakeEntityDeaf('Hunter_CerbGate3', 0);
+				AIMakeEntityBlind('Hunter_CerbGate3', 0);
+		end;
+		
+		IF GetEntity('Hunter_CerbGate7') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate7');	
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate3', 'Hunter_CerbGate7');
+			AISetSubPackCombatType('leader1', 'sCerbGate3', COMBATTYPEID_COVER);
+			AISetEntityAllowSurprise('Hunter_CerbGate7', FALSE);
+				AIMakeEntityDeaf('Hunter_CerbGate7', 0);
+				AIMakeEntityBlind('Hunter_CerbGate7', 0);
+		end;
+  		
+  		IF GetEntity('Hunter_CerbGate4') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate4');
+		
+			AIAddSubPackForLeader('leader1', 'sCerbGate4');
+			AIAddAreaForSubPack('sCerbGate4', 'aiPrison');
+		
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate4', 'Hunter_CerbGate4');
+			AISetSubPackCombatType('leader1', 'sCerbGate4', COMBATTYPEID_COVER);
+			AIAddGoalForSubPack('leader1', 'sCerbGate4', 'gSnarePlayer');
+			
+			AIAddGoalForSubPack('leader1', 'sCerbGate4', 'gCerbGate4');
+			AIAddGoalForSubPack('leader1', 'sCerbGate4', 'gCerbGate8');
+		
+			
+			AISetEntityAllowSurprise('Hunter_CerbGate4', FALSE);
+				AIMakeEntityDeaf('Hunter_CerbGate4', 0);
+				AIMakeEntityBlind('Hunter_CerbGate4', 0);
+		end;
+		
+		IF GetEntity('Hunter_CerbGate8') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbGate8');	
+			AIAddHunterToLeaderSubPack('leader1', 'sCerbGate4', 'Hunter_CerbGate8');
+			AISetSubPackCombatType('leader1', 'sCerbGate4', COMBATTYPEID_COVER);
+			AISetEntityAllowSurprise('Hunter_CerbGate8', FALSE);
+				AIMakeEntityDeaf('Hunter_CerbGate8', 0);
+				AIMakeEntityBlind('Hunter_CerbGate8', 0);
+		end;
+  		}
+  		
+  		
+  		SetEntityInvulnerable(GetEntity('Hunter_Rabbit4'), false);
+  		SetEntityInvulnerable(GetEntity('Hunter_CerbGate1'), true);
+  		{SetEntityInvulnerable(GetEntity('Hunter_CerbGate2'), true);
+  		SetEntityInvulnerable(GetEntity('Hunter_CerbGate3'), true);
+  		SetEntityInvulnerable(GetEntity('Hunter_CerbGate4'), true);}
+  		SetEntityInvulnerable(GetEntity('Hunter_CerbGate5'), true);
+  		{SetEntityInvulnerable(GetEntity('Hunter_CerbGate6'), true);
+  		SetEntityInvulnerable(GetEntity('Hunter_CerbGate7'), true);
+  		SetEntityInvulnerable(GetEntity('Hunter_CerbGate8'), true);
+  		}
+  		
+  		IF GetEntity('Hunter_CerbTower') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_CerbTower');
+			AISetEntityAsLeader('Hunter_CerbTower');
+			AISetHunterOnRadar('Hunter_CerbTower', TRUE);
+		
+			AIAddLeaderEnemy('Hunter_CerbTower', 'player');
+		
+			AIAddSubPackForLeader('Hunter_CerbTower', 'sCerbTower');
+			AIAddAreaForSubPack('sCerbTower', 'aiPrison');
+		
+			AIAddHunterToLeaderSubPack('Hunter_CerbTower', 'sCerbTower', 'Hunter_CerbTower');
+			AISetSubPackCombatType('Hunter_CerbTower', 'sCerbTower', COMBATTYPEID_OPEN);
+			AIAddGoalForSubPack('Hunter_CerbTower', 'sCerbTower', 'gSnarePlayer');
+			
+		
+		
+			
+			AIAddGoalForSubPack('Hunter_CerbTower', 'sCerbTower', 'gCerbTower');
+			AISetEntityAllowSurprise('Hunter_CerbTower', FALSE);
+		end;
+  		
+  		
+  		SetVector(spawnvec, 337.5, -0.3, -84.0);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_Backup1');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 25);
+	
+		
+		SetVector(spawnvec, 335.4, -0.2, -41.3);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_Backup2');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 25);
+  		
+		SetVector(spawnvec, 340.1, -0.4, -83.2);
+		pSpawned:= SpawnMovingEntity('Cerberus', spawnvec, 'Hunter_Backup3');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 25);
+  		
+  		
+  		AIDefineGoalGotoNode('gBackup1', 'Hunter_Backup1', AISCRIPT_HIGHPRIORITY, 'Node_Yard1', AISCRIPT_RUNMOVESPEED, TRUE);
+		AIDefineGoalGotoNode('gBackup2', 'Hunter_Backup2', AISCRIPT_HIGHPRIORITY, 'Node_Yard2', AISCRIPT_RUNMOVESPEED, TRUE);
+		AIDefineGoalGotoNode('gBackup3', 'Hunter_Backup3', AISCRIPT_HIGHPRIORITY, 'Node_Yard3', AISCRIPT_RUNMOVESPEED, TRUE);
+	
+  		
+  		
+  		IF GetEntity('leader1') <> NIL THEN 
+  		begin
+  			AIAddSubPackForLeader('leader1', 'sPrisonYard');
+  			AIAddAreaForSubPack('sPrisonYard', 'aiPrison');
+  			AIAddGoalForSubPack('leader1', 'sPrisonYard', 'gSnarePlayer');
+  			AISetSubPackCombatType('leader1', 'sPrisonYard', COMBATTYPEID_COVER);
+  			
+  		end;
+  		
+  		IF GetEntity('Hunter_Backup1') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_Backup1');
+
+		
+			AIAddHunterToLeaderSubPack('leader1', 'sPrisonYard', 'Hunter_Backup1');
+			
+			AIAddGoalForSubPack('leader1', 'sPrisonYard', 'gBackup1');
+			
+			{AIAddGoalForSubPack('Hunter_Screw', 'sScrew', 'gScrew');}	
+			
+			AISetEntityAllowSurprise('Hunter_Backup1', FALSE);
+			AISetIdleHomeNode('Hunter_Backup1', 'Node_Backup1Home');
+			AISetHunterIdleActionMinMaxRadius('Hunter_Backup1', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,40);
+		end;
+  		
+  		IF GetEntity('Hunter_Backup2') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_Backup2');
+	
+			
+			
+			
+			AIAddHunterToLeaderSubPack('leader1', 'sPrisonYard', 'Hunter_Backup2');
+			
+			AIAddGoalForSubPack('leader1', 'sPrisonYard', 'gBackup2');
+	
+			
+			{AIAddGoalForSubPack('Hunter_Screw', 'sScrew', 'gScrew');}	
+			
+			AISetEntityAllowSurprise('Hunter_Backup2', FALSE);
+			AISetIdleHomeNode('Hunter_Backup2', 'Node_Backup2Home');
+			AISetHunterIdleActionMinMaxRadius('Hunter_Backup2', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,20);
+		end;
+  		
+  		
+  		IF GetEntity('Hunter_Backup3') <> NIL THEN
+		begin
+			AIAddEntity('Hunter_Backup3');
+		
+			AIAddHunterToLeaderSubPack('leader1', 'sPrisonYard', 'Hunter_Backup3');
+			
+			AIAddGoalForSubPack('leader1', 'sPrisonYard', 'gBackup3');
+			
+			
+			
+			
+			
+			{AIAddGoalForSubPack('Hunter_Screw', 'sScrew', 'gScrew');}	
+			
+			AISetEntityAllowSurprise('Hunter_Backup3', FALSE);
+			AISetIdleHomeNode('Hunter_Backup3', 'Node_Backup3Home');
+			AISetHunterIdleActionMinMaxRadius('Hunter_Backup3', AISCRIPT_IDLE_WANDERSEARCH, AISCRIPT_HIGHPRIORITY,120,180,20);
+		end;
+  		
+  		
+  		
+  		
+  		{RunScript('SearchLight1', 'MoveLight');}
+  		
+  		{SLEEP(3000);}
+  		
+  		SLEEP(2000);
+  	
+		CutSceneEnd(false);
+		
+		
+		
+		SetVector(moveRab4, 328.6, 19.2, -22.0);
+		MoveEntity(GetEntity('Hunter_Rabbit4'), moveRab4, 1);
+
+		AIDefineGoalGuardLookAtEntity('gRabbit4Shoot', AISCRIPT_HIGHPRIORITY, 'Node_Snare2', 0.0, 3.0, 2, 'player');
+		AIGuardModifyShootOutsideRadius('gRabbit4Shoot', TRUE);
+		{ClearLevelGoal('GOAL5');
+		SetLevelGoal('GOAL6');}
+		
+		SLEEP(4000);
+		AIRemoveAllGoalsFromSubPack('Hunter_Rabbit4', 'sFollowMe4');
+		
+		pSpawned:=GetEntity('Hunter_Rabbit4');
+		CreateInventoryItem(CT_SHOTGUN, pSpawned, SetCurrent);
+		AddAmmoToInventoryWeapon(pSpawned, CT_SHOTGUN, 75);
+		AISetSubPackCombatType('Hunter_Rabbit4', 'sFollowMe4', COMBATTYPEID_COVER);
+	
+		SetDamage(pSpawned, 500);
+		AIAddGoalForSubPack('Hunter_Rabbit4', 'sFollowMe4', 'gSnarePlayer');
+		AIAddGoalForSubPack('Hunter_Rabbit4', 'sFollowMe4', 'gRabbit4Shoot');
+		
+	
+
+	
+		{while IsSplinePlaying do sleep(1);		
+		EnableUserInput;}
+	
+	
+		
+
+	
+
+	
+		RemoveThisScript;
+	
+		end;
+
+	
+	
+	
+	
+{	Script End							}
+end;
+{	Program End							}
+
+
+
+
+
+
+
+end. 

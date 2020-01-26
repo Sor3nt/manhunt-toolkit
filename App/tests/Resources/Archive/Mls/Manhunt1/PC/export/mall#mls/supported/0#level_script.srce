@@ -1,0 +1,666 @@
+SCRIPTMAIN	Level_Script;
+
+ENTITY
+Mall : et_level;
+
+VAR
+levelstatus,GuardStatus,PowerStatus		: integer;
+vecA,vecB,position,direction			: vec3D;
+
+
+PROCEDURE SetUpHunterTrigger(x1,y1,z1,x2,y2,z2:real;trigger:string);
+BEGIN
+SetVector(vecA,x1,y1,z1);
+SetVector(vecB,x2,y2,z2);
+
+CreateLineTrigger(vecA,vecB,trigger);
+SetEntityScriptsFromEntity('TriggerTemplate',trigger);
+END;
+
+
+SCRIPT	OnCreate;
+VAR
+i, hunternum, huntpacklimit	: integer;
+
+num			: String[8];
+huntername	: String[32];
+
+savepoint	: EntityPtr;
+
+BEGIN
+AIAddPlayer('player');
+
+AIDefineGoalHuntEnemy('goalHUNT','player', TRUE, 14);
+
+{-- ATMOSPHERE --}
+SetMaxNumberOfRats(0);
+SwitchLitterOn(FALSE);
+
+
+{--AREA DETECTION--}
+levelstatus:=0;
+IF GetPlayerAreaName = 'aimall1' THEN levelstatus:=0
+ELSE IF GetPlayerAreaName = 'aimall5' THEN levelstatus:=1
+ELSE IF GetPlayerAreaName = 'aimall9' THEN levelstatus:=2
+ELSE IF GetPlayerAreaName = 'aitoy' THEN levelstatus:=3
+ELSE WriteDebug('ERROR IN AREA DETECTION SEE LEVEL SCRIPT');
+
+WriteDebug('LEVEL STATUS = ',levelstatus);
+
+{--LEADER--}
+AIAddEntity('LEADER');
+AISetHunterOnRadar('LEADER',FALSE);
+SetPedLockonable(GetEntity('LEADER'),FALSE);
+SetEntityInvulnerable(GetEntity('LEADER'),TRUE);
+
+AISetEntityAsLeader('LEADER');
+AIAddLeaderEnemy('LEADER', 'player');
+
+CreateInventoryItem(CT_MACHETE,GetEntity('LEADER'),TRUE);
+
+
+{--AREA ACTIVATION--}
+
+AIClearAllActiveAreaAssociations;
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall1','aimall2','aimall3','aimall4','aimall5');
+AIAssociateFourActiveAreasWithPlayerArea('aimall2','aimall1','aimall3','aimall4','aimall5');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall3','aimall1','aimall2','aimall4','aimall5');
+AIAssociateOneActiveAreaWithPlayerArea('aimall3','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall4','aimall1','aimall2','aimall3','aimall5');
+AIAssociateFourActiveAreasWithPlayerArea('aimall4','aimall6','aimall7','aimall8','aimall9');
+AIAssociateTwoActiveAreasWithPlayerArea('aimall4','aibar','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall5','aimall1','aimall2','aimall3','aimall4');
+AIAssociateFourActiveAreasWithPlayerArea('aimall5','aimall6','aimall7','aimall8','aimall9');
+AIAssociateTwoActiveAreasWithPlayerArea('aimall5','aibar','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall6','aimall1','aimall2','aimall3','aimall4');
+AIAssociateFourActiveAreasWithPlayerArea('aimall6','aimall5','aimall7','aimall8','aimall9');
+AIAssociateTwoActiveAreasWithPlayerArea('aimall6','aibar','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall7','aimall1','aimall2','aimall3','aimall4');
+AIAssociateFourActiveAreasWithPlayerArea('aimall7','aimall5','aimall6','aimall8','aimall9');
+AIAssociateTwoActiveAreasWithPlayerArea('aimall7','aibar','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall8','aimall1','aimall2','aimall3','aimall4');
+AIAssociateFourActiveAreasWithPlayerArea('aimall8','aimall5','aimall6','aimall7','aimall9');
+AIAssociateTwoActiveAreasWithPlayerArea('aimall8','aibar','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aimall9','aimall2','aimall3','aimall4','aimall5');
+AIAssociateFourActiveAreasWithPlayerArea('aimall9','aimall6','aimall7','aimall8','aibar');
+AIAssociateOneActiveAreaWithPlayerArea('aimall9','aitoy');
+
+AIAssociateFourActiveAreasWithPlayerArea('aitoy','aimall1','aimall2','aimall3','aimall4');
+AIAssociateFourActiveAreasWithPlayerArea('aitoy','aimall5','aimall6','aimall7','aimall8');
+AIAssociateTwoActiveAreasWithPlayerArea('aitoy','aimall9','aibar');
+
+AIAssociateFourActiveAreasWithPlayerArea('aibar','aimall3','aimall4','aimall5','aimall6');
+AIAssociateFourActiveAreasWithPlayerArea('aibar','aimall7','aimall8','aimall9','aiholder');
+AIAssociateTwoActiveAreasWithPlayerArea('aibar','aicut','aitoy');
+
+AIEntityAlwaysEnabled('LEADER');
+
+{VARIABLES}
+PowerStatus:=1;
+
+{OBJECTS}
+LockEntity(GetEntity('CJ_FIREBIN'));
+CreateMhFx('FLM001', GetEntityPosition(GetEntity('CJ_FIREBIN')), FALSE);
+CreateMhFx('FXSMOK3', GetEntityPosition(GetEntity('CJ_FIREBIN')), FALSE);
+
+
+{TRIGGERS & HUNTER}
+
+
+CASE levelstatus OF
+
+0:{START OF LEVEL}
+BEGIN
+	GuardStatus:=0;
+	{SUBPACKS}
+	
+	{hunter 1,2,3 subpack}
+	AIAddSubpackForLeader('LEADER','subMall2');
+	AISetSubpackCombatType('LEADER','subMall2',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall2','aimall2');
+	AISubpackStayInTerritory('LEADER','subMall2',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall2','goalHUNT');
+	
+	{hunter 4,5 subpack}
+	AIAddSubpackForLeader('LEADER','subMall3');
+	AISetSubpackCombatType('LEADER','subMall3',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall3','aimall3');
+	AISubpackStayInTerritory('LEADER','subMall3',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall3','goalHUNT');
+	
+	{hunter 6,7,8 subpack}
+	AIAddSubpackForLeader('LEADER','subMall4');
+	AISetSubpackCombatType('LEADER','subMall4',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall4','aimall4');
+	AISubpackStayInTerritory('LEADER','subMall4',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall4','goalHUNT');
+	
+	{huntpack for hunters still alive on bottom floor once player reaches next floor aimall5}
+	AIAddSubpackForLeader('LEADER','subHuntPack');
+	AISetSubpackCombatType('LEADER','subHuntPack',COMBATTYPEID_COVER);
+	
+	AIAddAreaForSubpack('subHuntPack','aimall1');
+	AIAddAreaForSubpack('subHuntPack','aimall2');
+	AIAddAreaForSubpack('subHuntPack','aimall3');
+	AIAddAreaForSubpack('subHuntPack','aimall4');
+	AIAddAreaForSubpack('subHuntPack','aimall5');
+	AIAddAreaForSubpack('subHuntPack','aimall6');
+	
+	AISubpackStayInTerritory('LEADER','subHuntPack',TRUE);
+	AIAddGoalForSubpack('LEADER','subHuntPack','goalHUNT');
+	
+	{hunter 9,10,11 subpack}
+	AIAddSubpackForLeader('LEADER','subMall5');
+	AISetSubpackCombatType('LEADER','subMall5',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall5','aimall5');
+	AISubpackStayInTerritory('LEADER','subMall5',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall5','goalHUNT');
+	
+	{hunter 12 subpack + others}
+	AIAddSubpackForLeader('LEADER','subMall6');
+	AISetSubpackCombatType('LEADER','subMall6',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall6','aimall5');
+	AIAddAreaForSubpack('subMall6','aimall6');
+	AIAddAreaForSubpack('subMall6','aimall7');
+	
+	AISubpackStayInTerritory('LEADER','subMall6',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall6','goalHUNT');
+	
+	{hunter 13,14,15 subpack}
+	AIAddSubpackForLeader('LEADER','subMall7');
+	AISetSubpackCombatType('LEADER','subMall7',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall7','aimall7');
+	AIAddAreaForSubpack('subMall7','aimall8');
+	
+	AISubpackStayInTerritory('LEADER','subMall7',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall7','goalHUNT');
+	
+	{GUARD GOALS}
+	{hunter 1}
+	SetVector(direction,0.9,0.0,0.4);
+	AIDefineGoalGuardDirection('goalCOVERFH1',AISCRIPT_HIGHPRIORITY,'coverFH1',0.8,0.8,1,direction);
+	SetVector(direction,-0.1,0.0,-1.0);
+	AIDefineGoalGuardDirection('goalCOVERBH1',AISCRIPT_HIGHPRIORITY,'coverBH1',0.8,0.8,1,direction);
+	
+	{hunter 2}
+	SetVector(direction,1.0,0.0,-0.1);
+	AIDefineGoalGuardDirection('goalCOVERFH2',AISCRIPT_HIGHPRIORITY,'coverFH2',0.8,0.8,1,direction);
+	SetVector(direction,0.0,0.0,-1.0);
+	AIDefineGoalGuardDirection('goalCOVERBH2',AISCRIPT_HIGHPRIORITY,'coverBH2',0.8,0.8,1,direction);
+	
+	{hunter 3}
+	SetVector(direction,1.0,0.0,0.3);
+	AIDefineGoalGuardDirection('goalCOVERFH3',AISCRIPT_HIGHPRIORITY,'coverFH3',0.8,0.8,1,direction);
+	
+	{hunter 4}
+	SetVector(direction,0.2,0.0,1.0);
+	AIDefineGoalGuardDirection('goalCOVERFH4',AISCRIPT_HIGHPRIORITY,'coverFH4',0.8,0.8,1,direction);
+	SetVector(direction,1.0,0.0,-0.1);
+	AIDefineGoalGuardDirection('goalCOVERBH4',AISCRIPT_HIGHPRIORITY,'coverBH4',0.8,0.8,1,direction);
+	
+	{hunter 5}
+	SetVector(direction,-0.3,0.0,1.0);
+	AIDefineGoalGuardDirection('goalCOVERFH5',AISCRIPT_HIGHPRIORITY,'coverFH5',0.8,0.8,1,direction);
+	
+	{hunter 6}
+	SetVector(direction,-1.0,0.0,-0.1);
+	AIDefineGoalGuardDirection('goalCOVERFH6',AISCRIPT_HIGHPRIORITY,'coverFH6',0.8,0.8,1,direction);
+	
+	{hunter 7}
+	SetVector(direction,0.8,-0.5,-0.0);
+	AIDefineGoalGuardDirection('goalCOVERFH7',AISCRIPT_HIGHPRIORITY,'coverFH7',0.8,0.8,1,direction);
+	
+	{hunter 8}
+	SetVector(direction,0.8,-0.5,-0.0);
+	AIDefineGoalGuardDirection('goalCOVERFH8',AISCRIPT_HIGHPRIORITY,'coverFH8',0.8,0.8,1,direction);
+	
+	{hunter 9}
+	SetVector(direction,0.0,0.0,-1.0);
+	AIDefineGoalGuardDirection('goalCOVERH9',AISCRIPT_HIGHPRIORITY,'coverH9',0.8,0.8,1,direction);
+	
+	{hunter 10}
+	SetVector(direction,-1.0,0.0,-0.2);
+	AIDefineGoalGuardDirection('goalCOVERH10',AISCRIPT_HIGHPRIORITY,'coverH10',0.8,0.8,1,direction);
+	
+	{hunter 11}
+	SetVector(direction,-0.7,0.0,-0.8);
+	AIDefineGoalGuardDirection('goalCOVERH11',AISCRIPT_HIGHPRIORITY,'coverH11',0.8,0.8,1,direction);
+	
+	{hunter 13}
+	SetVector(direction,-0.9,-0.4,0.2);
+	AIDefineGoalGuardDirection('goalCOVERH13',AISCRIPT_HIGHPRIORITY,'coverH13',2.0,2.0,1,direction);
+	
+	{hunter 14}
+	SetVector(direction,-0.8,0.0,-0.6);
+	AIDefineGoalGuardDirection('goalCOVERH14',AISCRIPT_HIGHPRIORITY,'coverH14',0.8,0.8,1,direction);
+	
+	{hunter 15}
+	SetVector(direction,-0.6,0.0,-0.8);
+	AIDefineGoalGuardDirection('goalCOVERH15',AISCRIPT_HIGHPRIORITY,'coverH15',0.8,0.8,1,direction);
+		
+	{HUNTER TRIGGERS}
+	{batch1}
+	SetUpHunterTrigger(234.5,0.5,-25.5,234.5,0.5,-10.9,'H3trigger');
+	SetUpHunterTrigger(230.0,0.5,-24.2,219.1,0.5,-20.3,'H45trigger');
+	SetUpHunterTrigger(232.8,0.5,-39.2,230.5,0.5,-49.4,'H6trigger');
+	SetUpHunterTrigger(234.5,0.5,-36.7,234.4,0.5,-37.7,'H7trigger');
+	SetUpHunterTrigger(228.3,5.7,-37.8,228.3,5.7,-36.7,'H8trigger');
+	{batch2}
+	SetUpHunterTrigger(251.0,7.0,-43.8,251.0,7.0,-49.4,'H9H10H11trigger');
+	SetUpHunterTrigger(261.5,7.0,-20.9,265.3,7.0,-21.1,'H12trigger');
+	SetUpHunterTrigger(226.3,7.0,-16.5,226.0,7.0,-10.2,'H13trigger');
+	SetUpHunterTrigger(257.1,13.5,-43.2,257.1,13.5,-48.0,'H14H15trigger');
+	
+	{LOCK MAINTENANCE DOORS}
+	UnFreezeEntity(GetEntity('CJ_METALDOOR1_(D)'));
+	LockEntity(GetEntity('CJ_METALDOOR1_(D)'));
+	UnFreezeEntity(GetEntity('CJ_METALDOOR1_(D)01'));
+	LockEntity(GetEntity('CJ_METALDOOR1_(D)01'));
+	
+	{OBJECTS}
+	SetWeaponAmmo(GetEntity('StartGun'),18);
+	
+END;
+
+1:
+BEGIN
+	GuardStatus:=2;
+	{HUNT PACK CREATOR}
+	huntpacklimit:=0;
+	
+	FOR i:= 1 TO 8 DO
+		BEGIN
+		
+		hunternum:=9-i;
+		IntegerToString(num,hunternum);
+		StringCat(huntername,'HUNTER',num);
+		
+		writedebug('testing ',huntername);
+		IF GetEntity(huntername) <> NIL THEN
+			BEGIN
+				huntpacklimit:=huntpacklimit+1;
+				
+					IF huntpacklimit <5 THEN
+						BEGIN
+							CASE huntpacklimit OF
+							1:SetVector(position,256.7,-0.1,-24.7);
+							2:SetVector(position,212.0,-0.1,-44.7);
+							3:SetVector(position,226.4,-0.1,-17.6);
+							4:SetVector(position,260.2,-0.1,-41.8);
+							END;{case}
+							
+							MoveEntity(GetEntity(huntername),position,0)
+						END
+					
+					ELSE DestroyEntity(GetEntity(huntername));
+			END;
+		END;
+	
+	IF huntpacklimit <> 0 THEN {only add huntpack if there is someone to go in it}
+		BEGIN	
+			AIAddSubpackForLeader('LEADER','subHuntPack');
+			AISetSubpackCombatType('LEADER','subHuntPack',COMBATTYPEID_COVER);
+			
+			AIAddAreaForSubpack('subHuntPack','aimall1');
+			AIAddAreaForSubpack('subHuntPack','aimall2');
+			AIAddAreaForSubpack('subHuntPack','aimall3');
+			AIAddAreaForSubpack('subHuntPack','aimall4');
+			AIAddAreaForSubpack('subHuntPack','aimall5');
+			AIAddAreaForSubpack('subHuntPack','aimall6');
+			
+			AISubpackStayInTerritory('LEADER','subHuntPack',TRUE);
+			AIAddGoalForSubpack('LEADER','subHuntPack','goalHUNT');
+		END;
+	WriteDebug('Number in HuntPack = ',huntpacklimit);
+	
+	{hunter 9,10,11 subpack}
+	AIAddSubpackForLeader('LEADER','subMall5');
+	AISetSubpackCombatType('LEADER','subMall5',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall5','aimall5');
+	AISubpackStayInTerritory('LEADER','subMall5',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall5','goalHUNT');
+	
+	{hunter 12 subpack + others}
+	AIAddSubpackForLeader('LEADER','subMall6');
+	AISetSubpackCombatType('LEADER','subMall6',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall6','aimall5');
+	AIAddAreaForSubpack('subMall6','aimall6');
+	AIAddAreaForSubpack('subMall6','aimall7');
+	
+	AISubpackStayInTerritory('LEADER','subMall6',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall6','goalHUNT');
+	
+	{hunter 13,14,15 subpack}
+	AIAddSubpackForLeader('LEADER','subMall7');
+	AISetSubpackCombatType('LEADER','subMall7',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall7','aimall7');
+	AIAddAreaForSubpack('subMall7','aimall8');
+	
+	AISubpackStayInTerritory('LEADER','subMall7',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall7','goalHUNT');
+	
+	{GUARD GOALS}
+	{hunter 9}
+	SetVector(direction,0.0,0.0,-1.0);
+	AIDefineGoalGuardDirection('goalCOVERH9',AISCRIPT_HIGHPRIORITY,'coverH9',0.8,0.8,1,direction);
+	
+	{hunter 10}
+	SetVector(direction,-1.0,0.0,-0.2);
+	AIDefineGoalGuardDirection('goalCOVERH10',AISCRIPT_HIGHPRIORITY,'coverH10',0.8,0.8,1,direction);
+	
+	{hunter 11}
+	SetVector(direction,-0.7,0.0,-0.8);
+	AIDefineGoalGuardDirection('goalCOVERH11',AISCRIPT_HIGHPRIORITY,'coverH11',0.8,0.8,1,direction);
+	
+	{hunter 13}
+	SetVector(direction,-0.9,-0.4,0.2);
+	AIDefineGoalGuardDirection('goalCOVERH13',AISCRIPT_HIGHPRIORITY,'coverH13',2.0,2.0,1,direction);
+	
+	{hunter 14}
+	SetVector(direction,-0.8,0.0,-0.6);
+	AIDefineGoalGuardDirection('goalCOVERH14',AISCRIPT_HIGHPRIORITY,'coverH14',0.8,0.8,1,direction);
+	
+	{hunter 15}
+	SetVector(direction,-0.8,0.0,-0.6);
+	AIDefineGoalGuardDirection('goalCOVERH15',AISCRIPT_HIGHPRIORITY,'coverH15',0.8,0.8,1,direction);
+	
+	{ADD GOALS}
+	AIAddGoalForSubpack('LEADER','subMall5','goalCOVERH10');
+	AIAddGoalForSubpack('LEADER','subMall5','goalCOVERH9');
+	AIAddGoalForSubpack('LEADER','subMall5','goalCOVERH11');
+	
+	{HUNTER TRIGGERS}
+	{batch2}
+	SetUpHunterTrigger(251.0,7.0,-43.8,251.0,7.0,-49.4,'H9H10H11trigger');
+	SetUpHunterTrigger(261.5,7.0,-20.9,265.3,7.0,-21.1,'H12trigger');
+	SetUpHunterTrigger(226.3,7.0,-16.5,226.0,7.0,-10.2,'H13trigger');
+	SetUpHunterTrigger(260.9,13.5,-42.6,263.4,13.5,-44.4,'H14H15trigger');
+END;
+
+2:
+BEGIN
+	GuardStatus := 4;
+	
+	{HUNTER20, HUNTER21}
+	AIAddSubpackForLeader('LEADER','subMall2021');
+	AISetSubpackCombatType('LEADER','subMall2021',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall2021','aimall5');
+	AIAddAreaForSubpack('subMall2021','aimall4');
+	AIAddAreaForSubpack('subMall2021','aitoy');
+	
+	AISubpackStayInTerritory('LEADER','subMall2021',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall2021','goalHUNT');
+	
+	{HUNTER17}
+	AIAddSubpackForLeader('LEADER','subMall17');
+	AISetSubpackCombatType('LEADER','subMall17',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall17','aimall8');
+	AIAddAreaForSubpack('subMall17','aimall7');
+	AIAddAreaForSubpack('subMall17','aimall6');
+	AIAddAreaForSubpack('subMall17','aimall5');
+	
+	AISubpackStayInTerritory('LEADER','subMall17',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall17','goalHUNT');
+	
+	{HUNTER18}
+	AIAddSubpackForLeader('LEADER','subMall18');
+	AISetSubpackCombatType('LEADER','subMall18',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall18','aimall7');
+	AIAddAreaForSubpack('subMall18','aimall6');
+	AIAddAreaForSubpack('subMall18','aimall5');
+	
+	AISubpackStayInTerritory('LEADER','subMall18',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall18','goalHUNT');
+	
+	{HUNTER19}
+	AIAddSubpackForLeader('LEADER','subMall19');
+	AISetSubpackCombatType('LEADER','subMall19',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subMall19','aimall6');
+	AIAddAreaForSubpack('subMall19','aimall5');
+	
+	AISubpackStayInTerritory('LEADER','subMall19',TRUE);
+	AIAddGoalForSubpack('LEADER','subMall19','goalHUNT');
+	
+	{BARGUARDS}
+	AIAddSubpackForLeader('LEADER','subBarGuard');
+	AISetSubpackCombatType('LEADER','subBarGuard',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subBarGuard','aibar');
+	
+	AISubpackStayInTerritory('LEADER','subBarGuard',TRUE);
+	AIAddGoalForSubpack('LEADER','subBarGuard','goalHUNT');
+	
+	{BARGUARDS GOALS}
+	SetVector(direction,0.0,-0.0,-1.0);
+	AIDefineGoalGuardDirection('goalBARGUARD1',AISCRIPT_HIGHPRIORITY,'barguard1',0.3,0.3,1,direction);
+	AIAddGoalForSubpack('LEADER','subBarGuard','goalBARGUARD1');
+	
+	{TOYHUNT}
+	AIAddSubpackForLeader('LEADER','subToyHunt');
+	AISetSubpackCombatType('LEADER','subToyHunt',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subToyHunt','aimall6');
+	AIAddAreaForSubpack('subToyHunt','aimall5');
+	AIAddAreaForSubpack('subToyHunt','aimall4');
+	AIAddAreaForSubpack('subToyHunt','aitoy');
+	
+	AISubpackStayInTerritory('LEADER','subToyHunt',TRUE);
+	AIAddGoalForSubpack('LEADER','subToyHunt','goalHUNT');
+	
+	{TOYHUNT GOALS}
+	SetVector(direction,0.2,0.0,-1.0);
+	AIDefineGoalGuardDirection('goalCOVERTOY1',AISCRIPT_HIGHPRIORITY,'toyguard1',1.0,1.0,1,direction);
+	AIAddGoalForSubpack('LEADER','subToyHunt','goalCOVERTOY1');
+	
+	SetVector(direction,-0.4,0.0,-0.9);
+	AIDefineGoalGuardDirection('goalCOVERTOY2',AISCRIPT_HIGHPRIORITY,'toyguard2',1.0,1.0,1,direction);
+	AIAddGoalForSubpack('LEADER','subToyHunt','goalCOVERTOY2');
+	
+	{SCAFFOLD}
+	AIAddSubpackForLeader('LEADER','subScaffold');
+	AISetSubpackCombatType('LEADER','subScaffold',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subScaffold','aimall6');
+	AIAddAreaForSubpack('subScaffold','aimall5');
+	AIAddAreaForSubpack('subScaffold','aimall4');
+	AIAddAreaForSubpack('subScaffold','aimall3');
+	AIAddAreaForSubpack('subScaffold','aitoy');
+	
+	AISubpackStayInTerritory('LEADER','subScaffold',TRUE);
+	AIAddGoalForSubpack('LEADER','subScaffold','goalHUNT');
+	
+	SetVector(direction,-0.7,0.0,-0.7);
+	AIDefineGoalGuardDirection('goalCOVERH24',AISCRIPT_HIGHPRIORITY,'coverH24',0.8,0.8,1,direction);
+	AIAddGoalForSubpack('LEADER','subScaffold','goalCOVERH24');
+	
+	{INBAR}
+	AIAddSubpackForLeader('LEADER','subInBar');
+	AISetSubpackCombatType('LEADER','subInBar',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subInBar','aibar');
+	AIAddAreaForSubpack('subInBar','aimall5');
+	AIAddAreaForSubpack('subInBar','aimall6');
+	
+	AISubpackStayInTerritory('LEADER','subInBar',TRUE);
+	AIAddGoalForSubpack('LEADER','subInBar','goalHUNT');
+	
+	{TOILETJUMP}
+	AIAddSubpackForLeader('LEADER','subToilet');
+	AISetSubpackCombatType('LEADER','subToilet',COMBATTYPEID_OPEN);
+	AIAddAreaForSubpack('subToilet','aibar');
+	
+	AISubpackStayInTerritory('LEADER','subToilet',TRUE);
+	AIAddGoalForSubpack('LEADER','subToilet','goalHUNT');
+	
+	{HUNTERS}
+	
+	SetVector(position,224.1,13.0,0.8);
+	SpawnMovingEntity('Ino_BodM1',position,'HUNTER17');
+		
+	SetVector(position,260.0,13.0,-46.2);
+	SpawnMovingEntity('Ino_BodB1',position,'HUNTER18');
+		
+	SetVector(position,221.2,6.5,-30.8);
+	SpawnMovingEntity('Ino_BodS1',position,'HUNTER19');
+	
+	SetVector(position,253.2,6.5,-47.4);
+	SpawnMovingEntity('Ino_BodS1',position,'HUNTER20');
+	
+	SetVector(position,225.8,6.3,-60.4);
+	SpawnMovingEntity('Ino_BodM1',position,'HUNTER21');
+	
+	SetVector(position,249.9,6.8,-1.4);
+	SpawnMovingEntity('Ino_BodM1',position,'BARGUARD1');
+
+	SetVector(position,235.4,7.1,-54.8);
+	SetVector(direction,-0.9,0.0,0.4);
+	savepoint:=SpawnEntityWithDirection('Gen_Save_Point',position,'Gen_Save_Point02',direction);
+
+	SetTriggerType(savepoint,TRIGGER_SPHERE);
+	SetTriggerRadius(savepoint,2.0);
+END;
+
+
+3:
+BEGIN
+	GuardStatus:=5;
+	IF GetEntity('CJ_HANDYCAM_(CT)') = NIL THEN 
+		BEGIN
+			SetUpHunterTrigger(247.5,7.3,-5.7,255.0,7.3,-6.3,'InBarTrigger');
+			SetUpHunterTrigger(261.6,7.0,-42.2,265.3,7.0,-42.1,'H25trigger');
+		END;
+		
+	IF GetEntity('soulBar1') <> NIL THEN
+		BEGIN
+		{BARGUARDS}
+		AIAddSubpackForLeader('LEADER','subBarGuard');
+		AISetSubpackCombatType('LEADER','subBarGuard',COMBATTYPEID_COVER);
+		AIAddAreaForSubpack('subBarGuard','aibar');
+		
+		AISubpackStayInTerritory('LEADER','subBarGuard',TRUE);
+		AIAddGoalForSubpack('LEADER','subBarGuard','goalHUNT');
+	
+		SetVector(direction,0.0,-0.0,-1.0);
+		AIDefineGoalGuardDirection('goalBARGUARD1',AISCRIPT_HIGHPRIORITY,'barguard1',0.3,0.3,1,direction);
+		AIAddGoalForSubpack('LEADER','subBarGuard','goalBARGUARD1');
+		
+		SetVector(position,249.9,6.8,-1.4);
+		SpawnMovingEntity('Ino_BodM1',position,'BARGUARD1');
+		END;
+
+	{TOYHUNT}
+	AIAddSubpackForLeader('LEADER','subToyHunt');
+	AISetSubpackCombatType('LEADER','subToyHunt',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subToyHunt','aimall6');
+	AIAddAreaForSubpack('subToyHunt','aimall5');
+	AIAddAreaForSubpack('subToyHunt','aimall4');
+	AIAddAreaForSubpack('subToyHunt','aitoy');
+	
+	AISubpackStayInTerritory('LEADER','subToyHunt',TRUE);
+	AIAddGoalForSubpack('LEADER','subToyHunt','goalHUNT');
+	
+	{TOYHUNT GOALS}
+	SetVector(direction,0.2,0.0,-1.0);
+	AIDefineGoalGuardDirection('goalCOVERTOY1',AISCRIPT_HIGHPRIORITY,'toyguard1',1.0,1.0,1,direction);
+	AIAddGoalForSubpack('LEADER','subToyHunt','goalCOVERTOY1');
+	
+	SetVector(direction,-0.4,0.0,-0.9);
+	AIDefineGoalGuardDirection('goalCOVERTOY2',AISCRIPT_HIGHPRIORITY,'toyguard2',1.0,1.0,1,direction);
+	AIAddGoalForSubpack('LEADER','subToyHunt','goalCOVERTOY2');
+	
+	{SCAFFOLD}
+	AIAddSubpackForLeader('LEADER','subScaffold');
+	AISetSubpackCombatType('LEADER','subScaffold',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subScaffold','aimall6');
+	AIAddAreaForSubpack('subScaffold','aimall5');
+	AIAddAreaForSubpack('subScaffold','aimall4');
+	AIAddAreaForSubpack('subScaffold','aimall3');
+	AIAddAreaForSubpack('subScaffold','aitoy');
+	
+	AISubpackStayInTerritory('LEADER','subScaffold',TRUE);
+	AIAddGoalForSubpack('LEADER','subScaffold','goalHUNT');
+	
+	SetVector(direction,-0.7,0.0,-0.7);
+	AIDefineGoalGuardDirection('goalCOVERH24',AISCRIPT_HIGHPRIORITY,'coverH24',0.8,0.8,1,direction);
+	AIAddGoalForSubpack('LEADER','subScaffold','goalCOVERH24');
+	
+	{INBAR}
+	AIAddSubpackForLeader('LEADER','subInBar');
+	AISetSubpackCombatType('LEADER','subInBar',COMBATTYPEID_COVER);
+	AIAddAreaForSubpack('subInBar','aibar');
+	AIAddAreaForSubpack('subInBar','aimall5');
+	AIAddAreaForSubpack('subInBar','aimall6');
+	
+	AISubpackStayInTerritory('LEADER','subInBar',TRUE);
+	AIAddGoalForSubpack('LEADER','subInBar','goalHUNT');
+	
+	{TOILETJUMP}
+	AIAddSubpackForLeader('LEADER','subToilet');
+	AISetSubpackCombatType('LEADER','subToilet',COMBATTYPEID_OPEN);
+	AIAddAreaForSubpack('subToilet','aibar');
+	
+	AISubpackStayInTerritory('LEADER','subToilet',TRUE);
+	AIAddGoalForSubpack('LEADER','subToilet','goalHUNT');
+	
+	SetVector(position,236.4,-0.1,-37.2);
+	SetVector(direction,-1.0,0.0,-0.1);
+	SpawnEntityWithDirection('Ino_BodB1',position,'HUNTER22',direction);
+		
+	SetVector(position,255.4,6.5,-48.2);
+	SetVector(direction,-1.0,0.0,0.1);
+	SpawnEntityWithDirection('Ino_BodM1',position,'HUNTER23',direction);
+		
+	SetVector(position,251.8,5.7,-30.3);
+	SetVector(direction,-0.7,0.0,-0.7);
+	SpawnEntityWithDirection('Ino_BodS1',position,'HUNTER24',direction);
+	
+	SetVector(position,257.0,0.0,4.3);
+	SetVector(direction,0.0,0.0,1.0);
+	SpawnEntityWithDirection('Ino_BodB1',position,'HUNTER25',direction);
+END;
+
+
+END;{case}
+
+{HOSTAGES - AI added to deativate them}
+
+AIAddEntity('Hos_Bod1');
+AISetHunterOnRadar('Hos_Bod1',FALSE);
+
+AIAddEntity('Hos_Bod2');
+AISetHunterOnRadar('Hos_Bod2',FALSE);
+
+{DOOR ANGLES}
+{maintenance doors}
+SetDoorOpenAngleIn(GetEntity('CJ_METALDOOR1_(D)'),127.0);
+SetDoorOpenAngleOut(GetEntity('CJ_METALDOOR1_(D)'),90.0);
+
+SetDoorOpenAngleIn(GetEntity('CJ_METALDOOR1_(D)01'),90.0);
+SetDoorOpenAngleOut(GetEntity('CJ_METALDOOR1_(D)01'),127.0);
+
+{toydoor}
+SetDoorOpenAngleIn(GetEntity('CJ_SHOPDOOR3_(D)'),125.0);
+SetDoorOpenAngleOut(GetEntity('CJ_SHOPDOOR3_(D)'),125.0);
+
+{bardoor}
+SetDoorOpenAngleIn(GetEntity('CJ_SHOPDOOR1_(D)'),90.0);
+SetDoorOpenAngleOut(GetEntity('CJ_SHOPDOOR1_(D)'),90.0);
+
+{bar toilet door}
+SetDoorOpenAngleIn(GetEntity('CJ_WOODDOOR5_(D)'),85.0);
+SetDoorOpenAngleOut(GetEntity('CJ_WOODDOOR5_(D)'),170.0);
+
+{bonusdoor in pharmacy}
+SetDoorOpenAngleIn(GetEntity('CJ_BREAKABLE3_(D)'),90.0);
+SetDoorOpenAngleOut(GetEntity('CJ_BREAKABLE3_(D)'),90.0);
+
+{--STATS--}
+SetNumberOfKillableHuntersInLevel(23,1);
+END;
+
+END.
+   

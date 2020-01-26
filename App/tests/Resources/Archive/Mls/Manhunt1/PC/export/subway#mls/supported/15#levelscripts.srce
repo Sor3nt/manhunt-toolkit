@@ -1,0 +1,118 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	Guard02		:	et_name;
+
+VAR
+bInAlertPosition			: boolean;
+bGoingIdle					: boolean;
+
+{LEVEL SCOPED VARS}
+level_bIsAlertOn			: level_var boolean;
+level_bPowerIsOn			: 	level_var	boolean;
+
+SCRIPT OnCreate;
+BEGIN
+	bInAlertPosition := FALSE;
+	bGoingIdle		 := FALSE;
+	
+	SetHunterHitAccuracy(GetEntityName(this),50);
+	SetHunterHideHealth(GetEntityName(this),0);
+	
+End;
+
+SCRIPT WaitThenPatrol;
+BEGIN
+	if IsEntityAlive('Guard01') then  AICancelHunterIdleAction('Guard01',AISCRIPT_IDLE_SPEECH); {Stop the other guy from speaking alone!}	
+	if IsEntityAlive('Guard02') then AICancelHunterIdleAction('Guard02',AISCRIPT_IDLE_SPEECH); {Cancel his own speech}	
+	if IsEntityAlive('Guard02') then AISetHunterIdleAction('Guard02',AISCRIPT_IDLE_STANDANIMS,AISCRIPT_MEDIUMPRIORITY);
+	AISetHunterIdlePatrol('Guard02',AISCRIPT_IDLE_PATROL,AISCRIPT_VERYHIGHPRIORITY,1000,8000,'Patrol_Guard02');
+	AISetIdlePatrolStop('Guard02','Guard02_Stop1',6,TRUE);
+	AISetIdlePatrolStop('Guard02','Guard02_Stop1',6,FALSE);
+	AISetIdlePatrolStop('Guard02','Guard02_Stop2',4,TRUE);
+	AISetIdlePatrolStop('Guard02','Guard02_Stop2',4,FALSE);
+	removethisscript;
+End;
+
+SCRIPT OnAlert;
+BEGIN
+	if level_bIsAlertOn then writedebug('Guard02 is Idle and the Alert is ON: ') 
+	else writedebug('Guard02 is Idle and the Alert is OFF: ');
+	
+	if IsEntityAlive('Guard02') then AICancelHunterIdleAction('Guard02',AISCRIPT_IDLE_SPEECH);
+	if IsEntityAlive('Guard02') then AICancelHunterIdleAction('Guard02',AISCRIPT_IDLE_STANDANIMS);
+	
+	{if there is an alert and he has not taken position he should act now}
+	if level_bIsAlertOn AND (NOT bInAlertPosition) then runscript('Guard02','GetInAlert');
+	
+	if bInAlertPosition then sleep(45000); 
+	{if after waiting for 1 minute the hunter is still idle then I can send him back to his NON ALERT pos}	
+	if ( bInAlertPosition AND (NOT level_bIsAlertOn) ) then runscript('Guard02','RemoveAlert');
+End;
+
+SCRIPT OnHunterIdle;
+BEGIN
+	{if there is an alert and he has not taken position he should act now}
+	if level_bIsAlertOn AND (NOT bInAlertPosition) then runscript('Guard02','GetInAlert');
+	
+	if bInAlertPosition then sleep(45000); 
+	{if after waiting for 1 minute the hunter is still idle then I can send him back to his NON ALERT pos}	
+	if bInAlertPosition AND (NOT level_bIsAlertOn) then runscript('Guard02','RemoveAlert');
+	
+End;
+
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN
+	{if there is NOT an alert he has seen the player he should report this}
+	if NOT level_bIsAlertOn then runscript('Alert_Manager','RaiseAlert');
+	
+	if bInAlertPosition then 
+	begin
+		AIRemoveGoalFromSubPack('LEADER','PowerStation','gDoor2_Guard');
+		bInAlertPosition := FALSE;
+	end;
+		
+End;
+
+SCRIPT GetInAlert;
+BEGIN
+	writedebug('Guard02: Running GetInAlert');
+	if IsEntityAlive('Guard02') then AICancelHunterIdleAction('Guard02',AISCRIPT_IDLE_SPEECH);
+	if IsEntityAlive('Guard02') then AICancelHunterIdleAction('Guard02',AISCRIPT_IDLE_STANDANIMS);
+	
+	if NOT AIIsEnemyInSight('LEADER','player',AISCRIPT_MEDIUMPRIORITY) then
+	begin
+		AIAddGoalForSubPack('LEADER','PowerStation','gDoor2_Guard');
+		bInAlertPosition := TRUE;
+	end;
+	writedebug('Guard02: GetInAlert Finished');
+End;
+
+SCRIPT RemoveAlert;
+BEGIN
+	
+	if IsEntityAlive('Guard02') then AISetHunterIdleAction('Guard02',AISCRIPT_IDLE_SPEECH,AISCRIPT_MEDIUMPRIORITY);				
+
+	if NOT AIIsEnemyInSight('LEADER','player',AISCRIPT_MEDIUMPRIORITY) then
+	begin
+		if bInAlertPosition then AIRemoveGoalFromSubPack('LEADER','PowerStation','gDoor2_Guard');
+		
+		if NOT bGoingIdle then
+		begin
+			bInAlertPosition:= FALSE;
+			bGoingIdle:= TRUE;
+			AIAddGoalForSubPack('LEADER','PowerStation','gGuard02_Idle');
+			AISetHunterIdleAction('Guard02',AISCRIPT_IDLE_SPEECH,AISCRIPT_MEDIUMPRIORITY);
+		end		
+	end;
+	
+End;
+
+SCRIPT OnHunterReachedNode;
+BEGIN
+	bGoingIdle:= FALSE;
+	runscript('Guard02','WaitThenPatrol');
+End;
+
+END. {end of Scripts}

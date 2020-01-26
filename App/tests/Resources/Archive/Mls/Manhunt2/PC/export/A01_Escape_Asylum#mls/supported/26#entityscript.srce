@@ -1,0 +1,14 @@
+scriptmain EntityScript;
+
+ENTITY
+	triggerBloodSpurt2 : et_name;
+	
+script OnEnterTrigger;
+begin
+
+	writedebug('play blood two');
+	EntityPlayAnim(GetEntity('PFXCorpseBlood2'), 'PAT_blood4', true);
+	RemoveThisScript;
+
+end;
+end.

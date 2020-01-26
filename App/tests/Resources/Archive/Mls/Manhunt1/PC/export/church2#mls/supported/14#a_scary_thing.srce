@@ -1,0 +1,40 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	A_Scary_Thing;
+
+ENTITY
+
+	Trigger_17	:	et_name;
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+SCRIPT OnEnterTrigger;
+{ Entity To Run Script From 			}
+
+VAR
+
+	vecView : vec3d;
+	vecPos  : vec3d;
+
+begin
+
+	If InsideTrigger(this, GetPlayer)	OR EnteredTrigger(this, GetPlayer) then
+	 begin
+
+		
+		ClearLevelGoal('GOAL2'); 	    
+		SetLevelGoal('GOAL3');
+				    
+	    removethisscript;
+			
+	end;
+			
+END;
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END.

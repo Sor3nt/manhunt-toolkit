@@ -1,0 +1,37 @@
+SCRIPTMAIN	HunterScripts;
+
+ENTITY
+	Hunter_Temp		:	et_name;
+
+
+VAR
+
+{LEVEL SCOPED VARS}
+
+
+{***
+	WARNING - THIS IS A TEMPLATE SCRIPT THAT GETS ATTACHED TO ENTITIES 
+	ALL NAME-BASED FUNCTIONS SHOULD USE THE sMyName VAR AND GENERATED NAMES 
+ ***}
+
+
+SCRIPT OnCreateHunter;
+BEGIN
+		
+	AISetEntityAllowSurprise(getEntityName(this),FALSE);
+	SetHunterHideHealth(getEntityName(this),0);	
+		
+End;
+
+
+SCRIPT OnHunterIdle;
+BEGIN
+	AIEntityGoHomeIfIdle(GetEntityName(this));	
+End;
+
+SCRIPT OnDeath;
+BEGIN
+	IncrementCounter;
+End;
+
+END. {end of Scripts}

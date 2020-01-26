@@ -1,0 +1,82 @@
+SCRIPTMAIN	HunterScripts;
+
+ENTITY
+Cerberus04		:	et_name;
+
+VAR
+sMyName		: string[32];
+willie_game_int	: game_var integer;
+
+
+test_flag	: level_var integer;
+
+SCRIPT OnCreate;
+begin
+
+	sMyname		:= getEntityName(this);
+	SetPedLockonable(GetEntity('Cerberus04'),FALSE);
+	AISetIdleHomeNode('Cerberus04','Grave_Home1');
+	WriteDebug('you can not target Cerberus04');
+	test_flag := 1;	
+				
+	if (NIL = GetEntity('Gen_Save_Point01'))then
+	begin						
+		if (NIL <> GetEntity('Cerberus04')) then 
+		DestroyEntity(GetEntity('Cerberus04'));
+	end;
+		
+	if (willie_game_int > 0) then
+	begin
+		if (IsEntityAlive('Cerberus04')) then
+		begin 
+			SetPedLockonable(GetEntity('Cerberus04'),TRUE);
+			WriteDebug('you can target Cerberus04');
+			test_flag := 0;
+		end;
+			
+	end;
+			
+end;
+
+Script ChangeSubpack;
+begin
+	if(nil <> GetEntity('Cerberus04')) then 
+	begin
+			
+		if IsEntityAlive('Cerberus04') then
+		begin
+		
+			if (AIIsInSubPack('LEADER_NOENEMY','NoEnemySubPack','Cerberus04')) then
+			begin
+				AIRemoveHunterFromLeaderSubPack('LEADER_NOENEMY','Cerberus04');
+				SetPedLockonable(GetEntity('Cerberus04'),TRUE);
+				WriteDebug('you can target Cerberus04');
+				test_flag := 0;
+				WriteDebug('hunter4 tergetable =', test_flag);
+			end;
+			
+			if NOT (AIIsInSubPack('LEADER','Subpack_Grave_Hedges','Cerberus04')) then
+			begin 
+				AIAddHunterToLeaderSubPack('LEADER','Subpack_Grave_Hedges','Cerberus04');
+			end;
+		
+			AISetIdleHomeNode('Cerberus04','Grave_Home1');				
+			AISetHunterIdleActionMinMaxRadius('Cerberus04',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_MEDIUMPRIORITY,120,360,20.0);
+			AIEntityGoHomeIfIdle('Cerberus04');
+			SetPedLockonable(GetEntity('Cerberus04'),TRUE);
+			WriteDebug('you can target Cerberus04');
+			test_flag := 0;
+			WriteDebug('hunter4 tergetable =', test_flag);
+		end;
+			
+	end;
+		
+end;
+	
+SCRIPT OnDeath;
+begin
+  	runScript('Hunters_Generator','OnAlert');
+end;
+
+
+END. {end of Scripts}

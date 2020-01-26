@@ -1,0 +1,333 @@
+scriptmain UsableScript;
+
+entity buttonInsideElev(S) : et_name;
+
+const
+	cBlinkDelay = 300;
+
+var
+	lSavePointTutRemoved :  level_var boolean;
+	lButtonTutRemoved :  level_var boolean;
+
+	me : string[30];
+
+
+script OnCreate;
+begin
+	me := GetEntityName(this);
+
+	WriteDebug(me, ' : OnCreate');
+
+	SetSwitchState(this, 0);
+
+	RunScript(me, 'BlinkRed');
+	
+	AttachToEntity(this, GetEntity('real_asylum_elev'));
+	
+	lButtonTutRemoved := false;
+end;
+
+
+script OnUseByPlayer;
+
+VAR
+	pos : vec3d;
+
+begin
+	WriteDebug(me, ' : OnUseByPlayer');
+
+	SetSwitchState(this, 1);
+
+	RunScript(me, 'BlinkGreen');
+
+	EnableUseable(this, FALSE);
+	
+	{Stop sneaky players from escaping}
+	EntityIgnoreCollisions(GetEntity('elev_door_block'), FALSE);
+	EntityIgnoreCollisions(this, TRUE);
+{	RunScript('triggerChairDestroyer', 'DestroyChairs');}
+
+{	ShowEntity(GetEntity('BoxBlocker'));}
+
+  { turn jumping off in elevator, will be turned on in elevator script again when elevator doors are open again }
+	SetPlayerJumpFlag(false);
+	
+	
+
+	ClearLevelGoal('GOAL6');
+	SetLevelGoal('GOAL10');
+
+	Runscript('real_asylum_elev', 'Start');
+	
+	{RunScript('buttonInsideElev(S)', 'RemoveCrap');}
+	
+	SetVector(pos, -17.898, 7.04834, 12.7896);
+	{MoveEntity(GetEntity('leo(hunter)'), pos,1);
+	ShowEntity(GetEntity('leo(hunter)'));}
+	sleep(1500);
+	
+	
+	
+	{CutSceneStart;}
+		{SKIP SCRIPT}
+		
+		{AICutSceneEntityEnable('leo(hunter)', true);
+		LockPed('leo(hunter)', false);
+		AISetEntityIdleOverRide('leo(hunter)', false, false);
+		
+		AIAddGoalForSubpack('leo(leader)', 'leopack', 'gRunTwo');
+		
+		CutSceneRegisterSkipScript(this, 'SkipMe');}
+		
+		
+		
+		{sleep(150);}
+		
+		{SetVector(pos, -17.1376, 8.62591, 7.61494);
+		SetCameraPosition(pos);
+		SetVector(pos, 0.17959, -0.253758, 0.95045);
+		SetCameraView(pos);
+		SetZoomLerp(0.614214, 0.614214, 0.1);
+		
+		
+		
+		sleep(1000);
+		SetVector(pos, -17.1376, 8.62591, 7.61494);
+		PlayScriptAudioStreamFromPosAuto('LEO18', 100, pos ,10);       	
+    while not IsScriptAudioStreamCompleted do sleep(10);}
+		{PlayDirectorSpeechPlaceholder('WAIT1_A');}
+		{ === End Cutscene Camera Animation Block (cameraFPLeo) === }
+		
+		{sleep(4000);
+		
+	CutSceneEnd(false);}
+	
+	{ [gupi] turn off tutorial texts }
+	{if not lSavePointTutRemoved then
+	begin
+		lSavePointTutRemoved := true;
+		RemoveScript('A01_Escape_Asylum', 'DisplaySavePointTutorials');
+	end;
+	if not lButtonTutRemoved then
+	begin
+		lButtonTutRemoved := true;
+		RemoveScript('A01_Escape_Asylum', 'DisplayButtonTutorials');
+	end;}
+
+	sleep(1000);
+	
+	while IsGameTextDisplaying do
+		Sleep(100);
+	
+	DisplayGameText('PAUSE');
+	
+	
+	sleep(1000);
+{	PlayDirectorSpeechPlaceholder('MTP1_A');}
+	lButtonTutRemoved := TRUE;
+	
+end;
+
+script RemoveCrap;
+begin
+	
+
+{---------------------------------------
+ Sector 4
+ ---------------------------------------}
+
+        DestroyEntity(GetEntity('CJ_Radiator_old07'));
+        DestroyEntity(GetEntity('CJ_Radiator_old08'));
+        DestroyEntity(GetEntity('CJ_Radiator_old09'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright07'));
+        DestroyEntity(GetEntity('DE_MattressDown07'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright08'));
+        DestroyEntity(GetEntity('DE_MattressDown08'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old08'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old09'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old10'));
+        DestroyEntity(GetEntity('DirtyOldToilet13'));
+        DestroyEntity(GetEntity('DirtyOldToilet14'));
+        DestroyEntity(GetEntity('DirtyOldToilet15'));
+        DestroyEntity(GetEntity('Clipboard_Medical04'));
+        DestroyEntity(GetEntity('DE_MattressDown10'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright10'));
+        DestroyEntity(GetEntity('SA_Rubbish_D'));
+        DestroyEntity(GetEntity('SA_Rubbish_F'));
+        DestroyEntity(GetEntity('broken_chair03'));
+        DestroyEntity(GetEntity('CJ_PLASTIC_CHAIR25'));
+        DestroyEntity(GetEntity('CJ_GREENHSHELVES09'));
+        DestroyEntity(GetEntity('Clipboard_Medical08'));
+        DestroyEntity(GetEntity('SA_Rubbish_I11'));
+
+
+{---------------------------------------
+ Sector 5
+ ---------------------------------------}
+
+        DestroyEntity(GetEntity('CJ_MINICAMB_(L)'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright02'));
+        DestroyEntity(GetEntity('DE_MattressDown02'));
+        DestroyEntity(GetEntity('Gen_Tannoy_(F)04'));
+        DestroyEntity(GetEntity('CJ_PLASTIC_CHAIR21'));
+        DestroyEntity(GetEntity('SA_Rubbish_B01'));
+        DestroyEntity(GetEntity('broken_chair'));
+        DestroyEntity(GetEntity('coffee_table01_food07'));
+        DestroyEntity(GetEntity('SA_Rubbish_I12'));
+        DestroyEntity(GetEntity('DirtyOldToilet3'));
+
+{---------------------------------------
+ Sector 6
+ ---------------------------------------}
+
+        DestroyEntity(GetEntity('Syringe_(CT)04'));;
+        DestroyEntity(GetEntity('CJ_Radiator_old01'));
+        DestroyEntity(GetEntity('CJ_Radiator_old02'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old01'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old02'));
+        DestroyEntity(GetEntity('DirtyOldToilet2'));
+        DestroyEntity(GetEntity('DirtyOldToilet04'));
+        DestroyEntity(GetEntity('Clipboard_Medical01'));
+        DestroyEntity(GetEntity('CJ_PLASTIC_CHAIR13'));
+        DestroyEntity(GetEntity('Gen_Tannoy_(F)02'));
+        DestroyEntity(GetEntity('Clipboard_Medical06'));
+        DestroyEntity(GetEntity('SA_Rubbish_I01'));
+        DestroyEntity(GetEntity('broken_chair01'));
+        DestroyEntity(GetEntity('SA_Rubbish_D05'));
+        DestroyEntity(GetEntity('coffee_table01_food09'));
+        DestroyEntity(GetEntity('SA_Rubbish_I08'));
+        DestroyEntity(GetEntity('SA_Rubbish_I09'));
+        DestroyEntity(GetEntity('broken_chair06'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright14'));
+        DestroyEntity(GetEntity('DE_MattressDown15'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright15'));
+        DestroyEntity(GetEntity('DE_MattressBent06'));
+
+
+{---------------------------------------
+ Sector 7
+ ---------------------------------------}
+
+
+        DestroyEntity(GetEntity('CJ_Radiator_old03'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old03'));
+        DestroyEntity(GetEntity('DE_MattressDown01'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright'));
+        DestroyEntity(GetEntity('DirtyOldToilet05'));
+        DestroyEntity(GetEntity('SA_Rubbish_I10'));
+        DestroyEntity(GetEntity('SA_Rubbish_B09'));
+
+
+{---------------------------------------
+ Sector 8
+ ---------------------------------------}
+
+
+
+{---------------------------------------
+ Sector 9
+ ---------------------------------------}
+
+
+        DestroyEntity(GetEntity('CJ_WSHELF07'));
+        DestroyEntity(GetEntity('CJ_Radiator_old04'));
+        DestroyEntity(GetEntity('CJ_Radiator_old06'));
+        DestroyEntity(GetEntity('CJ_PLASTIC_CHAIR15'));
+        DestroyEntity(GetEntity('Gen_Tannoy_(F)03'));
+        DestroyEntity(GetEntity('CJ_GREENHSHELVES05'));
+        DestroyEntity(GetEntity('painkiller_cabinet_ng'));
+        DestroyEntity(GetEntity('broken_table01'));
+        DestroyEntity(GetEntity('broken_chair02'));
+        DestroyEntity(GetEntity('broken_tv'));
+        DestroyEntity(GetEntity('coffee_table01_food05'));
+        DestroyEntity(GetEntity('SA_Rubbish_B03'));
+        DestroyEntity(GetEntity('SA_Rubbish_I03'));
+        DestroyEntity(GetEntity('paper_bin'));
+        DestroyEntity(GetEntity('SA_Rubbish_B08'));
+        DestroyEntity(GetEntity('DirtLockerC05'));
+        DestroyEntity(GetEntity('SA_Rubbish_D07'));
+        DestroyEntity(GetEntity('paper_bin04'));
+
+
+{---------------------------------------
+ Sector 10
+ ---------------------------------------}
+
+        DestroyEntity(GetEntity('CJ_ELCTRICBOX2'));
+        DestroyEntity(GetEntity('CJ_ELCTRICBOX06'));
+        DestroyEntity(GetEntity('SA_Rubbish_D01'));
+        DestroyEntity(GetEntity('coffee_table01_food06'));
+        DestroyEntity(GetEntity('paper_bin01'));
+        DestroyEntity(GetEntity('broken_chair07'));
+        DestroyEntity(GetEntity('SA_Rubbish_D06'));
+        DestroyEntity(GetEntity('Gen_Tannoy_(F)06'));
+        DestroyEntity(GetEntity('CJ_ELCTRICBOX07'));
+end;
+
+script BlinkRed;
+begin
+	WriteDebug(me, ' : BlinkRed');
+
+	KillScript(me, 'BlinkGreen');
+
+	while TRUE do
+	begin
+    	SetCurrentLOD(this, 1);
+    	sleep(cBlinkDelay);
+    	SetCurrentLOD(this, 0);
+    	sleep(cBlinkDelay);
+	end;
+end;
+
+
+script BlinkGreen;
+begin
+	WriteDebug(me, ' : BlinkGreen');
+
+	KillScript(me, 'BlinkRed');
+
+	while TRUE do
+	begin
+    	SetCurrentLOD(this, 2);
+    	sleep(cBlinkDelay);
+    	SetCurrentLOD(this, 0);
+    	sleep(cBlinkDelay);
+	end;
+end;
+
+
+script StopWorking;
+VAR
+	flickerCount : integer;
+begin
+	KillScript(me, 'BlinkRed');
+	KillScript(me, 'BlinkGreen');
+	Sleep(50);
+   	SetCurrentLOD(this, 0);
+   	
+  flickerCount := 0;
+  
+  for flickerCount := 1 to 10 do
+  begin
+  	SetCurrentLOD(GetEntity('real_asylum_elev'), 0);
+  	SetCurrentLOD(GetEntity('Upt_Elevator_DoorIR_(SD)'), 0);
+  	SetCurrentLOD(GetEntity('Upt_Elevator_DoorIL_(SD)'), 0);  	
+  	Sleep(RandNum(100) + 30);	
+  	SetCurrentLOD(GetEntity('real_asylum_elev'), 1);
+  	SetCurrentLOD(GetEntity('Upt_Elevator_DoorIR_(SD)'), 1);
+  	SetCurrentLOD(GetEntity('Upt_Elevator_DoorIL_(SD)'), 1);  	
+  	Sleep(RandNum(100) + 30);	
+  end;
+  
+  {SetCurrentLOD(GetEntity('Upt_Elevator_DoorIR_(SD)'), 2);
+  HideEntity(GetEntity('A01_dead_blood'));}
+   
+end;
+
+script SkipMe;
+begin
+end;
+
+end.
+   

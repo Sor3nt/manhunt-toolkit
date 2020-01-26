@@ -1,0 +1,104 @@
+[
+    {
+        "name": "carpark",
+        "offset": "9c000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "exeonce",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    },
+    {
+        "name": "hell",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            648
+        ]
+    },
+    {
+        "name": "pickedup",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            1128,
+            1720,
+            1880,
+            2652,
+            3156
+        ]
+    },
+    {
+        "name": "pickedup",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    },
+    {
+        "name": "proper",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            292
+        ]
+    },
+    {
+        "name": "select",
+        "offset": "98000000",
+        "size": 4,
+        "objectType": "boolean",
+        "occurrences": []
+    },
+    {
+        "name": "shadows",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            184,
+            508
+        ]
+    },
+    {
+        "name": "spotted",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            5144,
+            5376
+        ]
+    },
+    {
+        "name": "thecarpark",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": [
+            732
+        ]
+    },
+    {
+        "name": "thecarpark",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    },
+    {
+        "name": "thecarpark",
+        "offset": "ffffffff",
+        "size": "ffffffff",
+        "objectType": "ffffffff",
+        "occurrences": []
+    }
+]

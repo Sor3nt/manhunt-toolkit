@@ -1,0 +1,22 @@
+SCRIPTMAIN	GamegodScript;
+
+ENTITY
+GameGodText	:	et_name;
+
+SCRIPT OnEnterTrigger;
+BEGIN
+IF (InsideTrigger(this,GetPlayer) OR EnteredTrigger(this,GetPlayer)) THEN
+	BEGIN
+		DisplayGameText('GAMEGOD');
+		
+		if (GetEntityName(this)<>'GOD1') then killentity(GetEntity('GOD1'));
+		if (GetEntityName(this)<>'GOD2') then killentity(GetEntity('GOD2'));
+		if (GetEntityName(this)<>'GOD3') then killentity(GetEntity('GOD3'));
+		
+		KillEntity(this);
+	END;
+
+END;
+
+
+END.

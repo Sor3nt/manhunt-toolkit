@@ -1,0 +1,323 @@
+SCRIPTMAIN	LevelScripts;
+
+ENTITY
+	GUARD2	:	et_name; 
+
+VAR
+bCheckNoise,	
+bMachineNoise,
+bIsCheckingMachine,
+bHasSeenDeadBody,
+bFriendIsCheckingNoise,
+bHasSeenPlayer			:	boolean;
+iNoiseCounter,			
+iNoiseAttentionLevel	: 	integer;
+vDirection				: 	vec3d;
+
+SCRIPT OnCreate;
+BEGIN
+
+	bCheckNoise 			:= TRUE;
+	bMachineNoise			:= FALSE;
+	bIsCheckingMachine		:= FALSE;
+	bHasSeenDeadBody		:= FALSE;
+	bFriendIsCheckingNoise	:= FALSE;
+	iNoiseCounter			:= 0;
+	iNoiseAttentionLevel	:= RandNum(4) + 1;
+	bHasSeenPlayer			:= FALSE;
+		
+	
+	
+	CreateInventoryItem(CT_NIGHTSTICK,this,TRUE);	
+	
+	SetHunterHitAccuracy(GetEntityName(this),50);		
+	SetHunterHideHealth(getEntityName(this),30);
+	AISetHunterIdleAction('GUARD2',AISCRIPT_IDLE_SPEECH,AISCRIPT_VERYHIGHPRIORITY);
+		
+End;
+
+SCRIPT TurnOffMachine;  
+BEGIN
+	bIsCheckingMachine := TRUE;
+	
+	ScriptHogProcessorStart;
+	if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then 
+	begin
+		if NOT AIisGoalNameInSubPack('LEADER','TUNNEL_GUARD','gCheckMachine')
+			then AIAddGoalForSubpack('LEADER','TUNNEL_GUARD','gCheckMachine');
+	end
+	else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then 
+	begin
+		if NOT AIisGoalNameInSubPack('LEADER','TUNNEL_GUARD_GUNS','gCheckMachine')
+			then AIAddGoalForSubpack('LEADER','TUNNEL_GUARD_GUNS','gCheckMachine');	
+	end;
+	ScriptHogProcessorEnd;
+	
+	ScriptHogProcessorStart;
+	if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then 
+	begin
+		if AIisGoalNameInSubPack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance')
+			then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance');
+	end
+	else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then
+	begin
+		if AIisGoalNameInSubPack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance')
+			then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance');
+	end;
+	ScriptHogProcessorEnd;
+	
+end;
+
+SCRIPT OnHighSightingOrAbove; {the guard should ignore machine noises and shit from now on} 
+BEGIN
+				
+	bCheckNoise := false;
+	
+	iNoiseAttentionLevel := 10; {he loses interest in noises when player has been spotted}
+	
+	bHasSeenPlayer := TRUE;
+	
+	removescript('GUARD2','AudioComment2');
+	
+	{remove his guard if he has one}
+	ScriptHogProcessorStart;
+	if IsEntityAlive('GUARD2') then
+	begin
+		if AIIsEntityGuard('GUARD2') then
+		begin
+			if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance')
+			else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance');
+		end
+	end;
+	ScriptHogProcessorEnd;
+	
+	{see if it's the case for his buddy to move into a guard as well}
+	runscript('STREET1','CheckForPositionChange');	
+	
+	if IsEntityAlive('Journalist') then
+	begin
+		if (
+		AIisEnemyInSight('LEADER','Journalist',AISCRIPT_HIGHPRIORITY)
+		AND
+		(NOT AIisEnemyInSight('LEADER','player',AISCRIPT_MEDIUMPRIORITY))
+		) then
+		begin
+			runScript('GUARD2','SeeJournoAudioComment');
+		end;
+	end;
+		
+End;
+
+SCRIPT OnMediumSightingOrAbove;
+BEGIN	
+	
+	if IsEntityAlive('STREET1')	then
+	begin
+		if (GetDamage(GetEntity('STREET1')) < 30) then
+		begin
+			if AIIsEntityGuard('GUARD2') then
+			begin
+				if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance')
+				else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance');
+			end;
+		end;
+	end;
+	
+	if(  
+	IsEntityHoldingAmmoWeapon(GetPlayer) 
+	OR
+	IsEntityHoldingAmmoWeapon(GetEntity('Journalist')) 
+	)then runscript('Alert_Manager','PlayerPacking');	
+	
+	runScript('Alert_Manager','CheckTunnelPosChange');
+		
+End;
+
+SCRIPT OnHunterIdle;
+BEGIN
+	{whatever has happened, if he is idle the flags need resetting}
+	bMachineNoise 	:= FALSE;
+	bCheckNoise 	:= TRUE;
+	
+	AIEntityGoHomeIfIdle('GUARD2');
+	
+	if isEntityAlive('STREET1') then 
+	begin
+		AILookAtEntity('GUARD2', 'STREET1');		
+	end; 
+End;
+
+SCRIPT STREET1Dead;
+Begin
+
+	sleep(25000); {some time to make it look realistic}
+
+	if isEntityAlive('GUARD2') then 	
+	begin
+		
+		if( 
+		(NOT bHasSeenDeadBody )
+		OR
+		(NOT bHasSeenPlayer)		
+		)then		
+		begin	
+			
+			{remove his guard if he has one}
+			ScriptHogProcessorStart;
+			if isEntityAlive('GUARD2') then 	
+			begin
+				if AIIsEntityGuard('GUARD2') then
+				begin
+					if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance')
+					else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance');
+				end;
+			end;
+			ScriptHogProcessorEnd;
+			
+			{his mate is not coming back, go on patrol}
+			runscript('GUARD2','AudioComment2');
+				
+			AICancelHunterIdleAction('GUARD2',AISCRIPT_IDLE_SPEECH);
+				
+			AISetHunterIdlePatrol('GUARD2',AISCRIPT_IDLE_PATROL,AISCRIPT_VERYHIGHPRIORITY,3000,8000,'Path_Tunnel');
+					
+			AISetIdlePatrolStop('GUARD2','TUNNEL1',6,TRUE);
+			AISetIdlePatrolStop('GUARD2','TUNNEL1',6,FALSE);
+					
+			AISetIdlePatrolStop('GUARD2','TUNNEL2',3,TRUE);
+			AISetIdlePatrolStop('GUARD2','TUNNEL2',3,FALSE);	
+				
+			AISetIdlePatrolStop('GUARD2','TUNNEL3',2,TRUE);
+			AISetIdlePatrolStop('GUARD2','TUNNEL3',2,FALSE);	
+			
+			removethisscript;
+		end;
+	end;
+		
+End;
+
+	
+SCRIPT FriendIsCheckingNoise;
+BEGIN
+{this script is executed when the patroller checks the machine noise himself}
+
+{the guard runs back to the entrance of the tunnel}
+writedebug('GUARD2 HAS BEEN TOLD NOT TO MOVE');
+bFriendIsCheckingNoise := TRUE;
+
+sleep(1500);
+
+if NOT AIIsEntityGuard('GUARD2') then
+begin
+	if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then AIAddGoalForSubpack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance')
+	else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then AIAddGoalForSubpack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance');
+end;
+
+{the interest of the guard is diminished as he thinks that someone else is checking it}
+iNoiseAttentionLevel:=  iNoiseAttentionLevel + 1; 
+writedebug('GUARD2 Noise Attention Level: ', iNoiseAttentionLevel);
+
+bCheckNoise := false;
+
+sleep (7000); {wait a reasonable time before the guard reaquires interest in the noise}
+
+bCheckNoise := true;
+
+End;
+
+SCRIPT OnMachineNoise;  
+BEGIN
+	
+	bMachineNoise := true;
+	iNoiseCounter := iNoiseCounter + 1;	
+	
+	if (iNoiseCounter >= iNoiseAttentionLevel) then bFriendIsCheckingNoise := FALSE;
+	
+end;
+
+SCRIPT OnMediumHearingOrAbove;
+BEGIN
+writeDebug('GUARD2 IS HEARING SOMETHING');
+sleep(1000);
+	if ( 
+	bMachineNoise {if he is hearing the noise of the machine}
+	AND 
+	bCheckNoise  {if his buddy is not checking the machine}
+	AND
+	bIsCheckingMachine {he is already on his way}
+	AND
+	(NOT bHasSeenDeadBody) {he has not realised that his mate is dead}
+	AND	
+	(iNoiseCounter >= iNoiseAttentionLevel) {if he is interested enough to move}
+	AND
+	(NOT AIIsEnemyInSight('LEADER','player',AISCRIPT_MEDIUMPRIORITY)) {if he does not see the player}
+	) then
+	begin
+		writedebug('GUARD2 HAS HEARD THE MACHINE NOISE');
+		
+		bIsCheckingMachine := TRUE; {flag that he is changing position}
+		
+		{remove his guard if he has one}
+		if AIIsEntityGuard('GUARD2') then
+		begin
+			if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD','gGuardTunnelEntrance')
+			else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then AIRemoveGoalFromSubpack('LEADER','TUNNEL_GUARD_GUNS','gGuardTunnelEntrance');
+		end;
+				
+		{and runs to check the thing himself}
+		if (AIIsInSubPack('LEADER','TUNNEL_GUARD','GUARD2') ) then AIAddGoalForSubpack('LEADER','TUNNEL_GUARD','gCheckMachine')
+		else if (AIIsInSubPack('LEADER','TUNNEL_GUARD_GUNS','GUARD2')) then AIAddGoalForSubpack('LEADER','TUNNEL_GUARD_GUNS','gCheckMachine');
+		
+	end;
+
+End;
+
+SCRIPT OnHunterReachedNode;  
+
+BEGIN
+		
+	if NOT isEntityAlive('STREET1') then
+	begin
+		
+		{wander search around here, why has your mate disappeared?}
+		AISetHunterIdleAction('GUARD2',AISCRIPT_IDLE_SPEECH,AISCRIPT_LOWPRIORITY);
+		AISetIdleHomeNode('GUARD2','CRATES');	
+		AISetHunterIdleActionMinMaxRadius('GUARD2',AISCRIPT_IDLE_WANDERSEARCH,AISCRIPT_VERYHIGHPRIORITY,1000,3000,40.0);		
+		
+		removethisscript;
+	end;
+	
+		
+end;
+
+SCRIPT AudioComment2;
+BEGIN
+	PlayHunterSpeech('GUARD2',VOICE_POLICE2VOICE2,AISPEECH_P2V2_JUR_IS_COP_OKAY);	
+	removethisscript;
+End;
+
+SCRIPT SeeJournoAudioComment;
+BEGIN
+	PlayHunterSpeech('GUARD2',VOICE_POLICE2VOICE2,AISPEECH_P2V2_JUR_BITCH);
+	removethisscript;
+End;
+
+
+SCRIPT OnDeath;
+BEGIN
+	RemoveScript('GUARD2','STREET1Dead');
+	
+	{stop STREET1 from running away if this sucker is dead}
+	if isEntityAlive('STREET1') then SetHunterHideHealth('STREET1',0);
+	
+End;
+
+SCRIPT OnDeadBodyFound;
+BEGIN
+	runScript('Alert_Manager','PlayerCopKiller');
+	bHasSeenDeadBody := TRUE;
+	removescript('GUARD2','AudioComment2');
+	PlayHunterSpeech('GUARD2',VOICE_POLICE2VOICE2,AISPEECH_P2V2_JUR_MAN_DOWN);	
+End;
+
+END. {end of Scripts}

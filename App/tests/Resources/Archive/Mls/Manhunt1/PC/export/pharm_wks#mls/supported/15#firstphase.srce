@@ -1,0 +1,342 @@
+{$t-				}
+{trace off 			}
+{Program Description}
+
+SCRIPTMAIN	FirstPhase;
+
+
+ENTITY
+	TFirstPhase	:	et_name;
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+
+
+
+
+
+
+
+
+SCRIPT 	OnEnterTrigger;
+
+VAR
+	pPlayer			:	EntityPtr;
+	pDoor1			: 	EntityPtr;	
+	pDoor2			: 	EntityPtr;	
+	FacingVec		:	Vec3d;
+	SpawnVec		: 	Vec3d;
+	SetCurrent		:  	BOOLEAN;
+	vecPos			:	Vec3d;
+	vecView			:	Vec3d;
+
+
+	begin
+		pPlayer := GetPlayer;
+			
+		if(InsideTrigger(this, pPlayer) OR EnteredTrigger(this, pPlayer)) then
+			begin
+					
+					
+		if GetEntity('Gen_Save_Point') <> NIL THEN
+		begin
+					
+		{DisableUserInput;
+		ClearInputStates;}
+	
+	
+
+
+	
+		{	
+
+		HandCamSetVideoEffectTimeCode(TRUE);
+        HandCamSetVideoEffectRecordDot(TRUE);
+        HandCamSetVideoEffectFuzz(FALSE);
+        HandCamSetVideoEffectScrollBar(FALSE);
+
+		}
+
+
+		SetVector(vecPos, -206.0, 4.2, 73.8);
+
+        SetVector(vecView, -0.6, -0.1, 0.8);
+
+ 		SetEntityInvulnerable(GetPlayer, TRUE);
+        CutSceneStart;
+        SetEntityInvulnerable(GetPlayer, TRUE);
+        
+        ClearLevelGoal('GOAL1');
+        SetLevelGoal('GOAL2');
+     	RadarPositionSetEntity(GetEntity('Bow_Prison_CellDoor_(SD)02'), MAP_COLOR_BLUE);
+     
+     
+     
+     	pDoor1:=GetEntity('CJ_PHARMGATE_L_(SD)');
+        UnFreezeEntity(pDoor1);
+		{ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));}
+		SetSlideDoorSpeed(pDoor1, 0.6);
+		SetSlideDoorAjarDistance(pDoor1, 2.47);
+		SetDoorState(pDoor1, DOOR_OPENING);
+		
+		pDoor2:=GetEntity('CJ_PHARMGATE_R_(SD)');
+        UnFreezeEntity(pDoor2);
+		{ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));}
+		SetSlideDoorSpeed(pDoor2, 0.6);
+		SetSlideDoorAjarDistance(pDoor2, 2.47);
+		SetDoorState(pDoor2, DOOR_OPENING);
+     
+
+        { Set the cameras position }
+
+        setcameraposition(vecPos);
+
+        { Set the cameras view }
+
+        setcameraview(vecView);
+
+
+
+
+		SetZoomLerp(1.0, -0.17, 8.0);
+		
+		
+        
+        AIAddEntity('Hunter_Lever1');
+        AIAddEntity('Hunter_Lever2');
+        AIAddEntity('Hunter_Lever3');
+        AIAddEntity('Hunter_Lever4');
+        
+     	AICutSceneEntityEnable('Hunter_Lever1', true);
+     	AICutSceneEntityEnable('Hunter_Lever2', true);
+		AICutSceneEntityEnable('Hunter_Lever3', true);
+		AICutSceneEntityEnable('Hunter_Lever4', true);
+	
+        
+        {PlaySplineFile('CAMERAF',1.0,TRUE,TRUE,FALSE);
+        PlaySplineFile('CAMERAPAUSE1L',1.0,TRUE,FALSE,FALSE);
+		WHILE IsSplinePlaying DO sleep(1);
+					
+					
+		PlaySplineFile('CAMERAF',3.0,TRUE,TRUE,FALSE);
+        PlaySplineFile('CAMERAPANL',3.0,TRUE,FALSE,FALSE);
+		WHILE IsSplinePlaying DO sleep(1);
+            
+
+            WHILE IsSplinePlaying DO sleep(1);}
+
+					
+			{PlayDirectorSpeechPlaceHolder('LOADLOK');}
+			PlayDirectorSpeech(GetPlayerPosition,AISPEECH_D1V1_GRV_MAIN_GATE_MECHANISM,-1,200);
+			
+			{IF GetEntity('Hunter_Rabbit1') <> NIL THEN
+			begin		
+				AIRemoveGoalFromSubPack('Hunter_Rabbit1', 'sFollowMe1', 'gRabbitLook2');
+ 	
+ 				AIAddGoalForSubPack('Hunter_Rabbit1', 'sFollowMe1', 'gRabbitLook3');		
+			end;}
+			
+			
+			IF GetEntity('Hunter_Lever1') <> NIL THEN
+			begin
+			{AIAddEntity('Hunter_Lever1');}
+			SetHunterSkin(GetEntity('Hunter_Lever1'), 0);
+		
+			SetHunterHeadSkin(GetEntity('Hunter_Lever1'), 0);
+			SetHunterDropAmmo(GetEntity('Hunter_Lever1'),4);
+			AISetEntityAsLeader('Hunter_Lever1');
+			AIAddLeaderEnemy('Hunter_Lever1', 'player');
+
+
+			AIAddSubPackForLeader('Hunter_Lever1', 'sLever1');
+			AIAddAreaForSubPack('sLever1', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Hunter_Lever1', 'sLever1', 'Hunter_Lever1');
+	
+		
+			AISetSubPackCombatType('Hunter_Lever1', 'sLever1', COMBATTYPEID_COVER);
+			
+			{AIAddGoalForSubPack('Hunter_Lever1', 'sLever1', 'gLever1');}
+		
+			
+			end;
+			
+	
+			IF GetEntity('Hunter_Lever2') <> NIL THEN
+			begin
+			{AIAddEntity('Hunter_Lever2');}
+			SetHunterSkin(GetEntity('Hunter_Lever2'), 1);
+		
+			SetHunterHeadSkin(GetEntity('Hunter_Lever2'), 1);
+			SetHunterDropAmmo(GetEntity('Hunter_Lever2'),6);
+			AISetEntityAsLeader('Hunter_Lever2');
+			AIAddLeaderEnemy('Hunter_Lever2', 'player');
+
+
+			AIAddSubPackForLeader('Hunter_Lever2', 'sLever2');
+			AIAddAreaForSubPack('sLever2', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Hunter_Lever2', 'sLever2', 'Hunter_Lever2');
+			AIAddGoalForSubPack('Hunter_Lever2', 'sLever2', 'gHuntPlayer');
+		
+			AISetSubPackCombatType('Hunter_Lever2', 'sLever2', COMBATTYPEID_COVER);
+			
+			{AIAddGoalForSubPack('Hunter_Lever2', 'sLever2', 'gLever2');}
+		
+			
+			end;
+			
+		
+			IF GetEntity('Hunter_Lever3') <> NIL THEN
+			begin
+			{AIAddEntity('Hunter_Lever3');}
+			SetHunterSkin(GetEntity('Hunter_Lever3'), 2);
+		
+			SetHunterHeadSkin(GetEntity('Hunter_Lever3'), 2);
+			SetHunterDropAmmo(GetEntity('Hunter_Lever3'),4);
+			AISetEntityAsLeader('Hunter_Lever3');
+			AIAddLeaderEnemy('Hunter_Lever3', 'player');
+
+
+			AIAddSubPackForLeader('Hunter_Lever3', 'sLever3');
+			AIAddAreaForSubPack('sLever3', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Hunter_Lever3', 'sLever3', 'Hunter_Lever3');
+			AIAddGoalForSubPack('Hunter_Lever3', 'sLever3', 'gHuntPlayer');
+		
+			AISetSubPackCombatType('Hunter_Lever3', 'sLever3', COMBATTYPEID_COVER);
+			
+		{	AIAddGoalForSubPack('Hunter_Lever3', 'sLever3', 'gLever3');}
+		
+			
+			end;
+			
+			
+			{pDoor:=GetEntity('Bow_Prison_CellDoor_(SD)02');
+			
+			SetSlideDoorSpeed(pDoor, 0.7);
+			SetSlideDoorAjarDistance(pDoor, 2.5);
+			SetDoorState(pDoor, DOOR_CLOSING);	
+			
+			pDoor:=GetEntity('Bow_Prison_CellDoor_(SD)01');
+
+
+			SetSlideDoorSpeed(pDoor, 0.7);
+			SetSlideDoorAjarDistance(pDoor, 2.5);
+			SetDoorState(pDoor, DOOR_CLOSING);	}
+			
+			
+			
+		
+			
+			IF GetEntity('Hunter_Lever4') <> NIL THEN
+			begin
+			{AIAddEntity('Hunter_Lever4');}
+			SetHunterDropAmmo(GetEntity('Hunter_Lever4'),6);
+			AISetEntityAsLeader('Hunter_Lever4');
+			AIAddLeaderEnemy('Hunter_Lever4', 'player');
+
+
+			AIAddSubPackForLeader('Hunter_Lever4', 'sLever4');
+			AIAddAreaForSubPack('sLever4', 'aiPharm');
+		
+			AIAddHunterToLeaderSubPack('Hunter_Lever4', 'sLever4', 'Hunter_Lever4');
+			AIAddGoalForSubPack('Hunter_Lever4', 'sLever4', 'gHuntPlayer');
+		
+			AISetSubPackCombatType('Hunter_Lever4', 'sLever4', COMBATTYPEID_COVER);
+			
+		
+			
+		{	AIAddGoalForSubPack('Hunter_Lever4', 'sLever4', 'gLever4');}
+		
+			
+			end;
+			  
+     
+			
+			
+			
+			{SLEEP(4000);}
+			
+			
+			
+			
+			
+			
+			
+			
+		
+			
+			
+			
+			
+
+
+ 			
+ 		
+			AIAddGoalForSubPack('Hunter_Lever2', 'sLever2', 'gLever2');
+			SLEEP(1000);
+			AIAddGoalForSubPack('Hunter_Lever3', 'sLever3', 'gLever3');
+			AIAddGoalForSubPack('Hunter_Lever4', 'sLever4', 'gLever4');
+			
+			SLEEP(4000);
+			
+			CutSceneEnd(false);
+			SetEntityInvulnerable(GetPlayer, FALSE);
+			AIAddGoalForSubPack('Hunter_Lever1', 'sLever1', 'gLever1');
+ 			AIAddGoalForSubPack('Hunter_Lever1', 'sLever1', 'gHuntPlayer');
+			AITriggerSoundKnownLocationNoRadar('GUN_SHOT', GetPlayer);
+		
+ 			{PlaySplineFile('CAMERAF',1.5,TRUE,TRUE,FALSE);
+            PlaySplineFile('CAMERAPAUSE2L',1.5,TRUE,FALSE,FALSE);
+            WHILE IsSplinePlaying DO sleep(1);
+
+            PlaySplineFile('CAMERAZOOMF',3.0,TRUE,TRUE,FALSE);
+            PlaySplineFile('CAMERAZOOML',3.0,TRUE,FALSE,FALSE);
+            WHILE IsSplinePlaying DO sleep(1);
+
+            PlaySplineFile('CAMERAPAUSEF',1.5,TRUE,TRUE,FALSE);
+            PlaySplineFile('CAMERAPAUSE3L',1.5,TRUE,FALSE,FALSE);
+            WHILE IsSplinePlaying DO sleep(1);
+
+            HandCamSetVideoEffectTimeCode(FALSE);
+            HandCamSetVideoEffectRecordDot(FALSE);}
+
+ 		
+ 
+	
+			while IsSplinePlaying do sleep(1);
+				
+			EnableUserInput;
+			
+			     
+     		pDoor1:=GetEntity('CJ_PHARMGATE_L_(SD)');
+        	UnFreezeEntity(pDoor1);
+		{ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));}
+			SetSlideDoorSpeed(pDoor1, 0.6);
+			SetSlideDoorAjarDistance(pDoor1, 0.0);
+			SetDoorState(pDoor1, DOOR_CLOSING);
+		
+			pDoor2:=GetEntity('CJ_PHARMGATE_R_(SD)');
+        	UnFreezeEntity(pDoor2);
+			{ASSERT(GraphModifyConnections(pDoor, AISCRIPT_GRAPHLINK_ALLOW_EVERYTHING));}
+			SetSlideDoorSpeed(pDoor2, 0.6);
+			SetSlideDoorAjarDistance(pDoor2, 0.0);
+			SetDoorState(pDoor2, DOOR_CLOSING);
+			
+				
+				
+		
+						
+			RemoveThisScript;
+	
+			end;
+		end;
+	end;
+
+
+{----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------}
+
+END. 
