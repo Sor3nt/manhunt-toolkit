@@ -6,6 +6,9 @@ use App\Service\NBinary;
 
 class Extract {
 
+
+    public $keepOrder = false;
+
     public function getTextureNames(NBinary $binary){
         $data = $this->get($binary);
 
@@ -108,7 +111,13 @@ class Extract {
 
         foreach ($mdls as $index => $mdl) {
             $build = new Build();
-            $singleMdls[ (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+
+            if ($this->keepOrder){
+                $singleMdls[$index . '#' . (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+            }else{
+                $singleMdls[ (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+            }
+
         }
 
         return $singleMdls;

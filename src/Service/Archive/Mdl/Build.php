@@ -8,6 +8,8 @@ class Build {
     private $offsets = [];
     private $offsetTable = [];
 
+    public $keepOrder = false;
+
     /**
      * @param $mdls
      * @return null|string

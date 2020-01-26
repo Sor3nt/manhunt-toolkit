@@ -16,6 +16,8 @@ class Mdl extends Archive {
     public $game = MHT::GAME_MANHUNT_2;
     public $platform = MHT::PLATFORM_AUTO;
 
+    public $keepOrder = false;
+
     /**
      * @param $pathFilename
      * @param $input
@@ -42,16 +44,22 @@ class Mdl extends Archive {
         $extractor = new Extract();
 
         $mdls = [];
+
         $finder->sort(function(SplFileInfo $a, SplFileInfo$b ){
 
-            $a = (int) explode('#', $a->getFileName())[0];
-            $b = (int) explode('#', $b->getFileName())[0];
-            return $a > $b;
+            if (strpos($a->getFileName(), '#') !== false){
+                $a = (int) explode('#', $a->getFileName())[0];
+                $b = (int) explode('#', $b->getFileName())[0];
+                return $a > $b;
+
+            }
+
+            return false;
         });
+
         foreach ($finder as $file) {
             $binary = new NBinary($file->getContents());
             $mdls[] = current($extractor->get($binary));
-//            echo ".";
         }
 
         return $mdls;
@@ -63,6 +71,7 @@ class Mdl extends Archive {
         $mdls = $this->prepareData($pathFilename);
 
         $build = new Build();
+        $build->keepOrder = $this->keepOrder;
 
         $binary = $build->build($mdls);
 
@@ -78,6 +87,8 @@ class Mdl extends Archive {
         }
 
         $extractor = new Extract();
+        $extractor->keepOrder = $this->keepOrder;
+
         $data = $extractor->get($binary);
         return $extractor->convertEntriesToSingleMdl( $data );
 

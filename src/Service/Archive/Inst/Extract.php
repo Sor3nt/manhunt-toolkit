@@ -42,7 +42,6 @@ class Extract {
         return $records;
     }
 
-
     private function parseRecord( NBinary $binary, $game ){
 
         /**
@@ -65,19 +64,19 @@ class Extract {
         $z = $binary->consume(4, NBinary::BINARY);
 
 
-        if ($x == "\x00\x00\x00\x80"){
+        if ($x == "\x00\x00\x00\x80" || $x == "\x80\x00\x00\x00"){
             $x = "-0";
         }else{
             $x = $binary->unpack($x, NBinary::FLOAT_32);
         }
 
-        if ($y == "\x00\x00\x00\x80"){
+        if ($y == "\x00\x00\x00\x80" || $y == "\x80\x00\x00\x00"){
             $y = "-0";
         }else{
             $y = $binary->unpack($y, NBinary::FLOAT_32);
         }
 
-        if ($z == "\x00\x00\x00\x80"){
+        if ($z == "\x00\x00\x00\x80" || $z == "\x80\x00\x00\x00"){
             $z = "-0";
         }else{
             $z = $binary->unpack($z, NBinary::FLOAT_32);
@@ -89,26 +88,26 @@ class Extract {
         $rotationW = $binary->consume(4, NBinary::BINARY);
 
 
-        if ($rotationX == "\x00\x00\x00\x80"){
+        if ($rotationX == "\x00\x00\x00\x80" || $rotationX == "\x80\x00\x00\x00"){
             $rotationX = "-0";
         }else{
             $rotationX = $binary->unpack($rotationX, NBinary::FLOAT_32);
         }
 
-        if ($rotationY == "\x00\x00\x00\x80"){
+        if ($rotationY == "\x00\x00\x00\x80" || $rotationY == "\x80\x00\x00\x00"){
             $rotationY = "-0";
         }else{
             $rotationY = $binary->unpack($rotationY, NBinary::FLOAT_32);
         }
 
 
-        if ($rotationZ == "\x00\x00\x00\x80"){
+        if ($rotationZ == "\x00\x00\x00\x80" || $rotationZ == "\x80\x00\x00\x00"){
             $rotationZ = "-0";
         }else{
             $rotationZ = $binary->unpack($rotationZ, NBinary::FLOAT_32);
         }
 
-        if ($rotationW == "\x00\x00\x00\x80"){
+        if ($rotationW == "\x00\x00\x00\x80" || $rotationW == "\x80\x00\x00\x00"){
             $rotationW = "-0";
         }else{
             $rotationW = $binary->unpack($rotationW, NBinary::FLOAT_32);

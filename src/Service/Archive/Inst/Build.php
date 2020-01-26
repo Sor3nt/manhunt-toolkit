@@ -51,19 +51,31 @@ class Build {
 //            $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
 
             if ($record['position']['x'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
             }
 
             if ($record['position']['z'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['position']['z'] * -1, NBinary::FLOAT_32 );
             }
 
             if ($record['position']['y'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
             }
@@ -73,25 +85,41 @@ class Build {
              * Append rotation
              */
             if ($record['rotation']['x'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['rotation']['x'], NBinary::FLOAT_32 );
             }
 
             if ($record['rotation']['y'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['rotation']['y'], NBinary::FLOAT_32 );
             }
 
             if ($record['rotation']['z'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['rotation']['z'], NBinary::FLOAT_32 );
             }
 
             if ($record['rotation']['w'] === "-0"){
-                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
             }else{
                 $entry->write( $record['rotation']['w'], NBinary::FLOAT_32 );
             }
