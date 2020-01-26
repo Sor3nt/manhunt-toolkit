@@ -1,0 +1,10 @@
+{
+    "require": {
+        "symfony/finder": "^4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "App"
+        }
+    }
+}
