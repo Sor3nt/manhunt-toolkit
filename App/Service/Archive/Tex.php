@@ -119,14 +119,34 @@ class Tex extends Archive {
             throw new \Exception('Format not implemented: ' . $ddsDecoded['format']);
         }
 
-        //Convert the RGBa values into a Bitmap
-        $bmpImage = $bmpHandler->encode(
-            $bmpRgba,
-            $ddsDecoded['width'],
-            $ddsDecoded['height']
-        );
 
-        return [ $texture['name'] . ".bmp" , $bmpImage];
+
+        $img = imagecreatetruecolor($ddsDecoded['width'], $ddsDecoded['height']);
+        imagesavealpha($img, true);
+
+        $i = 0;
+        for ($y = 0; $y < $ddsDecoded['height']; $y++) {
+            for ($x = 0; $x < $ddsDecoded['width']; $x++) {
+
+                $color =  imagecolorallocatealpha(
+                    $img,
+                    $bmpRgba[$i + 3],
+                    $bmpRgba[$i + 2],
+                    $bmpRgba[$i + 1],
+                    0
+
+                );
+                imagesetpixel($img,$x,$y,$color);
+                $i +=4;
+
+            }
+        }
+
+
+        ob_start();
+        imagepng($img, null, 9);
+
+        return [ $texture['name'] . ".png" , ob_get_clean()];
     }
 
     /**
