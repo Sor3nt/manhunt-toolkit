@@ -60,10 +60,28 @@ class Extract {
          * Find the position and rotation
          */
 
-        $x = $binary->consume(4, NBinary::FLOAT_32);
-        $y = $binary->consume(4, NBinary::FLOAT_32);
-        $z = $binary->consume(4, NBinary::FLOAT_32);
+        $x = $binary->consume(4, NBinary::BINARY);
+        $y = $binary->consume(4, NBinary::BINARY);
+        $z = $binary->consume(4, NBinary::BINARY);
 
+
+        if ($x == "\x00\x00\x00\x80"){
+            $x = "-0";
+        }else{
+            $x = $binary->unpack($x, NBinary::FLOAT_32);
+        }
+
+        if ($y == "\x00\x00\x00\x80"){
+            $y = "-0";
+        }else{
+            $y = $binary->unpack($y, NBinary::FLOAT_32);
+        }
+
+        if ($z == "\x00\x00\x00\x80"){
+            $z = "-0";
+        }else{
+            $z = $binary->unpack($z, NBinary::FLOAT_32);
+        }
 
         $rotationX = $binary->consume(4, NBinary::BINARY);
         $rotationY = $binary->consume(4, NBinary::BINARY);
@@ -228,15 +246,22 @@ class Extract {
             }
         };
 
+        $returnPos = [
+            'x' => $x,
+            'y' => $z
+        ];
+
+        if ($y !== "-0"){
+            $returnPos['z'] = $y * -1;
+        }else{
+            $returnPos['z'] = $y;
+        }
+
         return [
             'record' => $glgRecord,
             'internalName' => $internalName,
             'entityClass' => $entityClass,
-            'position' => [
-                'x' => $x,
-                'y' => $z,
-                'z' => $y * -1
-            ],
+            'position' => $returnPos,
             'rotation' => [
                 'x' => $rotationX,
                 'y' => $rotationY,

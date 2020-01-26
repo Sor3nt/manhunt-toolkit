@@ -46,9 +46,28 @@ class Build {
             /*
              * Append XYZ coordinates
              */
-            $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
-            $entry->write( $record['position']['z'] * -1, NBinary::FLOAT_32 );
-            $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
+//            $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
+//            $entry->write( $record['position']['z'] * -1, NBinary::FLOAT_32 );
+//            $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
+
+            if ($record['position']['x'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
+            }
+
+            if ($record['position']['z'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['position']['z'] * -1, NBinary::FLOAT_32 );
+            }
+
+            if ($record['position']['y'] === "-0"){
+                $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+            }else{
+                $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
+            }
+
 
             /*
              * Append rotation
