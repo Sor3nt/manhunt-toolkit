@@ -29,7 +29,7 @@ class NBinary{
     public function __construct( $binary = null ){
         if (is_null($binary)) return;
 
-        $fourCC = mb_substr($binary, 0, 4, '8bit');
+        $fourCC = \mb_substr($binary, 0, 4, '8bit');
 
         if ($fourCC === "\x5a\x32\x48\x4d" || $fourCC === "\x4d\x48\x32\x5a"){
             $binary = ZLib::uncompress( $binary );
@@ -40,7 +40,7 @@ class NBinary{
     }
 
     public function length(){
-        return mb_strlen($this->binary, '8bit');
+        return \mb_strlen($this->binary, '8bit');
     }
 
     public function remain(){

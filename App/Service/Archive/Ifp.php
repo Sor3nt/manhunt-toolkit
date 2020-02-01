@@ -704,10 +704,17 @@ class Ifp extends Archive
                 $singleChunkBinary->write((int)(($bone['startTime'] / 30) * 2048), NBinary::LITTLE_U_INT_16);
 
                 if ($bone['frameType'] == 3) {
-                    $singleChunkBinary->write($bone['direction'][0] * 2048, NBinary::INT_16);
-                    $singleChunkBinary->write($bone['direction'][1] * 2048, NBinary::INT_16);
-                    $singleChunkBinary->write($bone['direction'][2] * 2048, NBinary::INT_16);
-                    $singleChunkBinary->write($bone['direction'][3] * 2048, NBinary::INT_16);
+                    if (isset($bone['direction'])){
+                        $singleChunkBinary->write($bone['direction'][0] * 2048, NBinary::INT_16);
+                        $singleChunkBinary->write($bone['direction'][1] * 2048, NBinary::INT_16);
+                        $singleChunkBinary->write($bone['direction'][2] * 2048, NBinary::INT_16);
+                        $singleChunkBinary->write($bone['direction'][3] * 2048, NBinary::INT_16);
+                    }else{
+                        $singleChunkBinary->write($bone['unknown1'], NBinary::HEX);
+                        $singleChunkBinary->write($bone['unknown2'], NBinary::HEX);
+                        $singleChunkBinary->write($bone['unknown3'], NBinary::HEX);
+                        $singleChunkBinary->write($bone['unknown4'], NBinary::HEX);
+                    }
                 }
 
                 $onlyFirstTime = true;
@@ -835,7 +842,7 @@ class Ifp extends Archive
                     }else{
 
                         if ($bone['frames']['lastFrameTime'] > $fixedFrameTimeCount ){
-                            echo sprintf("\nAutocorrect %s, set duration to %s (instead of %s)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
+                            echo sprintf("Autocorrect %s, set duration to %s (instead of %s)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
                             $fixedFrameTimeCount = $bone['frames']['lastFrameTime'];
                         }
 

@@ -3,6 +3,7 @@ namespace App\Service\Archive\Glg;
 
 
 use App\MHT;
+use App\Service\Archive\Glg\EntityTypeData\Dummy;
 use App\Service\Archive\Glg\EntityTypeData\Ec;
 use App\Service\Archive\Glg\EntityTypeData\EcBasic;
 use App\Service\Archive\Glg\EntityTypeData\EcCollectable;
@@ -32,101 +33,105 @@ class EntityTypeData {
     /**
      * @param NBinary $binary
      * @return Ec[]
+     * @throws \Exception
      */
     public function parse( NBinary $binary){
 
         $records = $this->convertRecords($binary->binary);
 
         $types = [];
-        foreach ($records as $name => $record) {
+        foreach ($records as $index => $record) {
 
-            if (strtolower($name) == "dummy") continue;
-
+            $name = $record['name'];
+            
             $class = $this->getClass( $record );
 
             switch ($class){
+                case MHT::DUMMY:
+                    $type = new Dummy( $name, $record );
+                    break;
                 case MHT::EC_BASIC:
-                    $types[] = new EcBasic( $name, $record );
+                    $type = new EcBasic( $name, $record );
                     break;
 
                 case MHT::EC_ENTITYLIGHT:
-                    $types[] = new EcEntityLight( $name, $record );
+                    $type = new EcEntityLight( $name, $record );
                     break;
 
 
                 case MHT::EC_HUNTER:
-                    $types[] = new EcHunter( $name, $record );
+                    $type = new EcHunter( $name, $record );
                     break;
 
                 case MHT::EC_CROPS:
-                    $types[] = new EcCrops( $name, $record );
+                    $type = new EcCrops( $name, $record );
                     break;
 
 
                 case MHT::EC_PEDHEAD:
-                    $types[] = new EcPedHead( $name, $record );
+                    $type = new EcPedHead( $name, $record );
                     break;
 
                 case MHT::EC_SLIDEDOOR:
-                    $types[] = new EcSlideDoor( $name, $record );
+                    $type = new EcSlideDoor( $name, $record );
                     break;
 
 
                 case MHT::EC_DOOR:
-                    $types[] = new EcDoor( $name, $record );
+                    $type = new EcDoor( $name, $record );
                     break;
 
 
                 case MHT::EC_WEAPON:
-                    $types[] = new EcWeapon( $name, $record );
+                    $type = new EcWeapon( $name, $record );
                     break;
 
                 case MHT::EC_RESPONDER:
-                    $types[] = new EcResponder( $name, $record );
+                    $type = new EcResponder( $name, $record );
                     break;
 
                 case MHT::EC_ENTITYSOUND:
-                    $types[] = new EcEntitySound( $name, $record );
+                    $type = new EcEntitySound( $name, $record );
                     break;
 
                 case MHT::EC_SWITCH:
-                    $types[] = new EcSwitch( $name, $record );
+                    $type = new EcSwitch( $name, $record );
                     break;
 
                 case MHT::EC_COLLECTABLE:
-                    $types[] = new EcCollectable( $name, $record );
+                    $type = new EcCollectable( $name, $record );
                     break;
 
                 case MHT::EC_TRIGGER:
-                    $types[] = new EcTrigger( $name, $record );
+                    $type = new EcTrigger( $name, $record );
                     break;
 
                 case MHT::EC_SHOT:
-                    $types[] = new EcShot( $name, $record );
+                    $type = new EcShot( $name, $record );
                     break;
 
                 case MHT::EC_PLAYER:
-                    $types[] = new EcPlayer( $name, $record );
+                    $type = new EcPlayer( $name, $record );
                     break;
 
                 case MHT::EC_MOVER:
-                    $types[] = new EcMover( $name, $record );
+                    $type = new EcMover( $name, $record );
                     break;
 
                 case MHT::EC_USEABLE:
-                    $types[] = new EcUseable( $name, $record );
+                    $type = new EcUseable( $name, $record );
                     break;
 
                 case MHT::EC_ENVIRONMENTAL_EXECUTION:
-                    $types[] = new EcEnvironmentalExecution( $name, $record );
+                    $type = new EcEnvironmentalExecution( $name, $record );
                     break;
 
                 case MHT::EC_HELICOPTER:
-                    $types[] = new EcHelicopter( $name, $record );
+                    $type = new EcHelicopter( $name, $record );
                     break;
 
                 case '':
-                    $types[] = new EcOther( $name, $record );
+                    $type = new EcOther( $name, $record );
                     break;
 
 
@@ -138,7 +143,8 @@ class EntityTypeData {
                     break;
             }
 
-
+            $type->index = $index;
+            $types[] = $type;
         }
 
         return $types;
@@ -146,9 +152,11 @@ class EntityTypeData {
     }
 
     private function getClass( $record ){
-        foreach ($record as $entry) {
+        foreach ($record['options'] as $entry) {
             if ($entry['attr'] == "CLASS") return $entry['value'];
         }
+        
+        return "DUMMY";
     }
 
 
@@ -156,8 +164,17 @@ class EntityTypeData {
 
         $result = [];
 
-        preg_match_all('/RECORD\s(.*\s)*?END/mi', $text, $matches);
+
+        preg_match_all('/(\#FORCE\n)?RECORD\s(.*\s)*?END/mi', $text, $matches);
+
         foreach ($matches[0] as $match) {
+
+            $force = false;
+            if (substr($match, 0, 6) == "#FORCE"){
+                $force = true;
+            }
+
+
             preg_match('/RECORD\s(.*)((.*\s*)*)END/i', $match, $entry);
 
             $options = [];
@@ -187,7 +204,11 @@ class EntityTypeData {
             }
 
 
-            $result[ trim($entry[1]) ] = $options;
+            $result[] = [
+                'name' => trim($entry[1]),
+                'options' => $options,
+                'force' => $force
+            ];
 
         }
 

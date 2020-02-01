@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive\Mdl;
 
+use App\Service\Helper;
 use App\Service\NBinary;
 
 class Build {
@@ -29,7 +30,10 @@ class Build {
 
         $mdlEntryOffset = 32;
 
-        foreach ($mdls as $mdlIndex => $mdl) {
+        $mdlIndex = 0;
+        foreach ($mdls as $mdlIndexName => $mdl) {
+
+            $mdl['bone']['boneName'] = str_pad($binary->unpack($mdlIndexName, NBinary::HEX), 80, '0');
 
             if ($lastMdlOffsetPosition){
                 $this->offsets[$lastMdlOffsetPosition] = $binary->current;
@@ -45,6 +49,8 @@ class Build {
             if ($mdlIndex == count($mdls) - 1){
                 $lastMdlObjectEntryOffset = $binary->current;
             }
+
+            $mdlIndex++;
 
             //nextEntryIndexOffset, apply dummy value for now
             //point to the header FirstEntryIndexOffset
@@ -162,6 +168,7 @@ class Build {
                     }
                 }
             }
+
         }
 
         $binary->write($binary->getPadding("\x00", 16), NBinary::BINARY);

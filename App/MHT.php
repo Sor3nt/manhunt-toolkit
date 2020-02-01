@@ -14,6 +14,7 @@ class MHT{
     const PLATFORM_WII      = 'wii';
 
 
+    const DUMMY      = 'DUMMY';
     const EC_BASIC      = 'EC_BASIC';
     const EC_ENTITYLIGHT      = 'EC_ENTITYLIGHT';
     const EC_HUNTER      = 'EC_HUNTER';

@@ -49,6 +49,9 @@ switch (count($argv)){
 
 $folder = realpath($folder);
 $onlyUnzip = in_array('only-unzip', $options) !== false;
+if ($onlyUnzip == false){
+    $onlyUnzip = in_array('unzip-only', $options) !== false;
+}
 $flat = in_array('flat', $options) !== false;
 $noDuplicates = in_array('no-duplicates', $options) !== false;
 

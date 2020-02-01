@@ -50,7 +50,10 @@ class Bin extends Archive {
         //force to Manhunt 2 since Manhunt 1 did not use this
         $game = MHT::GAME_MANHUNT_2;
 
-        return (new Extract())->get($binary, $game, $platform);
+        $handler = new Extract();
+        $handler->keepOrder = $this->keepOrder;
+
+        return $handler->get($binary, $game, $platform);
     }
 
 

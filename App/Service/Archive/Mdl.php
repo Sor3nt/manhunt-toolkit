@@ -59,7 +59,7 @@ class Mdl extends Archive {
 
         foreach ($finder as $file) {
             $binary = new NBinary($file->getContents());
-            $mdls[] = current($extractor->get($binary));
+            $mdls[explode("#", $file->getFilenameWithoutExtension())[1]] = current($extractor->get($binary));
         }
 
         return $mdls;
