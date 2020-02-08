@@ -21,6 +21,16 @@ echo "\n";
 $game = MHT::GAME_MANHUNT_2;
 $platform = MHT::PLATFORM_PC;
 
+
+$options = [];
+foreach ($argv as $index => $argument) {
+    if (substr($argument, 0, 2) == "--"){
+        $options[] = substr($argument, 2);
+        unset($argv[$index]);
+    }
+}
+
+
 switch (count($argv)){
     case 2:
         list($script, $file) = $argv;
@@ -73,6 +83,23 @@ file_put_contents($outputTo, $result);
 
 echo sprintf("\nPacked to %s",  $outputTo) . "\n";
 
+if(in_array('update-toc', $options) !== false){
+
+
+    $tocFile = pathinfo($outputTo)['dirname'] . '/' . 'toc.txt';
+    if (!file_exists($tocFile)) $tocFile = pathinfo($outputTo)['dirname'] . '/../' . 'toc.txt';
+    if (!file_exists($tocFile)) die("Toc file not found.");
+
+    $search = str_replace('.', '\.', pathinfo($outputTo)['basename']);
+
+
+    $toc = file_get_contents($tocFile);
+    $toc = preg_replace('/(' . $search . ')\s+(\d+)/i', '$1 ' . filesize($outputTo) ,$toc);
+    file_put_contents($tocFile, $toc);
+    echo sprintf("\nToc.txt updated") . "\n";
+
+
+}
 
 function printHelp(){
 
