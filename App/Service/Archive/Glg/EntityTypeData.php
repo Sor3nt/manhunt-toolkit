@@ -191,8 +191,8 @@ class EntityTypeData {
 
 
                     $options[] = [
-                        'attr' => $attr,
-                        'value' => $value
+                        'attr' => trim($attr),
+                        'value' => trim($value)
                     ];
                 }else{
                     $options[] = [

@@ -22,7 +22,10 @@ class Glg extends Archive {
         if (!$input instanceof Finder) return false;
 
         foreach ($input as $file) {
-            if (strpos($file->getFilename(), ".glg") !== false) return true;
+            if (
+                strpos($file->getFilename(), ".glg") !== false ||
+                strpos($file->getFilename(), ".ini") !== false
+            ) return true;
         }
 
         return false;
