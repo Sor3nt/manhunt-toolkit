@@ -11,6 +11,8 @@ class Extract {
 
     private $game;
 
+    public $keepOrder = true;
+
     public function get( NBinary $binary, $game ){
         $this->binary = $binary;
 
@@ -34,20 +36,46 @@ class Extract {
 
         $results = [];
         foreach ($table1 as $entry) {
-            foreach ($entry['entries'] as &$positionIndex) {
-                $positionIndex = $positions[$positionIndex]['position'];
-            }
+
+//            foreach ($entry['entries'] as &$entry) {
+//                var_dump($entry);exit;
+//                foreach ($positions as $position) {
+//                    if ($position['linkId'] == $entry['linkId']){
+//                        $entry = $position['position'];
+//                        break;
+//                    }
+//                }
+//                $positionIndex = $positions[$positionIndex]['position'];
+//            }
 
             $results[ 'path_' . $entry['name'] . '.json' ] = $entry;
         }
 
         $positionsByIndex = [];
+
+        //resolve linkIds
+//        foreach ($positions as &$position) {
+//
+//            foreach ($position['entries'] as &$entry) {
+//                foreach ($positions as $_position) {
+//                    if ($_position['linkId'] == $entry['linkId']){
+//                        $entry['link'] = $_position['position'];
+//                        break;
+//                    }
+//                }
+//
+//            }
+//
+//
+//        }
+
+
         foreach ($positions as $position) {
             $positionsByIndex[$position['groupIndex']][] = $position;
         }
 
         foreach ($table2Names as $index => $name) {
-            $results[ 'area_' . $name . '.json' ] = $positionsByIndex[$index];
+            $results[ $index . '#area_' . $name . '.json' ] = $positionsByIndex[$index];
         }
 
         return $results;
@@ -72,6 +100,7 @@ class Extract {
         $results = [];
         for($i = 0; $i < $count; $i++){
             $results[] = [
+                'order' => $i,
                 'name' => $this->binary->getString(),
                 'entries' => $this->parseBlock()
             ];
@@ -90,23 +119,21 @@ class Extract {
 
         for($i = 0; $i < $entryCount; $i++){
 
-            $id = (int) $this->binary->getString();
+            $name = $this->binary->getString();
 
             $groupIndex = $this->binary->consume(4, NBinary::INT_32);
 
             $position = $this->binary->readXYZ();
 
-            $rotation = $this->binary->consume(4, NBinary::FLOAT_32);
+            $speed = $this->binary->consume(4, NBinary::FLOAT_32);
 
             $nodeName = $this->binary->getString();
 
 
             $unknown = $this->parseBlock();
-//            if(count($unknown)){
-//                die("unknown is not empty !!");
-//            }
 
 
+            $unknown2 = [];
             if ($this->game == MHT::GAME_MANHUNT_2){
                 $unknown2 = $this->parseBlock();
             }
@@ -121,25 +148,19 @@ class Extract {
                 if ($zero2 != 0) die("zero2 is not zero ...");
             }
 
+
             $entries[] = [
-                'id' => $id,
+                'id' => $name,
+                'linkId' => $i,
                 'groupIndex' => $groupIndex,
                 'nodeName' => $nodeName,
                 'position' => $position,
-                'speed' => $rotation,
+                'speed' => $speed,
                 'unknown' => $unknown,
-//                'unknown2' => $unknown2,
+                'unknown2' => $unknown2,
                 'entries' => $waypoints
             ];
         }
-
-        usort($entries, function ($a, $b){
-            return $a['id'] > $b['id'];
-        });
-//
-//        sort($this->tmp);
-//        var_dump($this->tmp);
-//        exit;
 
         return $entries;
     }
@@ -155,9 +176,6 @@ class Extract {
         return $result;
     }
 
-
-    private $tmp = [];
-
     private function parseWayPointBlock(){
 
         $count = $this->binary->consume(4, NBinary::INT_32);
@@ -166,22 +184,13 @@ class Extract {
         for($x = 0; $x < $count; $x++){
 
             $linkId1 = $this->binary->consume(4, NBinary::INT_32);
-//            $linkId1 = $this->binary->consume(2, NBinary::INT_16);
-//            $linkId2 = $this->binary->consume(2, NBinary::INT_16);
             $type = $this->binary->consume(4, NBinary::INT_32);
 
-//            $this->tmp[]  = $linkId;
             $entry = [
                 'linkId' => $linkId1,
-//                'linkId2' => $linkId2,
-                'type' => $type
+                'type' => $type,
+                'unknown' => $this->parseBlock()
             ];
-
-            $unknown3 = $this->parseBlock();
-
-            if (count($unknown3)){
-                $entry['unknown3'] = $unknown3;
-            }
 
             $result[] = $entry;
         }
