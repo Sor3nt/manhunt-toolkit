@@ -29,7 +29,7 @@ class Build {
         $this->generatePathBlock($files, $result);
         $this->generateNameBlock($files, $result);
 
-        return $result;
+        return $result->binary;
     }
 
     public function generateNameBlock(Finder $files, NBinary $result){
