@@ -60,15 +60,6 @@ class Build {
                 $entry->write( $record['position']['x'], NBinary::FLOAT_32 );
             }
 
-            if ($record['position']['z'] === "-0"){
-                if ($platform == MHT::PLATFORM_WII){
-                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
-                }else{
-                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
-                }
-            }else{
-                $entry->write( $record['position']['z'] * -1, NBinary::FLOAT_32 );
-            }
 
             if ($record['position']['y'] === "-0"){
                 if ($platform == MHT::PLATFORM_WII){
@@ -78,6 +69,17 @@ class Build {
                 }
             }else{
                 $entry->write( $record['position']['y'], NBinary::FLOAT_32 );
+            }
+
+
+            if ($record['position']['z'] === "-0"){
+                if ($platform == MHT::PLATFORM_WII){
+                    $entry->write( "\x80\x00\x00\x00", NBinary::BINARY );
+                }else{
+                    $entry->write( "\x00\x00\x00\x80", NBinary::BINARY );
+                }
+            }else{
+                $entry->write( $record['position']['z'], NBinary::FLOAT_32 );
             }
 
 

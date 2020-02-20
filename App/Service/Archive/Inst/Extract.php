@@ -247,14 +247,10 @@ class Extract {
 
         $returnPos = [
             'x' => $x,
-            'y' => $z
+            'y' => $y,
+            'z' => $z
         ];
 
-        if ($y !== "-0"){
-            $returnPos['z'] = $y * -1;
-        }else{
-            $returnPos['z'] = $y;
-        }
 
         return [
             'record' => $glgRecord,
