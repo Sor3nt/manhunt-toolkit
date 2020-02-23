@@ -6,6 +6,7 @@ use App\MHT;
 use App\Service\Archive\Glg\EntityTypeData\Dummy;
 use App\Service\Archive\Glg\EntityTypeData\Ec;
 use App\Service\Archive\Glg\EntityTypeData\EcBasic;
+use App\Service\Archive\Glg\EntityTypeData\EcCameraData;
 use App\Service\Archive\Glg\EntityTypeData\EcCollectable;
 use App\Service\Archive\Glg\EntityTypeData\EcCrops;
 use App\Service\Archive\Glg\EntityTypeData\EcDoor;
@@ -45,7 +46,6 @@ class EntityTypeData {
             $name = $record['name'];
             
             $class = $this->getClass( $record );
-
             switch ($class){
                 case MHT::DUMMY:
                     $type = new Dummy( $name, $record );
@@ -130,6 +130,10 @@ class EntityTypeData {
                     $type = new EcHelicopter( $name, $record );
                     break;
 
+                case MHT::EC_CAMERADATA:
+                    $type = new EcCameraData( $name, $record );
+                    break;
+
                 case '':
                     $type = new EcOther( $name, $record );
                     break;
@@ -184,11 +188,12 @@ class EntityTypeData {
                 $singleOption = trim($singleOption);
                 if (empty($singleOption)) continue;
 
-                if (strpos($singleOption, ' ') !== false){
+                if (substr($singleOption, 0, 1) == "#") continue;
 
-                    $attr = substr($singleOption, 0 ,strpos($singleOption, ' '));
-                    $value = substr($singleOption, strpos($singleOption, ' ') + 1);
+                if (strpos($singleOption, ' ') !== false || strpos($singleOption, "\t") !== false){
 
+                    preg_match('/(.*)\s+(.*)/i', $singleOption, $attrValue);
+                    list(, $attr, $value) = $attrValue;
 
                     $options[] = [
                         'attr' => trim($attr),

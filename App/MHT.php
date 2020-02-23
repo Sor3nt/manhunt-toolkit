@@ -33,6 +33,7 @@ class MHT{
     const EC_MOVER      = 'EC_MOVER';
     const EC_USEABLE      = 'EC_USEABLE';
     const EC_HELICOPTER      = 'EC_HELICOPTER';
+    const EC_CAMERADATA      = 'EC_CAMERADATA';
     const EC_ENVIRONMENTAL_EXECUTION      = 'EC_ENVIRONMENTAL_EXECUTION';
 
 }

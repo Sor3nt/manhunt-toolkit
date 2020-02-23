@@ -130,6 +130,8 @@ class ManhuntDefault
         'onhelireachedlookat' => '5e000000',
         'onhelispottedentity' => '5f000000',
         'onbeingshot' => '13000000',
+
+        //called when a hunter react to something but idle then. Did not apply to node reach idle
         'onhunteridle' => '18000000',
         'onhunterwalktoinvestigate' => '20000000',
         'onhunterruntoinvestigate' => '21000000',

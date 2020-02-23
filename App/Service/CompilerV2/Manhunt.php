@@ -919,6 +919,12 @@ class Manhunt extends ManhuntDefault
         'weather_thunderstorm' => [
             'offset' => '03000000'
         ],
+        'weather_unknown2' => [
+            'offset' => '02000000'
+        ],
+        'weather_unknown1' => [
+            'offset' => '02000000'
+        ],
 
         'ct_y_first_aid' => [
             'offset' => '0a000000'
