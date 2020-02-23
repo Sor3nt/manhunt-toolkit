@@ -6,18 +6,6 @@ use App\MHT;
 use App\Service\Resources;
 
 
-echo "\n";
-echo "███╗   ███╗██╗  ██╗████████╗    ██╗   ██╗   ██████╗    █████╗ \n";
-echo "████╗ ████║██║  ██║╚══██╔══╝    ██║   ██║  ██╔═████╗  ██╔══██╗\n";
-echo "██╔████╔██║███████║   ██║       ██║   ██║  ██║██╔██║  ╚██████║\n";
-echo "██║╚██╔╝██║██╔══██║   ██║       ╚██╗ ██╔╝  ████╔╝██║   ╚═══██║\n";
-echo "██║ ╚═╝ ██║██║  ██║   ██║        ╚████╔╝██╗╚██████╔╝██╗█████╔╝\n";
-echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ \n";
-echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
-echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
-echo "\n";
-
-
 $game = MHT::GAME_MANHUNT_2;
 $platform = MHT::PLATFORM_PC;
 
@@ -29,6 +17,21 @@ foreach ($argv as $index => $argument) {
         unset($argv[$index]);
     }
 }
+
+
+if(in_array('no-header', $options) === false) {
+    echo "\n";
+    echo "███╗   ███╗██╗  ██╗████████╗    ██╗   ██╗   ██████╗    █████╗ \n";
+    echo "████╗ ████║██║  ██║╚══██╔══╝    ██║   ██║  ██╔═████╗  ██╔══██╗\n";
+    echo "██╔████╔██║███████║   ██║       ██║   ██║  ██║██╔██║  ╚██████║\n";
+    echo "██║╚██╔╝██║██╔══██║   ██║       ╚██╗ ██╔╝  ████╔╝██║   ╚═══██║\n";
+    echo "██║ ╚═╝ ██║██║  ██║   ██║        ╚████╔╝██╗╚██████╔╝██╗█████╔╝\n";
+    echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ \n";
+    echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
+    echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
+    echo "\n";
+}
+
 
 
 switch (count($argv)){
@@ -74,8 +77,7 @@ $resource = $resources->load($file, $game, $platform);
 
 $handler = $resource->getHandler();
 
-echo sprintf('Identify as %s ', $handler->name) . "\n";
-echo sprintf('Processing %s ', $file);
+echo sprintf('Identify %s as %s ', $file, $handler->name);
 
 $result = $handler->pack( $resource->getInput(), $game, $platform );
 
