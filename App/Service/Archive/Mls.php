@@ -68,9 +68,9 @@ class Mls extends Archive {
 
             if (count($validFile) == 0) continue;
             list($index, $filename) = explode("#", $file->getFilename());
-            $index = (int) $index;
 
             list($scriptName, $section) = explode(".", $filename);
+            $index = $index.$scriptName;
 
             if (!isset($scripts[$index])) $scripts[$index] = [ "NAME" => [ 'name' => $scriptName] ];
 
@@ -84,8 +84,10 @@ class Mls extends Archive {
 
         }
 
+        $firstScript = current($scripts);
+
         //for the supported files, we need to compile the src and generate the needed sections
-        $levelScriptCompiler = new Compiler($scripts[0]['SRCE'], $game, $platform);
+        $levelScriptCompiler = new Compiler($firstScript['SRCE'], $game, $platform);
         $levelScriptCompiled = $levelScriptCompiler->compile();
 
 //        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game, $platform);

@@ -22,7 +22,7 @@ class Build {
 
         $levelScriptRecords = false;
 
-        foreach ($scripts as $index => $records) {
+        foreach ($scripts as $records) {
 
             if ($records['ENTT']['type'] == "levelscript"){
                 $levelScriptRecords = $records;
@@ -34,7 +34,7 @@ class Build {
             throw new \Exception('Levelscript not found ?!');
         }
 
-        foreach ($scripts as $index => $records) {
+        foreach ($scripts as $records) {
 
             $scriptCode = $this->buildSCPT( $records );
             $scriptCode .= $this->buildNAME( $records );
