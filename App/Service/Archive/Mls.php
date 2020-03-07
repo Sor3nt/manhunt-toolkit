@@ -62,6 +62,8 @@ class Mls extends Archive {
 
         $scripts = [];
 
+        $finder->sortByName();
+
         foreach ($finder as $file) {
 
             preg_match('/code|data|dataraw|name|dmem|trce|entt|line|nameremain|scpt|smem|stab|srce/', $file->getExtension(), $validFile);
