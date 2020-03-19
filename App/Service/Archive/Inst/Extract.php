@@ -2,6 +2,7 @@
 namespace App\Service\Archive\Inst;
 
 use App\MHT;
+use App\Service\Helper;
 use App\Service\NBinary;
 
 class Extract {
@@ -146,35 +147,140 @@ class Extract {
             }
 
 
+            $availableParams = [
+                "HP%_" => "0028d4bc",
+                "Weapon" => "cff66cea",
+                "Weapon2" => "cec40a5c",
+                "AI Type" => "3844a80c",
+                "Drop_Ammo" => "20d5b47e",
+                "Closest %" => "280139a2",
+                "Light Type" => "5da669ba",
+                "Cone Angle" => "0c15620c",
+                "Attenuation Radius" => "b7ea39b4",
+                "Lensflare Intensity" => "01b65783",
+                "Light Effect Type" => "b0d906a7",
+                "Effect Duration" => "fa4f8f73",
+                "Flicker/Strobe On Time in ms" => "463390a1",
+                "Flicker/Strobe Off Time in ms" => "3bcec87f",
+                "Fade In Time in ms" => "edc90a4d",
+                "Fade Out Time" => "72994537",
+                "Type" => "002f9502",
+                "Cone Angle" => "0c15620c",
+                "Radius" => "c405c7e8",
+                "Intensity" => "1c4d3507",
+                "Type" => "002f9502",
+                "AI_No_Anim" => "1dfb30aa",
+                "AI_Piss_Here" => "786ce72b",
+                "AI_Smoke_Here" => "103d8d6b",
+                "AI_Vending_Machine" => "dec340a8",
+                "AI_Check_Crawlspace" => "3735da2b",
+                "ASYLUM_DOOR" => "1856b00e",
+                "ASYLUM_PEER_ANIM" => "ab05968a",
+                "ASYLUM_SPEAK_ANIM" => "d0039412",
+                "ASYLUM_MONITOR_ANIM" => "a3ee4b46",
+                "WATCHDOG_SMOKE_ANIM" => "9dea4ff3",
+                "WATCHDOG_CHECK_CAM_ANIM" => "e72e4882",
+                "WATCHDOG_WINDOW_ANIM" => "6768896c",
+                "LEGION_I_KNOW_ANIM" => "0e635168",
+                "LEGION_KICK_PROP_ANIM" => "9e97fb43",
+                "LEGION_TALK_PROP_ANIM" => "f16ffe4d",
+                "FREAKS_PISS_ANIM" => "5a64657e",
+                "REAKS_VENDING_ANIM" => "80d6d7a4",
+                "FREAKS_VOMIT_ANIM" => "d738d98e",
+                "GENERIC_TALK_ANIM" => "4b7ef84c",
+                "Stream Id" => "97d0ea19",
+                "Bank Name" => "2a6c8dbd",
+                "Volume" => "ce5c5678",
+                "Radius" => "c405c7e8",
+                "Trigger Probability" => "5827d3f5",
+                "Execution Type" => "c2912616",
+                "LOD" => "00014dbf",
+                "LODNear" => "978c0905",
+                "Max distance" => "05762dd1",
+                "Min distance" => "07f22c8f",
+                "MaxOpenAngleIn" => "e048e996",
+                "MaxOpenAngleOut" => "e9663717",
+                "Colour: Red" => "f65225e9",
+                "Colour: Green" => "d2b364ff",
+                "Colour: Blue" => "c08e3d36",
+                "Lensflare Size" => "1afd6ad7",
+                "Size" => "002ec5db",
+                "Trigger Timeout" => "a13e5b7b",
+                "Occlusion Ignorance" => "2f820985",
+                "Detection Radius in Metres" => "56bbcd4e",
+                "Detection Height in Metres" => "fc4a0dff",
+                "HunterStart X" => "59b9cc7c",
+                "HunterStart Y" => "59b9cc7d",
+                "HunterStart Z" => "59b9cc7e",
+                "HunterLook X" => "8d37c9c3",
+                "HunterLook Z" => "8d37c9c5",
+                "PlayerStart X" => "6aa37173",
+                "PlayerStart Y" => "6aa37174",
+                "PlayerStart Z" => "6aa37175",
+                "PlayerLook X" => "76752bda",
+                "PlayerLook Z" => "76752bdc",
+                "Not Climbable" => "d9b0bdec",
+                "Use Default AI" => "af09137c",
+                "Line of sight" => "13ac7e3c",
+                "Force to zone" => "802ac3ae",
+                "Locked" => "b703a532",
+                "Lockable" => "867f89bd",
+                "Is Real Light" => "04b34658",
+                "Switch On By Default" => "238de64f",
+                "Affects Objects" => "7624ff66",
+                "Affects Map" => "6e9304fa",
+                "Creates Character Shadows" => "b56e06cd",
+                "Has Lensflare" => "fc8e6578",
+                "Light Fog" => "fb1451f4",
+                "Has Searchlight Cone" => "fd7f33ef",
+                "Switch Off After Duration" => "a2577825",
+                "Fade Continously" => "e4e190d7",
+                "Entity Light" => "f791cfb5",
+                "Scene Light" => "bd0c0b46",
+                "Shadows" => "a1d3fdf9",
+                "Static" => "c7b14a28",
+                "Flickering" => "e81a8fde",
+                "Lens Flare" => "d9a0adbc",
+                "Light Fog" => "fb1451f4",
+                "Is Streamed" => "862b6551",
+                "AdjacentDoor" => "e9c7a64e",
+                "Name in Samplebank" => "d97f84f6",
+                "Execution Object" => "9e25c38b",
+                "Object Animation" => "b0d5e537",
+                "React_to_Light" => "6bd8ebe8",
+            ];
+
             if ($game == MHT::GAME_MANHUNT){
                 while($binary->remain() > 0) {
 
-                    $value = $binary->consume(4, NBinary::INT_32);
+                    $parameterId = $binary->consume(4, NBinary::HEX);
+
+                    $parameterId = Helper::toBigEndian($parameterId);
+
+                    foreach ($availableParams as $name => $hex) {
+                        if ($parameterId == $hex){
+                            $parameterId = $name;
+                            break;
+                        }
+                    }
+
 
                     $params[] = [
-                        'value' => $value
+                        'value' => $parameterId
                     ];
                 }
             }else{
 
                 $parameterId = $binary->consume(4, NBinary::HEX);
 
+                $parameterId = Helper::toBigEndian($parameterId);
 
-                if($parameterId == "8bc3259e") $parameterId = "envExecName";
-                if($parameterId == "37e5d5b0") $parameterId = "envExecEntityAnim";
-                if($parameterId == "ea6cf6cf") $parameterId = "weapon";
-                if($parameterId == "4ecdbb56") $parameterId = "envExecTriggerRadius";
-                if($parameterId == "7eccb959") $parameterId = "envExecHunterStartY";
-                if($parameterId == "7cccb959") $parameterId = "envExecHunterStartX";
-                if($parameterId == "c3c9378d") $parameterId = "envExecHunterStartRotation";
-                if($parameterId == "7571a36a") $parameterId = "envExecPlayerStartY";
-                if($parameterId == "7371a36a") $parameterId = "envExecPlayerStartX";
-                if($parameterId == "da2b7576") $parameterId = "envExecPlayerStartRotation";
-                if($parameterId == "dc2b7576") $parameterId = "envExecPlayerStartRotation2";
-                if($parameterId == "ff0d4afc") $parameterId = "envExecType";
-                if($parameterId == "7471a36a") $parameterId = "envExecUnknown";
-                if($parameterId == "162691c2") $parameterId = "envExecId";
-                if($parameterId == "7dccb959") $parameterId = "envExecUnknown3";
+                foreach ($availableParams as $name => $hex) {
+                    if ($parameterId == $hex){
+                        $parameterId = $name;
+                        break;
+                    }
+                }
 
 
                 $type = $binary->consume(4, NBinary::STRING);
@@ -191,7 +297,7 @@ class Extract {
                     case 'int':
                         $value = $binary->consume(4, NBinary::INT_32);
 
-                        if($parameterId == "weapon"){
+                        if($parameterId == "Weapon" || $parameterId == "Weapon2"){
 
                             switch($value){
                                 case 0: $value = "pipe"; break;
@@ -245,11 +351,30 @@ class Extract {
             }
         };
 
-        $returnPos = [
-            'x' => $x,
-            'y' => $y,
-            'z' => $z
-        ];
+
+        if($game == MHT::GAME_MANHUNT_2){
+
+            $returnPos = [
+                'x' => $x,
+                'y' => $z
+            ];
+
+            if ($y !== "-0"){
+                $returnPos['z'] = $y * -1;
+            }else{
+                $returnPos['z'] = $y;
+            }
+
+        }else{
+
+            $returnPos = [
+                'x' => $x,
+                'y' => $y,
+                'z' => $z
+            ];
+
+
+        }
 
 
         return [
