@@ -47,7 +47,7 @@ class Extract {
         $glgRecord = $binary->getString();
         $internalName = $binary->getString();
 
-        $positiion = $binary->readXYZ();
+        $position = $binary->readXYZ();
         $rotation = $binary->readXYZW();
 
         $entityClass = $binary->getString();
@@ -55,8 +55,8 @@ class Extract {
         $params = [];
 
         $game = MHT::GAME_AUTO;
-        while($binary->remain() > 0) {
 
+        if ($binary->remain()){
             // Guess the game
             if ($game == MHT::GAME_AUTO){
                 if ($binary->remain() >= 12){
@@ -70,17 +70,38 @@ class Extract {
                     $game = MHT::GAME_MANHUNT;
                 }
             }
+        }
 
+//        var_dump($game);exit;
+
+        $paramIndex = 0;
+
+        while($binary->remain() > 0) {
 
             if ($game == MHT::GAME_MANHUNT){
-                while($binary->remain() > 0) {
 
-                    $value = $binary->consume(4, NBinary::INT_32);
+//                $value = $binary->consume(4, NBinary::INT_32);
+//
+//                $params[] = [
+//                    'value' => $value
+//                ];
+//                continue;
+
+
+                $paramBase = Inst::$mh1Map[$entityClass];
+
+                foreach ($paramBase as $name => $type) {
+                    if ($binary->remain() == 0) break;
+                    $value = $binary->consume(4, $type);
 
                     $params[] = [
+                        'parameterId' => $name,
+                        'type' => strtolower(substr($type, 0, 3)),
                         'value' => $value
                     ];
+
                 }
+
             }else{
 
                 $parameter = $binary->consume(4, NBinary::HEX);
@@ -95,9 +116,8 @@ class Extract {
                     case 'flo':
                         $value = $binary->consume(4, NBinary::FLOAT_32);
                         break;
+
                     case 'boo':
-                        $value = $binary->consume(4, NBinary::INT_32);
-                        break;
                     case 'int':
                         $value = $binary->consume(4, NBinary::INT_32);
 
@@ -107,14 +127,8 @@ class Extract {
 
                         break;
                     case 'str':
-
-
                         $value = $binary->getString();
-
                         break;
-                    default:
-                        var_dump($internalName, $glgRecord);
-                        die("type unknown " . $type);
                 }
 
                 $params[] = [
@@ -123,16 +137,18 @@ class Extract {
                     'value' => $value
                 ];
             }
-        };
 
+            $paramIndex++;
+        };
 
         return [
             'record' => $glgRecord,
             'internalName' => $internalName,
             'entityClass' => $entityClass,
-            'position' => $positiion,
+            'position' => $position,
             'rotation' => $rotation,
-            'parameters' => $params
+            'parameters' => $params,
+            'game' => $game
         ];
     }
 

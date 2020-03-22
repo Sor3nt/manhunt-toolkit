@@ -247,7 +247,7 @@ class NBinary{
         foreach (['x', 'y', 'z'] as $axis) {
             $value = $this->consume($len, NBinary::BINARY);
 
-            if ($value === "\x00\x00\x00\x80"){
+            if ($value === "\x00\x00\x00\x80" || $value === "\x80\x00\x00\x00"){
                 $data[] = "-0";
             }else{
                 $data[] = $this->unpack($value, $type);
@@ -263,7 +263,7 @@ class NBinary{
         foreach (['x', 'y', 'z', 'w'] as $axis) {
             $value = $this->consume($len, NBinary::BINARY);
 
-            if ($value === "\x00\x00\x00\x80"){
+            if ($value === "\x00\x00\x00\x80" || $value === "\x80\x00\x00\x00"){
                 $data[] = "-0";
             }else{
                 $data[] = $this->unpack($value, $type);
@@ -275,7 +275,16 @@ class NBinary{
 
     public function writeCoordinates($xyz, $type = NBinary::FLOAT_32){
         foreach ($xyz as $value) {
-            if ($value === "-0") $this->write("\x00\x00\x00\x80", NBinary::BINARY);
+
+            if ($value === "-0"){
+                if ($this->numericBigEndian){
+                    $this->write("\x80\x00\x00\x00", NBinary::BINARY);
+
+                }else{
+                    $this->write("\x00\x00\x00\x80", NBinary::BINARY);
+
+                }
+            }
             else $this->write($value, $type);
         }
 

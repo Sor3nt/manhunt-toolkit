@@ -56,12 +56,13 @@ class Build {
                 $entry->write($entry->getPadding("\x70"), NBinary::BINARY);
             }
 
+
             /*
              * Append parameters
              */
             foreach ($record['parameters'] as $parameter) {
 
-                if (isset($parameter['parameterId'])){
+                if ($record['game'] == MHT::GAME_MANHUNT_2 ){
 
                     $parameterName = $parameter['parameterId'];
                     $parameter['parameterId'] = Inst::getOptionHashByName($parameter['parameterId']);
@@ -80,6 +81,8 @@ class Build {
                         case 'boo':
                         case 'int':
                             if($parameterName == "Weapon" || $parameterName == "Weapon2"){
+//                                if (empty($parameter['value'])) $parameter['value'] = "pipe";
+                                var_dump($parameter['value'] . " -- " . $record['internalName']);
                                 $parameter['value'] = Inst::$weapons[strtolower($parameter['value'])];
                             }
 
@@ -94,7 +97,10 @@ class Build {
                     }
 
                 }else{
-                    $entry->write($parameter['value'], NBinary::INT_32);
+
+                    $type = Inst::$mh1Map[$record['entityClass']][$parameter['parameterId']];
+
+                    $entry->write($parameter['value'], $type);
                 }
 
             }
