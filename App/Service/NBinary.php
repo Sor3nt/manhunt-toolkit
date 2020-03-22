@@ -243,78 +243,60 @@ class NBinary{
     }
 
     public function readXYZ( $len = 4, $type = NBinary::FLOAT_32){
+        $data = [];
+        foreach (['x', 'y', 'z'] as $axis) {
+            $value = $this->consume($len, NBinary::BINARY);
 
-        $x = $this->consume($len, NBinary::BINARY);
-        $y = $this->consume($len, NBinary::BINARY);
-        $z = $this->consume($len, NBinary::BINARY);
-
-        if ($x === "\x00\x00\x00\x80"){
-            $x = "-0";
-        }else{
-            $x = $this->unpack($x, $type);
+            if ($value === "\x00\x00\x00\x80"){
+                $data[] = "-0";
+            }else{
+                $data[] = $this->unpack($value, $type);
+            }
         }
 
-        if ($y === "\x00\x00\x00\x80"){
-            $y = "-0";
-        }else{
-            $y = $this->unpack($y, $type);
-        }
-
-
-        if ($z === "\x00\x00\x00\x80"){
-            $z = "-0";
-        }else{
-            $z = $this->unpack($z, $type);
-        }
-
-        return [$x, $y, $z];
+        return $data;
     }
 
     public function readXYZW( $len = 4, $type = NBinary::FLOAT_32){
 
-        $x = $this->consume($len, NBinary::BINARY);
-        $y = $this->consume($len, NBinary::BINARY);
-        $z = $this->consume($len, NBinary::BINARY);
-        $w = $this->consume($len, NBinary::BINARY);
+        $data = [];
+        foreach (['x', 'y', 'z', 'w'] as $axis) {
+            $value = $this->consume($len, NBinary::BINARY);
 
-        if ($x === "\x00\x00\x00\x80"){
-            $x = "-0";
-        }else{
-            $x = $this->unpack($x, $type);
+            if ($value === "\x00\x00\x00\x80"){
+                $data[] = "-0";
+            }else{
+                $data[] = $this->unpack($value, $type);
+            }
         }
 
-        if ($y === "\x00\x00\x00\x80"){
-            $y = "-0";
-        }else{
-            $y = $this->unpack($y, $type);
-        }
-
-
-        if ($z === "\x00\x00\x00\x80"){
-            $z = "-0";
-        }else{
-            $z = $this->unpack($z, $type);
-        }
-
-        if ($w === "\x00\x00\x00\x80"){
-            $w = "-0";
-        }else{
-            $w = $this->unpack($w, $type);
-        }
-
-        return [$x, $y, $z, $w];
+        return $data;
     }
 
+    public function writeCoordinates($xyz, $type = NBinary::FLOAT_32){
+        foreach ($xyz as $value) {
+            if ($value === "-0") $this->write("\x00\x00\x00\x80", NBinary::BINARY);
+            else $this->write($value, $type);
+        }
+
+    }
+
+    /**
+     * @param $xyz
+     * @param string $type
+     * @deprecated use writeCoordinates
+     */
     public function writeXYZ($xyz, $type = NBinary::FLOAT_32){
+        $this->writeCoordinates($xyz, $type);
+    }
 
-        if ($xyz[0] === "-0") $this->write("\x00\x00\x00\x80", NBinary::BINARY);
-        else $this->write($xyz[0], $type);
-
-        if ($xyz[1] === "-0") $this->write("\x00\x00\x00\x80", NBinary::BINARY);
-        else $this->write($xyz[1], $type);
-
-        if ($xyz[2] === "-0") $this->write("\x00\x00\x00\x80", NBinary::BINARY);
-        else $this->write($xyz[2], $type);
+    /**
+     * @param $xyz
+     * @param string $type
+     * @deprecated use writeCoordinates
+     */
+    public function writeXYZW($xyz, $type = NBinary::FLOAT_32){
+        $this->writeCoordinates($xyz, $type);
     }
 
     public function consume( $bytes, $type, $skip = 0){
