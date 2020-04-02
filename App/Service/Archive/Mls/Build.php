@@ -127,10 +127,12 @@ class Build {
                     // we need the size from the levelscript
                     foreach ($levelScriptRecords['STAB'] as $levelScriptStab) {
                         if ($levelScriptStab['name'] == $item["name"]){
+                            if ($levelScriptStab["size"] !== "ffffffff"){
+                                $size = $levelScriptStab["size"] + ($levelScriptStab["size"] % 4);
+                                $stringArraySizes += $size;
+                                break;
+                            }
 
-                            $size = $levelScriptStab["size"] + ($levelScriptStab["size"] % 4);
-                            $stringArraySizes += $size;
-                            break;
                         }
                     }
                 }
