@@ -3,6 +3,8 @@ namespace App\Service\Archive\Inst;
 
 use App\MHT;
 use App\Service\Archive\Inst;
+use App\Service\CompilerV2\Manhunt2;
+use App\Service\Helper;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -65,7 +67,9 @@ class Build {
                 if ($record['game'] == MHT::GAME_MANHUNT_2 ){
 
                     $parameterName = $parameter['parameterId'];
-                    $parameter['parameterId'] = Inst::getOptionHashByName($parameter['parameterId']);
+                    $parameter['parameterId'] = Manhunt2::getHashByName($parameter['parameterId']);
+
+                    if ($binary->numericBigEndian) $parameter['parameterId'] = Helper::toBigEndian($parameter['parameterId']);
 
                     $entry->write($parameter['parameterId'], NBinary::HEX);
 
@@ -80,10 +84,10 @@ class Build {
 
                         case 'boo':
                         case 'int':
-                            if($parameterName == "Weapon" || $parameterName == "Weapon2"){
-//                                if (empty($parameter['value'])) $parameter['value'] = "pipe";
-                                var_dump($parameter['value'] . " -- " . $record['internalName']);
-                                $parameter['value'] = Inst::$weapons[strtolower($parameter['value'])];
+                            if($parameterName == "Weapon") {
+                                $parameter['value'] = Inst::$weapon[strtolower($parameter['value'])];
+                            }else if($parameterName == "Weapon2"){
+                                $parameter['value'] = Inst::$weapon2[strtolower($parameter['value'])];
                             }
 
                             $entry->write($parameter['value'], NBinary::INT_32);

@@ -8,6 +8,10 @@ use App\Service\Archive\Bsp;
 use App\Service\Archive\Col;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
+use App\Service\Archive\Dir;
+use App\Service\Archive\Fev;
+use App\Service\Archive\Fsb3;
+use App\Service\Archive\Fsb4;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
 use App\Service\Archive\Gxt;
@@ -16,6 +20,7 @@ use App\Service\Archive\Inst;
 use App\Service\Archive\Mdl;
 use App\Service\Archive\Mls;
 use App\Service\Archive\Pak;
+use App\Service\Archive\Tag;
 use App\Service\Archive\Tex;
 use App\Service\Archive\TxdPlaystation;
 use App\Service\Archive\TxdWii;
@@ -28,8 +33,8 @@ class Resources
 
     /** @var Archive[]  */
     private $archives = [
-        Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class,
-        Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class,
+        Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class, Fev::class, Dir::class, Tag::class,
+        Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class
     ];
 

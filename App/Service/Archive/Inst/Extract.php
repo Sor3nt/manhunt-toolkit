@@ -3,6 +3,8 @@ namespace App\Service\Archive\Inst;
 
 use App\MHT;
 use App\Service\Archive\Inst;
+use App\Service\CompilerV2\Manhunt2;
+use App\Service\Helper;
 use App\Service\NBinary;
 
 class Extract {
@@ -17,6 +19,10 @@ class Extract {
         }
 
         $placements = $binary->consume(4, NBinary::INT_32);
+
+        if ($placements === 0){
+            return [];
+        }
 
         $sizesLength = $placements * 4;
 
@@ -33,7 +39,6 @@ class Extract {
             $block = new NBinary( $binary->consume($size, NBinary::BINARY) );
 
             $block->numericBigEndian = $binary->numericBigEndian;
-
             $record = $this->parseRecord( $block );
 
             $records[($i + 1) . "#" .$record['internalName'] . '.json'] = $record;
@@ -72,8 +77,6 @@ class Extract {
             }
         }
 
-//        var_dump($game);exit;
-
         $paramIndex = 0;
 
         while($binary->remain() > 0) {
@@ -105,8 +108,12 @@ class Extract {
             }else{
 
                 $parameter = $binary->consume(4, NBinary::HEX);
+                if ($binary->numericBigEndian) $parameter = Helper::toBigEndian($parameter);
 
-                $parameter = Inst::getOptionNameByHash($parameter);
+                $parameterName = Manhunt2::getNameByHash($parameter);
+                if ($parameterName == false){
+                    $parameterName = $parameter;
+                }
 
                 $type = $binary->consume(4, NBinary::STRING);
 
@@ -120,9 +127,13 @@ class Extract {
                     case 'boo':
                     case 'int':
                         $value = $binary->consume(4, NBinary::INT_32);
+//                        $value = $binary->consume(1, NBinary::INT_8);
+//                        $value2 = $binary->consume(3, NBinary::HEX);
 
-                        if($parameter == "Weapon" || $parameter == "Weapon2"){
+                        if($parameterName == "Weapon") {
                             $value = Inst::getWeaponNameById($value);
+                        }else if($parameterName == "Weapon2"){
+                            $value = Inst::getWeapon2NameById($value);
                         }
 
                         break;
@@ -132,7 +143,7 @@ class Extract {
                 }
 
                 $params[] = [
-                    'parameterId' => $parameter,
+                    'parameterId' => $parameterName,
                     'type' => $type,
                     'value' => $value
                 ];

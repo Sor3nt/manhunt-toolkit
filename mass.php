@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit','-1');
 
 require_once 'vendor/autoload.php';
 
@@ -204,22 +205,30 @@ foreach ($finder as $file) {
                     $extension = '.' . $originalExtension;
                 }
 
-                if (is_array($data)){
-                    $data = \json_encode($data, JSON_PRETTY_PRINT);
+                try{
+
+                    if (is_array($data)){
+                        $data = \json_encode($data, JSON_PRETTY_PRINT);
+                    }
+
+
+
+                    if ($flat) {
+                        $md5 = md5($data);
+                        if (!isset($md5ByFile[$md5])) $md5ByFile[$md5] = [];
+                        var_dump($pathInfo['basename'] . $extension);
+                        $md5ByFile[$md5][] = $outputDir ;
+                        file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
+                    }else{
+                        file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
+
+                    }
+                }catch(JsonException $e){
+
+//                    var_dump($e->getMessage());
+
                 }
 
-
-
-                if ($flat) {
-                    $md5 = md5($data);
-                    if (!isset($md5ByFile[$md5])) $md5ByFile[$md5] = [];
-                    var_dump($pathInfo['basename'] . $extension);
-                    $md5ByFile[$md5][] = $outputDir ;
-                    file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
-                }else{
-                    file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
-
-                }
             }
 
         }

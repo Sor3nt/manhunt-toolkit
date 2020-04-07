@@ -1,7 +1,10 @@
 {
     "require": {
         "symfony/finder": "^4.4",
-        "phpunit/phpunit": "^7.5"
+      "ext-gd": "*",
+      "ext-json": "*",
+      "ext-readline": "*",
+      "ext-mbstring": "*"
     },
     "autoload": {
         "psr-4": {
@@ -9,5 +12,6 @@
         }
     },
     "require-dev": {
+        "phpunit/phpunit": "^7"
     }
 }
