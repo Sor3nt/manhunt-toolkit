@@ -21,6 +21,7 @@ class Dff extends Archive {
 
 
         if (!$input instanceof Finder) return false;
+        if($input->files()->count() == 0) return false;
 
         foreach ($input as $file) {
             $extension = strtolower($file->getExtension());

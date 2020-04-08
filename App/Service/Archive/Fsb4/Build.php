@@ -20,7 +20,7 @@ class Build {
         foreach ($pathFilename as $file) {
 
             if ($headerIni === false){
-                $settingName = str_replace($file->getFilename(), "fsb4.json", $file->getRealPath());
+                $settingName = str_replace($file->getFilename(), "settings/fsb4.json", $file->getRealPath());
                 $headerIni = \json_decode(file_get_contents($settingName), true);
             }
 
@@ -106,7 +106,9 @@ class Build {
 
     public function convertWavToFSBSample(SplFileInfo $file ){
 
-        $ini = \json_decode(file_get_contents($file->getRealPath() . '.json'), true);
+
+        $iniPath = $file->getPath() . '/settings/' . $file->getFilename() . '.json';
+        $ini = \json_decode(file_get_contents($iniPath), true);
         $ini['name'] = $file->getFilename();
 
 

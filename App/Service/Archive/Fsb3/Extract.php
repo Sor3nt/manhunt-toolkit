@@ -38,12 +38,18 @@ class Extract {
         }
 
         if ($binary->remain() !== 0){
-            die("Export failed, we have remained data!");
+            echo("NOTE: Export not completed, we have remained data!");
         }
 
-        foreach ($waves as $index => $wav) {
-            $result[$index . '.wav'] = $wav;
-            $fsbIni['orders'][] = $index . '.wav';
+        if ($header['numSamples'] == 1){
+            $result[$globalSampleHeader['name']] = $waves[0];
+            $fsbIni['orders'][] = $globalSampleHeader['name'];
+        }else{
+            foreach ($waves as $index => $wav) {
+                $result[$index . '.wav'] = $wav;
+                $fsbIni['orders'][] = $index . '.wav';
+            }
+
         }
 
         unset($fsbIni['numSamples']);

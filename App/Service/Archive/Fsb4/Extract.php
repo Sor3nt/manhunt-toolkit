@@ -27,7 +27,7 @@ class Extract {
             unset($fsbSampleIni['lengthCompressedBytes']);
             unset($fsbSampleIni['lengthSamples']);
             unset($fsbSampleIni['size']);
-            $result[$sampleHeader['name']. '.json'] = \json_encode($fsbSampleIni, JSON_PRETTY_PRINT);
+            $result['settings/' . $sampleHeader['name']. '.json'] = \json_encode($fsbSampleIni, JSON_PRETTY_PRINT);
         }
 
         foreach ($sampleHeaders as $index => &$sampleHeader) {
@@ -48,7 +48,7 @@ class Extract {
         unset($fsbIni['numSamples']);
         unset($fsbIni['shdrSize']);
         unset($fsbIni['dataSize']);
-        $result['fsb4.json'] = \json_encode($fsbIni, JSON_PRETTY_PRINT);
+        $result['settings/fsb4.json'] = \json_encode($fsbIni, JSON_PRETTY_PRINT);
 
         return $result;
     }

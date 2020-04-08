@@ -253,6 +253,8 @@ function printHelp(){
     echo "*.MLS - Levelscript\n";
     echo "*.PAK - Manhunt Data Container\t\t\t";
     echo "*.TEX / TXD - Textures\n";
+    echo "*.FSB - Audio Container\t\t\t\t";
+    echo "*.DIR - Audio Names\n";
     echo "\n";
 
     echo "Usage: php unpack.php <filenamw> [game] [platform]\n";
