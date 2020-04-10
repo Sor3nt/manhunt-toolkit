@@ -66,8 +66,6 @@ class Wav extends Archive {
 
         if ($isAdPcm){
 
-            echo "Converting ADPCM to PCM...\n";
-
             $binary->current = 48; // before FACT data size
 
             $ini['uncompressedSize'] = $binary->consume(4, NBinary::INT_32);

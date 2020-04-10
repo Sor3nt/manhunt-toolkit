@@ -127,9 +127,8 @@ if ($handler instanceof App\Service\Archive\Fsb3){
         $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
         $results['fsb3.json']['orders'] = [];
         foreach ($results as $filename => $data) {
-            if ($filename == "fsb3.json"){
-                continue;
-            }
+            if ($filename == "fsb3.json") continue;
+
             $index = (int) str_replace('.wav', '', $filename);
 
             list($hashName, $originalFile) = $dirResult[$index];
@@ -170,6 +169,29 @@ if ($handler instanceof App\Service\Archive\Fsb3){
     }
 }
 
+
+if (
+    (
+        in_array('to-pcm', $options) !== false ||
+        in_array('convert', $options) !== false ||
+        in_array('pcm', $options) !== false
+
+    ) &&
+    ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4)
+){
+
+    echo "Converting all ADPCM to PCM...\n";
+
+    $wavHandler = new \App\Service\Archive\Wav();
+
+    foreach ($results as $filename => &$result) {
+        if (substr($filename, -3) !== "wav") continue;
+        echo "Convert " . $filename . "... ";
+        $result = $wavHandler->unpack(new \App\Service\NBinary($result), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
+        echo "OK\n";
+    }
+
+}
 
 if ($handler instanceof Mls){
     $results = $handler->getValidatedResults( $results, $game, $platform );
@@ -256,8 +278,18 @@ function printHelp(){
     echo "*.FSB - Audio Container\t\t\t\t";
     echo "*.DIR - Audio Names\n";
     echo "\n";
+    echo "Options for every Packet Format\n";
+    echo "\t--unzip\t\t\tJust deflate a given archive\t\t\t\tAlias [--unzip-only, --only-unzip]";
+    echo "\n";
+    echo "\n";
 
-    echo "Usage: php unpack.php <filenamw> [game] [platform]\n";
+    echo "Options per Format\n";
+    echo "*.FSB\n";
+    echo "\t--convert\t\tConvert the Audios to PCM instead to ADPCM\t\tAlias [--pcm, --to-pcm]";
+    echo "\n";
+    echo "\n";
+
+    echo "Usage: php unpack.php [options] <filenamw> [game] [platform]\n";
     echo "Example: php unpack.php A01_Escape_Asylum.mls mh2 pc\n";
 
 }
