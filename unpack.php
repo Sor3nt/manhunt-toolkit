@@ -110,6 +110,53 @@ if (isset($handler->keepOrder)){
 $results = $handler->unpack( $resource->getInput(), $game, $platform );
 
 //Try to resolve FSB3 audio names
+if ($handler instanceof App\Service\Archive\Fsb4){
+
+    $fevFile = str_replace('.fsb', '.fev', $file);
+
+    if (file_exists($fevFile)){
+
+        $fevResource = $resources->load($fevFile, $game, $platform);
+        $fevHandler = $fevResource->getHandler();
+        $fevResult = $fevHandler->unpack( $fevResource->getInput(), $game, $platform );
+
+
+        foreach ($fevResult['relations']['blocks'] as $block) {
+
+            $folderName = $block['name'];
+
+            foreach ($block['relations'] as $file) {
+
+                $filenameParts = explode("/", $file['wav']);
+                $innerFolder = $filenameParts[ count($filenameParts) - 2];
+                $filename = $filenameParts[ count($filenameParts) - 1];
+
+                foreach ($results as $fsbFilename => $result) {
+                    if (substr($fsbFilename, -3) !== "wav") continue;
+
+                    if (strtolower($filename) == strtolower($fsbFilename)){
+                        if (count($block['relations']) == 1){
+                            $newFilename = $innerFolder . '/' . $filename;
+
+                        }else{
+                            $newFilename = $innerFolder . '/' .  $folderName . '/' . $filename;
+
+                        }
+
+                        $results[$newFilename] = $result;
+                        unset($results[$fsbFilename]);
+                    }
+
+
+                }
+
+            }
+
+        }
+    }else{
+        echo "\nWARNING: unable to locate " . $fevFile . "! Store without folders structure!\n";
+    }
+}
 if ($handler instanceof App\Service\Archive\Fsb3){
 
     $dirFile = str_replace('.fsb', '.dir', $file);
@@ -278,14 +325,14 @@ function printHelp(){
     echo "*.FSB - Audio Container\t\t\t\t";
     echo "*.DIR - Audio Names\n";
     echo "\n";
-    echo "Options for every Packet Format\n";
-    echo "\t--unzip\t\t\tJust deflate a given archive\t\t\t\tAlias [--unzip-only, --only-unzip]";
+    echo "Options for every zipped file\n";
+    echo "\t--unzip [--unzip-only, --only-unzip]\tJust deflate a given archive";
     echo "\n";
     echo "\n";
 
     echo "Options per Format\n";
     echo "*.FSB\n";
-    echo "\t--convert\t\tConvert the Audios to PCM instead to ADPCM\t\tAlias [--pcm, --to-pcm]";
+    echo "\t--convert [--pcm, --to-pcm]\t\tConvert the Audios to PCM instead to ADPCM";
     echo "\n";
     echo "\n";
 

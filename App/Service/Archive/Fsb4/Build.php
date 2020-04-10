@@ -11,6 +11,12 @@ use function json_decode;
 
 class Build {
 
+    private function getSettingsFolder(SplFileInfo $file){
+
+        return substr($file->getPath(), 0, strpos($file->getPath(), '#fsb') + 4) . '/settings';
+
+    }
+
     public function build( Finder $pathFilename, $platform ){
 
         $samples = [];
@@ -18,11 +24,11 @@ class Build {
 
         $headerIni = false;
 
+
         foreach ($pathFilename as $file) {
 
             if ($headerIni === false){
-                $settingName = str_replace($file->getFilename(), "settings/fsb4.json", $file->getRealPath());
-                $headerIni = \json_decode(file_get_contents($settingName), true);
+                $headerIni = \json_decode(file_get_contents($this->getSettingsFolder($file) . '/fsb4.json'), true);
             }
 
 
@@ -107,8 +113,7 @@ class Build {
 
     public function convertWavToFSBSample(SplFileInfo $file ){
 
-
-        $iniPath = $file->getPath() . '/settings/' . $file->getFilename() . '.json';
+        $iniPath = $this->getSettingsFolder($file) . '/' . $file->getFilename() . '.json';
         $ini = \json_decode(file_get_contents($iniPath), true);
         $ini['name'] = $file->getFilename();
 

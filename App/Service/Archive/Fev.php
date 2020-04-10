@@ -387,15 +387,18 @@ class Fev extends Archive {
      * @return array
      */
     public function unpack(NBinary $binary, $game, $platform){
-echo "\n";
+
         $header = $this->parseHeader($binary);
 
         $folders = $this->parseFolders($binary);
         $events = $this->parseEvents($binary);
         $relations = $this->parseNameRelationTable($binary);
 
-        var_dump($events);
-        var_dump($relations);exit;
+        return [
+            'folders' => $folders,
+            'events' => $events,
+            'relations' => $relations
+        ];
     }
 
     /**
