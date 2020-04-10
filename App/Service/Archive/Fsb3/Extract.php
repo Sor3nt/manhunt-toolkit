@@ -3,6 +3,7 @@ namespace App\Service\Archive\Fsb3;
 
 
 
+use App\Service\Archive\Wav;
 use App\Service\NBinary;
 
 class Extract {
@@ -34,7 +35,8 @@ class Extract {
             $basic['lengthCompressedBytes'] = $sampleHeaderBasic[$index]['lengthCompressedBytes'];
             $basic['lengthSamples'] = $sampleHeaderBasic[$index]['lengthSamples'];
             $basic['data'] = $file;
-            $waves[] = $this->convertFSBToWav($basic);
+//            $waves[] = $this->generatePCM($basic);
+            $waves[] = $this->generateADPCM($basic);
         }
 
         if ($binary->remain() !== 0){
@@ -146,6 +148,22 @@ class Extract {
             'unknown2' => $unknown2
         ];
     }
+
+
+    public function generatePCM($data)
+    {
+        $wav = new Wav();
+        $pcm = $wav->decode(new NBinary($data['data']), $data['numChannels']);
+        return $wav->generatePCM($pcm, $data['numChannels'], $data['defFreq']);
+    }
+
+    public function generateADPCM($data)
+    {
+
+        $wav = new Wav();
+        return $wav->generateADPCM(new NBinary($data['data']), $data['lengthSamples'], $data['numChannels'], $data['defFreq']);
+    }
+
 
     public function convertFSBToWav( $data ){
 

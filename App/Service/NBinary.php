@@ -13,6 +13,7 @@ class NBinary{
     const BIG_U_INT_16 = 'BIG_U_INT_16';
     const BIG_U_INT_8 = 'BIG_U_INT_8';
     const INT_32 = 'INT_32';
+    const LONG_32 = 'LONG_32';
     const FLOAT_32 = 'FLOAT_32';
     const BIG_FLOAT_32 = 'BIG_FLOAT_32';
     const STRING = 'STRING';
@@ -117,6 +118,7 @@ class NBinary{
         $this->hex = $before . bin2hex($add) . $after;
         $this->binary = hex2bin($this->hex);
     }
+
 
     public function write($bytes, $type){
         $add = $this->pack($bytes, $type);

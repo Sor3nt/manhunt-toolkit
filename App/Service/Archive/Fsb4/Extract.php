@@ -1,13 +1,17 @@
 <?php
+
 namespace App\Service\Archive\Fsb4;
 
 
-
+use App\Service\Archive\Wav;
+use App\Service\AudioCodec\ImaAdPcma;
 use App\Service\NBinary;
 
-class Extract {
+class Extract
+{
 
-    public function get( NBinary $binary ){
+    public function get(NBinary $binary)
+    {
         $result = [];
 
         $header = $this->getHeader($binary);
@@ -17,7 +21,7 @@ class Extract {
 
         $fsbIni['orders'] = [];
 
-        for($i = 0; $i < $header['numSamples']; $i++){
+        for ($i = 0; $i < $header['numSamples']; $i++) {
 
             $sampleHeader = $this->getSampleHeader($binary);
             $sampleHeaders[] = $sampleHeader;
@@ -27,17 +31,17 @@ class Extract {
             unset($fsbSampleIni['lengthCompressedBytes']);
             unset($fsbSampleIni['lengthSamples']);
             unset($fsbSampleIni['size']);
-            $result['settings/' . $sampleHeader['name']. '.json'] = \json_encode($fsbSampleIni, JSON_PRETTY_PRINT);
+            $result['settings/' . $sampleHeader['name'] . '.json'] = \json_encode($fsbSampleIni, JSON_PRETTY_PRINT);
         }
 
         foreach ($sampleHeaders as $index => &$sampleHeader) {
             $sampleHeader['data'] = $binary->consume($sampleHeader['lengthCompressedBytes'], NBinary::BINARY);
-            $sampleHeader['data'] = $this->convertFSBToWav($sampleHeader);
+            $sampleHeader['data'] = $this->generateADPCM($sampleHeader);
 
             $fsbIni['orders'][] = $sampleHeader['name'];
         }
 
-        if ($binary->remain() !== 0){
+        if ($binary->remain() !== 0) {
             die("Export failed, we have remained data!");
         }
 
@@ -53,7 +57,8 @@ class Extract {
         return $result;
     }
 
-    private function getHeader(NBinary $header ){
+    private function getHeader(NBinary $header)
+    {
 
         $header->consume(4, NBinary::STRING);
 
@@ -70,7 +75,7 @@ class Extract {
         $extVersion = $header->consume(4, NBinary::LITTLE_U_INT_32);
 
         $mode = $header->consume(4, NBinary::LITTLE_U_INT_32);
-        if ($mode != 0){
+        if ($mode != 0) {
             die("mode is not 0 !!!");
         }
 
@@ -89,7 +94,8 @@ class Extract {
         return $result;
     }
 
-    public function getSampleHeader(NBinary $binary){
+    public function getSampleHeader(NBinary $binary)
+    {
         $size = $binary->consume(2, NBinary::INT_16);
         $name = $binary->consume(30, NBinary::STRING);
 
@@ -135,40 +141,15 @@ class Extract {
         ];
     }
 
-    public function convertFSBToWav( $data ){
 
-//        $adPCMData = $data['data'];
-//        unset($data['data']);
-        //store the FSB date into a WAV NOTE chunk
-//        $data['index'] = $index;
-//        $data['fsbVersion'] = $header['fsbVersion'];
-//        $note = \json_encode($data);
+    public function generateADPCM($data)
+    {
 
-        $wav = new NBinary();
-        $wav->write('RIFF', NBinary::STRING);
-        $wav->write($data['lengthCompressedBytes'] + 52, NBinary::INT_32);
-        $wav->write('WAVE', NBinary::STRING);
+        $wav = new Wav();
+        return $wav->generateADPCM(new NBinary($data['data']), $data['lengthSamples'], $data['numChannels'], $data['defFreq']);
 
-        $wav->write('fmt ', NBinary::STRING);
-        $wav->write(20, NBinary::INT_32); // sectionsize
-        $wav->write(0x69, NBinary::INT_16); // waveformat
-        $wav->write($data['numChannels'], NBinary::INT_16);
-        $wav->write($data['defFreq'], NBinary::INT_32); // samplespersecond
-        $wav->write($data['defFreq'], NBinary::INT_32); // bytespersecond
-        $wav->write(0x24 * $data['numChannels'], NBinary::INT_16); // blockalign
-        $wav->write(4, NBinary::INT_16); // bitspersample
-        $wav->write(2, NBinary::INT_16); // bit1
-        $wav->write(0x64, NBinary::INT_16); // bit2
-
-        $wav->write('fact', NBinary::STRING);
-        $wav->write(4, NBinary::INT_32); // factsize
-        $wav->write($data['lengthSamples'], NBinary::INT_32); // uncompressedsize
-
-        $wav->write('data', NBinary::STRING); // dataheader
-        $wav->write($data['lengthCompressedBytes'], NBinary::INT_32); // datasize
-        $wav->write($data['data'], NBinary::BINARY);
-
-        return $wav->binary;
     }
+
+
 
 }

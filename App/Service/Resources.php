@@ -24,6 +24,7 @@ use App\Service\Archive\Tag;
 use App\Service\Archive\Tex;
 use App\Service\Archive\TxdPlaystation;
 use App\Service\Archive\TxdWii;
+use App\Service\Archive\Wav;
 use Symfony\Component\Finder\Finder;
 
 class Resources
@@ -34,7 +35,7 @@ class Resources
     /** @var Archive[]  */
     private $archives = [
         Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class, Fev::class, Dir::class, Tag::class,
-        Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class,
+        Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class
     ];
 

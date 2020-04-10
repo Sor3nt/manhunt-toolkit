@@ -415,41 +415,141 @@ class Dir extends Archive
         [
             "level" => "A18_Manor",
             "names" => [
-                "DAN19",
-                "LEO3",
-                "LEO7",
-                "DAN8",
-                "DAN9",
-                "DAN10",
-                "DAN11",
-                "DAN12",
-                "DAN13",
-                "DAN14",
-                "DAN17",
-                "DAN18",
-                "FAIL",
-                "OUTRO",
-                "COM1_A",
-                "COM2_A",
-                "EXC1_A",
-                "HU01",
-                "WHYTE",
-                "DAN1",
-                "FR01",
-                "DAN2",
-                "LEO1",
-                "DAN3",
-                "LEO2",
-                "DAN5",
-                "LEO4",
-                "DAN6",
-                "LEO5",
-                "DAN7",
-                "LEO6",
-                "DAN4",
-                "INTRO",
-                "HLL1_A",
-                "SCREAM"
+                'AV1DS1',
+                'BEAT',
+                'BEAT2',
+                'BLOCK',
+                'BOD1',
+                'BOD2',
+                'BVIC1',
+                'DAN10',
+                'DAN11',
+                'DAN13',
+                'DAN5',
+                'DAN7',
+                'DANR1',
+                'DYINGGUY',
+                'ESCAP',
+                'ET1',
+                'ET2',
+                'ET3',
+                'ET4',
+                'FBEDS',
+                'FRGHT',
+                'HIDE',
+                'HORN',
+                'HUNTR',
+                'KILL',
+                'LEAVE',
+                'LEO10',
+                'LEO16',
+                'LEO18',
+                'LEO20',
+                'LEO21',
+                'LEO22',
+                'LEO23',
+                'LEO24',
+                'LEO31',
+                'LEO32',
+                'LEO33',
+                'LEO34',
+                'LEO35',
+                'LEO36',
+                'LEO37',
+                'LEO40',
+                'LEO41',
+                'LEO44',
+                'LEO45',
+                'LEO50',
+                'LEO53',
+                'LEO8',
+                'LEO9',
+                'LGHTN1',
+                'LGHTN2',
+                'LGHTN3',
+                'LIFT1',
+                'LN1',
+                'LN2',
+                'LN3',
+                'LOONIES',
+                'LSE2',
+                'LUPINO',
+                'MELE3',
+                'ML11',
+                'ML12',
+                'MLT1',
+                'MLT2',
+                'MLT3',
+                'MLT9',
+                'MONGS',
+                'MONGS2',
+                'NATTACK5',
+                'NEWLIFT',
+                'NEWLIFT2',
+                'NOTYT',
+                'NUA3',
+                'NUA4',
+                'NUE1',
+                'NURSELIFT',
+                'PHONE1',
+                'PICK2',
+                'PUSH',
+                'RADIO1',
+                'RADIO2',
+                'RADIO3',
+                'RIOT1',
+                'RUNGUY',
+                'SFAIL1',
+                'SFAIL2',
+                'SFAIL3',
+                'SRE2',
+                'STEAM',
+                'SUICIDE',
+                'SYR1',
+                'TELE',
+                'TRUCK',
+                'WACKO3',
+                'WT2',
+                'WT3',
+                'WT7',
+                'WT8',
+                'WT9',
+                'YARD',
+                'DAN19',
+                'LEO3',
+                'LEO7',
+                'DAN8',
+                'DAN9',
+                'DAN10',
+                'DAN11',
+                'DAN12',
+                'DAN13',
+                'DAN14',
+                'DAN17',
+                'DAN18',
+                'FAIL',
+                'OUTRO',
+                'COM1_A',
+                'COM2_A',
+                'EXC1_A',
+                'HU01',
+                'WHYTE',
+                'DAN1',
+                'FR01',
+                'DAN2',
+                'LEO1',
+                'DAN3',
+                'LEO2',
+                'DAN5',
+                'LEO4',
+                'DAN6',
+                'LEO5',
+                'DAN7',
+                'LEO6',
+                'DAN4',
+                'INTRO',
+                'HLL1_A',
+                'SCREAM'
             ]
         ],
         [
@@ -856,20 +956,6 @@ class Dir extends Archive
         ]
     ];
 
-    public $test = [
-
-        [
-
-            'level' => 'test',
-            'names' => [
-                'STONE',
-                'WOOD',
-
-            ]
-        ]
-
-    ];
-
     /**
      * Taken from 0x525D60
      */
@@ -1001,8 +1087,68 @@ class Dir extends Archive
         "dildo(CT)",
         "katana(CT)",
         "hacksaw(CT)",
-        "GolfBall_(CT)"
+        "GolfBall_(CT)",
+
+
+
+        //env
+
+        'TV2_BIG_TV',
+        'HARVESTER',
+        'LIGHT_FEATURE_OR_PROP',
+        'ROAD_WORKS_BARRIER',
+        'BROKEN_WINDOW',
+        'DOOR',
+        'TELEPHONE',
+        'WOODEN_BLANK',
+        'WOODEN_CHAIR',
+        'FIRE_EXTINGUISHER',
+        'GASCAN',
+        'VENDING',
+        'SINK',
+        'PICKET',
+        'OIL_BARREL',
+        'MEAT_HOOK',
+        'MAN_HOLE',
+        'DUMPSTER',
+        'BATH',
+        'AGENTPRIME',
+        'MANGLER',
+        'TOMBSTONE',
+        'FUSE_BOX',
+        'TOILET',
+        'FENCE_POLE',
+        'TV',
+        'WINDOW',
+        'HANGMAN_POLE',
+        'DENTIST_CHAIR',
+        'AZTEC_ALTAR',
+        'GUILLOTINE',
+        'IRON_MAIDEN',
+        'LIQUID_NITROGEN',
+        'MANHOLE',
+
+
+        //bruteforce results
+        'jack',
+        'fist',
+        'propf',
+        'chair',
+        'knife',
+
+        //exe string results
+        'baseball',
+        'syringei',
+        'meathook',
+        'oilbarre',
+        'fireext',
+        'flashlig',
+        'metal_ho',
+        'acid_bot',
+
+
     ];
+
 
     public $crc32Hashes = [];
 
@@ -1044,11 +1190,17 @@ class Dir extends Archive
             }
         }
 
+
         foreach ($this->weapon as $weapon) {
             $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($weapon))] = [$weapon, $weapon];
 
             //prepare name by given rule at sub_525D60 (Thx to MAJEST1C_R3)
-            $name = substr($weapon, 0, strrpos($weapon, '('));
+            if (strpos($weapon, "(") !== false){
+                $name = substr($weapon, 0, strrpos($weapon, '('));
+            }else{
+                $name = $weapon;
+            }
+
             if (substr($name, -1) == "_") $name = substr($name, 0, -1);
             $name = substr($name, 0, 8);
 
@@ -1060,6 +1212,13 @@ class Dir extends Archive
 
             }
         }
+
+//
+//        $hashName = "MUSIC/FRONTEND/MAIN.SND";
+//        $hashName = strtolower($hashName);
+//        var_dump( Helper::fromIntToHex(crc32($hashName)));exit;
+//        $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $hashName];
+
     }
 
     /**
@@ -1074,6 +1233,8 @@ class Dir extends Archive
         $entries = $binary->length() / 4;
 
         $result = [];
+
+        $unknown = [];
         for ($i = 0; $i < $entries; $i++) {
             $crc32 = $binary->consume(4, NBinary::HEX);
 
@@ -1081,11 +1242,62 @@ class Dir extends Archive
                 $result[] = $this->crc32Hashes['crc_' . $crc32];
             } else {
                 $result[] = $crc32;
+                $unknown[] = $crc32;
             }
         }
 
+//        echo sprintf("\nNote: %s٪ Solved.\n", number_format((count($result) - count($unknown)) / ($entries) * 100, 2));
+
+////
+//        $handle = fopen("4-8char.txt", "r");
+//        while (($weapon = fgets($handle)) !== false) {
+//                // process the line read.
+//
+//            $name = trim($weapon);
+//            //prepare name by given rule at sub_525D60 (Thx to MAJEST1C_R3)
+////            if (strpos($weapon, "(") !== false){
+////                $name = substr($weapon, 0, strrpos($weapon, '('));
+////            }else{
+////                $name = $weapon;
+////            }
+////
+////            if (substr($name, -1) == "_") $name = substr($name, 0, -1);
+////            $name = substr($name, 0, 8);
+//
+//            $hashName = sprintf("executions\%s\pc_normal1.wav", $name);
+//            $hashName = strtolower($hashName);
+//
+//            $crc = Helper::fromIntToHex(crc32($hashName));
+//
+//            if (in_array($crc, $unknown) !== false){
+//                var_dump($hashName);
+//            }
+//
+//        }
+
+//        $this->bruteCrc($unknown);
+
+
 
         return $result;
+
+    }
+
+
+    private function bruteCrc($hashes){
+        for($i = "knife"; 8 > strlen($i); $i++){
+
+
+            $hashName = sprintf("executions\%s\pc_normal1.wav", $i);
+            $hashName = strtolower($hashName);
+
+            $crc = Helper::fromIntToHex(crc32($hashName));
+
+            if (in_array($crc, $hashes) !== false){
+                var_dump($hashName);
+            }
+        }
+
 
     }
 

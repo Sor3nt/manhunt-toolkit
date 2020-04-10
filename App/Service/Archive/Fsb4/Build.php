@@ -2,6 +2,7 @@
 namespace App\Service\Archive\Fsb4;
 
 use App\MHT;
+use App\Service\AudioCodec\ImaAdPcma;
 use App\Service\Helper;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
@@ -113,19 +114,94 @@ class Build {
 
 
         $sample = new NBinary($file->getContents());
-        $sample->current = 48; // before FACT data size
+        $sample->current = 40; // before PCMA Flag
 
-        $ini['uncompressedSize'] = $sample->consume(4, NBinary::INT_32);
-//var_dump($uncompressedsize);exit;
+        $isFact = $sample->consume(4, NBinary::STRING);
+        $isAdPcm = false;
+        if ($isFact === "fact") $isAdPcm = true;
 
-        $sample->current = 56; // before DATA size
-        $dataSize = $sample->consume(4, NBinary::INT_32);
-        $data = $sample->consume($dataSize, NBinary::BINARY);
-        $data = new NBinary($data);
+        if ($isAdPcm){
+            $sample->current = 48; // before FACT data size
 
+            $ini['uncompressedSize'] = $sample->consume(4, NBinary::INT_32);
+
+            $sample->current = 56; // before DATA size
+            $dataSize = $sample->consume(4, NBinary::INT_32);
+            $data = $sample->consume($dataSize, NBinary::BINARY);
+
+            $data = new NBinary($data);
+        }else{
+            $sample->current = 40; // before DATA size
+            $dataSize = $sample->consume(4, NBinary::INT_32);
+            $data = $sample->consume($dataSize, NBinary::BINARY);
+
+            $data = new NBinary($data);
+
+            $ini['uncompressedSize'] = $data->length();
+            $data = $this->encode($data, $ini['numChannels']);
+        }
 
         $sampleHeader = $this->createSampleHeader($data, $ini);
 
         return [$sampleHeader, $data, $ini];
+    }
+
+
+    public function encode(NBinary $pcm, $num_channels)
+    {
+
+        //c style calc, round bracket wrapped values
+        $calcA = (int) (2 * $num_channels);
+        $num_samples_per_channel = (int) ($pcm->length() / $calcA);
+
+        $tmpAdPcm = [];
+        $adPcmIndex = 0;
+
+        $adPcm = new NBinary();
+
+        $Converters = [];
+        for ($i = 0; $i < $num_channels; $i++) {
+            $converter = new ImaAdPcma();
+            $converter->stepIndex = 0;
+            $Converters[] = $converter;
+        }
+
+        for ($i = 0; $i < $num_samples_per_channel; $i += 65) {
+
+            for ($c = 0; $c < $num_channels; $c++) {
+                $Converters[$c]->predictedValue = $pcm->consume(2, NBinary::INT_16);
+
+                $adPcm->write($Converters[$c]->predictedValue, NBinary::INT_16);
+                $adPcm->write($Converters[$c]->stepIndex, NBinary::INT_8);
+
+
+                $adPcm->write(0, NBinary::INT_8);
+
+                $adPcmIndex += 2;
+            }
+
+            // 4 bytes per channel
+            for ($j = 0; $j < 8; $j++) {
+                for ($c = 0; $c < $num_channels; $c++) {
+
+                    $tmp = [];
+                    for ($k = 0; $k < 8; $k++) {
+
+                        $pcm->current = $adPcmIndex + ($k * $num_channels + $c);
+                        $tmp[] = $pcm->consume(2, NBinary::INT_16);
+                        $adPcmIndex++;
+
+                    }
+
+                    $Converters[$c]->encode($adPcm, 0, $tmp, 8 * 2);
+
+                }
+
+                $adPcmIndex += 8 * $num_channels;
+            }
+
+        }
+
+        return $adPcm;
     }
 }
