@@ -2,6 +2,7 @@
 
 namespace App\Service\Archive;
 
+use App\MHT;
 use App\Service\CompilerV2\Manhunt2;
 use App\Service\Helper;
 use App\Service\NBinary;
@@ -1192,7 +1193,10 @@ class Dir extends Archive
             if (substr($name, -1) == "_") $name = substr($name, 0, -1);
             $name = substr($name, 0, 8);
 
-            foreach (['pc_jump', 'pc_normal1', 'pc_normal2', 'pc_normal3'] as $section) {
+            foreach ([
+                'wii_jump', 'wii_normal1', 'wii_normal2', 'wii_normal3',
+                'pc_jump', 'pc_normal1', 'pc_normal2', 'pc_normal3'
+             ] as $section) {
                 $hashName = sprintf("executions\%s\%s.wav", $name, $section);
                 $hashName = strtolower($hashName);
 
@@ -1218,6 +1222,10 @@ class Dir extends Archive
         $unknown = [];
         for ($i = 0; $i < $entries; $i++) {
             $crc32 = $binary->consume(4, NBinary::HEX);
+
+            if ($platform == MHT::PLATFORM_WII){
+                $crc32 = Helper::toBigEndian($crc32);
+            }
 
             if (isset($this->crc32Hashes['crc_' . $crc32])) {
                 $result[] = $this->crc32Hashes['crc_' . $crc32];
