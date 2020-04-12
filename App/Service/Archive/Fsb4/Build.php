@@ -61,7 +61,7 @@ class Build {
         }
         $header->write($dataLen, NBinary::INT_32);
 
-        $header->write($headerIni['extVersion'], NBinary::LITTLE_U_INT_32);
+        $header->write($headerIni['version'], NBinary::LITTLE_U_INT_32);
 
         //mode
         $header->write(0, NBinary::LITTLE_U_INT_32);
@@ -106,7 +106,7 @@ class Build {
         $sample->write($settings['maxDistance'], NBinary::FLOAT_32);
         $sample->write($settings['varVol'], NBinary::INT_32);
         $sample->write($settings['varFreq'], NBinary::LITTLE_U_INT_16);
-        $sample->write($settings['varpan'], NBinary::INT_16);
+        $sample->write($settings['varPan'], NBinary::INT_16);
 
         return $sample;
     }
@@ -116,7 +116,6 @@ class Build {
         $iniPath = $this->getSettingsFolder($file) . '/' . $file->getFilename() . '.json';
         $ini = \json_decode(file_get_contents($iniPath), true);
         $ini['name'] = $file->getFilename();
-
 
         $sample = new NBinary($file->getContents());
         $sample->current = 40; // before PCMA Flag

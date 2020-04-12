@@ -1145,8 +1145,6 @@ class Dir extends Archive
         'flashlig',
         'metal_ho',
         'acid_bot',
-
-
     ];
 
 
@@ -1172,15 +1170,6 @@ class Dir extends Archive
 
     public function preCalculateHashes()
     {
-//
-//        foreach ($this->test as $speech) {
-//            foreach ($speech['names'] as $name) {
-////                $hashName = sprintf("scripted\%s\%s\pc_stream.wav", $speech['level'], $name);
-//                $hashName = strtolower($name);
-//                $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $name];
-//            }
-//        }
-//        return;
 
         foreach ($this->speech as $speech) {
             foreach ($speech['names'] as $name) {
@@ -1189,7 +1178,6 @@ class Dir extends Archive
                 $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $name];
             }
         }
-
 
         foreach ($this->weapon as $weapon) {
             $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($weapon))] = [$weapon, $weapon];
@@ -1212,13 +1200,6 @@ class Dir extends Archive
 
             }
         }
-
-//
-//        $hashName = "MUSIC/FRONTEND/MAIN.SND";
-//        $hashName = strtolower($hashName);
-//        var_dump( Helper::fromIntToHex(crc32($hashName)));exit;
-//        $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $hashName];
-
     }
 
     /**

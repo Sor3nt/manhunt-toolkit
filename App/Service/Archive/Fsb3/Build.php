@@ -52,7 +52,7 @@ class Build {
 
         $header->write($dataLen, NBinary::INT_32);
 
-        $header->write($globalSampleHeader['extVersion'], NBinary::LITTLE_U_INT_32);
+        $header->write($globalSampleHeader['version'], NBinary::LITTLE_U_INT_32);
 
         //mode
         $header->write($globalSampleHeader['mode'], NBinary::LITTLE_U_INT_32);
@@ -161,8 +161,9 @@ class Build {
 
         $sample->write($settings['minDistance'], NBinary::FLOAT_32);
         $sample->write($settings['maxDistance'], NBinary::FLOAT_32);
-        $sample->write($settings['unknown1'], NBinary::INT_32);
-        $sample->write($settings['unknown2'], NBinary::INT_32);
+        $sample->write($settings['varVol'], NBinary::INT_32);
+        $sample->write($settings['varFreq'], NBinary::LITTLE_U_INT_16);
+        $sample->write($settings['varPan'], NBinary::INT_16);
 
         return $sample;
     }

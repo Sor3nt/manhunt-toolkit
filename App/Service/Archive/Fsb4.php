@@ -1,6 +1,7 @@
 <?php
 namespace App\Service\Archive;
 
+use App\Service\Archive\Fsb\PhpFsbExt;
 use App\Service\Archive\Fsb4\Build;
 use App\Service\Archive\Fsb4\Extract;
 use App\Service\NBinary;
@@ -33,7 +34,8 @@ class Fsb4 extends Archive {
     }
 
     public function unpack(NBinary $binary, $game, $platform){
-        return (new Extract())->get($binary);
+        $fsbExt = new PhpFsbExt();
+        return $fsbExt->encode($binary);
     }
 
     public function pack( $pathFilename, $game, $platform){
