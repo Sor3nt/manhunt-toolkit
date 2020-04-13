@@ -16,11 +16,22 @@ class Dir extends Archive
     public static $supported = 'dir';
 
     public $possibleLevelNames = [
-        "A01_escape_asylum", "a07_2tolerance_zone", "a03_neighbourhood",
-        "a17_creepy_farm", "a14_sugarfactory", "a10_brothel", "a18_manor",
-        "a07_tolerance_zone", "a15_cemetery", "a06_cia_trap", "a12_plaza",
-        "a04_sm_nightclub", "a02_the_old_house", "a11_medicine_lab", "a09_burn",
-        "a16_TV_Studio"
+        "a01_escape_asylum",
+        "a02_the_old_house",
+        "a04_sm_nightclub",
+        "a07_tolerance_zone",
+        "a14_sugarfactory",
+        "a07_2tolerance_zone",
+        "a10_brothel",
+        "a12_plaza",
+        "a06_cia_trap",
+        "a09_burn",
+        "a11_medicine_lab",
+        "a16_tv_studio",
+        "a17_creepy_farm",
+        "a03_neighbourhood",
+        "a15_cemetery",
+        "a18_manor",
     ];
 
     public $crc32Hashes = [];
@@ -131,7 +142,7 @@ echo "\n";
         $speechList = explode("\n", file_get_contents(__DIR__ . '/DIR-Speech-Names.txt'));
         foreach ($this->possibleLevelNames as $levelName) {
             foreach ($speechList as $speech) {
-                foreach (range("a", "z") as $nr) {
+                foreach (range("a", "zzz") as $nr) {
 
                     $hashName = sprintf("scripted\%s\%s%s\pc_stream.wav", $levelName, $speech, $nr);
                     $crc = Helper::fromIntToHex(crc32($hashName));
