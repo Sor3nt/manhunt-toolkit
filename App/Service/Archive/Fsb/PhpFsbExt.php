@@ -16,7 +16,7 @@ const FSOUND_FSB_VERSION_3_1 = 0x00030001;
  */
 class PhpFsbExt {
 
-    private $debug = true;
+    public $debug = false;
 
     private function log($msg){
         if($this->debug) echo $msg . "\n";
@@ -254,7 +254,7 @@ class PhpFsbExt {
         $chans = 1;
 
 
-        $this->log(printf(
+        $this->log(sprintf(
             "\nFilename                         Size       Mode frequency channels bits\n".
             "========================================================================\n"
         ));

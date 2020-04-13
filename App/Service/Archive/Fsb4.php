@@ -10,6 +10,8 @@ use Symfony\Component\Finder\Finder;
 class Fsb4 extends Archive {
     public $name = 'Audio File (FSB4)';
 
+    public $debug = false;
+
     public static $validationMap = [
         [0, 4, NBinary::STRING, ['FSB4']]
     ];
@@ -35,6 +37,7 @@ class Fsb4 extends Archive {
 
     public function unpack(NBinary $binary, $game, $platform){
         $fsbExt = new PhpFsbExt();
+        $fsbExt->debug = $this->debug;
         return $fsbExt->encode($binary);
     }
 

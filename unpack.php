@@ -106,6 +106,12 @@ if (isset($handler->keepOrder)){
     $handler->keepOrder = $keepOrder;
 }
 
+if ($handler instanceof App\Service\Archive\Fsb3 ||
+    $handler instanceof App\Service\Archive\Fsb4){
+
+    $handler->debug = in_array('debug', $options) !== false;
+}
+
 
 $results = $handler->unpack( $resource->getInput(), $game, $platform );
 
@@ -176,10 +182,13 @@ if ($handler instanceof App\Service\Archive\Fsb3){
         foreach ($results as $filename => $data) {
             if ($filename == "fsb3.json") continue;
 
-            $index = (int) str_replace('.wav', '', $filename);
+            $index = (int) explode('.', $filename)[0];
+            $extension = explode('.', $filename)[1];
+
 
             list($hashName, $originalFile) = $dirResult[$index];
             if (strpos($hashName, 'scripted') !== false){
+                $newFilename = str_replace('\wii_stream', '', $hashName);
                 $newFilename = str_replace('\pc_stream', '', $hashName);
                 $newFilename = str_replace('scripted\\', '', $newFilename);
                 $newFilename = str_replace('\\', '/', $newFilename);
@@ -208,37 +217,66 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
         $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
 
-        echo sprintf("\nNote: %s٪ Solved.\n", number_format($known / ($unknown + $known) * 100, 2));
+        echo sprintf("\nTranslation: %s٪ done.\n", number_format($known / ($unknown + $known) * 100, 2));
 
         $results = $newResults;
     }else{
         echo "\nWARNING: unable to locate " . $dirFile . "! Store as nonamed WAV!\n";
     }
-}
 
 
-if (
-    (
-        in_array('to-pcm', $options) !== false ||
-        in_array('convert', $options) !== false ||
-        in_array('pcm', $options) !== false
 
-    ) &&
-    ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4)
-){
+    //Duplicate handling
+    $resultCount = count($results) - 1;
+    $uniq = in_array('no-duplicates', $options) !== false ||
+            in_array('uniq', $options) !== false;
 
-    echo "Converting all ADPCM to PCM...\n";
+    $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
 
-    $wavHandler = new \App\Service\Archive\Wav();
+    $knownMd5 = [];
+    $duplicateCount = 0;
+    foreach ($results as $filepathName => $result) {
+        if ($filepathName == "fsb3.json") continue;
+        if (substr($filepathName, 0, 7) == "unknown") continue;
+        $knownMd5[md5($result)] = explode("/", $filepathName)[0];
+    }
 
-    foreach ($results as $filename => &$result) {
-        if (substr($filename, -3) !== "wav") continue;
-        echo "Convert " . $filename . "... ";
-        $result = $wavHandler->unpack(new \App\Service\NBinary($result), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
-        echo "OK\n";
+    foreach ($results as $filepathName => $result) {
+        if ($filepathName == "fsb3.json") continue;
+        if (substr($filepathName, 0, 7) != "unknown") continue;
+
+        if (isset($knownMd5[md5($result)])){
+            $duplicateCount++;
+
+            if ($uniq){
+                unset($results[$filepathName]);
+                $results['fsb3.json']['orders'] = removeOrderName($results['fsb3.json']['orders'], $filepathName);
+
+            }else{
+                //move the duplicate into his related folder
+                $newPath = $knownMd5[md5($result)] . '/duplicate/' . explode("/", $filepathName)[1];
+                $results[ $newPath ] = $result;
+                unset($results[$filepathName]);
+
+                $results['fsb3.json']['orders'] = replaceOrderName($results['fsb3.json']['orders'], $filepathName, $newPath);
+
+            }
+        }
+    }
+
+    $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
+
+    echo sprintf("Duplicates: %s٪. ", number_format($duplicateCount / $resultCount * 100, 2));
+
+    if ($uniq){
+        echo sprintf("%s duplicate audios removed.\n", $duplicateCount);
+    }else{
+        echo "\n";
     }
 
 }
+
+
 
 if ($handler instanceof Mls){
     $results = $handler->getValidatedResults( $results, $game, $platform );
@@ -246,8 +284,30 @@ if ($handler instanceof Mls){
 
 
 if (is_array($results)){
+    $wavHandler = new \App\Service\Archive\Wav();
 
     foreach ($results as $relativeFilename => $data) {
+
+
+        if (
+            (
+                in_array('to-pcm', $options) !== false ||
+                in_array('convert', $options) !== false ||
+                in_array('pcm', $options) !== false
+
+            ) &&
+            ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4)
+        ){
+
+
+            if (substr($relativeFilename, -3) === "wav"){
+                echo "Convert " . $relativeFilename . " to PCM ...";
+                $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
+                echo "OK\n";
+            }
+
+        }
+
 
         //we loop through dataset not a fileset
         if ( is_numeric($relativeFilename) ){
@@ -307,6 +367,31 @@ if (is_array($results)){
 echo sprintf("\nExtracted to %s",  $outputTo);
 
 
+function replaceOrderName($orders, $old, $new){
+    $newOrders = [];
+    foreach ($orders as $order) {
+        if ($order == $old){
+            $newOrders[] = $new;
+        }else{
+            $newOrders[] = $order;
+        }
+    }
+
+    return $newOrders;
+}
+
+
+function removeOrderName($orders, $name){
+    $newOrders = [];
+    foreach ($orders as $order) {
+        if ($order != $name){
+            $newOrders[] = $order;
+        }
+    }
+
+    return $newOrders;
+}
+
 function printHelp(){
 
     echo "Compatible Formats:\n";
@@ -332,7 +417,9 @@ function printHelp(){
 
     echo "Options per Format\n";
     echo "*.FSB\n";
-    echo "\t--convert [--pcm, --to-pcm]\t\tConvert the Audios to PCM instead to ADPCM";
+    echo "\t--convert [--pcm, --to-pcm]\t\tConvert the Audios to PCM instead to ADPCM\n";
+    echo "\t--uniq    [--no-duplicates]\t\tRemove all Duplicate (unused) Audios. (FSB3)\n";
+    echo "\t--debug\t\t\t\t\tExtended FSB Output.\n";
     echo "\n";
     echo "\n";
 

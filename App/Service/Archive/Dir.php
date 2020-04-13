@@ -1091,61 +1091,73 @@ class Dir extends Archive
         "GolfBall_(CT)",
 
 
+        "Barrier", // found in wii
+        "BLOW_TOR", // found in wii
+        "BrokenWindow", // found in wii
+        "DOC_TRAN", // found in wii
+        "OPEN_GRA", // found in wii
+        "PICK_AXE", // found in wii
+        "POWER_SAW", // found in wii
+        "prop", // found in wii
+        "SCYTHE", // found in wii
+        "WOODENBLANK", // found in wii (alias for WOODEN_BLANK)
+        "WRENCH", // found in wii
+        "Stun_prod_(CT)", //found on wii (alias for Stunprod_(CT))
 
         //env
 
-        'TV2_BIG_TV',
-        'HARVESTER',
-        'LIGHT_FEATURE_OR_PROP',
-        'ROAD_WORKS_BARRIER',
-        'BROKEN_WINDOW',
-        'DOOR',
-        'TELEPHONE',
-        'WOODEN_BLANK',
-        'WOODEN_CHAIR',
-        'FIRE_EXTINGUISHER',
-        'GASCAN',
-        'VENDING',
-        'SINK',
-        'PICKET',
-        'OIL_BARREL',
-        'MEAT_HOOK',
-        'MAN_HOLE',
-        'DUMPSTER',
-        'BATH',
-        'AGENTPRIME',
-        'MANGLER',
-        'TOMBSTONE',
-        'FUSE_BOX',
-        'TOILET',
-        'FENCE_POLE',
+        'TV2_Big_TV',
+        'Harvester',
+        'Light_Feature_Or_Prop',
+        'Road_Works_Barrier',
+        'Broken_Window',
+        'Door',
+        'Telephone',
+        'Wooden_Blank',
+        'Wooden_Chair',
+        'Fire_Extinguisher',
+        'Gascan',
+        'Vending',
+        'Sink',
+        'Oicket',
+        'oil_Barrel',
+        'Meat_Hook',
+        'Man_Hole',
+        'Dumpster',
+        'Bath',
+        'AgentPrime',
+        'Mangler',
+        'Tombstone',
+        'Fuse_Box',
+        'Toilet',
+        'Fence_Pole',
         'TV',
-        'WINDOW',
-        'HANGMAN_POLE',
-        'DENTIST_CHAIR',
-        'AZTEC_ALTAR',
-        'GUILLOTINE',
-        'IRON_MAIDEN',
-        'LIQUID_NITROGEN',
-        'MANHOLE',
+        'Window',
+        'Hangman_Pole',
+        'Dentist_Chair',
+        'Aztec_Altar',
+        'Guillotine',
+        'Iron_Maiden',
+        'Liquid_Nitrogen',
+        'Manhole',
 
 
         //bruteforce results
-        'jack',
-        'fist',
-        'propf',
-        'chair',
-        'knife',
+        'Jack',
+        'Fist',
+        'Propf',
+        'Chair',
+        'Knife',
 
         //exe string results
-        'baseball',
-        'syringei',
-        'meathook',
-        'oilbarre',
-        'fireext',
-        'flashlig',
-        'metal_ho',
-        'acid_bot',
+        'Baseball',
+        'Syringei',
+        'Meathook',
+        'Oilbarrel',
+        'FireExt',
+        'FlashLight',
+        'Metal_Hook',
+        'Acid_Bottle',
     ];
 
 
@@ -1180,6 +1192,14 @@ class Dir extends Archive
             }
         }
 
+        foreach ($this->speech as $speech) {
+            foreach ($speech['names'] as $name) {
+                $hashName = sprintf("scripted\%s\%s\wii_stream.wav", $speech['level'], $name);
+                $hashName = strtolower($hashName);
+                $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $name];
+            }
+        }
+
         foreach ($this->weapon as $weapon) {
             $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($weapon))] = [$weapon, $weapon];
 
@@ -1195,7 +1215,7 @@ class Dir extends Archive
 
             foreach ([
                 'wii_jump', 'wii_normal1', 'wii_normal2', 'wii_normal3',
-                'pc_jump', 'pc_normal1', 'pc_normal2', 'pc_normal3'
+                'pc_jump',  'pc_normal1',  'pc_normal2',  'pc_normal3'
              ] as $section) {
                 $hashName = sprintf("executions\%s\%s.wav", $name, $section);
                 $hashName = strtolower($hashName);
