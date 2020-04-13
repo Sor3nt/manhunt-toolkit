@@ -217,7 +217,7 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
         $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
 
-        echo sprintf("\nTranslation: %s٪ done.\n", number_format($known / ($unknown + $known) * 100, 2));
+        echo sprintf("\nTranslation: %s٪\n", number_format($known / ($unknown + $known) * 100, 2));
 
         $results = $newResults;
     }else{
