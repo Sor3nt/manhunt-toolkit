@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Service\Archive\Afs;
 use App\Service\Archive\Archive;
 use App\Service\Archive\Bin;
 use App\Service\Archive\Bsp;
@@ -36,7 +37,7 @@ class Resources
     private $archives = [
         Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
-        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class
+        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class
     ];
 
 
