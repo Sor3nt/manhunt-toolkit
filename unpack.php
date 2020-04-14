@@ -409,6 +409,8 @@ function printHelp(){
     echo "*.TEX / TXD - Textures\n";
     echo "*.FSB - Audio Container\t\t\t\t";
     echo "*.DIR - Audio Names\n";
+    echo "*.AFS - Container Format\t\t\t\t";
+    echo "\n";
     echo "\n";
     echo "Options for every zipped file\n";
     echo "\t--unzip [--unzip-only, --only-unzip]\tJust deflate a given archive";

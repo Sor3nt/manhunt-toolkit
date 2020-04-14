@@ -142,7 +142,8 @@ echo "\n";
         $speechList = explode("\n", file_get_contents(__DIR__ . '/DIR-Speech-Names.txt'));
         foreach ($this->possibleLevelNames as $levelName) {
             foreach ($speechList as $speech) {
-                foreach (range("a", "zzz") as $nr) {
+                foreach (range(0, 30) as $nr) {
+//                foreach (range(0, 30) as $nr) {
 
                     $hashName = sprintf("scripted\%s\%s%s\pc_stream.wav", $levelName, $speech, $nr);
                     $crc = Helper::fromIntToHex(crc32($hashName));
@@ -160,7 +161,7 @@ echo "\n";
     }
 
     private function bruteCrc($hashes){
-        for($i = "a"; 8 > strlen($i); $i++){
+        for($i = "aaaaaa"; 7 > strlen($i); $i++){
 
 
             foreach ($this->possibleLevelNames as $levelName) {

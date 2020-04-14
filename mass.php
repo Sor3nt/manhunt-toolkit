@@ -86,6 +86,7 @@ if ( $type == null){
         ->name('/\.tex/i')
         ->name('/\.txd/i')
         ->name('/\.fsb/i')
+        ->name('/\.afs/i')
         ->name('/\.mls/i')
         ->files()
         ->in($folder);

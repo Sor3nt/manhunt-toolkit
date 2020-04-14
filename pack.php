@@ -118,7 +118,6 @@ function printHelp(){
     echo "*.COL - Collision Matrix\t\t\t";
     echo "*.DFF - 3D Models (Manhunt 1)\n";
     echo "*.FSB - Audio Container\t\t\t\t";
-    echo "*.DIR - Audio Names\n";
     echo "\n";
 
     echo "Usage: php pack.php <filename/folder> [game] [platform]\n";
