@@ -2,6 +2,7 @@
 
 namespace App\Service\Archive;
 
+use App\Service\File;
 use App\Service\NBinary;
 use Exception;
 use Symfony\Component\Finder\Finder;
@@ -40,43 +41,27 @@ class Afs extends Archive
 
         $hashNames = [];
         $files = [];
+
         foreach ($entries as $index => $entry) {
             $content = $entry->getContent();
 
-            if ($content->length() == 264) {
+            if ($entry->identify() === "context_map") {
                 $name = $content->getString();
                 $files[$name . '/context_map.bin'] = $content->binary;
                 continue;
-            }
-
-            if ($entry->getId() === "scri") {
+            }else if ($entry->identify() === "hash_name_list") {
                 $hashNames = explode("\x0D\x0A", $entry->getContent()->binary);
                 continue;
             }
 
-            $adx = new Adx($content);
-
-            switch ($adx->getEncodingType()) {
-                case 'standard':
-                    $extension = "adx";
-                    break;
-                case 'ahx':
-                    $extension = "ahx";
-                    break;
-                default:
-                    throw new Exception(sprintf('Encoding type %s is not supported', $adx->getEncodingType()));
-
-            }
-
-
+            //we have names, use it
             if (count($hashNames)) {
-                $name = $hashNames[$index - 1];
-                $name = str_replace('\\', '/', $name);
+                $name = str_replace('\\', '/', $hashNames[$index - 1]);
             } else {
                 $name = $index;
             }
 
-            $files[$name . '.' . $extension] = $content->binary;
+            $files[$name . '.' . (new File($content))->identify()] = $content->binary;
 
         }
 
@@ -143,7 +128,7 @@ class AfsArchive
     }
 
     /**
-     * @return AfsArchiveEntry[]
+     * @return File[]
      * @throws Exception
      */
     public function extract()
@@ -151,10 +136,9 @@ class AfsArchive
 
         $entries = [];
         while ($this->entryCount--) {
-            $entry = new AfsArchiveEntry($this->getBlock($this->binary));
+            $entry = new File($this->getBlock($this->binary));
 
-            if ($entry->getId() == "AFS") {
-
+            if ($entry->identify() == "afs") {
                 $subAfs = new AfsArchive($entry->getContent());
                 $subEntries = $subAfs->extract();
                 foreach ($subEntries as $subEntry) {
@@ -168,73 +152,6 @@ class AfsArchive
         }
 
         return $entries;
-    }
-
-
-}
-
-
-class AfsArchiveEntry
-{
-
-    /** @var NBinary */
-    private $binary;
-
-    private $id = "UNK";
-
-    public function __construct(NBinary $binary)
-    {
-        $this->binary = $binary;
-        $this->id = trim($this->binary->getFromPos(0, 4, NBinary::STRING));
-        $this->binary->current = 0;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return NBinary
-     */
-    public function getContent()
-    {
-        return $this->binary;
-    }
-
-}
-
-class Adx
-{
-    /** @var NBinary */
-    private $binary;
-
-    /**
-     * Adx constructor.
-     * @param NBinary $binary
-     * @throws Exception
-     */
-    public function __construct(NBinary $binary)
-    {
-        if ($binary->getFromPos(0, 2, NBinary::HEX) !== "8000") {
-            throw new Exception("Not a ADX Format");
-        }
-
-        $this->binary = $binary;
-    }
-
-    /**
-     * @return string
-     * @throws Exception
-     */
-    public function getEncodingType()
-    {
-        $code = (int)$this->binary->getFromPos(4, 1, NBinary::HEX);
-
-        if ($code == 3) return 'standard';
-        if ($code == 11) return 'ahx';
-
-        throw new Exception(sprintf('The encoding type %s is not supported', $code));
     }
 
 
