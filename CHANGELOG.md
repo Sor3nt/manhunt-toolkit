@@ -1,4 +1,17 @@
 #Changelog
+**2020-04-17**: **v0.9.5** Release:
+* Add Audio Support (fsb, afs) for PC, WII and PS2
+* Add FSB3 Audioname resolver
+* Add FSB4 Folder structure resolver
+* Add ADPCM to PCM Converter
+* Add generic TAG and DIR support
+* Add INST Parameter names @Thanks MAJEST1C_R3!
+* Add GRF Support
+* Add TOC Autoupdater
+* Change INST XYZ Handling
+* Small fixes for IFP, GLG and MLS Handler
+
+
 **2020-01-26**: **v0.9.0** Release:
 * Remove Symfony as Codebase
 * New MLS Compiler, support now near any level (MH1 & MH2)
