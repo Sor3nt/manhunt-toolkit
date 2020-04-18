@@ -18,6 +18,8 @@ class File{
     public function identify()
     {
         switch (true){
+            case $this->binary->getFromPos(0, 3, NBinary::BINARY) == "AIX": return "aix"; break;
+
             //AFS Container
             case $this->binary->getFromPos(0, 3, NBinary::BINARY) == "AFS": return "afs"; break;
 

@@ -45,7 +45,23 @@ class Afs extends Archive
         foreach ($entries as $index => $entry) {
             $content = $entry->getContent();
 
-            if ($entry->identify() === "context_map") {
+            if ($entry->identify() === "aix") {
+
+                $baseName = str_replace('\\', '/', $hashNames[$index - 1]);
+                $baseName = substr($baseName, 0, -4);
+
+                $aix = new AixArchive($entry->getContent());
+
+                $aixResults = $aix->extract();
+                foreach ($aixResults as $name => $data) {
+                    $files[$baseName . '_' . $name  . '.' . $data->identify()] = $data->getContent()->binary;
+                }
+
+
+                unset($entries[$index]);
+                continue;
+
+            }else if ($entry->identify() === "context_map") {
                 $name = $content->getString();
                 $files[$name . '/context_map.bin'] = $content->binary;
                 continue;
@@ -78,80 +94,6 @@ class Afs extends Archive
     public function pack($pathFilename, $game, $platform)
     {
         return "";
-    }
-
-
-}
-
-/**
- * Class AfsArchive
- * @package App\Service\Archive
- */
-class AfsArchive
-{
-
-    /** @var NBinary */
-    private $binary;
-
-    private $entryCount = 0;
-
-    /**
-     * AfsArchive constructor.
-     * @param NBinary $binary
-     * @throws Exception
-     */
-    public function __construct(NBinary $binary)
-    {
-        if ($binary->get(3) !== "AFS") throw new Exception('File is not a AFS Container');
-        $this->binary = $binary;
-
-        $this->entryCount = $binary->consume(4, NBinary::INT_32, 4);
-    }
-
-
-    /**
-     * @param NBinary $binary
-     * @return NBinary
-     */
-    private function getBlock(NBinary $binary)
-    {
-        $offset = $binary->consume(4, NBinary::INT_32);
-        $size = $binary->consume(4, NBinary::INT_32);
-
-        $current = $binary->current;
-
-        $binary->current = $offset;
-        $data = $binary->consume($size, NBinary::BINARY);
-        $binary->current = $current;
-
-        return new NBinary($data);
-    }
-
-    /**
-     * @return File[]
-     * @throws Exception
-     */
-    public function extract()
-    {
-
-        $entries = [];
-        while ($this->entryCount--) {
-            $entry = new File($this->getBlock($this->binary));
-
-            if ($entry->identify() == "afs") {
-                $subAfs = new AfsArchive($entry->getContent());
-                $subEntries = $subAfs->extract();
-                foreach ($subEntries as $subEntry) {
-                    $entries[] = $subEntry;
-                }
-
-            } else {
-                $entries[] = $entry;
-
-            }
-        }
-
-        return $entries;
     }
 
 
