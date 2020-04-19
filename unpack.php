@@ -285,6 +285,7 @@ if ($handler instanceof Mls){
 
 if (is_array($results)){
     $wavHandler = new \App\Service\Archive\Wav();
+    $adx2wav = new \App\Service\AudioCodec\AdxPcma();
 
     foreach ($results as $relativeFilename => $data) {
 
@@ -295,16 +296,28 @@ if (is_array($results)){
                 in_array('convert', $options) !== false ||
                 in_array('pcm', $options) !== false
 
-            ) &&
-            ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4)
+            )
+
         ){
 
+            if ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4){
+                if (substr($relativeFilename, -3) === "wav"){
+                    echo "Convert " . $relativeFilename . " to PCM ...";
+                    $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
+                    echo "OK\n";
+                }
 
-            if (substr($relativeFilename, -3) === "wav"){
-                echo "Convert " . $relativeFilename . " to PCM ...";
-                $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
-                echo "OK\n";
+            }else if ($handler instanceof App\Service\Archive\Afs){
+                if (substr($relativeFilename, -3) === "adx"){
+
+                    echo "Convert " . $relativeFilename . " to PCM ...";
+                    $relativeFilename = substr($relativeFilename, 0, -3) . 'wav';
+                    $data = $adx2wav->decode(new \App\Service\NBinary($data));
+                    echo "OK\n";
+
+                }
             }
+
 
         }
 
@@ -422,6 +435,9 @@ function printHelp(){
     echo "\t--convert [--pcm, --to-pcm]\t\tConvert the Audios to PCM instead to ADPCM\n";
     echo "\t--uniq    [--no-duplicates]\t\tRemove all Duplicate (unused) Audios. (FSB3)\n";
     echo "\t--debug\t\t\t\t\tExtended FSB Output.\n";
+    echo "\n";
+    echo "*.AFS\n";
+    echo "\t--convert [--pcm, --to-pcm]\t\tConvert the Audios to PCM instead to ADX\n";
     echo "\n";
     echo "\n";
 

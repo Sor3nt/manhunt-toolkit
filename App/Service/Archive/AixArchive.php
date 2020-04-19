@@ -7,6 +7,9 @@ use App\Service\NBinary;
 use Exception;
 
 /**
+ * Based on AIX2ADX 0.1 by hcs
+ *
+ *
  * Class AixArchive
  * @package App\Service\Archive
  */
