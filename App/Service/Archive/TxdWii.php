@@ -100,7 +100,7 @@ class TxdWii extends Archive {
         $texture['name'] = $binary->unpack($texture['name'], NBinary::STRING);
 
         if ($texture['name'] == ""){
-            return false;
+            $texture['name'] = uniqid();
         }
 
         $binary->numericBigEndian = true;
@@ -155,12 +155,13 @@ class TxdWii extends Archive {
 
         $header = $this->parseHeader($binary);
         $currentOffset = $header['firstOffset'];
-
         $imageHandler = new Image();
 
         $textures = [];
-        while($header['numTextures'] > 0) {
+        while($header['numTextures'] > 0 ) {
+
             $texture = $this->parseTexture($currentOffset, $binary);
+
 
             if ($texture == false) continue;
 
