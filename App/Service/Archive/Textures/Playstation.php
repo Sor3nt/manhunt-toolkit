@@ -195,65 +195,18 @@ class Playstation extends Image {
 
             $bmpRgba = $this->decode32ColorsToRGBA( new NBinary($texture['data']));
 
-            //
-//            $bmpRgba = $this->convertIndexed4ToRGBA(
-//                $texture['data'],
-//                ($texture['width'] * $texture['height']),
-//                $palette
-//            );
 
         }else{
             throw new \Exception(sprintf("Unknown bitPerPixel format %s", $texture['bitPerPixel']));
         }
 
-
-        $md5 = md5($texture['data']);
-        switch ($md5){
-
-            //hack, unable to detect the swizzeling
-            case '25cbd659d3c5ff9e10e36e5cecf01bf3': // PS2 GUI.TXD => FE_MH2_logo
-            case 'db8f4b030f8c8ccd979c957bd6b89d27': // PS2 GUI.TXD => FE_episodesel_layer03_bw
-            case '77f7b2d96e6cbf5fa6e71e517a8b1101': // PS2 GUI.TXD => FE_start_layer01
-
-                $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
-                break;
-
-            case '39d042d97234f80b2ae2ff99ea207e10': // PS2 GUI.TXD => FE_mainmenu_layer03_bw
-            case '3838f53d5f570bdcc94515d33e15752a': // PS2 GUI.TXD => FE_mainmenu_layer03
-            case 'b6142f8e07ae1ce5fc503caecab82156': // PS2 GUI.TXD => FE_start_eye
-            case '1b7861be62680d9d524a648f4c894238': // PS2 GUI.TXD => FE_settings_layer03
-            case '34fa5e116f93cc1d0ede383f246d5566': // PS2 GUI.TXD => FE_settings_layer03_bw
-            case '75a5a22f967df72914f6003f1e116501': // PS2 GUI.TXD => FE_start_layer02
-
-            case 'bca6577c3bafa7d98bf7762c9d503d0a': // PS2 TITLE.TXD => legal
-
-            case 'e3dc3de25df5dad0b0a459a9505621b2': // PS2 INGAME.TXD => batblades
-            case 'bfa6a54607433e303a9e41060c38723f': // PS2 INGAME.TXD => coltcom
-            case 'e7ddadcfbaa117c2e0b9fd9c5e89de0e': // PS2 INGAME.TXD => crossbow
-            case '9f0bc5c874ce1672a114140603e83486': // PS2 INGAME.TXD => fireaxe
-            case '47cb971db0af8d458ae0ced7c4cfefcd': // PS2 INGAME.TXD => hedgetrimmer
-            case '198ddb4dde5ccb231e287c125699992c': // PS2 INGAME.TXD => katana
-            case '0106d4580767c9ade453ad2dc7bf36c9': // PS2 INGAME.TXD => mace
-            case '4e9d1463395f4acfbf9b666d7cebc371': // PS2 INGAME.TXD => sawnoff
-            case 'e6607e5e241cd8765f74dfacdf1377cf': // PS2 INGAME.TXD => shotgun
-            case 'b3f50bb9d9c50243ddc072d2d3351c72': // PS2 INGAME.TXD => shotgunlamp
-            case '41688194a9851e61881c4c4c3a499e28': // PS2 INGAME.TXD => shovel
-            case 'abda7749a13d8a571644c3fde46d6312': // PS2 INGAME.TXD => sledgehammer
-            case 'f066633d2b1c3294a80205bb002b2ac9': // PS2 INGAME.TXD => sniper
-            case '63d481cb8a964c5b540f0be85c76f1fc': // PS2 INGAME.TXD => stunprod
-            break;
-
-            default:
-
-                    if ($platform == MHT::PLATFORM_PS2) {
-                        $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
-                    }else if ($platform == MHT::PLATFORM_PSP){
-                        $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
-                    }
-
-
-                break;
+        if ($platform == MHT::PLATFORM_PS2 && $texture['swizzleMask'] & 0x1 != 0) {
+            $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
+        }else if ($platform == MHT::PLATFORM_PSP){
+            $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
         }
+
+//        }
 
         return $bmpRgba;
 

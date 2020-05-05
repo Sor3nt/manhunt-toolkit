@@ -62,8 +62,10 @@ class TxdPlaystation extends Archive {
             'bitPerPixel'       => $binary->consume(4,  NBinary::INT_32),
             'rasterFormat'      => $binary->consume(4,  NBinary::HEX),
 
-            'unknown11'             => $binary->consume(4,  NBinary::INT_32),
-            'unknown12'             => $binary->consume(4,  NBinary::INT_32),
+            'pixelFormat'             => $binary->consume(4,  NBinary::INT_32),
+            'numMipLevels'             => $binary->consume(1,  NBinary::U_INT_8),
+            'swizzleMask'             => $binary->consume(1,  NBinary::U_INT_8),
+            'padding'             => $binary->consume(2,  NBinary::HEX),
 
 
             'dataOffset'        => $binary->consume(4,  NBinary::INT_32),
@@ -95,10 +97,10 @@ class TxdPlaystation extends Archive {
     public function unpack(NBinary $binary, $game, $platform){
 
         if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
-        if ($platform == MHT::PLATFORM_AUTO){
-            echo "\n\nUnable to detect platform, please provide the parameter --platform=ps2 or --platform=psp\n";
-            exit;
-        }
+//        if ($platform == MHT::PLATFORM_AUTO){
+//            echo "\n\nUnable to detect platform, please provide the parameter --platform=ps2 or --platform=psp\n";
+//            exit;
+//        }
 
         $header = $this->parseHeader($binary);
         $currentOffset = $header['firstOffset'];
@@ -106,18 +108,6 @@ class TxdPlaystation extends Archive {
         $textures = [];
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
-//
-//            if ($texture['name'] != "FE_start_eye"){
-//vd
-//            var_dump($texture);
-//            echo md5($texture['data']). "\t" . $texture['height']. "\t" . $texture['bitPerPixel']. "\t" . $texture['rasterFormat']  . " " . $texture['name'] . "\n";
-//                $currentOffset = $texture['nextOffset'];
-//
-//                $header['numTextures']--;
-//
-//                continue;
-//            }
-
 
             $bmpRgba = $this->playstation->convertToRgba($texture, $platform);
 
