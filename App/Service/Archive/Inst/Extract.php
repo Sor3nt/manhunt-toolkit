@@ -91,6 +91,11 @@ class Extract {
 //                continue;
 
 
+                if (!isset(Inst::$mh1Map[$entityClass])){
+                    var_dump($entityClass);
+                    exit;
+                }
+
                 $paramBase = Inst::$mh1Map[$entityClass];
 
                 foreach ($paramBase as $name => $type) {
@@ -130,9 +135,9 @@ class Extract {
 //                        $value = $binary->consume(1, NBinary::INT_8);
 //                        $value2 = $binary->consume(3, NBinary::HEX);
 
-                        if($parameterName == "Weapon") {
+                        if($parameterName == "WEAPON") {
                             $value = Inst::getWeaponNameById($value);
-                        }else if($parameterName == "Weapon2"){
+                        }else if($parameterName == "WEAPON2"){
                             $value = Inst::getWeapon2NameById($value);
                         }
 

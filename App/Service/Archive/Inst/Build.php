@@ -84,9 +84,9 @@ class Build {
 
                         case 'boo':
                         case 'int':
-                            if($parameterName == "Weapon") {
+                            if($parameterName == "WEAPON") {
                                 $parameter['value'] = Inst::$weapon[strtolower($parameter['value'])];
-                            }else if($parameterName == "Weapon2"){
+                            }else if($parameterName == "WEAPON2"){
                                 $parameter['value'] = Inst::$weapon2[strtolower($parameter['value'])];
                             }
 

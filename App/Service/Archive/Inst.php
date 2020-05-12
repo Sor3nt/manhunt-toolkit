@@ -109,6 +109,12 @@ class Inst extends Archive {
             'Flags' => NBinary::INT_32,
         ],
 
+        'Basic_Inst' => [
+            'Hit Points' => NBinary::INT_32,
+            'Unknown' => NBinary::INT_32,
+            'Unknown2' => NBinary::INT_32,
+        ],
+
         'Hunter_Inst' => [
             'Hit Points' => NBinary::INT_32,
             'Slot 1' => NBinary::INT_32,
