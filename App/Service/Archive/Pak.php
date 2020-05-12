@@ -37,7 +37,7 @@ class Pak extends Archive {
         {
             for($j=0; ($j<strlen($key) && $i<strlen($text)); $j++,$i++)
             {
-                $result .= $text{$i} ^ $key{$j};
+                $result .= $text[$i] ^ $key[$j];
             }
         }
 
