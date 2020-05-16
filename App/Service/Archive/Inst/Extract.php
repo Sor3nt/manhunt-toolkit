@@ -83,32 +83,32 @@ class Extract {
 
             if ($game == MHT::GAME_MANHUNT){
 
-//                $value = $binary->consume(4, NBinary::INT_32);
+                $value = $binary->consume(4, NBinary::INT_32);
+
+                $params[] = [
+                    'value' => $value
+                ];
+                continue;
 //
-//                $params[] = [
-//                    'value' => $value
-//                ];
-//                continue;
-
-
-                if (!isset(Inst::$mh1Map[$entityClass])){
-                    var_dump($entityClass);
-                    exit;
-                }
-
-                $paramBase = Inst::$mh1Map[$entityClass];
-
-                foreach ($paramBase as $name => $type) {
-                    if ($binary->remain() == 0) break;
-                    $value = $binary->consume(4, $type);
-
-                    $params[] = [
-                        'parameterId' => $name,
-                        'type' => strtolower(substr($type, 0, 3)),
-                        'value' => $value
-                    ];
-
-                }
+//
+//                if (!isset(Inst::$mh1Map[$entityClass])){
+//                    var_dump($entityClass);
+//                    exit;
+//                }
+//
+//                $paramBase = Inst::$mh1Map[$entityClass];
+//
+//                foreach ($paramBase as $name => $type) {
+//                    if ($binary->remain() == 0) break;
+//                    $value = $binary->consume(4, $type);
+//
+//                    $params[] = [
+//                        'parameterId' => $name,
+//                        'type' => strtolower(substr($type, 0, 3)),
+//                        'value' => $value
+//                    ];
+//
+//                }
 
             }else{
 

@@ -64,6 +64,13 @@ class Build {
              */
             foreach ($record['parameters'] as $parameter) {
 
+
+                if (!isset($record['game']) && isset($parameter['parameterId'])){
+                    $record['game'] = MHT::GAME_MANHUNT_2;
+                }else if (!isset($record['game'])){
+                    $record['game'] = MHT::GAME_MANHUNT;
+                }
+
                 if ($record['game'] == MHT::GAME_MANHUNT_2 ){
 
                     $parameterName = $parameter['parameterId'];
@@ -102,9 +109,11 @@ class Build {
 
                 }else{
 
-                    $type = Inst::$mh1Map[$record['entityClass']][$parameter['parameterId']];
-
-                    $entry->write($parameter['value'], $type);
+                    $entry->write($parameter['value'], NBinary::INT_32);
+                    //
+//                    $type = Inst::$mh1Map[$record['entityClass']][$parameter['parameterId']];
+//
+//                    $entry->write($parameter['value'], $type);
                 }
 
             }
