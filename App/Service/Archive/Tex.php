@@ -77,7 +77,6 @@ class Tex extends Archive {
 
     public function convertToBmp( $texture ){
         $ddsHandler = new Dds();
-        $bmpHandler = new Bmp();
         $ddsDecoded = $ddsHandler->unpack( new NBinary($texture['data']), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
 
         if($ddsDecoded['format'] == "DXT1") {
@@ -88,8 +87,7 @@ class Tex extends Archive {
             $bmpRgba = $dxtHandler->decode(
                 $ddsDecoded['data'],
                 $ddsDecoded['width'],
-                $ddsDecoded['height'],
-                'abgr'
+                $ddsDecoded['height']
             );
 
 
@@ -101,8 +99,7 @@ class Tex extends Archive {
             $bmpRgba = $dxtHandler->decode(
                 $ddsDecoded['data'],
                 $ddsDecoded['width'],
-                $ddsDecoded['height'],
-                'abgr'
+                $ddsDecoded['height']
             );
 
         }else if($ddsDecoded['format'] == ""){
@@ -114,15 +111,15 @@ class Tex extends Archive {
             }
 
         }else{
-
             var_dump($ddsDecoded, $texture);
             throw new \Exception('Format not implemented: ' . $ddsDecoded['format']);
         }
 
-
-
         $img = imagecreatetruecolor($ddsDecoded['width'], $ddsDecoded['height']);
-        imagesavealpha($img, true);
+
+        //fill the image with transparent otherwise its black...
+        $transparent = imagecolorallocatealpha( $img, 0, 0, 0, 127 );
+        imagefill( $img, 0, 0, $transparent );
 
         $i = 0;
         for ($y = 0; $y < $ddsDecoded['height']; $y++) {
@@ -130,10 +127,10 @@ class Tex extends Archive {
 
                 $color =  imagecolorallocatealpha(
                     $img,
-                    $bmpRgba[$i + 3],
-                    $bmpRgba[$i + 2],
+                    $bmpRgba[$i],
                     $bmpRgba[$i + 1],
-                    0
+                    $bmpRgba[$i + 2],
+                    127 - ($bmpRgba[$i + 3 ] >> 1)
 
                 );
                 imagesetpixel($img,$x,$y,$color);
@@ -144,6 +141,8 @@ class Tex extends Archive {
 
 
         ob_start();
+//        imagealphablending($img, false);
+        imagesavealpha($img, true);
         imagepng($img, null, 9);
 
         return [ $texture['name'] . ".png" , ob_get_clean()];
@@ -187,6 +186,14 @@ class Tex extends Archive {
 //            var_dump($texture);
 
 
+
+//            if ($texture['name'] != "Gore03"){
+//
+//                $currentOffset = $texture['nextOffset'];
+//
+//                $header['numTextures']--;
+//                continue;
+//            }
 
             list($filename, $bmp) = $this->convertToBmp($texture);
 

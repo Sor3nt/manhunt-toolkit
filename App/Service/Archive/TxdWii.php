@@ -211,8 +211,7 @@ class TxdWii extends Archive {
             $bmpRgba = $dxtHandler->decodeWii(
                 $texture['data'],
                 $texture['width'],
-                $texture['height'],
-                'abgr'
+                $texture['height']
             );
 
 

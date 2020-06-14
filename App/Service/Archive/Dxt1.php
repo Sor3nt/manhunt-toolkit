@@ -15,7 +15,7 @@ use App\Service\NBinary;
 class Dxt1
 {
 
-    public function decode($data, $width, $height, $returnAs = "rgba")
+    public function decode($data, $width, $height)
     {
 
         $rgba = [];
@@ -42,22 +42,11 @@ class Dxt1
                         $rgbaIndex = ($h * 4 + 3 - $y) * $width * 4 + ($w * 4 + $x) * 4;
                         $colorIndex = ($colorIndices >> (2 * (15 - $pixelIndex))) & 0x03;
 
-                        if ($returnAs == "rgba"){
-                            $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4];
-                            $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 1];
-                            $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 2];
-                            $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4 + 3];
+                        $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4];
+                        $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 1];
+                        $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 2];
+                        $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4 + 3];
 
-                        }else if ($returnAs == "abgr"){
-                            $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4 + 3];
-                            $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 2];
-                            $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 1];
-                            $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4];
-
-
-                        }else{
-                            throw new \Exception('Unknown RGBa Order ' . $returnAs);
-                        }
                     }
                 }
 
@@ -80,21 +69,10 @@ class Dxt1
                         $rgbaIndex = ($h * 4 + 3 - $y) * $width * 4 + ($w * 4 + $x) * 4;
                         $colorIndex = ($colorIndices >> (2 * (15 - $pixelIndex))) & 0x03;
 
-                        if ($returnAs == "rgba"){
-                            $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4];
-                            $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 1];
-                            $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 2];
-                            $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4 + 3];
-
-                        }else if ($returnAs == "abgr"){
-                            $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4 + 3];
-                            $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 2];
-                            $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 1];
-                            $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4];
-
-                        }else{
-                            throw new \Exception('Unknown RGBa Order');
-                        }
+                        $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4];
+                        $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 1];
+                        $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 2];
+                        $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4 + 3];
                     }
                 }
             }
@@ -103,7 +81,7 @@ class Dxt1
         return $rgba;
     }
 
-    public function decodeWii($data, $width, $height, $returnAs = "rgba")
+    public function decodeWii($data, $width, $height)
     {
 
         $rgba = [];

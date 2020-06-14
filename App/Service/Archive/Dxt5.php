@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Service\Archive;
 
 use App\Service\NBinary;
+use Exception;
 
 /**
  * Class Dxt5
@@ -13,7 +15,14 @@ use App\Service\NBinary;
 class Dxt5
 {
 
-    public function decode($data, $width, $height, $returnAs = "rgba")
+    /**
+     * @param $data
+     * @param $width
+     * @param $height
+     * @return array
+     * @throws Exception
+     */
+    public function decode($data, $width, $height)
     {
 
         // for dxt4 set this to true
@@ -38,11 +47,10 @@ class Dxt5
 
 
                 $alphaIndices = array_reverse([
-                   $binary->consume(2, NBinary::LITTLE_U_INT_16),
-                   $binary->consume(2, NBinary::LITTLE_U_INT_16),
-                   $binary->consume(2, NBinary::LITTLE_U_INT_16),
+                    $binary->consume(2, NBinary::LITTLE_U_INT_16),
+                    $binary->consume(2, NBinary::LITTLE_U_INT_16),
+                    $binary->consume(2, NBinary::LITTLE_U_INT_16),
                 ]); // reordered as big endian
-
 
 
                 $firstVal = $binary->consume(2, NBinary::LITTLE_U_INT_16);
@@ -59,31 +67,15 @@ class Dxt5
                         $colorIndex = ($colorIndices >> (2 * (15 - $pixelIndex))) & 0x03;
 
                         $alphaIndex = $this->getAlphaIndex($alphaIndices, $pixelIndex);
-                        $alphaValue = $alphaValues[$alphaIndex];
+                        $alphaValue = (int)$alphaValues[$alphaIndex];
 
                         $multiplier = $premultiplied ? 255 / $alphaValue : 1;
 
+                        $rgba[$rgbaIndex] = $this->multiply($colorValues[$colorIndex * 4], $multiplier);
+                        $rgba[$rgbaIndex + 1] = $this->multiply($colorValues[$colorIndex * 4 + 1], $multiplier);
+                        $rgba[$rgbaIndex + 2] = $this->multiply($colorValues[$colorIndex * 4 + 2], $multiplier);
+                        $rgba[$rgbaIndex + 3] = $alphaValue;
 
-                        if ($returnAs == "rgba"){
-
-                            $rgba[$rgbaIndex] = $this->multiply($colorValues[$colorIndex * 4], $multiplier);
-                            $rgba[$rgbaIndex + 1] = $this->multiply($colorValues[$colorIndex * 4 + 1], $multiplier);
-                            $rgba[$rgbaIndex + 2] = $this->multiply($colorValues[$colorIndex * 4 + 2], $multiplier);
-                            $rgba[$rgbaIndex + 3] = $alphaValue;
-
-
-
-                        }else if ($returnAs == "abgr"){
-
-                            $rgba[$rgbaIndex] = $alphaValue;
-                            $rgba[$rgbaIndex + 1] = $this->multiply($colorValues[$colorIndex * 4 + 2 ], $multiplier);
-                            $rgba[$rgbaIndex + 2] = $this->multiply($colorValues[$colorIndex * 4 + 1], $multiplier);
-                            $rgba[$rgbaIndex + 3] = $this->multiply($colorValues[$colorIndex * 4], $multiplier);
-
-
-                        }else{
-                            throw new \Exception('Unknown RGBa Order');
-                        }
                     }
                 }
             }
@@ -92,7 +84,8 @@ class Dxt5
         return $rgba;
     }
 
-    private function multiply ($component, $multiplier) {
+    private function multiply($component, $multiplier)
+    {
         if (is_infinite($multiplier) || $multiplier === 0) {
             return 0;
         }
@@ -100,20 +93,22 @@ class Dxt5
         return round($component * $multiplier);
     }
 
-    private function getAlphaIndex($alphaIndices, $pixelIndex) {
+    private function getAlphaIndex($alphaIndices, $pixelIndex)
+    {
         return $this->extractBitsFromUin16Array($alphaIndices, (3 * (15 - $pixelIndex)), 3);
     }
 
 
-    private function extractBitsFromUin16Array($array, $shift, $length) {
+    private function extractBitsFromUin16Array($array, $shift, $length)
+    {
         // sadly while javascript operates with doubles, it does all its binary operations on 32 bytes integers
         // so we have to get a bit dirty to do the bitshifting on the 48 bytes integer for the alpha values of DXT5
 
         $height = count($array);
-            $heightm1 = $height - 1;
-            $width = 16;
-            $rowS = (($shift / $width) | 0);
-            $rowE = ((($shift + $length - 1) / $width) | 0);
+        $heightm1 = $height - 1;
+        $width = 16;
+        $rowS = (($shift / $width) | 0);
+        $rowE = ((($shift + $length - 1) / $width) | 0);
 
         if ($rowS === $rowE) {
             // all the requested bits are contained in a single uint16
@@ -131,7 +126,8 @@ class Dxt5
     }
 
 
-    private function interpolateAlphaValues ($firstVal, $secondVal) {
+    private function interpolateAlphaValues($firstVal, $secondVal)
+    {
         $alphaValues = [$firstVal, $secondVal];
 
         if ($firstVal > $secondVal) {
@@ -154,11 +150,6 @@ class Dxt5
 
         return $alphaValues;
     }
-
-
-
-
-
 
     private function unsignedRightShift($a, $b)
     {
