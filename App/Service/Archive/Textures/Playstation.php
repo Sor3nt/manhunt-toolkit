@@ -206,7 +206,12 @@ class Playstation extends Image {
             $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
         }
 
-//        }
+        //flat the rgba array
+        $bmpRgba_ = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($bmpRgba));
+        $bmpRgba = [];
+        foreach ($bmpRgba_ as $item) {
+            $bmpRgba[] = $item;
+        }
 
         return $bmpRgba;
 

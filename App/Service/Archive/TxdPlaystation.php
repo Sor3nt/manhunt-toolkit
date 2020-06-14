@@ -110,8 +110,7 @@ class TxdPlaystation extends Archive {
             $texture = $this->parseTexture($currentOffset, $binary);
 
             $bmpRgba = $this->playstation->convertToRgba($texture, $platform);
-
-            $image = $this->playstation->saveImage($bmpRgba, $texture['width'],$texture['height']);
+            $image = $this->playstation->rgbaToImage($bmpRgba, $texture['width'],$texture['height']);
 
             $textures[$texture['name'] . '.png'] = $image;
 

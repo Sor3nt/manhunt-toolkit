@@ -106,10 +106,11 @@ class Dxt1
                         $pixelIndex = (3 - $x) + ($y * 4);
                         $rgbaIndex = ($h * 4 + 3 - $y) * $width * 4 + ($w * 4 + $x) * 4;
                         $colorIndex = ($colorIndices >> (2 * (15 - $pixelIndex))) & 0x03;
-                        $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4 + 3];
-                        $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 2];
-                        $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 1];
-                        $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4];
+
+                        $rgba[$rgbaIndex] = $colorValues[$colorIndex * 4];
+                        $rgba[$rgbaIndex + 1] = $colorValues[$colorIndex * 4 + 1];
+                        $rgba[$rgbaIndex + 2] = $colorValues[$colorIndex * 4 + 2];
+                        $rgba[$rgbaIndex + 3] = $colorValues[$colorIndex * 4 + 3];
                     }
                 }
             }

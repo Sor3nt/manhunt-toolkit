@@ -18,21 +18,9 @@ use Symfony\Component\Finder\Finder;
 class TxdWii extends Archive {
     public $name = 'Textures (Wii)';
 
-//    public static $supported = 'txd';
-
     public static $validationMap = [
         [0, 4, NBinary::HEX, ['54444354']]
     ];
-
-    private $ps2;
-
-
-
-    public function __construct()
-    {
-//        $this->ps2 = new Ps2();
-    }
-
 
     /**
      * @param $pathFilename
@@ -57,7 +45,6 @@ class TxdWii extends Archive {
             'unknown'           => $binary->consume(8,  NBinary::HEX)
         ];
 
-
         $binary->numericBigEndian = false;
         $header['numTextures'] = $binary->consume(4,  NBinary::INT_32);
         $binary->numericBigEndian = true;
@@ -76,7 +63,6 @@ class TxdWii extends Archive {
     private function parseTexture( $startOffset, NBinary $binary ){
 
         $binary->jumpTo($startOffset);
-
 
         $texture = [];
         $binary->numericBigEndian = true;
@@ -107,7 +93,6 @@ class TxdWii extends Archive {
         $texture['dataOffset'] = $binary->consume(4,  NBinary::INT_32);
         $binary->numericBigEndian = false;
 
-//var_dump($texture['dataOffset']);
         $texture['unknown3'] = $binary->consume(4,  NBinary::INT_32);
         $texture['dataSize'] = $binary->consume(4,  NBinary::INT_32);
         $texture['empty'] = $binary->consume(20,  NBinary::HEX);
@@ -161,61 +146,18 @@ class TxdWii extends Archive {
         while($header['numTextures'] > 0 ) {
 
             $texture = $this->parseTexture($currentOffset, $binary);
-
-
             if ($texture == false) continue;
-
-            $dxtHandler = new Dxt1();
 
             $texture['data'] = $this->unswizzleWii($texture, $texture['data']);
 
-//            if ($texture['name'] == "FE_execramps"){
-//
-//
-//                $bmpRgba = $dxtHandler->decodeWii(
-//                    $texture['data'],
-//                    $texture['width'],
-//                    $texture['height'],
-//                    'abgr'
-//                );
-//
-//                $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
-//                $textures[$texture['name'] . '.png'] = $image;
-//
-//                return $textures;
-//
-//                var_dump($bmpRgba);
-//                exit;
-//                $data = new NBinary($texture['data']);
-//
-//                $bmpRgba = [];
-//                while($data->remain()){
-//                    $bmpRgba[] = 0;
-//                    $bmpRgba[] = 0;
-//                    $bmpRgba[] = 0;
-//                    $bmpRgba[] = $data->consume(2, NBinary::U_INT_8);
-//                }
-//
-//
-//                $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
-//
-//                $textures[$texture['name'] . '.png'] = $image;
-//
-//                return $textures;
-//            }else{
-//                $currentOffset = $texture['nextOffset'];
-//                $header['numTextures']--;
-//                continue;
-//            }
-
+            $dxtHandler = new Dxt1();
             $bmpRgba = $dxtHandler->decodeWii(
                 $texture['data'],
                 $texture['width'],
                 $texture['height']
             );
 
-
-            $image = $imageHandler->saveRGBAImage($bmpRgba, $texture['width'],$texture['height']);
+            $image = $imageHandler->rgbaToImage($bmpRgba, $texture['width'],$texture['height']);
 
             $textures[$texture['name'] . '.png'] = $image;
 
@@ -228,8 +170,6 @@ class TxdWii extends Archive {
     }
 
     private function unswizzleWii($texture, $input ){
-        $result = [];
-
         $bmpRgba = str_split(bin2hex($input), 2);
         $result = [];
         foreach ($bmpRgba as $item) {
@@ -256,56 +196,6 @@ class TxdWii extends Archive {
         }
 
         return hex2bin(implode("", $result));
-    }
-
-    private function unswizzlePsp($texture, $bmpRgba, $as4Bit = false)
-    {
-
-
-        $out = [];
-        $rowblocks = ($texture['width'] / 4);
-
-        for ($j = 0; $j < $texture['height']; ++$j) {
-            for ($i = 0; $i < $texture['width']; ++$i) {
-                $blockx = $i / 4;
-                $blocky = $j / 4;
-
-                $x = ($i - $blockx * 4);
-                $y = ($j - $blocky * 4);
-                $block_index = $blockx + (($blocky) * $rowblocks);
-                $block_address = $block_index * 4 * 4;
-
-                $target = ($block_address + $x + $y) * 4;
-                $source = ($i + $j * $texture['width']) * 4;
-//                var_dump($target . " " . $source);
-                $out[$target] = $bmpRgba[$source];
-
-            }
-        }
-//        exit;
-        return $out;
-    }
-
-
-    private function unswizzlePs2($texture, $bmpRgba ){
-        $result = [];
-
-        for ($y = 0; $y < $texture['height']; $y++){
-
-            for ($x = 0; $x < $texture['width']; $x++) {
-                $block_loc = ($y&(~15))*$texture['width'] + ($x&(~15))*2;
-                $swap_sel = ((($y+2)>>2)&1)*4;
-                $ypos = ((($y&(~3))>>1) + ($y&1))&7;
-                $column_loc = $ypos*$texture['width']*2 + (($x+$swap_sel)&7)*4;
-                $byte_sum = (($y>>1)&1) + (($x>>2)&2);
-                $swizzled = $block_loc + $column_loc + $byte_sum;
-
-                $result[$y*$texture['width']+$x] = $bmpRgba[$swizzled];
-            }
-
-        }
-
-        return $result;
     }
 
     public function pack( $data, $game, $platform){

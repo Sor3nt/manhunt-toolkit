@@ -2,6 +2,7 @@
 namespace App\Service\Archive;
 
 use App\MHT;
+use App\Service\Archive\Textures\Image;
 use App\Service\NBinary;
 
 /**
@@ -84,7 +85,7 @@ class Tex extends Archive {
 
 
             //decode the DXT Texture
-            $bmpRgba = $dxtHandler->decode(
+            $rgba = $dxtHandler->decode(
                 $ddsDecoded['data'],
                 $ddsDecoded['width'],
                 $ddsDecoded['height']
@@ -96,7 +97,7 @@ class Tex extends Archive {
 
 
             //decode the DXT Texture
-            $bmpRgba = $dxtHandler->decode(
+            $rgba = $dxtHandler->decode(
                 $ddsDecoded['data'],
                 $ddsDecoded['width'],
                 $ddsDecoded['height']
@@ -105,9 +106,9 @@ class Tex extends Archive {
         }else if($ddsDecoded['format'] == ""){
 
             $data = new NBinary($ddsDecoded['data']);
-            $bmpRgba = [];
+            $rgba = [];
             while($data->remain()){
-                $bmpRgba[] = $data->consume(1, NBinary::U_INT_8);
+                $rgba[] = $data->consume(1, NBinary::U_INT_8);
             }
 
         }else{
@@ -115,37 +116,8 @@ class Tex extends Archive {
             throw new \Exception('Format not implemented: ' . $ddsDecoded['format']);
         }
 
-        $img = imagecreatetruecolor($ddsDecoded['width'], $ddsDecoded['height']);
+        return $rgba;
 
-        //fill the image with transparent otherwise its black...
-        $transparent = imagecolorallocatealpha( $img, 0, 0, 0, 127 );
-        imagefill( $img, 0, 0, $transparent );
-
-        $i = 0;
-        for ($y = 0; $y < $ddsDecoded['height']; $y++) {
-            for ($x = 0; $x < $ddsDecoded['width']; $x++) {
-
-                $color =  imagecolorallocatealpha(
-                    $img,
-                    $bmpRgba[$i],
-                    $bmpRgba[$i + 1],
-                    $bmpRgba[$i + 2],
-                    127 - ($bmpRgba[$i + 3 ] >> 1)
-
-                );
-                imagesetpixel($img,$x,$y,$color);
-                $i +=4;
-
-            }
-        }
-
-
-        ob_start();
-//        imagealphablending($img, false);
-        imagesavealpha($img, true);
-        imagepng($img, null, 9);
-
-        return [ $texture['name'] . ".png" , ob_get_clean()];
     }
 
     /**
@@ -157,6 +129,7 @@ class Tex extends Archive {
      */
     public function unpack(NBinary $binary, $game, $platform){
 
+        $imageHandler = new Image();
         $header = $this->parseHeader($binary);
 
         $currentOffset = $header['firstOffset'];
@@ -178,26 +151,9 @@ class Tex extends Archive {
                 continue;
             }
 
-//if($texture['name'] != "clear"){
-//
-//    continue;
-//}
-//
-//            var_dump($texture);
+            $rgba = $this->convertToBmp($texture);
 
-
-
-//            if ($texture['name'] != "Gore03"){
-//
-//                $currentOffset = $texture['nextOffset'];
-//
-//                $header['numTextures']--;
-//                continue;
-//            }
-
-            list($filename, $bmp) = $this->convertToBmp($texture);
-
-            $textures[$filename] = $bmp;
+            $textures[$texture['name'] . ".png"] = $imageHandler->rgbaToImage($rgba, $texture['width'], $texture['height']);
 
             $currentOffset = $texture['nextOffset'];
 
