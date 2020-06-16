@@ -151,16 +151,22 @@ class Tex extends Archive {
         $result = new NBinary();
 
         $this->writeHeader($result, count($files));
-        $this->writeTexturesData($result, $files);
+
+        $dataSize = $this->writeTexturesData($result, $files);
+
         $this->writeTexturesHeader($result, $files);
 
         $tableOffset = $result->current;
         $this->writeTexturesIndexTable($result, $files);
 
         $size = 48; //header size
-        foreach ($files as $file) {
-            $size += \mb_strlen($file, '8bit');
-        }
+        $size += 16; //header empty line
+        $size += $dataSize;
+
+        $size += 112 * count($files); //112 tex header
+        $size += 16 * count($files); //empty line per tex header
+//
+        $size += (count($files) * 4 * 3) + (4 * 2); // table size
 
         $result->current = $this->offsets['fileSize'];
         $result->overwrite($size, NBinary::INT_32);
@@ -221,21 +227,34 @@ class Tex extends Archive {
         $output->write(1234, NBinary::INT_32);
 
         $output->write(0, NBinary::INT_32);
-//
-//        //empty line to fill the block (padding?)
-//        $output->write(0, NBinary::INT_32);
-//        $output->write(0, NBinary::INT_32);
-//        $output->write(0, NBinary::INT_32);
-//        $output->write(0, NBinary::INT_32);
+
+        //empty line to fill the block (padding?)
+        $output->write(0, NBinary::INT_32);
+        $output->write(0, NBinary::INT_32);
+        $output->write(0, NBinary::INT_32);
+        $output->write(0, NBinary::INT_32);
 
     }
 
     private function writeTexturesData(NBinary $output, $files){
+        $size = 0;
         foreach ($files as $file) {
             $this->dataOffsets[] = $output->current;
             $output->write($file, NBinary::BINARY);
+
+            $size += \mb_strlen($file, '8bit');
+            if ($size % 16 !== 0){
+
+                $size += $size % 16;
+                $output->write(
+                    $output->getPadding("\x00", 16),
+                    NBinary::BINARY
+                );
+            }
+
         }
 
+        return $size;
     }
 
     private function writeTexturesHeader(NBinary $output, $files){
@@ -248,7 +267,7 @@ class Tex extends Archive {
             $ddsHandler = new Dds();
             $ddsHeader = $ddsHandler->readHeader($data);
 
-            $nextOffset = $output->current + 112;
+            $nextOffset = $output->current + 128;
             $this->tableOffsets[$index]['next'] = $output->current;
             if (count($files) == $index + 1){
                 $output->write(36, NBinary::INT_32);
@@ -258,10 +277,10 @@ class Tex extends Archive {
 
             //prevOffset
             $this->tableOffsets[$index]['prev'] = $output->current;
-            if ($index === 0 || count($files) == $index + 1){
+            if ($index === 0){
                 $output->write(36, NBinary::INT_32);
             }else{
-                $output->write($nextOffset - 112, NBinary::INT_32);
+                $output->write($nextOffset - 128, NBinary::INT_32);
             }
 
             $output->write(str_pad($name, 32, "\x00"), NBinary::STRING);
@@ -303,6 +322,11 @@ class Tex extends Archive {
 
             $output->write($data->length(), NBinary::INT_32);
 
+            $output->write(0, NBinary::INT_32);
+
+            $output->write(0, NBinary::INT_32);
+            $output->write(0, NBinary::INT_32);
+            $output->write(0, NBinary::INT_32);
             $output->write(0, NBinary::INT_32);
 
 
