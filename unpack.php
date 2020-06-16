@@ -3,7 +3,10 @@ ini_set('memory_limit','-1');
 require_once 'vendor/autoload.php';
 
 use App\MHT;
+use App\Service\Archive\Dds;
 use App\Service\Archive\Mls;
+use App\Service\Archive\Textures\Image;
+use App\Service\NBinary;
 use App\Service\Resources;
 
 echo "\n";
@@ -276,6 +279,20 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
 }
 
+if ($handler instanceof App\Service\Archive\Tex){
+    if (in_array('to-png', $options) !== false ){
+        $ddsHandler = new Dds();
+        $imageHandler = new Image();
+        foreach ($results as $filename => $result) {
+            $ddsResult = $ddsHandler->unpack( new NBinary($result), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
+
+            unset($results[$filename]);
+            $filename = substr($filename,0, -3) . 'png';
+            $results[$filename] = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
+        }
+    }
+}
+
 
 
 if ($handler instanceof Mls){
@@ -438,6 +455,9 @@ function printHelp(){
     echo "\n";
     echo "*.AFS\n";
     echo "\t--convert [--pcm, --to-pcm]\t\tConvert the Audios to PCM instead to ADX\n";
+    echo "\n";
+    echo "*.TEX\n";
+    echo "\t--to-png\t\tConvert the exported DDS into PNG\n";
     echo "\n";
     echo "\n";
 

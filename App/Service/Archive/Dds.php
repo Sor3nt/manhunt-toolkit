@@ -19,16 +19,8 @@ class Dds extends Archive
         throw new \Exception('Packing of DDS is not implemented');
     }
 
-    /**
-     * @param NBinary $binary
-     * @param $game
-     * @param $platform
-     * @return array
-     */
-    public function unpack(NBinary $binary, $game, $platform)
-    {
-
-        return [
+    public function readHeader(NBinary $binary){
+        $header = [
             'magic' => $binary->consume(4, NBinary::BINARY),
             'size' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
             'flags' => $this->convertHeaderFlags($binary->consume(4, NBinary::LITTLE_U_INT_32)),
@@ -56,12 +48,59 @@ class Dds extends Archive
             'caps3' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
             'caps4' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
             'reserved2' => $binary->consume(4, NBinary::LITTLE_U_INT_32),
-
-
-            'data' => $binary->consume( $binary->remain(), NBinary::BINARY)
-
         ];
 
+        return $header;
+    }
+
+
+    public function unpack(NBinary $binary, $game, $platform)
+    {
+
+        $ddsDecoded = $this->readHeader($binary);
+        $ddsDecoded['data'] = $binary->consume( $binary->remain(), NBinary::BINARY);
+
+        if($ddsDecoded['format'] == "DXT1") {
+            $dxtHandler = new Dxt1();
+
+
+            //decode the DXT Texture
+            $rgba = $dxtHandler->decode(
+                $ddsDecoded['data'],
+                $ddsDecoded['width'],
+                $ddsDecoded['height']
+            );
+
+
+        }else if($ddsDecoded['format'] == "DXT5"){
+            $dxtHandler = new Dxt5();
+
+
+            //decode the DXT Texture
+            $rgba = $dxtHandler->decode(
+                $ddsDecoded['data'],
+                $ddsDecoded['width'],
+                $ddsDecoded['height']
+            );
+
+        }else if($ddsDecoded['format'] == ""){
+
+            $data = new NBinary($ddsDecoded['data']);
+            $rgba = [];
+            while($data->remain()){
+                $rgba[] = $data->consume(1, NBinary::U_INT_8);
+            }
+
+        }else{
+//            var_dump($ddsDecoded);exit;
+            throw new \Exception('Format not implemented: ' . $ddsDecoded['format']);
+        }
+
+        return [
+            'width' => $ddsDecoded['width'],
+            'height' => $ddsDecoded['height'],
+            'rgba' => $rgba,
+        ];
     }
 
 
