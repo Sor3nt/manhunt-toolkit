@@ -346,7 +346,6 @@ class PhpFsbExt {
                 )
             );
 
-            $fsbIni['orders'][] = $name;
 
             $moresize_dump = "";
             if ($moresize > 0){
@@ -358,6 +357,8 @@ class PhpFsbExt {
 
 
             $name = $this->getFileWithCorrectExtension($name, $mode);
+
+            $fsbIni['orders'][] = $name;
             $files[$name] = $this->extract_file($binary, $freq, $chans, $bits, $size, $moresize_dump, $moresize, $samples, $mode);
 
             $fileOff += $size;

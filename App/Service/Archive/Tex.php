@@ -157,7 +157,7 @@ class Tex extends Archive {
         $this->writeTexturesHeader($result, $files);
 
         $tableOffset = $result->current;
-        $this->writeTexturesIndexTable($result, $files);
+        $this->writeTexturesIndexTable($result);
 
         $size = 48; //header size
         $size += 16; //header empty line
@@ -187,14 +187,18 @@ class Tex extends Archive {
     }
 
 
-    private function prepareData( Finder $finder ){
+    private function prepareData( $finder ){
 
-        $files = [];
-        foreach ($finder as $file) {
-            $files[$file->getFilenameWithoutExtension()] = $file->getContents();
+        if ($finder instanceof Finder){
+            $files = [];
+            foreach ($finder as $file) {
+                $files[$file->getFilenameWithoutExtension()] = $file->getContents();
+            }
+
+            return $files;
         }
 
-        return $files;
+        return $finder;
     }
 
     private function writeHeader(NBinary $output, $count){
@@ -303,7 +307,7 @@ class Tex extends Archive {
 
             $output->write($ddsHeader['pitchOrLinearSize'] / $ddsHeader['width'], NBinary::INT_32);
 
-            //flags TODO
+            //flags
             if ($ddsHeader['format'] == "DXT5") {
                 $output->write("\x10\x00\x00\x00", NBinary::BINARY);
             }else{
@@ -324,6 +328,7 @@ class Tex extends Archive {
 
             $output->write(0, NBinary::INT_32);
 
+            //empty line, looks like the mh2 parser need it
             $output->write(0, NBinary::INT_32);
             $output->write(0, NBinary::INT_32);
             $output->write(0, NBinary::INT_32);
@@ -335,7 +340,7 @@ class Tex extends Archive {
 
     }
 
-    private function writeTexturesIndexTable(NBinary $output, $files){
+    private function writeTexturesIndexTable(NBinary $output){
 
         $output->write($this->offsets['firstOffset'], NBinary::INT_32);
         $output->write($this->offsets['lastOffset'], NBinary::INT_32);

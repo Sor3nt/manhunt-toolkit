@@ -190,6 +190,8 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
 
             list($hashName, $originalFile) = $dirResult[$index];
+
+
             if (strpos($hashName, 'scripted') !== false){
                 $newFilename = str_replace('\wii_stream', '', $hashName);
                 $newFilename = str_replace('\pc_stream', '', $hashName);
@@ -198,7 +200,7 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
                 list($folder, $file) = explode("/", $newFilename);
 
-                $results['fsb3.json']['orders'][] = $newFilename;
+                $results['fsb3.json']['orders'][] = $folder . '/' . $file;
                 $newResults[$folder . '/' . $file] = $data;
                 $known++;
             }else if (strpos($hashName, 'executions') !== false){
@@ -207,7 +209,8 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
                 list($folder, $file) = explode("/", $newFilename);
 
-                $results['fsb3.json']['orders'][] = $newFilename;
+                $results['fsb3.json']['orders'][] = $originalFile . '/' . $file;
+
                 $newResults[$originalFile . '/' . $file] = $data;
                 $known++;
             }else{

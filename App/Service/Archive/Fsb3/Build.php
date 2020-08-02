@@ -21,16 +21,26 @@ class Build {
 
         if ($globalSampleHeader == false) die('unable to load fsb3.json!');
 
+        $pathFilename->sort(function (\SplFileInfo $a,\SplFileInfo $b ) use ($globalSampleHeader){
+
+            $pathA = explode("#fsb/", $a->getPathname())[1];
+            $pathB = explode("#fsb/", $b->getPathname())[1];
+
+            return array_search($pathA, $globalSampleHeader['orders']) > array_search($pathB, $globalSampleHeader['orders']);
+
+        });
+
         foreach ($pathFilename as $file) {
             if ($file->getExtension() !== "wav") continue;
             $samples[] = $this->convertWavToFSBSample($file);
         }
 
         //sort by the given index
-        usort($samples, function ($a, $b) use ($globalSampleHeader){
-            return array_search($a[2], $globalSampleHeader['orders']) > array_search($b[2], $globalSampleHeader['orders']);
-        });
+//        usort($samples, function ($a, $b) use ($globalSampleHeader){
+//            return array_search($a[2], $globalSampleHeader['orders']) > array_search($b[2], $globalSampleHeader['orders']);
+//        });
 
+//        var_dump($samples[0][2], $globalSampleHeader['orders'][0]);exit;
 
         return $this->createFSB($samples, $globalSampleHeader);
 
