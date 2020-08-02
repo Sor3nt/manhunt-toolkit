@@ -95,14 +95,29 @@ class Build {
         $filePathName .= '/' . $file->getFilename();
 
         $sample = new NBinary($file->getContents());
-        $sample->current = 48; // before FACT data size
 
-        $lengthSamples = $sample->consume(4, NBinary::INT_32);
+        if ($sample->get(4,40, true) == "66616374"){ // fact
 
-        $sample->current = 56; // before DATA size
-        $lengthCompressedBytes = $sample->consume(4, NBinary::INT_32);
-        $data = $sample->consume($lengthCompressedBytes, NBinary::BINARY);
-        $data = new NBinary($data);
+            $sample->current = 48; // before FACT data size
+
+            $lengthSamples = $sample->consume(4, NBinary::INT_32);
+
+            $sample->current = 56; // before DATA size
+            $lengthCompressedBytes = $sample->consume(4, NBinary::INT_32);
+            $data = $sample->consume($lengthCompressedBytes, NBinary::BINARY);
+            $data = new NBinary($data);
+
+        }else{
+
+            $sample->current = 44; // before DATA size
+            $lengthCompressedBytes = $sample->consume(4, NBinary::INT_32);
+            $lengthSamples = $lengthCompressedBytes;
+            $data = $sample->consume($lengthCompressedBytes, NBinary::BINARY);
+            $data = new NBinary($data);
+
+        }
+
+
 //
 //
 //        $sample->current = 40; // before PCMA Flag
