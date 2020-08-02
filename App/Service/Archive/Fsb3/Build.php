@@ -23,8 +23,11 @@ class Build {
 
         $pathFilename->sort(function (\SplFileInfo $a,\SplFileInfo $b ) use ($globalSampleHeader){
 
-            $pathA = explode("#fsb/", $a->getPathname())[1];
-            $pathB = explode("#fsb/", $b->getPathname())[1];
+            $pathA = str_replace('\\', '/', $a->getPathname());
+            $pathB = str_replace('\\', '/', $b->getPathname());
+
+            $pathA = explode("#fsb/", $pathA)[1];
+            $pathB = explode("#fsb/", $pathB)[1];
 
             return array_search($pathA, $globalSampleHeader['orders']) > array_search($pathB, $globalSampleHeader['orders']);
 
