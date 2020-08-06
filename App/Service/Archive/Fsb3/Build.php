@@ -108,48 +108,18 @@ class Build {
             $data = new NBinary($data);
 
         }else{
+            $sample->current = 22;
+            $channels = $sample->consume(2, NBinary::INT_16);
 
             $sample->current = 44; // before DATA size
             $lengthCompressedBytes = $sample->consume(4, NBinary::INT_32);
-            $lengthSamples = $lengthCompressedBytes;
+
+            $lengthSamples = $channels * 0x40 * ($lengthCompressedBytes / (0x24 * $channels));
+
             $data = $sample->consume($lengthCompressedBytes, NBinary::BINARY);
             $data = new NBinary($data);
 
         }
-
-
-//
-//
-//        $sample->current = 40; // before PCMA Flag
-//
-//        $isFact = $sample->consume(4, NBinary::STRING);
-//        $isAdPcm = false;
-//        if ($isFact === "fact") $isAdPcm = true;
-//
-//        if ($isAdPcm){
-//            $sample->current = 48; // before FACT data size
-//
-//            $lengthSamples = $sample->consume(4, NBinary::INT_32);
-//
-//            $sample->current = 56; // before DATA size
-//            $lengthCompressedBytes = $sample->consume(4, NBinary::INT_32);
-//            $data = $sample->consume($lengthCompressedBytes, NBinary::BINARY);
-//
-//            $data = new NBinary($data);
-//        }else{
-//            $sample->current = 22; // before channel count
-//            $numChannels = $sample->consume(2, NBinary::INT_16);
-//
-//            $sample->current = 40; // before DATA size
-//            $lengthCompressedBytes = $sample->consume(4, NBinary::INT_32);
-//            $data = $sample->consume($lengthCompressedBytes, NBinary::BINARY);
-//
-//            $data = new NBinary($data);
-//
-//            $lengthSamples = $data->length();
-//            $data = $this->encode($data, $numChannels);
-//        }
-
 
         $sampleHeader = $this->createSampleHeaderBasic($lengthSamples, $lengthCompressedBytes);
         return [$sampleHeader, $data, $filePathName, $lengthSamples];
