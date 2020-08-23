@@ -106,7 +106,11 @@ echo sprintf('Processing %s ', $file);
 
 
 if (isset($handler->keepOrder)){
-    $handler->keepOrder = $keepOrder;
+    if (in_array('ignore-order', $options) !== false){
+        $handler->keepOrder = false;
+    }else{
+        $handler->keepOrder = $keepOrder;
+    }
 }
 
 if ($handler instanceof App\Service\Archive\Fsb3 ||
