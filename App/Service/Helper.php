@@ -3,6 +3,26 @@ namespace App\Service;
 
 class Helper{
 
+    static function groupBy( $field, $arr )
+    {
+        $result = array();
+        foreach ($arr as $data) {
+            $id = $data[$field];
+
+            if ($id instanceof \DateTime) {
+                $id = $id->format('Y-m-d') . ' 00:00:00';
+            }
+
+            if (isset($result[$id])) {
+                $result[$id][] = $data;
+            } else {
+                $result[$id] = array($data);
+            }
+        }
+
+        return $result;
+    }
+
     static function moveArrayIndexToTop(&$array, $key) {
         $temp = array($key => $array[$key]);
         unset($array[$key]);

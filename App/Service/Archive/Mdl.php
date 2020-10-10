@@ -9,9 +9,13 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 class Mdl extends Archive {
-    public $name = 'Model File';
+    public $name = 'Model File (MDL)';
 
-    public static $supported = 'mdl';
+//    public static $supported = 'mdl';
+    public static $validationMap = [
+        [0, 4, NBinary::HEX, ['504d4c43', '434c4d50']]
+    ];
+
 
     public $game = MHT::GAME_MANHUNT_2;
     public $platform = MHT::PLATFORM_AUTO;
@@ -42,7 +46,6 @@ class Mdl extends Archive {
 
     private function prepareData( Finder $finder ){
         $extractor = new Extract();
-
         $mdls = [];
 
         $finder->sort(function(SplFileInfo $a, SplFileInfo$b ){

@@ -10,6 +10,8 @@ class Extract {
     public $keepOrder = false;
 
     public function getTextureNames(NBinary $binary){
+        if ($binary->length() == 0) return [];
+
         $data = $this->get($binary);
 
         $textures = [];
@@ -28,7 +30,7 @@ class Extract {
             }
         }
 
-        return $textures;
+        return array_unique($textures);
     }
 
     public function get( NBinary $binary ){

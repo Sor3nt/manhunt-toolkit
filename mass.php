@@ -139,7 +139,9 @@ foreach ($finder as $file) {
 
     if ($flat){
         //prepare output folder
-        $outputTo = $outputFolder . '/' . str_replace('/', '_', $file->getRelativePath());
+
+        $outputTo = $outputFolder . '/' ;
+//        $outputTo = $outputFolder . '/' . str_replace('/', '_', $file->getRelativePath());
 
     }else{
         //prepare output folder
@@ -154,6 +156,22 @@ foreach ($finder as $file) {
         $results = $handler->getValidatedResults( $results, $game, $platform );
     }
 
+
+    if ($handler instanceof App\Service\Archive\Tex){
+        if (in_array('to-png', $options) !== false ){
+            $ddsHandler = new \App\Service\Archive\Dds();
+            $imageHandler = new \App\Service\Archive\Textures\Image();
+            foreach ($results as $filename => $result) {
+                $ddsResult = $ddsHandler->unpack( new \App\Service\NBinary($result), $game, $platform );
+
+                unset($results[$filename]);
+                $filename = substr($filename,0, -3) . 'png';
+                $results[$filename] = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
+            }
+        }
+    }
+
+
     if (is_array($results)){
 
         foreach ($results as $relativeFilename => $data) {
@@ -163,6 +181,7 @@ foreach ($finder as $file) {
             if ( is_numeric($relativeFilename) ){
 
                 if ($flat) {
+//                    if (file_exists($outputTo)) continue;
 
                     file_put_contents(
                         $outputTo . '_' . $file->getFilename() . '.json',
@@ -190,7 +209,8 @@ foreach ($finder as $file) {
                 $pathInfo = pathinfo($relativeFilename);
 
                 if ($flat) {
-                    $outputDir = $outputTo . '_' . str_replace('.', '#', $file->getFilename()) . '_' . $pathInfo['dirname'];
+                    $outputDir = $outputTo;
+//                    $outputDir = $outputTo . '_' . str_replace('.', '#', $file->getFilename()) . '_' . $pathInfo['dirname'];
                     @mkdir($outputTo, 0777, true);
 
                 }else{
@@ -218,9 +238,24 @@ foreach ($finder as $file) {
                     if ($flat) {
                         $md5 = md5($data);
                         if (!isset($md5ByFile[$md5])) $md5ByFile[$md5] = [];
-                        var_dump($pathInfo['basename'] . $extension);
-                        $md5ByFile[$md5][] = $outputDir ;
-                        file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
+                        $finalNamePath = $outputDir . $pathInfo['basename'] . $extension;
+                        $md5ByFile[$md5][] = $finalNamePath;
+
+                        $appendix = "";
+                        while (file_exists($finalNamePath . $appendix)){
+                            if ($appendix === ""){
+                                $appendix = 1;
+                                continue;
+                            }
+
+                            $appendix++;
+                        }
+
+                        $finalNamePath = $finalNamePath . $appendix;
+//                        var_dump($finalNamePath);exit;
+
+                        file_put_contents($finalNamePath, $data);
+//                        file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
                     }else{
                         file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
 

@@ -48,6 +48,11 @@ class Playstation extends Image {
 
         $BlockWidth = $as4Bit ? 32 : 16;
         $BlockHeight = 8;
+
+        if ($texture['width'] == 16){
+            $BlockWidth = 16;
+        }
+
         $BlockSize = $BlockHeight * $BlockWidth;
 
         $start = 0;
@@ -85,7 +90,7 @@ class Playstation extends Image {
 
     private function unswizzlePs2($texture, $bmpRgba ){
 
-        if ($texture['height'] <= 32) return $bmpRgba;
+//        if ($texture['height'] <= 32) return $bmpRgba;
 
         $result = [];
 
@@ -202,7 +207,7 @@ class Playstation extends Image {
 
         if ($platform == MHT::PLATFORM_PS2 && $texture['swizzleMask'] & 0x1 != 0) {
             $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
-        }else if ($platform == MHT::PLATFORM_PSP){
+        }else if ($platform == MHT::PLATFORM_PSP || $platform == MHT::PLATFORM_PSP_001){
             $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
         }
 

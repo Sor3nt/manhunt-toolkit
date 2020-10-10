@@ -85,6 +85,12 @@ class TxdPlaystation extends Archive {
         }
 
         $binary->jumpTo($texture['dataOffset']);
+
+        if ($texture['width'] == 1) {
+            $texture['data'] = false;
+            return $texture;
+        }
+
         $texture['data'] = $binary->consume(
             $this->playstation->getRasterSize($texture['rasterFormat'], $texture['width'], $texture['height'], $texture['bitPerPixel']),
             NBinary::BINARY
@@ -97,10 +103,6 @@ class TxdPlaystation extends Archive {
     public function unpack(NBinary $binary, $game, $platform){
 
         if ($game == MHT::GAME_AUTO) $game = MHT::GAME_MANHUNT_2;
-//        if ($platform == MHT::PLATFORM_AUTO){
-//            echo "\n\nUnable to detect platform, please provide the parameter --platform=ps2 or --platform=psp\n";
-//            exit;
-//        }
 
         $header = $this->parseHeader($binary);
         $currentOffset = $header['firstOffset'];
@@ -109,10 +111,12 @@ class TxdPlaystation extends Archive {
         while($header['numTextures'] > 0) {
             $texture = $this->parseTexture($currentOffset, $binary);
 
-            $bmpRgba = $this->playstation->convertToRgba($texture, $platform);
-            $image = $this->playstation->rgbaToImage($bmpRgba, $texture['width'],$texture['height']);
+            if ($texture['data'] !== false){
+                $bmpRgba = $this->playstation->convertToRgba($texture, $platform);
+                $image = $this->playstation->rgbaToImage($bmpRgba, $texture['width'],$texture['height']);
 
-            $textures[$texture['name'] . '.png'] = $image;
+                $textures[$texture['name'] . '.png'] = $image;
+            }
 
             $currentOffset = $texture['nextOffset'];
 

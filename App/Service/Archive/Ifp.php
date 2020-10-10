@@ -268,6 +268,13 @@ class Ifp extends Archive
 
                 } else {
 
+                    $unknownSize = 40;
+
+                    //MH2 PSP v0.01 hack
+                    if ($platform == MHT::PLATFORM_PSP_001){
+                        $unknownSize = 4;
+                    }
+
                     $entry = [
                         'time' => $binary->consume(4, NBinary::FLOAT_32),
                         'unknown' => $binary->consume(4, NBinary::HEX),
@@ -285,7 +292,7 @@ class Ifp extends Archive
                             $binary->consume(4, NBinary::FLOAT_32),
                             $binary->consume(4, NBinary::FLOAT_32)
                         ],
-                        'unknown5' => $binary->consume(40, NBinary::HEX)
+                        'unknown5' => $binary->consume($unknownSize, NBinary::HEX)
                     ];
 
 
@@ -379,6 +386,7 @@ class Ifp extends Archive
                 $startTime = $binary->consume(2, NBinary::LITTLE_U_INT_16);
 
             }
+
             $startTime = ($startTime / 2048) * 30;
 
             $resultBone = [
@@ -424,7 +432,8 @@ class Ifp extends Archive
                 $frameType,
                 $binary,
                 $game,
-                $platform
+                $platform,
+                $sequenceLabel
             );
 
             $bones[] = $resultBone;
@@ -435,7 +444,7 @@ class Ifp extends Archive
         return [$bones, $frameTimeCount];
     }
 
-    private function extractFrames($startTime, $frames, $frameType, NBinary $binary, $game, $platform)
+    private function extractFrames($startTime, $frames, $frameType, NBinary $binary, $game, $platform, $sequenceLabel)
     {
 
         $resultFrames = [ 'frames' => [] ];
@@ -537,6 +546,7 @@ class Ifp extends Archive
                         $binary->consume(2, NBinary::INT_16) / 2048,
                         $binary->consume(2, NBinary::INT_16) / 2048
                     ];
+
                 }
             }
 
@@ -546,7 +556,7 @@ class Ifp extends Archive
             $index++;
         }
 
-        if ($game == MHT::GAME_MANHUNT_2) {
+        if ($sequenceLabel == "SEQT") {
             $resultFrames['lastFrameTime'] = ($binary->consume(4, NBinary::FLOAT_32)) * 30;
         }
 

@@ -207,8 +207,8 @@ class Dxt1
 
         if ($isDxt1 && $firstVal <= $secondVal) {
             $colorValues[] = round(($firstColor[0] + $secondColor[0]) / 2);
-            $colorValues[] = $colorValues[] = round(($firstColor[1] + $secondColor[1]) / 2);
-            round(($firstColor[2] + $secondColor[2]) / 2);
+            $colorValues[] = round(($firstColor[1] + $secondColor[1]) / 2);
+            $colorValues[] = round(($firstColor[2] + $secondColor[2]) / 2);
             $colorValues[] = 255;
 
             $colorValues[] = 0;

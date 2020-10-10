@@ -10,6 +10,7 @@ class MHT{
     const PLATFORM_PC       = 'pc';
     const PLATFORM_PS2      = 'ps2';
     const PLATFORM_PSP      = 'psp';
+    const PLATFORM_PSP_001  = 'psp001';
     const PLATFORM_XBOX     = 'xbox';
     const PLATFORM_WII      = 'wii';
 
