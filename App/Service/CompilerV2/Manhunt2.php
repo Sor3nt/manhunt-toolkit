@@ -1085,6 +1085,22 @@ class Manhunt2 extends ManhuntDefault
             'return' => 'entityptr'
         ],
 
+        'cutscenecamerasetoffset' => [
+            'name' => 'CutscenecameraSetOffset',
+            'offset' => '60030000',
+            'return' => 'entityptr'
+        ],
+
+        'whitenoiseset' => [
+            'name' => 'WhiteNoiseSet',
+            'offset' => 'da020000'
+        ],
+
+        'addvectors' => [
+            'name' => 'AddVectors',
+            'offset' => '85010000'
+        ],
+
         'hudtoggleflashflags' => [
             'name' => 'HUDToggleFlashFlags',
             'offset' => 'b2020000'
@@ -1744,6 +1760,11 @@ class Manhunt2 extends ManhuntDefault
         'playscriptaudiostreamauto' => [
             'name' => 'PlayScriptAudioStreamAuto',
             'offset' => '6a030000',
+        ],
+
+        'loadlevelbyname' => [
+            'name' => 'LoadLevelByName',
+            'offset' => '4a030000',
         ],
 
         'aientityplayanim' => [

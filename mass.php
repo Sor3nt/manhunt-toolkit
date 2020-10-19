@@ -238,11 +238,21 @@ foreach ($finder as $file) {
                     if ($flat) {
                         $md5 = md5($data);
                         if (!isset($md5ByFile[$md5])) $md5ByFile[$md5] = [];
-                        $finalNamePath = $outputDir . $pathInfo['basename'] . $extension;
-                        $md5ByFile[$md5][] = $finalNamePath;
+                        if ($pathInfo['filename'] == ""){
+                            $pathInfo['filename'] = "noname";
+                        }
+
+                        if ($extension == ""){
+                            $extension = "." . explode(".", $pathInfo['basename'])[1];
+                        }else {
+                            $extension = "." . $extension;
+                        }
+
+                        $finalNamePath = $outputDir . $pathInfo['filename'] . $extension;
+
 
                         $appendix = "";
-                        while (file_exists($finalNamePath . $appendix)){
+                        while (file_exists($outputDir . $pathInfo['filename'] . $appendix . $extension)){
                             if ($appendix === ""){
                                 $appendix = 1;
                                 continue;
@@ -251,11 +261,11 @@ foreach ($finder as $file) {
                             $appendix++;
                         }
 
-                        $finalNamePath = $finalNamePath . $appendix;
-//                        var_dump($finalNamePath);exit;
+                        $finalNamePath = $outputDir . $pathInfo['filename'] . $appendix . $extension;
+                        $md5ByFile[$md5][] = $finalNamePath;
 
                         file_put_contents($finalNamePath, $data);
-//                        file_put_contents($outputDir . '_' . $pathInfo['basename'] . $extension, $data);
+
                     }else{
                         file_put_contents($outputDir . '/' . $pathInfo['basename'] . $extension, $data);
 

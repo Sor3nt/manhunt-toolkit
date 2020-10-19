@@ -122,6 +122,41 @@ class Compiler
         $this->platform = $platform;
         $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2();
 
+
+        $source = preg_replace_callback("/FrisbeeSpeechPlayWait\((.*)\s?,(.*)\s?,(.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
+            $newMap = sprintf('FrisbeeSpeechPlay(%s,%s,%s);', $match[1],$match[2],$match[3]);
+            $newMap .= sprintf('while NOT FrisbeeSpeechIsFinished(%s) do sleep(%s);', $match[1],$match[4]);
+            return $newMap;
+        },$source);
+
+
+        $source = preg_replace_callback("/AIAddSubPackForLeaderCombatGoal\((.*)\s?,(.*)\s?,(.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
+            $newMap = sprintf('AIAddSubPackForLeader(%s,%s);', $match[1],$match[2]);
+            $newMap .= sprintf('AISetSubpackCombatType(%s,%s,%s);', $match[1],$match[2],$match[3]);
+            $newMap .= sprintf('AIAddGoalForSubpack(%s,%s,%s);', $match[1],$match[2],$match[4]);
+            return $newMap;
+        },$source);
+
+
+        $source = preg_replace_callback("/AIAddEntityAndRun\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
+            $newMap = sprintf('AIAddEntity(%s);', $match[1]);
+            $newMap .= sprintf('RunScript(%s, %s);', $match[1],$match[2]);
+            return $newMap;
+        },$source);
+
+        $source = preg_replace_callback("/DisplayGameTextWait\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
+            $newMap = sprintf('DisplayGameText(%s);', $match[1]);
+            $newMap .= sprintf('while IsGameTextDisplaying do Sleep(%s);', $match[2]);
+            return $newMap;
+        },$source);
+
+
+        $source = preg_replace_callback("/DebugMove\((.*)\s?\)/U", function( $match ) use (&$index){
+            $newMap = sprintf('moveentity(getplayer, getentityposition(getentity(%s)), 0);', $match[1]);
+            return $newMap;
+        },$source);
+
+
         $this->untouchedSource = $source;
 
         //a special comment
@@ -142,6 +177,8 @@ class Compiler
             $index++;
             return $name;
         },$source);
+
+
 
         /**
          * Avoid wrong associations
