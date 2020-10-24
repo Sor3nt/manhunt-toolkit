@@ -156,6 +156,11 @@ class Compiler
             return $newMap;
         },$source);
 
+        $source = preg_replace_callback("/WaitForFrisbeeSpeechIsFinished\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
+            $newMap = sprintf('while NOT FrisbeeSpeechIsFinished(%s) do sleep(%s);', $match[1], $match[2]);
+            return $newMap;
+        },$source);
+
 
         $this->untouchedSource = $source;
 
@@ -767,9 +772,9 @@ class Compiler
         $debug = "\n\n... ";
 
         $errorCurrent = is_null($current) ? $this->current : $current;
-        $current -= 10;
+        $current -= 20;
 
-        for($i = -10; $i < 10; $i++){
+        for($i = -10; $i < 20; $i++){
             $current++;
             if (isset($this->tokens[$current])){
 

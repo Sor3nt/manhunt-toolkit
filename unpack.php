@@ -311,6 +311,7 @@ if ($handler instanceof Mls){
 if (is_array($results)){
     $wavHandler = new \App\Service\Archive\Wav();
     $adx2wav = new \App\Service\AudioCodec\AdxPcma();
+    $vas2wav = new \App\Service\Archive\Vas();
 
     foreach ($results as $relativeFilename => $data) {
 
@@ -335,9 +336,18 @@ if (is_array($results)){
             }else if ($handler instanceof App\Service\Archive\Afs){
                 if (substr($relativeFilename, -3) === "adx"){
 
-                    echo "Convert " . $relativeFilename . " to PCM ...";
+                    echo "Convert ADX " . $relativeFilename . " to PCM ...";
                     $relativeFilename = substr($relativeFilename, 0, -3) . 'wav';
                     $data = $adx2wav->decode(new \App\Service\NBinary($data));
+                    echo "OK\n";
+
+                }
+
+                if (substr($relativeFilename, -3) === "vas"){
+
+                    echo "Convert VAS " . $relativeFilename . " to PCM ...";
+                    $relativeFilename = substr($relativeFilename, 0, -3) . 'wav';
+                    $data = $vas2wav->unpack(new \App\Service\NBinary($data), $game, $platform);
                     echo "OK\n";
 
                 }

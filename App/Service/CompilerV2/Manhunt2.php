@@ -1555,6 +1555,8 @@ class Manhunt2 extends ManhuntDefault
         'createspheretrigger' => [
             'name' => 'CreateSphereTrigger',
             'offset' => 'a3000000',
+            'return' => 'entityptr'
+
         ],
 
         'destroyentity' => [

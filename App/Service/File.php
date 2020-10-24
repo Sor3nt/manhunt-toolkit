@@ -19,6 +19,8 @@ class File{
     {
         switch (true){
             case $this->binary->getFromPos(0, 3, NBinary::BINARY) == "AIX": return "aix"; break;
+            case $this->binary->getFromPos(0, 4, NBinary::BINARY) == "2AGs": return "2ags.vas"; break;
+            case $this->binary->getFromPos(0, 4, NBinary::BINARY) == "VAGs": return "vags.vas"; break;
 
             //AFS Container
             case $this->binary->getFromPos(0, 3, NBinary::BINARY) == "AFS": return "afs"; break;
