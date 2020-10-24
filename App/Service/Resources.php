@@ -13,6 +13,7 @@ use App\Service\Archive\Dir;
 use App\Service\Archive\Fev;
 use App\Service\Archive\Fsb3;
 use App\Service\Archive\Fsb4;
+use App\Service\Archive\Fxb;
 use App\Service\Archive\Glg;
 use App\Service\Archive\Grf;
 use App\Service\Archive\Gxt;
@@ -25,6 +26,7 @@ use App\Service\Archive\Tag;
 use App\Service\Archive\Tex;
 use App\Service\Archive\TxdPlaystation;
 use App\Service\Archive\TxdWii;
+use App\Service\Archive\Vas;
 use App\Service\Archive\Wav;
 use Symfony\Component\Finder\Finder;
 
@@ -35,9 +37,10 @@ class Resources
 
     /** @var Archive[]  */
     private $archives = [
-        Bin::class,     Col::class,     Dds::class,     Dff::class,     Grf::class, Fev::class, Dir::class, Tag::class,
+        Bin::class,     Col::class,     Dds::class,           Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
-        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class
+        Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class,
+        Dff::class,     Vas::class
     ];
 
 
