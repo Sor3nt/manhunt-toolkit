@@ -74,6 +74,9 @@ class Afs extends Archive
             }else if ($entry->identify() === "hash_name_list") {
                 $hashNames = explode("\x0D\x0A", $entry->getContent()->binary);
                 continue;
+            }else if ($entry->identify() === "adx" && count($hashNames)) {
+                $name = str_replace('\\', '/', $hashNames[$index - 1]);
+                $name = str_replace('/stream.adx', '', $name);
             }
 
             //we have names, use it
