@@ -36,11 +36,20 @@ class Vas extends Archive
      */
     public function unpack(NBinary $binary, $game, $platform)
     {
-
         $fourCC = $binary->consume(4, NBinary::STRING);
         $size = $binary->consume(4, NBinary::INT_32);
         $sampFreq = $binary->consume(2, NBinary::INT_16);
-        $unk = $binary->consume(2, NBinary::INT_16);
+        $unk = $binary->consume(1, NBinary::INT_8);
+        $count = $binary->consume(1, NBinary::INT_8);
+
+        if ($count > 1){
+            echo "Unable to extract VAS interleaved audio. Skip.";
+            return false;
+        }
+
+        if ($fourCC === "2AGs"){
+            $table = $binary->consume(32, NBinary::HEX);
+        }
 
         $data = $binary->consume($size, NBinary::BINARY);
         $input = new NBinary($data);

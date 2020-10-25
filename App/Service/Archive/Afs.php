@@ -46,6 +46,7 @@ class Afs extends Archive
         foreach ($entries as $index => $entry) {
             $content = $entry->getContent();
 
+            $name = false;
             if ($entry->identify() === "aix") {
 
                 $baseName = str_replace('\\', '/', $hashNames[$index - 1]);
@@ -62,6 +63,10 @@ class Afs extends Archive
                 unset($entries[$index]);
                 continue;
 
+            }else if ($entry->identify() === "vas") {
+                $name = str_replace('\\', '/', $hashNames[$index - 1]);
+                $name = str_replace('/stream.vas', '', $name);
+//                var_dump($name . '.' . (new File($content))->identify());exit;
             }else if ($entry->identify() === "context_map") {
                 $name = $content->getString();
                 $files[$name . '/context_map.bin'] = $content->binary;
@@ -72,9 +77,9 @@ class Afs extends Archive
             }
 
             //we have names, use it
-            if (count($hashNames)) {
+            if (count($hashNames) && $name === false) {
                 $name = str_replace('\\', '/', $hashNames[$index - 1]);
-            } else {
+            } elseif ($name === false) {
                 $name = $index;
             }
 
