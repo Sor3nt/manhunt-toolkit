@@ -63,7 +63,7 @@ class Afs extends Archive
                 unset($entries[$index]);
                 continue;
 
-            }else if ($entry->identify() === "vas") {
+            }else if ($entry->identify() === "vas" && count($hashNames)) {
                 $name = str_replace('\\', '/', $hashNames[$index - 1]);
                 $name = str_replace('/stream.vas', '', $name);
 //                var_dump($name . '.' . (new File($content))->identify());exit;
