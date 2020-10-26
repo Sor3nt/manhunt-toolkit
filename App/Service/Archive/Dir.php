@@ -49,10 +49,9 @@ class Dir extends Archive
     }
 
 
-    public function preCalculateHashes($game)
+    public function preCalculateHashes($game, $platform)
     {
-
-        $speechWavName = $game == MHT::PLATFORM_WII ? 'wii_stream' : 'pc_stream';
+        $speechWavName = $platform == MHT::PLATFORM_WII ? 'wii_stream' : 'pc_stream';
 
         $speechList = explode("\n", file_get_contents(__DIR__ . '/DIR-Speech-Names.txt'));
         foreach ($this->possibleLevelNames as $levelName) {
@@ -67,6 +66,7 @@ class Dir extends Archive
         foreach ($weaponList as $weapon) {
             $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($weapon))] = [$weapon, $weapon];
 
+
             //prepare name by given rule at sub_525D60 (Thx to MAJEST1C_R3)
             if (strpos($weapon, "(") !== false){
                 $name = substr($weapon, 0, strrpos($weapon, '('));
@@ -79,14 +79,20 @@ class Dir extends Archive
 
             $actionNames = ['pc_jump',  'pc_normal1',  'pc_normal2',  'pc_normal3'];
 
-            if ($game == MHT::PLATFORM_WII)
+            if ($platform == MHT::PLATFORM_WII)
                 $actionNames = ['wii_jump', 'wii_normal1', 'wii_normal2', 'wii_normal3'];
 
             foreach ($actionNames as $section) {
                 $hashName = sprintf("executions\%s\%s.wav", $name, $section);
                 $hashName = strtolower($hashName);
 
-                $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $weapon];
+                if ($platform == MHT::PLATFORM_WII){
+                    $realName = sprintf("executions\%s\%s.genh", $name, $section);
+                }else{
+                    $realName = $hashName;
+                }
+
+                $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$realName, $weapon];
 
             }
         }
@@ -101,7 +107,7 @@ class Dir extends Archive
     public function unpack(NBinary $binary, $game, $platform)
     {
 
-        $this->preCalculateHashes($game);
+        $this->preCalculateHashes($game, $platform);
 
         $entries = $binary->length() / 4;
 

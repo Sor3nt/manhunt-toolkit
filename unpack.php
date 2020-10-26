@@ -327,10 +327,27 @@ if (is_array($results)){
         ){
 
             if ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4){
-                if (substr($relativeFilename, -3) === "wav"){
+                if (substr($relativeFilename, -3) === "wav") {
                     echo "Convert " . $relativeFilename . " to PCM ...";
                     $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
                     echo "OK\n";
+                }else if (substr($relativeFilename, -4) === "genh"){
+                    echo "Convert " . $relativeFilename . " to PCM (using ffmpeg)...";
+                    file_put_contents('tmp.genh', $data);
+                    system('ffmpeg -i tmp.genh tmp.wav');
+                    if (file_exists('tmp.wav')){
+                        $data = file_get_contents('tmp.wav');
+                        $relativeFilename = substr($relativeFilename, 0, -4) . 'wav';
+                        echo "OK\n";
+                    }else{
+                        echo "failed\n";
+                        echo "is ffmpeg installed and global available ?\n";
+                        exit;
+                    }
+
+                    @unlink('tmp.genh');
+                    @unlink('tmp.wav');
+//                    $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
                 }
 
             }else if ($handler instanceof App\Service\Archive\Afs){
