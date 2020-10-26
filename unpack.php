@@ -199,12 +199,11 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
             if (strpos($hashName, 'scripted') !== false){
                 $newFilename = str_replace('\wii_stream', '', $hashName);
-                $newFilename = str_replace('\pc_stream', '', $hashName);
+                $newFilename = str_replace('\pc_stream', '', $newFilename);
                 $newFilename = str_replace('scripted\\', '', $newFilename);
                 $newFilename = str_replace('\\', '/', $newFilename);
 
                 list($folder, $file) = explode("/", $newFilename);
-
                 $results['fsb3.json']['orders'][] = $folder . '/' . $file;
                 $newResults[$folder . '/' . $file] = $data;
                 $known++;
@@ -338,6 +337,7 @@ if (is_array($results)){
                     if (file_exists('tmp.wav')){
                         $data = file_get_contents('tmp.wav');
                         $relativeFilename = substr($relativeFilename, 0, -4) . 'wav';
+
                         echo "OK\n";
                     }else{
                         echo "failed\n";

@@ -57,7 +57,14 @@ class Dir extends Archive
         foreach ($this->possibleLevelNames as $levelName) {
             foreach ($speechList as $speech) {
                 $hashName = sprintf("scripted\%s\%s\%s.wav", $levelName, $speech, $speechWavName);
-                $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$hashName, $speech];
+
+                if ($platform == MHT::PLATFORM_WII){
+                    $realName = sprintf("scripted\%s\%s\%s.genh", $levelName, $speech, $speechWavName);
+                }else{
+                    $realName = $hashName;
+                }
+
+                $this->crc32Hashes['crc_' . Helper::fromIntToHex(crc32($hashName))] = [$realName, $speech];
             }
         }
 
