@@ -563,19 +563,25 @@ class Ifp extends Archive
         return $resultFrames;
     }
 
-    private function prepareData( Finder $finder ){
+    private function prepareData( $finder ){
         $ifp = [];
 
 
         $lastFolder = "";
-        foreach ($finder as $file) {
+        if ($finder instanceof Finder){
+            foreach ($finder as $file) {
 
-            $folder = $file->getPathInfo()->getFilename();
-            $lastFolder = $folder;
+                $folder = $file->getPathInfo()->getFilename();
+                $lastFolder = $folder;
 
-            if (!isset($ifp[$folder])) $ifp[$folder] = [];
+                if (!isset($ifp[$folder])) $ifp[$folder] = [];
 
-            $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
+                $ifp[$folder][$file->getFilename()] = \json_decode($file->getContents(), true);
+            }
+
+        }else{
+            $ifp = $finder;
+            $lastFolder = array_keys($ifp)[0];
         }
 
         if (strpos($lastFolder, "#") !== false){

@@ -189,16 +189,19 @@ class Tex extends Archive {
 
     private function prepareData( $finder ){
 
+        $files = [];
         if ($finder instanceof Finder){
-            $files = [];
             foreach ($finder as $file) {
                 $files[$file->getFilenameWithoutExtension()] = $file->getContents();
             }
 
-            return $files;
+        }else{
+            foreach ($finder as $name => $data) {
+                $files[explode('.', $name)[0]] = $data;
+            }
         }
 
-        return $finder;
+        return $files;
     }
 
     private function writeHeader(NBinary $output, $count){

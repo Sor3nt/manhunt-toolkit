@@ -4,6 +4,7 @@ namespace App\Service\Archive;
 use App\MHT;
 use App\Service\Archive\Mdl\Build;
 use App\Service\Archive\Mdl\Extract;
+use App\Service\Archive\Mdl\ExtractPsp;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -72,10 +73,33 @@ class Mdl extends Archive {
         return $mdls;
     }
 
+    private function prepareDataRaw( $files ){
+        $extractor = new Extract();
+        $mdls = [];
+
+
+        foreach ($files as $fileName => $file) {
+            $_fileName = str_replace('.mdl', '', $fileName);
+            $binary = new NBinary($file);
+            if (strpos($_fileName, "#") !== false){
+                $mdls[explode("#", $_fileName)[1]] = current($extractor->get($binary));
+            }else{
+                $mdls[$_fileName] = current($extractor->get($binary));
+            }
+        }
+
+        return $mdls;
+    }
+
 
     public function pack( $pathFilename, $game, $platform ){
 
-        $mdls = $this->prepareData($pathFilename);
+        if ($pathFilename instanceof Finder){
+            $mdls = $this->prepareData($pathFilename);
+        }else{
+            $mdls = $this->prepareDataRaw($pathFilename);
+
+        }
 
         $build = new Build();
         $build->keepOrder = $this->keepOrder;
@@ -93,7 +117,13 @@ class Mdl extends Archive {
             $binary->numericBigEndian = true;
         }
 
-        $extractor = new Extract();
+        if ($platform === MHT::PLATFORM_PSP){
+            $extractor = new ExtractPsp();
+
+        }else{
+            $extractor = new Extract();
+
+        }
         $extractor->keepOrder = $this->keepOrder;
 
         $data = $extractor->get($binary);

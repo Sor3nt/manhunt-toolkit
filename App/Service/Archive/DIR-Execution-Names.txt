@@ -1,3 +1,4 @@
+Cerberus
 1HFirearm
 2HFirearm
 6Shooter

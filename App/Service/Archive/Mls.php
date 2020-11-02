@@ -86,6 +86,31 @@ class Mls extends Archive {
 
         }
 
+        $scripts = $this->compileLevel($scripts,$game, $platform);
+//
+//        $firstScript = current($scripts);
+//
+//        //for the supported files, we need to compile the src and generate the needed sections
+//        $levelScriptCompiler = new Compiler($firstScript['SRCE'], $game, $platform);
+//        $levelScriptCompiled = $levelScriptCompiler->compile();
+//
+////        $levelScriptCompiled = $compiler->parse($scripts[0]['SRCE'], false, $game, $platform);
+//
+//        foreach ($scripts as &$script) {
+//            if (!isset($script['CODE'])){
+//                $compiler = new Compiler($script['SRCE'], $game, $platform);
+//                $compiler->levelScript = $levelScriptCompiler;
+//
+//                $name = $script['NAME']['name'];
+//                $script = $compiler->compile();
+//                $script['NAME'] = [ 'name' => $name];
+//            }
+//        }
+
+        return $scripts;
+    }
+
+    public function compileLevel($scripts, $game, $platform){
         $firstScript = current($scripts);
 
         //for the supported files, we need to compile the src and generate the needed sections
@@ -167,6 +192,7 @@ class Mls extends Archive {
                     //memory is not correct but works...
                     if ($index == "DMEM") continue;
                     if ($index == "SMEM") continue;
+                    if ($index == "TRCE") continue;
 
                     //we do not generate the LINE (debug stuff)
                     if ($index == "LINE") continue;
