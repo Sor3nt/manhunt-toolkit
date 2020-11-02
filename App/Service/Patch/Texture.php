@@ -22,12 +22,22 @@ class Texture extends PatchAbstract
                 $applied = false;
                 foreach ($entry['files'] as $file) {
 
-                    $fileName = str_replace('.dds', '', pathinfo($file)['basename']);
+//                    $fileName = str_replace('.dds', '', pathinfo($file)['basename']);
+                    $fileName = pathinfo($file)['basename'];
 
                     $alreadyAdded = false;
                     foreach ($results as $modelName => $result) {
 
                         if (strtolower($modelName) === strtolower($fileName)){
+
+                            $content = file_get_contents($file);
+                            if ($result === $content){
+
+                            }else{
+                                $applied = true;
+                                $results[$fileName] = $content;
+                            }
+
                             $alreadyAdded = true;
                             break;
 
