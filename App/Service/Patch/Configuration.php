@@ -16,6 +16,7 @@ class Configuration extends PatchAbstract
         /** @var Glg $handler */
         $handler = $this->resource->getHandler();
 
+        echo "U";
         /** @var EntityTypeData\Ec[] $results */
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
@@ -40,8 +41,10 @@ class Configuration extends PatchAbstract
                             $patchEC = (new EntityTypeData())->parse(new NBinary(file_get_contents($file)))[0];
 
                             if ($result->__toString() === $patchEC->__toString()){
+                                echo "S";
 
                             }else{
+                                echo "R";
                                 $applied = true;
                                 $results[$_glgPathName] = $patchEC;
                             }
@@ -57,6 +60,7 @@ class Configuration extends PatchAbstract
                         continue;
                     }
 
+                    echo "A";
                     $results['999#' . $fileName . '.glg'] = (new EntityTypeData())->parse(new NBinary(file_get_contents($file)))[0];
                     $applied = true;
                 }
@@ -75,6 +79,7 @@ class Configuration extends PatchAbstract
             if ($this->debug)
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
+            echo "B";
             $builder = new Glg();
             return $builder->pack( $results, $this->game, $this->platform );
 

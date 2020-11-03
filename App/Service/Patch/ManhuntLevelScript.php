@@ -15,6 +15,7 @@ class ManhuntLevelScript extends PatchAbstract
 
         /** @var Mls $handler */
         $handler = $this->resource->getHandler();
+        echo "U";
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
         $recompile = false;
 
@@ -48,11 +49,11 @@ class ManhuntLevelScript extends PatchAbstract
                     }
 
                     if (!empty($testReplaceTo) && strpos($results[$targetMls]['SRCE'], $testReplaceTo) !== false){
-                        echo sprintf("Skip. Patch part already applied: %s\n", $testReplaceTo);
+                        echo "S";
                         $this->exists[] = $entry;
 
                     }else{
-
+                        echo "R";
                         $results[$targetMls]['SRCE'] = preg_replace($entry['regex'], $entry['replace'], $results[$targetMls]['SRCE']);
 
                         unset($results[$targetMls]['CODE']);
@@ -64,7 +65,9 @@ class ManhuntLevelScript extends PatchAbstract
                 }else{
                     die(sprintf("Error: Unknown replace rule for Patch %s", $patch['name']));
                 }
-            }else if (isset($entry['files'])){
+            }
+
+            else if (isset($entry['files'])){
 
                 $applied = false;
                 foreach ($entry['files'] as $file) {
@@ -86,6 +89,7 @@ class ManhuntLevelScript extends PatchAbstract
                         continue;
                     }
 
+                    echo "A";
                     $results[] = [
                         "NAME" => [ "name" => $fileName],
                         "SRCE" => file_get_contents($file)
@@ -97,7 +101,9 @@ class ManhuntLevelScript extends PatchAbstract
                 else $this->exists[] = $entry;
 
 
-            }else{
+            }
+
+            else{
                 die(sprintf("Error: Unknown method rule for Patch %s", $patch['name']));
             }
 
@@ -118,14 +124,11 @@ class ManhuntLevelScript extends PatchAbstract
                 }
             }
 
+            echo "B";
 
             $compiled = $handler->compileLevel($results, $this->game, $this->platform);
-
-
             $builder = new Build();
             return $builder->build( $compiled, $this->game, $this->platform );
-
-
         }
 
         return false;

@@ -14,6 +14,7 @@ class Entity extends PatchAbstract
         /** @var Inst $handler */
         $handler = $this->resource->getHandler();
 
+        echo "U";
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -35,8 +36,9 @@ class Entity extends PatchAbstract
 
                             $content = \json_decode(file_get_contents($file), true);
                             if ($result == $content){
-
+                                echo "S";
                             }else{
+                                echo "R";
 
                                 $applied = true;
                                 $results[$colName] = $content;
@@ -53,6 +55,7 @@ class Entity extends PatchAbstract
                         continue;
                     }
 
+                    echo "A";
                     $results['9999#'.$fileName . '.json'] = \json_decode(file_get_contents($file), true);
                     $applied = true;
                 }
@@ -71,6 +74,7 @@ class Entity extends PatchAbstract
             if ($this->debug)
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
+            echo "B";
             $builder = new Inst();
             return $builder->pack( $results, $this->game, $this->platform );
 

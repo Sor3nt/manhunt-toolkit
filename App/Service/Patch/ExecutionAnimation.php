@@ -14,6 +14,7 @@ class ExecutionAnimation extends PatchAbstract
         $handler = $this->resource->getHandler();
         $handler->keepOrder = true;
 
+        echo "U";
         $ifpEntries = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -63,7 +64,10 @@ class ExecutionAnimation extends PatchAbstract
 
                                         $ifpPatch = file_get_contents($patchFilePath);
                                         if (\json_encode($ifpEntry, JSON_PRETTY_PRINT) !== $ifpPatch){
+                                            echo "R";
                                             $ifpEntries[$ifpFilePath] = \json_decode($ifpPatch, true);
+                                        }else{
+                                            echo "S";
                                         }
                                     }
 
@@ -88,7 +92,10 @@ class ExecutionAnimation extends PatchAbstract
 
                                             $ifpPatch = file_get_contents($patchFilePath);
                                             if (\json_encode($ifpEntry, JSON_PRETTY_PRINT) !== $ifpPatch){
+                                                echo "R";
                                                 $ifpEntries[$ifpFilePath] = \json_decode($ifpPatch, true);
+                                            }else{
+                                                echo "S";
                                             }
                                         }
                                     }
@@ -113,6 +120,7 @@ class ExecutionAnimation extends PatchAbstract
                         }
 
                         $patchFilenameFinal = explode(".", $patchFilenameFinal)[0];
+                        echo "A";
 
                         //we know our target folder
                         if ($foundTargetFolder !== false){
@@ -144,6 +152,8 @@ class ExecutionAnimation extends PatchAbstract
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
             $executionSections = $this->prepareData($ifpEntries, $handler->keepOrder);
+
+            echo "B";
 
             return (new Build())->build(
                 $executionSections['executions'],

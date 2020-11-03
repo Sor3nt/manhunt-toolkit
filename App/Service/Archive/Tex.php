@@ -119,7 +119,7 @@ class Tex extends Archive {
         }
 
 
-        echo "Found " . count($textures) . " Textures!\n";
+//        echo "Found " . count($textures) . " Textures!\n";
 
 
         return $textures;

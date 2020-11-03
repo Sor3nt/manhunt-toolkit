@@ -8,6 +8,12 @@ use App\Service\Archive\Mdl\Build;
 use App\Service\Resource;
 use App\Service\Resources;
 
+/**
+ * TODO: replace einbauen
+ *
+ * Class Model
+ * @package App\Service\Patch
+ */
 class Model extends PatchAbstract
 {
 
@@ -18,6 +24,7 @@ class Model extends PatchAbstract
         $handler = $this->resource->getHandler();
         $handler->keepOrder = true;
 
+        echo "U";
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -38,6 +45,7 @@ class Model extends PatchAbstract
                         $modelRealName = strtolower($modelRealName);
 
                         if ($modelRealName === strtolower($fileName)){
+                            echo "S";
                             $alreadyAdded = true;
                             break;
 
@@ -48,6 +56,7 @@ class Model extends PatchAbstract
                         continue;
                     }
 
+                    echo "A";
                     $results['9999#' . $fileName . '.mdl'] = file_get_contents($file);
                     $applied = true;
                 }
@@ -67,6 +76,7 @@ class Model extends PatchAbstract
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
             $builder = new Mdl();
+            echo "B";
             return $builder->pack( $results, $this->game, $this->platform );
 
 

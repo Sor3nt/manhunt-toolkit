@@ -13,6 +13,7 @@ class Collision extends PatchAbstract
         /** @var Col $handler */
         $handler = $this->resource->getHandler();
 
+        echo "U";
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -32,8 +33,10 @@ class Collision extends PatchAbstract
 
                             $content = \json_decode(file_get_contents($file), true);
                             if ($result === $content){
+                                echo "S";
 
                             }else{
+                                echo "A";
                                 $applied = true;
                                 $results[$fileName. '.json'] = $content;
                             }
@@ -49,6 +52,7 @@ class Collision extends PatchAbstract
                         continue;
                     }
 
+                    echo "A";
                     $results[$fileName . '.json'] = \json_decode(file_get_contents($file), true);
                     $applied = true;
                 }
@@ -68,6 +72,7 @@ class Collision extends PatchAbstract
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
             $builder = new Col();
+            echo "B";
             return $builder->pack( $results, $this->game, $this->platform );
 
 

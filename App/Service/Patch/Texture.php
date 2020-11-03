@@ -12,7 +12,7 @@ class Texture extends PatchAbstract
 
         /** @var Tex $handler */
         $handler = $this->resource->getHandler();
-
+        echo "U";
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -32,8 +32,10 @@ class Texture extends PatchAbstract
 
                             $content = file_get_contents($file);
                             if ($result === $content){
+                                echo "S";
 
                             }else{
+                                echo "R";
                                 $applied = true;
                                 $results[$fileName] = $content;
                             }
@@ -48,6 +50,7 @@ class Texture extends PatchAbstract
                         continue;
                     }
 
+                    echo "A";
                     $results[$fileName . '.dds'] = file_get_contents($file);
                     $applied = true;
                 }
@@ -66,6 +69,7 @@ class Texture extends PatchAbstract
             if ($this->debug)
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
+            echo "B";
             $builder = new Tex();
             return $builder->pack( $results, $this->game, $this->platform );
         }

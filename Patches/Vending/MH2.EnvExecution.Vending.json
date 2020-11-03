@@ -1,0 +1,180 @@
+{
+	"name": "Environment Execution - Vending",
+	"description": "Adds the Vending Environment Execution into A07_2Tolerance_Zone",
+
+	"targetFolders": [
+		".",
+		"A07_2Tolerance_Zone",
+		"levels/A07_2Tolerance_Zone"
+	],
+
+	"patches": [
+		{
+			"name": "Enable Animation BAT_IDLE_LOC_3_VENDING_ANIM for GunExecTut(hunter)",
+			"file": "A07_2Tolerance_Zone.mls",
+			"handler": "ManhuntLevelScript",
+
+			"entries": [
+				{
+					"description": "Disable patrol path 1/2",
+					"identifier": {
+						"entity": "tExecTutGuy"
+					},
+					"regex": "/(AISetIdlePatrolStop\\(\\'GunExecTut\\(hunter\\)\\'\\, \\'EXECTUTNODE\\'\\, 12\\, true\\)\\;)/i",
+					"replace": ""
+				},
+				{
+					"description": "Disable patrol path 2/2",
+					"identifier": {
+						"entity": "tExecTutGuy"
+					},
+					"regex": "/(AISetHunterIdlePatrol\\(\\'GunExecTut\\(hunter\\)\\'\\, AISCRIPT_IDLE_PATROL\\, AISCRIPT_HIGHPRIORITY\\, 2000\\, 3000\\, \\'TutorialPatrolPath\\'\\)\\;)/i",
+					"replace": ""
+				},
+
+				{
+					"description": "Enable BAT_IDLE_LOC_3_VENDING_ANIM Animation",
+					"identifier": {
+						"entity": "tExecTutGuy"
+					},
+					"regex": "/(CutSceneStart;)/i",
+					"replace": "EntityPlayAnim(GetEntity('GunExecTut(hunter)'), 'BAT_IDLE_LOC_3_VENDING_ANIM', true); $1"
+				}
+			]
+
+		},
+
+		{
+			"name": "Adding BAT_FALL_DIE_POSE_ENVIRONMENTAL_VENDING and EAT_VENDING",
+			"file": "allanims_pc.ifp",
+			"handler": "AllAnimation",
+
+			"entries": [
+				{
+					"description": "Add BAT_FALL_DIE_POSE_ENVIRONMENTAL_VENDING",
+					"files": [
+						"Animation/BAT_FALL_DIE_POSE_ENVIRONMENTAL_VENDING.json"
+					],
+					"groupPath": "PlayerAnims"
+				},
+				{
+					"description": "Add EAT_VENDING",
+					"files": [
+						"Animation/EAT_VENDING.json"
+					],
+					"groupPath": "vending"
+				}
+			]
+
+		},
+
+
+		{
+			"name": "Adding Vending model",
+			"file": "modelspc.mdl",
+			"handler": "Model",
+
+			"entries": [
+				{
+					"description": "Add vendingmachine",
+					"files": [
+						"Model/vendingmachine.mdl"
+					]
+				}
+			]
+
+		},
+
+		{
+			"name": "Adding Vending Collsion matrix",
+			"file": "collisions_pc.col",
+			"handler": "Collision",
+
+			"entries": [
+				{
+					"description": "Add vendingmachine",
+					"files": [
+						"Collision/vendingmachine.json"
+					]
+				}
+			]
+
+		},
+
+		{
+			"name": "Adding Execution",
+			"file": "strmanim_pc.bin",
+			"handler": "ExecutionAnimation",
+
+			"entries": [
+				{
+					"description": "Add DIE, DAMAGE and USE",
+					"files": [
+						"Execution/BAT_DAMAGE_EXECUTE_ENVIRONMENTAL_VENDING.json",
+						"Execution/BAT_DIE_EXECUTE_ENVIRONMENTAL_VENDING.json",
+						"Execution/BAT_USE_EXECUTE_ENVIRONMENTAL_VENDING.json"
+					],
+					"groupPath": "envExecutions/ExecutionId_67"
+				}
+			]
+
+		},
+
+
+		{
+			"name": "Adding Textures",
+			"description": "Test Patch",
+			"file": "modelspc.tex",
+			"handler": "Texture",
+
+			"entries": [
+				{
+					"description": "Add textures",
+					"files": [
+						"Texture/black.dds",
+						"Texture/CJ_SPRUNK_FRONT.dds",
+						"Texture/limo_machine.dds",
+						"Texture/museum_double_metal.dds"
+					]
+				}
+			]
+
+		},
+
+		{
+			"name": "Adding Configuration",
+			"file": "resource3.glg",
+			"handler": "Configuration",
+
+			"entries": [
+				{
+					"description": "Add Record",
+					"files": [
+						"Configuration/vendingmachine.glg"
+					]
+				}
+			]
+
+		},
+
+		{
+			"name": "Adding Positions",
+			"file": "entity_pc.inst",
+			"handler": "Entity",
+
+			"entries": [
+				{
+					"description": "Add trigger and fix GunExecTut(hunter) position",
+					"files": [
+						"Entity/Executor_Vending_(envex).json",
+						"Entity/GunExecTut(hunter).json",
+						"Entity/vendingmachine.json"
+					]
+				}
+			]
+
+		}
+	]
+
+
+}

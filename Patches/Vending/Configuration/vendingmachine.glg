@@ -1,0 +1,13 @@
+
+RECORD vendingmachine
+    CLASS EC_BASIC
+    MODEL vendingmachine
+    COLLISION_DATA vendingmachine
+    ANIMATION_BLOCK vending
+    LOD_DATA 0,20,0,-1
+    MATERIAL MATERIAL_METAL
+    ARMOUR_CLASS ARM_INVULNERABLE
+    HIT_POINTS 100
+    BND_SPH_BOOST 40.0
+    LOCKED
+END

@@ -18,6 +18,7 @@ echo "██║ ╚═╝ ██║██║  ██║   ██║        ╚�
 echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ \n";
 echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
 echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
+echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
 echo "\n";
 
 $game = MHT::GAME_MANHUNT_2;
@@ -87,6 +88,7 @@ foreach ($patchInformation['patches'] as $patch) {
         continue;
     }
 
+    $patchFileName = $patch['file'];
     $patch['file'] = $fileFolder . '/' . $patch['file'];
 
     //load the resource
@@ -101,27 +103,19 @@ foreach ($patchInformation['patches'] as $patch) {
     if (!class_exists($patchHandlerClass))
         die(sprintf("Unable to apply Patch %s! Class %s not found\n", $patch['name'], $patch['handler']));
 
+    echo str_pad("Patch " . $patchFileName, 40, " ");
+
     /** @var \App\Service\Patch\PatchAbstract $patchHandler */
     $patchHandler = new $patchHandlerClass($resource, $game, $platform, $debug);
     $patchHandler->patchRoot = $realFolder;
     $binary = $patchHandler->apply($patch);
 
-    foreach ($patchHandler->applied as $patchEntry) {
-        echo sprintf("Applied: %s\n", $patchEntry['description']);
-    }
-
-    foreach ($patchHandler->exists as $patchEntry) {
-        echo sprintf("%s was already applied\n", $patchEntry['description']);
-    }
-
 
     if (count($patchHandler->applied) > 0){
-//        copy($patch['file'], $patch['file'] . '.bak'); //tmp
-
+        echo "  OK!\n";
         file_put_contents($patch['file'] . '.tmp', $binary);
-        echo "Patch applied!\n";
     }else{
-        echo "No changes made!\n";
+        echo "  Skip!\n";
     }
 
 }

@@ -14,6 +14,7 @@ class AllAnimation extends PatchAbstract
         $handler = $this->resource->getHandler();
         $handler->keepOrder = true;
 
+        echo "U";
         $ifpEntries = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -63,8 +64,10 @@ class AllAnimation extends PatchAbstract
 
                                 $ifpPatch = file_get_contents($patchFilePath);
                                 if (\json_encode($ifpEntry, JSON_PRETTY_PRINT) === $ifpPatch){
+                                    echo "S";
 
                                 }else{
+                                    echo "R";
                                     $ifpEntries[$ifpFilePath] = \json_decode($ifpPatch, true);
                                 }
                             }
@@ -84,6 +87,8 @@ class AllAnimation extends PatchAbstract
                         }
 
                         $patchFilenameFinal = explode(".", $patchFilenameFinal)[0];
+
+                        echo "A";
 
                         //we know our target folder
                         if ($foundTargetFolder !== false){
@@ -122,6 +127,7 @@ class AllAnimation extends PatchAbstract
                 $grouped[$group][$name] = $result;
             }
 
+            echo "B";
             $builder = new Ifp();
             return $builder->pack( $grouped, $this->game, $this->platform );
 

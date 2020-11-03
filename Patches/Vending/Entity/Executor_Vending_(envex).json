@@ -1,0 +1,94 @@
+{
+    "record": "Executor_(envex)",
+    "internalName": "Executor_Vending_(envex)",
+    "entityClass": "EnvExec",
+    "position": [
+        51.20000076293945,
+        53.40079879760742,
+        -0.5
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        0
+    ],
+    "parameters": [
+        {
+            "parameterId": "EXECUTION TYPE",
+            "type": "int",
+            "value": 21
+        },
+        {
+            "parameterId": "EXECUTION OBJECT",
+            "type": "str",
+            "value": "vendingmachine"
+        },
+        {
+            "parameterId": "DETECTION RADIUS IN METRES",
+            "type": "flo",
+            "value": 1.5
+        },
+        {
+            "parameterId": "DETECTION HEIGHT IN METRES",
+            "type": "flo",
+            "value": 2
+        },
+        {
+            "parameterId": "HUNTERSTART X",
+            "type": "flo",
+            "value": -0.0729999989271164
+        },
+        {
+            "parameterId": "HUNTERSTART Y",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "HUNTERSTART Z",
+            "type": "flo",
+            "value": 1.315999984741211
+        },
+        {
+            "parameterId": "HUNTERLOOK X",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "HUNTERLOOK Z",
+            "type": "flo",
+            "value": -1
+        },
+        {
+            "parameterId": "PLAYERSTART X",
+            "type": "flo",
+            "value": -0.0729999989271164
+        },
+        {
+            "parameterId": "PLAYERSTART Y",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "PLAYERSTART Z",
+            "type": "flo",
+            "value": 2.315999984741211
+        },
+        {
+            "parameterId": "PLAYERLOOK X",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "PLAYERLOOK Z",
+            "type": "flo",
+            "value": -1
+        },
+        {
+            "parameterId": "OBJECT ANIMATION",
+            "type": "str",
+            "value": "EAT_VENDING"
+        }
+    ],
+    "game": "mh2"
+}
