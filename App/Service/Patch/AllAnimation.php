@@ -22,6 +22,7 @@ class AllAnimation extends PatchAbstract
 
                 $applied = false;
                 foreach ($entry['files'] as $patchFilePath) {
+                    $patchFilePath = $this->patchRoot . '/' . $patchFilePath;
                     $patchFilePathInfo = pathinfo($patchFilePath);
 
                     $patchTargetFolder = $entry['groupPath'];

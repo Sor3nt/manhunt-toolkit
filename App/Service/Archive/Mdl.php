@@ -4,7 +4,6 @@ namespace App\Service\Archive;
 use App\MHT;
 use App\Service\Archive\Mdl\Build;
 use App\Service\Archive\Mdl\Extract;
-use App\Service\Archive\Mdl\ExtractPsp;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -118,7 +117,8 @@ class Mdl extends Archive {
         }
 
         if ($platform === MHT::PLATFORM_PSP){
-            $extractor = new ExtractPsp();
+//            $extractor = new ExtractPsp();
+            die("not supported");
 
         }else{
             $extractor = new Extract();

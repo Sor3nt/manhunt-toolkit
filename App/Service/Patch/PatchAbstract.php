@@ -7,6 +7,7 @@ use App\Service\Resource;
 
 abstract class PatchAbstract
 {
+    public $patchRoot = ".";
     public $resource;
     public $game;
     public $platform;
@@ -26,6 +27,7 @@ abstract class PatchAbstract
     }
 
     abstract public function apply($patch);
+
 
 
 }

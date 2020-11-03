@@ -26,6 +26,7 @@ class Model extends PatchAbstract
 
                 $applied = false;
                 foreach ($entry['files'] as $file) {
+                    $file = $this->patchRoot . '/' . $file;
 
                     $fileName = str_replace('.mdl', '', pathinfo($file)['basename']);
 

@@ -22,6 +22,7 @@ class ExecutionAnimation extends PatchAbstract
 
                 $applied = false;
                 foreach ($entry['files'] as $patchFilePath) {
+                    $patchFilePath = $this->patchRoot . '/' . $patchFilePath;
                     $patchFilePathInfo = pathinfo($patchFilePath);
 
                     $patchTargetFolderParts = explode("/", $entry['groupPath']);
@@ -47,15 +48,12 @@ class ExecutionAnimation extends PatchAbstract
                             }
                         }
 
-                        if($ifpFilePathPartsPlain[0] === "envExecutions"){
+                        if($patchTargetFolderParts[0] === "envExecutions"){
 
                             if ($ifpFilePathPartsPlain[0] === $patchTargetFolderParts[0]){
 
                                 //we found our target folder
-
                                 if ($patchTargetFolderParts[1] === $ifpFilePathPartsPlain[1]){
-
-
                                     $foundTargetFolder = $ifpFilePathParts[0] . '/' . $ifpFilePathParts[1];
 
                                     //the file is present, update or ignore
@@ -100,7 +98,7 @@ class ExecutionAnimation extends PatchAbstract
                             }
 
                         }else{
-                            die(sprintf("Error: Unknown section %s for Patch %s", $ifpFilePathPartsPlain[0], $patch['name']));
+                            die(sprintf("Error: Unknown section >%s< for Patch >%s<", $patchTargetFolderParts[0], $patch['name']));
 
                         }
 

@@ -1,0 +1,521 @@
+<?php
+namespace App\Service\Archive\Mdl;
+
+use App\MHT;
+use App\Service\NBinary;
+
+class ExtractPsp {
+
+
+    public $keepOrder = false;
+    public $platform;
+
+    public function getTextureNames(NBinary $binary){
+        if ($binary->length() == 0) return [];
+
+        $data = $this->get($binary);
+
+        $textures = [];
+
+        foreach ($data as $mdl){
+            foreach ($mdl['objects'] as $object){
+                if (isset($object['materials'])){
+
+                    foreach ($object['materials'] as $material) {
+
+                        $textures[] = $material['TexName'];
+                    }
+
+
+                }
+            }
+        }
+
+        return array_unique($textures);
+    }
+
+    public function get( NBinary $binary ){
+
+        $mdlHeader = $this->parseMdlHeader($binary);
+
+        $binary->current = $mdlHeader['firstEntryIndexOffset'];
+
+        $results = [];
+        do{
+
+            $result = [];
+
+            $entryIndex = $this->parseEntryIndex($binary);
+
+            $binary->current = $entryIndex['entryOffset'];
+            $entry = $this->parseEntry($binary);
+
+
+            $binary->current = $entry['rootBoneOffset'];
+            $bone = $this->parseBone($binary);
+
+            $result['entryIndex'] = $entryIndex;
+            $result['entry'] = $entry;
+            $result['bone'] = $bone;
+            $result['objects'] = [];
+
+            if ($entry['firstObjectInfoOffset'] != $entry['objectInfoIndexOffset']){
+
+                $binary->current = $entry['firstObjectInfoOffset'];
+
+                do{
+                    $objectRow = [
+                        'materials' => false,
+                        'boneTransDataIndex' => false,
+                    ];
+
+                    $objectInfo = $this->parseObjectInfo($bone, $binary);
+
+                    $binary->current = $objectInfo['objectOffset'];
+                    $mesh = $this->parseMesh($binary);
+
+                    if ($mesh['materialOffset'] != 0){
+
+                        $binary->current = $mesh['materialOffset'];
+                        $materials = $this->parseMaterial($binary, $mesh['numMaterials']);
+                        $objectRow['materials'] = $materials;
+                    }
+
+
+                    if ($mesh['boneTransDataIndexOffset'] != 0){
+
+                        $binary->current = $mesh['boneTransDataIndexOffset'];
+
+
+                        $boneTransDataIndex = $this->parseBoneTransDataIndex($binary, $mesh['boneTransDataIndexOffset']);
+                        $objectRow['boneTransDataIndex'] = $boneTransDataIndex;
+                    }
+
+
+                    $binary->current = $objectInfo['nextObjectInfoOffset'];
+
+                    $result['objects'][] = $objectRow;
+
+                }while($objectInfo['nextObjectInfoOffset'] != $entry['objectInfoIndexOffset']);
+            }
+
+            if ($entryIndex['nextEntryIndexOffset'] != 0x20){
+                $binary->current = $entryIndex['nextEntryIndexOffset'];
+            }
+
+            $results[] = $result;
+        }while($entryIndex['nextEntryIndexOffset'] != 0x20);
+
+
+        return $results;
+    }
+
+    public function convertEntriesToSingleMdl( $mdls ){
+
+        $singleMdls = [];
+
+        foreach ($mdls as $index => $mdl) {
+            $build = new Build();
+
+            if ($this->keepOrder){
+                $singleMdls[$index . '#' . (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+            }else{
+                $singleMdls[ (new NBinary(hex2bin($mdl['bone']['boneName'])))->getString() . '.mdl'] = $build->build([$mdl]);
+            }
+
+        }
+
+        return $singleMdls;
+    }
+
+
+    private function parseBoneTransDataIndex(NBinary $binary, $boneTransDataIndexOffset ){
+
+        $binary->current = $boneTransDataIndexOffset;
+
+        $data = [
+            'numBone' => $binary->consume(4, NBinary::INT_32),
+            'BoneTransDataOffset' => $binary->consume(4, NBinary::INT_32),
+            'matrix' => []
+        ];
+
+        $binary->current = $data['BoneTransDataOffset'];
+
+        for ($i = 0; $i < $data['numBone']; $i++){
+            $data['matrix'][] = $binary->consume(4 * 16, NBinary::HEX); // 16 floats
+        }
+
+        return $data;
+    }
+
+    private function parseMaterial(NBinary $binary, $numMaterials ){
+        $materials = [];
+
+        for($i = 0; $i < $numMaterials; $i++){
+
+            $material = [
+                'TexNameOffset' => $binary->consume(4, NBinary::INT_32),
+                'Color_ARGB1' => $binary->consume(4, NBinary::HEX),
+                'Color_ARGB2' => $binary->consume(4, NBinary::HEX),
+            ];
+
+            $nextMaterialOffset = $binary->current;
+
+            $binary->current = $material['TexNameOffset'];
+            $material['TexName'] = $binary->getString();
+            $materials[] = $material;
+
+            $binary->current = $nextMaterialOffset;
+
+        }
+
+        return $materials;
+    }
+    
+    private function PSPVertex( NBinary $binary, $vType ){
+
+        $uVFormat  =  $vType & 3;
+        $colorFormat  = ( $vType >> 2) & 7 ;
+        $normalFormat  = ( $vType >> 5) & 3;
+        $positionFormat  = ( $vType >> 7) & 3;
+        $weightFormat  = ( $vType >> 9) & 3;
+        $indexFormat  = ( $vType >> 11) & 3;
+        $numWeights  = (( $vType >> 14) & 7) + 1;
+        $numVertices  =(( $vType >> 18) & 7) + 1;
+        $coordType  = ( $vType >> 23) & 1;//1 -Transformed Coordinates . 0-Raw Coordinates.
+
+        $weightFormats = [];
+        while($numWeights--){
+            switch($weightFormat){
+                case 0: break;
+                case 1: $weightFormats[] = $binary->consume(1, NBinary::INT_8);break;
+                case 2: $weightFormats[] = $binary->consume(2, NBinary::INT_16);break;
+                case 3: $weightFormats[] = $binary->consume(4, NBinary::FLOAT_32);break;
+            }
+        }
+
+        $uv = [];
+        for($i = 0; $i < 2; $i++){
+            switch($uVFormat){
+                case 0: break;
+                case 1: $uv[] = $binary->consume(1, NBinary::INT_8);break;
+                case 2: $uv[] = $binary->consume(2, NBinary::INT_16);break;
+                case 3: $uv[] = $binary->consume(4, NBinary::FLOAT_32);break;
+
+            }
+        }
+
+
+        if ($colorFormat == 7){
+            $unknown = $binary->consume(2, NBinary::INT_16);
+        }
+
+        switch(ColorFormat){
+            case 0: break;
+            case 1: break;
+            case 2: break;
+            case 3: break;
+            case 4: short B:5;short G:6; short R:5; break;//BGR5650
+            case 5: short A:5;short B:5; short G:5; short R:1;break;//ABGR5551
+            case 6: short A:4;short B:4; short G:4; short R:4;break;//ABGR4444
+            case 7: uint  A:8;uint  B:8; uint  G:8; uint  R:8;break;//ABGR8888
+        }
+        //NORMAL XYZ_PAD
+        switch(NormalFormat){
+            case 0: break;
+            case 1: byte    NXYZ_PAD[4];break;
+            case 2: short   NXYZ_PAD[4];break;
+            case 3: float   NXYZ_PAD[4];break;
+        }
+        //Position XYZ
+        switch(PositionFormat){
+            case 0: break;
+            case 1: byte   VXYZ[3];break;
+            case 2: short  VXYZ[3];break;
+            case 3: float  VXYZ[3];break;
+        }
+        if (ColorFormat == 7){
+            short   unknown2;
+    }
+
+    }
+    
+    private function parseMesh(NBinary $binary ){
+
+        $chunkStart = $binary->current + 12;
+        $data = [
+            'materialOffset' => $binary->consume(4, NBinary::INT_32),
+            'numMaterials' => $binary->consume(4, NBinary::INT_32),
+            'boneTransDataIndexOffset' => $binary->consume(4, NBinary::INT_32),
+            'unknown' => $binary->consume(4, NBinary::HEX),
+
+            'chunkSize' => $binary->consume(4, NBinary::INT_32),
+            'vertexElementType' => $binary->consume(4, NBinary::INT_32),
+            'numMaterialSplit' => $binary->consume(4, NBinary::INT_32),
+            'zero' => $binary->consume(4, NBinary::INT_32),
+            'boundingSphereXYZ' => $binary->consume(12, NBinary::HEX),
+            'boundingSphereRadius' => $binary->consume(4, NBinary::FLOAT_32),
+            'scaleFactorXYZ' => $binary->consume(12, NBinary::HEX),
+            'numVertex' => $binary->consume(4, NBinary::INT_32),
+
+            'translateFactorXYZ' => $binary->consume(12, NBinary::HEX),
+            'zero2' => $binary->consume(4, NBinary::INT_32),
+
+            'chunkHeaderSize' => $binary->consume(4, NBinary::INT_32),
+            'zero3' => $binary->consume(12, NBinary::INT_32),
+
+        ];
+
+        $vertPtr = $chunkStart + $data['chunkHeaderSize'];
+//        $materialSplit = $this->parseMaterialSplit($binary, $data['numMaterialSplit']);
+        $materialSplit = [];
+
+        for($i = 0; $i < $data['numMaterialSplit']; $i++){
+            $materialSplit[] = [
+                'boundingBoxMinX' => $binary->consume(2, NBinary::INT_16),
+                'boundingBoxMinY' => $binary->consume(2, NBinary::INT_16),
+                'boundingBoxMinZ' => $binary->consume(2, NBinary::INT_16),
+                'u1' => $binary->consume(2, NBinary::INT_16),
+
+                'boundingBoxMaxX' => $binary->consume(2, NBinary::INT_16),
+                'boundingBoxMaxY' => $binary->consume(2, NBinary::INT_16),
+                'boundingBoxMaxZ' => $binary->consume(2, NBinary::INT_16),
+                'u2' => $binary->consume(2, NBinary::INT_16),
+
+                'materialNumVerts' => $binary->consume(2, NBinary::INT_16),
+                'materialID' => $binary->consume(2, NBinary::INT_16),
+                'u3' => $binary->consume(2, NBinary::FLOAT_32),
+
+                'boneID' => $binary->consume(8, NBinary::HEX)
+            ];
+
+            $binary->current =
+        }
+
+        return $data;
+    }
+
+
+    private function parseMaterialSplit(NBinary $binary, $numMaterialSplit ){
+
+
+//        return $materials;
+
+    }
+
+    private function getParentBoneId($bone, $offset){
+        foreach ($this->createBonesOffsets as $index => $createBonesOffset) {
+            if ($createBonesOffset == $offset) return $index;
+        }
+
+        var_dump($this->createBonesOffsets);
+
+        die("getParentBoneId not found... bug :( ");
+        return false;
+
+    }
+
+    private function parseObjectInfo($bone, NBinary $binary ){
+
+        $data = [
+            'nextObjectInfoOffset' => $binary->consume(4, NBinary::INT_32),
+            'prevObjectInfoOffset' => $binary->consume(4, NBinary::INT_32),
+            'objectParentBoneOffset' => $binary->consume(4, NBinary::INT_32),
+            'objectOffset' => $binary->consume(4, NBinary::INT_32),
+            'rootEntryOffset' => $binary->consume(4, NBinary::INT_32),
+            'zero' => $binary->consume(4, NBinary::INT_32),
+            'unknown' => $binary->consume(4, NBinary::INT_32),//always  0x3
+        ];
+
+        return $data;
+
+    }
+
+    private $createBonesOffsets = [];
+    private function parseBone(NBinary $binary, &$index = 0 ){
+        $this->createBonesOffsets[$index] = $binary->current;
+
+        $unknown = $binary->consume(4, NBinary::HEX);
+
+        $silbingBoneOffset = $binary->consume(4, NBinary::INT_32);
+        $parentBoneOffset = $binary->consume(4, NBinary::INT_32);
+        $rootBoneOffset = $binary->consume(4, NBinary::INT_32);
+        $subBoneOffset = $binary->consume(4, NBinary::INT_32);
+
+        $animBoneDataIndexOffset = $binary->consume(4, NBinary::INT_32);
+
+        $boneName = $binary->consume(40, NBinary::HEX);
+
+        $matrix4X4_ParentChild = $binary->consume(16 * 4, NBinary::HEX);
+        $matrix4X4_WorldPos = $binary->consume(16 * 4, NBinary::HEX);
+
+        $sub = $subBoneOffset;
+        $sib = $silbingBoneOffset;
+
+        if ($animBoneDataIndexOffset > 0){
+            $binary->current = $animBoneDataIndexOffset;
+
+            $animBoneDataIndex = $this->parseAnimBoneDataIndex($binary);
+
+            if ($animBoneDataIndex['animBoneDataOffset'] != 0){
+                $binary->current = $animBoneDataIndex['animBoneDataOffset'];
+
+                for($i = 0; $i < $animBoneDataIndex['numBone']; $i++){
+                    $result['animationData'][] = $this->parseAnimationData($binary);
+                }
+            }
+
+            if ($animBoneDataIndex['boneTransformOffset'] != 0){
+                $binary->current = $animBoneDataIndex['boneTransformOffset'];
+
+                for($i = 0; $i < $animBoneDataIndex['numBone']; $i++){
+                    $result['boneTransform'][] = $binary->consume(4 * 8, NBinary::HEX);
+                }
+            }
+
+
+        }
+
+        $subBone = false;
+        if ($sub > 0){
+            $index++;
+            $subBone = $this->parseBone($binary, $index);
+
+        }
+
+        $sibBone = false;
+        if ($sib > 0){
+            $index++;
+            $sibBone = $this->parseBone($binary, $index);
+        }
+
+//            if ($subBoneOffset != 0) {
+//
+//                $binary->current = $subBoneOffset;
+//
+//                $index++;
+//
+//                $subBone = $this->parseBone($binary, $index);
+//            }
+//
+//            if ($nextBrotherBoneOffset != 0){
+//                $binary->current = $nextBrotherBoneOffset;
+//                $index++;
+//                $nextBrotherBone = $this->parseBone($binary, $index);
+//            }
+//
+//            if ($animationDataIndexOffset != 0){
+//                $binary->current = $animationDataIndexOffset;
+//                $animationDataIndex = $this->parseAnimBoneDataIndex($binary);
+//
+//
+//            }
+
+
+        return [
+            'unknown' => $unknown,
+            'silbingBoneOffset' => $silbingBoneOffset,
+            'parentBoneOffset' => $parentBoneOffset,
+            'rootBoneOffset' => $rootBoneOffset,
+            'subBoneOffset' => $subBoneOffset,
+            'animBoneDataIndexOffset' => $animBoneDataIndexOffset,
+            'boneName' => $boneName,
+            'matrix4X4_ParentChild' => $matrix4X4_ParentChild,
+            'matrix4X4_WorldPos' => $matrix4X4_WorldPos,
+            'subBone' => $subBone,
+            'sibBone' => $sibBone
+        ];
+
+    }
+
+    private function parseAnimBoneDataIndex(NBinary $binary ){
+        $result = [
+            'numBone' => $binary->consume(4, NBinary::INT_32),
+            'unknown' => $binary->consume(4, NBinary::INT_32),
+            'rootBoneOffset' => $binary->consume(4, NBinary::INT_32),
+            'animBoneDataOffset' => $binary->consume(4, NBinary::INT_32),
+            'boneTransformOffset' => $binary->consume(4, NBinary::INT_32),
+            'zero' => $binary->consume(4, NBinary::INT_32),
+            'animationData' => [],
+            'boneTransform' => []
+        ];
+
+
+        return $result;
+
+    }
+
+    private function parseAnimationData(NBinary $binary ){
+
+        return [
+            'boneID' => $binary->consume(2, NBinary::INT_16),
+            'boneType' => $binary->consume(2, NBinary::INT_16),
+            'boneOffset' => $binary->consume(4, NBinary::INT_32),
+        ];
+
+    }
+
+    private function parseEntryIndex(NBinary $binary ){
+        $nextEntryIndexOffset = $binary->consume(4, NBinary::INT_32);
+        $prevEntryIndexOffset = $binary->consume(4, NBinary::INT_32);
+
+        $entryOffset = $binary->consume(4, NBinary::INT_32);
+
+        $zero = $binary->consume(4, NBinary::INT_32);
+
+        return [
+            'nextEntryIndexOffset' => $nextEntryIndexOffset,
+            'prevEntryIndexOffset' => $prevEntryIndexOffset,
+            'entryOffset' => $entryOffset,
+            'zero' => $zero
+        ];
+    }
+
+    private function parseEntry(NBinary $binary ){
+        $rootBoneOffset = $binary->consume(4, NBinary::INT_32);
+
+        $zero3 = $binary->consume(12, NBinary::HEX);
+
+        $unknown = $binary->consume(4, NBinary::HEX);
+
+        $objectInfoIndexOffset = $binary->current;
+
+        $firstObjectInfoOffset = $binary->consume(4, NBinary::INT_32);
+        $lastObjectInfoOffset = $binary->consume(4, NBinary::INT_32);
+
+        $zero = $binary->consume(4, NBinary::INT_32);
+
+        return [
+            'objectInfoIndexOffset' => $objectInfoIndexOffset,
+            'rootBoneOffset' => $rootBoneOffset,
+            'zero3' => $zero3,
+            'unknown' => $unknown,
+            'firstObjectInfoOffset' => $firstObjectInfoOffset,
+            'lastObjectInfoOffset' => $lastObjectInfoOffset,
+            'zero' => $zero,
+        ];
+
+    }
+
+    private function parseMdlHeader(NBinary $binary ){
+
+        $fourCC = $binary->consume(4, NBinary::BINARY);
+
+        $constNumber = $binary->consume(4, NBinary::INT_32);
+
+        return [
+            'fileSize' => $binary->consume(4, NBinary::INT_32),
+            'offsetTable' => $binary->consume(4, NBinary::INT_32),
+            'offsetTable2' => $binary->consume(4, NBinary::INT_32),
+            'numTable' => $binary->consume(4, NBinary::INT_32),
+            'zero1' => $binary->consume(4, NBinary::INT_32),
+            'zero2' => $binary->consume(4, NBinary::INT_32),
+            'firstEntryIndexOffset' => $binary->consume(4, NBinary::INT_32),
+            'lastEntryIndexOffset' => $binary->consume(4, NBinary::INT_32)
+        ];
+
+
+    }
+
+
+}

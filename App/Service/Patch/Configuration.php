@@ -2,17 +2,21 @@
 
 namespace App\Service\Patch;
 
-use App\Service\Archive\Tex;
+use App\Service\Archive\Col;
+use App\Service\Archive\Glg;
+use App\Service\Archive\Glg\EntityTypeData;
+use App\Service\NBinary;
 
-class Texture extends PatchAbstract
+class Configuration extends PatchAbstract
 {
 
 
     public function apply($patch){
 
-        /** @var Tex $handler */
+        /** @var Glg $handler */
         $handler = $this->resource->getHandler();
 
+        /** @var EntityTypeData\Ec[] $results */
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
 
         foreach ($patch['entries'] as $entry) {
@@ -23,20 +27,25 @@ class Texture extends PatchAbstract
                 foreach ($entry['files'] as $file) {
                     $file = $this->patchRoot . '/' . $file;
 
-                    $fileName = pathinfo($file)['basename'];
+                    $fileName = str_replace('.glg', '', pathinfo($file)['basename']);
 
                     $alreadyAdded = false;
-                    foreach ($results as $modelName => $result) {
+                    foreach ($results as $_glgPathName => $result) {
 
-                        if (strtolower($modelName) === strtolower($fileName)){
+                        $glgPathName = explode("#", $_glgPathName)[1];
 
-                            $content = file_get_contents($file);
-                            if ($result === $content){
+                        if (strtolower($glgPathName) === strtolower($fileName)){
+
+                            /** @var EntityTypeData\Ec $patchEC */
+                            $patchEC = (new EntityTypeData())->parse(new NBinary(file_get_contents($file)))[0];
+
+                            if ($result->__toString() === $patchEC->__toString()){
 
                             }else{
                                 $applied = true;
-                                $results[$fileName] = $content;
+                                $results[$_glgPathName] = $patchEC;
                             }
+
 
                             $alreadyAdded = true;
                             break;
@@ -48,7 +57,7 @@ class Texture extends PatchAbstract
                         continue;
                     }
 
-                    $results[$fileName . '.dds'] = file_get_contents($file);
+                    $results['999#' . $fileName . '.glg'] = (new EntityTypeData())->parse(new NBinary(file_get_contents($file)))[0];
                     $applied = true;
                 }
 
@@ -66,8 +75,10 @@ class Texture extends PatchAbstract
             if ($this->debug)
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
-            $builder = new Tex();
+            $builder = new Glg();
             return $builder->pack( $results, $this->game, $this->platform );
+
+
         }
 
         return false;

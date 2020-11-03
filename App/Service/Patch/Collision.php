@@ -2,15 +2,15 @@
 
 namespace App\Service\Patch;
 
-use App\Service\Archive\Tex;
+use App\Service\Archive\Col;
 
-class Texture extends PatchAbstract
+class Collision extends PatchAbstract
 {
 
 
     public function apply($patch){
 
-        /** @var Tex $handler */
+        /** @var Col $handler */
         $handler = $this->resource->getHandler();
 
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
@@ -23,20 +23,21 @@ class Texture extends PatchAbstract
                 foreach ($entry['files'] as $file) {
                     $file = $this->patchRoot . '/' . $file;
 
-                    $fileName = pathinfo($file)['basename'];
+                    $fileName = str_replace('.json', '', pathinfo($file)['basename']);
 
                     $alreadyAdded = false;
-                    foreach ($results as $modelName => $result) {
+                    foreach ($results as $colName => $result) {
 
-                        if (strtolower($modelName) === strtolower($fileName)){
+                        if (strtolower($colName) === strtolower($fileName)){
 
-                            $content = file_get_contents($file);
+                            $content = \json_decode(file_get_contents($file), true);
                             if ($result === $content){
 
                             }else{
                                 $applied = true;
-                                $results[$fileName] = $content;
+                                $results[$fileName. '.json'] = $content;
                             }
+
 
                             $alreadyAdded = true;
                             break;
@@ -48,7 +49,7 @@ class Texture extends PatchAbstract
                         continue;
                     }
 
-                    $results[$fileName . '.dds'] = file_get_contents($file);
+                    $results[$fileName . '.json'] = \json_decode(file_get_contents($file), true);
                     $applied = true;
                 }
 
@@ -66,8 +67,10 @@ class Texture extends PatchAbstract
             if ($this->debug)
                 echo sprintf("[DEBUG] %d patches applied\n", count($this->applied));
 
-            $builder = new Tex();
+            $builder = new Col();
             return $builder->pack( $results, $this->game, $this->platform );
+
+
         }
 
         return false;

@@ -71,19 +71,23 @@ if ($platform !== MHT::PLATFORM_AUTO){
 }
 
 $file = realpath($file);
+$realFolder = pathinfo($file)['dirname'];
 
-$patchName = "TEST-PATCH-PKG";
 $patchInformation = \json_decode(file_get_contents($file), true);
 
-echo sprintf("Processing Patch %s\n%s\n", $patchName, str_repeat('-', 10));
+echo sprintf("Processing Patch %s\n%s\n", $patchInformation['name'], str_repeat('-', 10));
 
 foreach ($patchInformation['patches'] as $patch) {
 
-    if (!file_exists($patch['file'])){
+    $fileFolder = \App\Service\Helper::getFolderWithFile($patch['file'], $patchInformation['targetFolders']);
+
+    if ($fileFolder === false){
         echo sprintf("Unable to apply Patch %s! File %s not found\n", $patch['name'], $patch['file']);
         if(in_array('ignore-error', $options) !== false) die("Stop. To skip error use --ignore-error");
         continue;
     }
+
+    $patch['file'] = $fileFolder . '/' . $patch['file'];
 
     //load the resource
     $resources = new Resources();
@@ -99,8 +103,8 @@ foreach ($patchInformation['patches'] as $patch) {
 
     /** @var \App\Service\Patch\PatchAbstract $patchHandler */
     $patchHandler = new $patchHandlerClass($resource, $game, $platform, $debug);
+    $patchHandler->patchRoot = $realFolder;
     $binary = $patchHandler->apply($patch);
-
 
     foreach ($patchHandler->applied as $patchEntry) {
         echo sprintf("Applied: %s\n", $patchEntry['description']);
@@ -112,7 +116,9 @@ foreach ($patchInformation['patches'] as $patch) {
 
 
     if (count($patchHandler->applied) > 0){
-        file_put_contents($patch['file'] . '.tmp.ifp', $binary);
+//        copy($patch['file'], $patch['file'] . '.bak'); //tmp
+
+        file_put_contents($patch['file'] . '.tmp', $binary);
         echo "Patch applied!\n";
     }else{
         echo "No changes made!\n";

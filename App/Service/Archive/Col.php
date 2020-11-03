@@ -3,6 +3,7 @@ namespace App\Service\Archive;
 
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Col extends Archive {
     public $name = 'Collision Matrix';
@@ -150,71 +151,75 @@ class Col extends Archive {
     }
 
     /**
-     * @param Finder $pathFilename
+     * @param array|Finder $pathFilename
      * @param $game
      * @param $platform
      * @return null|string
      */
     public function pack( $pathFilename, $game, $platform ){
 
-        $pathFilename = $pathFilename->sortByName();
+        if ($pathFilename instanceof Finder){
+            $pathFilename = $pathFilename->sortByName();
+        }
 
         $binary = new NBinary();
-        $binary->write($pathFilename->count(), NBinary::INT_32);
+        if ($pathFilename instanceof Finder) {
+            $binary->write($pathFilename->count(), NBinary::INT_32);
+        }else{
+            $binary->write(count($pathFilename), NBinary::INT_32);
+        }
 
         foreach ($pathFilename as $file) {
-            $record = \json_decode($file->getContents(), true);
+            if ($file instanceof SplFileInfo){
+                $record = \json_decode($file->getContents(), true);
+            }else{
+                $record = $file;
+            }
 
+            $binary->write($record['name'] . "\x00", NBinary::BINARY);
+            $binary->write($binary->getPadding("\x70"), NBinary::BINARY);
 
-//            foreach ($records as $record) {
+            //bounds
+            $binary->writeXYZ($record['center']);
+            $binary->write($record['radius'], NBinary::FLOAT_32);
+            $binary->writeXYZ($record['min']);
+            $binary->writeXYZ($record['max']);
 
-                $binary->write($record['name'] . "\x00", NBinary::BINARY);
-                $binary->write($binary->getPadding("\x70"), NBinary::BINARY);
-    //return $binary->binary;
+            $binary->write(count($record['spheres']), NBinary::INT_32);
 
-                //bounds
-                $binary->writeXYZ($record['center']);
-                $binary->write($record['radius'], NBinary::FLOAT_32);
-                $binary->writeXYZ($record['min']);
-                $binary->writeXYZ($record['max']);
+            foreach ($record['spheres'] as $sphere) {
 
-                $binary->write(count($record['spheres']), NBinary::INT_32);
+                $binary->writeXYZ($sphere['center']);
+                $binary->write($sphere['radius'], NBinary::FLOAT_32);
 
-                foreach ($record['spheres'] as $sphere) {
+                $binary->write($sphere['surface']['material'], NBinary::INT_8);
+                $binary->write($sphere['surface']['flag'], NBinary::INT_8);
+                $binary->write($sphere['surface']['brightness'], NBinary::INT_8);
+                $binary->write($sphere['surface']['light'], NBinary::INT_8);
+            }
 
-                    $binary->writeXYZ($sphere['center']);
-                    $binary->write($sphere['radius'], NBinary::FLOAT_32);
-
-                    $binary->write($sphere['surface']['material'], NBinary::INT_8);
-                    $binary->write($sphere['surface']['flag'], NBinary::INT_8);
-                    $binary->write($sphere['surface']['brightness'], NBinary::INT_8);
-                    $binary->write($sphere['surface']['light'], NBinary::INT_8);
+            $binary->write(count($record['lines']), NBinary::INT_32);
+            foreach ($record['lines'] as $linePack) {
+                foreach ($linePack as $line) {
+                    $binary->writeXYZ($line);
                 }
+            }
 
-                $binary->write(count($record['lines']), NBinary::INT_32);
-                foreach ($record['lines'] as $linePack) {
-                    foreach ($linePack as $line) {
-                        $binary->writeXYZ($line);
-                    }
-                }
+            $binary->write(count($record['boxes']), NBinary::INT_32);
 
-                $binary->write(count($record['boxes']), NBinary::INT_32);
+            if (count($record['boxes']) > 0){
+                die("box todo");
+            }
 
-                if (count($record['boxes']) > 0){
-                    die("box todo");
-                }
+            $binary->write(count($record['verticals']), NBinary::INT_32);
+            foreach ($record['verticals'] as $vertical) {
+                $binary->writeXYZ($vertical);
+            }
 
-                $binary->write(count($record['verticals']), NBinary::INT_32);
-                foreach ($record['verticals'] as $vertical) {
-                    $binary->writeXYZ($vertical);
-                }
-
-                $binary->write(count($record['faces']), NBinary::INT_32);
-                foreach ($record['faces'] as $face) {
-                    $binary->writeXYZ($face, NBinary::INT_32);
-                }
-
-//            }
+            $binary->write(count($record['faces']), NBinary::INT_32);
+            foreach ($record['faces'] as $face) {
+                $binary->writeXYZ($face, NBinary::INT_32);
+            }
         }
 
         return $binary->binary;

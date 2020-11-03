@@ -47,13 +47,11 @@ class ManhuntLevelScript extends PatchAbstract
                         $testReplaceTo = str_replace('$' . $index, $match, $testReplaceTo);
                     }
 
-                    if (strpos($results[$targetMls]['SRCE'], $testReplaceTo) !== false){
+                    if (!empty($testReplaceTo) && strpos($results[$targetMls]['SRCE'], $testReplaceTo) !== false){
                         echo sprintf("Skip. Patch part already applied: %s\n", $testReplaceTo);
                         $this->exists[] = $entry;
 
                     }else{
-                        if ($this->debug)
-                            echo sprintf("[DEBUG] Apply patch: %s\n", $testReplaceTo);
 
                         $results[$targetMls]['SRCE'] = preg_replace($entry['regex'], $entry['replace'], $results[$targetMls]['SRCE']);
 
@@ -70,6 +68,7 @@ class ManhuntLevelScript extends PatchAbstract
 
                 $applied = false;
                 foreach ($entry['files'] as $file) {
+                    $file = $this->patchRoot . '/' . $file;
 
                     $fileName = str_replace('.srce', '', pathinfo($file)['basename']);
 

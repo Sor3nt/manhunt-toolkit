@@ -3,6 +3,15 @@ namespace App\Service;
 
 class Helper{
 
+    static function getFolderWithFile($file, $possibleFolders){
+
+        foreach ($possibleFolders as $folder) {
+            if (file_exists($folder . "/" . $file)) return $folder;
+        }
+
+        return false;
+    }
+
     static function groupBy( $field, $arr )
     {
         $result = array();

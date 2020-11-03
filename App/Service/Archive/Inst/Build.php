@@ -12,23 +12,35 @@ use function json_decode;
 
 class Build {
 
-    public function build( Finder $pathFilename, $platform ){
+    public function build(  $pathFilename, $platform ){
 
         // append record count
         $binary = new NBinary();
 
         if ($platform == MHT::PLATFORM_WII) $binary->numericBigEndian = true;
 
-        $binary->write($pathFilename->count(), NBinary::INT_32);
+        if ($pathFilename instanceof Finder){
+            $binary->write($pathFilename->count(), NBinary::INT_32);
 
-        $pathFilename->sort(function(SplFileInfo $a, SplFileInfo $b){
-            return (int)$a->getFilename() > (int)$b->getFilename();
-        });
+            $pathFilename->sort(function(SplFileInfo $a, SplFileInfo $b){
+                return (int)$a->getFilename() > (int)$b->getFilename();
+            });
+
+        }else{
+            $binary->write(count($pathFilename), NBinary::INT_32);
+        }
+
 
         $recordBin = [];
         foreach ($pathFilename as $file) {
 
-            $record = json_decode($file->getContents(), true);
+            if ($pathFilename instanceof Finder){
+                $record = json_decode($file->getContents(), true);
+
+            }else{
+                $record = $file;
+
+            }
 
             /*
              * Append GlgRecord name
