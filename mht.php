@@ -1,7 +1,7 @@
 <?php
 ini_set('memory_limit','-1');
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/Application/vendor/autoload.php';
 
 $options = [];
 foreach ($argv as $index => $argument) {
@@ -30,24 +30,24 @@ if (isset($argv[1])){
         case 'unpack':
         case 'extract':
             echo "\n";
-            include __DIR__ . '/App/Commands/unpack.php';
+            include __DIR__ . '/Application/App/Commands/unpack.php';
             break;
 
         case 'pack':
         case 'build':
             echo "\n";
-            include __DIR__ . '/App/Commands/pack.php';
+            include __DIR__ . '/Application/App/Commands/pack.php';
 
             break;
         case 'patch':
             echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
             echo "\n";
-            include __DIR__ . '/App/Commands/patch.php';
+            include __DIR__ . '/Application/App/Commands/patch.php';
 
             break;
         case 'compare':
             echo "\n";
-            include __DIR__ . '/App/Commands/compare.php';
+            include __DIR__ . '/Application/App/Commands/compare.php';
 
             break;
 
