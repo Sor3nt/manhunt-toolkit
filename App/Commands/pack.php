@@ -1,7 +1,4 @@
 <?php
-ini_set('memory_limit','-1');
-
-require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\MHT;
 use App\Service\Resources;
@@ -19,31 +16,15 @@ foreach ($argv as $index => $argument) {
     }
 }
 
-
-if(in_array('no-header', $options) === false) {
-    echo "\n";
-    echo "███╗   ███╗██╗  ██╗████████╗    ██╗   ██╗   ██████╗    █████╗ \n";
-    echo "████╗ ████║██║  ██║╚══██╔══╝    ██║   ██║  ██╔═████╗  ██╔══██╗\n";
-    echo "██╔████╔██║███████║   ██║       ██║   ██║  ██║██╔██║  ╚██████║\n";
-    echo "██║╚██╔╝██║██╔══██║   ██║       ╚██╗ ██╔╝  ████╔╝██║   ╚═══██║\n";
-    echo "██║ ╚═╝ ██║██║  ██║   ██║        ╚████╔╝██╗╚██████╔╝██╗█████╔╝\n";
-    echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ \n";
-    echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
-    echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
-    echo "\n";
-}
-
-
-
 switch (count($argv)){
-    case 2:
-        list($script, $file) = $argv;
-        break;
     case 3:
-        list($script, $file, $game) = $argv;
+        list($script,, $file) = $argv;
         break;
     case 4:
-        list($script, $file, $game, $platform) = $argv;
+        list($script,, $file, $game) = $argv;
+        break;
+    case 5:
+        list($script,, $file, $game, $platform) = $argv;
         break;
     default:
         printHelp();
@@ -120,7 +101,7 @@ function printHelp(){
     echo "*.FSB - Audio Container\t\t\t\t";
     echo "\n";
 
-    echo "Usage: php pack.php <filename/folder> [game] [platform]\n";
-    echo "Example: php pack.php A01_Escape_Asylum#mls mh2 pc\n";
+    echo "Usage: mht pack <filename/folder> [game] [platform]\n";
+    echo "Example: mht pack A01_Escape_Asylum#mls mh2 pc\n";
 
 }

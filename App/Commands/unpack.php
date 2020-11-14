@@ -1,7 +1,7 @@
 <?php
-ini_set('memory_limit','-1');
-
-require_once __DIR__ . '/../../vendor/autoload.php';
+//ini_set('memory_limit','-1');
+//
+//require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\MHT;
 use App\Service\Archive\Dds;
@@ -22,16 +22,15 @@ foreach ($argv as $index => $argument) {
         unset($argv[$index]);
     }
 }
-
 switch (count($argv)){
-    case 2:
-        list($script, $file) = $argv;
-        break;
     case 3:
-        list($script, $file, $game) = $argv;
+        list($script, ,$file) = $argv;
         break;
     case 4:
-        list($script, $file, $game, $platform) = $argv;
+        list($script, ,$file, $game) = $argv;
+        break;
+    case 5:
+        list($script, , $file, $game, $platform) = $argv;
         break;
     default:
         printHelp();
@@ -486,7 +485,7 @@ function printHelp(){
     echo "\n";
     echo "\n";
 
-    echo "Usage: php unpack.php [options] <filenamw> [game] [platform]\n";
-    echo "Example: php unpack.php A01_Escape_Asylum.mls mh2 pc\n";
+    echo "Usage: mht unpack [options] <filenamw> [game] [platform]\n";
+    echo "Example: mht unpack A01_Escape_Asylum.mls mh2 pc\n";
 
 }

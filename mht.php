@@ -1,4 +1,7 @@
 <?php
+ini_set('memory_limit','-1');
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 $options = [];
 foreach ($argv as $index => $argument) {
@@ -18,42 +21,55 @@ if (in_array('no-header', $options) === false){
     echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ C\n";
     echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
     echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
-    echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
+
+}
+
+if (isset($argv[1])){
+    switch (strtolower($argv[1])){
+
+        case 'unpack':
+        case 'extract':
+            echo "\n";
+            include __DIR__ . '/App/Commands/unpack.php';
+            break;
+
+        case 'pack':
+        case 'build':
+            echo "\n";
+            include __DIR__ . '/App/Commands/pack.php';
+
+            break;
+        case 'patch':
+            echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
+            echo "\n";
+            include __DIR__ . '/App/Commands/patch.php';
+
+            break;
+        case 'compare':
+            echo "\n";
+            include __DIR__ . '/App/Commands/compare.php';
+
+            break;
+
+        default:
+            help();
+            break;
+    }
+
+}else{
+    help();
+}
+
+function help(){
+    echo "Usage: mht <command>\n";
+    echo "-------\n";
+    echo "unpack [extract]\tExtract a Manhunt File\n";
+    echo "pack [build]\t\tBuild a Manhunt File\n";
+    echo "compare\t\t\tCompares 2 Folder, generate CSVs\n";
+    echo "\n";
+    echo "Call a command for future help";
     echo "\n";
 
+    echo "Example: mht unpack\n";
+    exit;
 }
-
-
-
-switch (strtolower($argv[1])){
-
-    case 'unpack':
-    case 'extract':
-        $cmd = sprintf(
-            "%s %s%sApp%sCommands%s%s",
-            PHP_BINARY,
-            __DIR__,
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR,
-            'unpack.php'
-        );
-        break;
-
-    case 'pack':
-    case 'build':
-        $cmd = sprintf("%s %s%s%s", PHP_BINARY, __DIR__, DIRECTORY_SEPARATOR, 'pack.php' );
-        break;
-
-    default:
-        die("command not implemented yet");
-        break;
-}
-
-foreach ($argv as $index => $argument) {
-    if ($index <= 1) continue;
-
-    $cmd .= " " . $argument;
-}
-
-system($cmd);
