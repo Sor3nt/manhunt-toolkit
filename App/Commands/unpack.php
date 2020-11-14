@@ -1,6 +1,7 @@
 <?php
 ini_set('memory_limit','-1');
-require_once 'vendor/autoload.php';
+
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\MHT;
 use App\Service\Archive\Dds;
@@ -8,17 +9,6 @@ use App\Service\Archive\Mls;
 use App\Service\Archive\Textures\Image;
 use App\Service\NBinary;
 use App\Service\Resources;
-
-echo "\n";
-echo "███╗   ███╗██╗  ██╗████████╗    ██╗   ██╗   ██████╗    █████╗ \n";
-echo "████╗ ████║██║  ██║╚══██╔══╝    ██║   ██║  ██╔═████╗  ██╔══██╗\n";
-echo "██╔████╔██║███████║   ██║       ██║   ██║  ██║██╔██║  ╚██████║\n";
-echo "██║╚██╔╝██║██╔══██║   ██║       ╚██╗ ██╔╝  ████╔╝██║   ╚═══██║\n";
-echo "██║ ╚═╝ ██║██║  ██║   ██║        ╚████╔╝██╗╚██████╔╝██╗█████╔╝\n";
-echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ \n";
-echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
-echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
-echo "\n";
 
 $game = MHT::GAME_MANHUNT_2;
 $platform = MHT::PLATFORM_PC;

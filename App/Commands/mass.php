@@ -1,7 +1,7 @@
 <?php
 ini_set('memory_limit','-1');
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\MHT;
 use App\Service\Archive\Mls;
@@ -134,6 +134,15 @@ foreach ($finder as $file) {
 
     $handler = $resource->getHandler();
     echo 'Handler ' . $handler->name . ' for file ' . $file->getRelativePathname() . "\n";
+
+
+    if (isset($handler->keepOrder)){
+        if (in_array('ignore-order', $options) !== false){
+            $handler->keepOrder = false;
+        }else{
+            $handler->keepOrder = $keepOrder;
+        }
+    }
 
     $originalExtension = $file->getExtension();
 

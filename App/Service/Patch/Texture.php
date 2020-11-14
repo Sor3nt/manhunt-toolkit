@@ -37,7 +37,7 @@ class Texture extends PatchAbstract
                             }else{
                                 echo "R";
                                 $applied = true;
-                                $results[$fileName] = $content;
+                                $results[$modelName] = $content;
                             }
 
                             $alreadyAdded = true;

@@ -1,0 +1,12 @@
+<?php
+
+$cmd = sprintf(
+    "%s %s%s%s",
+    PHP_BINARY,
+    __DIR__,
+    DIRECTORY_SEPARATOR,
+    'mht.php $@'
+);
+
+file_put_contents("/usr/local/bin/mht", $cmd);
+chmod("/usr/local/bin/mht", 0777);

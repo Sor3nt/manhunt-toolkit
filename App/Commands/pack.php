@@ -1,7 +1,7 @@
 <?php
 ini_set('memory_limit','-1');
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\MHT;
 use App\Service\Resources;

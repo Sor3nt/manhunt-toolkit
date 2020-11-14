@@ -26,7 +26,6 @@ class Model extends PatchAbstract
 
         echo "U";
         $results = $handler->unpack( $this->resource->getInput(), $this->game, $this->platform );
-
         foreach ($patch['entries'] as $entry) {
 
             if (isset($entry['files'])){
@@ -45,7 +44,17 @@ class Model extends PatchAbstract
                         $modelRealName = strtolower($modelRealName);
 
                         if ($modelRealName === strtolower($fileName)){
-                            echo "S";
+
+                            if (file_get_contents($file) == $result){
+                                echo "S";
+
+                            }else{
+                                echo "R";
+                                var_dump($modelName);
+                                $results[$modelName] = file_get_contents($file);
+                                $applied = true;
+
+                            }
                             $alreadyAdded = true;
                             break;
 
