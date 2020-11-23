@@ -38,6 +38,8 @@ switch (count($argv)){
         break;
 }
 
+$file = realpath($file);
+
 $keepOrder = true;
 //$onlyUnzip = false;
 

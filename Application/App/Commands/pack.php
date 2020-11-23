@@ -32,6 +32,9 @@ switch (count($argv)){
         break;
 }
 
+$file = realpath($file);
+
+
 if ($game !== MHT::GAME_AUTO){
     if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2){
         throw new \Exception('Invalid game, allowed is mh1 or mh2');

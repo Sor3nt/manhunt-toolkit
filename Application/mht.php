@@ -25,20 +25,11 @@ if (in_array('no-header', $options) === false){
 }
 
 if (isset($argv[1])){
+//
+
+
     switch (strtolower($argv[1])){
 
-        case 'unpack':
-        case 'extract':
-            echo "\n";
-            include __DIR__ . '/App/Commands/unpack.php';
-            break;
-
-        case 'pack':
-        case 'build':
-            echo "\n";
-            include __DIR__ . '/App/Commands/pack.php';
-
-            break;
         case 'patch':
             echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
             echo "\n";
@@ -54,27 +45,18 @@ if (isset($argv[1])){
         case 'install':
             echo "\n";
 
-var_dump(realpath(__FILE__));
             echo "Installing MHT...";
             //Windows
             if(strcasecmp(substr(PHP_OS, 0, 3), 'WIN') == 0){
 
                 file_put_contents('mht.bat', PHP_BINARY . ' ' . __DIR__ . '\\mht.phar');
 
-                system(sprintf("setx path \"%path%;%s\"", __DIR__));
+                system(sprintf("setx path \"%s;%s\"", "%path%", __DIR__));
 
             //Linux/Mac
             }else{
 
-                $cmd = sprintf(
-                    "%s %s%s%s",
-                    PHP_BINARY,
-                    getcwd(),
-                    DIRECTORY_SEPARATOR,
-                    'mht.phar $@'
-                );
-
-                file_put_contents("/usr/local/bin/mht", $cmd);
+                copy($argv[0], "/usr/local/bin/mht");
                 chmod("/usr/local/bin/mht", 0777);
 
             }
@@ -84,7 +66,31 @@ var_dump(realpath(__FILE__));
             break;
 
         default:
-            help();
+
+            if (strpos($argv[1], "#") !== false) {
+                array_splice( $argv, 1  , 0, 'pack' );
+            }else if (strpos($argv[1], ".") !== false){
+                array_splice( $argv, 1  , 0, 'unpack' );
+            }
+
+            switch (strtolower($argv[1])) {
+
+                case 'unpack':
+                case 'extract':
+                    echo "\n";
+                    include __DIR__ . '/App/Commands/unpack.php';
+                    break;
+
+                case 'pack':
+                case 'build':
+                    echo "\n";
+                    include __DIR__ . '/App/Commands/pack.php';
+                    break;
+                default:
+                    help();
+                    break;
+
+            }
             break;
     }
 
@@ -93,14 +99,16 @@ var_dump(realpath(__FILE__));
 }
 
 function help(){
+    echo "\n";
     echo "Usage: mht <command>\n";
     echo "-------\n";
     echo "install\t\t\tInstall MHT globally\n";
     echo "unpack [extract]\tExtract a Manhunt File\n";
     echo "pack [build]\t\tBuild a Manhunt File\n";
     echo "compare\t\t\tCompares 2 Folder, generate CSVs\n";
+    echo "<file>\t\t\tAutodetection pack / unpack\n";
     echo "\n";
-    echo "Call a command for future help";
+    echo "Call a command for additional help";
     echo "\n";
 
     echo "Example: mht unpack\n";

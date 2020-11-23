@@ -10,10 +10,7 @@ use App\Service\Resource;
 class ManhuntLevelScript extends PatchAbstract
 {
 
-
-    public function apply($patch)
-    {
-
+    public function patchHandling($patch){
         /** @var Mls $handler */
         $handler = $this->resource->getHandler();
         echo "U";
@@ -196,6 +193,24 @@ class ManhuntLevelScript extends PatchAbstract
         }
 
         return false;
+    }
+
+    public function apply($patch)
+    {
+        if (isset($patch['actions']) && in_array("COMPILE", $patch['actions']) !== false) {
+            /** @var Mls $handler */
+            $handler = $this->resource->getHandler();
+            $result = $handler->pack( $this->resource->getInput(), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
+
+            file_put_contents($outputTo, $result);
+            echo "U";
+
+        }else{
+            return $this->patchHandling($patch);
+        }
+
+
+
     }
 
 
