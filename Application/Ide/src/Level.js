@@ -131,16 +131,48 @@ MANHUNT.level = (function () {
                 self._processed.chain2 = true;
                 self._processed.chain4 = true;
 
+
+                /**
+                 * Generate Relations
+                 */
                 self._storage.inst.getData().forEach(function (instEntry) {
+                    MANHUNT.relation.addInst(instEntry.name, instEntry);
 
                     var glg = self._storage.glg.find(instEntry.glgRecord);
+                    if (glg !== false){
+                        MANHUNT.relation.addGlg(instEntry.glgRecord, glg);
+                        MANHUNT.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
+
+                        var modelName = glg.getValue("MODEL");
+                        if (modelName !== false){
+
+                            //TODO, hardcoded level 1 stuff
+                            if (modelName === "fist_poly_hunter"){
+                                modelName = 'danny_asylum_bloody';
+                            }
+
+                            var model = self._storage.mdl.find(modelName);
+                            if (model !== false){
+                                MANHUNT.relation.addModel(modelName, model);
+                                MANHUNT.relation.model2Glg(modelName, instEntry.glgRecord);
+                                MANHUNT.relation.model2Inst(modelName, instEntry.name);
+                            }
+                        }
+                    }
+
+
+                });
+
+
+                self._storage.inst.getData().forEach(function (instEntry) {
+
+                    var glg = MANHUNT.relation.getGlgByInst(instEntry.name);
+                    // var glg = self._storage.glg.find(instEntry.glgRecord);
                     if (glg === false) return;
 
                     var model,entity;
                     var modelName = glg.getValue("MODEL");
                     if (modelName === false){
-
-
                         entity = MANHUNT.entity.construct.byInstEntry(instEntry);
                         if (entity === false) return;
 
@@ -151,11 +183,11 @@ MANHUNT.level = (function () {
                             return;
 
                         }else if (modelName === "fist_poly_hunter"){
-                            model = self._storage.mdl.find('danny_asylum_bloody');
-                        }else{
-                            model = self._storage.mdl.find(modelName);
-                            // model =
+                            modelName = 'danny_asylum_bloody';
                         }
+
+                        model = MANHUNT.relation.getModelByInst(instEntry.name);
+                        // model = self._storage.mdl.find(modelName);
                         if (model === false) return;
 
                         entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
@@ -167,6 +199,8 @@ MANHUNT.level = (function () {
 
 // console.log("ADD ENT", entity.name);
                     self._storage.entity.add(entity);
+                    MANHUNT.relation.addEntity(entity.name, entity);
+                    MANHUNT.relation.inst2Entity(entity.name, instEntry.name);
 // console.log(entity.object, model);
 
 

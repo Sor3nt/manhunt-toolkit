@@ -35,24 +35,25 @@ MANHUNT.storage.Model = function () {
                 return false;
             }
 
-            return {
-                get: function () {
-                    return found;
-                },
+            return  {
+                    get: function () {
+                        return found;
+                    },
 
-                LODLength: found.children.length,
+                    LODLength: found.children.length,
 
-                enableLOD: function(lodIndex){
-                    found.children[found.userData.LODIndex].visible = false;
-                    found.userData.LODIndex = lodIndex;
-                    found.children[found.userData.LODIndex].visible = true;
-                },
+                    enableLOD: function(lodIndex){
+                        found.children[found.userData.LODIndex].visible = false;
+                        found.userData.LODIndex = lodIndex;
+                        found.children[found.userData.LODIndex].visible = true;
+                    },
 
-                getLOD: function (lodIndex) {
-                    return found.children[lodIndex];
+                    getLOD: function (lodIndex) {
+                        return found.children[lodIndex];
 
-                }
-            };
+                    }
+                };
+
         }
 
     };

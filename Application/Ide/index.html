@@ -16,6 +16,7 @@
     <script>
         var MANHUNT = {
             init: [],
+            relation: {},
             control: {},
             loader: {},
             parser: {},
@@ -108,6 +109,7 @@
 
     <script src="src/LevelScript/Functions.js"></script>
 
+    <script src="src/Relation.js"></script>
     <script src="src/Camera.js"></script>
     <script src="src/Control/ThirdPerson.js"></script>
     <script src="src/Control/OrbitAndTransform.js"></script>
@@ -154,6 +156,16 @@
     </li>
 </template>
 
+<template id="model-list-info-position">
+    <div>
+        <span style="font-size: 12px" data-field="position">-33.21, -33.21, -33.21</span>
+        <span>
+            <svg width="16" height="16" data-field="goto">-->
+                <use xlink:href="coreUi/free.svg#cil-search"></use>
+            </svg>
+        </span>
+    </div>
+</template>
 <template id="model-list-entry">
 
     <li class="list-group-item  justify-content-between align-items-center">
@@ -179,18 +191,52 @@
             </div>
         </div>
 
-        <div>
-            Textures: <a>tex1</a>, <a>tex2</a>
-            LOD Entries: 2
-            Vertices: 23312
+        <div class="row" data-section="info" style="padding-top: 15px; border-top: 1px solid #000; margin-top: 15px;display: none">
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-4">
+                        Textures:
+                    </div>
+                    <div class="col-8" data-field="textures"></div>
+                </div>
+<!--                LOD Entries: 2-->
+<!--                Vertices: 23312-->
+<!--                Configured Records: A01_dead_elevator-->
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-4">
+                        Material:
+                    </div>
+                    <div class="col-8">
+                        <span class="badge badge-info">MATERIAL_GORE</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        Position:
+                    </div>
+                    <div class="col-8" data-section="position">
+<!--                        <div> -->
+<!--                            <span style="font-size: 12px" >-33.21, -33.21, -33.21</span>-->
+<!--                            <span>-->
+<!--                                <svg width="16" height="16">&ndash;&gt;-->
+<!--                                    <use xlink:href="coreUi/free.svg#cil-search"></use>-->
+<!--                                </svg>-->
+<!--                            </span>-->
+<!--                        </div>-->
+                    </div>
+                </div>
 
-            Configured Records: A01_dead_elevator
-            Material: MATERIAL_GORE
+<!--                -->
 
-            Inst Name: YXX
-            Position: 0,0,0 0,0,2 0,0,1
+<!--                Inst Name: YXX-->
+<!--                Position: 0,0,0 0,0,2 0,0,1-->
 
-            Used Animations: idle, test, ka
+<!--                Used Animations: idle, test, ka-->
+             </div>
+
+
 
         </div>
     </li>
@@ -428,6 +474,8 @@
                         },
                     );
 
+                    MANHUNT.frontend.tab.show('model');
+
                     sceneInfo.camera.position.set( -140.83501492578623, 119.29015658522931, -73.34957947924103 );
 
                     var spotLight = new THREE.SpotLight(0xffffff);
@@ -468,16 +516,14 @@
                             //blur
                         },
                     );
-
-                    MANHUNT.frontend.tab.show('world');
+                    //
+                    // MANHUNT.frontend.tab.show('world');
 
                     var spotLight = new THREE.SpotLight(0xffffff);
                     spotLight.position.set( 1, 1, 1 );
                     sceneInfo.scene.add(spotLight);
 
-                    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-                    sceneInfo.scene.add( hemiLight );
-
+                    sceneInfo.scene.add( new THREE.HemisphereLight( 0xffffff, 0x444444 ) );
 
                     var player = MANHUNT.level.getStorage('entity').find('player(player)');
                     sceneInfo.control.enable(player.object);
@@ -489,6 +535,9 @@
 
             function (sceneInfo, delta) { //onUpdate
 
+                /**
+                 * Camera follow the player
+                 */
                 var lookAt = sceneInfo.control.enable(); //enable return the enabled object if no arguments applied
 
                 var relativeCameraOffset = new THREE.Vector3(0,2,-3);
@@ -504,30 +553,8 @@
             }
         );
 
-
-        // MANHUNT.camera.lookAt(player.object);
-
-
-        // mlsA01CellFlicker();
-
-        //
-        // MANHUNT.engine.changeScene('model');
-        // var scene = MANHUNT.engine.getScene();
-        // scene.add( new THREE.HemisphereLight( 0xffffff, 0x444444 ) );
-        // scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
-        //
-
         MANHUNT.engine.render();
 
-
-        //
-        // var scene = MANHUNT.engine.getScene();
-        //
-        //
-        // MANHUNT.control.init();
-        // MANHUNT.entityInteractive.init();
-
-        // MANHUNT.engine.render();
 
 </script>
 

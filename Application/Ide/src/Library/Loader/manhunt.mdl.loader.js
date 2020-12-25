@@ -852,21 +852,11 @@ MANHUNT.fileLoader.MDL = function () {
 
                                 if (entry.bone.boneName.toLowerCase() === name.toLowerCase()){
 
-                                    console.log("select model", entry);
-
                                     var threeModel = new MdlModelConverter(entry);
                                     threeModel.mesh.name = entry.bone.boneName;
-                                    // threeModel.mesh.renderOrder = 1;
-
-                                    // if (materialObj.TexName === "ashes"){
-                                    // }
-                                    // threeModel.mesh.children[0].position.set(0,0,0);
                                     return threeModel.mesh;
                                 }
-
-
                             }
-
 
                             return false;
                         }

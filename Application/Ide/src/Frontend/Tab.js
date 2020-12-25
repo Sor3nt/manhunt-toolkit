@@ -25,7 +25,6 @@ MANHUNT.frontend.tab = (function () {
             row.find('[data-field="name"]')
                 .click(function () {
                     self.show(name);
-                    focusCallback();
                 })
                 .html(name);
 
