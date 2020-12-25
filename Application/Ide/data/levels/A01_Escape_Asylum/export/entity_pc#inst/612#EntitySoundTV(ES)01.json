@@ -1,0 +1,64 @@
+{
+    "record": "EntitySound_(ES)",
+    "internalName": "EntitySoundTV(ES)01",
+    "entityClass": "Sound",
+    "position": [
+        -15.662322998046875,
+        -38.674903869628906,
+        7.517725944519043
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "IS STREAMED",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "BANK NAME",
+            "type": "int",
+            "value": 8
+        },
+        {
+            "parameterId": "NAME IN SAMPLEBANK",
+            "type": "str",
+            "value": "TV1"
+        },
+        {
+            "parameterId": "STREAM ID",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "RADIUS",
+            "type": "int",
+            "value": 10
+        },
+        {
+            "parameterId": "VOLUME",
+            "type": "int",
+            "value": 127
+        },
+        {
+            "parameterId": "TRIGGER PROBABILITY",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "TRIGGER TIMEOUT",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "OCCLUSION IGNORANCE",
+            "type": "flo",
+            "value": 0.10000000149011612
+        }
+    ],
+    "game": "mh2"
+}

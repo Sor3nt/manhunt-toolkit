@@ -1,0 +1,18 @@
+{
+    "record": "dead_staff",
+    "internalName": "dead_staff",
+    "entityClass": "",
+    "position": [
+        -13.968828201293945,
+        -33.75452423095703,
+        -0.07813999801874161
+    ],
+    "rotation": [
+        0,
+        0,
+        0.7071070075035095,
+        0.7071070075035095
+    ],
+    "parameters": [],
+    "game": "mh1"
+}

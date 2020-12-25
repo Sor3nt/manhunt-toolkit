@@ -1,0 +1,39 @@
+{
+    "record": "searchable",
+    "internalName": "searchable08",
+    "entityClass": "Base_Inst",
+    "position": [
+        32.09554672241211,
+        -33.52759552001953,
+        17.093544006347656
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

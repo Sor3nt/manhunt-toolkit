@@ -1,0 +1,103 @@
+scriptmain Triggerscript;
+
+entity triggerWheelChair : et_name;
+
+
+script OnEnterTrigger;
+var
+    pos, pos2, vel : vec3d;
+    speed : real;
+
+begin
+	WriteDebug(GetEntityName(this), ' : OnEnterTrigger');
+
+	EndScriptAudioStream;
+	{PreLoadScriptAudioStream('WHEEL', false);
+ 	while not IsScriptAudioStreamPreLoaded do sleep(10);
+
+	PlayScriptAudioStream(127);}
+
+	
+
+	SetVector(pos, -13.3461, 7.054, 2.25667);
+	SetVector(vel, 0.838732, -0.0997477, -0.666577);
+	speed := 10.0;
+	vel.x := vel.x * speed;
+	vel.y := vel.y * speed;
+	vel.z := vel.z * speed;
+	SpawnEntityWithVelocity('CJ_WHEELCHAIR1', pos, 'WheelChair', vel);
+	{PlayScriptAudioStreamFromEntityAuto('WOM2', 100,GetEntity('WheelChair'),100);}
+	
+	RunScript('triggerWheelChair', 'RemoveStuffOne');
+	
+	RunScript('triggerWheelChair', 'RemoveStuffTwo');
+	
+	RemoveThisScript;
+end;
+
+script RemoveStuffOne;
+begin
+	
+	{Close door, remove everything prior to this point}
+	SetSlideDoorAjarDistance(GetEntity('asylum_cell_door_slide_gf_melee(SD)'), 1.1);
+	SetDoorState(GetEntity('asylum_cell_door_slide_gf_melee(SD)'), DOOR_CLOSING);
+
+	DestroyEntity(GetEntity('triggerStealthOneAware'));
+	DestroyEntity(GetEntity('triggerStealthTwoAware'));
+	DestroyEntity(GetEntity('triggerStealthThreeAware'));
+
+	if NIL <> GetEntity('StealthTut(hunter)') then DestroyEntity(GetEntity('StealthTut(hunter)'));
+	if NIL <> GetEntity('StealthTutTwo(hunter)') then DestroyEntity(GetEntity('StealthTutTwo(hunter)'));
+	if NIL <> GetEntity('StealthTutThree(hunter)') then DestroyEntity(GetEntity('StealthTutThree(hunter)'));
+	RemoveThisScript;
+end;
+
+script RemoveStuffTwo;
+begin
+	
+{---------------------------------------
+ Sector 2
+ ---------------------------------------}
+
+        DestroyEntity(GetEntity('mirror'));
+        DestroyEntity(GetEntity('CJ_Radiator_old11'));
+        DestroyEntity(GetEntity('CJ_Radiator_old13'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright04'));
+        DestroyEntity(GetEntity('DE_MattressDown04'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright05'));
+        DestroyEntity(GetEntity('DE_MattressDown05'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old04'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old05'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old06'));
+        DestroyEntity(GetEntity('CJ_MINICAMB01'));
+        DestroyEntity(GetEntity('DirtyOldToilet16'));
+        DestroyEntity(GetEntity('DirtyOldToilet17'));
+        DestroyEntity(GetEntity('SA_Rubbish_B'));
+        DestroyEntity(GetEntity('SA_Rubbish_I'));
+        DestroyEntity(GetEntity('SA_Rubbish_B02'));
+        DestroyEntity(GetEntity('Clipboard_Medical05'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright11'));
+        DestroyEntity(GetEntity('DE_MattressBent05'));
+        DestroyEntity(GetEntity('SA_Rubbish_J02'));
+        DestroyEntity(GetEntity('DirtyOldToilet18'));
+
+
+{---------------------------------------
+ Sector 3
+ ---------------------------------------}
+
+        DestroyEntity(GetEntity('CJ_Radiator_old10'));
+        DestroyEntity(GetEntity('CJ_bunk_bed_upright06'));
+        DestroyEntity(GetEntity('DE_MattressDown06'));
+        DestroyEntity(GetEntity('Wash_Bowl_Old07'));
+        DestroyEntity(GetEntity('CJ_MINICAMB02'));
+        DestroyEntity(GetEntity('Gen_Tannoy_(F)05'));
+        DestroyEntity(GetEntity('CJ_TROLLY08'));
+        DestroyEntity(GetEntity('CJ_GREENHSHELVES06'));
+        DestroyEntity(GetEntity('SA_Rubbish_F01'));
+        DestroyEntity(GetEntity('Clipboard_Medical07'));
+        DestroyEntity(GetEntity('SA_Rubbish_D02'));
+        DestroyEntity(GetEntity('DirtyOldToilet19'));
+
+end;
+end.

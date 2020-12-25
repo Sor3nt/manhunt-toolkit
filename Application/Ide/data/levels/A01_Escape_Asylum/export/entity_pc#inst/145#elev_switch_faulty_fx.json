@@ -1,0 +1,39 @@
+{
+    "record": "PFX",
+    "internalName": "elev_switch_faulty_fx",
+    "entityClass": "Base_Inst",
+    "position": [
+        -29.898189544677734,
+        -37.8670768737793,
+        6.979979038238525
+    ],
+    "rotation": [
+        0,
+        "-0",
+        -0.7071070075035095,
+        0.7071070075035095
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

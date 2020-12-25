@@ -1,0 +1,79 @@
+{
+    "record": "asy_bodBwhedE",
+    "internalName": "LiftOrderly05(hunter)",
+    "entityClass": "Hunter_Inst",
+    "position": [
+        -28.503997802734375,
+        -36.52199935913086,
+        16.826000213623047
+    ],
+    "rotation": [
+        0,
+        0,
+        0.8660249710083008,
+        0.5
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT1",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT2",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT3",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "WEAPON",
+            "type": "int",
+            "value": "not defined"
+        },
+        {
+            "parameterId": "WEAPON2",
+            "type": "int",
+            "value": "not defined"
+        },
+        {
+            "parameterId": "775a62a7",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "DROP_AMMO",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "USE DEFAULT AI",
+            "type": "boo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

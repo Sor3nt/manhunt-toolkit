@@ -1,0 +1,39 @@
+{
+    "record": "Asylum_glass_break",
+    "internalName": "plaza_lobbyglass_break",
+    "entityClass": "Base_Inst",
+    "position": [
+        13.355992317199707,
+        -48.4633903503418,
+        23.715219497680664
+    ],
+    "rotation": [
+        0,
+        0,
+        -0.7071070075035095,
+        0.7071070075035095
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

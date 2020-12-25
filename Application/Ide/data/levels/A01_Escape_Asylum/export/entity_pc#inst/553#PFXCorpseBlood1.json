@@ -1,0 +1,18 @@
+{
+    "record": "PFX",
+    "internalName": "PFXCorpseBlood1",
+    "entityClass": "",
+    "position": [
+        -13.860631942749023,
+        -33.705596923828125,
+        0.666828989982605
+    ],
+    "rotation": [
+        0,
+        -0.21644000709056854,
+        "-0",
+        0.9762960076332092
+    ],
+    "parameters": [],
+    "game": "mh1"
+}

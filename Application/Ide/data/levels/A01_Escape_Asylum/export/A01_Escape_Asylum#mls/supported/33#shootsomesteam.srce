@@ -1,0 +1,15 @@
+scriptmain ShootSomeSteam;
+
+ENTITY
+	triggerSteamShoot : et_name;
+	
+script OnEnterTrigger;
+begin
+	EntityPlayAnim(GetEntity('PFXShoot'), 'PAT_STEAM03', true);
+	{SOUND}
+	PlayScriptAudioStreamFromEntityAuto('STEAM', 100, GetEntity('PFXShoot'), 100);
+		
+	RemoveThisScript;
+end;
+
+end.

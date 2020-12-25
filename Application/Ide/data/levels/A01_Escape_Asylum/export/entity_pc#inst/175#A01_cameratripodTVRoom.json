@@ -1,0 +1,39 @@
+{
+    "record": "A01_cameratripod",
+    "internalName": "A01_cameratripodTVRoom",
+    "entityClass": "Base_Inst",
+    "position": [
+        2.8870010375976562,
+        -54.43199920654297,
+        22.613000869750977
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

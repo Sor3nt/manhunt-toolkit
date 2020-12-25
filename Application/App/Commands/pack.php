@@ -10,8 +10,8 @@ $platform = MHT::PLATFORM_PC;
 
 $options = [];
 foreach ($argv as $index => $argument) {
-    if (substr($argument, 0, 2) == "--"){
-        $options[] = substr($argument, 2);
+    if (substr($argument, 0, 1) == "-"){
+        $options[] = substr($argument, 1);
         unset($argv[$index]);
     }
 }

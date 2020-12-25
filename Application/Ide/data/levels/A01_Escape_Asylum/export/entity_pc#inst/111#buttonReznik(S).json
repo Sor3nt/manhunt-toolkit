@@ -1,0 +1,39 @@
+{
+    "record": "EST_Garage_Button_(S)",
+    "internalName": "buttonReznik(S)",
+    "entityClass": "Base_Inst",
+    "position": [
+        -34.89155197143555,
+        -55.19686508178711,
+        5.943291187286377
+    ],
+    "rotation": [
+        "-0",
+        "-0",
+        "-0",
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

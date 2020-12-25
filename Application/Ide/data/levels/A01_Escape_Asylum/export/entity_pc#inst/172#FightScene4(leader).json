@@ -1,0 +1,84 @@
+{
+    "record": "asy_bodCwhedH",
+    "internalName": "FightScene4(leader)",
+    "entityClass": "Leader_Inst",
+    "position": [
+        -26.68038558959961,
+        -55.761722564697266,
+        24.20865821838379
+    ],
+    "rotation": [
+        0,
+        0,
+        0.7372769713401794,
+        0.6755899786949158
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT1",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT2",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT3",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "WEAPON",
+            "type": "int",
+            "value": "nightstick"
+        },
+        {
+            "parameterId": "WEAPON2",
+            "type": "int",
+            "value": "not defined"
+        },
+        {
+            "parameterId": "775a62a7",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "DROP_AMMO",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "USE DEFAULT AI",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "28347608",
+            "type": "int",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

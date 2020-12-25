@@ -1,0 +1,39 @@
+{
+    "record": "Truck_Asyl_Endcutscene",
+    "internalName": "Truck_Asyl_Endcutscene",
+    "entityClass": "Base_Inst",
+    "position": [
+        30.07857894897461,
+        -37.50284194946289,
+        16.082565307617188
+    ],
+    "rotation": [
+        0,
+        0,
+        0.10024300217628479,
+        0.9949629902839661
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

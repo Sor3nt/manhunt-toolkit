@@ -1,0 +1,29 @@
+{
+    "record": "Gen_Save_Point",
+    "internalName": "save_point_04",
+    "entityClass": "Trigger_Inst",
+    "position": [
+        15.114076614379883,
+        -49.15538024902344,
+        17.123380661010742
+    ],
+    "rotation": [
+        "-0",
+        0,
+        0.7933530211448669,
+        0.6087610125541687
+    ],
+    "parameters": [
+        {
+            "parameterId": "TYPE",
+            "type": "int",
+            "value": 1
+        },
+        {
+            "parameterId": "SIZE",
+            "type": "flo",
+            "value": 0.5
+        }
+    ],
+    "game": "mh2"
+}

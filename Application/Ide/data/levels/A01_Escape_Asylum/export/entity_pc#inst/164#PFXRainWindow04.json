@@ -1,0 +1,39 @@
+{
+    "record": "PFX",
+    "internalName": "PFXRainWindow04",
+    "entityClass": "Base_Inst",
+    "position": [
+        12.417046546936035,
+        -36.329036712646484,
+        27.135135650634766
+    ],
+    "rotation": [
+        0,
+        "-0",
+        "-0",
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

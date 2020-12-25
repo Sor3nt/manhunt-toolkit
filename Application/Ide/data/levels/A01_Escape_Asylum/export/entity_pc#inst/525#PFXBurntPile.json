@@ -1,0 +1,18 @@
+{
+    "record": "PFX",
+    "internalName": "PFXBurntPile",
+    "entityClass": "",
+    "position": [
+        -17.26527214050293,
+        -2.89837908744812,
+        5.976291179656982
+    ],
+    "rotation": [
+        0,
+        "-0",
+        "-0",
+        1
+    ],
+    "parameters": [],
+    "game": "mh1"
+}

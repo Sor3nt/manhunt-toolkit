@@ -1,0 +1,64 @@
+{
+    "record": "EntitySound_(ES)",
+    "internalName": "EntitySound_(ES)hangman",
+    "entityClass": "Sound",
+    "position": [
+        -28.03850555419922,
+        -46.76665496826172,
+        2.751197099685669
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "IS STREAMED",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "BANK NAME",
+            "type": "int",
+            "value": 8
+        },
+        {
+            "parameterId": "NAME IN SAMPLEBANK",
+            "type": "str",
+            "value": "HANG"
+        },
+        {
+            "parameterId": "STREAM ID",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "RADIUS",
+            "type": "int",
+            "value": 8
+        },
+        {
+            "parameterId": "VOLUME",
+            "type": "int",
+            "value": 60
+        },
+        {
+            "parameterId": "TRIGGER PROBABILITY",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "TRIGGER TIMEOUT",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "OCCLUSION IGNORANCE",
+            "type": "flo",
+            "value": 1
+        }
+    ],
+    "game": "mh2"
+}

@@ -1,0 +1,79 @@
+{
+    "record": "insane_B",
+    "internalName": "Jumper(hunter)",
+    "entityClass": "Hunter_Inst",
+    "position": [
+        20.596691131591797,
+        2.154006004333496,
+        24.086271286010742
+    ],
+    "rotation": [
+        0,
+        0,
+        0.7071070075035095,
+        0.7071070075035095
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT1",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT2",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "SLOT3",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "WEAPON",
+            "type": "int",
+            "value": "not defined"
+        },
+        {
+            "parameterId": "WEAPON2",
+            "type": "int",
+            "value": "not defined"
+        },
+        {
+            "parameterId": "775a62a7",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "DROP_AMMO",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "USE DEFAULT AI",
+            "type": "boo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

@@ -1,0 +1,39 @@
+{
+    "record": "PFX",
+    "internalName": "PFXShoot",
+    "entityClass": "Base_Inst",
+    "position": [
+        -19.469768524169922,
+        -42.103599548339844,
+        4.1467390060424805
+    ],
+    "rotation": [
+        -0.5196899771690369,
+        0.5162310004234314,
+        0.4951710104942322,
+        0.46715500950813293
+    ],
+    "parameters": [
+        {
+            "parameterId": "HP%_",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LODNEAR",
+            "type": "flo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

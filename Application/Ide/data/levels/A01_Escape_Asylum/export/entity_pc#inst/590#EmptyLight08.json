@@ -1,0 +1,18 @@
+{
+    "record": "EmptyLight01",
+    "internalName": "EmptyLight08",
+    "entityClass": "",
+    "position": [
+        3.765221118927002,
+        -29.54428482055664,
+        21.463851928710938
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [],
+    "game": "mh1"
+}

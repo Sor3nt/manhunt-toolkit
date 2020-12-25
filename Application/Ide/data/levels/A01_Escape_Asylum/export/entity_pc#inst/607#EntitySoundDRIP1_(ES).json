@@ -1,0 +1,64 @@
+{
+    "record": "EntitySound_(ES)",
+    "internalName": "EntitySoundDRIP1_(ES)",
+    "entityClass": "Sound",
+    "position": [
+        -4.8222479820251465,
+        -38.4949836730957,
+        0.3819350004196167
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "IS STREAMED",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "BANK NAME",
+            "type": "int",
+            "value": 8
+        },
+        {
+            "parameterId": "NAME IN SAMPLEBANK",
+            "type": "str",
+            "value": "WATERDRIP"
+        },
+        {
+            "parameterId": "STREAM ID",
+            "type": "int",
+            "value": 1
+        },
+        {
+            "parameterId": "RADIUS",
+            "type": "int",
+            "value": 5
+        },
+        {
+            "parameterId": "VOLUME",
+            "type": "int",
+            "value": 40
+        },
+        {
+            "parameterId": "TRIGGER PROBABILITY",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "TRIGGER TIMEOUT",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "OCCLUSION IGNORANCE",
+            "type": "flo",
+            "value": 1
+        }
+    ],
+    "game": "mh2"
+}

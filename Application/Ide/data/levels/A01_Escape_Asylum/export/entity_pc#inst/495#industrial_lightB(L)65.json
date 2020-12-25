@@ -1,0 +1,149 @@
+{
+    "record": "industrial_lightB(L)",
+    "internalName": "industrial_lightB(L)65",
+    "entityClass": "Light_Inst",
+    "position": [
+        -20.251953125,
+        -37.40590286254883,
+        27.9814510345459
+    ],
+    "rotation": [
+        0,
+        -0.7071070075035095,
+        -0.7071070075035095,
+        "-0"
+    ],
+    "parameters": [
+        {
+            "parameterId": "IS REAL LIGHT",
+            "type": "boo",
+            "value": 1
+        },
+        {
+            "parameterId": "SWITCH ON BY DEFAULT",
+            "type": "boo",
+            "value": 1
+        },
+        {
+            "parameterId": "LIGHT TYPE",
+            "type": "int",
+            "value": 3
+        },
+        {
+            "parameterId": "CONE ANGLE",
+            "type": "int",
+            "value": 20
+        },
+        {
+            "parameterId": "ATTENUATION RADIUS",
+            "type": "int",
+            "value": 1
+        },
+        {
+            "parameterId": "COLOUR: RED",
+            "type": "flo",
+            "value": 0.27000001072883606
+        },
+        {
+            "parameterId": "COLOUR: GREEN",
+            "type": "flo",
+            "value": 0.3199999928474426
+        },
+        {
+            "parameterId": "COLOUR: BLUE",
+            "type": "flo",
+            "value": 0.28999999165534973
+        },
+        {
+            "parameterId": "AFFECTS OBJECTS",
+            "type": "boo",
+            "value": 1
+        },
+        {
+            "parameterId": "AFFECTS MAP",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "CREATES CHARACTER SHADOWS",
+            "type": "boo",
+            "value": 1
+        },
+        {
+            "parameterId": "HAS LENSFLARE",
+            "type": "boo",
+            "value": 1
+        },
+        {
+            "parameterId": "LIGHT FOG",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "LENSFLARE SIZE",
+            "type": "flo",
+            "value": 1.7999999523162842
+        },
+        {
+            "parameterId": "LENSFLARE INTENSITY",
+            "type": "int",
+            "value": 170
+        },
+        {
+            "parameterId": "LIGHT EFFECT TYPE",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "EFFECT DURATION",
+            "type": "int",
+            "value": 4294967295
+        },
+        {
+            "parameterId": "SWITCH OFF AFTER DURATION",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "FLICKER\/STROBE ON TIME IN MS",
+            "type": "int",
+            "value": 300
+        },
+        {
+            "parameterId": "FLICKER\/STROBE OFF TIME IN MS",
+            "type": "int",
+            "value": 300
+        },
+        {
+            "parameterId": "FADE IN TIME IN MS",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "FADE OUT TIME",
+            "type": "int",
+            "value": 0
+        },
+        {
+            "parameterId": "FADE CONTINOUSLY",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "HAS SEARCHLIGHT CONE",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "bf4d0100",
+            "type": "flo",
+            "value": 0
+        },
+        {
+            "parameterId": "NOT CLIMBABLE",
+            "type": "boo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

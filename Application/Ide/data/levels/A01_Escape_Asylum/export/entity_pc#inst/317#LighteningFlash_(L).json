@@ -1,0 +1,59 @@
+{
+    "record": "LighteningFlash",
+    "internalName": "LighteningFlash_(L)",
+    "entityClass": "MHLight",
+    "position": [
+        16.68018341064453,
+        -4.252262115478516,
+        23.593000411987305
+    ],
+    "rotation": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "parameters": [
+        {
+            "parameterId": "421db23f",
+            "type": "int",
+            "value": 100
+        },
+        {
+            "parameterId": "6cb9a0b8",
+            "type": "int",
+            "value": 4
+        },
+        {
+            "parameterId": "LOD_DATA1",
+            "type": "str",
+            "value": "0,20,0,-1"
+        },
+        {
+            "parameterId": "LOD_DATA2",
+            "type": "str",
+            "value": ""
+        },
+        {
+            "parameterId": "TRANSPARENT",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "MATERIAL",
+            "type": "int",
+            "value": 18
+        },
+        {
+            "parameterId": "15d86efb",
+            "type": "boo",
+            "value": 0
+        },
+        {
+            "parameterId": "add18d93",
+            "type": "boo",
+            "value": 0
+        }
+    ],
+    "game": "mh2"
+}

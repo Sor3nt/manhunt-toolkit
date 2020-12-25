@@ -30,6 +30,11 @@ if (isset($argv[1])){
 
     switch (strtolower($argv[1])){
 
+        case 'editor':
+        case 'viewer':
+            echo "Starting Web Editor... please open in your browser http://localhost:8080/\n";
+            system(PHP_BINARY . ' -S localhost:8080 -t Application/Ide');
+            break;
         case 'patch':
             echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
             echo "\n";
@@ -49,9 +54,9 @@ if (isset($argv[1])){
             //Windows
             if(strcasecmp(substr(PHP_OS, 0, 3), 'WIN') == 0){
 
-                file_put_contents('mht.bat', PHP_BINARY . ' ' . __DIR__ . '\\mht.phar');
+                file_put_contents('mht.bat', PHP_BINARY . ' "' . __DIR__ . '\\mht.phar" %1 %2 %3 %4 %5 %6');
 
-                system(sprintf("setx path \"%s;%s\"", "%path%", __DIR__));
+                system(sprintf("setx path \"%s;%s\"", "%path%", '\"' . __DIR__ . '\"'));
 
             //Linux/Mac
             }else{
@@ -77,6 +82,7 @@ if (isset($argv[1])){
 
                 case 'unpack':
                 case 'extract':
+
                     echo "\n";
                     include __DIR__ . '/App/Commands/unpack.php';
                     break;

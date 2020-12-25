@@ -1,0 +1,130 @@
+scriptmain Triggerscript;
+
+entity triggerJumpTut3 : et_name;
+
+
+script OnEnterTrigger;
+var
+	pos : Vec3D;
+	Trigger : EntityPtr;
+
+begin
+
+	WriteDebug(GetEntityName(this), ' : OnEnterTrigger');
+	AIAddEntity('JumpTut(hunter)');
+	RegisterNonExecutableHunterInLevel;
+{	AIAddHunterToLeaderSubpack('leader(leader)', 'subExecTut', 'JumpTut(hunter)');}
+	{AIAddHunterToLeaderSubpack('leader(leader)', 'subExecTut', 'LiftLoonie02(hunter)');}
+	{AIAddENtity('TESTCAMHUNT(hunter)');}
+	{sleep(1000);}
+	{sleep(500);}
+	{RunScript('JumpTut(hunter)', 'Init');}
+	AIRemoveGoalFromSubpack('leader(leader)', 'subExecTut', 'goalAmbush'); 
+	{sleep(500);}
+	{AISetEntityIdleOverRide('LiftLoonie01(hunter)', true, true);
+	AISetEntityIdleOverRide('JumpTut(hunter)', true, true);}
+	
+	SetVector(pos, -15, 24.09, 24);
+	{TurnOffPhysics(GetEntity('LiftLoonie01(hunter)'));
+	EntityIgnoreCollisions(GetEntity('LiftLoonie01(hunter)'), TRUE);}
+	MoveEntity(GetEntity('LiftLoonie01(hunter)'), pos, 0);
+	SetPedOrientation(GetEntity('LiftLoonie01(hunter)'), 180);
+	
+	{TurnOffPhysics(GetEntity('JumpTut(hunter)'));
+	EntityIgnoreCollisions(GetEntity('JumpTut(hunter)'), TRUE);}
+	SetVector(pos, -15, 24.09, 22);
+	MoveEntity(GetEntity('JumpTut(hunter)'), pos, 0); 	
+	SetPedOrientation(GetEntity('JumpTut(hunter)'), 180);
+	
+	CutsceneStart;
+
+		AISetEntityIdleOverride('LiftLoonie01(hunter)', TRUE, TRUE);
+		AISetEntityIdleOverride('JumpTut(hunter)', TRUE, TRUE);
+
+		
+		CutsceneCameraInit;
+		
+		CutscenecameraSetPos(0.0, -11.1462, 25.2799, 27.436);
+		CutscenecameraSetPos(9.86667, -10.909, 25.2574, 41.0252);
+		
+		CutscenecameraSetTarget(0.0, -11.3458, 24.8519, 11.0945);
+		CutscenecameraSetTarget(9.86667, -11.1943, 25.1718, 24.6796);
+		
+		CutsceneCameraSetFOV(0.0, 55.0);
+		
+		CutsceneCameraSetRoll(0.0, 0.0);
+		CutsceneCameraSetRoll(8.36667, 0.0);
+		
+		CutSceneCameraSetHandyCam(false);
+		CutscenecameraStart;
+		
+		PlayScriptAudioStreamAuto('NATTACK5', 127);
+		
+		AiEntityPlayAnim('LiftLoonie01(hunter)', 'ASY_NURSE_ATTACK5A');
+		AiEntityPlayAnim('JumpTut(hunter)', 'ASY_NURSE_ATTACK5V');
+		
+		sleep(500);
+		
+		CutSceneRegisterSkipScript(this, 'SkipMe');
+
+		sleep(7833);
+		
+	CutSceneEnd(false);
+
+	EndScriptAudioStream;
+
+	AIEntityCancelAnim('LiftLoonie01(hunter)', 'ASY_NURSE_ATTACK5A');
+	AIEntityCancelAnim('JumpTut(hunter)', 'ASY_NURSE_ATTACK5V');
+	{AIEntityPlayAnimLooped('JumpTut(hunter)', 'BAT_INMATE_DEATHPOSE_WOUNDED_ANIM', -1.0);}
+	
+	SetVector(pos, -13.5402, 25.1953, 9.96919);
+	MoveEntity(GetEntity('LiftLoonie01(hunter)'), pos, 0);
+	
+	AISetEntityIdleOverride('LiftLoonie01(hunter)', FALSE, FALSE);
+	AISetEntityIdleOverride('JumpTut(hunter)', FALSE, FALSE);
+	SetPedLockonable(GetEntity('LiftLoonie01(hunter)'), TRUE);
+	AIIgnoreEntityIfDead('JumpTut(hunter)');
+	KillEntity(GetEntity('JumpTut(hunter)'));
+	
+
+	
+	{LEO LOOM 3}
+{	HideEntity(GetEntity('leo(leader)'));
+	SetEntityFade(GetEntity('leo(hunter)'), 0.1, 0.1);
+  SetVector(pos, -10.1737, 25.1953, 38.3265);
+	MoveEntity(GetEntity('leo(hunter)'), pos, 1);
+	SetPedOrientation(GetEntity('leo(hunter)'), 180);
+	
+	sleep(500);
+	ShowEntity(GetEntity('leo(leader)'));
+	SetEntityFade(GetEntity('leo(hunter)'), 1, 2);
+	ShowEntity(GetEntity('leo(hunter)'));}
+	
+	FrisbeeSpeechPlay('LEO45', 100, 10);
+	
+	ClearLevelGoal('GOAL9');
+	
+	{if GetEntity('JumpTut(hunter)') <> NIL then
+		DestroyEntity(GetEntity('JumpTut(hunter)'));}
+		
+	if GetEntity('LiftLoonie01(hunter)') <> NIL then
+	begin
+		AISetHunterOnRadar('LiftLoonie01(hunter)', TRUE);
+		AISetHunterIdlePatrol('LiftLoonie01(hunter)', AISCRIPT_IDLE_PATROL, AISCRIPT_HIGHPRIORITY, 2000, 5000,'pathLoonie1');
+		{SetVector(pos, -15, 24.09, 24);
+		MoveEntity(GetEntity('LiftLoonie01(hunter)'), pos, 0);}
+	end;
+	
+	AiMakeEntityDeaf('LiftLoonie01(hunter)', 1);
+	AiMakeEntityBlind('LiftLoonie01(hunter)', 1);
+	
+	RunScript('LiftLoonie01(hunter)', 'GreenWeaponTxt');
+	
+	RemoveEntity(this);
+end;
+
+script SkipMe;
+begin
+end;
+
+end.

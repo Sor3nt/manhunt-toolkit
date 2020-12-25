@@ -1,0 +1,18 @@
+{
+    "record": "mirror",
+    "internalName": "mirror",
+    "entityClass": "",
+    "position": [
+        -51.99169921875,
+        -9.39616870880127,
+        1.7300410270690918
+    ],
+    "rotation": [
+        0,
+        0,
+        -0.7071070075035095,
+        0.7071070075035095
+    ],
+    "parameters": [],
+    "game": "mh1"
+}
