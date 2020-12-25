@@ -46,17 +46,17 @@ MANHUNT.frontend.model = (function () {
 
             row.find('[data-field="name"]')
                 .click(function () {
-                    var scene = MANHUNT.engine.getScene();
+                    var sceneInfo = MANHUNT.engine.getSceneInfo();
 
                     //remove old objects
-                    if (self._lastModel !== false) scene.remove(self._lastModel);
+                    if (self._lastModel !== false) sceneInfo.scene.remove(self._lastModel);
 
                     var model = MANHUNT.level.getStorage('mdl').find(entry.bone.boneName).get();
                     model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
-                    scene.add(model);
+                    sceneInfo.scene.add(model);
                     self._lastModel = model;
-                    MANHUNT.camera.lookAt(model);
-                    MANHUNT.control.active('transform');
+
+                    sceneInfo.control.enable(model);
 
                     if (self._lastRow !== false) self._lastRow.removeClass('active');
                     row.addClass("active");

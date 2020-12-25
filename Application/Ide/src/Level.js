@@ -192,8 +192,7 @@ MANHUNT.level = (function () {
                 console.log("[MANHUNT.level] Boot Helpers");
 
                 //allow to click on a entity model
-                MANHUNT.entityInteractive.init();
-                MANHUNT.control.init();
+                // MANHUNT.entityInteractive.init();
 
                 typeof MANHUNT.sidebar.menu !== "undefined" && MANHUNT.sidebar.menu.init();
 

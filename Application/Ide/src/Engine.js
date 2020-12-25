@@ -13,51 +13,33 @@ MANHUNT.engine = (function () {
         init: function () {
 
             self.container = document.getElementById('webgl');
-            //
-            // self.addViewport(
-            //     document.getElementById('webgl-model'),
-            //     'world',
-            //     function (delta) {
-            //         MANHUNT.camera.update();
-            //         MANHUNT.control.update(delta);
-            //         MANHUNT.animator.update(delta);
-            //
-            //     }
-            // );
-            //
-            // self.addViewport(
-            //     document.getElementById('webgl-model'),
-            //     'world',
-            //     function (delta) {
-            //         MANHUNT.camera.update();
-            //         MANHUNT.control.update(delta);
-            //         MANHUNT.animator.update(delta);
-            //
-            //     }
-            // );
-
             self.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
             self.clock = new THREE.Clock();
 
-            MANHUNT.camera.init();
+            // MANHUNT.camera.init();
 
             self.container.appendChild(self.renderer.domElement);
             // window.addEventListener('resize', self._onWindowResize, false);
         },
 
-        addViewport: function(element, name, onUpdate){
+        createSceneInfo: function(element, name, camera, Control, onCreate, onUpdate){
 
             // const {left, right, top, bottom, width, height} =
             //     element.getBoundingClientRect();
             //
 
-            console.log("boound", jQuery(element).width());
             self.scene[name] = {
-                active: false,
+                // active: false,
                 scene: new THREE.Scene(),
                 element: element,
-                onUpdate: onUpdate
+                camera: camera,
+                onUpdate: onUpdate,
+                lookAt: null
             };
+
+            self.scene[name].control = new Control(self.scene[name]);
+
+            onCreate(self.scene[name]);
 
         },
 
@@ -70,12 +52,14 @@ MANHUNT.engine = (function () {
 
         render: function () {
             requestAnimationFrame(self.render);
+            if (self.activeScene === false) return;
 
             var delta = MANHUNT.engine.getClock().getDelta();
 
             var scene = self.scene[self.activeScene];
-            scene.onUpdate(delta);
-            self.renderer.render(scene.scene, MANHUNT.camera.getCamera());
+            scene.onUpdate(scene, delta);
+
+            self.renderer.render(scene.scene, scene.camera);
         },
 
         getRenderer: function () {
@@ -87,21 +71,25 @@ MANHUNT.engine = (function () {
             return self.scene[name].scene;
         },
 
+        getSceneInfo: function (name) {
+            if (typeof name === "undefined") return self.scene[self.activeScene];
+            return self.scene[name];
+        },
+
         changeScene: function(name){
             if (self.activeScene !== false){
-                self.scene[self.activeScene].active = false;
+                // self.scene[self.activeScene].active = false;
             }
 
             self.activeScene = name;
             var scene = self.scene[name];
             scene.active = true;
 
-            var camera = MANHUNT.camera.getCamera();
             var width = scene.element.getBoundingClientRect().width;
             var height = scene.element.getBoundingClientRect().height;
 
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
+            scene.camera.aspect = width / height;
+            scene.camera.updateProjectionMatrix();
 
             scene.element.appendChild(self.renderer.domElement);
 
@@ -121,11 +109,12 @@ MANHUNT.engine = (function () {
         container: function () {
             return self.container;
         },
-        addViewport: self.addViewport,
+        createSceneInfo: self.createSceneInfo,
         changeScene: self.changeScene,
         getRenderer: self.getRenderer,
         getClock: self.getClock,
         getScene: self.getScene,
+        getSceneInfo: self.getSceneInfo,
         render: self.render
     }
 })();

@@ -16,6 +16,7 @@
     <script>
         var MANHUNT = {
             init: [],
+            control: {},
             loader: {},
             parser: {},
             states: {},
@@ -108,7 +109,9 @@
     <script src="src/LevelScript/Functions.js"></script>
 
     <script src="src/Camera.js"></script>
-    <script src="src/Control.js"></script>
+    <script src="src/Control/ThirdPerson.js"></script>
+    <script src="src/Control/OrbitAndTransform.js"></script>
+    <script src="src/Control/Fly.js"></script>
     <script src="src/Storage/Storage.js"></script>
     <script src="src/Storage/Animation.js"></script>
     <script src="src/Storage/Model.js"></script>
@@ -397,69 +400,124 @@
 
 
         MANHUNT.engine.init();
+        MANHUNT.frontend.tab.init();
 
+        function waitForWorldCalllback() {
 
-        MANHUNT.engine.addViewport(
+            MANHUNT.engine.createSceneInfo(
+                document.getElementById('webgl-model'),
+                'model',
+                new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
+                MANHUNT.control.OrbitAndTransform,
+                function (sceneInfo) { //onCreate
+                    MANHUNT.frontend.model.init();
+                    MANHUNT.frontend.model.loadResources();
+
+                    MANHUNT.frontend.tab.add(
+                        'model',
+                        jQuery('#tab-model'),
+                        function () {
+                            //close
+                        },
+                        function () {
+                            MANHUNT.engine.changeScene('model');
+                            //focus
+                        },
+                        function () {
+                            //blur
+                        },
+                    );
+
+                    sceneInfo.camera.position.set( -140.83501492578623, 119.29015658522931, -73.34957947924103 );
+
+                    var spotLight = new THREE.SpotLight(0xffffff);
+                    spotLight.position.set( 1, 1, 1 );
+                    sceneInfo.scene.add(spotLight);
+
+                    sceneInfo.scene.add( new THREE.HemisphereLight( 0xffffff, 0x444444 ) );
+                    sceneInfo.scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
+
+                },
+
+                function (sceneInfo, delta) { //onUpdate
+                }
+            );
+        }
+
+        var worldSceneInfo = MANHUNT.engine.createSceneInfo(
             document.getElementById('webgl-world'),
             'world',
-            function (delta) {
-                MANHUNT.camera.update();
-                MANHUNT.control.update(delta);
-                MANHUNT.animator.update(delta);
+            new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
+            MANHUNT.control.ThirdPerson,
+            function (sceneInfo) { //onCreate
+
+                MANHUNT.level.load( "A01_Escape_Asylum", function() {
+                    waitForWorldCalllback();
+
+                    MANHUNT.frontend.tab.add(
+                        'world',
+                        jQuery('#tab-world'),
+                        function () {
+                            //close
+                        },
+                        function () {
+                            MANHUNT.engine.changeScene('world');
+                            //focus
+                        },
+                        function () {
+                            //blur
+                        },
+                    );
+
+                    MANHUNT.frontend.tab.show('world');
+
+                    var spotLight = new THREE.SpotLight(0xffffff);
+                    spotLight.position.set( 1, 1, 1 );
+                    sceneInfo.scene.add(spotLight);
+
+                    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+                    sceneInfo.scene.add( hemiLight );
+
+
+                    var player = MANHUNT.level.getStorage('entity').find('player(player)');
+                    sceneInfo.control.enable(player.object);
+
+
+                });
+
+            },
+
+            function (sceneInfo, delta) { //onUpdate
+
+                var lookAt = sceneInfo.control.enable(); //enable return the enabled object if no arguments applied
+
+                var relativeCameraOffset = new THREE.Vector3(0,2,-3);
+                lookAt.updateMatrixWorld();
+                var cameraOffset = relativeCameraOffset.applyMatrix4( lookAt.matrixWorld );
+
+                sceneInfo.camera.position.lerp(cameraOffset, 0.1);
+                sceneInfo.camera.lookAt( lookAt.position );
+
+                sceneInfo.control.update(delta);
+                // MANHUNT.control.update(delta);
+                // MANHUNT.animator.update(delta);
             }
         );
 
-        MANHUNT.level.load( "A01_Escape_Asylum", function() {
-            MANHUNT.frontend.tab.init();
 
-            MANHUNT.frontend.tab.add(
-                'world',
-                jQuery('#tab-world'),
-                function () {
-                    //close
-                },
-                function () {
-                    MANHUNT.engine.changeScene('world');
-                    //focus
-                },
-                function () {
-                    //blur
-                },
-            );
+        // MANHUNT.camera.lookAt(player.object);
 
 
+        // mlsA01CellFlicker();
 
-            MANHUNT.frontend.tab.show('world');
+        //
+        // MANHUNT.engine.changeScene('model');
+        // var scene = MANHUNT.engine.getScene();
+        // scene.add( new THREE.HemisphereLight( 0xffffff, 0x444444 ) );
+        // scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
+        //
 
-
-            var sceneWorld = MANHUNT.engine.getScene();
-
-            var spotLight = new THREE.SpotLight(0xffffff);
-            spotLight.position.set( 1, 1, 1 );
-            sceneWorld.add(spotLight);
-
-            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-            sceneWorld.add( hemiLight );
-
-
-            var player = MANHUNT.level.getStorage('entity').find('player(player)');
-            MANHUNT.camera.lookAt(player.object);
-
-
-            // mlsA01CellFlicker();
-
-            //
-            // MANHUNT.engine.changeScene('model');
-            // var scene = MANHUNT.engine.getScene();
-            // scene.add( new THREE.HemisphereLight( 0xffffff, 0x444444 ) );
-            // scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
-            //
-            MANHUNT.frontend.model.init();
-            MANHUNT.frontend.model.loadResources();
-
-            MANHUNT.engine.render();
-
-        });
+        MANHUNT.engine.render();
 
 
         //
