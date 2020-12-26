@@ -42,6 +42,7 @@ MANHUNT.level = (function () {
              * Chain 1: Player Texture => Player Model
              */
             self._storage.tex.load('./data/global/danny_asylum_bloody_pc.tex', function () {
+                jQuery('#loading-text').html('Player Model');
                 self._storage.mdl.load('./data/global/danny_asylum_bloody_pc.mdl', function () {
                     self._status.chain1 = true;
                     self._checkChainStates();
@@ -96,6 +97,7 @@ MANHUNT.level = (function () {
 
             //Map Texture, scene1 and scene2 loaded
             if (self._status.chain3 && self._processed.chain3 === false){
+                jQuery('#loading-text').html('Map');
                 console.log("[MANHUNT.level] Chain 3 loaded");
                 self._processed.chain3 = true;
 
@@ -135,6 +137,7 @@ MANHUNT.level = (function () {
                 /**
                  * Generate Relations
                  */
+                jQuery('#loading-text').html('entity relation');
                 self._storage.inst.getData().forEach(function (instEntry) {
                     MANHUNT.relation.addInst(instEntry.name, instEntry);
 
@@ -164,6 +167,7 @@ MANHUNT.level = (function () {
                 });
 
 
+                jQuery('#loading-text').html('entities');
                 self._storage.inst.getData().forEach(function (instEntry) {
 
                     var glg = MANHUNT.relation.getGlgByInst(instEntry.name);
@@ -235,6 +239,9 @@ MANHUNT.level = (function () {
 
                 console.log("[MANHUNT.level] Anything is loaded.");
                 self._callback();
+
+
+                jQuery('#loading').hide();
             }
         },
 

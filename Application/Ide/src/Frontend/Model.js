@@ -45,12 +45,108 @@ MANHUNT.frontend.model = (function () {
                     row.remove();
                 });
 
+            var relsInst2Model = MANHUNT.relation.getInstByModel(entry.bone.boneName);
+            if (relsInst2Model === false){
+                //as example heads are sub-glg records from the actual hunter
+                //there is no direct inst relation
+                var relsGLG = MANHUNT.relation.getGlgByModel(entry.bone.boneName);
+
+                row.addClass("unused");
+            }else{
+
+                //Detect animation and material
+                var animBlocks = [];
+                var matBlocks = [];
+
+                relsInst2Model.forEach(function (rel) {
+                    var glgs = MANHUNT.relation.getGlgByModel(entry.bone.boneName);
+                    glgs.forEach(function (rel) {
+
+                        var mat = rel.glg.getValue('MATERIAL');
+                        var animBlock = rel.glg.getValue('ANIMATION_BLOCK');
+
+                        if(
+                            animBlock !== false &&
+                            animBlocks.indexOf(animBlock) === -1
+                        ) {
+                            row.find('[data-field="animationBlock"]').append(
+                                '<span class="badge badge-info" >' + animBlock + '</span>'
+                            );
+
+                            animBlocks.push(animBlock);
+                        }
+
+                        if(
+                            mat !== false &&
+                            matBlocks.indexOf(mat) === -1
+                        ) {
+                            row.find('[data-field="material"]').append(
+                                '<span class="badge badge-info" >' + mat + '</span>'
+                            );
+                            matBlocks.push(mat);
+                        }
+
+                    });
+                });
+
+                if (animBlocks.length > 0){
+                    row.find('[data-icon="animation"]').show();
+                }else{
+                    row.find('[data-field="animationBlock"]').parent().remove();
+                }
+
+
+                //Generate Position
+                relsInst2Model.forEach(function (rel) {
+                    var posRow = jQuery(self._templatePos.content).clone();
+                    var fieldPosition = row.find('[data-section="position"]');
+                    fieldPosition.append(posRow);
+                    posRow = fieldPosition.find('div:last-child');
+
+                    posRow.find('[data-field="goto"]').click(function () {
+
+                        var realModel = MANHUNT.relation.getEntityByInst(rel.instName).object;
+
+                        MANHUNT.frontend.tab.show('world');
+                        var sceneInfo = MANHUNT.engine.getSceneInfo();
+                        sceneInfo.control.enable(realModel);
+
+                    });
+
+                    posRow.find('[data-field="position"]').html(
+                        rel.inst.position.x.toFixed(2) + ', ' +
+                        rel.inst.position.y.toFixed(2) + ', ' +
+                        rel.inst.position.z.toFixed(2)
+                    );
+
+                });
+            }
+
+
+            //Generate Textures names
+            var fieldTextures = row.find('[data-field="textures"]');
+            var appliedTextures = [];
+            entry.objects.forEach(function (object) {
+                if (object.materials.length > 0){
+                    object.materials.forEach(function (material) {
+                        if (appliedTextures.indexOf(material.TexName) !== -1) return;
+                        appliedTextures.push(material.TexName);
+
+                        fieldTextures.append(
+                            '<span class="badge badge-info">' + material.TexName + '</span>'
+                        )
+                    })
+                }
+            });
+
+
+
+
+            //Set model view trigger
             row.find('[data-field="name"]')
                 .click(function () {
                     var sceneInfo = MANHUNT.engine.getSceneInfo();
 
-console.log("click", entry);
-                    //
                     //remove old objects
                     if (self._lastModel !== false) {
                         self._lastRow.find('[data-section="info"]').hide();
@@ -59,48 +155,6 @@ console.log("click", entry);
 
                     row.find('[data-section="info"]').show();
 
-                    //Generate Textures names
-                    var fieldTextures = row.find('[data-field="textures"]');
-                    var appliedTextures = [];
-                    entry.objects.forEach(function (object) {
-                        if (object.materials.length > 0){
-                            object.materials.forEach(function (material) {
-                                if (appliedTextures.indexOf(material.TexName) !== -1) return;
-                                appliedTextures.push(material.TexName);
-
-                                fieldTextures.append(
-                                    '<span class="badge badge-info">' + material.TexName + '</span>'
-                                )
-                            })
-                        }
-                    });
-
-                    //Generate Position
-                    // var worldModel = MANHUNT.relation.model2inst[entry.bone.boneName];
-                    var rels = MANHUNT.relation.getInstByModel(entry.bone.boneName);
-                    rels.forEach(function (rel) {
-                        var posRow = jQuery(self._templatePos.content).clone();
-                        var fieldPosition = row.find('[data-section="position"]');
-                        fieldPosition.append(posRow);
-                        posRow = fieldPosition.find('div:last-child');
-
-                        posRow.find('[data-field="goto"]').click(function () {
-
-                            var realModel = MANHUNT.relation.getEntityByInst(rel.instName).object;
-
-                            MANHUNT.frontend.tab.show('world');
-                            var sceneInfo = MANHUNT.engine.getSceneInfo();
-                            console.log("goto", realModel);
-                            sceneInfo.control.enable(realModel);
-
-                        });
-
-                        posRow.find('[data-field="position"]').html(
-                            rel.inst.position.x.toFixed(2) + ', ' + rel.inst.position.y.toFixed(2) + ', ' + rel.inst.position.z.toFixed(2)
-                        );
-
-console.log(posRow);
-                    });
                     // console.log("HHHHH", entities);
 
                     //Generate Model Object
@@ -127,11 +181,6 @@ console.log(posRow);
             if (entry.skinDataFlag === true){
                 // console.log(row);
                 row.find('[data-icon="skin"]').show();
-            }
-
-             if (entry.bone.animationDataIndex !== true){
-                // console.log(row);
-                row.find('[data-icon="animation"]').show();
             }
 
             self._row[entry.bone.boneName] = row;

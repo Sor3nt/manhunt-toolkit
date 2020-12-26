@@ -13,6 +13,8 @@ MANHUNT.storage.Animation = function () {
                 return
             }
 
+            jQuery('#loading-text').html(file);
+
             MANHUNT.loader.load('ifp', file, function (proxy) {
                 self._proxy = proxy;
                 callback();

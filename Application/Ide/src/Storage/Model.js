@@ -13,6 +13,7 @@ MANHUNT.storage.Model = function () {
                 return
             }
 
+            jQuery('#loading-text').html(file);
             self._loadedFiles.push(file);
             MANHUNT.loader.load('mdl', file, function (proxy) {
                 self._proxy.push(proxy);

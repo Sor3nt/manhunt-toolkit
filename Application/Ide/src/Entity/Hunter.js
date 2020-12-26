@@ -1,13 +1,13 @@
-MANHUNT.entity.Hunter = function ( entity, model ) {
+MANHUNT.entity.Hunter = function ( instEntity, model ) {
 
-    var base = new MANHUNT.entity.abstract(entity, model.getLOD(0), model);
+    var base = new MANHUNT.entity.abstract(instEntity, model.getLOD(0), model);
 
 
     var headRecordName = base.record.getValue("HEAD");
     if (headRecordName !== false && headRecordName !== "no_hed"){
 
-        var headRecord = MANHUNT.level.getStorage('glg').find(headRecordName);
-        var headModelName = headRecord.getValue("MODEL");
+        var headRecordGlg = MANHUNT.level.getStorage('glg').find(headRecordName);
+        var headModelName = headRecordGlg.getValue("MODEL");
 
         var headModel = MANHUNT.level.getStorage('mdl').find(headModelName);
         var headObj = headModel.get();
@@ -20,6 +20,14 @@ MANHUNT.entity.Hunter = function ( entity, model ) {
         base.object.skeleton.bones.forEach(function (bone) {
             if (bone.name === "Bip01_Head") bone.add(headObj);
         });
+
+        MANHUNT.relation.addModel(headModelName, headObj);
+        MANHUNT.relation.addGlg(headRecordName, headRecordGlg);
+
+        MANHUNT.relation.inst2Glg(instEntity.name, headModelName);
+        MANHUNT.relation.model2Inst(headModelName, instEntity.name);
+        MANHUNT.relation.model2Glg(headModelName, headRecordName);
+
     }
 
     return Object.assign(base, {

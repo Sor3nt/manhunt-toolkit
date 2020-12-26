@@ -6,6 +6,7 @@ MANHUNT.storage.Storage = function (loader) {
         _loadedFiles: [],
 
         load: function(file, callback){
+            jQuery('#loading-text').html(file);
             if (self._loadedFiles.indexOf(file) !== -1){
                 callback();
                 return

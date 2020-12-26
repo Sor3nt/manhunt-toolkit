@@ -194,10 +194,18 @@
         <div class="row" data-section="info" style="padding-top: 15px; border-top: 1px solid #000; margin-top: 15px;display: none">
             <div class="col-6">
                 <div class="row">
-                    <div class="col-4">
-                        Textures:
+                    <div class="col-4" style="font-size: .800rem;">
+                        Texture
                     </div>
                     <div class="col-8" data-field="textures"></div>
+                </div>
+                <div class="row">
+                    <div class="col-4" style="font-size: .800rem;">
+                        Animation
+                    </div>
+                    <div class="col-8" data-field="animationBlock" style="overflow: hidden">
+<!--                        <span class="badge badge-info" >None</span>-->
+                    </div>
                 </div>
 <!--                LOD Entries: 2-->
 <!--                Vertices: 23312-->
@@ -205,27 +213,16 @@
             </div>
             <div class="col-6">
                 <div class="row">
-                    <div class="col-4">
-                        Material:
+                    <div class="col-4" style="font-size: .800rem;">
+                        Material
                     </div>
-                    <div class="col-8">
-                        <span class="badge badge-info">MATERIAL_GORE</span>
-                    </div>
+                    <div class="col-8" data-field="material"></div>
                 </div>
                 <div class="row">
-                    <div class="col-4">
-                        Position:
+                    <div class="col-4" style="font-size: .800rem;">
+                        Position
                     </div>
-                    <div class="col-8" data-section="position">
-<!--                        <div> -->
-<!--                            <span style="font-size: 12px" >-33.21, -33.21, -33.21</span>-->
-<!--                            <span>-->
-<!--                                <svg width="16" height="16">&ndash;&gt;-->
-<!--                                    <use xlink:href="coreUi/free.svg#cil-search"></use>-->
-<!--                                </svg>-->
-<!--                            </span>-->
-<!--                        </div>-->
-                    </div>
+                    <div class="col-8" data-section="position" style="max-height: 50px;overflow: scroll;"></div>
                 </div>
 
 <!--                -->
@@ -243,7 +240,20 @@
 
 </template>
 
-
+<div id="loading" class="modal">
+    <div class="modal-content">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6 text-center">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressbar"  style="width: 75%"></div>
+                </div>
+                <div style="color: #fff;">Loading <span id="loading-text">Engine</span> ...</div>
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+</div>
 
 <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
 
@@ -268,59 +278,6 @@
             </svg>
             Load Level</a></li>
 
-        <li class="c-sidebar-nav-item c-sidebar-nav-dropdown"><a
-                class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
-            <svg class="c-sidebar-nav-icon">
-                <use xlink:href="coreUi/free.svg#cil-puzzle"></use>
-            </svg>
-            Viewer Control</a>
-            <ul class="c-sidebar-nav-dropdown-items">
-
-
-                <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
-                    <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
-                        <svg class="c-sidebar-nav-icon">
-                            <use xlink:href="coreUi/free.svg#cil-puzzle"></use>
-                        </svg>
-                        Layer selection
-                    </a>
-                    <ul class="c-sidebar-nav-dropdown-items">
-                        <li class="c-sidebar-nav-item"><span
-                                class="c-sidebar-nav-icon"></span>
-
-                            <div class="form-group ">
-
-                                <div class="col-md-12 col-form-label">
-                                    <div class="form-check checkbox">
-                                        <input class="form-check-input" id="check1" type="checkbox" value="">
-                                        <label class="form-check-label" for="check1">World</label>
-                                        <span style="float:right" class="badge badge-info">Scene1</span>
-                                    </div>
-                                    <div class="form-check checkbox">
-                                        <input class="form-check-input" id="check2" type="checkbox" value="">
-                                        <label class="form-check-label" for="check2">Transparent</label>
-                                        <span style="float:right" class="badge badge-info">Scene2</span>
-                                    </div>
-                                    <div class="form-check checkbox">
-                                        <input class="form-check-input" id="check3" type="checkbox" value="">
-                                        <label class="form-check-label" for="check3">Shadow</label>
-                                        <span style="float:right" class="badge badge-info">Scene3</span>
-                                    </div>
-                                    <div class="form-check checkbox">
-                                        <input class="form-check-input" id="check4" type="checkbox" value="">
-                                        <label class="form-check-label" for="check4">Bounding Boxes</label>
-                                        <span style="float:right" class="badge badge-info">Scene3</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </li>
-
-
-                    </ul>
-                </li>
-            </ul>
-        </li>
 
 
 
@@ -376,7 +333,69 @@
         <main class="c-main">
             <div class="container-fluid" id="content">
                     <div class="row" id="tab-world" style="display: none">
-                        <div id="webgl-world" style="width: 100%; height: 100vh"></div>
+                        <div class="col-9" id="webgl-world" style=" height: calc(100vh - 70px)"></div>
+
+
+                        <div class="col-3" >
+                            <div class="c-sidebar c-sidebar-right c-sidebar-dark  c-sidebar-lg-show" id="sidebar-right" style="height: calc(100vh - 70px);">
+
+                                <ul class="c-sidebar-nav">
+
+                                    <li class="c-sidebar-nav-item c-sidebar-nav-dropdown"><a
+                                            class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                                        <svg class="c-sidebar-nav-icon">
+                                            <use xlink:href="coreUi/free.svg#cil-puzzle"></use>
+                                        </svg>
+                                        Viewer Control</a>
+                                        <ul class="c-sidebar-nav-dropdown-items">
+                                            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                                                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                                                    <svg class="c-sidebar-nav-icon">
+                                                        <use xlink:href="coreUi/free.svg#cil-puzzle"></use>
+                                                    </svg>
+                                                    Layer selection
+                                                </a>
+                                                <ul class="c-sidebar-nav-dropdown-items">
+                                                    <li class="c-sidebar-nav-item"><span
+                                                            class="c-sidebar-nav-icon"></span>
+
+                                                        <div class="form-group ">
+
+                                                            <div class="col-md-12 col-form-label">
+                                                                <div class="form-check checkbox">
+                                                                    <input class="form-check-input" id="check1" type="checkbox" value="">
+                                                                    <label class="form-check-label" for="check1">World</label>
+                                                                    <span style="float:right" class="badge badge-info">Scene1</span>
+                                                                </div>
+                                                                <div class="form-check checkbox">
+                                                                    <input class="form-check-input" id="check2" type="checkbox" value="">
+                                                                    <label class="form-check-label" for="check2">Transparent</label>
+                                                                    <span style="float:right" class="badge badge-info">Scene2</span>
+                                                                </div>
+                                                                <div class="form-check checkbox">
+                                                                    <input class="form-check-input" id="check3" type="checkbox" value="">
+                                                                    <label class="form-check-label" for="check3">Shadow</label>
+                                                                    <span style="float:right" class="badge badge-info">Scene3</span>
+                                                                </div>
+                                                                <div class="form-check checkbox">
+                                                                    <input class="form-check-input" id="check4" type="checkbox" value="">
+                                                                    <label class="form-check-label" for="check4">Bounding Boxes</label>
+                                                                    <span style="float:right" class="badge badge-info">Scene3</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </li>
+
+
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                     <div class="row" id="tab-model" style="display: none">
 
@@ -409,7 +428,7 @@
                                             </div>
 
 
-                                    <ul class="list-group light  col-6" id="model-list" style="height: calc((100vw - 256px - 60px) / 2); overflow: scroll;display: inline-block; padding-right: 0"></ul>
+                                    <ul class="list-group light  col-6" id="model-list" style="height: calc(100vh - 240px); overflow: scroll;display: inline-block; padding-right: 0"></ul>
 
                                     <div id="webgl-model" class="col-6" style="padding: 0 !important;"></div>
 
@@ -424,10 +443,6 @@
 
             </div>
         </main>
-        <footer class="c-footer">
-            <div><a href="https://github.com/Sor3nt/manhunt-toolkit/">Manhunt Toolkit</a> © 2018-2021 <a target="_blank" href="https://www.dixmor-hospital.com">Dixmor-Hospital</a></div>
-            <div class="ml-auto">Created by&nbsp;<a target="_blank" href="https://github.com/Sor3nt">Sor3nt</a></div>
-        </footer>
     </div>
 </div>
 
