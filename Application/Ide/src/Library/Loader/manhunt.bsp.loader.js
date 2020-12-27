@@ -485,13 +485,14 @@ MANHUNT.fileLoader.BSP = function () {
             for(i = 0; i < materialCount; i++){
 
                 var mat = rMaterial();
-                // var texture = MANHUNT.level.getStorage('tex').find("danny_hed_blood");
                 var texture = MANHUNT.level.getStorage('tex').find(mat.name);
-// console.log("use", texture, "vs", MANHUNT.level.getStorage('tex').find(mat.name));
+                var trans = false;
+                if (texture.format === THREE.RGBAFormat) trans = true;
+
                 materialList.push(new THREE.MeshBasicMaterial({
                     // wireframe: true,
                      map: texture,
-                    // transparent: texture.format === THREE.RGBA_S3TC_DXT5_Format,
+                    transparent: trans,
                     // vertexColors: THREE.VertexColors
                 }));
             }
@@ -511,9 +512,6 @@ MANHUNT.fileLoader.BSP = function () {
         binary.setCurrent(binary.current() + 32);
 
         var materialList = rMaterialList();
-
-
-        console.log("MAT LIST", materialList);
 
         while(sectors > 0){
             block = readBlock();
@@ -535,7 +533,11 @@ MANHUNT.fileLoader.BSP = function () {
                     var vertex = [];
                     binary.setCurrent(binary.current() + 32);
                     for(i = 0; i < sectionVertexCount; i++){
-                        vertex.push(binary.readVector3());
+                        var vec = binary.readVector3();
+                        var z = vec.z;
+                        vec.z = vec.y * -1;
+                        vec.y = z;
+                        vertex.push(vec);
                     }
 
                     var cpvArray = [];
@@ -569,11 +571,11 @@ MANHUNT.fileLoader.BSP = function () {
                             faces.push(face);
                         }
 
-                        face.vertexColors = [
-                            cpvArray[face.a],
-                            cpvArray[face.b],
-                            cpvArray[face.c]
-                        ];
+                        // face.vertexColors = [
+                        //     cpvArray[face.a],
+                        //     cpvArray[face.b],
+                        //     cpvArray[face.c]
+                        // ];
 
                         uvForFaces[i] = [
                             new THREE.Vector2(
@@ -600,18 +602,18 @@ MANHUNT.fileLoader.BSP = function () {
 
                     var section = new THREE.Mesh(geometry, materialList);
 
-                    // section.scale.set(20, 20,20);
+                    // section.scale.set(5, 5,5);
                     section.scale.set(MANHUNT.scale, MANHUNT.scale, MANHUNT.scale);
 
+                    section.rotation.y = 270 * (Math.PI / 180); // convert vertical fov to radians
+
                     rootMesh.children.push(section);
-                    // console.log(materialList, faceMaterial);
                 }
 
                 binary.setCurrent(sectionEnd);
             }
         }
 
-        rootMesh.rotation.y = 270 * (Math.PI / 180); // convert vertical fov to radians
 
         return rootMesh;
     }

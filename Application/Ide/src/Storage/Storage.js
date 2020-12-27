@@ -36,7 +36,14 @@ MANHUNT.storage.Storage = function (loader) {
 
             var data = self._data[name.toLowerCase()];
 
+
+            // if (loader === "tex" && typeof self._data['Est_BurnedCeiling'.toLowerCase()] !== "undefined"){
+            //     return self._data['Est_BurnedCeiling'.toLowerCase()];
+            // }
+
+
             if (typeof data === "undefined"){
+
                 console.log('[MANHUNT.Storage.',loader,'] Unable to find data', name);
                 return false;
             }

@@ -103,8 +103,8 @@ MANHUNT.level = (function () {
 
                 var scenes = [
                     self._storage.bsp.find('scene1'),
-                    self._storage.bsp.find('scene2'),
-                    self._storage.bsp.find('scene3'),
+                    // self._storage.bsp.find('scene2'),
+                    // self._storage.bsp.find('scene3'),
                 ];
 
                 scenes.forEach(function (scene, index) {

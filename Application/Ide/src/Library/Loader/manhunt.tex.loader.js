@@ -1,79 +1,85 @@
 MANHUNT.fileLoader.TEX = function () {
 
-    function parseTexture( startOffset, binary ){
+    function Manhunt2(binary){
 
-        binary.setCurrent(startOffset);
+        function parseTexture( startOffset, binary ){
 
-        var texture = {
-            'nextOffset'        : binary.consume(4, 'int32'),
-            'prevOffset'        : binary.consume(4, 'int32'),
-            'name'              : binary.consume(32, 'arraybuffer'),
-            'alphaFlags'        : binary.consume(32, 'dataview'),
-            'width'             : binary.consume(4, 'int32'),
-            'height'            : binary.consume(4, 'int32'),
-            'bitPerPixel'       : binary.consume(4, 'int32'),
-            'pitchOrLinearSize' : binary.consume(4, 'int32'),
-            'flags'             : binary.consume(4,  'dataview'),
-            'mipMapCount'       : binary.consume(1,  'int8'),
-            'unknown'           : binary.consume(3,  'dataview'),
-            'dataOffset'        : binary.consume(4, 'int32'),
-            'paletteOffset'     : binary.consume(4, 'int32'),
-            'size'              : binary.consume(4, 'int32'),
-            'unknown2'          : binary.consume(4, 'dataview')
-        };
+            binary.setCurrent(startOffset);
 
-        binary.setCurrent(texture.dataOffset);
+            var texture = {
+                'nextOffset'        : binary.consume(4, 'int32'),
+                'prevOffset'        : binary.consume(4, 'int32'),
+                'name'              : binary.consume(32, 'arraybuffer'),
+                'alphaFlags'        : binary.consume(32, 'dataview'),
+                'width'             : binary.consume(4, 'int32'),
+                'height'            : binary.consume(4, 'int32'),
+                'bitPerPixel'       : binary.consume(4, 'int32'),
+                'pitchOrLinearSize' : binary.consume(4, 'int32'),
+                'flags'             : binary.consume(4,  'dataview'),
+                'mipMapCount'       : binary.consume(1,  'int8'),
+                'unknown'           : binary.consume(3,  'dataview'),
+                'dataOffset'        : binary.consume(4, 'int32'),
+                'paletteOffset'     : binary.consume(4, 'int32'),
+                'size'              : binary.consume(4, 'int32'),
+                'unknown2'          : binary.consume(4, 'dataview')
+            };
 
-        texture.data = binary.consume(texture['size'], 'arraybuffer');
+            binary.setCurrent(texture.dataOffset);
 
-        return texture;
-    }
+            texture.data = binary.consume(texture['size'], 'arraybuffer');
 
-
-    function unpack(binary){
-
-
-        var header = {
-            'magic'             : binary.consume(4,  'string'),
-            'constNumber'       : binary.consume(4, 'int32'),
-            'fileSize'          : binary.consume(4, 'int32'),
-            'indexTableOffset'  : binary.consume(4, 'int32'),
-            'indexTableOffset2' : binary.consume(4, 'int32'),
-            'numIndex'          : binary.consume(4, 'int32'),
-            'unknown'           : binary.consume(8,  'dataview'),
-            'numTextures'       : binary.consume(4, 'int32'),
-            'firstOffset'       : binary.consume(4, 'int32'),
-            'lastOffset'       : binary.consume(4, 'int32')
-        };
-
-        var currentOffset = header.firstOffset;
-
-        var textures = [];
-        while(header.numTextures > 0) {
-            var texture = parseTexture(currentOffset, binary);
-
-            if (texture.width <= 2 && texture.height <= 2){
-                currentOffset = texture['nextOffset'];
-
-                header.numTextures--;
-                continue;
-            }
-
-            var name = new NBinary(texture.name);
-
-            textures.push(
-                {
-                    name: name.getString(0, false),
-                    data: texture.data,
-                }
-            );
-
-            currentOffset = texture.nextOffset;
-
-            header.numTextures--;
+            return texture;
         }
 
-        return textures;
+
+        function unpack(binary){
+
+
+            var header = {
+                'magic'             : binary.consume(4,  'string'),
+                'constNumber'       : binary.consume(4, 'int32'),
+                'fileSize'          : binary.consume(4, 'int32'),
+                'indexTableOffset'  : binary.consume(4, 'int32'),
+                'indexTableOffset2' : binary.consume(4, 'int32'),
+                'numIndex'          : binary.consume(4, 'int32'),
+                'unknown'           : binary.consume(8,  'dataview'),
+                'numTextures'       : binary.consume(4, 'int32'),
+                'firstOffset'       : binary.consume(4, 'int32'),
+                'lastOffset'       : binary.consume(4, 'int32')
+            };
+
+            var currentOffset = header.firstOffset;
+
+            var textures = [];
+            while(header.numTextures > 0) {
+                var texture = parseTexture(currentOffset, binary);
+
+                if (texture.width <= 2 && texture.height <= 2){
+                    currentOffset = texture['nextOffset'];
+
+                    header.numTextures--;
+                    continue;
+                }
+
+                var name = new NBinary(texture.name);
+
+                textures.push(
+                    {
+                        name: name.getString(0, false),
+                        data: texture.data,
+                    }
+                );
+
+                currentOffset = texture.nextOffset;
+
+                header.numTextures--;
+            }
+
+            return textures;
+        }
+
+        return unpack(binary);
+
     }
 
     function Manhunt1(binary) {
@@ -100,58 +106,61 @@ MANHUNT.fileLoader.TEX = function () {
                         data = new NBinary(binary.consume(size, 'arraybuffer'));
 
                         result.textureCount = data.consume(2, 'uint16');
-                        console.log("TEX COUNT", result.textureCount);
                         data.consume(2, 'uint16'); //skip
 
                         return chunk(binary, result); //reuse given data from case 22
 
-                        //txd_texture_data_t
+                    //txd_texture_data_t
                     }else{
                         data = binary;
 
 
-                        var platformId = data.consume(4, 'int32');
-                        var textureFormat = data.consume(4, 'int32');
-
-                        console.log("platformId", platformId);
-                        console.log("textureFormat", textureFormat);
+                        var version = data.consume(4, 'int32');
+                        var filter_flags = data.consume(4, 'int32');
 
                         var name = new NBinary(data.consume(32, 'arraybuffer'));
                         name = name.getString(0);
-                        var name2 = data.consume(32, 'string');
-
+                        var alpha_name = data.consume(32, 'string');
 
                         var rasterFormat = data.consume(4, 'uint32');
-                        var d3dFormat = data.consume(4, 'uint32');
+                        var direct3d_texture_format = data.consume(4, 'uint32');
 
                         var width = data.consume(2, 'uint16');
                         var height = data.consume(2, 'uint16');
 
                         var depth = data.consume(1, 'uint8');
-                        var numLevels = data.consume(1, 'uint8');
-                        var rasterType = data.consume(1, 'uint8');
-                        var bitFlag = data.consume(1, 'uint8');
+                        var mipmap_count = data.consume(1, 'uint8');
+
+                        var texcode_type = data.consume(1, 'uint8');
+                        var flags = data.consume(1, 'uint8');
+
+                        // var palette
 
                         var bufferSize = data.consume(4, 'uint32');
 
-                        data.setCurrent(data.current() + 12);
-// console.log("d3dFormat", d3dFormat, "depth", depth, "bitFlag", bitFlag, "rasterType", rasterType);
-
-                        var texture = data.consume(bufferSize, 'arraybuffer');
+                        var texture = data.consume(bufferSize, 'dataview');
 
                         var format;
+
+
                         switch ( rasterFormat & 0xf00 ) {
                             case 0x100:
-                                // blockBytes = 8;
-                                format = THREE.RGBA_S3TC_DXT1_Format;
-                                // format = THREE.RGBA_S3TC_DXT1_Format;
+                                texture = MANHUNT.converter.dxt.decodeBC1(texture, width, height);
+                                format = THREE.RGBFormat;
                                 break;
                             case 0x200:
                                 format = THREE.RGB_S3TC_DXT1_Format;
+
+                                //TODO: i am not sure why i am not be able to apply the data as THREE DXT Format
+                                texture = MANHUNT.converter.dxt.decodeBC1(texture, width, height);
+                                format = THREE.RGBAFormat;
                                 break;
 
                             case 0x300:
-                                format = THREE.RGBA_S3TC_DXT3_Format;
+                                //TODO: i am not sure why i am not be able to apply the data as THREE DXT Format
+                                texture = MANHUNT.converter.dxt.decodeBC2(texture, width, height, true);
+                                format = THREE.RGBAFormat;
+
                                 break;
 
                             default:
@@ -160,7 +169,6 @@ MANHUNT.fileLoader.TEX = function () {
                         }
 
                         result.texture.push({
-                            compressed: (bitFlag & 0x8) >> 3 !== 0,
                             format: format,
                             name: name,
                             width: width,
@@ -220,44 +228,44 @@ MANHUNT.fileLoader.TEX = function () {
                 function ( data ) {
 
                     var binary = new NBinary(data);
+                    var gameId = binary.consume(4, 'uint32');
+                    binary.setCurrent(0);
+                    var textures;
 
-                    var textures = unpack(binary);
-
-                    // var gameId = binary.consume(4, 'uint32');
-                    // binary.setCurrent(0);
-                    // var textures;
-                    //
-                    // if (gameId === 1413759828){ //TCDT => Manhunt 2
-                    //     textures = Manhunt2(binary);
-                    // }else{
-                    //     textures = Manhunt1(binary);
-                    // }
+                    if (gameId === 1413759828){ //TCDT => Manhunt 2
+                        textures = Manhunt2(binary);
+                    }else{
+                        textures = Manhunt1(binary);
+                    }
 
 
                     var ddsLoader = new DDSLoader();
                     var result = [];
                     textures.forEach(function (texture) {
+                        var parsed;
 
-                        var parsed = ddsLoader.parse(texture.data);
-
-                        var realTexture = new THREE.CompressedTexture();
-                        realTexture.format = parsed.format;
-                        realTexture.mipmaps = parsed.mipmaps;
-                        realTexture.image = parsed.mipmaps[0];
-                        realTexture.wrapS =  THREE.RepeatWrapping;
-                        realTexture.wrapT =  THREE.RepeatWrapping;
-
-                        realTexture.needsUpdate = true;
-                        realTexture.name = texture.name;
+                        var realTexture;
 
 
-                        if (parsed.format === THREE.RGBA_S3TC_DXT5_Format){
+                        if (gameId === 1413759828) { //TCDT => Manhunt 2
+                            parsed = ddsLoader.parse(texture.data);
+                            realTexture = new THREE.CompressedTexture(parsed.mipmaps, parsed.width, parsed.height);
+                            realTexture.format = parsed.format;
+                        }else{
 
-                            //enable opacity
-                            realTexture.magFilter = THREE.LinearFilter;
-                            realTexture.minFilter = THREE.LinearFilter;
+                            // if (texture.format === THREE.RGBAFormat){
+                                realTexture = new THREE.DataTexture(texture.data, texture.width, texture.height, texture.format);
+                                // realTexture.format = texture.format;
+
+                            // }
+
                         }
 
+
+                        realTexture.wrapS =  THREE.RepeatWrapping;
+                        realTexture.wrapT =  THREE.RepeatWrapping;
+                        realTexture.needsUpdate = true;
+                        realTexture.name = texture.name;
                         result.push(realTexture);
 
                     });
