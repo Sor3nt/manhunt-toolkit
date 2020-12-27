@@ -24,7 +24,7 @@ MANHUNT.storage.Storage = function (loader) {
 
         add: function (entry) {
             if (typeof entry.name === "undefined"){
-                console.log('[MANHUNT.Storage.',loader,'] Error: Given data has no name property ', entry);
+                console.log('[MANHUNT.Storage.' + loader + '] Error: Given data has no name property ', entry);
                 return;
             }
 
@@ -36,15 +36,8 @@ MANHUNT.storage.Storage = function (loader) {
 
             var data = self._data[name.toLowerCase()];
 
-
-            // if (loader === "tex" && typeof self._data['Est_BurnedCeiling'.toLowerCase()] !== "undefined"){
-            //     return self._data['Est_BurnedCeiling'.toLowerCase()];
-            // }
-
-
             if (typeof data === "undefined"){
-
-                console.log('[MANHUNT.Storage.',loader,'] Unable to find data', name);
+                console.log('[MANHUNT.Storage.' + loader + '] Unable to find data', name);
                 return false;
             }
 

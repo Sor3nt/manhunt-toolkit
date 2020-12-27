@@ -455,6 +455,7 @@ MANHUNT.fileLoader.BSP = function () {
             binary.consume(4, 'int32');
 
             var textureCount = binary.consume(4, 'int32');
+            //TODO
             mat.amb = binary.consume(4, 'float32');
             mat.spc = binary.consume(4, 'float32');
             mat.dif = binary.consume(4, 'float32');
@@ -490,10 +491,10 @@ MANHUNT.fileLoader.BSP = function () {
                 if (texture.format === THREE.RGBAFormat) trans = true;
 
                 materialList.push(new THREE.MeshBasicMaterial({
-                    // wireframe: true,
-                     map: texture,
+                    // shading: THREE.SmoothShading,
+                    map: texture,
                     transparent: trans,
-                    // vertexColors: THREE.VertexColors
+                    vertexColors: THREE.VertexColors
                 }));
             }
 
@@ -555,7 +556,6 @@ MANHUNT.fileLoader.BSP = function () {
                     }
 
                     var faces = [];
-                    var faceMaterial = [];
                     var uvForFaces = [];
                     for(i = 0; i < sectionFaceCount; i++){
                         var face;
@@ -563,7 +563,6 @@ MANHUNT.fileLoader.BSP = function () {
                             face = binary.readFace3(2, 'uint16');
                             face.materialIndex = binary.consume(2, 'uint16');
                             faces.push(face);
-                            // faceMaterial.push(binary.consume(2, 'uint16'));
                         }else{
                             var matId = binary.consume(2, 'uint16');
                             face = binary.readFace3(2, 'uint16');
@@ -602,10 +601,11 @@ MANHUNT.fileLoader.BSP = function () {
 
                     var section = new THREE.Mesh(geometry, materialList);
 
-                    // section.scale.set(5, 5,5);
+                    // section.scale.set(5,5,5);
                     section.scale.set(MANHUNT.scale, MANHUNT.scale, MANHUNT.scale);
 
-                    section.rotation.y = 270 * (Math.PI / 180); // convert vertical fov to radians
+                    // section.rotation.y = 90 * (Math.PI / 180); // convert vertical fov to radians
+                    // section.rotation.x = 10 * (Math.PI / 180); // convert vertical fov to radians
 
                     rootMesh.children.push(section);
                 }
