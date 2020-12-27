@@ -196,6 +196,21 @@ function NBinary( data){
             );
         },
 
+        readColorRGB: function (byte, type) {
+            byte = byte || 1;
+            type = type || 'uint8';
+
+            var rgba = [
+                self.consume(byte, type),
+                self.consume(byte, type),
+                self.consume(byte, type)
+            ];
+
+            return new THREE.Color(
+                rgba[0], rgba[1], rgba[2]
+            );
+        },
+
         readColorBGRADiv255: function (byte, type) {
             byte = byte || 1;
             type = type || 'uint8';
@@ -217,12 +232,14 @@ function NBinary( data){
     self._init();
 
     return {
+        data: data,
         setCurrent: function(cur){
             current = cur;
         },
         current : function(){
             return current;
         },
+        readColorRGB: self.readColorRGB,
         readColorRGBA: self.readColorRGBA,
         readColorBGRADiv255: self.readColorBGRADiv255,
         readFace3: self.readFace3,
