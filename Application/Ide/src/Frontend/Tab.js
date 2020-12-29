@@ -9,7 +9,7 @@ MANHUNT.frontend.tab = (function () {
 
         init: function () {
             self._element.tab = jQuery('#tab-list');
-            self._element.content = jQuery('#content');
+            self._element.content = jQuery('#tab-content');
             self._template.tab = document.querySelector('#tab-list-entry');
         },
 
@@ -20,7 +20,7 @@ MANHUNT.frontend.tab = (function () {
             }
             var row = jQuery(self._template.tab.content).clone();
             self._element.tab.append(row);
-            row = self._element.tab.find('li:last-child');
+            row = self._element.tab.find('>li:last-child');
 
             row.find('[data-field="name"]')
                 .click(function () {

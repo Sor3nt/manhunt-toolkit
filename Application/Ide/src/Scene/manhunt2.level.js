@@ -3,7 +3,6 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
     var self = {
 
-        _target: document.getElementById('webgl-world'),
         _name : 'level_' + levelName,
 
         _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
@@ -12,8 +11,16 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
         _sceneInfo: {},
 
         _storage: {},
-
+        _content : {},
         _init: function(){
+
+            var template = document.querySelector('#view-world');
+
+            var row = jQuery(template.content).clone();
+            jQuery('#tab-content').append(row);
+            self._content = jQuery('#tab-content').find('>div:last-child');
+
+
             var storage = new MANHUNT.storage.Storage(self);
 
             self._storage.ifp = storage.create('Animation');
@@ -26,7 +33,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
-                self._target,
+                self._content.find('[data-field="webgl"]'),
                 self._name,
                 self._camera,
                 self._control,
@@ -282,7 +289,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
                 MANHUNT.frontend.tab.add(
                     'world',
-                    jQuery('#tab-world'),
+                    self._content,
                     function () {
                         //close
                     },

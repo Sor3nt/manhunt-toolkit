@@ -4004,7 +4004,7 @@ canvas {
     user-select: none;
 }
 
-#tab-world canvas {
+#tab-content .view-world canvas {
     margin-left: -15px;
 
 }

@@ -17,7 +17,7 @@
     <li class="list-group-item  justify-content-between align-items-center">
 
         <div class="d-flex">
-            <div class="col-3" style="" >
+            <div class="col-3" style="">
                 <svg width="16" height="16" data-icon="skin" style="display: none">
                     <use xlink:href="coreUi/free.svg#cil-3d"></use>
                 </svg>
@@ -37,7 +37,8 @@
             </div>
         </div>
 
-        <div class="row" data-section="info" style="padding-top: 15px; border-top: 1px solid #000; margin-top: 15px;display: none">
+        <div class="row" data-section="info"
+             style="padding-top: 15px; border-top: 1px solid #000; margin-top: 15px;display: none">
             <div class="col-6">
                 <div class="row">
                     <div class="col-4" style="font-size: .800rem;">
@@ -80,7 +81,6 @@
             </div>
 
 
-
         </div>
     </li>
 
@@ -95,5 +95,130 @@
                 <use xlink:href="coreUi/free.svg#cil-search"></use>
             </svg>
         </span>
+    </div>
+</template>
+
+
+<template id="view-model">
+    <div class="row view-model" style="display: none">
+
+
+        <div class="card  col-12">
+            <div class="card-header"> Level Models
+                <div class="card-header-actions">
+
+                    <a class="card-header-action" href="#" target="_blank">+ Add new Model</a>
+                </div>
+            </div>
+            <div class="card-body">
+
+
+                <div class="row" style="border-bottom: 1px solid black; margin-bottom:15px">
+
+                    <div class="input-group mb-3">
+
+                        <div class="input-group-prepend">
+
+                                            <span class="input-group-text">
+                                                <svg width="16" height="16">-->
+                                                    <use xlink:href="coreUi/free.svg#cil-search"></use>
+                                                </svg>
+                                            </span>
+                        </div>
+
+                        <input id="model-filter" type="text" class="form-control"
+                               placeholder="Search for a Model">
+                    </div>
+
+
+                    <ul class="list-group light  col-6" id="model-list"
+                        style="height: calc(100vh - 240px); overflow: scroll;display: inline-block; padding-right: 0"></ul>
+
+                    <div data-field="webgl" class="col-6" style="padding: 0 !important;"></div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</template>
+
+
+<template id="view-world">
+    <div class="row view-world" style="display: none">
+        <div class="col-9" data-field="webgl" style=" height: calc(100vh - 70px)"></div>
+
+        <div class="col-3">
+            <div class="c-sidebar c-sidebar-right c-sidebar-dark  c-sidebar-lg-show" id="sidebar-right"
+                 style="height: calc(100vh - 70px);">
+
+                <ul class="c-sidebar-nav">
+
+                    <li class="c-sidebar-nav-item c-sidebar-nav-dropdown"><a
+                            class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                        <svg class="c-sidebar-nav-icon">
+                            <use xlink:href="coreUi/free.svg#cil-puzzle"></use>
+                        </svg>
+                        Viewer Control</a>
+                        <ul class="c-sidebar-nav-dropdown-items">
+                            <li class="c-sidebar-nav-item c-sidebar-nav-dropdown">
+                                <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
+                                    <svg class="c-sidebar-nav-icon">
+                                        <use xlink:href="coreUi/free.svg#cil-puzzle"></use>
+                                    </svg>
+                                    Layer selection
+                                </a>
+                                <ul class="c-sidebar-nav-dropdown-items">
+                                    <li class="c-sidebar-nav-item"><span
+                                            class="c-sidebar-nav-icon"></span>
+
+                                        <div class="form-group ">
+
+                                            <div class="col-md-12 col-form-label">
+                                                <div class="form-check checkbox">
+                                                    <input class="form-check-input" id="check1"
+                                                           type="checkbox" value="">
+                                                    <label class="form-check-label"
+                                                           for="check1">World</label>
+                                                    <span style="float:right" class="badge badge-info">Scene1</span>
+                                                </div>
+                                                <div class="form-check checkbox">
+                                                    <input class="form-check-input" id="check2"
+                                                           type="checkbox" value="">
+                                                    <label class="form-check-label"
+                                                           for="check2">Transparent</label>
+                                                    <span style="float:right" class="badge badge-info">Scene2</span>
+                                                </div>
+                                                <div class="form-check checkbox">
+                                                    <input class="form-check-input" id="check3"
+                                                           type="checkbox" value="">
+                                                    <label class="form-check-label"
+                                                           for="check3">Shadow</label>
+                                                    <span style="float:right" class="badge badge-info">Scene3</span>
+                                                </div>
+                                                <div class="form-check checkbox">
+                                                    <input class="form-check-input" id="check4"
+                                                           type="checkbox" value="">
+                                                    <label class="form-check-label" for="check4">Bounding
+                                                        Boxes</label>
+                                                    <span style="float:right" class="badge badge-info">Scene3</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+
+
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
     </div>
 </template>

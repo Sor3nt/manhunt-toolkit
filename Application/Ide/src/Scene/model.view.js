@@ -3,17 +3,24 @@ MANHUNT.scene.modelView = function (level) {
 
     var self = {
 
-        _target: document.getElementById('webgl-model'),
         _name : 'model '+ level._name,
 
         _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
         _control: MANHUNT.control.OrbitAndTransform,
+        _content : {},
 
         _sceneInfo: {},
 
         _init: function(){
+            var template = document.querySelector('#view-model');
+
+            var row = jQuery(template.content).clone();
+            jQuery('#tab-content').append(row);
+            self._content = jQuery('#tab-content').find('>div:last-child');
+
+
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
-                self._target,
+                self._content.find('[data-field="webgl"]'),
                 self._name,
                 self._camera,
                 self._control,
@@ -29,7 +36,7 @@ MANHUNT.scene.modelView = function (level) {
 
             MANHUNT.frontend.tab.add(
                 self._name,
-                jQuery('#tab-model'),
+                self._content,
                 function () {
                     //close
                 },

@@ -31,7 +31,7 @@ MANHUNT.engine = (function () {
             self.scene[name] = {
                 // active: false,
                 scene: new THREE.Scene(),
-                element: element,
+                element: element.get(0),
                 camera: camera,
                 onUpdate: onUpdate,
                 lookAt: null
@@ -80,11 +80,12 @@ MANHUNT.engine = (function () {
             if (self.activeScene !== false){
                 // self.scene[self.activeScene].active = false;
             }
-
+console.log("CHANGE TO ", name);
             self.activeScene = name;
             var scene = self.scene[name];
             scene.active = true;
 
+            console.log("CHANGE TO scene ", scene);
             var width = scene.element.getBoundingClientRect().width;
             var height = scene.element.getBoundingClientRect().height;
 
