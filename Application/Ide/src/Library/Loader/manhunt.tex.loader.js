@@ -195,23 +195,14 @@ MANHUNT.fileLoader.TEX = function () {
                     return chunk(binary, result);
 
             }
-
-            return;
         }
 
         var result = {
             raw: [],
             texture: []
         };
-        chunk(binary, result);
 
-        // var textures = [];
-        // for(var i = 0; i < result.texture.length; i++){
-        //     var textureWithHeaderChunk = chunk(data);
-        //     var textureChunk = chunk(textureWithHeaderChunk);
-        //
-        //
-        // }
+        chunk(binary, result);
 
         return result.texture;
 
@@ -238,34 +229,30 @@ MANHUNT.fileLoader.TEX = function () {
                         textures = Manhunt1(binary);
                     }
 
-
                     var ddsLoader = new DDSLoader();
                     var result = [];
                     textures.forEach(function (texture) {
                         var parsed;
-
                         var realTexture;
-
 
                         if (gameId === 1413759828) { //TCDT => Manhunt 2
                             parsed = ddsLoader.parse(texture.data);
                             realTexture = new THREE.CompressedTexture(parsed.mipmaps, parsed.width, parsed.height);
                             realTexture.format = parsed.format;
                         }else{
-
-                            // if (texture.format === THREE.RGBAFormat){
-                                realTexture = new THREE.DataTexture(texture.data, texture.width, texture.height, texture.format);
-                                // realTexture.format = texture.format;
-
-                            // }
-
+                            realTexture = new THREE.DataTexture(texture.data, texture.width, texture.height, texture.format);
                         }
 
+                        if (parsed.format === THREE.RGBA_S3TC_DXT5_Format){
+                            realTexture.magFilter = THREE.LinearFilter;
+                            realTexture.minFilter = THREE.LinearFilter;
+                        }
 
                         realTexture.wrapS =  THREE.RepeatWrapping;
                         realTexture.wrapT =  THREE.RepeatWrapping;
                         realTexture.needsUpdate = true;
                         realTexture.name = texture.name;
+
                         result.push(realTexture);
 
                     });

@@ -13,6 +13,7 @@ MANHUNT.storage.Storage = function (loader) {
             }
 
             MANHUNT.loader.load(loader, file, function (entries) {
+                // console.log(loader, "res", entries);
                 entries.forEach(function (entry) {
                     self.add(entry);
                 });
