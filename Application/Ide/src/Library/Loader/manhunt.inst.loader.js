@@ -129,7 +129,7 @@ MANHUNT.fileLoader.INST = function () {
     }
 
     return {
-        load: function (file, callback ) {
+        load: function (level, file, callback ) {
 
             loader.load(
                 file,

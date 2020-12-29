@@ -1,7 +1,6 @@
 MANHUNT.entity.Light = function ( entity, model ) {
 
-    var glg = MANHUNT.level.getStorage('glg').find(entity.glgRecord);
-    var lod = glg.getValue('LOD_DATA');
+    var lod = entity.glg.getValue('LOD_DATA');
 
     var targetPos = new THREE.Vector3(
         lod.x,

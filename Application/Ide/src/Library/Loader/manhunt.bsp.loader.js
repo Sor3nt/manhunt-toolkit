@@ -195,7 +195,7 @@ MANHUNT.fileLoader.BSP = function () {
 
     }
 
-    function parseManhunt2(binary, isScene3){
+    function parseManhunt2(level, binary, isScene3){
 
 
         binary.setCurrent(48);
@@ -251,7 +251,7 @@ MANHUNT.fileLoader.BSP = function () {
             binary.setCurrent(materialsOffset + 12 * i);
             binary.setCurrent(binary.consume(4, 'int32'));
 
-            var texture = MANHUNT.level.getStorage('tex').find(binary.getString(0, false));
+            var texture = level._storage.tex.find(binary.getString(0, false));
             material.push(new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: texture.format === THREE.RGBA_S3TC_DXT5_Format,
@@ -403,7 +403,7 @@ MANHUNT.fileLoader.BSP = function () {
 
     }
 
-    function parseManhunt1(binary){
+    function parseManhunt1(level, binary){
 
         function readBlock(){
             return [
@@ -486,7 +486,7 @@ MANHUNT.fileLoader.BSP = function () {
             for(i = 0; i < materialCount; i++){
 
                 var mat = rMaterial();
-                var texture = MANHUNT.level.getStorage('tex').find(mat.name);
+                var texture = level._storage.tex.find(mat.name);
                 var trans = false;
                 if (texture.format === THREE.RGBAFormat) trans = true;
 
@@ -619,7 +619,7 @@ MANHUNT.fileLoader.BSP = function () {
     }
 
     return {
-        load: function (file, callback) {
+        load: function (level, file, callback) {
 
             loader.load(
                 file,
@@ -632,9 +632,9 @@ MANHUNT.fileLoader.BSP = function () {
                     var meshRoot;
 
                     if (gameId === 1465011268){ //DLRW => Manhunt 2
-                        meshRoot = parseManhunt2(binary, isScene3);
+                        meshRoot = parseManhunt2(level, binary, isScene3);
                     }else if (gameId === 11) { //11 => Manhunt 1
-                        meshRoot = parseManhunt1(binary);
+                        meshRoot = parseManhunt1(level, binary);
 
                     }else{
                         console.log("[MANHUNT.fileLoader.BSP] Unsupported Map?! ", file, gameId);

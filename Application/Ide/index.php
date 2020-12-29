@@ -15,6 +15,7 @@
     <script>
         var MANHUNT = {
             init: [],
+            scene: {},
             relation: {},
             control: {},
             loader: {},
@@ -96,6 +97,11 @@
     <!-- Camera -->
     <script src="src/Camera/TVP.js"></script>
 
+
+    <script src="src/Scene/manhunt2.level.js"></script>
+    <script src="src/Scene/model.view.js"></script>
+    <script src="src/Scene/views.js"></script>
+
     <!-- Entity (inst) handler -->
     <script src="src/Entity/Construct.js"></script>
     <script src="src/Entity/Entity.js"></script>
@@ -117,7 +123,9 @@
     <script src="src/Control/ThirdPerson.js"></script>
     <script src="src/Control/OrbitAndTransform.js"></script>
     <script src="src/Control/Fly.js"></script>
+
     <script src="src/Storage/Storage.js"></script>
+    <script src="src/Storage/Default.js"></script>
     <script src="src/Storage/Animation.js"></script>
     <script src="src/Storage/Model.js"></script>
 
@@ -367,238 +375,11 @@
     MANHUNT.engine.init();
     MANHUNT.frontend.tab.init();
 
-    function waitForWorldCalllback() {
 
-        MANHUNT.engine.createSceneInfo(
-            document.getElementById('webgl-model'),
-            'model',
-            new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
-            MANHUNT.control.OrbitAndTransform,
-            function (sceneInfo) { //onCreate
-                MANHUNT.frontend.model.init();
-                MANHUNT.frontend.model.loadResources();
+    MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
 
-                MANHUNT.frontend.tab.add(
-                    'model',
-                    jQuery('#tab-model'),
-                    function () {
-                        //close
-                    },
-                    function () {
-                        MANHUNT.engine.changeScene('model');
-                        //focus
-                    },
-                    function () {
-                        //blur
-                    },
-                );
-
-                MANHUNT.frontend.tab.show('model');
-
-                sceneInfo.camera.position.set(-140.83501492578623, 119.29015658522931, -73.34957947924103);
-
-                var spotLight = new THREE.SpotLight(0xffffff);
-                spotLight.position.set(1, 1, 1);
-                sceneInfo.scene.add(spotLight);
-
-                sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
-                sceneInfo.scene.add(new THREE.GridHelper(1000, 10, 0x888888, 0x444444));
-
-            },
-
-            function (sceneInfo, delta) { //onUpdate
-            }
-        );
-    }
-
-    var worldSceneInfo = MANHUNT.engine.createSceneInfo(
-        document.getElementById('webgl-world'),
-        'world',
-        new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
-        MANHUNT.control.ThirdPerson,
-        function (sceneInfo) { //onCreate
-
-            var game = "mh2";
-            var name = "A01_Escape_Asylum";
-
-            var loadChain = [
-                {
-                    order: [
-                        {
-                            ifp: ['./data/levels/' + name + '/allanims_pc.ifp']
-                        }
-                    ],
-
-                    callback: function () {
-
-                    }
-                },
-                {
-                    order: [
-                        {
-                            tex: [
-                                './data/global/danny_asylum_bloody_pc.tex',
-                                './data/levels/' + name + '/modelspc.tex'
-                            ],
-                            glg: ['./data/levels/' + name + '/resource3.glg'],
-
-                        },
-                        {
-                            mdl: [
-                                './data/global/danny_asylum_bloody_pc.mdl',
-                                './data/levels/' + name + '/modelspc.mdl'
-                            ]
-                        },
-                        {
-                            inst: ['./data/levels/' + name + '/entity_pc.inst']
-                        }
-
-                    ],
-
-                    callback: function () {
-
-                        MANHUNT.level.getStorage('inst').getData().forEach(function (instEntry) {
-
-                            var entity;
-                            MANHUNT.relation.addInst(instEntry.name, instEntry);
-
-                            var glg = MANHUNT.level.getStorage('glg').find(instEntry.glgRecord);
-                            if (glg !== false){
-                                MANHUNT.relation.addGlg(instEntry.glgRecord, glg);
-                                MANHUNT.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
-
-                                var modelName = glg.getValue("MODEL");
-                                if (modelName === false) {
-                                    entity = MANHUNT.entity.construct.byInstEntry(instEntry);
-                                    if (entity === false) return;
-
-                                    sceneInfo.scene.add(entity.object);
-                                }else{
-
-                                    //TODO, hardcoded level 1 stuff
-                                    if (modelName === "fist_poly_hunter"){
-                                        modelName = 'danny_asylum_bloody';
-                                    }
-
-                                    var model = MANHUNT.level.getStorage('mdl').find(modelName);
-                                    if (model !== false){
-                                        MANHUNT.relation.addModel(modelName, model);
-                                        MANHUNT.relation.model2Glg(modelName, instEntry.glgRecord);
-                                        MANHUNT.relation.model2Inst(modelName, instEntry.name);
-
-                                        entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
-                                        if (entity === false) return;
-
-                                        sceneInfo.scene.add(entity.object);
-
-                                    }
-
-                                    MANHUNT.level.getStorage('entity').add(entity);
-                                    MANHUNT.relation.addEntity(entity.name, entity);
-                                    MANHUNT.relation.inst2Entity(entity.name, instEntry.name);
-                                }
-                            }
-
-
-                        });
-                    }
-                },
-
-                {
-                    order: [
-                        {
-                            tex: ['./data/levels/' + name + '/scene1_pc.tex'],
-                        },
-                        {
-                            bsp: [
-                                './data/levels/' + name + '/scene1_pc.bsp',
-                                './data/levels/' + name + '/scene2_pc.bsp',
-                                './data/levels/' + name + '/scene3_pc.bsp'
-                            ]
-                        }
-
-                    ],
-
-                    callback: function () {
-                        var storage = MANHUNT.level.getStorage('bsp');
-
-                        var scenes = [
-                            storage.find('scene1'),
-                            storage.find('scene2'),
-                            storage.find('scene3'),
-                        ];
-
-                        scenes.forEach(function (scene, index) {
-                            // if (index === 0) scene.renderOrder = 0;
-                            if (index === 2){
-                                //hide bbox and shadow light
-                                MANHUNT.level.getStorage('bsp').find('scene3').children.forEach(function (child) {
-                                    child.visible = false;
-                                });
-                            }
-
-                            scene.scale.set(48,48,48);
-                            sceneInfo.scene.add(scene);
-                        });
-                    }
-                }
-            ];
-
-            MANHUNT.level.processChain(loadChain, function () {
-
-                waitForWorldCalllback();
-
-                MANHUNT.frontend.tab.add(
-                    'world',
-                    jQuery('#tab-world'),
-                    function () {
-                        //close
-                    },
-                    function () {
-                        MANHUNT.engine.changeScene('world');
-                        //focus
-                    },
-                    function () {
-                        //blur
-                    },
-                );
-                //
-                // MANHUNT.frontend.tab.show('world');
-
-                var spotLight = new THREE.SpotLight(0xffffff);
-                spotLight.position.set(1, 1, 1);
-                sceneInfo.scene.add(spotLight);
-
-                sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
-
-                var player = MANHUNT.level.getStorage('entity').find('player(player)');
-                sceneInfo.control.enable(player.object);
-
-
-                jQuery('#loading').hide();
-
-
-            });
-
-        },
-
-        function (sceneInfo, delta) { //onUpdate
-
-            /**
-             * Camera follow the player
-             */
-            var lookAt = sceneInfo.control.enable(); //enable return the enabled object if no arguments applied
-
-            var relativeCameraOffset = new THREE.Vector3(0, 2, -3);
-            lookAt.updateMatrixWorld();
-            var cameraOffset = relativeCameraOffset.applyMatrix4(lookAt.matrixWorld);
-
-            sceneInfo.camera.position.lerp(cameraOffset, 0.1);
-            sceneInfo.camera.lookAt(lookAt.position);
-
-            sceneInfo.control.update(delta);
-        }
-    );
+        level.addScene(MANHUNT.scene.modelView);
+    });
 
     MANHUNT.engine.render();
 

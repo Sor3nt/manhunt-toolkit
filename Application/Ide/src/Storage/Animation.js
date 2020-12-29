@@ -1,5 +1,5 @@
 
-MANHUNT.storage.Animation = function () {
+MANHUNT.storage.Animation = function (level) {
     var self = {
         _data: {},
 
@@ -15,7 +15,7 @@ MANHUNT.storage.Animation = function () {
 
             jQuery('#loading-text').html(file);
 
-            MANHUNT.loader.load('ifp', file, function (proxy) {
+            MANHUNT.loader.load(level, 'ifp', file, function (proxy) {
                 self._proxy = proxy;
                 callback();
             });

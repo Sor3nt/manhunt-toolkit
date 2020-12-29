@@ -590,7 +590,7 @@ MANHUNT.fileLoader.MDL = function () {
 
     }
 
-    function MdlModelConverter( model ){
+    function MdlModelConverter(level, model ){
 
         var self = {
 
@@ -634,7 +634,7 @@ MANHUNT.fileLoader.MDL = function () {
                     });
 
                     entry.materials.forEach(function (materialObj) {
-                        var texture = MANHUNT.level.getStorage('tex').find(materialObj.TexName);
+                        var texture = level._storage.tex.find(materialObj.TexName);
                         var mat = new THREE.MeshStandardMaterial();
                         mat.name = materialObj.TexName;
                         mat.map = texture;
@@ -816,7 +816,7 @@ MANHUNT.fileLoader.MDL = function () {
     loader.setResponseType( 'arraybuffer' );
 
     return {
-        load: function (file, callback ) {
+        load: function (level, file, callback ) {
 
             var results;
 
@@ -852,7 +852,7 @@ MANHUNT.fileLoader.MDL = function () {
 
                                 if (entry.bone.boneName.toLowerCase() === name.toLowerCase()){
 
-                                    var threeModel = new MdlModelConverter(entry);
+                                    var threeModel = new MdlModelConverter(level, entry);
                                     threeModel.mesh.name = entry.bone.boneName;
                                     return threeModel.mesh;
                                 }

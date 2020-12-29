@@ -1,4 +1,4 @@
-MANHUNT.frontend.model = (function () {
+MANHUNT.frontend.Model = function (level) {
 
     var self = {
 
@@ -13,7 +13,7 @@ MANHUNT.frontend.model = (function () {
 
         _tasks : [],
 
-        init: function () {
+        _init: function () {
             self._container = jQuery('#model-list');
             self._filter = jQuery('#model-filter');
             self._template = document.querySelector('#model-list-entry');
@@ -158,7 +158,7 @@ MANHUNT.frontend.model = (function () {
                     // console.log("HHHHH", entities);
 
                     //Generate Model Object
-                    var model = MANHUNT.level.getStorage('mdl').find(entry.bone.boneName).get();
+                    var model = level._storage.mdl.find(entry.bone.boneName).get();
                     model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     sceneInfo.scene.add(model);
                     self._lastModel = model;
@@ -187,10 +187,8 @@ MANHUNT.frontend.model = (function () {
         },
 
         loadResources: function () {
-            var texStorage = MANHUNT.level.getStorage('tex');
-            var mdlStorage = MANHUNT.level.getStorage('mdl');
 
-            var entries = mdlStorage.getDataRaw();
+            var entries = level._storage.mdl.getDataRaw();
             entries.forEach(function (entry) {
                 self._createEntry(entry);
 
@@ -202,9 +200,9 @@ MANHUNT.frontend.model = (function () {
         }
     };
 
+    self._init();
 
     return {
-        init: self.init,
         loadResources: self.loadResources,
     }
-})();
+};

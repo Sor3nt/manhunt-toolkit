@@ -16,13 +16,13 @@ MANHUNT.loader = (function () {
             return self._loaders[loader];
         },
 
-        load: function (loader, url, callback) {
+        load: function (level, loader, url, callback) {
             if (typeof self._loaders[loader] === "undefined"){
                 console.log("[MANHUNT.loader] Loader unknown", loader);
                 return;
             }
 
-            self._loaders[loader].load(url, callback);
+            self._loaders[loader].load(level, url, callback);
         }
 
     };

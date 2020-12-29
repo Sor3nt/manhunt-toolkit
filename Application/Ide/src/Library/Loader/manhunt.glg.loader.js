@@ -90,7 +90,7 @@ MANHUNT.fileLoader.GLG = function () {
     var loader = new THREE.FileLoader();
 
     return {
-        load: function (file, callback) {
+        load: function (level, file, callback) {
 
             loader.load(
                 file,

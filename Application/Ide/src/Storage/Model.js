@@ -1,5 +1,5 @@
 
-MANHUNT.storage.Model = function () {
+MANHUNT.storage.Model = function (level) {
     var self = {
         _data: {},
 
@@ -15,7 +15,8 @@ MANHUNT.storage.Model = function () {
 
             jQuery('#loading-text').html(file);
             self._loadedFiles.push(file);
-            MANHUNT.loader.load('mdl', file, function (proxy) {
+
+            MANHUNT.loader.load(level, 'mdl', file, function (proxy) {
                 self._proxy.push(proxy);
                 callback();
             });

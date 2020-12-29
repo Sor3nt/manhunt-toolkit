@@ -1,65 +1,29 @@
 
-MANHUNT.storage.Storage = function (loader) {
+MANHUNT.storage.Storage = function (level) {
+
     var self = {
-        _data: {},
 
-        _loadedFiles: [],
+        create: function (name) {
 
-        load: function(file, callback){
-            jQuery('#loading-text').html(file);
-            if (self._loadedFiles.indexOf(file) !== -1){
-                callback();
-                return
+            switch (name) {
+
+                case 'Animation':
+                case 'Model':
+                    return new MANHUNT.storage[name](level);
+
+                default:
+                    return new MANHUNT.storage.Default(level, name);
+
             }
 
-            MANHUNT.loader.load(loader, file, function (entries) {
-                // console.log(loader, "res", entries);
-                entries.forEach(function (entry) {
-                    self.add(entry);
-                });
-
-                callback();
-
-            });
-        },
-
-        add: function (entry) {
-            if (typeof entry.name === "undefined"){
-                console.log('[MANHUNT.Storage.' + loader + '] Error: Given data has no name property ', entry);
-                return;
-            }
-
-            self._data[entry.name.toLowerCase()] = entry;
-        },
-
-        find: function (name) {
-            if (name === false) return false;
-
-            var data = self._data[name.toLowerCase()];
-
-            if (typeof data === "undefined"){
-                console.log('[MANHUNT.Storage.' + loader + '] Unable to find data', name);
-                return false;
-            }
-
-            return data;
         }
+
+
 
     };
 
     return {
-        getData: function(){
-            var result = [];
+        create: self.create
 
-            for(var i in self._data){
-                if (!self._data.hasOwnProperty(i)) continue;
-                result.push(self._data[i]);
-            }
-
-            return result;
-        },
-        load: self.load,
-        add: self.add,
-        find: self.find
     }
 };

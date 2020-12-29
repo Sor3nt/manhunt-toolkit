@@ -2,99 +2,95 @@
 MANHUNT.level = (function () {
 
     var self = {
+        //
+        // _name : "",
+        //
+        // _storage: {},
 
-        _name : "",
-        _callback: {},
-
-        _storage: {},
-
-        _waitForRespone: 0,
 
         _init: function(){
-            self._storage.ifp = new MANHUNT.storage.Animation();
-            self._storage.tex = new MANHUNT.storage.Storage('tex');
-            self._storage.mdl = new MANHUNT.storage.Model();
-            self._storage.bsp = new MANHUNT.storage.Storage('bsp');
-            self._storage.glg = new MANHUNT.storage.Storage('glg');
-            self._storage.inst = new MANHUNT.storage.Storage('inst');
-            self._storage.entity = new MANHUNT.storage.Storage();
+            // self._storage.ifp = new MANHUNT.storage.Animation();
+            // self._storage.tex = new MANHUNT.storage.Storage('tex');
+            // self._storage.mdl = new MANHUNT.storage.Model();
+            // self._storage.bsp = new MANHUNT.storage.Storage('bsp');
+            // self._storage.glg = new MANHUNT.storage.Storage('glg');
+            // self._storage.inst = new MANHUNT.storage.Storage('inst');
+            // self._storage.entity = new MANHUNT.storage.Storage();
         },
-
-        loadChainFiles: function(entries, callback){
-
-            var wait = 0;
-
-            jQuery.each(entries, function (loader, files) {
-
-                jQuery.each(files, function (fileId, file) {
-                    wait++;
-
-                    self._storage[loader].load(file, function () {
-                        console.log("file done", file);
-                        wait--;
-
-                        if (wait === 0){
-                            callback();
-                        }
-
-                    })
-
-                });
-
-            });
-
-        },
-
-        processChain: function(chain, callback){
-
-
-            var promise = new Promise(function(okCallback){
-                okCallback();
-            });
-
-            jQuery.each(chain, function (chainId, part) {
-
-                promise = promise.then(function () {
-
-
-                    var innerPromise = new Promise(function (okCallback) {
-                        okCallback();
-                    });
-
-
-                    jQuery.each(part.order, function (orderIndex, order) {
-                        innerPromise = innerPromise.then(function () {
-                            return new Promise(function (okCallback) {
-                                self.loadChainFiles(order, function () {
-                                    console.log("OK CALLBAC");
-                                    okCallback();
-                                })
-
-                            });
-
-                        });
-                    });
-
-                    innerPromise = innerPromise.then(function () {
-                        return new Promise(function (okCallback) {
-                            part.callback();
-                            okCallback();
-                        });
-                    });
-
-                    return innerPromise;
-                });
-            });
-
-
-            promise.then(function () {
-                return new Promise(function (okCallback) {
-                    callback();
-                    okCallback();
-                });
-            });
-
-        },
+        //
+        // loadChainFiles: function(entries, callback){
+        //
+        //     var wait = 0;
+        //
+        //     jQuery.each(entries, function (loader, files) {
+        //
+        //         jQuery.each(files, function (fileId, file) {
+        //             wait++;
+        //
+        //             self._storage[loader].load(file, function () {
+        //                 wait--;
+        //
+        //                 if (wait === 0){
+        //                     callback();
+        //                 }
+        //
+        //             })
+        //
+        //         });
+        //
+        //     });
+        //
+        // },
+        //
+        // processChain: function(chain, callback){
+        //
+        //
+        //     var promise = new Promise(function(okCallback){
+        //         okCallback();
+        //     });
+        //
+        //     jQuery.each(chain, function (chainId, part) {
+        //
+        //         promise = promise.then(function () {
+        //
+        //
+        //             var innerPromise = new Promise(function (okCallback) {
+        //                 okCallback();
+        //             });
+        //
+        //
+        //             jQuery.each(part.order, function (orderIndex, order) {
+        //                 innerPromise = innerPromise.then(function () {
+        //                     return new Promise(function (okCallback) {
+        //                         self.loadChainFiles(order, function () {
+        //                             okCallback();
+        //                         })
+        //
+        //                     });
+        //
+        //                 });
+        //             });
+        //
+        //             innerPromise = innerPromise.then(function () {
+        //                 return new Promise(function (okCallback) {
+        //                     part.callback();
+        //                     okCallback();
+        //                 });
+        //             });
+        //
+        //             return innerPromise;
+        //         });
+        //     });
+        //
+        //
+        //     promise.then(function () {
+        //         return new Promise(function (okCallback) {
+        //             callback();
+        //             okCallback();
+        //         });
+        //     });
+        //
+        // },
 
         // load: function (name, callback) {
         //     console.log("[MANHUNT.level] Load level ", name);
@@ -297,7 +293,7 @@ MANHUNT.level = (function () {
         getConfig: function(){
             return self._config;
         },
-        processChain: self.processChain,
+        // processChain: self.processChain,
         getStorage: self.getStorage,
         load: self.load
     }

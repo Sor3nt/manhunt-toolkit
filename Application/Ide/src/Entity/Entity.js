@@ -1,6 +1,6 @@
 MANHUNT.entity.abstract = function ( instEntity, object, model ) {
 
-    var glgRecord = MANHUNT.level.getStorage('glg').find(instEntity.glgRecord);
+    var glgRecord = instEntity.glg;
 
     var self = {
         name: instEntity.name,

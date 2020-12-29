@@ -371,7 +371,7 @@ MANHUNT.fileLoader.IFP = function () {
     loader.setResponseType('arraybuffer');
 
     return {
-        load: function (file, callback) {
+        load: function (level, file, callback) {
 
             loader.load(
                 file,
