@@ -1,12 +1,15 @@
 MANHUNT.fileLoader.GLG = function () {
     function convertRecords( text ){
 
-        var result = [];
+        text = (new NBinary(text)).toString();
 
+        var result = [];
 
         var matches = text.match(/(\#FORCE\n)?RECORD\s(.*\s)*?END/mig);
 
         matches.forEach(function (match) {
+
+            match = match.replace(/\r/g, '');
 
             match = match.substr(7);
 
@@ -87,12 +90,11 @@ MANHUNT.fileLoader.GLG = function () {
         return result;
     }
 
-    var loader = new THREE.FileLoader();
-
     return {
         load: function (level, file, callback) {
 
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function ( data ) {
 

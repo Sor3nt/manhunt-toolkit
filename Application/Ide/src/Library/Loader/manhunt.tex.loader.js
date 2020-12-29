@@ -208,13 +208,11 @@ MANHUNT.fileLoader.TEX = function () {
 
     }
 
-    var loader = new THREE.FileLoader();
-    loader.setResponseType( 'arraybuffer' );
-
     return {
         load: function (level, file, callback ) {
 
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function ( data ) {
 

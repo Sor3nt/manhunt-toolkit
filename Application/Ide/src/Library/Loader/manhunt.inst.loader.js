@@ -1,10 +1,6 @@
 
 MANHUNT.fileLoader.INST = function () {
 
-
-    var loader = new THREE.FileLoader();
-    loader.setResponseType( 'arraybuffer' );
-
     var map = {
             m_02952f00: 'TYPE',
             m_05098c97: 'LODNEAR',
@@ -131,7 +127,8 @@ MANHUNT.fileLoader.INST = function () {
     return {
         load: function (level, file, callback ) {
 
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function ( data ) {
 

@@ -1,9 +1,4 @@
-
 MANHUNT.fileLoader.MLS = function () {
-
-
-    var loader = new THREE.FileLoader();
-    loader.setResponseType( 'arraybuffer' );
 
     function getLabelSizeData( binary ){
         var label = binary.consume(4, 'string');
@@ -32,7 +27,8 @@ MANHUNT.fileLoader.MLS = function () {
 
     return {
         load: function (level, file, callback ) {
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function ( data ) {
 

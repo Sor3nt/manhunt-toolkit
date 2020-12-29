@@ -130,7 +130,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                 {
                     order: [
                         {
-                            ifp: ['./data/levels/' + levelName + '/allanims_pc.ifp']
+                            ifp: ['levels/' + levelName + '/allanims_pc.ifp']
                         }
                     ],
 
@@ -142,20 +142,20 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                     order: [
                         {
                             tex: [
-                                './data/global/danny_asylum_bloody_pc.tex',
-                                './data/levels/' + levelName + '/modelspc.tex'
+                                'global/danny_asylum_bloody_pc.tex',
+                                'levels/' + levelName + '/modelspc.tex'
                             ],
-                            glg: ['./data/levels/' + levelName + '/resource3.glg'],
+                            glg: ['levels/' + levelName + '/resource3.glg'],
 
                         },
                         {
                             mdl: [
-                                './data/global/danny_asylum_bloody_pc.mdl',
-                                './data/levels/' + levelName + '/modelspc.mdl'
+                                'global/danny_asylum_bloody_pc.mdl',
+                                'levels/' + levelName + '/modelspc.mdl'
                             ]
                         },
                         {
-                            inst: ['./data/levels/' + levelName + '/entity_pc.inst']
+                            inst: ['levels/' + levelName + '/entity_pc.inst']
                         }
 
                     ],
@@ -246,13 +246,13 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                 {
                     order: [
                         {
-                            tex: ['./data/levels/' + levelName + '/scene1_pc.tex'],
+                            tex: ['levels/' + levelName + '/scene1_pc.tex'],
                         },
                         {
                             bsp: [
-                                './data/levels/' + levelName + '/scene1_pc.bsp',
-                                './data/levels/' + levelName + '/scene2_pc.bsp',
-                                './data/levels/' + levelName + '/scene3_pc.bsp'
+                                'levels/' + levelName + '/scene1_pc.bsp',
+                                'levels/' + levelName + '/scene2_pc.bsp',
+                                'levels/' + levelName + '/scene3_pc.bsp'
                             ]
                         }
 

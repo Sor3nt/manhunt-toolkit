@@ -3,8 +3,7 @@
  */
 MANHUNT.fileLoader.BSP = function () {
 
-    var loader = new THREE.FileLoader();
-    loader.setResponseType('arraybuffer');
+
 
     var SceneRootBoundBox;
     var ParentSectorIndex;
@@ -621,7 +620,8 @@ MANHUNT.fileLoader.BSP = function () {
     return {
         load: function (level, file, callback) {
 
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function (data) {
 

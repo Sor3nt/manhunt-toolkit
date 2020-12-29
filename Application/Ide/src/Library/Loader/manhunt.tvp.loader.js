@@ -27,12 +27,11 @@ MANHUNT.fileLoader.TVP = function () {
 
     }
 
-    var loader = new THREE.FileLoader();
-
     return {
         load: function (level, file, callback) {
 
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function ( data ) {
                     var results = {};

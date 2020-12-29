@@ -38,7 +38,7 @@ MANHUNT.storage.Default = function (level, loader) {
             var data = self._data[name.toLowerCase()];
 
             if (typeof data === "undefined"){
-                console.log('[MANHUNT.Storage.' + loader + '] Unable to find data', name);
+                console.log('[MANHUNT.Storage.' + loader + '] Unable to find data', name, name.length);
                 return false;
             }
 

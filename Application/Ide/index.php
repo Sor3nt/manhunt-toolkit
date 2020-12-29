@@ -59,6 +59,7 @@
         window.TransformControls = TransformControls;
     </script>
 
+
     <script src="src/Sidebar/Elements/AttributeValue.js"></script>
     <script src="src/Sidebar/Elements/InputGroup.js"></script>
     <script src="src/Sidebar/Elements/Button.js"></script>
@@ -75,6 +76,8 @@
     <!-- Library  -->
     <script src="src/Library/three.min.js"></script>
     <script src="src/Library/NBinary.js"></script>
+
+    <script src="src/Api.js"></script>
 
     <!-- File loader  -->
     <script src="src/Library/Loader/manhunt.ifp.loader.js"></script>

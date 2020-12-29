@@ -812,15 +812,13 @@ MANHUNT.fileLoader.MDL = function () {
 
     }
 
-    var loader = new THREE.FileLoader();
-    loader.setResponseType( 'arraybuffer' );
-
     return {
         load: function (level, file, callback ) {
 
             var results;
 
-            loader.load(
+            MANHUNT.api.load(
+                'manhunt2',
                 file,
                 function ( data ) {
 

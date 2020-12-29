@@ -23,6 +23,10 @@ function NBinary( data){
             return data.byteLength - current;
         },
 
+        toString: function(){
+            var enc = new TextDecoder();
+            return enc.decode(data);
+        },
 
         consume: function (bytes, type) {
             var view = new DataView(data,current);
@@ -239,6 +243,7 @@ function NBinary( data){
         current : function(){
             return current;
         },
+        toString: self.toString,
         readColorRGB: self.readColorRGB,
         readColorRGBA: self.readColorRGBA,
         readColorBGRADiv255: self.readColorBGRADiv255,
