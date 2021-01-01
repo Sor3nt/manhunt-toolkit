@@ -371,7 +371,7 @@ MANHUNT.fileLoader.IFP = function () {
         load: function (level, file, callback) {
 
             MANHUNT.api.load(
-                'manhunt2',
+                level._game,
                 file,
                 function (data) {
 

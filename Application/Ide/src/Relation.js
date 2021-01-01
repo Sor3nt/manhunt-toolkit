@@ -1,4 +1,4 @@
-MANHUNT.relation = (function () {
+MANHUNT.Relation = function () {
 
     var self = {
 
@@ -162,4 +162,4 @@ MANHUNT.relation = (function () {
 
 
     return self;
-})();
+};

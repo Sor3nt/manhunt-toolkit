@@ -818,7 +818,7 @@ MANHUNT.fileLoader.MDL = function () {
             var results;
 
             MANHUNT.api.load(
-                'manhunt2',
+                level._game,
                 file,
                 function ( data ) {
 

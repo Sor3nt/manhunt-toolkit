@@ -4,7 +4,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
     var self = {
 
         _name : 'level_' + levelName,
-        _game: 'manhunt2',
+        _game: 'manhunt',
 
         _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
         _control: MANHUNT.control.ThirdPerson,
@@ -13,9 +13,6 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
         _storage: {},
         _content : {},
-        
-        relation: new MANHUNT.Relation(),
-        
         _init: function(){
 
             var template = document.querySelector('#view-world');
@@ -131,7 +128,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                 {
                     order: [
                         {
-                            ifp: ['levels/' + levelName + '/allanims_pc.ifp']
+                            ifp: ['levels/' + levelName + '/allanims.ifp']
                         }
                     ],
 
@@ -143,20 +140,24 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                     order: [
                         {
                             tex: [
-                                'global/danny_asylum_bloody_pc.tex',
-                                'levels/' + levelName + '/modelspc.tex'
+                                'levels/GLOBAL/CHARPAK/cash_pc.txd',
+                                'levels/' + levelName + '/pak/modelspc.txd'
                             ],
-                            glg: ['levels/' + levelName + '/resource3.glg'],
+
+                            glg: ['levels/GLOBAL/DATA/ManHunt.pak#/levels/' + levelName + '/entityTypeData.ini'],
 
                         },
                         {
                             mdl: [
-                                'global/danny_asylum_bloody_pc.mdl',
-                                'levels/' + levelName + '/modelspc.mdl'
+                                'levels/GLOBAL/CHARPAK/cash_pc.dff',
+                                'levels/' + levelName + '/pak/modelspc.dff'
                             ]
                         },
                         {
-                            inst: ['levels/' + levelName + '/entity_pc.inst']
+                            inst: [
+                                'levels/' + levelName + '/entity.inst',
+                                'levels/' + levelName + '/entity2.inst'
+                            ]
                         }
 
                     ],
@@ -166,13 +167,13 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                         self._storage.inst.getData().forEach(function (instEntry) {
 
                             var entity;
-                            self.relation.addInst(instEntry.name, instEntry);
+                            MANHUNT.relation.addInst(instEntry.name, instEntry);
 
                             var glg = self._storage.glg.find(instEntry.glgRecord);
                             instEntry.glg = glg;
                             if (glg !== false){
-                                self.relation.addGlg(instEntry.glgRecord, glg);
-                                self.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
+                                MANHUNT.relation.addGlg(instEntry.glgRecord, glg);
+                                MANHUNT.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
 
                                 var modelName = glg.getValue("MODEL");
                                 instEntry.model = false;
@@ -185,17 +186,18 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
                                     //TODO, hardcoded level 1 stuff
                                     if (modelName === "fist_poly_hunter"){
-                                        modelName = 'danny_asylum_bloody';
+                                        modelName = 'danny_asylum_bloody'; //todo
                                     }
 
                                     var model = self._storage.mdl.find(modelName);
                                     if (model !== false){
-                                        self.relation.addModel(modelName, model);
-                                        self.relation.model2Glg(modelName, instEntry.glgRecord);
-                                        self.relation.model2Inst(modelName, instEntry.name);
+                                        MANHUNT.relation.addModel(modelName, model);
+                                        MANHUNT.relation.model2Glg(modelName, instEntry.glgRecord);
+                                        MANHUNT.relation.model2Inst(modelName, instEntry.name);
 
                                         entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
                                         if (entity === false) return;
+
 
 
                                         //Hunter have a additional model
@@ -208,16 +210,17 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                                             var headModel = self._storage.mdl.find(headModelName);
                                             var headObj = headModel.get();
 
+
                                             entity.object.skeleton.bones.forEach(function (bone) {
                                                 if (bone.name === "Bip01_Head") bone.add(headObj);
                                             });
 
-                                            self.relation.addModel(headModelName, headObj);
-                                            self.relation.addGlg(headRecordName, headRecordGlg);
+                                            MANHUNT.relation.addModel(headModelName, headObj);
+                                            MANHUNT.relation.addGlg(headRecordName, headRecordGlg);
 
-                                            self.relation.inst2Glg(instEntry.name, headModelName);
-                                            self.relation.model2Inst(headModelName, instEntry.name);
-                                            self.relation.model2Glg(headModelName, headRecordName);
+                                            MANHUNT.relation.inst2Glg(instEntry.name, headModelName);
+                                            MANHUNT.relation.model2Inst(headModelName, instEntry.name);
+                                            MANHUNT.relation.model2Glg(headModelName, headRecordName);
 
                                         }
                                         
@@ -225,12 +228,11 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
                                         sceneInfo.scene.add(entity.object);
 
-                                        self._storage.entity.add(entity);
-                                        self.relation.addEntity(entity.name, entity);
-                                        self.relation.inst2Entity(entity.name, instEntry.name);
-
                                     }
 
+                                    self._storage.entity.add(entity);
+                                    MANHUNT.relation.addEntity(entity.name, entity);
+                                    MANHUNT.relation.inst2Entity(entity.name, instEntry.name);
                                 }
                             }
 
@@ -242,13 +244,12 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                 {
                     order: [
                         {
-                            tex: ['levels/' + levelName + '/scene1_pc.tex'],
+                            tex: ['levels/' + levelName + '/picmap.txd'],
                         },
                         {
                             bsp: [
-                                'levels/' + levelName + '/scene1_pc.bsp',
-                                'levels/' + levelName + '/scene2_pc.bsp',
-                                'levels/' + levelName + '/scene3_pc.bsp'
+                                'levels/' + levelName + '/scene1.bsp',
+                                // 'levels/' + levelName + '/scene2.bsp',
                             ]
                         }
 
@@ -259,8 +260,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
                         var scenes = [
                             storage.find('scene1'),
-                            storage.find('scene2'),
-                            storage.find('scene3'),
+                            // storage.find('scene2')
                         ];
 
                         scenes.forEach(function (scene, index) {

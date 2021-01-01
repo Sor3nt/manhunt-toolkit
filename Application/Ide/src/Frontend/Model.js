@@ -45,11 +45,11 @@ MANHUNT.frontend.Model = function (level) {
                     row.remove();
                 });
 
-            var relsInst2Model = MANHUNT.relation.getInstByModel(entry.bone.boneName);
+            var relsInst2Model = level.relation.getInstByModel(entry.bone.boneName);
             if (relsInst2Model === false){
                 //as example heads are sub-glg records from the actual hunter
                 //there is no direct inst relation
-                var relsGLG = MANHUNT.relation.getGlgByModel(entry.bone.boneName);
+                var relsGLG = level.relation.getGlgByModel(entry.bone.boneName);
 
                 row.addClass("unused");
             }else{
@@ -59,7 +59,7 @@ MANHUNT.frontend.Model = function (level) {
                 var matBlocks = [];
 
                 relsInst2Model.forEach(function (rel) {
-                    var glgs = MANHUNT.relation.getGlgByModel(entry.bone.boneName);
+                    var glgs = level.relation.getGlgByModel(entry.bone.boneName);
                     glgs.forEach(function (rel) {
 
                         var mat = rel.glg.getValue('MATERIAL');
@@ -105,7 +105,7 @@ MANHUNT.frontend.Model = function (level) {
 
                     posRow.find('[data-field="goto"]').click(function () {
 
-                        var realModel = MANHUNT.relation.getEntityByInst(rel.instName).object;
+                        var realModel = level.relation.getEntityByInst(rel.instName).object;
 
                         MANHUNT.frontend.tab.show('world');
                         var sceneInfo = MANHUNT.engine.getSceneInfo();

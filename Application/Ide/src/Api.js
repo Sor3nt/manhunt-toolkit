@@ -11,7 +11,7 @@ MANHUNT.api = (function () {
             };
 
             var oReq = new XMLHttpRequest();
-            oReq.open("POST", "/php/api.php");
+            oReq.open("POST", "/php/api.php", true);
             oReq.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             oReq.responseType = "arraybuffer";
 

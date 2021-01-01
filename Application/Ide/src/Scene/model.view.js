@@ -30,7 +30,7 @@ MANHUNT.scene.modelView = function (level) {
         },
 
         _onCreate: function (sceneInfo) {
-
+console.log("HHHHH", sceneInfo);
             var modelsView = new MANHUNT.frontend.Model(level);
             modelsView.loadResources();
 

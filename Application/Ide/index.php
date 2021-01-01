@@ -137,7 +137,6 @@
 
     <!-- Engine -->
     <script src="src/Engine.js"></script>
-    <script src="src/Level.js"></script>
 
     <!--    <script type="module" src="src/Library/TransformControls.js"></script>-->
 
@@ -261,6 +260,13 @@
     MANHUNT.frontend.tab.init();
 
 
+    MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+    // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+
+        level.addScene(MANHUNT.scene.modelView);
+    });
+
+    // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
     MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
 
         level.addScene(MANHUNT.scene.modelView);
