@@ -1,4 +1,4 @@
-MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
+MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
 
 
     var self = {
@@ -13,6 +13,9 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
         _storage: {},
         _content : {},
+
+        relation: new MANHUNT.Relation(),
+
         _init: function(){
 
             var template = document.querySelector('#view-world');
@@ -141,10 +144,12 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                         {
                             tex: [
                                 'levels/GLOBAL/CHARPAK/cash_pc.txd',
-                                'levels/' + levelName + '/pak/modelspc.txd'
+                                'levels/' + levelName + '/pak/modelspc.txd',
+                                'levels/' + levelName + '/picmap.txd',
+                                // 'levels/' + levelName + '/picmmap.txd'
                             ],
 
-                            glg: ['levels/GLOBAL/DATA/ManHunt.pak#/levels/' + levelName + '/entityTypeData.ini'],
+                            glg: ['levels/GLOBAL/DATA/ManHunt.pak#./levels/' + levelName + '/entityTypeData.ini'],
 
                         },
                         {
@@ -167,15 +172,19 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                         self._storage.inst.getData().forEach(function (instEntry) {
 
                             var entity;
-                            MANHUNT.relation.addInst(instEntry.name, instEntry);
+                            self.relation.addInst(instEntry.name, instEntry);
 
                             var glg = self._storage.glg.find(instEntry.glgRecord);
                             instEntry.glg = glg;
                             if (glg !== false){
-                                MANHUNT.relation.addGlg(instEntry.glgRecord, glg);
-                                MANHUNT.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
+                                self.relation.addGlg(instEntry.glgRecord, glg);
+                                self.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
 
                                 var modelName = glg.getValue("MODEL");
+
+                                //searchable and trigger has no model
+                                if (modelName === false || modelName === "") return;
+
                                 instEntry.model = false;
                                 if (modelName === false) {
                                     entity = MANHUNT.entity.construct.byInstEntry(instEntry);
@@ -186,53 +195,52 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
                                     //TODO, hardcoded level 1 stuff
                                     if (modelName === "fist_poly_hunter"){
-                                        modelName = 'danny_asylum_bloody'; //todo
+                                        modelName = 'Player_Bod'; //todo
                                     }
 
-                                    var model = self._storage.mdl.find(modelName);
+                                    var model = self._storage.mdl.find(modelName.substr(0,23));
                                     if (model !== false){
-                                        MANHUNT.relation.addModel(modelName, model);
-                                        MANHUNT.relation.model2Glg(modelName, instEntry.glgRecord);
-                                        MANHUNT.relation.model2Inst(modelName, instEntry.name);
+                                        self.relation.addModel(modelName, model);
+                                        self.relation.model2Glg(modelName, instEntry.glgRecord);
+                                        self.relation.model2Inst(modelName, instEntry.name);
 
                                         entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
                                         if (entity === false) return;
 
 
-
                                         //Hunter have a additional model
                                         var headRecordName = entity.record.getValue("HEAD");
-                                        if (headRecordName !== false && headRecordName !== "no_hed"){
+                                        // if (headRecordName !== false && headRecordName !== "no_hed"){
+                                        //
+                                        //     var headRecordGlg = self._storage.glg.find(headRecordName);
+                                        //     var headModelName = headRecordGlg.getValue("MODEL");
+                                        //
+                                        //     var headModel = self._storage.mdl.find(headModelName);
+                                        //     var headObj = headModel.get();
+                                        //
+                                        //     entity.object.skeleton.bones.forEach(function (bone) {
+                                        //         if (bone.name === "Bip01_Head") bone.add(headObj);
+                                        //     });
+                                        //
+                                        //     self.relation.addModel(headModelName, headObj);
+                                        //     self.relation.addGlg(headRecordName, headRecordGlg);
+                                        //
+                                        //     self.relation.inst2Glg(instEntry.name, headModelName);
+                                        //     self.relation.model2Inst(headModelName, instEntry.name);
+                                        //     self.relation.model2Glg(headModelName, headRecordName);
+                                        //
+                                        // }
 
-                                            var headRecordGlg = self._storage.glg.find(headRecordName);
-                                            var headModelName = headRecordGlg.getValue("MODEL");
 
-                                            var headModel = self._storage.mdl.find(headModelName);
-                                            var headObj = headModel.get();
-
-
-                                            entity.object.skeleton.bones.forEach(function (bone) {
-                                                if (bone.name === "Bip01_Head") bone.add(headObj);
-                                            });
-
-                                            MANHUNT.relation.addModel(headModelName, headObj);
-                                            MANHUNT.relation.addGlg(headRecordName, headRecordGlg);
-
-                                            MANHUNT.relation.inst2Glg(instEntry.name, headModelName);
-                                            MANHUNT.relation.model2Inst(headModelName, instEntry.name);
-                                            MANHUNT.relation.model2Glg(headModelName, headRecordName);
-
-                                        }
-                                        
-                                        
 
                                         sceneInfo.scene.add(entity.object);
 
+                                        self._storage.entity.add(entity);
+                                        self.relation.addEntity(entity.name, entity);
+                                        self.relation.inst2Entity(entity.name, instEntry.name);
+
                                     }
 
-                                    self._storage.entity.add(entity);
-                                    MANHUNT.relation.addEntity(entity.name, entity);
-                                    MANHUNT.relation.inst2Entity(entity.name, instEntry.name);
                                 }
                             }
 
@@ -244,7 +252,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
                 {
                     order: [
                         {
-                            tex: ['levels/' + levelName + '/picmap.txd'],
+                            tex: ['levels/' + levelName + '/pak/scene1pc.txd'],
                         },
                         {
                             bsp: [
@@ -306,7 +314,7 @@ MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
 
                 sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
 
-                var player = self._storage.entity.find('player(player)');
+                var player = self._storage.entity.find('player');
                 sceneInfo.control.enable(player.object);
 
 

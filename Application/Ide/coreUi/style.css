@@ -8773,13 +8773,12 @@ html:not([dir=rtl]) .nav {
 }
 
 .nav-tabs .nav-link {
-    border: 1px solid transparent;
+    border: 1px solid #d8dbe0;
     border-top-left-radius: .25rem;
     border-top-right-radius: .25rem
 }
 
 .nav-tabs .nav-link:hover, .nav-tabs .nav-link:focus {
-    border-color: #d8dbe0 #d8dbe0 #c4c9d0
 }
 
 .nav-tabs .nav-link.disabled {

@@ -241,7 +241,7 @@ MANHUNT.fileLoader.TEX = function () {
                             realTexture = new THREE.DataTexture(texture.data, texture.width, texture.height, texture.format);
                         }
 
-                        if (parsed.format === THREE.RGBA_S3TC_DXT5_Format){
+                        if (realTexture.format === THREE.RGBA_S3TC_DXT5_Format){
                             realTexture.magFilter = THREE.LinearFilter;
                             realTexture.minFilter = THREE.LinearFilter;
                         }

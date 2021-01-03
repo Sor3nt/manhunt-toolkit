@@ -101,6 +101,7 @@
     <script src="src/Camera/TVP.js"></script>
 
 
+    <script src="src/Scene/manhunt.level.js"></script>
     <script src="src/Scene/manhunt2.level.js"></script>
     <script src="src/Scene/model.view.js"></script>
     <script src="src/Scene/views.js"></script>
@@ -260,17 +261,24 @@
     MANHUNT.frontend.tab.init();
 
 
-    MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+    MANHUNT.scene.views.loadLevel('manhunt', 'asylum', function(level){
     // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
 
         level.addScene(MANHUNT.scene.modelView);
     });
 
+    //
     // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
-    MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+    // // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+    //
+    //     level.addScene(MANHUNT.scene.modelView);
+    // });
 
-        level.addScene(MANHUNT.scene.modelView);
-    });
+    // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+    // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+    //
+    //     level.addScene(MANHUNT.scene.modelView);
+    // });
 
     MANHUNT.engine.render();
 

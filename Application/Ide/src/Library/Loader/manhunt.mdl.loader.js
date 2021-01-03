@@ -3,7 +3,7 @@
  */
 MANHUNT.fileLoader.MDL = function () {
 
-    function MhtMDLExtract(inputData){
+    function Manhunt2Mdl(inputData){
 
         function parseBoneTransDataIndex(binary, boneTransDataIndexOffset ){
 
@@ -590,6 +590,511 @@ MANHUNT.fileLoader.MDL = function () {
 
     }
 
+    function ManhuntDff(binary){
+
+        var modelName;
+
+        function cClump(){
+            return {
+                id: binary.consume(4, 'int32'),
+                size: binary.consume(4, 'uint32'),
+                version: binary.consume(4, 'uint32')
+            };
+        }
+
+        function clump(){
+
+
+        }
+
+        function rHAnimPLG() {
+
+            var boneDataAry = [];
+            if(binary.consume(4, 'int32') !== 256){
+                return console.log('[ManhuntDff] rHAnimPLG, assume 256.');
+            }
+
+            var frameBoneId = binary.consume(4, 'int32');
+            var boneCount = binary.consume(4, 'uint32');
+
+            if (frameBoneId === -1){
+                // console.log('[ManhuntDff] rHAnimPLG, returning empty array. (no BoneId)');
+                return boneDataAry;
+            }
+
+            if (boneCount === 0){
+                // console.log('[ManhuntDff] rHAnimPLG, returning empty array. (no bones)');
+                return boneDataAry;
+            }
+
+            binary.seek(8);
+
+            for(var i = 0; i < boneCount; i++){
+                boneDataAry.push({
+                    boneId: binary.consume(4, 'uint32'),
+                    boneIndex: binary.consume(4, 'uint32'),
+                    boneType: binary.consume(4, 'uint32'),
+                });
+            }
+
+            return boneDataAry;
+
+        }
+
+        function rFrameList() {
+            var clump = cClump();
+            if (clump.id !== 14){
+                return console.log('[ManhuntDff] frame list data, assume 14.');
+            }
+
+            clump = cClump();
+            if (clump.id !== 1){
+                return console.log('[ManhuntDff] frame list data, assume 1.');
+            }
+
+            var frameCount = binary.consume(4, 'int32');
+
+            var frameAry = [];
+            var i;
+
+            // var matrix = [];
+            for(i = 0; i < frameCount; i++){
+                frameAry.push({
+                    matrix: binary.readMatrix4(),
+                    parentId: binary.consume(4, 'int32'),
+                    unk: binary.consume(4, 'uint32'),
+                });
+            }
+
+            for(i = 0; i < frameCount; i++){
+                clump = cClump();
+                if (clump.id !== 3){
+                    return console.log('[ManhuntDff] frame list ext data, assume 3. got',clump.id);
+                }
+
+                if (clump.size !== 0){
+                    var loopEnd = binary.current() + clump.size;
+                    while(binary.current() < loopEnd){
+
+                        clump = cClump();
+                        switch(clump.id){
+
+                            case 39056126:
+                                frameAry[i].name = binary.consume(clump.size, 'nbinary').getString(0);
+                                break;
+
+                            case 286:
+                                frameAry[i].bones = rHAnimPLG();
+
+                                // clump = cClump();
+                                // frameAry[i].name = binary.consume(clump.size, 'nbinary').getString(0);
+                                // console.log("TEST", frameAry[i].name);
+                                break;
+
+                            default:
+                                console.log('[ManhuntDff] frame list ext data, skip, unknown section. len', stringLength);
+                                binary.seek(stringLength);
+                                break;
+                        }
+
+                    }
+
+
+                }else{
+                    if (clump.version === 0x1803FFFF){
+                        frameAry[i].name = "Skin_Mesh";
+                    }
+
+                }
+
+            }
+
+            return frameAry;
+
+        }
+
+        function getGeometryCount() {
+            var clump = cClump();
+            if (clump.id !== 26){
+                return console.log('[ManhuntDff] geometry count, assume 26.');
+            }
+
+            clump = cClump();
+            if (clump.id !== 1){
+                return console.log('[ManhuntDff] geometry count, assume 1.');
+            }
+
+            return binary.consume(4, 'int32');
+        }
+
+        function rMaterialList() {
+
+            var clump = cClump();
+            if (clump.id !== 8){
+                return console.log('[ManhuntDff] material, assume 8.');
+            }
+
+            clump = cClump();
+            if (clump.id !== 1){
+                return console.log('[ManhuntDff] material, assume 1.');
+            }
+
+            var materialCount = binary.consume(4, 'int32');
+
+            for(var i = 0; i < materialCount; i++){
+                binary.consume(4, 'int32');
+            }
+
+            var list = [];
+            for(i = 0; i < materialCount; i++){
+                list.push(rMaterial());
+            }
+
+            return list;
+
+        }
+
+        function rMaterial() {
+            var result = {};
+            var clump = cClump();
+            if (clump.id !== 7){
+                return console.log('[ManhuntDff] material, assume 7.');
+            }
+
+            clump = cClump();
+            if (clump.id !== 1){
+                return console.log('[ManhuntDff] material, assume 1.');
+            }
+
+            var unk = binary.consume(4, 'int32');
+
+            result.color = binary.readColorRGBA();
+            unk = binary.consume(4, 'int32');
+
+            var textureCount = binary.consume(4, 'int32');
+            result.light = {
+                ambient: binary.consume(4, 'float32'),
+                diffuse: binary.consume(4, 'float32'),
+                specular: binary.consume(4, 'float32')
+            };
+
+            result.textures = [];
+            for(var i = 0; i < textureCount; i++){
+                result.textures.push(getTextureName());
+            }
+
+            clump = cClump();
+            if (clump.id !== 3){
+                return console.log('[ManhuntDff] material data, assume 3.');
+            }
+
+            binary.seek(clump.size);
+
+            return result;
+
+        }
+
+        function getTextureName() {
+            var clump = cClump();
+            if (clump.id !== 6){
+                return console.log('[ManhuntDff] getTextureName data, assume 6.');
+            }
+
+            clump = cClump();
+            if (clump.id !== 1){
+                return console.log('[ManhuntDff] getTextureName data, assume 1.');
+            }
+
+            var TexFlag = binary.consume(4, 'int32');
+
+            clump = cClump();
+            if (clump.id !== 2){
+                return console.log('[ManhuntDff] getTextureName data, assume 2.');
+            }
+
+            var texName = binary.consume(clump.size, 'nbinary').getString(0);
+            clump = cClump();
+            if (clump.id !== 2){
+                return console.log('[ManhuntDff] getTextureName data, assume 2.');
+            }
+
+            var maskName = binary.consume(clump.size, 'string');
+
+            clump = cClump();
+            if (clump.id !== 3){
+                return console.log('[ManhuntDff] getTextureName data, assume 3.');
+            }
+            binary.seek(clump.size);
+
+            return texName;
+        }
+
+        function rGeometry() {
+            
+            var result = {
+                light: false
+            };
+            
+            var clump = cClump();
+            if (clump.id !== 15){
+                return console.log('[ManhuntDff] geometry data, assume 15.');
+            }
+
+            clump = cClump();
+            if (clump.id !== 1){
+                return console.log('[ManhuntDff] geometry data, assume 1.');
+            }
+
+            var GeometryFlags = binary.consume(1, 'uint8');
+            var unk = binary.consume(1, 'int8');
+            var t2count = binary.consume(2, 'int16');
+
+            var faceCount = binary.consume(4, 'uint32');
+            var vertCount = binary.consume(4, 'uint32');
+            var mtCount = binary.consume(4, 'uint32');
+
+            if (clump.version === 0x1003FFFF || clump.version === 0x1803FFFF) {
+            }else{
+                result.light = {
+                    ambient: binary.consume(4, 'float32'),
+                    diffuse: binary.consume(4, 'float32'),
+                    specular: binary.consume(4, 'float32')
+                };
+            }
+
+            result.cpvArray = [];
+            if (GeometryFlags % 16 >= 8){
+                for (var i = 0; i < vertCount; i++){
+                    result.cpvArray.push(binary.readColorRGBA());
+                }
+            }
+
+            result.uvArray = [];
+            if (t2count > 0 || GeometryFlags % 8 >= 4){
+                for(i = 0; i < vertCount; i++){
+                    result.uvArray.push([
+                        binary.consume(4, 'float32'),
+                        binary.consume(4, 'float32')
+                    ]);
+                }
+            }
+
+            result.uv2Array = [];
+            if (t2count > 1){
+                for(i = 0; i < vertCount; i++){
+                    result.uv2Array.push([
+                        binary.consume(4, 'float32'),
+                        binary.consume(4, 'float32')
+                    ]);
+                }
+            }
+
+            //more UV maps....
+            if (t2count > 2){
+                for(i = 2; i < t2count; i++){
+                    for(i = 0; i < vertCount; i++){
+                        binary.consume(4, 'float32');
+                        binary.consume(4, 'float32');
+                    }
+                }
+            }
+
+
+            result.faces = [];
+            for(i = 0; i < faceCount; i++){
+                var a2 = binary.consume(2, 'uint16');
+                var a1 = binary.consume(2, 'uint16');
+                var fg = binary.consume(2, 'uint16');
+                var a3 = binary.consume(2, 'uint16');
+
+                result.faces.push([a1,a2,a3])
+            }
+
+            result.bbox = {
+                bounding: binary.readVector3(),
+                radius: binary.consume(4, 'float32'),
+                unk: [binary.consume(4, 'float32'),binary.consume(4, 'float32')]
+            };
+
+            result.vertices = [];
+            for(i = 0; i < vertCount; i++){
+                var vec3 = binary.readVector3();
+                result.vertices.push(vec3);
+            }
+
+            result.normals = [];
+            if (GeometryFlags % 32 >= 16){
+                for (i = 0; i < vertCount; i++){
+                    result.normals.push(binary.readVector3());
+                }
+            }
+
+            result.material = rMaterialList();
+            
+            if (binary.consume(4, 'int32') !== 3){
+                return console.log('[ManhuntDff] material data, assume 3.');
+            }
+
+            var mExt = binary.consume(4, 'int32');
+            ver = binary.consume(4, 'int32');
+            binary.seek(mExt);
+
+            return result;
+        }
+
+
+        var results = [];
+        do{
+            modelName = "???";
+            var result = {};
+            var cur = binary.current();
+            var objectClump = cClump();
+
+            binary.seek(4);
+            var dataLength = binary.consume(4, 'int32') / 4;
+            binary.seek(4);
+
+            var objectCount = binary.consume(4, 'int32');
+
+            if (dataLength > 1){
+                binary.seek(4 * (dataLength - 1));
+            }
+
+            result.bones = rFrameList();
+
+            if (result.bones[0].name === "Skin_Mesh"){
+                modelName = result.bones[1].name;
+            }else{
+                modelName = result.bones[0].name;
+            }
+
+            result.name = modelName;
+
+
+            var NumGeo = getGeometryCount();
+
+            var MshAry = [];
+            for(var i = 0; i < NumGeo; i++){
+                MshAry.push(rGeometry());
+            }
+
+            result.geometry = MshAry;
+
+            binary.setCurrent(cur + objectClump.size + 12);
+
+
+            results.push(result);
+        }while(binary.remain() > 0);
+
+        return results;
+    }
+
+    function DffModelConverter(level, model) {
+
+        var self = {
+            _mesh: new THREE.Group(),
+
+            _init: function () {
+                model.geometry.forEach(function (entry) {
+                    var material = [];
+
+                    var geometry = new THREE.Geometry();
+                    geometry.colorsNeedUpdate = true;
+                    geometry.normalsNeedUpdate = true;
+
+                    geometry.faceVertexUvs = [[]];
+
+                    entry.vertices.forEach(function (vertexVec3, index) {
+
+                        //Generate Vertex
+                        // vertexVec3.applyMatrix4(self._meshBone.matrix);
+                        geometry.vertices.push(vertexVec3);
+                    });
+
+                    entry.material.forEach(function (materialObj) {
+                        if (materialObj.textures.length === 0) return;
+
+                        var texture = level._storage.tex.find(materialObj.textures[0]);
+                        var mat = new THREE.MeshStandardMaterial();
+                        mat.name = materialObj.TexName;
+                        mat.map = texture;
+                        mat.skinning = true;
+                        mat.vertexColors = THREE.VertexColors;
+                        mat.needsUpdate = true;
+                        mat.transparent = texture.format === THREE.RGBA_S3TC_DXT5_Format;
+
+                        material.push(
+                            mat
+                        );
+                    });
+
+                    for(var x = 0; x < entry.faces.length; x++) {
+                        var face = new THREE.Face3(entry.faces[x][0], entry.faces[x][1], entry.faces[x][2]);
+
+                        // face.materialIndex = materialForFace[x].MaterialID;
+
+
+                        face.vertexNormals =[
+                            entry.normals[face.a],
+                            entry.normals[face.b],
+                            entry.normals[face.c]
+                        ];
+
+
+                        if(entry.uvArray.length > 0){
+                            geometry.faceVertexUvs[0].push([
+                                new THREE.Vector2(
+                                    entry.uvArray[face.a][0],
+                                    entry.uvArray[face.a][1]
+                                ),
+                                new THREE.Vector2(
+                                    entry.uvArray[face.b][0],
+                                    entry.uvArray[face.b][1]
+                                ),
+                                new THREE.Vector2(
+                                    entry.uvArray[face.c][0],
+                                    entry.uvArray[face.c][1]
+                                ),
+                            ]);
+                            geometry.uvsNeedUpdate = true;
+                        }
+
+                        geometry.faces.push(face);
+                        // x += 2;
+                    }
+
+
+                    var bufferGeometry = new THREE.BufferGeometry();
+                    bufferGeometry.fromGeometry( geometry );
+
+                    bufferGeometry.colorsNeedUpdate = true;
+                    // bufferGeometry.computeBoundingSphere();
+
+                    var mesh;
+                    // if (entryIndex === 0) {
+                    // if (entry.object.skinDataFlag === true) {
+                        mesh = new THREE.Mesh(bufferGeometry, material);
+                        // mesh = new THREE.SkinnedMesh(bufferGeometry, material);
+                        // mesh.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
+                    // }else{
+                    //     mesh = new THREE.Mesh(bufferGeometry, material);
+                    // }
+
+                    self._mesh.add(mesh);
+
+                });
+
+            }
+        };
+
+        self._init();
+
+
+        return {
+            mesh: self._mesh
+        };
+    }
+
     function MdlModelConverter(level, model ){
 
         var self = {
@@ -823,36 +1328,66 @@ MANHUNT.fileLoader.MDL = function () {
                 function ( data ) {
 
                     var binary = new NBinary(data);
+                    var gameId = binary.consume(4, 'uint32');
+                    binary.setCurrent(0);
 
-                    results = MhtMDLExtract(binary);
+                    if (gameId === 1129074000){
+
+                        results = Manhunt2Mdl(binary);
+
+                    }else{
+
+                        results = ManhuntDff(binary);
+
+                    }
 
 
                     //TODO !!!
                     var cache = {};
 
                     callback({
-                        getDataRaw: function(){
+                        getModelNames: function(){
                             var result = [];
 
                             for(var i in results){
                                 if (!results.hasOwnProperty(i)) continue;
-                                result.push(results[i]);
+
+                                var entry = results[i];
+                                if (gameId === 1129074000){
+                                    if (entry.objects.length === 0) continue;
+                                    result.push(entry.bone.boneName);
+                                }else{
+                                    result.push(entry.name);
+                                }
                             }
 
                             return result;
                         },
+
                         find: function (name) {
                             for(var i in results){
                                 if (!results.hasOwnProperty(i)) continue;
 
                                 var entry = results[i];
-                                if (entry.objects.length === 0) continue;
+                                var threeModel;
 
-                                if (entry.bone.boneName.toLowerCase() === name.toLowerCase()){
+                                if (gameId === 1129074000){
+                                    if (entry.objects.length === 0) continue;
 
-                                    var threeModel = new MdlModelConverter(level, entry);
-                                    threeModel.mesh.name = entry.bone.boneName;
-                                    return threeModel.mesh;
+                                    if (entry.bone.boneName.toLowerCase() === name.toLowerCase()){
+
+                                        threeModel = new MdlModelConverter(level, entry);
+                                        threeModel.mesh.name = entry.bone.boneName;
+                                        return threeModel.mesh;
+                                    }
+                                }else{
+                                    if (entry.name.toLowerCase() === name.toLowerCase()){
+
+                                        threeModel = new DffModelConverter(level, entry);
+                                        threeModel.mesh.name = entry.name;
+                                        return threeModel.mesh;
+
+                                    }
                                 }
                             }
 

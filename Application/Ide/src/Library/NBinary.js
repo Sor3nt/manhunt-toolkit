@@ -58,6 +58,19 @@ function NBinary( data){
 
                 return subview;
             }
+            if (type === 'nbinary'){
+
+                var buffer = new ArrayBuffer(bytes);
+                var storeView = new DataView(buffer);
+
+                var index = 0;
+                while(bytes--){
+                    storeView.setUint8(index, view.getUint8(index, true));
+                    index++;
+                }
+
+                return new NBinary(buffer);
+            }
             if (type === 'string'){
 
                 var str = "";
@@ -114,6 +127,19 @@ function NBinary( data){
                 self.consume(byte, type),
                 self.consume(byte, type)
             );
+        },
+
+        readMatrix4: function(byte, type){
+            byte = byte || 4;
+            type = type || 'float32';
+
+            return [
+                [ self.consume(byte, type), self.consume(byte, type), self.consume(byte, type) ],
+                [ self.consume(byte, type), self.consume(byte, type), self.consume(byte, type) ],
+                [ self.consume(byte, type), self.consume(byte, type), self.consume(byte, type) ],
+                [ self.consume(byte, type), self.consume(byte, type), self.consume(byte, type) ]
+            ];
+
         },
 
         readVector3: function (byte, type, pad, pByte, pType) {
@@ -229,6 +255,10 @@ function NBinary( data){
             return new THREE.Color(
                 bgra[2], bgra[1], bgra[0]
             );
+        },
+
+        seek: function (bytes) {
+            current = current + bytes;
         }
 
     };
@@ -254,7 +284,9 @@ function NBinary( data){
         readVector4: self.readVector4,
         remain: self.remain,
         readXYZ: self.readXYZ,
+        seek: self.seek,
         readXYZW: self.readXYZW,
+        readMatrix4: self.readMatrix4,
         consume: self.consume,
         getString: self.getString
     }

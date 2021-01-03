@@ -16,11 +16,11 @@ MANHUNT.scene.views = (function () {
             switch (game) {
 
                 case 'manhunt':
-                    self._level[game + '_' + levelName] = new MANHUNT.scene.manhuntLevel(levelName, callback);
+                    self._level[game + '_' + levelName] = new MANHUNT.scene.ManhuntLevel(levelName, callback);
                     break;
 
                 case 'manhunt2':
-                    self._level[game + '_' + levelName] = new MANHUNT.scene.manhunt2Level(levelName, callback);
+                    self._level[game + '_' + levelName] = new MANHUNT.scene.Manhunt2Level(levelName, callback);
                     break;
 
             }

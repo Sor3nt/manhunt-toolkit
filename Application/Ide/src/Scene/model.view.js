@@ -68,9 +68,9 @@ MANHUNT.scene.modelView = function (level) {
             sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
             sceneInfo.scene.add(new THREE.GridHelper(1000, 10, 0x888888, 0x444444));
 
-            var entries = level._storage.mdl.getDataRaw();
-            entries.forEach(function (entry) {
-                self._createEntry(entry);
+            var names = level._storage.mdl.getModelNames();
+            names.forEach(function (name) {
+                self._createEntry(name);
 
             });
         },
@@ -80,7 +80,7 @@ MANHUNT.scene.modelView = function (level) {
         },
 
 
-        _createEntry: function( entry ){
+        _createEntry: function( name ){
 
             var row = jQuery(self._template.content).clone();
             self._container.find('[data-field="model-list-container"]').append(row);
@@ -90,17 +90,17 @@ MANHUNT.scene.modelView = function (level) {
                 .click(function () {
                     // self._tasks.push({
                     //     action: 'delete',
-                    //     name: entry.bone.boneName
+                    //     name: name
                     // });
 
                     row.remove();
                 });
 
-            var relsInst2Model = level.relation.getInstByModel(entry.bone.boneName);
+            var relsInst2Model = level.relation.getInstByModel(name);
             if (relsInst2Model === false){
                 //as example heads are sub-glg records from the actual hunter
                 //there is no direct inst relation
-                var relsGLG = level.relation.getGlgByModel(entry.bone.boneName);
+                var relsGLG = level.relation.getGlgByModel(name);
 
                 row.addClass("unused");
             }else{
@@ -110,7 +110,7 @@ MANHUNT.scene.modelView = function (level) {
                 var matBlocks = [];
 
                 relsInst2Model.forEach(function (rel) {
-                    var glgs = level.relation.getGlgByModel(entry.bone.boneName);
+                    var glgs = level.relation.getGlgByModel(name);
                     glgs.forEach(function (rel) {
 
                         var mat = rel.glg.getValue('MATERIAL');
@@ -173,22 +173,23 @@ MANHUNT.scene.modelView = function (level) {
                 });
             }
 
-
-            //Generate Textures names
-            var fieldTextures = row.find('[data-field="textures"]');
-            var appliedTextures = [];
-            entry.objects.forEach(function (object) {
-                if (object.materials.length > 0){
-                    object.materials.forEach(function (material) {
-                        if (appliedTextures.indexOf(material.TexName) !== -1) return;
-                        appliedTextures.push(material.TexName);
-
-                        fieldTextures.append(
-                            '<span class="badge badge-info">' + material.TexName + '</span>'
-                        )
-                    })
-                }
-            });
+            //
+            // //Generate Textures names
+            // var fieldTextures = row.find('[data-field="textures"]');
+            // var appliedTextures = [];
+            // console.log(entry);
+            // entry.objects.forEach(function (object) {
+            //     if (object.materials.length > 0){
+            //         object.materials.forEach(function (material) {
+            //             if (appliedTextures.indexOf(material.TexName) !== -1) return;
+            //             appliedTextures.push(material.TexName);
+            //
+            //             fieldTextures.append(
+            //                 '<span class="badge badge-info">' + material.TexName + '</span>'
+            //             )
+            //         })
+            //     }
+            // });
 
 
 
@@ -209,11 +210,11 @@ MANHUNT.scene.modelView = function (level) {
                     // console.log("HHHHH", entities);
 
                     //Generate Model Object
-                    var model = level._storage.mdl.find(entry.bone.boneName).get();
+                    var model = level._storage.mdl.find(name).get();
                     model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     sceneInfo.scene.add(model);
                     self._lastModel = model;
-
+console.log("SELECT", model);
                     //apply the model to the control
                     sceneInfo.control.enable(model);
 
@@ -224,17 +225,17 @@ MANHUNT.scene.modelView = function (level) {
                     self._lastRow = row;
 
                 })
-                .html(entry.bone.boneName);
+                .html(name);
 
 
 
-            // console.log(entry, entry.bone.boneName);
-            if (entry.skinDataFlag === true){
-                // console.log(row);
-                row.find('[data-icon="skin"]').show();
-            }
+            // // console.log(entry, name);
+            // if (entry.skinDataFlag === true){
+            //     // console.log(row);
+            //     row.find('[data-icon="skin"]').show();
+            // }
 
-            self._row[entry.bone.boneName] = row;
+            self._row[name] = row;
         }
         
     };

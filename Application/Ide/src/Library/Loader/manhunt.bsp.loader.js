@@ -461,6 +461,9 @@ MANHUNT.fileLoader.BSP = function () {
 
             if (textureCount === 1){
                 mat.name = rTexture();
+            }else{
+                mat.name = "none";
+
             }
 
             block = readBlock();
@@ -534,9 +537,9 @@ MANHUNT.fileLoader.BSP = function () {
                     binary.setCurrent(binary.current() + 32);
                     for(i = 0; i < sectionVertexCount; i++){
                         var vec = binary.readVector3();
-                        var z = vec.z;
-                        vec.z = vec.y * -1;
-                        vec.y = z;
+                        // var z = vec.z;
+                        // vec.z = vec.y * -1;
+                        // vec.y = z;
                         vertex.push(vec);
                     }
 

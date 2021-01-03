@@ -5,6 +5,7 @@ MANHUNT.fileLoader.GLG = function () {
 
         var result = [];
 
+        text = text.replace(/\#.*/g, '');
         var matches = text.match(/(\#FORCE\n)?RECORD\s(.*\s)*?END/mig);
 
         matches.forEach(function (match) {
@@ -15,6 +16,9 @@ MANHUNT.fileLoader.GLG = function () {
 
             var optionsRaw = match.split("\n");
             var name = optionsRaw[0];
+
+            if (name === "dummy") return;
+
             delete optionsRaw[0];
             delete optionsRaw[optionsRaw.length - 1];
 

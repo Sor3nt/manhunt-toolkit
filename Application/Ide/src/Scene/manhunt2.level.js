@@ -1,4 +1,4 @@
-MANHUNT.scene.manhunt2Level = function (levelName, doneCallback) {
+MANHUNT.scene.Manhunt2Level = function (levelName, doneCallback) {
 
 
     var self = {

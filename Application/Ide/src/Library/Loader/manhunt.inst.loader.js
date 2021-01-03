@@ -162,41 +162,48 @@ MANHUNT.fileLoader.INST = function () {
                         if (binary.current() < entryEndOffset){
                             var entityClass = binary.getString(0, true);
 
+                            var field = 0;
                             while(binary.current() < entryEndOffset){
                                 var setting = {};
-                                setting.hash = buf2hex(binary.consume(4, 'arraybuffer'));
-
-                                if (typeof map['m_' + setting.hash] !== "undefined"){
-                                    setting.name = camelName(map['m_' + setting.hash]);
-                                }else{
-                                    setting.name = "unk_" + setting.hash;
-                                }
-
-                                setting.type = binary.consume(3, 'string');
-                                binary.consume(1, 'uint8');
-
-                                if (
-                                    setting.name === "colourBlue" ||
-                                    setting.name === "colourGreen" ||
-                                    setting.name === "colourRed"
-                                ){
-                                    setting.value = parseInt(binary.consume(4, 'float32') * 255.0);
+                                if (level._game === "manhunt"){
+                                    settings['unk_' + field] = binary.consume(4, 'int32');
 
                                 }else{
+                                    setting.hash = buf2hex(binary.consume(4, 'arraybuffer'));
 
-                                    if (setting.type === "int") {
-                                        setting.value = binary.consume(4, 'uint32');
-                                    }else if (setting.type === "boo"){
-                                        setting.value = binary.consume(4, 'uint32');
-                                    }else if (setting.type === "flo"){
-                                        setting.value = binary.consume(4, 'float32');
-                                    }else if (setting.type === "str"){
-                                        setting.value = binary.getString(0, true);
+                                    if (typeof map['m_' + setting.hash] !== "undefined"){
+                                        setting.name = camelName(map['m_' + setting.hash]);
+                                    }else{
+                                        setting.name = "unk_" + setting.hash;
                                     }
+
+                                    setting.type = binary.consume(3, 'string');
+                                    binary.consume(1, 'uint8');
+
+                                    if (
+                                        setting.name === "colourBlue" ||
+                                        setting.name === "colourGreen" ||
+                                        setting.name === "colourRed"
+                                    ){
+                                        setting.value = parseInt(binary.consume(4, 'float32') * 255.0);
+
+                                    }else{
+
+                                        if (setting.type === "int") {
+                                            setting.value = binary.consume(4, 'uint32');
+                                        }else if (setting.type === "boo"){
+                                            setting.value = binary.consume(4, 'uint32');
+                                        }else if (setting.type === "flo"){
+                                            setting.value = binary.consume(4, 'float32');
+                                        }else if (setting.type === "str"){
+                                            setting.value = binary.getString(0, true);
+                                        }
+                                    }
+                                    settings[setting.name] = setting.value;
+
                                 }
 
 
-                                settings[setting.name] = setting.value;
                             }
                         }
 

@@ -22,6 +22,20 @@ MANHUNT.storage.Model = function (level) {
             });
         },
 
+        getModelNames: function(){
+
+            var names = [];
+
+            self._proxy.forEach(function (proxy) {
+                proxy.getModelNames().forEach(function (name) {
+                    names.push(name);
+                });
+            });
+
+            return names;
+
+        },
+
         find: function (name) {
 
             var found = false;
@@ -33,7 +47,7 @@ MANHUNT.storage.Model = function (level) {
             });
 
             if (found === false){
-                console.log('[MANHUNT.Storage.Model','] Unable to find model', name);
+                connsole.log('[MANHUNT.Storage.Model','] Unable to find model', name);
                 return false;
             }
 
@@ -61,18 +75,8 @@ MANHUNT.storage.Model = function (level) {
     };
 
     return {
-        getDataRaw: function(){
-            var result = [];
-
-            self._proxy.forEach(function (proxy) {
-                proxy.getDataRaw().forEach(function (entry) {
-                    result.push(entry);
-                });
-            });
-
-            return result;
-        },
         load: self.load,
-        find: self.find
+        find: self.find,
+        getModelNames: self.getModelNames
     }
 };
