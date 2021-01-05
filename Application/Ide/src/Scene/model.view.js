@@ -213,8 +213,16 @@ MANHUNT.scene.modelView = function (level) {
                     var model = level._storage.mdl.find(name).get();
                     model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     sceneInfo.scene.add(model);
+
+
+                    const helper = new THREE.SkeletonHelper( model );
+                    helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
+                    sceneInfo.scene.add( helper );
+
+
+
                     self._lastModel = model;
-console.log("SELECT", model);
+console.log("SELECT", model, helper);
                     //apply the model to the control
                     sceneInfo.control.enable(model);
 

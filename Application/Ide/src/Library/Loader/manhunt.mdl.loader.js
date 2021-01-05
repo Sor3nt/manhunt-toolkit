@@ -619,12 +619,12 @@ MANHUNT.fileLoader.MDL = function () {
 
             if (frameBoneId === -1){
                 // console.log('[ManhuntDff] rHAnimPLG, returning empty array. (no BoneId)');
-                return boneDataAry;
+                return false;
             }
 
             if (boneCount === 0){
                 // console.log('[ManhuntDff] rHAnimPLG, returning empty array. (no bones)');
-                return boneDataAry;
+                return [frameBoneId];
             }
 
             binary.seek(8);
@@ -637,7 +637,7 @@ MANHUNT.fileLoader.MDL = function () {
                 });
             }
 
-            return boneDataAry;
+            return [frameBoneId, boneDataAry];
 
         }
 
@@ -660,12 +660,19 @@ MANHUNT.fileLoader.MDL = function () {
             // var matrix = [];
             for(i = 0; i < frameCount; i++){
                 frameAry.push({
-                    matrix: binary.readMatrix4(),
-                    parentId: binary.consume(4, 'int32'),
-                    unk: binary.consume(4, 'uint32'),
+                    // matrix: binary.consume(4 * 12, 'arraybuffer'),
+                    matrix: [
+                        binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
+                        binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
+                        binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
+                        binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 1
+                    ],
+                    parentId: binary.consume(4, 'int32') + 1,
+                    unk: binary.consume(4, 'uint32')
                 });
             }
 
+            var boneInfos;
             for(i = 0; i < frameCount; i++){
                 clump = cClump();
                 if (clump.id !== 3){
@@ -684,7 +691,14 @@ MANHUNT.fileLoader.MDL = function () {
                                 break;
 
                             case 286:
-                                frameAry[i].bones = rHAnimPLG();
+                                var res = rHAnimPLG();
+                                if (res !== false){
+                                    frameAry[i].boneId = res[0];
+                                    if (res.length === 2){
+                                        boneInfos = res[1];
+                                    }
+                                }
+
 
                                 // clump = cClump();
                                 // frameAry[i].name = binary.consume(clump.size, 'nbinary').getString(0);
@@ -699,7 +713,6 @@ MANHUNT.fileLoader.MDL = function () {
 
                     }
 
-
                 }else{
                     if (clump.version === 0x1803FFFF){
                         frameAry[i].name = "Skin_Mesh";
@@ -708,6 +721,20 @@ MANHUNT.fileLoader.MDL = function () {
                 }
 
             }
+
+            frameAry.forEach(function (frameEntry, frameIndex) {
+                if (typeof frameEntry.boneId === "undefined") return;
+
+                boneInfos.forEach(function (info, index) {
+
+                    if (info.boneId !== frameEntry.boneId) return;
+                    // console.log(frameIndex, info.boneId , frameEntry.boneId);
+                    // frameAry[frameIndex].boneId = info.boneId;
+                    frameAry[frameIndex].boneIndex = info.boneIndex;
+                    frameAry[frameIndex].boneType = info.boneType;
+
+                });
+            });
 
             return frameAry;
 
@@ -992,9 +1019,74 @@ MANHUNT.fileLoader.MDL = function () {
     function DffModelConverter(level, model) {
 
         var self = {
+            _rootBone : {},
+            _meshBone : {},
+            _allBones : [],
+            _boneInfos : [],
+
+
             _mesh: new THREE.Group(),
 
+            _generateBoneStructure: function(){
+
+// console.log("raw", model.bones);
+                var bones = [];
+                model.bones.forEach(function (bone, index) {
+                    var realBone = self._createBone(bone);
+                    bones.push(realBone);
+                });
+
+
+
+                model.bones.forEach(function (bone, index) {
+                    // if (bone.parentId === 0) return;
+
+                    model.bones.forEach(function (boneInner, indexInner) {
+                        if (indexInner === 0) return;
+
+
+                        if (index === boneInner.parentId - 1){
+
+                            // console.log("add", index, boneInner.parentId - 1);
+                            bones[index].add(bones[indexInner]);
+                        }
+                    });
+                });
+// console.log("adddd", bones[0], bones[1]);
+                bones[0].children.push(bones[1]);
+
+            },
+
+            _createBone: function ( data ){
+                var mat4 = new THREE.Matrix4();
+
+                mat4.fromArray(data.matrix);
+
+                var bone = new THREE.Bone();
+
+                // if (self._allBones.length !== 0){
+                    bone.applyMatrix4(mat4);
+
+                // }
+
+                bone.name = data.name;
+                self._allBones.push(bone);
+
+                return bone;
+            },
             _init: function () {
+
+                //
+                // model.bones.forEach(function (bone) {
+                //     if (bone.boneInfos.length > 0){
+                //         self._rootBone = bone;
+                //         self._boneInfos = bone.boneInfos;
+                //     }
+                // });
+
+                self._generateBoneStructure();
+                var skeleton = new THREE.Skeleton( self._allBones );
+
                 model.geometry.forEach(function (entry) {
                     var material = [];
 
@@ -1008,6 +1100,15 @@ MANHUNT.fileLoader.MDL = function () {
 
                         //Generate Vertex
                         // vertexVec3.applyMatrix4(self._meshBone.matrix);
+                        if (self._allBones.length > 10){
+
+                            // var mat4 = new THREE.Matrix4();
+                            // mat4.fromArray(self._allBones[2].matrix);
+
+                            vertexVec3.applyMatrix4(self._allBones[0].matrix);
+                            // vertexVec3.applyMatrix4(mat4);
+                        }
+
                         geometry.vertices.push(vertexVec3);
                     });
 
@@ -1073,13 +1174,16 @@ MANHUNT.fileLoader.MDL = function () {
                     var mesh;
                     // if (entryIndex === 0) {
                     // if (entry.object.skinDataFlag === true) {
-                        mesh = new THREE.Mesh(bufferGeometry, material);
-                        // mesh = new THREE.SkinnedMesh(bufferGeometry, material);
+                    //     mesh = new THREE.Mesh(bufferGeometry, material);
+                        mesh = new THREE.SkinnedMesh(bufferGeometry, material);
                         // mesh.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     // }else{
                     //     mesh = new THREE.Mesh(bufferGeometry, material);
                     // }
 
+                    mesh.add(self._allBones[1]);
+                    mesh.bind(skeleton);
+console.log(mesh);
                     self._mesh.add(mesh);
 
                 });
