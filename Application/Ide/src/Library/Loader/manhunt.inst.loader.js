@@ -154,9 +154,6 @@ MANHUNT.fileLoader.INST = function () {
                         position.y = posZ;
 
                         var rotation = binary.readXYZW();
-                        // posZ = rotation.z;
-                        // rotation.z = rotation.y * -1;
-                        // rotation.y = posZ;
 
                         var settings = [];
                         if (binary.current() < entryEndOffset){

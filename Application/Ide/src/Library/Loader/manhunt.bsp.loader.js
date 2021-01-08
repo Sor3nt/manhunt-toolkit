@@ -49,9 +49,9 @@ MANHUNT.fileLoader.BSP = function () {
 
             var ObjectBoundBox = new THREE.Mesh(
                 new THREE.CubeGeometry(
-                    MeshSize.x * 48,
-                    MeshSize.y * 48,
-                    MeshSize.z * 48,
+                    MeshSize.x * MANHUNT.scale,
+                    MeshSize.y * MANHUNT.scale,
+                    MeshSize.z * MANHUNT.scale,
                 ),
                 new THREE.MeshBasicMaterial({
                     wireframe	: true,
@@ -60,7 +60,7 @@ MANHUNT.fileLoader.BSP = function () {
             );
 
             ObjectBoundBox.position.copy(MeshPosition);
-            ObjectBoundBox.position.multiply(new THREE.Vector3(48,48,48));
+            ObjectBoundBox.position.multiply(new THREE.Vector3(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale));
             ObjectBoundBox.name = "bbox";
 
             SceneRootBoundBox.children.push(ObjectBoundBox);
@@ -77,7 +77,7 @@ MANHUNT.fileLoader.BSP = function () {
 
                 for (i = 0; i < NumVerts; i++) {
                     var vec3 = binary.readVector3(4, 'float32', true);
-                    vec3.multiply(new THREE.Vector3(48,48,48));
+                    vec3.multiply(new THREE.Vector3(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale));
                     ColVerts.push(vec3);
                 }
 
@@ -165,7 +165,7 @@ MANHUNT.fileLoader.BSP = function () {
                 for (var v = 0; v < 4; v++) {
 
                     var vertex = binary.readVector3(4, 'float32', true, 2, 'int16');
-                    vertex.multiply(new THREE.Vector3(48,48,48));
+                    vertex.multiply(new THREE.Vector3(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale));
                     // vertex.x *= -1;
                     PortalVerts.push(vertex);
                 }

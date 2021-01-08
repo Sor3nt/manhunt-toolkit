@@ -35,6 +35,7 @@
         };
 
         MANHUNT.scale = 48; //World scale for models and position
+        // MANHUNT.scale = 48; //World scale for models and position
         MANHUNT.fov = 57.29578; //Default MH2 FOV
 
     </script>
@@ -93,9 +94,16 @@
 
     <!-- Content Parser  -->
     <script src="src/Library/Parser/manhunt.parser.srce.trigger.js"></script>
+    <script src="src/Library/Parser/mdl.parser.js"></script>
+    <script src="src/Library/Parser/dff.parser.js"></script>
+    <script src="src/Library/Parser/txd.parser.js"></script>
+    <script src="src/Library/Parser/tex.parser.js"></script>
 
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
+    <script src="src/Library/Converter/dff.mesh.converter.js"></script>
+    <script src="src/Library/Converter/mdl.mesh.converter.js"></script>
+    <script src="src/Library/Converter/dds.texture.converter.js"></script>
 
     <!-- Camera -->
     <script src="src/Camera/TVP.js"></script>
@@ -260,19 +268,19 @@
     MANHUNT.engine.init();
     MANHUNT.frontend.tab.init();
 
-
-    MANHUNT.scene.views.loadLevel('manhunt', 'asylum', function(level){
-    // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
-
-        level.addScene(MANHUNT.scene.modelView);
-    });
-
     //
-    // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+    // MANHUNT.scene.views.loadLevel('manhunt', 'asylum', function(level){
     // // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
     //
     //     level.addScene(MANHUNT.scene.modelView);
     // });
+
+
+    MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+    // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+
+        level.addScene(MANHUNT.scene.modelView);
+    });
 
     // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
     // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){

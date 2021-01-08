@@ -47,7 +47,7 @@ MANHUNT.storage.Model = function (level) {
             });
 
             if (found === false){
-                connsole.log('[MANHUNT.Storage.Model','] Unable to find model', name);
+                console.log('[MANHUNT.Storage.Model','] Unable to find model', name);
                 return false;
             }
 

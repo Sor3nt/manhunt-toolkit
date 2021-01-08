@@ -28,6 +28,7 @@ MANHUNT.entity.abstract = function ( instEntity, object, model ) {
 
         setRotation: function (vec4) {
 
+            // var quaternion = new THREE.Quaternion(vec4.x, vec4.y, vec4.z, vec4.w );
             var quaternion = new THREE.Quaternion(vec4.x, vec4.z, -vec4.y, vec4.w * -1);
 
             var v = new THREE.Euler();
