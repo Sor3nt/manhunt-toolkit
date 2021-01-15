@@ -22,7 +22,7 @@ MANHUNT.engine = (function () {
             // window.addEventListener('resize', self._onWindowResize, false);
         },
 
-        createSceneInfo: function(element, name, camera, Control, onCreate, onUpdate){
+        createSceneInfo: function(element, name, camera, Control, onCreate, onUpdate, renderer){
 
             // const {left, right, top, bottom, width, height} =
             //     element.getBoundingClientRect();
@@ -34,13 +34,17 @@ MANHUNT.engine = (function () {
                 element: element.get(0),
                 camera: camera,
                 onUpdate: onUpdate,
-                lookAt: null
+                lookAt: null,
+                renderer: renderer,
+                renderOnlyOnce: false
             };
 
-            self.scene[name].control = new Control(self.scene[name]);
+            if (Control !== null)
+                self.scene[name].control = new Control(self.scene[name]);
 
             onCreate(self.scene[name]);
 
+            return self.scene[name];
         },
 
         // _onWindowResize: function() {
@@ -51,7 +55,10 @@ MANHUNT.engine = (function () {
 
 
         render: function () {
-            requestAnimationFrame(self.render);
+
+            // if (self.activeScene.renderOnlyOnce === false)
+                requestAnimationFrame(self.render);
+
             if (self.activeScene === false) return;
 
             var delta = MANHUNT.engine.getClock().getDelta();
@@ -59,7 +66,11 @@ MANHUNT.engine = (function () {
             var scene = self.scene[self.activeScene];
             scene.onUpdate(scene, delta);
 
-            self.renderer.render(scene.scene, scene.camera);
+            if (typeof scene.renderer === "undefined") {
+                self.renderer.render(scene.scene, scene.camera);
+            }else{
+                scene.renderer.render(scene.scene, scene.camera);
+            }
         },
 
         getRenderer: function () {
@@ -92,9 +103,13 @@ console.log("CHANGE TO ", name);
             scene.camera.aspect = width / height;
             scene.camera.updateProjectionMatrix();
 
-            scene.element.appendChild(self.renderer.domElement);
+            if (typeof scene.renderer === "undefined"){
+                scene.element.appendChild(self.renderer.domElement);
+                self.renderer.setSize(width, height);
+            }else{
+                scene.renderer.setSize(width, height);
+            }
 
-            self.renderer.setSize(width, height);
 
         },
 

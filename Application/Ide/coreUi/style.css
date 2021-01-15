@@ -26,6 +26,35 @@
     --dark: #636f83
 }
 
+@font-face {
+    font-family: 'GF Ordner Inverted';
+    src: url('../data/OrdnerNormal.woff2') format('woff2'),
+    url('../data/OrdnerNormal.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+.success {
+    border: 1px solid #2eb85c !important;
+    background: rgba(59,125,25,0.5) !important;
+    color: #fff !important;
+}
+
+.error {
+    border: 1px solid #b86263 !important;
+    background: rgba(125, 25, 38, 0.5) !important;
+    color: #fff !important;
+}
+
+
+h1, button.btn {
+    font-family: 'GF Ordner Inverted';
+    font-weight: normal;
+    font-style: normal;
+}
+
 .c-app {
     color: #3c4b64;
     background-color: #ebedef;

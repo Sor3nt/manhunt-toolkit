@@ -8,7 +8,7 @@ MANHUNT.scene.views = (function () {
         },
 
         load: function(level, name){
-            var view = new MANHUNT.scene[name](level)
+            return new MANHUNT.scene[name](level);
         },
 
         loadLevel: function(game, levelName, callback){
@@ -25,6 +25,7 @@ MANHUNT.scene.views = (function () {
 
             }
 
+            return self._level[game + '_' + levelName];
         },
 
         getLevel: function (game, levelName) {

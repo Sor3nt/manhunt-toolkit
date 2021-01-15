@@ -1,10 +1,14 @@
-<!DOCTYPE html>
+<?php
+        $config = \json_decode(file_get_contents('php/config.json'), true);
+        if (!isset($config['manhunt'])) $config['manhunt'] = "";
+        if (!isset($config['manhunt2'])) $config['manhunt2'] = "";
+?><!DOCTYPE html>
 
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Manhunt Toolkit v1.0</title>
+    <title>Manhunt Studio</title>
 
 
     <link href="coreUi/style.css" rel="stylesheet">
@@ -14,6 +18,9 @@
 
     <script>
         var MANHUNT = {
+
+            studio: {},
+            config: {},
             init: [],
             scene: {},
             relation: {},
@@ -26,7 +33,9 @@
             entity: {},
             levelScript: {},
             storage: {},
-            frontend: {},
+            frontend: {
+                modal: {}
+            },
             sidebar: {
                 view: {},
                 menu: {},
@@ -35,7 +44,6 @@
         };
 
         MANHUNT.scale = 48; //World scale for models and position
-        // MANHUNT.scale = 48; //World scale for models and position
         MANHUNT.fov = 57.29578; //Default MH2 FOV
 
     </script>
@@ -158,22 +166,9 @@
 
 
 <?php include('php/templates.html'); ?>
+<?php include('php/modal.html'); ?>
 
-<div id="loading" class="modal">
-    <div class="modal-content">
-        <div class="row">
-            <div class="col-3"></div>
-            <div class="col-6 text-center">
-                <div class="progress">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressbar"
-                         style="width: 75%"></div>
-                </div>
-                <div style="color: #fff;">Loading <span id="loading-text">Engine</span> ...</div>
-            </div>
-            <div class="col-3"></div>
-        </div>
-    </div>
-</div>
+
 
 <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
 
@@ -262,37 +257,58 @@
 <script src="coreUi/main.js"></script>
 
 
-<script type="module">
+<script>
 
 
-    MANHUNT.engine.init();
-    MANHUNT.frontend.tab.init();
+    jQuery(function () {
 
-    //
-    // MANHUNT.scene.views.loadLevel('manhunt', 'asylum', function(level){
-    // // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
-    //
-    //     level.addScene(MANHUNT.scene.modelView);
-    // });
+        // var setup = new MANHUNT.frontend.modal.Setup(function (game) {
+        //     console.log(game, "ready");
+        // });
+        // setup.show();
+        // MANHUNT.api.getConfig(
+        //     function ( config ) {
+        //         console.log("config", config);
+        //     }
+        // );
+        //
+        //
+        // MANHUNT.engine.init();
+        // MANHUNT.frontend.tab.init();
 
+        //
+        // MANHUNT.scene.views.loadLevel('manhunt', 'asylum', function(level){
+        // // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+        //
+        //     level.addScene(MANHUNT.scene.modelView);
+        // });
 
-    MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
-    // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+        //
+        // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+        //     // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+        //
+        //     level.addScene(MANHUNT.scene.modelView);
+        // });
 
-        level.addScene(MANHUNT.scene.modelView);
+        // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
+        // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
+        //
+        //     level.addScene(MANHUNT.scene.modelView);
+        // });
+
+        // MANHUNT.engine.render();
+
     });
-
-    // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
-    // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
-    //
-    //     level.addScene(MANHUNT.scene.modelView);
-    // });
-
-    MANHUNT.engine.render();
 
 
 </script>
 
+<script src="src/Scene/texture.view.js"></script>
+<script src="src/Frontend/Modal/Setup.js"></script>
+<script src="src/Frontend/Modal/LevelSelection.js"></script>
+
+<script src="src/Frontend/Modal/Handler.js"></script>
+<script src="src/Studio.js"></script>
 
 </body>
 </html>

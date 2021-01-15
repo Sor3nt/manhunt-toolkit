@@ -40,6 +40,8 @@ class Gxt extends Archive {
             $binary->numericBigEndian = true;
         }
 
+        $binary->current = 0;
+
         $indexHeader = [
             'fourCC'    => $binary->consume(4, NBinary::STRING),
             'blockSize' => $binary->consume(4, NBinary::INT_32),

@@ -1,0 +1,151 @@
+
+<div id="loading" class="modal" style="display: none">
+    <div class="modal-content">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6 text-center">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressbar"
+                         style="width: 75%"></div>
+                </div>
+                <div style="color: #fff;">Loading <span id="loading-text">Engine</span> ...</div>
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+</div>
+
+
+<div id="game-setup" class="modal" style="display:none;" >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #111123">
+                <h1 style="color:#fff; margin-left: 108px;">Setup Game</h1>
+                <button type="button" class="close" style="color:#fff">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center" style="background: #262638 ">
+                <!--                <div class="row">-->
+                <!--                    <div class="col-3"></div>-->
+                <!--                    <div class="col-6 text-center" >-->
+
+                <!--                        <h1 style="color:#fff">Setup Game</h1>-->
+
+                <div class="row">
+                    <div class="col-6" style="border-right: 1px solid #403c3c;">
+
+                        <img src="data/mh1.png" width="200" />
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="padding: 0;">
+                                    <img src="data/mh1-icon.png" width="32" />
+                                </span>
+                            </div>
+
+                            <input data-game-folder="manhunt_folder" type="text" class="form-control" placeholder="Manhunt Game folder">
+                        </div>
+                    </div>
+                    <div class="col-6">
+
+                        <img src="data/mh2.png"  width="200"/>
+                        <div class="input-group mb-3">
+
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="padding: 0;">
+                                    <img src="data/mh2-icon.png" width="32" />
+                                </span>
+                            </div>
+
+                            <input data-game-folder="manhunt2_folder" type="text" class="form-control" placeholder="Manhunt 2 Game folder">
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+
+                <!--                    </div>-->
+                <!--                    <div class="col-3"></div>-->
+                <!--                </div>-->
+            </div>
+            <div class="modal-footer" style="background: #111123">
+                <!--                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+                <button type="button" data-field="save" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div id="level-selection" class="modal" >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #111123">
+                <h1 style="color:#fff; margin-left: 108px;">Load level</h1>
+                <button type="button" class="close" style="color:#fff">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center" style="background: #262638 ">
+                <!--                <div class="row">-->
+                <!--                    <div class="col-3"></div>-->
+                <!--                    <div class="col-6 text-center" >-->
+
+                <!--                        <h1 style="color:#fff">Setup Game</h1>-->
+
+                <div class="row">
+                    <div class="col-7" style="border-right: 1px solid #403c3c;">
+                        <div data-field="level-list" class="list-group text-left" style="height: 200px; overflow: scroll;">
+<!--                            <a href="#" class="list-group-item list-group-item-action">-->
+<!--                                <img src="data/mh2-icon.png" width="32" />-->
+<!--                                Cras justo odio-->
+<!--                            </a>-->
+<!--                            <a href="#" class="list-group-item list-group-item-action">-->
+<!--                                <img src="data/mh1-icon.png" width="32" />-->
+<!--                                Dapibus ac facilisis in-->
+<!--                            </a>-->
+
+                        </div>
+
+                    </div>
+                    <div class="col-5">
+
+                        <div data-field="picload" style="width: 180px; height: 100px;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    z-index: 2;"></div>
+                        <div style="
+    position: absolute;
+    top: -1px;
+    left: 0;
+">
+                            <img src="data/mh2-monitor.png" />
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!--                    </div>-->
+                <!--                    <div class="col-3"></div>-->
+                <!--                </div>-->
+            </div>
+            <div class="modal-footer" style="background: #111123; height: 60px">
+                <!--                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                <button type="button" data-field="save" class="btn btn-primary">Save changes</button>-->
+            </div>
+        </div>
+    </div>
+
+
+</div>
