@@ -43,8 +43,9 @@ MANHUNT.scene.textureView = function (canvas) {
             });
             cubeGeometry.needsUpdate = true;
 
-            var materialRed = new THREE.MeshLambertMaterial({ color: 0xdd0000, overdraw: true });
-            self._outputCube = new THREE.Mesh( cubeGeometry, materialRed );
+            // var materialRed = new THREE.MeshLambertMaterial({ color: 0xdd0000, overdraw: true });
+            self._outputCube = new THREE.Mesh( cubeGeometry );
+            self._outputCube.visible = false;
 
             sceneInfo.scene.add(self._outputCube);
         },
@@ -64,8 +65,7 @@ MANHUNT.scene.textureView = function (canvas) {
             mat.transparent = texture.format === THREE.RGBA_S3TC_DXT5_Format;
 
             self._outputCube.material = mat;
-
-            MANHUNT.engine.render();
+            self._outputCube.visible = true;
         },
 
         _onUpdate: function (sceneInfo, delta) {},
