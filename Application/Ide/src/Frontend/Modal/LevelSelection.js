@@ -7,9 +7,9 @@ MANHUNT.frontend.modal.levelSelection = function () {
         _container : jQuery('#level-selection'),
         _picLoad: jQuery('#level-selection [data-field="picload"]'),
 
+        _loaded: false,
 
         _init: function () {
-            MANHUNT.api.getLevelList(self._createLevelList);
 
             // self._createEvents();
         },
@@ -84,6 +84,12 @@ MANHUNT.frontend.modal.levelSelection = function () {
 
 
         show: function(){
+
+            if (self._loaded === false){
+                self._loaded = true;
+                MANHUNT.api.getLevelList(self._createLevelList);
+            }
+
             self._container.show();
         },
 

@@ -20,6 +20,8 @@ MANHUNT.studio = (function () {
         },
 
         _onGamePathsKnown: function () {
+
+            console.log("call");
             MANHUNT.engine.render();
 
             var storage = new MANHUNT.storage.Storage({ _game: 'manhunt2'});
