@@ -84,7 +84,6 @@ MANHUNT.frontend.modal.levelSelection = function () {
 
 
         show: function(){
-
             if (self._loaded === false){
                 self._loaded = true;
                 MANHUNT.api.getLevelList(self._createLevelList);

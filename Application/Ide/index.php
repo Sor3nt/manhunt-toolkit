@@ -10,7 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Manhunt Studio</title>
 
-
     <link href="coreUi/style.css" rel="stylesheet">
 
     <meta name="robots" content="noindex">
@@ -247,14 +246,6 @@
     </div>
 </div>
 
-<script src="coreUi/coreui.bundle.min.js"></script>
-<!--[if IE]><!-->
-<script src="coreUi/svgxuse.min.js"></script>
-<!--<![endif]-->
-
-<script src="coreUi/coreui-chartjs.bundle.js"></script>
-<script src="coreUi/coreui-utils.js"></script>
-<script src="coreUi/main.js"></script>
 
 
 <script>
