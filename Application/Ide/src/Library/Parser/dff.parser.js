@@ -1,7 +1,60 @@
-MANHUNT.parser.dff = function (binary) {
-    var modelName;
+/*--------------------------------
+	RenderWare DFF model Importer
+	RenderWare Version 3.7.0.2
+	Platform PC
+	by Allen
+	2020-12-13
+    ported to JS by Sor3nt
+    2021-01-17
 
-    function cClump(){
+	Support game:
+		Agent Hugo
+		Manhunt
+--------------------------------*/
+
+MANHUNT.parser.dff = function (binary) {
+
+    const rpGEOMETRYPOSITIONS = 0x00000002;
+    /**<This geometry has positions */
+    const rpGEOMETRYTEXTURED = 0x00000004;
+    /**<This geometry has only one set of
+     texture coordinates. Texture
+     coordinates are specified on a per
+     vertex basis */
+    const rpGEOMETRYPRELIT = 0x00000008;
+    /**<This geometry has pre-light colors */
+    const rpGEOMETRYNORMALS = 0x00000010;
+    /**<This geometry has vertex normals */
+
+    const rpGEOMETRYTEXTURED2 = 0x00000080;
+    /**<This geometry has at least 2 sets of
+     texture coordinates. */
+
+    function ReadMatrix4x3() {
+        return [
+            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
+            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
+            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
+            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32')
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 1
+        ]
+
+    }
+
+    function ReadMatrix4x4() {
+        return [
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
+            binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32')
+        ]
+
+    }
+
+    function ReadChunk() {
         return {
             id: binary.consume(4, 'int32'),
             size: binary.consume(4, 'uint32'),
@@ -9,356 +62,766 @@ MANHUNT.parser.dff = function (binary) {
         };
     }
 
-
-    function rHAnimPLG() {
-
-        var boneDataAry = [];
-        if(binary.consume(4, 'int32') !== 256)
-            return console.log('[ManhuntDff] rHAnimPLG, assume 256.');
-
-        var frameBoneId = binary.consume(4, 'int32');
-        var boneCount = binary.consume(4, 'uint32');
-
-        if (frameBoneId === -1) return false;
-        if (boneCount === 0) return [frameBoneId];
-
-        binary.seek(8);
-
-        for(var i = 0; i < boneCount; i++){
-            boneDataAry.push({
-                boneId: binary.consume(4, 'uint32'),
-                boneIndex: binary.consume(4, 'uint32'),
-                boneType: binary.consume(4, 'uint32'),
-            });
-        }
-
-        return [frameBoneId, boneDataAry];
-
+    function ReadColor() {
+        return binary.readColorRGBA();
     }
 
-    function rFrameList() {
-        var clump = cClump();
-        if (clump.id !== 14)
-            return console.log('[ManhuntDff] frame list data, assume 14.');
+    function ReadFrameData() {
+        return {
+            matrix: ReadMatrix4x3(),
+            ParentFrameID: binary.consume(4, 'int32'),
+            MatrixCreationFlags: binary.consume(4, 'int32')
+        }
+    }
 
-        clump = cClump();
-        if (clump.id !== 1)
-            return console.log('[ManhuntDff] frame list data, assume 1.');
-
-        var frameCount = binary.consume(4, 'int32');
-
-        var i, frameAry = [];
-
-        for(i = 0; i < frameCount; i++){
-            frameAry.push({
-                matrix: [
-                    binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
-                    binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
-                    binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
-                    binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 1
-                ],
-                parentId: binary.consume(4, 'int32') + 1,
-                unk: binary.consume(4, 'uint32')
-            });
+    function ReadFrameDataList(FrameCount) {
+        let FrameListArray = [];
+        for (let i = 0; i < FrameCount; i++) {
+            FrameListArray.push(ReadFrameData())
         }
 
-        var boneInfos;
-        for(i = 0; i < frameCount; i++){
-            clump = cClump();
-            if (clump.id !== 3)
-                return console.log('[ManhuntDff] frame list ext data, assume 3. got',clump.id);
+        return FrameListArray;
+    }
 
-            if (clump.size !== 0){
-                var loopEnd = binary.current() + clump.size;
+    function ReadFrameName(NameLength) {
+        return binary.consume(NameLength, 'nbinary').getString(0);
+    }
 
-                while(binary.current() < loopEnd){
-                    clump = cClump();
-                    switch(clump.id){
+    function ReadrwString() {
+        let chunk = ReadChunk();
+        return ReadFrameName(chunk.size);
+    }
 
-                        case 39056126:
-                            frameAry[i].name = binary.consume(clump.size, 'nbinary').getString(0);
-                            break;
+    function ReadHAnimPLG(BoneIDArray, HAnimBoneArray) {
+        binary.consume(4, 'uint32');
+        let BoneID = binary.consume(4, 'uint32'); //Animation Bone ID
+        BoneIDArray.push(BoneID);
 
-                        case 286:
-                            var res = rHAnimPLG();
-                            if (res !== false){
-                                frameAry[i].boneId = res[0];
-                                if (res.length === 2){
-                                    boneInfos = res[1];
-                                }
-                            }
+        let BoneCount = binary.consume(4, 'uint32');
+        if (BoneCount > 0) {
 
-                            break;
+            binary.consume(4, 'int32'); //flags
+            binary.consume(4, 'int32'); //keyFrameSize
 
-                        default:
-                            console.log('[ManhuntDff] frame list ext data, skip, unknown section. len', stringLength);
-                            binary.seek(stringLength);
-                            break;
+            for (let i = 0; i < BoneCount; i++) {
+                HAnimBoneArray.push({
+                    BoneID: binary.consume(4, 'int32'),
+                    BoneIndex: binary.consume(4, 'uint32'),
+                    BoneType: binary.consume(4, 'uint32'),
+                });
+            }
+        }
+    }
+
+    function readUserDataPLG(index) {
+        let numSet = binary.consume(4, 'int32');
+        let boneName = "bone" + index;
+
+        for (let i = 0; i < numSet; i++) {
+            let typeNameLen = binary.consume(4, 'int32');
+            binary.seek(typeNameLen);
+
+            binary.consume(4, 'int32'); //u2
+            binary.consume(4, 'int32'); //u3
+
+            let nameLen = binary.consume(4, 'int32');
+            if (nameLen > 0)
+                boneName = binary.consume(nameLen, 'nbinary').getString(0);
+        }
+
+        return boneName;
+    }
+
+    function ReadFrameExt(FrameCount, FrameNameArray, BoneIDArray, HAnimBoneArray) {
+
+        for (let i = 0; i < FrameCount; i++) {
+
+            let frameExtHeader = ReadChunk();
+            let hasName = false;
+
+            if (frameExtHeader.size > 0) {
+                let endOfs = binary.current() + frameExtHeader.size;
+
+                while (binary.current() < endOfs) {
+                    let Header = ReadChunk();
+
+                    if (Header.id === 0x253F2FE) {
+                        hasName = true;
+                        FrameNameArray.push(ReadFrameName(Header.size));
+
+                    } else if (Header.id === 0x11E) {
+                        ReadHAnimPLG(BoneIDArray, HAnimBoneArray);
+
+                    } else if (Header.id === 0x11F) {
+                        hasName = true;
+                        FrameNameArray.append(readUserDataPLG(i));
+                    } else {
+                        binary.seek(Header.size);
                     }
-
                 }
 
-            }else{
-                if (clump.version === 0x1803FFFF){
-                    frameAry[i].name = "Skin_Mesh";
-                }
+                if (hasName === false)
+                    FrameNameArray.push("bone" + i);
+            } else {
+                if (i === 0)
+                    FrameNameArray.push("RootDummy");
+                else
+                    FrameNameArray.push("bone" + i);
+            }
+        }
+    }
 
+    function ReadFrameList() {
+        ReadChunk(); // frameListHeader
+        ReadChunk(); // FrameListStructHeader
+
+        let FrameCount = binary.consume(4, 'uint32');
+        let FrameDataListArray = ReadFrameDataList(FrameCount);
+        let FrameNameArray = [];
+        let HAnimBoneArray = [];
+        let BoneIDArray = [];
+
+        ReadFrameExt(
+            FrameCount,
+            FrameNameArray,
+            BoneIDArray,
+            HAnimBoneArray
+        );
+
+        let boneArray = [];
+        let skinBoneArray = [];
+        let bne = null;
+        let i, j = 0;
+
+        for (i = 0; i < FrameCount; i++) {
+            // let tfm = FrameDataListArray[i].matrix;
+            // bne = bonesys.createbone	\
+            //   tfm.row4	\
+            //   (tfm.row4 + 0.01 * (normalize tfm.row1)) \
+            //   (normalize tfm.row3)
+            bne = {userProp: {}};
+            bne.width = 0.03;
+            bne.height = 0.03;
+            bne.frame = FrameDataListArray[i];
+
+            if (i > 1)
+                bne.userProp.BoneID = BoneIDArray[i]; // this boneid is anim boneid
+
+            bne.name = FrameNameArray[i];
+            boneArray.push(bne);
+        }
+
+        // for (i = 0; i < FrameCount; i++) {
+        //     let ParentID = FrameDataListArray[i].ParentFrameID;
+        //     if (ParentID !== -1) {
+        //         boneArray[i].parent = boneArray[ParentID + 1];
+        //         boneArray[i].transform *= boneArray[i].parent.transform
+        //     }
+        // }
+
+        for (i = 0; i < FrameCount; i++) {
+            bne = boneArray[i];
+            let boneID = bne.userProp.BoneID;
+            if (typeof boneID !== "undefined") {
+                for (j = 0; j < HAnimBoneArray.length; j++) {
+                    if (HAnimBoneArray[j].BoneID === boneID) {
+                        bne.userProp.BoneIndex = HAnimBoneArray[j].BoneIndex;
+                        bne.userProp.BoneType = HAnimBoneArray[j].BoneType;
+                    }
+                }
+            }
+        }
+
+        for (i = 0; i < FrameCount; i++) {
+            for (j = 0; j < FrameCount; j++) {
+                bne = boneArray[j];
+                let boneIndex = bne.userProp.BoneIndex;
+                if (typeof boneIndex !== "undefined" && boneIndex === i)
+                    skinBoneArray.push(bne);
             }
 
         }
 
-        frameAry.forEach(function (frameEntry, frameIndex) {
-            if (typeof frameEntry.boneId === "undefined") return;
-
-            boneInfos.forEach(function (info, index) {
-
-                if (info.boneId !== frameEntry.boneId) return;
-
-                frameAry[frameIndex].boneIndex = info.boneIndex;
-                frameAry[frameIndex].boneType = info.boneType;
-
-            });
-        });
-
-        return frameAry;
-
+        return {bones: boneArray, skinBones: skinBoneArray};
     }
 
-    function getGeometryCount() {
-        var clump = cClump();
-        if (clump.id !== 26) return console.log('[ManhuntDff] geometry count, assume 26.');
-
-        clump = cClump();
-        if (clump.id !== 1) return console.log('[ManhuntDff] geometry count, assume 1.');
-
-        return binary.consume(4, 'int32');
+    function ReadGeometryListSturct() {
+        ReadChunk(); //GeometryListSturctHeader
+        return binary.consume(4, 'uint32');
     }
 
-    function rMaterialList() {
+    function ReadMaterialListStruct() {
+        ReadChunk(); //header
+        let MaterialCount = binary.consume(4, 'int32');
+        binary.seek(MaterialCount * 4);
 
-        var clump = cClump();
-        if (clump.id !== 8) return console.log('[ManhuntDff] material, assume 8.');
-
-        clump = cClump();
-        if (clump.id !== 1) return console.log('[ManhuntDff] material, assume 1.');
-
-        var materialCount = binary.consume(4, 'int32');
-
-        for(var i = 0; i < materialCount; i++){
-            binary.consume(4, 'int32');
-        }
-
-        var list = [];
-        for(i = 0; i < materialCount; i++){
-            list.push(rMaterial());
-        }
-
-        return list;
-
+        return MaterialCount
     }
 
-    function rMaterial() {
-        var result = {};
-        var clump = cClump();
-        if (clump.id !== 7) return console.log('[ManhuntDff] material, assume 7.');
+    function ReadTexture() {
+        ReadChunk(); //textureHeader
+        ReadChunk(); //textureStructHeader
 
-        clump = cClump();
-        if (clump.id !== 1) return console.log('[ManhuntDff] material, assume 1.');
+        let Tex = {
+            TextureFilter: null,
+            U_addressing: null,
+            V_addressing: null,
+            UseMipLevelFlag: null,
+            TextureName: null,
+            AlphaTextureName: null
+        };
 
-        var unk = binary.consume(4, 'int32');
+        //ReadTextureStruct
+        Tex.TextureFilter = binary.consume(1, 'int8');
+        let UVaddressing = binary.consume(1, 'int8');
 
-        result.color = binary.readColorRGBA();
-        unk = binary.consume(4, 'int32');
+        let mode = binary.consume(2, 'int16');
+        Tex.UseMipLevelFlag = (mode & -15)  === -15;
+        Tex.U_addressing = (UVaddressing & -4) === -4;
+        Tex.V_addressing = UVaddressing & 0xf;
+        //end ReadTextureStruct
 
-        var textureCount = binary.consume(4, 'int32');
-        result.light = {
+        Tex.TextureName = ReadrwString();
+        Tex.AlphaTextureName = ReadrwString();
+
+        let TextureExtension = ReadChunk();
+        if (TextureExtension.size > 0)
+            binary.seek(TextureExtension.size);
+
+        return Tex;
+    }
+
+    function ReadSufaceProp() {
+        return {
             ambient: binary.consume(4, 'float32'),
             diffuse: binary.consume(4, 'float32'),
             specular: binary.consume(4, 'float32')
+        }
+    }
+
+    function ReadReflectionMaterial() {
+        return {
+            EnvironmentMapScaleX: binary.consume(4, 'float32'), // Environment Map Scale X
+            EnvironmentMapScaleY: binary.consume(4, 'float32'), // Environment Map Scale Y
+            EnvironmentMapOffsetX: binary.consume(4, 'float32'), // Environment Map Offset X
+            EnvironmentMapOffsetY: binary.consume(4, 'float32'), // Environment Map Offset Y
+            ReflectionIntensity: binary.consume(4, 'float32'), // Reflection Intensity (Shininess, 0.0-1.0)
+            EnvironmentTexturePtr: binary.consume(4, 'float32') // Environment Texture Ptr, always 0 (zero)
+        };
+    }
+    //
+    // function ReadrwMaterialEffectsPLG(mtl) {
+    //     let EffectType = binary.consume(4, 'int32');
+    //     let result = { type: EffectType };
+    //     switch (EffectType) {
+    //         case 1:
+    //             let rwMATFXEFFECTBUMPMAP = binary.consume(4, 'uint32');//0x01, rwMATFXEFFECTBUMPMAP
+    //             result.Intensity = binary.consume(4, 'float32'); // Intensity
+    //
+    //             result.ContainsBumpMap = binary.consume(4, 'int32'); //bool32 - Contains Bump Map
+    //             if (result.ContainsBumpMap === 1) {
+    //                 result.BumpMap = ReadTexture(); //Bump Map (Only if effect contains a bump map). In Manhunt game unused
+    //             }
+    //
+    //             result.ContainsHeightMap = binary.consume(4, 'int32'); //bool32 - Contains Height Map
+    //             if (result.ContainsHeightMap === 1) {
+    //                 result.Height_Map = ReadTexture(); //Height Map (Only if the effect contains a height map). In Manhunt game unused
+    //             }
+    //
+    //             binary.consume(4, 'int32'); //zero
+    //             break;
+    //         case 2:
+    //             let rwMATFXENVMAP = binary.consume(4, 'uint32'); // 0x02, rwMATFXENVMAP
+    //             result.ReflectionCoefficient = binary.consume(4, 'float32'); //Reflection Coefficient (default is 1.0)
+    //             result.UseFrameBufferAlhpa = binary.consume(4, 'int32'); // bool32 - Use Frame Buffer Alpha Channel
+    //
+    //             let ContainsEnvironmentMap = binary.consume(4, 'int32'); //Contains Environment Map
+    //             if (ContainsEnvironmentMap === 1) {
+    //                 let EnvMap = ReadTexture();
+    //                 mtl.TextureName = EnvMap.TextureName;
+    //             }
+    //             binary.consume(4, 'int32'); //zero
+    //             break;
+    //         case 4:
+    //             let rwMATFXEFFECTDUAL = binary.consume(4, 'uint32');// 0x04, rwMATFXEFFECTDUAL
+    //             result.srcBlendMode = binary.consume(4, 'int32');// src blend mode
+    //             result.destBlendMode = binary.consume(4, 'int32');// dest blend mode
+    //
+    //             let ContainsTexture = binary.consume(4, 'int32');// Contains Texture
+    //             if (ContainsTexture === 1) {
+    //                 let DualMap = ReadTexture();
+    //                 mtl.TextureName2 = DualMap.TextureName;
+    //             }
+    //             binary.consume(4, 'int32'); //zero
+    //             break;
+    //
+    //     }
+    //
+    //     return result;
+    // }
+
+    function ReadMaterialExtension() {
+        let mtlExtHeader = ReadChunk();
+        let endOffset = binary.current() + mtlExtHeader.size;
+
+        if (mtlExtHeader.size > 0) {
+
+            while (binary.current() < endOffset) {
+
+                let header = ReadChunk();
+                if (header.id === 0x0253F2FC) ReadReflectionMaterial();
+                else binary.seek(header.size);
+            }
+        }
+    }
+
+    function ReadMaterial() {
+        ReadChunk(); //MaterailHeader
+        ReadChunk(); //MaterialStructHeader
+        binary.consume(4, 'int32'); //flag
+        let RGBA = ReadColor();
+        binary.consume(4, 'int32'); //unused
+        let HasTexture = binary.consume(4, 'int32');
+        ReadSufaceProp(); //SufaceProp
+
+        let mtl = {};
+        mtl.diffuse = RGBA;
+        if (HasTexture === 1) {
+            let Tex = ReadTexture();
+
+            mtl.TextureName = Tex.TextureName;
+            if (Tex.AlphaTextureName !== "")
+                mtl.opacitymap = Tex.AlphaTextureName;
+        }
+
+        ReadMaterialExtension();
+        return mtl;
+    }
+
+    function ReadMaterialList() {
+        let Mtl_Array = [];
+
+        let MtlCount = ReadMaterialListStruct();
+        for (let i = 0; i < MtlCount; i++) {
+            Mtl_Array.push(ReadMaterial());
+        }
+
+        return Mtl_Array;
+    }
+
+    function ReadUV(VertexCount) {
+        let UVArray = [];
+
+        for (let i = 0; i < VertexCount; i++) {
+            UVArray.push([
+                binary.consume(4, 'float32'),
+                binary.consume(4, 'float32')
+            ]);
+        }
+
+        return UVArray;
+    }
+
+    function ReadVector3() {
+        return binary.readVector3();
+    }
+
+    function ReadBoundingSphere() {
+        return {
+            position: binary.readVector3(),
+            radius: binary.consume(4, 'float32')
+        };
+    }
+
+    function ReadVertex(VertexCount) {
+        let VertArray = [];
+        for (let i = 0; i < VertexCount; i++) {
+            VertArray.push(ReadVector3());
+        }
+        return VertArray;
+    }
+
+    function ReadNormal(VertexCount) {
+        let NormalArray = [];
+        for (let i = 0; i < VertexCount; i++) {
+            NormalArray.push(ReadVector3());
+        }
+        return NormalArray;
+    }
+
+    function ReadFace(FaceCount) {
+        let FaceMat = {
+            Face: [],
+            MatID: [],
         };
 
-        result.textures = [];
-        for(var i = 0; i < textureCount; i++){
-            result.textures.push(getTextureName());
+        for (let i = 0; i < FaceCount; i++) {
+
+            let f2 = binary.consume(2, 'uint16');
+            let f1 = binary.consume(2, 'uint16');
+            let matID = binary.consume(2, 'uint16');
+            let f3 = binary.consume(2, 'uint16');
+
+            FaceMat.Face.push([f1, f2, f3]);
+            FaceMat.MatID.push(matID);
         }
 
-        clump = cClump();
-        if (clump.id !== 3) return console.log('[ManhuntDff] material data, assume 3.');
-
-        binary.seek(clump.size);
-
-        return result;
-
+        return FaceMat;
     }
 
-    function getTextureName() {
-        var clump = cClump();
-        if (clump.id !== 6) return console.log('[ManhuntDff] getTextureName data, assume 6.');
+    function ReadVertexColor(VertexCount) {
+        let VCArray = [];
+        for (let i = 0; i < VertexCount; i++) {
+            VCArray.push(ReadColor());
+        }
 
-        clump = cClump();
-        if (clump.id !== 1) return console.log('[ManhuntDff] getTextureName data, assume 1.');
-
-        var TexFlag = binary.consume(4, 'int32');
-
-        clump = cClump();
-        if (clump.id !== 2) return console.log('[ManhuntDff] getTextureName data, assume 2.');
-
-        var texName = binary.consume(clump.size, 'nbinary').getString(0);
-        clump = cClump();
-        if (clump.id !== 2) return console.log('[ManhuntDff] getTextureName data, assume 2.');
-
-        var maskName = binary.consume(clump.size, 'string');
-
-        clump = cClump();
-        if (clump.id !== 3) return console.log('[ManhuntDff] getTextureName data, assume 3.');
-
-        binary.seek(clump.size);
-
-        return texName;
+        return VCArray;
     }
 
-    function rGeometry() {
+    function ReadSkinPLG(VertexCount) {
+        let BoneCount = binary.consume(1, 'uint8');
+        let UsedIDCount = binary.consume(1, 'uint8');
+        binary.consume(2, 'int16'); // maxWeightsPerVertex; per vetex used max bone number and weights
+        binary.seek(UsedIDCount);
 
-        var result = { light: false };
-
-        var clump = cClump();
-        if (clump.id !== 15) return console.log('[ManhuntDff] geometry data, assume 15.');
-
-        clump = cClump();
-        if (clump.id !== 1) return console.log('[ManhuntDff] geometry data, assume 1.');
-
-        var GeometryFlags = binary.consume(1, 'uint8');
-        var unk = binary.consume(1, 'int8');
-        var t2count = binary.consume(2, 'int16');
-
-        var faceCount = binary.consume(4, 'uint32');
-        var vertCount = binary.consume(4, 'uint32');
-        var mtCount = binary.consume(4, 'uint32');
-
-        if (clump.version === 0x1003FFFF || clump.version === 0x1803FFFF) {
-        }else{
-            result.light = {
-                ambient: binary.consume(4, 'float32'),
-                diffuse: binary.consume(4, 'float32'),
-                specular: binary.consume(4, 'float32')
-            };
+        let SkinPLG = {boneids: [], weights: [], inverseMatrix: []};
+        let Matrix_Array = [];
+        let tempBoneIDArray = [];
+        for (let i = 0; i < VertexCount; i++) {
+            let boneids_Array = [
+                binary.consume(1, 'uint8'),
+                binary.consume(1, 'uint8'),
+                binary.consume(1, 'uint8'),
+                binary.consume(1, 'uint8')
+            ];
+            tempBoneIDArray.push(boneids_Array);
         }
 
-        result.cpvArray = [];
-        if (GeometryFlags % 16 >= 8){
-            for (var i = 0; i < vertCount; i++){
-                result.cpvArray.push(binary.readColorRGBA());
+        for (let i = 0; i < VertexCount; i++) {
+            let weights_Array = [];
+            let boneids_Array = [];
+            let weight1 = binary.consume(4, 'float32');
+            let weight2 = binary.consume(4, 'float32');
+            let weight3 = binary.consume(4, 'float32');
+            let weight4 = binary.consume(4, 'float32');
+
+            if (weight1 !== 0) {
+                weights_Array.push(weight1);
+                boneids_Array.push(tempBoneIDArray[i][0]);
             }
-        }
 
-        result.uvArray = [];
-        if (t2count > 0 || GeometryFlags % 8 >= 4){
-            for(i = 0; i < vertCount; i++){
-                result.uvArray.push([
-                    binary.consume(4, 'float32'),
-                    binary.consume(4, 'float32')
-                ]);
+            if (weight2 !== 0) {
+                weights_Array.push(weight2);
+                boneids_Array.push(tempBoneIDArray[i][1]);
             }
-        }
 
-        result.uv2Array = [];
-        if (t2count > 1){
-            for(i = 0; i < vertCount; i++){
-                result.uv2Array.push([
-                    binary.consume(4, 'float32'),
-                    binary.consume(4, 'float32')
-                ]);
+            if (weight3 !== 0) {
+                weights_Array.push(weight3);
+                boneids_Array.push(tempBoneIDArray[i][2]);
             }
+
+            if (weight4 !== 0) {
+                weights_Array.push(weight4);
+                boneids_Array.push(tempBoneIDArray[i][3]);
+            }
+
+            SkinPLG.boneids.push(boneids_Array);
+            SkinPLG.weights.push(weights_Array);
         }
 
-        //more UV maps....
-        if (t2count > 2){
-            for(i = 2; i < t2count; i++){
-                for(i = 0; i < vertCount; i++){
-                    binary.consume(4, 'float32');
-                    binary.consume(4, 'float32');
+        for (let i = 0; i < BoneCount; i++) {
+            Matrix_Array.push(ReadMatrix4x4());
+        }
+
+        binary.seek(12);
+
+        SkinPLG.inverseMatrix = Matrix_Array;
+
+        return SkinPLG;
+    }
+
+    function ReadBinMeshPLG() {
+        let FaceType = binary.consume(4, 'int32');
+        let SplitCount = binary.consume(4, 'uint32');
+        binary.consume(4, 'uint32'); //FaceCount
+
+        let FaceMat = {Face: [], MatID: []};
+        if (FaceType === 1) {
+            for (let S = 0; S < SplitCount; S++) {
+                let SplitFaceCount = binary.consume(4, 'uint32');
+                let MatID = binary.consume(4, 'uint32') + 1;
+                let FaceDirection = -1;
+                let tempIDArray = [];
+
+                for (let i = 0; i < SplitFaceCount; i++) {
+                    tempIDArray.push(binary.consume(4, 'uint32') + 1);
+
+                    if (i > 2) {
+                        FaceDirection *= -1;
+                        let f3 = tempIDArray[tempIDArray.length];
+                        let f1 = tempIDArray[tempIDArray.length - 2];
+                        let f2 = tempIDArray[tempIDArray.length - 1];
+
+                        if (f3 !== f2 && f3 !== f1 && f1 !== f2) {
+                            if (FaceDirection > 0) FaceMat.Face.push([f1, f2, f3]);
+                            else FaceMat.Face.push([f2, f1, f3]);
+
+                            FaceMat.MatID.push(MatID);
+                        }
+
+                        f1 = f2;
+                        f2 = f3;
+                    }
                 }
             }
         }
 
+        return FaceMat;
+    }
 
-        result.faces = [];
-        for(i = 0; i < faceCount; i++){
-            var a2 = binary.consume(2, 'uint16');
-            var a1 = binary.consume(2, 'uint16');
-            var fg = binary.consume(2, 'uint16');
-            var a3 = binary.consume(2, 'uint16');
+    function ReadGeometry(Atomic) {
 
-            result.faces.push([a1,a2,a3])
+        let Vert_array = [];
+        let Normal_array = [];
+        let UV1_array = [];
+        let UV2_array = [];
+        let Face_array = [];
+        let MatID_Array = [];
+        let VColor_Array = [];
+
+        ReadChunk(); //GeometryHeader
+        ReadChunk(); //GeometryStructHeader
+
+        let FormatFlags = binary.consume(2, 'uint16');
+        binary.consume(1, 'int8'); //NumTexCoorsCustom
+        binary.consume(1, 'int8');  //GeometryNativeFlags
+
+        let FaceCount = binary.consume(4, 'uint32');
+        let VertexCount = binary.consume(4, 'uint32');
+
+        binary.consume(4, 'uint32'); //numMorphTargets
+
+        let GeometryMeshes = (FormatFlags & rpGEOMETRYPOSITIONS) === rpGEOMETRYPOSITIONS;
+        let GeometryTextured = (FormatFlags & rpGEOMETRYTEXTURED) === rpGEOMETRYTEXTURED;
+        let GeometryPrelit = (FormatFlags & rpGEOMETRYPRELIT) === rpGEOMETRYPRELIT;
+        let GeometryNormals = (FormatFlags & rpGEOMETRYNORMALS) === rpGEOMETRYNORMALS;
+        // let GeometryLight = FormatFlags & rpGEOMETRYLIGHT === rpGEOMETRYLIGHT;
+        // let GeometryModulateMaterialColor = FormatFlags & rpGEOMETRYMODULATEMATERIALCOLOR === rpGEOMETRYMODULATEMATERIALCOLOR;
+        let GeometryTextured_2 = (FormatFlags & rpGEOMETRYTEXTURED2) === rpGEOMETRYTEXTURED2;
+        //
+        if (GeometryPrelit === true) VColor_Array = ReadVertexColor(VertexCount);
+        if (GeometryTextured === true || GeometryTextured_2 === true) UV1_array = ReadUV(VertexCount);
+        if (GeometryTextured_2 === true) UV2_array = ReadUV(VertexCount);
+
+        if (GeometryMeshes === true) {
+            let FaceAndMatIDArray = ReadFace(FaceCount);
+            Face_array = FaceAndMatIDArray.Face;
+            MatID_Array = FaceAndMatIDArray.MatID;
         }
 
-        result.bbox = {
-            bounding: binary.readVector3(),
-            radius: binary.consume(4, 'float32'),
-            unk: [binary.consume(4, 'float32'),binary.consume(4, 'float32')]
-        };
+        ReadBoundingSphere(); //BoundingSp
 
-        result.vertices = [];
-        for(i = 0; i < vertCount; i++){
-            var vec3 = binary.readVector3();
-            result.vertices.push(vec3);
-        }
+        binary.consume(4, 'int32'); // HasPositionFlag
+        binary.consume(4, 'int32'); //HasNomralFlag
+        if (GeometryMeshes === true) Vert_array = ReadVertex(VertexCount);
+        if (GeometryNormals === true) Normal_array = ReadNormal(VertexCount);
 
-        result.normals = [];
-        if (GeometryFlags % 32 >= 16){
-            for (i = 0; i < vertCount; i++){
-                result.normals.push(binary.readVector3());
+
+        ReadChunk(); //MaterialListHeader
+        let mtl = ReadMaterialList();
+
+        let skinFlag = undefined;
+        let skinPLG = {};
+        let FaceMat = undefined;
+        let binMeshFlag = undefined;
+        let GeometryExtensionHeader = ReadChunk();
+
+        if (GeometryExtensionHeader.size > 0) {
+            let endofs = binary.current() + GeometryExtensionHeader.size;
+            while (binary.current() < endofs) {
+                let header = ReadChunk();
+                switch (header.id) {
+                    case 0x116:
+                        skinFlag = true;
+                        skinPLG = ReadSkinPLG(VertexCount);
+                        break;
+
+                    case 0x50E:
+                        FaceMat = ReadBinMeshPLG();
+                        binMeshFlag = true;
+                        break;
+
+                    default:
+                        binary.seek(header.size);
+                }
             }
         }
 
-        result.material = rMaterialList();
+        let msh = {
+            skinPLG: skinPLG
+        };
 
-        if (binary.consume(4, 'int32') !== 3){
-            return console.log('[ManhuntDff] material data, assume 3.');
+        if (GeometryMeshes === true) {
+            msh.vertices = Vert_array;
+
+            if (GeometryNormals === true) {
+                msh.normal = Normal_array;
+            }
+
+            if (GeometryTextured === true || GeometryTextured_2 === true) {
+                msh.uv1 = UV1_array;
+                msh.face = Face_array;
+                msh.material = MatID_Array;
+            }
+
+            if (GeometryPrelit === true) {
+                msh.cpv = VColor_Array;
+            }
+
+            if (GeometryTextured_2 === true) {
+                msh.uv2 = UV2_array;
+            }
+        }
+        msh.material = mtl;
+
+        msh.parentFrameID = Atomic.FrameIndex;
+
+        return msh;
+    }
+
+    function ReadGeometryList(GeometryCount, AtomicArray) {
+        let GeometryListArray = [];
+        for (let i = 0; i < GeometryCount; i++) {
+            GeometryListArray.push(ReadGeometry(AtomicArray[i]));
         }
 
-        //TODO
-        var mExt = binary.consume(4, 'int32');
-        ver = binary.consume(4, 'int32');
-        binary.seek(mExt);
+        return GeometryListArray;
+    }
+
+    function ReadAtomicExtension() {
+        let result = {};
+        let Header = ReadChunk();
+        switch (Header.id) {
+            case 0x120:
+                result.MatFXenabled = binary.consume(4, 'int32'); // bool32- MatFX enabled MaterialEffectsPLG 0x120
+                break;
+            case 0x1F:
+                result.RWpluginIdentifier = binary.consume(4, 'int32'); //(e.g. 0x0116 or 0x0120)
+                result.extraData = binary.consume(4, 'int32');
+                break;
+
+            default:
+                binary.seek(Header.size);
+
+        }
 
         return result;
     }
 
-    var results = [];
-    do{
-        var result = {};
-        var cur = binary.current();
-        var objectClump = cClump();
+    function ReadAtomic(numAtomics) {
 
-        binary.seek(4);
-        var dataLength = binary.consume(4, 'int32') / 4;
-        binary.seek(4);
+        let AtomicArray = [];
+        for (let i = 0; i < numAtomics; i++) {
+            let Atomic = {
+                FrameIndex: false,
+                GeometryIndex: false,
+                flags: false
+            };
 
-        var objectCount = binary.consume(4, 'int32');
-        if (dataLength > 1) binary.seek(4 * (dataLength - 1));
+            ReadChunk();  //AtomicHeader
+            ReadChunk(); //AtomicStructHeader
 
-        result.bones = rFrameList();
+            Atomic.FrameIndex = binary.consume(4, 'int32');
+            Atomic.GeometryIndex = binary.consume(4, 'int32');
+            Atomic.flags = binary.consume(4, 'int32');
+            binary.consume(4, 'int32'); //unused
 
-        //todo...
-        if (result.bones[0].name === "Skin_Mesh"){
-            result.name = result.bones[1].name;
-        }else{
-            result.name = result.bones[0].name;
+            AtomicArray.push(Atomic);
+            ReadAtomicExtension();
         }
 
-        var numGeo = getGeometryCount();
+        return AtomicArray;
+    }
 
-        result.geometry = [];
-        for(var i = 0; i < numGeo; i++){
-            result.geometry.push(rGeometry());
+    function ReadClump(offset) {
+        binary.setCurrent(offset);
+
+        ReadChunk(); //clumpHeader
+        ReadChunk(); //clumpStruct
+        let numAtomics = binary.consume(4, 'int32');
+        binary.consume(4, 'int32'); //numLights
+        binary.consume(4, 'int32'); //numCameras
+
+
+        let BoneArray = ReadFrameList();
+        let GeometryListHeader = ReadChunk();
+        let GeometryListOffset = binary.current();
+
+        binary.seek(GeometryListHeader.size);
+        let AtomicArray = ReadAtomic(numAtomics);
+
+        binary.setCurrent(GeometryListOffset);
+
+        let GeometryCount = ReadGeometryListSturct();
+        return {
+            skeleton: BoneArray,
+            geometry: ReadGeometryList(GeometryCount, AtomicArray)
+        };
+
+    }
+
+    function ReadClumpList() {
+
+        let entries = [];
+
+        let count = 1;
+        while (binary.current() < binary.length()) {
+            let offset = binary.current();
+            let DFFname = "";
+            let clumpChunk = ReadChunk();
+            let next = binary.current() + clumpChunk.size;
+
+            let clumpStruct = ReadChunk();
+            binary.seek(clumpStruct.size);
+            binary.seek(12);
+
+            let FrameListStructHeader = ReadChunk();
+            binary.seek(FrameListStructHeader.size);
+
+            ReadChunk(); // extheader
+            let header = ReadChunk();
+            if (header.id === 0x11F) {
+                DFFname = readUserDataPLG(1);
+            } else if (header.id === 0x253F2FE) {
+                DFFname = ReadFrameName(header.size);
+            } else if (header.id === 3) {
+                let endOfs = binary.current() + header.size;
+                while (binary.current() < endOfs) {
+                    let sHeader = ReadChunk();
+                    if (sHeader.id === 0x253F2FE) {
+                        DFFname = ReadFrameName(sHeader.size);
+                    } else if (sHeader.id === 0x11F) {
+                        DFFname = readUserDataPLG(1);
+                    } else {
+
+                        binary.seek(sHeader.size);
+                    }
+                }
+            }
+
+            entries.push({
+                name: DFFname,
+                data: ReadClump(offset)
+            });
+
+            binary.setCurrent(next);
+            count += 1;
         }
 
-        binary.setCurrent(cur + objectClump.size + 12);
+        return entries;
+    }
 
-        results.push(result);
-    }while(binary.remain() > 0);
 
-    return results;
+    return ReadClumpList();
 
 };
