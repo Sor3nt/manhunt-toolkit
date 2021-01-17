@@ -5,13 +5,15 @@ MANHUNT.studio = (function () {
         _globalStorage: {},
 
         _init: function ( config ) {
-            MANHUNT.config.onLoadCallback( self._onConfigReceived );
+            window.setTimeout(function () {
+
+                MANHUNT.config.onLoadCallback( self._onConfigReceived );
+            }, 100);
         },
 
         _onConfigReceived: function () {
             MANHUNT.engine.init();
             MANHUNT.frontend.tab.init();
-
             if (MANHUNT.config.get('manhunt_folder') === false && MANHUNT.config.get('manhunt2_folder') === false){
                 return MANHUNT.frontend.modal.handler.show('setup', self._onGamePathsKnown);
             }
