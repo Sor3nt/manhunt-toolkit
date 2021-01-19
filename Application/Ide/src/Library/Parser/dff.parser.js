@@ -69,7 +69,7 @@ MANHUNT.parser.dff = function (binary) {
     function ReadFrameData() {
         return {
             matrix: ReadMatrix4x3(),
-            ParentFrameID: binary.consume(4, 'int32'),
+            ParentFrameID: binary.consume(4, 'int32') + 1,
             MatrixCreationFlags: binary.consume(4, 'int32')
         }
     }
@@ -434,7 +434,7 @@ MANHUNT.parser.dff = function (binary) {
     }
 
     function ReadVertex(VertexCount) {
-        let VertArray = [];
+        var VertArray = [];
         for (let i = 0; i < VertexCount; i++) {
             VertArray.push(ReadVector3());
         }
@@ -630,7 +630,7 @@ MANHUNT.parser.dff = function (binary) {
         ReadChunk(); //MaterialListHeader
         let mtl = ReadMaterialList();
 
-        let skinFlag = undefined;
+        let skinFlag = false;
         let skinPLG = {};
         let FaceMat = undefined;
         let binMeshFlag = undefined;
@@ -661,6 +661,8 @@ MANHUNT.parser.dff = function (binary) {
             skinPLG: skinPLG
         };
 
+        msh.skinned = skinFlag;
+
         if (GeometryMeshes === true) {
             msh.vertices = Vert_array;
 
@@ -671,7 +673,7 @@ MANHUNT.parser.dff = function (binary) {
             if (GeometryTextured === true || GeometryTextured_2 === true) {
                 msh.uv1 = UV1_array;
                 msh.face = Face_array;
-                msh.material = MatID_Array;
+                msh.materialPerFace = MatID_Array;
             }
 
             if (GeometryPrelit === true) {
