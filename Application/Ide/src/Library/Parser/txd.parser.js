@@ -1,126 +1,202 @@
 MANHUNT.parser.txd = function (binary) {
 
 
-    function chunk(binary, result){
-        if (binary.remain() === 0) return;
+    function ReadChunk() {
+        return {
+            id: binary.consume(4, 'int32'),
+            size: binary.consume(4, 'uint32'),
+            version: binary.consume(4, 'uint32')
+        };
+    }
 
-        var id = binary.consume(4, 'int32');
-        var size = binary.consume(4, 'int32');
-        var version = binary.consume(4, 'int32');
-        var data;
+    let textures = [];
+    let textureCount = false;
 
-        switch (id) {
-            //txd_file_t
-            case 22:
-                data = new NBinary(binary.consume(size, 'arraybuffer'));
-                return chunk(data,result); //pass the whole file (data)
+    while(binary.remain() > 0){
+        let header = ReadChunk();
 
-            case 1:
+        if (header.version === 268828671) {
 
-                //txd_info_t
-                if (size === 4){
-                    data = new NBinary(binary.consume(size, 'arraybuffer'));
+            if (header.id === 22){
+                let txd_info_t = ReadChunk();
+                if (txd_info_t.id === 1){
+                    textureCount = binary.consume(2, 'int16');
+                    binary.consume(2, 'int16'); // unk
+                }
+            }else if (header.id === 21){
+                let entry = {
+                    rasterFormat: 512 //TODO
+                };
 
-                    result.textureCount = data.consume(2, 'uint16');
-                    data.consume(2, 'uint16'); //skip
+                let platformHeader = ReadChunk();
+                let platform = binary.consume(platformHeader.size, 'arraybuffer');
 
-                    return chunk(binary, result); //reuse given data from case 22
+                let nameHeader = ReadChunk();
+                let name = binary.consume(nameHeader.size, 'nbinary');
+                entry.name = name.getString(0);
 
-                    //txd_texture_data_t
-                }else{
-                    data = binary;
+                let blockHeader = ReadChunk();
+                let blockData = binary.consume(blockHeader.size, 'nbinary');
 
+                let dataHeader = ReadChunk();
+                entry.data = binary.consume(dataHeader.size, 'dataview');
 
-                    var version = data.consume(4, 'int32');
-                    var filter_flags = data.consume(4, 'int32');
+                textures.push(entry);
 
-                    var name = new NBinary(data.consume(32, 'arraybuffer'));
-                    name = name.getString(0);
-                    var alpha_name = data.consume(32, 'string');
+            }else if (header.id === 3){
 
-                    var rasterFormat = data.consume(4, 'uint32');
-                    var direct3d_texture_format = data.consume(4, 'uint32');
+                if (header.size > 0){
+                    let extraHeader = ReadChunk();
 
-                    var width = data.consume(2, 'uint16');
-                    var height = data.consume(2, 'uint16');
+                    if (extraHeader.id === 272){
+                        binary.consume(extraHeader.size, 'dataview');
+                    }
+                }
 
-                    var depth = data.consume(1, 'uint8');
-                    var mipmap_count = data.consume(1, 'uint8');
+            }else{
+                console.error('[MANHUNT.parser.txd] unknown chunkId ', header.id);
+            }
+        }else if (header.version === 201523199){
 
-                    var texcode_type = data.consume(1, 'uint8');
-                    var flags = data.consume(1, 'uint8');
+            if (header.id === 22){
+                let txd_info_t = ReadChunk();
+                if (txd_info_t.id === 1){
+                    textureCount = binary.consume(2, 'int16');
+                    binary.consume(2, 'int16'); // unk
+                }
+            }else if (header.id === 21){
+                let entry = {
+                    rasterFormat: 512 //TODO
+                };
+
+                let platformHeader = ReadChunk();
+                let platform = binary.consume(platformHeader.size, 'arraybuffer');
+
+                let nameHeader = ReadChunk();
+                let name = binary.consume(nameHeader.size, 'nbinary');
+                entry.name = name.getString(0);
+
+                ReadChunk(); // sizeHeader
+                binary.consume(2, 'int16'); // sectionSize
+                binary.consume(2, 'int16'); // dataSize
+
+                let dataHeader = ReadChunk();
+                entry.data = binary.consume(dataHeader.size, 'dataview');
+
+                textures.push(entry);
+
+            }else if (header.id === 3){
+
+                if (header.size > 0){
+                    let extraHeader = ReadChunk();
+
+                    if (extraHeader.id === 272){
+                        binary.consume(extraHeader.size, 'dataview');
+                    }
+                }
+
+            }else{
+                console.error('[MANHUNT.parser.txd] unknown chunkId ', header.id);
+            }
+        }else if (header.version === 402915327){
+
+            if (header.id === 22){
+                let txd_info_t = ReadChunk();
+                if (txd_info_t.id === 1){
+                    textureCount = binary.consume(2, 'int16');
+                    binary.consume(2, 'int16'); // unk
+                }
+            }else if (header.id === 21){
+                let txd_texture_data_t = ReadChunk();
+                if (txd_texture_data_t.id === 1){
+
+                    let entry = {};
+
+                    if (textureCount === false){
+                        textureCount = 1;
+                        let platform = binary.consume(txd_texture_data_t.size, 'int8');
+                        txd_texture_data_t = ReadChunk();
+                    }else{
+                        entry.version = binary.consume(4, 'int32');
+                        entry.filterFlags = binary.consume(4, 'int32');
+                    }
+
+                    let name = binary.consume(32, 'nbinary');
+                    entry.name = name.getString(0);
+
+                    let alpha_name = binary.consume(32, 'nbinary');
+                    entry.alphaName = alpha_name.getString(0);
+
+                    entry.rasterFormat = binary.consume(4, 'uint32');
+                    entry.d3dTextureFormat = binary.consume(4, 'uint32');
+
+                    entry.width = binary.consume(2, 'uint16');
+                    entry.height = binary.consume(2, 'uint16');
+
+                    entry.depth = binary.consume(1, 'uint8');
+                    entry.mipmap_count = binary.consume(1, 'uint8');
+
+                    entry.texcode_type = binary.consume(1, 'uint8');
+                    entry.flags = binary.consume(1, 'uint8');
 
                     // var palette
 
-                    var bufferSize = data.consume(4, 'uint32');
+                    var bufferSize = binary.consume(4, 'uint32');
+                    entry.data = binary.consume(bufferSize, 'dataview');
 
-                    var texture = data.consume(bufferSize, 'dataview');
-
-                    var format;
-
-
-                    switch ( rasterFormat & 0xf00 ) {
-                        case 0x100:
-                            texture = MANHUNT.converter.dxt.decodeBC1(texture, width, height);
-                            format = THREE.RGBFormat;
-                            break;
-                        case 0x200:
-                            format = THREE.RGB_S3TC_DXT1_Format;
-
-                            //TODO: i am not sure why i am not be able to apply the data as THREE DXT Format
-                            texture = MANHUNT.converter.dxt.decodeBC1(texture, width, height);
-                            format = THREE.RGBAFormat;
-                            break;
-
-                        case 0x300:
-                            //TODO: i am not sure why i am not be able to apply the data as THREE DXT Format
-                            texture = MANHUNT.converter.dxt.decodeBC2(texture, width, height, true);
-                            format = THREE.RGBAFormat;
-
-                            break;
-
-                        default:
-                            console.log("decode not dxt", rasterFormat & 0xf00);
-                            break;
-                    }
-
-                    result.texture.push({
-                        format: format,
-                        name: name,
-                        width: width,
-                        height: height,
-                        data: new Uint8Array( texture )
-                    } );
-
-                    result.textureCount--;
-
-                    return;
-
+                    textures.push(entry);
                 }
-
-            //txd_texture_t
-            case 21:
-                data = new NBinary(binary.consume(size, 'arraybuffer'));
-                chunk(data, result); //process texture content
-
-                return chunk(binary, result);
-
-            //txd_extra_info_t
-            case 3:
-                size > 0 && (data = new NBinary(binary.consume(size, 'arraybuffer')));
-                return chunk(binary, result);
-
+            }else if (header.id === 3){
+                binary.consume(header.size, 'dataview'); //extra
+            }else{
+                console.error('[MANHUNT.parser.txd] unknown chunkId ', header.id);
+            }
+        }else{
+            console.error('[MANHUNT.parser.txd] unknown version ', header.version);
         }
     }
 
-    var result = {
-        raw: [],
-        texture: []
-    };
+    if (textures.length !== textureCount){
+        console.warn('[MANHUNT.parser.txd] Texture count did not match with parsed data!');
+    }
 
-    chunk(binary, result);
+    var threeTextures = [];
+    textures.forEach(function (texture) {
+        let rgba;
 
-    return result.texture;
+        switch ( texture.rasterFormat & 0xf00 ) {
+            case 0x100:
+                rgba = MANHUNT.converter.dxt.decodeBC1(texture.data, texture.width, texture.height);
+                format = THREE.RGBFormat;
+                break;
+            case 0x200:
+                format = THREE.RGB_S3TC_DXT1_Format;
 
+                //TODO: i am not sure why i am not be able to apply the data as THREE DXT Format
+                rgba = MANHUNT.converter.dxt.decodeBC1(texture.data, texture.width, texture.height);
+                format = THREE.RGBAFormat;
+                break;
 
+            case 0x300:
+                //TODO: i am not sure why i am not be able to apply the data as THREE DXT Format
+                rgba = MANHUNT.converter.dxt.decodeBC2(texture.data, texture.width, texture.height, true);
+                format = THREE.RGBAFormat;
+
+                break;
+
+            default:
+                console.log("decode not dxt", texture.rasterFormat & 0xf00);
+                break;
+        }
+
+        threeTextures.push({
+            format: format,
+            name: texture.name,
+            width: texture.width,
+            height: texture.height,
+            data: new Uint8Array( rgba )
+        } );
+    });
+
+    return threeTextures;
 };
