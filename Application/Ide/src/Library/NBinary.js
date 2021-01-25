@@ -86,7 +86,7 @@ function NBinary( data){
 
                 return str;
             }
-            console.log(type, "not known, error");
+            console.error(type, "not known, error");
 
             return view;
         },

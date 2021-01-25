@@ -8,7 +8,6 @@ MANHUNT.config = (function () {
 
         _init: function () {
             MANHUNT.api.getConfig(function (config) {
-                console.log("sett", config);
                 self.set(config.data);
             });
         },
@@ -33,7 +32,6 @@ MANHUNT.config = (function () {
         },
 
         save: function (callback) {
-            console.log("save", self._config);
             MANHUNT.api.setConfig(self._config, callback);
         }
     };

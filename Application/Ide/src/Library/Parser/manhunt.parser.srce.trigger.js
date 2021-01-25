@@ -101,7 +101,6 @@ MANHUNT.parser.srce.trigger = function (srce, callback) {
 
             var sphereTrigger = getSphereTrigger(tokens, current);
             triggers.push(sphereTrigger);
-            // console.log(sphereTrigger);
         } else if (tokens[current] === "createboxtrigger") {
 
             var boxTrigger = getBoxTrigger(tokens, current);

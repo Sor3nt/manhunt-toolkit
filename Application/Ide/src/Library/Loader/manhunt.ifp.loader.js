@@ -232,8 +232,6 @@ MANHUNT.fileLoader.IFP = function () {
             //fix for three.js, we need the last frame
             if (frameTime < times * 30){
                 resultFrames.frames[resultFrames.frames.length - 1].time = times * 30;
-
-                console.log("not at the end", frameTime, times * 30, resultFrame);
             }
 
             if (ANPKType === "SEQT") {

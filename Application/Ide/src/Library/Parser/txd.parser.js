@@ -185,7 +185,7 @@ MANHUNT.parser.txd = function (binary) {
                 break;
 
             default:
-                console.log("decode not dxt", texture.rasterFormat & 0xf00);
+                console.error("decode not dxt", texture.rasterFormat & 0xf00);
                 break;
         }
 

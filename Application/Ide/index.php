@@ -108,8 +108,9 @@
 
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
-    <script src="src/Library/Converter/dff.mesh.converter.js"></script>
-    <script src="src/Library/Converter/mdl.mesh.converter.js"></script>
+    <script src="src/Library/Converter/generic.mesh.converter.js"></script>
+<!--    <script src="src/Library/Converter/dff.mesh.converter.js"></script>-->
+<!--    <script src="src/Library/Converter/mdl.mesh.converter.js"></script>-->
     <script src="src/Library/Converter/dds.texture.converter.js"></script>
 
     <!-- Camera -->
@@ -217,8 +218,6 @@
 
 
     </ul>
-    <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent"
-            data-class="c-sidebar-minimized"></button>
 </div>
 
 
@@ -295,6 +294,7 @@
 </script>
 
 <script src="src/Scene/texture.view.js"></script>
+<script src="src/Scene/animation.view.js"></script>
 <script src="src/Frontend/Modal/Setup.js"></script>
 <script src="src/Frontend/Modal/LevelSelection.js"></script>
 

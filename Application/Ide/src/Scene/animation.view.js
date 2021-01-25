@@ -205,8 +205,6 @@ MANHUNT.scene.animationView = function (level) {
 
                     row.find('[data-section="info"]').show();
 
-                    // console.log("HHHHH", entities);
-
                     //Generate Model Object
                     var model = level._storage.mdl.find(name).get();
                     model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
@@ -218,7 +216,7 @@ MANHUNT.scene.animationView = function (level) {
                     sceneInfo.scene.add( helper );
 
                     self._lastModels = [helper, model];
-console.log("SELECT", self._lastModels);
+
                     //apply the model to the control
                     sceneInfo.control.enable(model);
 
@@ -232,12 +230,6 @@ console.log("SELECT", self._lastModels);
                 .html(name);
 
 
-
-            // // console.log(entry, name);
-            // if (entry.skinDataFlag === true){
-            //     // console.log(row);
-            //     row.find('[data-icon="skin"]').show();
-            // }
 
             self._row[name] = row;
         }

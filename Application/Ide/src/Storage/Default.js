@@ -13,7 +13,6 @@ MANHUNT.storage.Default = function (level, loader) {
             }
 
             MANHUNT.loader.load(level, loader, file, function (entries) {
-                // console.log(loader, "res", entries);
                 entries.forEach(function (entry) {
                     self.add(entry);
                 });

@@ -33,19 +33,7 @@ MANHUNT.entity.construct = (function ( ) {
 
                     return new MANHUNT.entity.Light(entry, model);
                 default:
-
-
-                    // scene.add( cube );
-                    // console.log(entry.entityClass);
                     return new MANHUNT.entity.Default(entry, model);
-                    // return new MANHUNT.entity.Dummy(entry, callback);
-                    // callback(false);
-                    // console.log(
-                    //     "[MANHUNT.entity.construct] Unknown class",
-                    //     entry.entityClass
-                    // );
-
-                    return false;
             }
         }
 

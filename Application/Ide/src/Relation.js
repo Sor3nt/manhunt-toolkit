@@ -81,8 +81,6 @@ MANHUNT.Relation = function () {
                 model: self._model[modelName]
             };
 
-            // console.log("add rel", rel);
-
             self.model2inst[modelName].push(rel);
             self.inst2model[instName].push(rel);
         },

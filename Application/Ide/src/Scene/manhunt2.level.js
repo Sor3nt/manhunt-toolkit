@@ -207,7 +207,7 @@ MANHUNT.scene.Manhunt2Level = function (levelName, doneCallback) {
 
                                             var headModel = self._storage.mdl.find(headModelName);
                                             var headObj = headModel.get();
-console.log("try to apply head to ", entity);
+
                                             entity.object.skeleton.bones.forEach(function (bone) {
                                                 if (bone.name === "Bip01_Head") bone.add(headObj);
                                             });

@@ -28,7 +28,6 @@ MANHUNT.sidebar.view.InfoBlock = function () {
         },
 
         onObjectChanged: function (object) {
-            console.log("ehh", object.entity);
             self._values.updateValue('Entity', object.entity.name);
             self._values.updateValue('Record', object.entity.settings.glgRecord);
             self._values.updateValue('Model', object.entity.record.getValue('MODEL'));

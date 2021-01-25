@@ -47,7 +47,6 @@ MANHUNT.animator = (function () {
 
             for(var i in self._mixer){
                 if (!self._mixer.hasOwnProperty(i)) continue;
-               // console.log("update mixer", self._mixer[i]);
                 self._mixer[i].update( delta );
             }
 

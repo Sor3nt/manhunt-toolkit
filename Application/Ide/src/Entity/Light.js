@@ -75,14 +75,11 @@ unk_bf4d0100: 25.000001907348633
 //     light.penumbra = entity.settings.attenuationRadius;
 // //     light.decay = 1;
 //     light.distance = -entity.settings.unk_bf4d0100;
-console.log("LIGHT en", light, entity);
     // window.spotLightHelper = new THREE.SpotLightHelper( light );
     // MANHUNT.engine.getScene().add( spotLightHelper );
 
     var base = new MANHUNT.entity.abstract(entity, light, light);
 
-
-    // console.log(target.position, light.position);
 
     //
     //
