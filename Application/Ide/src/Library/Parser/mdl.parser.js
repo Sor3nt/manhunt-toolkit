@@ -683,6 +683,9 @@ MANHUNT.parser.mdl = function (inputData) {
         //Normalize model data
         generateBoneStructure(parsedBone, parsedObjects[0].objectInfo.objectParentBoneOffset);
         result.skeleton = new THREE.Skeleton( allBones );
+        result.skeleton.bones.forEach(function(bone){
+            bone.updateWorldMatrix();
+        });
 
         parsedObjects.forEach(function (parsedObject) {
 
@@ -711,7 +714,8 @@ MANHUNT.parser.mdl = function (inputData) {
             parsedObject.object.vertex.forEach(function (vertexInfo) {
 
                 genericObject.vertices.push(
-                    (new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )).applyMatrix4(meshBone.matrix)
+                    (new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z ))
+                        .applyMatrix4(meshBone.matrixWorld)
                 );
 
                 if (vertexInfo.maxWeight !== 0){
