@@ -4,70 +4,47 @@
 MANHUNT.fileLoader.MDL = function () {
 
     return {
-        load: function (level, file, callback ) {
+        load: function (level, file, callback) {
 
-            var results;
+            let modelList = [];
 
             MANHUNT.api.load(
                 level._game,
                 file,
-                function ( data ) {
+                function (data) {
 
-                    var binary = new NBinary(data);
-                    var gameId = binary.consume(4, 'uint32');
-                    var isManhunt2 = gameId === 1129074000;
+                    let binary = new NBinary(data);
+                    let gameId = binary.consume(4, 'uint32');
+                    let isManhunt2 = gameId === 1129074000;
 
+                    //Parse the file list
                     binary.setCurrent(0);
-
-                    results = MANHUNT.parser[ isManhunt2 ? 'mdl' : 'dff' ](binary);
-
-
-                    //TODO !!!
-                    var cache = {};
-
+                    modelList = MANHUNT.parser[isManhunt2 ? 'mdl' : 'dff'](binary);
+console.log("lIST", modelList);
                     callback({
-                        getModelNames: function(){
-                            var result = [];
+                        getModelNames: function () {
+                            let result = [];
 
-                            for(var i in results){
-                                if (!results.hasOwnProperty(i)) continue;
-
-                                var entry = results[i];
-                                if (isManhunt2){
-                                    if (entry.objects.length === 0) continue;
-                                    result.push(entry.bone.boneName);
-                                }else{
-                                    result.push(entry.name);
-                                }
-                            }
+                            modelList.forEach(function (model) {
+                                result.push(model.name);
+                            });
 
                             return result;
                         },
 
                         find: function (name) {
-                            for(var i in results){
-                                if (!results.hasOwnProperty(i)) continue;
+                            name = name.toLowerCase();
 
-                                var entry = results[i];
-                                var threeModel;
+                            //Note: we keep here a old school for loop
+                            //      it is the best way to return the result instant.
+                            for (let i in modelList) {
+                                if (!modelList.hasOwnProperty(i)) continue;
 
-                                if (isManhunt2){
-                                    if (entry.objects.length === 0) continue;
+                                let model = modelList[i];
+                                if (model.name.toLowerCase() === name) {
 
-                                    if (entry.bone.boneName.toLowerCase() === name.toLowerCase()){
-
-                                        threeModel = new MANHUNT.converter.mdl2mesh(level, entry);
-                                        threeModel.mesh.name = entry.bone.boneName;
-                                        return threeModel.mesh;
-                                    }
-                                }else{
-                                    if (entry.name.toLowerCase() === name.toLowerCase()){
-
-                                        threeModel = new MANHUNT.converter.dff2mesh(level, entry);
-                                        threeModel.mesh.name = entry.name;
-                                        return threeModel.mesh;
-
-                                    }
+                                    let generic2Mesh = new MANHUNT.converter.generic2mesh(level);
+                                    return generic2Mesh.convert(model.data());
                                 }
                             }
 

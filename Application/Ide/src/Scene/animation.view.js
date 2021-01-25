@@ -1,9 +1,9 @@
-MANHUNT.scene.modelView = function (level) {
+MANHUNT.scene.animationView = function (level) {
 
 
     var self = {
 
-        _name : 'model '+ level._name,
+        _name : 'animation '+ level._name,
 
         _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
         _control: MANHUNT.control.OrbitAndTransform,
@@ -21,7 +21,7 @@ MANHUNT.scene.modelView = function (level) {
         _templatePos: {},
 
         _init: function(){
-            var template = document.querySelector('#view-model');
+            var template = document.querySelector('#view-animation');
             self._template = document.querySelector('#model-list-entry');
             self._templatePos = document.querySelector('#model-list-info-position');
 
@@ -70,7 +70,7 @@ MANHUNT.scene.modelView = function (level) {
 
             var names = level._storage.mdl.getModelNames();
             names.forEach(function (name) {
-                self._createEntry(name);
+                // self._createEntry(name);
 
             });
         },
@@ -88,11 +88,6 @@ MANHUNT.scene.modelView = function (level) {
 
             row.find('[data-action="delete"]')
                 .click(function () {
-                    // self._tasks.push({
-                    //     action: 'delete',
-                    //     name: name
-                    // });
-
                     row.remove();
                 });
 

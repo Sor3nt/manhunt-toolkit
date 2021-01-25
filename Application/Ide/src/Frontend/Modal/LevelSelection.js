@@ -40,6 +40,7 @@ MANHUNT.frontend.modal.levelSelection = function () {
 
                     MANHUNT.scene.views.loadLevel(levelInfo.game, levelInfo.folderName, function(level){
                         level.addScene(MANHUNT.scene.modelView);
+                        level.addScene(MANHUNT.scene.animationView);
                     });
 
                     MANHUNT.frontend.modal.handler.hide();
@@ -62,26 +63,11 @@ MANHUNT.frontend.modal.levelSelection = function () {
         _onHover: function(levelInfo, row){
             if (levelInfo.icon === "") return;
 
-            console.log("Show Icon ", levelInfo.icon);
             var storage = MANHUNT.studio.getStorage('tex');
             var texture = storage.find(levelInfo.icon);
 
             self._textureView.display(texture);
-            //
-            // var mat = new THREE.MeshStandardMaterial();
-            // mat.name = texture.name;
-            // mat.map = texture;
-            //
-            // console.log(mat, texture);
-
-
-
         },
-        //
-        // _createEvents: function () {
-        //     self._container.find('[data-field="save"]').click(self.save);
-        // },
-
 
         show: function(){
             if (self._loaded === false){

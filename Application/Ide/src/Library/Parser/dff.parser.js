@@ -14,6 +14,9 @@
 
 MANHUNT.parser.dff = function (binary) {
 
+    let allBones = [];
+    let meshBone = {};
+
     const rpGEOMETRYPOSITIONS = 0x00000002;
     /**<This geometry has positions */
     const rpGEOMETRYTEXTURED = 0x00000004;
@@ -434,7 +437,7 @@ MANHUNT.parser.dff = function (binary) {
     }
 
     function ReadVertex(VertexCount) {
-        var VertArray = [];
+        let VertArray = [];
         for (let i = 0; i < VertexCount; i++) {
             VertArray.push(ReadVector3());
         }
@@ -658,7 +661,8 @@ MANHUNT.parser.dff = function (binary) {
         }
 
         let msh = {
-            skinPLG: skinPLG
+            skinPLG: skinPLG,
+            face: []
         };
 
         msh.skinned = skinFlag;
@@ -746,6 +750,8 @@ MANHUNT.parser.dff = function (binary) {
     }
 
     function ReadClump(offset) {
+        allBones = [];
+
         binary.setCurrent(offset);
 
         ReadChunk(); //clumpHeader
@@ -765,12 +771,12 @@ MANHUNT.parser.dff = function (binary) {
         binary.setCurrent(GeometryListOffset);
 
         let GeometryCount = ReadGeometryListSturct();
-        return {
-            skeleton: BoneArray,
-            geometry: ReadGeometryList(GeometryCount, AtomicArray)
-        };
+        let parsedObjects = ReadGeometryList(GeometryCount, AtomicArray);
+
+        return normalizeResult(BoneArray, GeometryCount, parsedObjects);
 
     }
+
 
     function ReadClumpList() {
 
@@ -811,10 +817,17 @@ MANHUNT.parser.dff = function (binary) {
                 }
             }
 
-            entries.push({
-                name: DFFname,
-                data: ReadClump(offset)
-            });
+            (function (offset, name) {
+                entries.push({
+                    name: name,
+                    offset: offset,
+                    data: function(){
+                        let mesh = ReadClump(offset);
+                        mesh.name = DFFname;
+                        return mesh;
+                    }
+                });
+            })(offset, DFFname);
 
             binary.setCurrent(next);
             count += 1;
@@ -822,6 +835,131 @@ MANHUNT.parser.dff = function (binary) {
 
         return entries;
     }
+
+    function normalizeResult( BoneArray, GeometryCount, parsedObjects ) {
+
+
+        function generateBoneStructure(BoneArray){
+            BoneArray.bones.forEach(function (bone) {
+                allBones.push(createBone(bone));
+            });
+
+            BoneArray.bones.forEach(function (bone, index) {
+
+                BoneArray.bones.forEach(function (boneInner, indexInner) {
+                    if (indexInner === 0) return;
+
+                    if (index === boneInner.frame.ParentFrameID - 1){
+                        allBones[index].add(allBones[indexInner]);
+                    }
+                });
+            });
+        }
+
+        function createBone( data ){
+
+            let bone = new THREE.Bone();
+            bone.name = data.name;
+
+            bone.applyMatrix4(
+                (new THREE.Matrix4()).fromArray(data.frame.matrix)
+            );
+
+            return bone;
+        }
+
+        let result = {
+            skeleton: false,
+
+            bones: [],
+            objects: []
+        };
+
+
+        //Normalize model data
+        generateBoneStructure(BoneArray);
+
+        result.skeleton = new THREE.Skeleton( allBones );
+        result.skeleton.bones.forEach(function(bone){
+            bone.updateWorldMatrix();
+        });
+
+        parsedObjects.forEach(function (parsedObject) {
+            meshBone = result.skeleton.bones[parsedObject.parentFrameID];
+
+            let genericObject = {
+                material: [],
+                skinning: parsedObject.skinned,
+
+                faces: [],
+                faceVertexUvs: [[]],
+
+                vertices: [],
+                skinIndices: [],
+                skinWeights: [],
+            };
+
+            parsedObject.material.forEach(function (parsedMaterial) {
+
+                //TODO diffuse color
+                if (typeof parsedMaterial.TextureName === "undefined") return;
+
+                let material = new THREE.MeshStandardMaterial();
+                material.name = parsedMaterial.TextureName;
+                material.skinning = result.skinning;
+                material.vertexColors = THREE.VertexColors;
+
+                genericObject.material.push(material);
+            });
+
+            parsedObject.vertices.forEach(function (vertexInfo) {
+                genericObject.vertices.push(
+                    (new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z ))
+                        .applyMatrix4(meshBone.matrixWorld)
+                );
+
+            });
+
+            for(let x = 0; x < parsedObject.face.length; x++) {
+
+                let face = new THREE.Face3(parsedObject.face[x][0], parsedObject.face[x][1], parsedObject.face[x][2]);
+
+                face.materialIndex = parsedObject.materialPerFace[x];
+
+                face.vertexNormals =[
+                    parsedObject.normal[face.a],
+                    parsedObject.normal[face.b],
+                    parsedObject.normal[face.c]
+                ];
+
+                if(parsedObject.uv1.length > 0){
+                    genericObject.faceVertexUvs[0].push([
+                        new THREE.Vector2(
+                            parsedObject.uv1[face.a][0],
+                            parsedObject.uv1[face.a][1]
+                        ),
+                        new THREE.Vector2(
+                            parsedObject.uv1[face.b][0],
+                            parsedObject.uv1[face.b][1]
+                        ),
+                        new THREE.Vector2(
+                            parsedObject.uv1[face.c][0],
+                            parsedObject.uv1[face.c][1]
+                        ),
+                    ]);
+                }
+
+                genericObject.faces.push(face);
+            }
+
+
+            result.objects.push(genericObject);
+        });
+
+        return result;
+    }
+
+
 
 
     return ReadClumpList();

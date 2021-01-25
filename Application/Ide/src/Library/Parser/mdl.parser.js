@@ -1,5 +1,7 @@
 MANHUNT.parser.mdl = function (inputData) {
 
+    let allBones = [];
+    let meshBone = {};
 
     function parseBoneTransDataIndex(binary, boneTransDataIndexOffset ){
 
@@ -309,7 +311,7 @@ MANHUNT.parser.mdl = function (inputData) {
     }
 
 
-    function parseObjectInfo(bone, binary ){
+    function parseObjectInfo(binary ){
 
         return {
             'nextObjectInfoOffset': binary.consume(4, 'int32'),
@@ -507,80 +509,275 @@ MANHUNT.parser.mdl = function (inputData) {
     }
 
 
-    function get( binary ){
+    function ReadClump(binary, offset ){
 
-        var mdlHeader = parseMdlHeader(binary);
-        binary.setCurrent(mdlHeader.firstEntryIndexOffset);
+        binary.setCurrent(offset);
+        let parsedEntry = parseEntry(binary);
 
-        var results = [];
-        do{
-
-            var result = {};
-            var entryIndex = parseEntryIndex(binary);
-
-            binary.setCurrent(entryIndex.entryOffset);
-            var entry = parseEntry(binary);
-
-            binary.setCurrent(entry.rootBoneOffset);
-            var bone = parseBone(binary);
-
-            result.entryIndex = entryIndex;
-            result.entry = entry;
-            result.bone = bone;
-            result.objects = [];
-
-            if (entry.firstObjectInfoOffset !== entry.objectInfoIndexOffset ){
-
-                binary.setCurrent(entry.firstObjectInfoOffset);
-
-                do{
-                    var objectRow = {
-                        'materials': false,
-                        'boneTransDataIndex': false
-                    };
-
-                    var objectInfo = parseObjectInfo(bone, binary);
-
-                    binary.setCurrent(objectInfo.objectOffset);
-                    var object = parseObject(binary);
-                    if (typeof result.skinDataFlag === "undefined")
-                        result.skinDataFlag = object.skinDataFlag;
-
-                    objectRow.objectInfo = objectInfo;
-                    objectRow.object = object;
-
-                    if (object.MaterialOffset !== 0){
-                        binary.setCurrent(object.MaterialOffset);
-
-                        objectRow.materials = parseMaterial(binary, object.NumMaterials );
-                    }
-
-                    if (object.BoneTransDataIndexOffset !== 0){
+        binary.setCurrent(parsedEntry.rootBoneOffset);
+        let parsedBone = parseBone(binary);
 
 
-                        binary.setCurrent(object.BoneTransDataIndexOffset);
+        let result = {
+            name: parsedBone.boneName,
+            skeleton: false,
+            skinning: false,
 
-                        boneTransDataIndex = parseBoneTransDataIndex(binary, object.BoneTransDataIndexOffset );
-                        objectRow.boneTransDataIndex = boneTransDataIndex;
-                    }
+            bones: [],
+            objects: []
+        };
 
-                    binary.setCurrent(objectInfo.nextObjectInfoOffset);
+        let parsedObjects = [];
+        let objectInfo = {};
 
-                    result.objects.push(objectRow);
+        if (parsedEntry.firstObjectInfoOffset !== parsedEntry.objectInfoIndexOffset ){
 
-                }while(objectInfo.nextObjectInfoOffset !== entry.objectInfoIndexOffset );
-            }
+            binary.setCurrent(parsedEntry.firstObjectInfoOffset);
 
-            if (entryIndex.nextEntryIndexOffset !== 0x20){
-                binary.setCurrent(entryIndex.nextEntryIndexOffset);
-            }
 
-            results.push(result);
-        }while(entryIndex.nextEntryIndexOffset !== 0x20);
+            do{
+                let parsedObject = {
+                    'materials': false,
+                    'boneTransDataIndex': false
+                };
 
-        return results;
+                objectInfo = parseObjectInfo( binary );
+                binary.setCurrent(objectInfo.objectOffset);
+
+                let object = parseObject(binary);
+
+                parsedObject.objectInfo = objectInfo;
+                parsedObject.object = object;
+
+                if (object.MaterialOffset !== 0){
+                    binary.setCurrent(object.MaterialOffset);
+
+                    parsedObject.materials = parseMaterial(binary, object.NumMaterials );
+                }
+
+                if (object.BoneTransDataIndexOffset !== 0){
+                    binary.setCurrent(object.BoneTransDataIndexOffset);
+
+                    parsedObject.boneTransDataIndex = parseBoneTransDataIndex(binary, object.BoneTransDataIndexOffset );
+                }
+
+                binary.setCurrent(objectInfo.nextObjectInfoOffset);
+
+                parsedObjects.push(parsedObject);
+
+            }while(objectInfo.nextObjectInfoOffset !== parsedEntry.objectInfoIndexOffset );
+
+            return normalizeResult( parsedEntry, parsedBone, parsedObjects);
+
+
+        }
+
+        return false;
+
+
+
     }
 
 
-    return get(inputData);
+    function readName(binary){
+        return binary.consume(40, 'nbinary').getString(0);
+    }
+
+    function ReadClumpList(binary){
+        binary.setCurrent(32);
+
+        let firstEntryIndexOffset = binary.consume(4, 'int32');
+        binary.setCurrent(firstEntryIndexOffset);
+
+        let entries = [];
+        let nextEntryIndexOffset = 0x20;
+
+        do{
+
+            nextEntryIndexOffset = binary.consume(4, 'int32');
+
+            binary.seek(4);
+            let entryOffset = binary.consume(4, 'int32');
+
+            binary.setCurrent(entryOffset);
+            let rootBoneOffset = binary.consume(4, 'int32');
+
+            binary.setCurrent(rootBoneOffset + 24);
+
+            let name = readName(binary);
+
+            (function (offset, name) {
+                entries.push({
+                    name: name,
+                    offset: offset,
+                    data: function () {
+                        let mesh = ReadClump(binary, offset);
+                        mesh.name = name;
+                        return mesh;
+                    }
+                });
+            })(entryOffset, name);
+
+            if (nextEntryIndexOffset !== 0x20) binary.setCurrent(nextEntryIndexOffset);
+
+        }while(nextEntryIndexOffset !== 0x20);
+
+        return entries;
+    }
+
+    function normalizeResult(parsedEntry, parsedBone, parsedObjects){
+        allBones = [];
+
+        function generateBoneStructure(boneData, objectParentBoneOffset){
+
+            let bones = [];
+            let tBone = createBone(boneData);
+            allBones.push(tBone);
+
+            if (boneData.myBoneOffset === objectParentBoneOffset){
+                meshBone = tBone;
+                tBone.userData.meshBone = true;
+            }
+
+            bones.push(tBone);
+
+            if (boneData.subBone !== false) {
+                let subBones = generateBoneStructure(boneData.subBone, objectParentBoneOffset);
+                subBones.forEach(function (subBone) {
+                    tBone.add(subBone);
+                });
+            }
+
+            if (boneData.nextBrotherBone !== false) {
+                let nextBones = generateBoneStructure(boneData.nextBrotherBone, objectParentBoneOffset);
+                nextBones.forEach(function (subBone) {
+                    bones.push(subBone);
+                });
+            }
+
+            return bones;
+        }
+
+        function createBone( data ){
+
+            let bone = new THREE.Bone();
+            bone.name = data.boneName;
+
+            //do not apply to the first bone...
+            if (allBones.length !== 0)
+                bone.applyMatrix4(
+                    (new THREE.Matrix4()).fromArray(data.matrix4X4_ParentChild)
+                );
+
+            return bone;
+        }
+
+
+        let result = {
+            skeleton: false,
+
+            bones: [],
+            objects: []
+        };
+
+        //Normalize model data
+        generateBoneStructure(parsedBone, parsedObjects[0].objectInfo.objectParentBoneOffset);
+        result.skeleton = new THREE.Skeleton( allBones );
+
+        parsedObjects.forEach(function (parsedObject) {
+
+            let genericObject = {
+                material: [],
+                skinning: parsedObject.object.skinDataFlag,
+
+                faces: [],
+                faceVertexUvs: [[]],
+
+                vertices: [],
+                skinIndices: [],
+                skinWeights: [],
+            };
+
+            parsedObject.materials.forEach(function (parsedMaterial) {
+                let material = new THREE.MeshStandardMaterial();
+                material.name = parsedMaterial.TexName;
+                material.skinning = genericObject.skinning;
+                material.vertexColors = THREE.VertexColors;
+
+                genericObject.material.push(material);
+            });
+
+
+            parsedObject.object.vertex.forEach(function (vertexInfo) {
+
+                genericObject.vertices.push(
+                    (new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )).applyMatrix4(meshBone.matrix)
+                );
+
+                if (vertexInfo.maxWeight !== 0){
+                    genericObject.skinIndices.push(new THREE.Vector4(
+                        vertexInfo.boneID1,
+                        vertexInfo.boneID2,
+                        vertexInfo.boneID3,
+                        vertexInfo.boneID4
+                    ));
+
+                    genericObject.skinWeights.push(new THREE.Vector4(
+                        vertexInfo.weight1,
+                        vertexInfo.weight2,
+                        vertexInfo.weight3,
+                        vertexInfo.weight4,
+                    ));
+                }
+            });
+
+            let faceMaterial = [];
+            parsedObject.object.mtlIds.forEach(function (mtl) {
+                for(let i = mtl.StartFaceID; i <= mtl.StartFaceID + mtl.MaterialIDNumFace; i++){
+                    faceMaterial[i] = mtl;
+                }
+            });
+
+            let faceIndex = parsedObject.object.faceindex;
+            for(let x = 0; x < faceIndex.length; x++){
+                let face = new THREE.Face3( faceIndex[x],  faceIndex[x + 1], faceIndex[x + 2] );
+                face.materialIndex = faceMaterial[x].MaterialID;
+
+                face.vertexNormals =[
+                    parsedObject.object.normals[face.a],
+                    parsedObject.object.normals[face.b],
+                    parsedObject.object.normals[face.c]
+                ];
+
+                if(parsedObject.object.UV1_array.length > 0){
+                    genericObject.faceVertexUvs[0].push([
+                        new THREE.Vector2(
+                            parsedObject.object.UV1_array[face.a][0],
+                            parsedObject.object.UV1_array[face.a][1]
+                        ),
+                        new THREE.Vector2(
+                            parsedObject.object.UV1_array[face.b][0],
+                            parsedObject.object.UV1_array[face.b][1]
+                        ),
+                        new THREE.Vector2(
+                            parsedObject.object.UV1_array[face.c][0],
+                            parsedObject.object.UV1_array[face.c][1]
+                        ),
+                    ]);
+                }
+
+                genericObject.faces.push(face);
+                x += 2;
+            }
+
+            result.objects.push(genericObject);
+
+        });
+console.log(result);
+        return result;
+    }
+
+
+
+    return ReadClumpList(inputData);
 };

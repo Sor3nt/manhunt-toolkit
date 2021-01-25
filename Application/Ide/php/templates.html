@@ -18,7 +18,6 @@
     </li>
 </template>
 
-
 <template id="model-list-entry">
 
     <li class="list-group-item  justify-content-between align-items-center">
@@ -93,7 +92,6 @@
 
 </template>
 
-
 <template id="model-list-info-position">
     <div>
         <span style="font-size: 12px" data-field="position">-33.21, -33.21, -33.21</span>
@@ -115,6 +113,54 @@
                 <div class="card-header-actions">
 
                     <a class="card-header-action" href="#" target="_blank">+ Add new Model</a>
+                </div>
+            </div>
+            <div class="card-body">
+
+
+                <div class="row" style="border-bottom: 1px solid black; margin-bottom:15px">
+
+                    <div class="input-group mb-3">
+
+                        <div class="input-group-prepend">
+
+                                            <span class="input-group-text">
+                                                <svg width="16" height="16">-->
+                                                    <use xlink:href="coreUi/free.svg#cil-search"></use>
+                                                </svg>
+                                            </span>
+                        </div>
+
+                        <input data-field="model-filter" type="text" class="form-control"
+                               placeholder="Search for a Model">
+                    </div>
+
+                    <ul data-field="model-list-container" class="list-group light  col-6"
+                        style="height: calc(100vh - 240px); overflow: scroll;display: inline-block; padding-right: 0">
+
+                    </ul>
+
+                    <div data-field="webgl" class="col-6" style="padding: 0 !important;"></div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</template>
+
+<template id="view-animation">
+    <div class="row view-animation" style="display: none">
+
+
+        <div class="card  col-12">
+            <div class="card-header"> Animation viwer
+                <div class="card-header-actions">
+
+                    <a class="card-header-action" href="#" target="_blank">+ Add new Animation</a>
                 </div>
             </div>
             <div class="card-body">

@@ -160,7 +160,7 @@ MANHUNT.converter.mdl2mesh = function (level, model) {
             self._mesh.userData.LODIndex = 0;
         },
 
-        _generateBoneStructure(boneData, objectParentBoneOffset){
+        _generateBoneStructure: function(boneData, objectParentBoneOffset){
 
             var bones = [];
             var tBone = self._createBone(boneData);
@@ -215,7 +215,7 @@ MANHUNT.converter.mdl2mesh = function (level, model) {
 
     };
     self._init();
-
+console.log(self._mesh);
     return {
         mesh: self._mesh
     };
