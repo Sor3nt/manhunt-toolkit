@@ -36,11 +36,17 @@ MANHUNT.storage.Animation = function (level) {
             }
 
             return self._data[index];
+        },
+
+
+        getNamesByGroup: function (groupName) {
+            return self._proxy.getNamesByGroup(groupName);
         }
 
     };
 
     return {
+        getNamesByGroup: self.getNamesByGroup,
         load: self.load,
         find: self.find
     }

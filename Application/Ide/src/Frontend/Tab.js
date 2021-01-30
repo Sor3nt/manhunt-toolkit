@@ -67,6 +67,10 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
             self._activeTab.content.show();
             self._activeTab.tab.find("a").addClass('active');
             self._activeTab.focusCallback();
+        },
+
+        get: function (name) {
+            return self._tab2Content[name];
         }
 
     };
@@ -75,6 +79,7 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
 
 
     return {
+        get: self.get,
         show: self.show,
         remove: self.remove,
         add: self.add

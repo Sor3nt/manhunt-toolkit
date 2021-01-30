@@ -21,7 +21,8 @@ MANHUNT.scene.animationView = function (level) {
         _tabHandler: {},
 
         _init: function(){
-            self._template = document.querySelector('#animation-list-entry');
+            self._template.model = document.querySelector('#model-list-entry');
+            self._template.animation = document.querySelector('#animation-list-entry');
 
 
             var row = jQuery(document.querySelector('#view-animation').content).clone();
@@ -87,7 +88,7 @@ MANHUNT.scene.animationView = function (level) {
 
             var names = level._storage.mdl.getModelNames();
             names.forEach(function (name) {
-                self._createEntry(name);
+                self._createModelEntry(name);
 
             });
         },
@@ -96,13 +97,68 @@ MANHUNT.scene.animationView = function (level) {
             level._animator.update(delta);
         },
 
-        _createRow: function(){
-            let row = jQuery(self._template.content).clone();
-            self._container.find('[data-field="model-list-container"]').append(row);
-            return self._container.find('[data-field="model-list-container"]').find('li:last-child');
+        _createModelRow: function(animBlocks, modelName){
+            self._container.find('[data-field="model-list-container"]').append(
+                jQuery(self._template.model.content).clone()
+            );
+
+            let row = self._container.find('[data-field="model-list-container"]').find('li:last-child');
+
+            self._row[modelName] = row;
+
+            //Set model view trigger
+            row.find('[data-field="name"]')
+                .html(modelName)
+                .click(function () {
+                    self._onModelClick(row, modelName, animBlocks);
+                })
+            ;
         },
 
-        _createRelatedAnim: function( modelName ){
+        _onModelClick: function(row, modelName, animBlocks){
+
+            var sceneInfo = MANHUNT.engine.getSceneInfo();
+
+            //remove old objects
+            if (self._lastModels.length > 0) {
+                self._lastModels.forEach(function (model) {
+                    sceneInfo.scene.remove(model);
+                });
+            }
+
+            //Generate Model Object
+            var model = level._storage.mdl.find(modelName).get();
+            self._createRelatedAnim(modelName, animBlocks);
+
+            model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
+            sceneInfo.scene.add(model);
+
+            level._animator.play(model, 'BAT_STAND_SNEAK_ANIM', 'PlayerAnims');
+
+            const helper = new THREE.SkeletonHelper( model );
+            helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
+            sceneInfo.scene.add( helper );
+
+            self._lastModels = [helper, model];
+
+            //apply the model to the control
+            sceneInfo.control.enable(model);
+
+            //Active / Highlighting row
+            if (self._lastRow !== false) self._lastRow.removeClass('active');
+            row.addClass("active");
+
+            self._lastRow = row;
+
+        },
+
+        _createAnimationRow: function(container){
+            let row = jQuery(self._template.animation.content).clone();
+            container.find('[data-field="animation-list-container"]').append(row);
+            return container.find('[data-field="model-list-container"]').find('li:last-child');
+        },
+
+        _createRelatedAnim: function( modelName, animBlocks ){
 
             let container = self._container.find('[data-id="relatedAnim"]');
 
@@ -115,10 +171,22 @@ MANHUNT.scene.animationView = function (level) {
                 function () { }, //focus
                 function () { }, //blur
             );
+
+            animBlocks.forEach(function (animBlock) {
+
+                let names = level._storage.ifp.getNamesByGroup(animBlock);
+                names.forEach(function (name) {
+
+                });
+
+                // console.log("animBlock", animBlock, level._storage.ifp.getNamesByGroup(animBlock));
+
+            });
+
         },
 
 
-        _createEntry: function( modelName ){
+        _createModelEntry: function( modelName ){
 
             var instRel = level.relation.getInstByModel(modelName);
             if (instRel !== false){
@@ -138,51 +206,8 @@ MANHUNT.scene.animationView = function (level) {
 
                 if (animBlocks.length > 0){
 
-                    let row = self._createRow();
-                    self._row[modelName] = row;
+                    self._createModelRow(animBlocks, modelName);
 
-                    //Set model view trigger
-                    row.find('[data-field="name"]')
-                        .html(modelName)
-                        .click(function () {
-
-
-
-                            var sceneInfo = MANHUNT.engine.getSceneInfo();
-
-                            //remove old objects
-                            if (self._lastModels.length > 0) {
-                                self._lastModels.forEach(function (model) {
-                                    sceneInfo.scene.remove(model);
-                                });
-                            }
-
-                            //Generate Model Object
-                            var model = level._storage.mdl.find(modelName).get();
-                            self._createRelatedAnim(modelName);
-
-                            model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
-                            sceneInfo.scene.add(model);
-
-                            level._animator.play(model, 'BAT_STAND_SNEAK_ANIM', 'PlayerAnims');
-
-                            const helper = new THREE.SkeletonHelper( model );
-                            helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
-                            sceneInfo.scene.add( helper );
-
-                            self._lastModels = [helper, model];
-
-                            //apply the model to the control
-                            sceneInfo.control.enable(model);
-
-                            //Active / Highlighting row
-                            if (self._lastRow !== false) self._lastRow.removeClass('active');
-                            row.addClass("active");
-
-                            self._lastRow = row;
-
-                        })
-                    ;
 
                 }
 

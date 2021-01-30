@@ -408,6 +408,16 @@ MANHUNT.fileLoader.IFP = function () {
                     callback({
                         groupName: IFPEntryArray,
                         groupEntries: IFPEntryIndexArray,
+
+                        getNamesByGroup: function ( group ) {
+                            var groupIndex = -1;
+                            IFPEntryArray.forEach(function (groupName, index) {
+                                if (groupName === group) groupIndex = index;
+                            });
+
+                            return IFPEntryIndexArray[groupIndex].anpkName;
+                        },
+
                         find: function (group, name) {
 
                             var groupIndex = -1;
