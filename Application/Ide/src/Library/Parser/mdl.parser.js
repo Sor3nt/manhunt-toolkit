@@ -61,6 +61,8 @@ MANHUNT.parser.mdl = function (inputData) {
 
     var normals = [];
     function parseObject(binary ){
+
+        //180 byte block
         var data = {
             'MaterialOffset': binary.consume(4, 'int32'),
             'NumMaterials': binary.consume(4, 'int32'),
@@ -98,7 +100,7 @@ MANHUNT.parser.mdl = function (inputData) {
             'zero2': binary.consume(12, 'arraybuffer'),
             'PerVertexElementSize': binary.consume(4, 'int32'),
             'unknown4': binary.consume(4 * 11, 'arraybuffer'),
-            'VertexElementType': binary.consume(4, 'int32'),
+            'VertexElementType': binary.consume(4, 'int32'), // 180 byte block - 32 byte
             'unknown5': binary.consume(4 * 8, 'arraybuffer'),
 
             'faceindex': [],
@@ -106,8 +108,10 @@ MANHUNT.parser.mdl = function (inputData) {
             'normals': []
         };
 
+        //44 byte * data.numMaterialIDs
         data.mtlIds = parseMaterialIDs(binary, data.numMaterialIDs );
 
+        //2 byte * data.numFaceIndex
         for(i = 0; i < data.numFaceIndex ; i++){
             data.faceindex.push(
                 binary.consume(2, 'int16')
@@ -291,6 +295,8 @@ MANHUNT.parser.mdl = function (inputData) {
         var materials = [];
 
         for(i = 0; i < numMaterialIDs; i++){
+
+            //44 byte block
             materials.push({
                 'BoundingBoxMinX': binary.consume(4, 'float32'),
                 'BoundingBoxMinY': binary.consume(4, 'float32'),
@@ -300,10 +306,11 @@ MANHUNT.parser.mdl = function (inputData) {
                 'BoundingBoxMaxZ': binary.consume(4, 'float32'),
                 'MaterialIDNumFace': binary.consume(2, 'int16'),
                 'MaterialID': binary.consume(2, 'int16'),
-                'StartFaceID': binary.consume(2, 'int16'),
-                'unknown': binary.consume(2, 'int16'),
-                'zero': binary.consume(12, 'arraybuffer'),
+                'StartFaceID': binary.consume(2, 'int16')
             });
+
+            binary.seek(14);
+
         }
 
         return materials;
@@ -313,23 +320,24 @@ MANHUNT.parser.mdl = function (inputData) {
 
     function parseObjectInfo(binary ){
 
-        return {
+        let info = {
             'nextObjectInfoOffset': binary.consume(4, 'int32'),
             'prevObjectInfoOffset': binary.consume(4, 'int32'),
             'objectParentBoneOffset': binary.consume(4, 'int32'),
             'objectOffset': binary.consume(4, 'int32'),
             'rootEntryOffset': binary.consume(4, 'int32'),
-            'zero': binary.consume(4, 'int32'),
-            'unknown': binary.consume(4, 'int32'),//always  0x3
-            'unknown2': binary.consume(4, 'int32')
         };
+
+        binary.seek(12);
+
+        return info;
 
     }
 
     function parseBone(binary ){
 
         var myBoneOffset = binary.current();
-        var unknown = binary.consume(4, 'arraybuffer');
+        binary.seek(4);
 
         var nextBrotherBoneOffset = binary.consume(4, 'int32');
 
@@ -378,7 +386,6 @@ MANHUNT.parser.mdl = function (inputData) {
 
         return {
             'myBoneOffset': myBoneOffset,
-            'unknown': unknown,
             'nextBrotherBoneOffset': nextBrotherBoneOffset,
             'parentBoneOffset': parentBoneOffset,
             'rootBoneOffset': rootBoneOffset,
@@ -448,64 +455,24 @@ MANHUNT.parser.mdl = function (inputData) {
 
     }
 
-    function parseEntryIndex(binary ){
-        var nextEntryIndexOffset = binary.consume(4, 'int32');
-        var prevEntryIndexOffset = binary.consume(4, 'int32');
-
-        var entryOffset = binary.consume(4, 'int32');
-
-        var zero = binary.consume(4, 'int32');
-
-        return {
-            'nextEntryIndexOffset': nextEntryIndexOffset,
-            'prevEntryIndexOffset': prevEntryIndexOffset,
-            'entryOffset': entryOffset,
-            'zero': zero
-        };
-    }
-
     function parseEntry(binary ){
         var rootBoneOffset = binary.consume(4, 'int32');
 
-        var zero3 = binary.consume(12, 'arraybuffer');
-
-        var unknown = binary.consume(4, 'arraybuffer');
-
+        binary.seek(16);
         var objectInfoIndexOffset = binary.current();
 
         var firstObjectInfoOffset = binary.consume(4, 'int32');
         var lastObjectInfoOffset = binary.consume(4, 'int32');
 
-        var zero = binary.consume(4, 'int32');
+        binary.seek(4);
 
         return {
             'objectInfoIndexOffset': objectInfoIndexOffset,
             'rootBoneOffset': rootBoneOffset,
-            'zero3': zero3,
-            'unknown': unknown,
             'firstObjectInfoOffset': firstObjectInfoOffset,
             'lastObjectInfoOffset': lastObjectInfoOffset,
-            'zero': zero
         };
 
-    }
-
-    function parseMdlHeader( binary ){
-
-        var fourCC = binary.consume(4, 'int32');
-        var constNumber = binary.consume(4, 'int32');
-
-        return {
-            'fileSize' : binary.consume(4, 'int32'),
-            'offsetTable' : binary.consume(4, 'int32'),
-            'offsetTable2' : binary.consume(4, 'int32'),
-            'numTable' : binary.consume(4, 'int32'),
-            'zero1' : binary.consume(4, 'int32'),
-            'zero2' : binary.consume(4, 'int32'),
-            'firstEntryIndexOffset' : binary.consume(4, 'int32'),
-            'lastEntryIndexOffset' : binary.consume(4, 'int32'),
-            'unknown' : binary.consume(8, 'arraybuffer')
-        };
     }
 
 
@@ -516,16 +483,6 @@ MANHUNT.parser.mdl = function (inputData) {
 
         binary.setCurrent(parsedEntry.rootBoneOffset);
         let parsedBone = parseBone(binary);
-
-
-        let result = {
-            name: parsedBone.boneName,
-            skeleton: false,
-            skinning: false,
-
-            bones: [],
-            objects: []
-        };
 
         let parsedObjects = [];
         let objectInfo = {};
@@ -541,9 +498,11 @@ MANHUNT.parser.mdl = function (inputData) {
                     'boneTransDataIndex': false
                 };
 
+                //32 bytes
                 objectInfo = parseObjectInfo( binary );
                 binary.setCurrent(objectInfo.objectOffset);
 
+                //cur + 180 byte block - 32 byte to get VertexElementType
                 let object = parseObject(binary);
 
                 parsedObject.objectInfo = objectInfo;
@@ -573,9 +532,6 @@ MANHUNT.parser.mdl = function (inputData) {
         }
 
         return false;
-
-
-
     }
 
 
@@ -595,20 +551,30 @@ MANHUNT.parser.mdl = function (inputData) {
         do{
 
             nextEntryIndexOffset = binary.consume(4, 'int32');
-
             binary.seek(4);
-            let entryOffset = binary.consume(4, 'int32');
 
+            let entryOffset = binary.consume(4, 'int32'); //ReadClump
             binary.setCurrent(entryOffset);
-            let rootBoneOffset = binary.consume(4, 'int32');
 
+            let rootBoneOffset = binary.consume(4, 'int32'); //parseEntry
+
+            //get Skin flag
+            // binary.seek(16);
+            // let firstObjectInfoOffset = binary.consume(4, 'int32');
+            // binary.setCurrent(firstObjectInfoOffset + 12);
+            // let objectOffset = binary.consume(4, 'int32');
+            // binary.setCurrent(objectOffset + 144);
+            // let VertexElementType = binary.consume(4, 'int32');
+            // let skinDataFlag = ((VertexElementType >> 8) & 0x10) === 0x10;
+
+            //get Model name
             binary.setCurrent(rootBoneOffset + 24);
-
             let name = readName(binary);
 
             (function (offset, name) {
                 entries.push({
                     name: name,
+                    // skinning: skinDataFlag,
                     offset: offset,
                     data: function () {
                         let mesh = ReadClump(binary, offset);
@@ -692,6 +658,7 @@ MANHUNT.parser.mdl = function (inputData) {
             let genericObject = {
                 material: [],
                 skinning: parsedObject.object.skinDataFlag,
+                meshBone: meshBone,
 
                 faces: [],
                 faceVertexUvs: [[]],
@@ -715,7 +682,6 @@ MANHUNT.parser.mdl = function (inputData) {
 
                 genericObject.vertices.push(
                     (new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z ))
-                        .applyMatrix4(meshBone.matrixWorld)
                 );
 
                 if (vertexInfo.maxWeight !== 0){
@@ -780,8 +746,6 @@ MANHUNT.parser.mdl = function (inputData) {
 
         return result;
     }
-
-
 
     return ReadClumpList(inputData);
 };

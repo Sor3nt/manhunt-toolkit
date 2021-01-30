@@ -43,8 +43,7 @@ MANHUNT.fileLoader.MDL = function () {
                                 let model = modelList[i];
                                 if (model.name.toLowerCase() === name) {
 
-                                    let generic2Mesh = new MANHUNT.converter.generic2mesh(level);
-                                    return generic2Mesh.convert(model.data());
+                                    return MANHUNT.converter.generic2mesh(level, model.data());
                                 }
                             }
 

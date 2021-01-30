@@ -42,7 +42,7 @@ MANHUNT.scene.modelView = function (level) {
 
         _onCreate: function (sceneInfo) {
 
-            MANHUNT.frontend.tab.add(
+            MANHUNT.studio.getTabHandler().add(
                 self._name,
                 self._container,
                 function () {
@@ -57,7 +57,7 @@ MANHUNT.scene.modelView = function (level) {
                 },
             );
 
-            MANHUNT.frontend.tab.show(self._name);
+            MANHUNT.studio.getTabHandler().show(self._name);
 
             sceneInfo.camera.position.set(-140.83501492578623, 119.29015658522931, -73.34957947924103);
 
@@ -79,12 +79,15 @@ MANHUNT.scene.modelView = function (level) {
 
         },
 
+        _createRow: function(){
+            var row = jQuery(self._template.content).clone();
+            self._container.find('[data-field="model-list-container"]').append(row);
+            return self._container.find('[data-field="model-list-container"]').find('li:last-child');
+        },
 
         _createEntry: function( name ){
 
-            var row = jQuery(self._template.content).clone();
-            self._container.find('[data-field="model-list-container"]').append(row);
-            row = self._container.find('[data-field="model-list-container"]').find('li:last-child');
+            var row = self._createRow();
 
             row.find('[data-action="delete"]')
                 .click(function () {
@@ -158,7 +161,7 @@ MANHUNT.scene.modelView = function (level) {
 
                         var realModel = level.relation.getEntityByInst(rel.instName).object;
 
-                        MANHUNT.frontend.tab.show('world');
+                        MANHUNT.studio.getTabHandler().show('world');
                         var sceneInfo = MANHUNT.engine.getSceneInfo();
                         sceneInfo.control.enable(realModel);
 

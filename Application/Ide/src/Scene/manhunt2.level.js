@@ -12,6 +12,7 @@ MANHUNT.scene.Manhunt2Level = function (levelName, doneCallback) {
         _sceneInfo: {},
 
         _storage: {},
+        _animator: {},
         _content : {},
         
         relation: new MANHUNT.Relation(),
@@ -34,6 +35,7 @@ MANHUNT.scene.Manhunt2Level = function (levelName, doneCallback) {
             self._storage.glg = storage.create('glg');
             self._storage.inst = storage.create('inst');
             self._storage.entity = storage.create();
+            self._animator = new MANHUNT.animator(self);
 
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
@@ -283,7 +285,7 @@ MANHUNT.scene.Manhunt2Level = function (levelName, doneCallback) {
 
                 // waitForWorldCalllback();
 
-                MANHUNT.frontend.tab.add(
+                MANHUNT.studio.getTabHandler().add(
                     self._name,
                     self._content,
                     function () {

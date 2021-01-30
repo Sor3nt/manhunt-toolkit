@@ -18,17 +18,17 @@ MANHUNT.scene.animationView = function (level) {
 
         _filter: {},
         _template: {},
-        _templatePos: {},
+        _tabHandler: {},
 
         _init: function(){
-            var template = document.querySelector('#view-animation');
-            self._template = document.querySelector('#model-list-entry');
-            self._templatePos = document.querySelector('#model-list-info-position');
+            self._template = document.querySelector('#animation-list-entry');
 
-            var row = jQuery(template.content).clone();
+
+            var row = jQuery(document.querySelector('#view-animation').content).clone();
             jQuery('#tab-content').append(row);
             self._container = jQuery('#tab-content').find('>div:last-child');
             self._filter = self._container.find('[data-field="model-filter"]');
+            self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="animation-tab-list"]'), self._container.find('[data-id="animation-tab-content"]'));
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
                 self._container.find('[data-field="webgl"]'),
@@ -42,7 +42,8 @@ MANHUNT.scene.animationView = function (level) {
 
         _onCreate: function (sceneInfo) {
 
-            MANHUNT.frontend.tab.add(
+            //Create Main Tab
+            MANHUNT.studio.getTabHandler().add(
                 self._name,
                 self._container,
                 function () {
@@ -57,8 +58,11 @@ MANHUNT.scene.animationView = function (level) {
                 },
             );
 
-            MANHUNT.frontend.tab.show(self._name);
+            MANHUNT.studio.getTabHandler().show(self._name);
 
+
+
+            //Create scene
             sceneInfo.camera.position.set(-140.83501492578623, 119.29015658522931, -73.34957947924103);
 
             var spotLight = new THREE.SpotLight(0xffffff);
@@ -68,170 +72,125 @@ MANHUNT.scene.animationView = function (level) {
             sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
             sceneInfo.scene.add(new THREE.GridHelper(1000, 10, 0x888888, 0x444444));
 
+
+
+            //Create Sub-Tab
+            self._tabHandler.add(
+                'Models',
+                self._container.find('[data-id="model"]'),
+                function () { }, //close
+                function () { }, //focus
+                function () { }, //blur
+            );
+            self._tabHandler.show('Models');
+
+
             var names = level._storage.mdl.getModelNames();
             names.forEach(function (name) {
-                // self._createEntry(name);
+                self._createEntry(name);
 
             });
         },
 
         _onUpdate: function (sceneInfo, delta) {
+            level._animator.update(delta);
+        },
 
+        _createRow: function(){
+            let row = jQuery(self._template.content).clone();
+            self._container.find('[data-field="model-list-container"]').append(row);
+            return self._container.find('[data-field="model-list-container"]').find('li:last-child');
+        },
+
+        _createRelatedAnim: function( modelName ){
+
+            let container = self._container.find('[data-id="relatedAnim"]');
+
+            //Create Sub-Tab
+            self._tabHandler.remove('Related Anim');
+            self._tabHandler.add(
+                'Related Anim',
+                container,
+                function () { }, //close
+                function () { }, //focus
+                function () { }, //blur
+            );
         },
 
 
-        _createEntry: function( name ){
+        _createEntry: function( modelName ){
 
-            var row = jQuery(self._template.content).clone();
-            self._container.find('[data-field="model-list-container"]').append(row);
-            row = self._container.find('[data-field="model-list-container"]').find('li:last-child');
-
-            row.find('[data-action="delete"]')
-                .click(function () {
-                    row.remove();
-                });
-
-            var relsInst2Model = level.relation.getInstByModel(name);
-            if (relsInst2Model === false){
-                //as example heads are sub-glg records from the actual hunter
-                //there is no direct inst relation
-                var relsGLG = level.relation.getGlgByModel(name);
-
-                row.addClass("unused");
-            }else{
-
-                //Detect animation and material
+            var instRel = level.relation.getInstByModel(modelName);
+            if (instRel !== false){
+                instRel = instRel[0];
+                //Detect animation blocks
                 var animBlocks = [];
-                var matBlocks = [];
 
-                relsInst2Model.forEach(function (rel) {
-                    var glgs = level.relation.getGlgByModel(name);
-                    glgs.forEach(function (rel) {
+                var glgs = level.relation.getGlgByModel(modelName);
+                glgs.forEach(function (rel) {
 
-                        var mat = rel.glg.getValue('MATERIAL');
-                        var animBlock = rel.glg.getValue('ANIMATION_BLOCK');
+                    var animBlock = rel.glg.getValue('ANIMATION_BLOCK');
+                    animBlocks.push(animBlock);
 
-                        if(
-                            animBlock !== false &&
-                            animBlocks.indexOf(animBlock) === -1
-                        ) {
-                            row.find('[data-field="animationBlock"]').append(
-                                '<span class="badge badge-info" >' + animBlock + '</span>'
-                            );
-
-                            animBlocks.push(animBlock);
-                        }
-
-                        if(
-                            mat !== false &&
-                            matBlocks.indexOf(mat) === -1
-                        ) {
-                            row.find('[data-field="material"]').append(
-                                '<span class="badge badge-info" >' + mat + '</span>'
-                            );
-                            matBlocks.push(mat);
-                        }
-
-                    });
                 });
+
+
 
                 if (animBlocks.length > 0){
-                    row.find('[data-icon="animation"]').show();
-                }else{
-                    row.find('[data-field="animationBlock"]').parent().remove();
+
+                    let row = self._createRow();
+                    self._row[modelName] = row;
+
+                    //Set model view trigger
+                    row.find('[data-field="name"]')
+                        .html(modelName)
+                        .click(function () {
+
+
+
+                            var sceneInfo = MANHUNT.engine.getSceneInfo();
+
+                            //remove old objects
+                            if (self._lastModels.length > 0) {
+                                self._lastModels.forEach(function (model) {
+                                    sceneInfo.scene.remove(model);
+                                });
+                            }
+
+                            //Generate Model Object
+                            var model = level._storage.mdl.find(modelName).get();
+                            self._createRelatedAnim(modelName);
+
+                            model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
+                            sceneInfo.scene.add(model);
+
+                            level._animator.play(model, 'BAT_STAND_SNEAK_ANIM', 'PlayerAnims');
+
+                            const helper = new THREE.SkeletonHelper( model );
+                            helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
+                            sceneInfo.scene.add( helper );
+
+                            self._lastModels = [helper, model];
+
+                            //apply the model to the control
+                            sceneInfo.control.enable(model);
+
+                            //Active / Highlighting row
+                            if (self._lastRow !== false) self._lastRow.removeClass('active');
+                            row.addClass("active");
+
+                            self._lastRow = row;
+
+                        })
+                    ;
+
                 }
 
 
-                //Generate Position
-                relsInst2Model.forEach(function (rel) {
-                    var posRow = jQuery(self._templatePos.content).clone();
-                    var fieldPosition = row.find('[data-section="position"]');
-                    fieldPosition.append(posRow);
-                    posRow = fieldPosition.find('div:last-child');
-
-                    posRow.find('[data-field="goto"]').click(function () {
-
-                        var realModel = level.relation.getEntityByInst(rel.instName).object;
-
-                        MANHUNT.frontend.tab.show('world');
-                        var sceneInfo = MANHUNT.engine.getSceneInfo();
-                        sceneInfo.control.enable(realModel);
-
-                    });
-
-                    posRow.find('[data-field="position"]').html(
-                        rel.inst.position.x.toFixed(2) + ', ' +
-                        rel.inst.position.y.toFixed(2) + ', ' +
-                        rel.inst.position.z.toFixed(2)
-                    );
-
-                });
             }
 
-            //
-            // //Generate Textures names
-            // var fieldTextures = row.find('[data-field="textures"]');
-            // var appliedTextures = [];
-            // console.log(entry);
-            // entry.objects.forEach(function (object) {
-            //     if (object.materials.length > 0){
-            //         object.materials.forEach(function (material) {
-            //             if (appliedTextures.indexOf(material.TexName) !== -1) return;
-            //             appliedTextures.push(material.TexName);
-            //
-            //             fieldTextures.append(
-            //                 '<span class="badge badge-info">' + material.TexName + '</span>'
-            //             )
-            //         })
-            //     }
-            // });
 
 
-
-
-            //Set model view trigger
-            row.find('[data-field="name"]')
-                .click(function () {
-                    var sceneInfo = MANHUNT.engine.getSceneInfo();
-
-                    //remove old objects
-                    if (self._lastModels.length > 0) {
-                        self._lastRow.find('[data-section="info"]').hide();
-                        self._lastModels.forEach(function (model) {
-                            sceneInfo.scene.remove(model);
-
-                        });
-                    }
-
-                    row.find('[data-section="info"]').show();
-
-                    //Generate Model Object
-                    var model = level._storage.mdl.find(name).get();
-                    model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
-                    sceneInfo.scene.add(model);
-
-
-                    const helper = new THREE.SkeletonHelper( model );
-                    helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
-                    sceneInfo.scene.add( helper );
-
-                    self._lastModels = [helper, model];
-
-                    //apply the model to the control
-                    sceneInfo.control.enable(model);
-
-                    //Active / Highlighting row
-                    if (self._lastRow !== false) self._lastRow.removeClass('active');
-                    row.addClass("active");
-
-                    self._lastRow = row;
-
-                })
-                .html(name);
-
-
-
-            self._row[name] = row;
         }
         
     };

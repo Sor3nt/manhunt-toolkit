@@ -1,15 +1,15 @@
-MANHUNT.frontend.tab = (function () {
+MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
 
-    var self = {
+    let self = {
 
         _element: {},
         _template: {},
         _tab2Content: {},
         _activeTab: false,
 
-        init: function () {
-            self._element.tab = jQuery('#tab-list');
-            self._element.content = jQuery('#tab-content');
+        _init: function () {
+            self._element.tab = tabListContainer;
+            self._element.content = tabContentContainer;
             self._template.tab = document.querySelector('#tab-list-entry');
         },
 
@@ -18,7 +18,8 @@ MANHUNT.frontend.tab = (function () {
                 console.log('[MANHUNT.frontend.tab] Unable to add tab', name, 'already added?!' );
                 return;
             }
-            var row = jQuery(self._template.tab.content).clone();
+
+            let row = jQuery(self._template.tab.content).clone();
             self._element.tab.append(row);
             row = self._element.tab.find('>li:last-child');
 
@@ -39,7 +40,15 @@ MANHUNT.frontend.tab = (function () {
                 focusCallback: focusCallback,
                 blurCallback: blurCallback
             };
+
             self._element.content.append(content);
+        },
+
+        remove: function(name){
+            if (typeof self._tab2Content[name] === "undefined") return;
+
+            self._tab2Content[name].tab.remove();
+            self._tab2Content[name].content.remove();
         },
 
         show: function (name) {
@@ -62,10 +71,12 @@ MANHUNT.frontend.tab = (function () {
 
     };
 
+    self._init();
+
 
     return {
-        init: self.init,
         show: self.show,
+        remove: self.remove,
         add: self.add
     }
-})();
+};

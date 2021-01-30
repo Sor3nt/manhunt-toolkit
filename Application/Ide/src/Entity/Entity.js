@@ -40,7 +40,6 @@ MANHUNT.entity.abstract = function ( instEntity, object, model ) {
 
     };
 
-
     object.name = instEntity.name;
     object.scale.set(MANHUNT.scale, MANHUNT.scale, MANHUNT.scale);
     self.setPosition(instEntity.position);
@@ -48,28 +47,7 @@ MANHUNT.entity.abstract = function ( instEntity, object, model ) {
 
     var animBlock = glgRecord.getValue("ANIMATION_BLOCK");
     self.hasAnimation = animBlock !== false;
-    if (animBlock !== false){
-        // self.animatioBlock = "PlayerAnims";
-        self.animatioBlock = animBlock;
-
-        self.play = function(name, groupOverwrite){
-            if (typeof groupOverwrite !== "undefined"){
-                var oGroup = self.animatioBlock;
-                self.animatioBlock = groupOverwrite;
-                MANHUNT.animator.play(self, name);
-                self.animatioBlock = oGroup;
-            }else{
-                MANHUNT.animator.play(self, name);
-            }
-
-        };
-
-        if (instEntity.entityClass === "Hunter_Inst"){
-            // self.play('BAT_STAND_SNEAK_ANIM', 'PlayerAnims');
-        }
-    }
-
-
+    self.animatioBlock = animBlock;
 
     object.entity = self;
 

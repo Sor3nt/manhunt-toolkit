@@ -890,6 +890,7 @@ MANHUNT.parser.dff = function (binary) {
             let genericObject = {
                 material: [],
                 skinning: parsedObject.skinned,
+                meshBone: meshBone,
 
                 faces: [],
                 faceVertexUvs: [[]],
@@ -914,8 +915,7 @@ MANHUNT.parser.dff = function (binary) {
 
             parsedObject.vertices.forEach(function (vertexInfo) {
                 genericObject.vertices.push(
-                    (new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z ))
-                        .applyMatrix4(meshBone.matrixWorld)
+                    new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )
                 );
 
             });

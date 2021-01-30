@@ -291,7 +291,7 @@ MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
 
                 // waitForWorldCalllback();
 
-                MANHUNT.frontend.tab.add(
+                MANHUNT.studio.getTabHandler().add(
                     self._name,
                     self._content,
                     function () {
