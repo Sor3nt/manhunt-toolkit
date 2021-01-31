@@ -6,8 +6,8 @@ MANHUNT.studio = (function () {
         _tabHandler: {},
 
         _init: function () {
+            //timeout hack for FF (?!)
             window.setTimeout(function () {
-
                 MANHUNT.config.onLoadCallback( self._onConfigReceived );
             }, 100);
         },
@@ -28,12 +28,10 @@ MANHUNT.studio = (function () {
 
             MANHUNT.engine.render();
 
-            var storage = new MANHUNT.storage.Storage({ _game: 'manhunt2'});
+            let storage = new MANHUNT.storage.Storage({ _game: 'manhunt2'});
             self._globalStorage.tex = storage.create('tex');
 
-            MANHUNT.frontend.modal.handler.show('levelSelection', function () {
-                
-            });
+            MANHUNT.frontend.modal.handler.show('levelSelection');
         },
 
         loadLevel: function (game, levelName) {

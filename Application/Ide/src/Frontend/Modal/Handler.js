@@ -8,22 +8,17 @@ MANHUNT.frontend.modal.handler = (function () {
         },
 
         _active: false,
-        _onHideCallback : false,
 
-        show: function ( name, onHideCallback ) {
+        show: function ( name ) {
             if (self._active !== false) self._active.hide();
             self._active = self._modals[name];
             self._active.show();
-
-            self._onHideCallback = onHideCallback;
         },
 
         hide: function () {
             if (self._active === false) return;
             self._active.hide();
             self._active = false;
-
-            self._onHideCallback && self._onHideCallback();
         }
 
     };

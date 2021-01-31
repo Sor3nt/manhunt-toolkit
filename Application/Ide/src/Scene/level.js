@@ -108,7 +108,7 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
             self.relation.model2Glg(modelName, instEntry.glgRecord);
             self.relation.model2Inst(modelName, instEntry.name);
 
-            entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
+            let entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
             if (entity === false) return;
 
 

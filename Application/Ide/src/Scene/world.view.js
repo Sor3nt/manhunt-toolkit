@@ -1,6 +1,5 @@
 MANHUNT.scene.WorldView = function (level) {
 
-
     let self = {
 
         _name : 'level_'+ level._name,
@@ -22,10 +21,7 @@ MANHUNT.scene.WorldView = function (level) {
                 self._onCreate,
                 self._onUpdate
             );
-
         },
-
-
 
         _onCreate: function (sceneInfo) {
 
@@ -37,21 +33,12 @@ MANHUNT.scene.WorldView = function (level) {
                 function () { } //blur
             );
 
-            // let sceneInfo = self._sceneInfo;
-
             let spotLight = new THREE.SpotLight(0xffffff);
             spotLight.position.set(1, 1, 1);
             sceneInfo.scene.add(spotLight);
 
             sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
-
-            jQuery('#loading').hide();
-
-
         },
-
-
-
 
         _onUpdate: function (sceneInfo, delta) {
 
@@ -69,12 +56,6 @@ MANHUNT.scene.WorldView = function (level) {
 
             sceneInfo.control.update(delta);
         },
-        //
-        // addScene: function(view){
-        //     new view(self._sceneInfo);
-        // }
-
-        
     };
 
     self._init();

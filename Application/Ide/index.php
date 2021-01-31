@@ -1,8 +1,4 @@
-<?php
-        $config = \json_decode(file_get_contents('php/config.json'), true);
-        if (!isset($config['manhunt'])) $config['manhunt'] = "";
-        if (!isset($config['manhunt2'])) $config['manhunt2'] = "";
-?><!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head>
@@ -16,8 +12,9 @@
 
 
     <script>
-        var MANHUNT = {
+        window.MANHUNT = {
 
+            resources: {},
             studio: {},
             config: {},
             init: [],
@@ -109,17 +106,16 @@
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
     <script src="src/Library/Converter/generic.mesh.converter.js"></script>
-<!--    <script src="src/Library/Converter/dff.mesh.converter.js"></script>-->
-<!--    <script src="src/Library/Converter/mdl.mesh.converter.js"></script>-->
     <script src="src/Library/Converter/dds.texture.converter.js"></script>
 
     <!-- Camera -->
     <script src="src/Camera/TVP.js"></script>
 
 
-    <script src="src/Scene/abstract.level.js"></script>
-    <script src="src/Scene/manhunt.level.js"></script>
-    <script src="src/Scene/manhunt2.level.js"></script>
+    <script src="src/Resources/abstract.js"></script>
+    <script src="src/Resources/manhunt.js"></script>
+    <script src="src/Resources/manhunt2.js"></script>
+    <script src="src/Resources/resources.js"></script>
     <script src="src/Scene/model.view.js"></script>
     <script src="src/Scene/views.js"></script>
 
@@ -155,152 +151,95 @@
     <!-- Engine -->
     <script src="src/Engine.js"></script>
 
-    <!--    <script type="module" src="src/Library/TransformControls.js"></script>-->
-
     <script src="src/Editor/EntityInteractive.js"></script>
 </head>
 <body class="c-app">
 
 
-<div id="webgl"></div>
+    <div id="webgl"></div>
 
 
-<?php include('php/templates.html'); ?>
-<?php include('php/modal.html'); ?>
+    <?php include('php/templates.html'); ?>
+    <?php include('php/modal.html'); ?>
+
+    <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
+
+        <ul class="c-sidebar-nav">
 
 
-
-<div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
-
-    <ul class="c-sidebar-nav">
-
-
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="index.html">
-                <svg class="c-sidebar-nav-icon">
-                    <use xlink:href="coreUi/free.svg#cil-speedometer"></use>
-                </svg>
-                Manhunt Toolkit
-            </a>
-        </li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="index.html">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="coreUi/free.svg#cil-speedometer"></use>
+                    </svg>
+                    Manhunt Toolkit
+                </a>
+            </li>
 
 
-        <li class="c-sidebar-nav-title">Level Viewer</li>
-        <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="charts.html">
-                <svg class="c-sidebar-nav-icon">
-                    <use xlink:href="coreUi/free.svg#cil-chart-pie"></use>
-                </svg>
-                Load Level</a></li>
+            <li class="c-sidebar-nav-title">Level Viewer</li>
+            <li class="c-sidebar-nav-item"><a class="c-sidebar-nav-link" href="charts.html">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="coreUi/free.svg#cil-chart-pie"></use>
+                    </svg>
+                    Load Level</a></li>
 
 
-        <li class="c-sidebar-nav-title">File Editor</li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="colors.html">
-                <svg class="c-sidebar-nav-icon">
-                    <use xlink:href="coreUi/free.svg#cil-drop"></use>
-                </svg>
-                Models
-                <span class="badge badge-info">mdl/dff</span>
+            <li class="c-sidebar-nav-title">File Editor</li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="colors.html">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="coreUi/free.svg#cil-drop"></use>
+                    </svg>
+                    Models
+                    <span class="badge badge-info">mdl/dff</span>
 
-            </a>
-        </li>
+                </a>
+            </li>
 
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="colors.html">
-                <svg class="c-sidebar-nav-icon">
-                    <use xlink:href="coreUi/free.svg#cil-drop"></use>
-                </svg>
-                Textures
-                <span class="badge badge-info">txd/tex</span>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="colors.html">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="coreUi/free.svg#cil-drop"></use>
+                    </svg>
+                    Textures
+                    <span class="badge badge-info">txd/tex</span>
 
-            </a>
-        </li>
-
-
-    </ul>
-</div>
-
-
-<div class="c-wrapper c-fixed-components">
-
-
-    <header class="c-header c-header-light ">
-
-
-        <ul class="nav nav-tabs" id="studio-tab-list">
-
-            <li style="position: absolute;right: 15px;top: 5px;">
-                <button type="button" class="btn btn-sm btn-primary">Save changes</button>
-
+                </a>
             </li>
         </ul>
-    </header>
-
-
-    <div class="c-body">
-        <main class="c-main">
-            <div class="container-fluid" id="studio-tab-content">
-
-            </div>
-        </main>
     </div>
-</div>
 
 
+    <div class="c-wrapper c-fixed-components">
 
-<script>
+        <header class="c-header c-header-light ">
+            <ul class="nav nav-tabs" id="studio-tab-list">
+                <li style="position: absolute;right: 15px;top: 5px;">
+                    <button type="button" class="btn btn-sm btn-primary">Save changes</button>
+                </li>
+            </ul>
+        </header>
 
+        <div class="c-body">
+            <main class="c-main">
+                <div class="container-fluid" id="studio-tab-content">
 
-    jQuery(function () {
-
-        // var setup = new MANHUNT.frontend.modal.Setup(function (game) {
-        //     console.log(game, "ready");
-        // });
-        // setup.show();
-        // MANHUNT.api.getConfig(
-        //     function ( config ) {
-        //         console.log("config", config);
-        //     }
-        // );
-        //
-        //
-        // MANHUNT.engine.init();
-        // MANHUNT.frontend.tab.init();
-
-        //
-        // MANHUNT.scene.views.loadLevel('manhunt', 'asylum', function(level){
-        // // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
-        //
-        //     level.addScene(MANHUNT.scene.modelView);
-        // });
-
-        //
-        // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
-        //     // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
-        //
-        //     level.addScene(MANHUNT.scene.modelView);
-        // });
-
-        // MANHUNT.scene.views.loadLevel('manhunt2', 'A02_The_Old_House', function(level){
-        // MANHUNT.scene.views.loadLevel('manhunt2', 'A01_Escape_Asylum', function(level){
-        //
-        //     level.addScene(MANHUNT.scene.modelView);
-        // });
-
-        // MANHUNT.engine.render();
-
-    });
+                </div>
+            </main>
+        </div>
+    </div>
 
 
-</script>
+    <script src="src/Scene/level.js"></script>
+    <script src="src/Scene/texture.view.js"></script>
+    <script src="src/Scene/animation.view.js"></script>
+    <script src="src/Scene/world.view.js"></script>
+    <script src="src/Frontend/Modal/Setup.js"></script>
+    <script src="src/Frontend/Modal/LevelSelection.js"></script>
 
-<script src="src/Scene/texture.view.js"></script>
-<script src="src/Scene/animation.view.js"></script>
-<script src="src/Frontend/Modal/Setup.js"></script>
-<script src="src/Frontend/Modal/LevelSelection.js"></script>
-
-<script src="src/Frontend/Modal/Handler.js"></script>
-<script src="src/Studio.js"></script>
+    <script src="src/Frontend/Modal/Handler.js"></script>
+    <script src="src/Studio.js"></script>
 
 </body>
 </html>
