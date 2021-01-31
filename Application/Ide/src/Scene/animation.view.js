@@ -1,4 +1,4 @@
-MANHUNT.scene.animationView = function (level) {
+MANHUNT.scene.AnimationView = function (level) {
 
 
     let self = {
@@ -181,6 +181,7 @@ MANHUNT.scene.animationView = function (level) {
         _createModelEntry: function( modelName ){
 
             let glgs = level.relation.getGlgByModel(modelName);
+            console.log("GLGs", glgs, modelName);
             if (glgs !== false){
 
                 //Detect animation blocks
@@ -202,6 +203,9 @@ MANHUNT.scene.animationView = function (level) {
     self._init();
 
     return {
+        getSceneInfo: function () {
+            return self._sceneInfo;
+        }
 
     }
 };

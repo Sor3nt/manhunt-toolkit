@@ -1,4 +1,4 @@
-MANHUNT.scene.modelView = function (level) {
+MANHUNT.scene.ModelView = function (level) {
 
 
     var self = {
@@ -245,6 +245,8 @@ MANHUNT.scene.modelView = function (level) {
     self._init();
 
     return {
-
+        getSceneInfo: function () {
+            return self._sceneInfo;
+        }
     }
 };

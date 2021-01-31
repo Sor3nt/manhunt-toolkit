@@ -1,12 +1,12 @@
-MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
+MANHUNT.resources.Manhunt = function (levelName, doneCallback) {
 
-    let base = new MANHUNT.scene.AbstractLevel(levelName, doneCallback);
+    let base = new MANHUNT.resources.Abstract(levelName, doneCallback);
 
     let self = Object.assign(base, {
 
         _game: 'manhunt',
 
-        _onCreate: function () {
+        _buildChain: function () {
 
             let loadChain = [
                 {
@@ -16,9 +16,8 @@ MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
                         }
                     ],
 
-                    callback: function () {
+                    callback: function () {}
 
-                    }
                 },
                 {
                     order: [
@@ -48,7 +47,7 @@ MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
 
                     ],
 
-                    callback: self._createModels
+                    callback: function () {}
                 },
 
                 {
@@ -65,7 +64,7 @@ MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
 
                     ],
 
-                    callback: self._createMap
+                    callback: function () {}
                 }
             ];
 
@@ -76,6 +75,5 @@ MANHUNT.scene.ManhuntLevel = function (levelName, doneCallback) {
     self._init();
 
     return {
-        addScene: self.addScene
     }
 };

@@ -1,42 +1,15 @@
 MANHUNT.scene.views = (function () {
 
 
-    var self = {
-
-        _level: {
-
-        },
+    let self = {
 
         load: function(level, name){
             return new MANHUNT.scene[name](level);
         },
 
-        loadLevel: function(game, levelName, callback){
-
-            switch (game) {
-
-                case 'manhunt':
-                    self._level[game + '_' + levelName] = new MANHUNT.scene.ManhuntLevel(levelName, callback);
-                    break;
-
-                case 'manhunt2':
-                    self._level[game + '_' + levelName] = new MANHUNT.scene.Manhunt2Level(levelName, callback);
-                    break;
-
-            }
-
-            return self._level[game + '_' + levelName];
-        },
-
-        getLevel: function (game, levelName) {
-            return self._level[game + '_' + levelName];
-        }
-
     };
 
     return {
-        load: self.load,
-        loadLevel: self.loadLevel,
-        getLevel: self.getLevel
+        load: self.load
     }
 })();

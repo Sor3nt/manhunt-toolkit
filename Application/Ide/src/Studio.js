@@ -1,11 +1,11 @@
 
 MANHUNT.studio = (function () {
-    var self = {
+    let self = {
 
         _globalStorage: {},
         _tabHandler: {},
 
-        _init: function ( config ) {
+        _init: function () {
             window.setTimeout(function () {
 
                 MANHUNT.config.onLoadCallback( self._onConfigReceived );
@@ -36,10 +36,10 @@ MANHUNT.studio = (function () {
             });
         },
 
-        loadLevel: function (game, levelPath) {
-            MANHUNT.scene.views.loadLevel(game, levelPath, function(level){
-                level.addScene(MANHUNT.scene.modelView);
-                level.addScene(MANHUNT.scene.animationView);
+        loadLevel: function (game, levelName) {
+            MANHUNT.resources.handler.fromLevel(game, levelName, function(storage){
+                new MANHUNT.scene.Level(game, levelName, storage);
+
             });
         }
 
