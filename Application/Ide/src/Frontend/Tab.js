@@ -44,6 +44,11 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
             self._element.content.append(content);
         },
 
+        addContent: function(element){
+            self._element.content.append(element);
+            return element;
+        },
+
         remove: function(name){
             if (typeof self._tab2Content[name] === "undefined") return;
 
@@ -79,6 +84,7 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
 
 
     return {
+        addContent: self.addContent,
         get: self.get,
         show: self.show,
         remove: self.remove,

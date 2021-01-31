@@ -1,7 +1,7 @@
 MANHUNT.scene.animationView = function (level) {
 
 
-    var self = {
+    let self = {
 
         _name : 'animation '+ level._name,
 
@@ -24,10 +24,9 @@ MANHUNT.scene.animationView = function (level) {
             self._template.model = document.querySelector('#model-list-entry');
             self._template.animation = document.querySelector('#animation-list-entry');
 
+            self._container = jQuery(jQuery('#view-animation').html());
+            MANHUNT.studio.getTabHandler().addContent(self._container);
 
-            var row = jQuery(document.querySelector('#view-animation').content).clone();
-            jQuery('#tab-content').append(row);
-            self._container = jQuery('#tab-content').find('>div:last-child');
             self._filter = self._container.find('[data-field="model-filter"]');
             self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="animation-tab-list"]'), self._container.find('[data-id="animation-tab-content"]'));
 
@@ -47,16 +46,9 @@ MANHUNT.scene.animationView = function (level) {
             MANHUNT.studio.getTabHandler().add(
                 self._name,
                 self._container,
-                function () {
-                    //close
-                },
-                function () {
-                    MANHUNT.engine.changeScene(self._name);
-                    //focus
-                },
-                function () {
-                    //blur
-                },
+                function () { }, //close
+                function () { MANHUNT.engine.changeScene(self._name); }, //focus
+                function () { }  //blur
             );
 
             MANHUNT.studio.getTabHandler().show(self._name);
@@ -66,7 +58,7 @@ MANHUNT.scene.animationView = function (level) {
             //Create scene
             sceneInfo.camera.position.set(-140.83501492578623, 119.29015658522931, -73.34957947924103);
 
-            var spotLight = new THREE.SpotLight(0xffffff);
+            let spotLight = new THREE.SpotLight(0xffffff);
             spotLight.position.set(1, 1, 1);
             sceneInfo.scene.add(spotLight);
 
@@ -86,7 +78,7 @@ MANHUNT.scene.animationView = function (level) {
             self._tabHandler.show('Models');
 
 
-            var names = level._storage.mdl.getModelNames();
+            let names = level._storage.mdl.getModelNames();
             names.forEach(function (name) {
                 self._createModelEntry(name);
 
@@ -117,7 +109,7 @@ MANHUNT.scene.animationView = function (level) {
 
         _onModelClick: function(row, modelName, animBlocks){
 
-            var sceneInfo = MANHUNT.engine.getSceneInfo();
+            let sceneInfo = MANHUNT.engine.getSceneInfo();
 
             //remove old objects
             if (self._lastModels.length > 0) {
@@ -127,7 +119,7 @@ MANHUNT.scene.animationView = function (level) {
             }
 
             //Generate Model Object
-            var model = level._storage.mdl.find(modelName).get();
+            let model = level._storage.mdl.find(modelName).get();
             self._createRelatedAnim(modelName, animBlocks);
 
             model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
@@ -188,34 +180,21 @@ MANHUNT.scene.animationView = function (level) {
 
         _createModelEntry: function( modelName ){
 
-            var instRel = level.relation.getInstByModel(modelName);
-            if (instRel !== false){
-                instRel = instRel[0];
+            let glgs = level.relation.getGlgByModel(modelName);
+            if (glgs !== false){
+
                 //Detect animation blocks
-                var animBlocks = [];
-
-                var glgs = level.relation.getGlgByModel(modelName);
+                let animBlocks = [];
                 glgs.forEach(function (rel) {
-
-                    var animBlock = rel.glg.getValue('ANIMATION_BLOCK');
-                    animBlocks.push(animBlock);
-
+                    let animBlock = rel.glg.getValue('ANIMATION_BLOCK');
+                    if (animBlocks.indexOf(animBlock) === -1) animBlocks.push(animBlock);
                 });
 
-
-
+                //The model has animations (from GLG)
                 if (animBlocks.length > 0){
-
                     self._createModelRow(animBlocks, modelName);
-
-
                 }
-
-
             }
-
-
-
         }
         
     };

@@ -21,13 +21,12 @@ MANHUNT.scene.modelView = function (level) {
         _templatePos: {},
 
         _init: function(){
-            var template = document.querySelector('#view-model');
+            self._container = jQuery(jQuery('#view-model').html());
+            MANHUNT.studio.getTabHandler().addContent(self._container);
+
             self._template = document.querySelector('#model-list-entry');
             self._templatePos = document.querySelector('#model-list-info-position');
 
-            var row = jQuery(template.content).clone();
-            jQuery('#tab-content').append(row);
-            self._container = jQuery('#tab-content').find('>div:last-child');
             self._filter = self._container.find('[data-field="model-filter"]');
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(

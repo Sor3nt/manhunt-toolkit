@@ -19,11 +19,9 @@ MANHUNT.scene.Manhunt2Level = function (levelName, doneCallback) {
         
         _init: function(){
 
-            var template = document.querySelector('#view-world');
+            self._content = jQuery(jQuery('#world').html());
+            MANHUNT.studio.getTabHandler().addContent(self._content);
 
-            var row = jQuery(template.content).clone();
-            jQuery('#tab-content').append(row);
-            self._content = jQuery('#tab-content').find('>div:last-child');
 
 
             var storage = new MANHUNT.storage.Storage(self);
