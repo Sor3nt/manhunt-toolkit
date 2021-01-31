@@ -20,9 +20,7 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
             self._content = jQuery(jQuery('#view-world').html());
             MANHUNT.studio.getTabHandler().addContent(self._content);
 
-
-
-            var storage = new MANHUNT.storage.Storage(self);
+            let storage = new MANHUNT.storage.Storage(self);
 
             self._storage.ifp = storage.create('Animation');
             self._storage.mdl = storage.create('Model');
@@ -31,8 +29,8 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
             self._storage.glg = storage.create('glg');
             self._storage.inst = storage.create('inst');
             self._storage.entity = storage.create();
-            self._animator = new MANHUNT.animator(self);
 
+            self._animator = new MANHUNT.animator(self);
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
                 self._content.find('[data-field="webgl"]'),
@@ -47,7 +45,7 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
 
         loadChainFiles: function(entries, callback){
 
-            var wait = 0;
+            let wait = 0;
 
             jQuery.each(entries, function (loader, files) {
 
@@ -71,8 +69,7 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
 
         _processChain: function(chain){
 
-
-            var promise = new Promise(function(okCallback){
+            let promise = new Promise(function(okCallback){
                 okCallback();
             });
 
@@ -81,10 +78,9 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
                 promise = promise.then(function () {
 
 
-                    var innerPromise = new Promise(function (okCallback) {
+                    let innerPromise = new Promise(function (okCallback) {
                         okCallback();
                     });
-
 
                     jQuery.each(part.order, function (orderIndex, order) {
                         innerPromise = innerPromise.then(function () {
@@ -137,7 +133,13 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
 
             sceneInfo.scene.add(new THREE.HemisphereLight(0xffffff, 0x444444));
 
-            let player = self._storage.entity.find('player(player)');
+            let player;
+            if (self._game === "manhunt2"){
+                player = self._storage.entity.find('player(player)');
+            }else{
+                player = self._storage.entity.find('player');
+            }
+
             sceneInfo.control.enable(player.object);
 
             jQuery('#loading').hide();
@@ -145,21 +147,124 @@ MANHUNT.scene.AbstractLevel = function (levelName, doneCallback) {
             doneCallback(self);
         },
 
+        _createMap: function(){
+            self._storage.bsp.getData().forEach(function (scene, index) {
+
+                if (self._game === "manhunt2" && index === 2){
+                    //hide bbox and shadow light
+                    scene.children.forEach(function (child) {
+                        child.visible = false;
+                    });
+                }
+
+                scene.scale.set(48,48,48);
+                self._sceneInfo.scene.add(scene);
+            });
+        },
+
         addScene: function(view){
             new view(self);
         },
 
+        _createModels: function(){
+            self._storage.inst.getData().forEach(function (instEntry) {
+
+                let entity;
+                self.relation.addInst(instEntry.name, instEntry);
+
+                let glg = self._storage.glg.find(instEntry.glgRecord);
+                instEntry.glg = glg;
+                if (glg !== false){
+                    self.relation.addGlg(instEntry.glgRecord, glg);
+                    self.relation.inst2Glg(instEntry.name, instEntry.glgRecord);
+
+                    let modelName = glg.getValue("MODEL");
+                    //searchable and trigger has no model
+                    if (modelName === false || modelName === "") return;
+
+                    instEntry.model = false;
+                    if (modelName === false) {
+                        entity = MANHUNT.entity.construct.byInstEntry(instEntry);
+                        if (entity === false) return;
+
+                        sceneInfo.scene.add(entity.object);
+                    }else{
+
+                        //TODO, hardcoded level 1 stuff
+                        if (modelName === "fist_poly_hunter"){
+                            if (self._game === "manhunt2"){
+                                modelName = 'danny_asylum_bloody';
+                            }else{
+                                modelName = 'Player_Bod';
+                            }
+
+                        }
+
+                        self._createModel(modelName, instEntry);
+
+
+                    }
+                }
+
+
+            });
+        },
+
+        _createModel: function(modelName, instEntry){
+            let model = self._storage.mdl.find(modelName);
+            if (model === false) return;
+
+            self.relation.addModel(modelName, model);
+            self.relation.model2Glg(modelName, instEntry.glgRecord);
+            self.relation.model2Inst(modelName, instEntry.name);
+
+            entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
+            if (entity === false) return;
+
+
+            //Hunter have a additional model
+            let headRecordName = entity.record.getValue("HEAD");
+            if (headRecordName !== false && headRecordName !== "no_hed"){
+
+                let headRecordGlg = self._storage.glg.find(headRecordName);
+                let headModelName = headRecordGlg.getValue("MODEL");
+
+                let headModel = self._storage.mdl.find(headModelName);
+                let headObj = headModel.get();
+
+                entity.object.skeleton.bones.forEach(function (bone) {
+                    if (bone.name === "Bip01_Head") bone.add(headObj);
+                });
+
+                self.relation.addModel(headModelName, headObj);
+                self.relation.addGlg(headRecordName, headRecordGlg);
+
+                self.relation.inst2Glg(instEntry.name, headRecordName);
+                self.relation.model2Inst(headModelName, instEntry.name);
+                self.relation.model2Glg(headModelName, headRecordName);
+
+            }
+
+
+
+            self._sceneInfo.scene.add(entity.object);
+
+            self._storage.entity.add(entity);
+            self.relation.addEntity(entity.name, entity);
+            self.relation.inst2Entity(entity.name, instEntry.name);
+
+        },
 
         _onUpdate: function (sceneInfo, delta) {
 
             /**
              * Camera follow the player
              */
-            var lookAt = sceneInfo.control.enable(); //enable return the enabled object if no arguments applied
+            let lookAt = sceneInfo.control.enable(); //enable return the enabled object if no arguments applied
 
-            var relativeCameraOffset = new THREE.Vector3(0, 2, -3);
+            let relativeCameraOffset = new THREE.Vector3(0, 2, -3);
             lookAt.updateMatrixWorld();
-            var cameraOffset = relativeCameraOffset.applyMatrix4(lookAt.matrixWorld);
+            let cameraOffset = relativeCameraOffset.applyMatrix4(lookAt.matrixWorld);
 
             sceneInfo.camera.position.lerp(cameraOffset, 0.1);
             sceneInfo.camera.lookAt(lookAt.position);
