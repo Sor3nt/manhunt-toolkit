@@ -117,6 +117,7 @@
     <script src="src/Camera/TVP.js"></script>
 
 
+    <script src="src/Scene/abstract.level.js"></script>
     <script src="src/Scene/manhunt.level.js"></script>
     <script src="src/Scene/manhunt2.level.js"></script>
     <script src="src/Scene/model.view.js"></script>
@@ -132,7 +133,6 @@
     <script src="src/Entity/Light.js"></script>
 
 
-    <script src="src/Frontend/Model.js"></script>
     <script src="src/Frontend/Tab.js"></script>
 
 
@@ -227,7 +227,7 @@
     <header class="c-header c-header-light ">
 
 
-        <ul class="nav nav-tabs" id="tab-list">
+        <ul class="nav nav-tabs" id="studio-tab-list">
 
             <li style="position: absolute;right: 15px;top: 5px;">
                 <button type="button" class="btn btn-sm btn-primary">Save changes</button>
@@ -236,9 +236,10 @@
         </ul>
     </header>
 
+
     <div class="c-body">
         <main class="c-main">
-            <div class="container-fluid" id="tab-content">
+            <div class="container-fluid" id="studio-tab-content">
 
             </div>
         </main>

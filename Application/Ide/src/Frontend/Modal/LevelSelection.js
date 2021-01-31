@@ -38,13 +38,8 @@ MANHUNT.frontend.modal.levelSelection = function () {
                     self._onHover(levelInfo, row);
                 }).click(function () {
 
-                    MANHUNT.scene.views.loadLevel(levelInfo.game, levelInfo.folderName, function(level){
-                        level.addScene(MANHUNT.scene.modelView);
-                        level.addScene(MANHUNT.scene.animationView);
-                    });
-
+                    MANHUNT.studio.loadLevel(levelInfo.game, levelInfo.folderName);
                     MANHUNT.frontend.modal.handler.hide();
-                    // MANHUNT.engine.changeScene( 'level_' + levelInfo.folderName);
                 });
             });
 

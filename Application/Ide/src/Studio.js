@@ -15,7 +15,7 @@ MANHUNT.studio = (function () {
         _onConfigReceived: function () {
             MANHUNT.engine.init();
 
-            self._tabHandler = new MANHUNT.frontend.Tab(jQuery('#tab-list'), jQuery('#tab-content'));
+            self._tabHandler = new MANHUNT.frontend.Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
 
             if (MANHUNT.config.get('manhunt_folder') === false && MANHUNT.config.get('manhunt2_folder') === false){
                 return MANHUNT.frontend.modal.handler.show('setup', self._onGamePathsKnown);
@@ -34,6 +34,13 @@ MANHUNT.studio = (function () {
             MANHUNT.frontend.modal.handler.show('levelSelection', function () {
                 
             });
+        },
+
+        loadLevel: function (game, levelPath) {
+            MANHUNT.scene.views.loadLevel(game, levelPath, function(level){
+                level.addScene(MANHUNT.scene.modelView);
+                level.addScene(MANHUNT.scene.animationView);
+            });
         }
 
 
@@ -42,6 +49,7 @@ MANHUNT.studio = (function () {
     self._init();
 
     return {
+        loadLevel: self.loadLevel,
         getStorage: function (name) {
             return self._globalStorage[name];
         },
