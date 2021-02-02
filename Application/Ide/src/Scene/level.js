@@ -11,7 +11,6 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
         _views: {},
 
         relation: new MANHUNT.Relation(),
-        _animator: {},
 
         _container: {},
         _tabHandler: {},
@@ -35,7 +34,6 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
 
             self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="level-tab-list"]'), self._container.find('[data-id="level-tab-content"]'));
 
-            self._animator = new MANHUNT.animator(self);
             self._views.world = new MANHUNT.scene.WorldView(self);
             self._views.model = new MANHUNT.scene.ModelView(self);
 

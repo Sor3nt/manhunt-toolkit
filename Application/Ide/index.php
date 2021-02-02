@@ -14,6 +14,7 @@
     <script>
         window.MANHUNT = {
 
+            ObjectAnimation: {},
             resources: {},
             studio: {},
             config: {},
@@ -146,7 +147,6 @@
     <script src="src/Storage/Model.js"></script>
 
     <script src="src/Config.js"></script>
-    <script src="src/Animator.js"></script>
 
     <!-- Engine -->
     <script src="src/Engine.js"></script>
@@ -231,6 +231,7 @@
     </div>
 
 
+    <script src="src/ObjectAnimation.js"></script>
     <script src="src/Scene/level.js"></script>
     <script src="src/Scene/texture.view.js"></script>
     <script src="src/Scene/animation.view.js"></script>

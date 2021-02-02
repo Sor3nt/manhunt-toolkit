@@ -12,7 +12,10 @@ MANHUNT.scene.AnimationView = function (level) {
         _sceneInfo: {},
 
         _lastModels : [],
-        _lastRow : false,
+        _lastModelRow : false,
+
+        _animation : false,
+        _lastAnimationRow : false,
 
         _row: {},
 
@@ -87,7 +90,7 @@ MANHUNT.scene.AnimationView = function (level) {
         },
 
         _onUpdate: function (sceneInfo, delta) {
-            level._animator.update(delta);
+            self._animation !== false && self._animation.update(delta);
         },
 
         _createModelRow: function(animBlocks, modelName){
@@ -121,12 +124,12 @@ MANHUNT.scene.AnimationView = function (level) {
 
             //Generate Model Object
             let model = level._storage.mdl.find(modelName).get();
+            self._animation = new MANHUNT.ObjectAnimation(level, model);
             self._createRelatedAnim(modelName, animBlocks);
 
             model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
             sceneInfo.scene.add(model);
 
-            level._animator.play(model, 'BAT_STAND_SNEAK_ANIM', 'PlayerAnims');
 
             const helper = new THREE.SkeletonHelper( model );
             helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
@@ -138,17 +141,35 @@ MANHUNT.scene.AnimationView = function (level) {
             sceneInfo.control.enable(model);
 
             //Active / Highlighting row
-            if (self._lastRow !== false) self._lastRow.removeClass('active');
+            if (self._lastModelRow !== false) self._lastModelRow.removeClass('active');
             row.addClass("active");
 
-            self._lastRow = row;
+            self._lastModelRow = row;
 
         },
 
-        _createAnimationRow: function(container){
-            let row = jQuery(self._template.animation.content).clone();
-            container.find('[data-field="animation-list-container"]').append(row);
-            return container.find('[data-field="model-list-container"]').find('li:last-child');
+        _onAnimationClick: function(row, animBlock, name){
+
+            //Active / Highlighting row
+            if (self._lastAnimationRow !== false) self._lastAnimationRow.removeClass('active');
+            row.addClass("active");
+
+
+            self._animation.play(name, animBlock);
+
+
+            self._lastAnimationRow = row;
+
+        },
+
+        _createAnimationRow: function(animBlock, name){
+            let row = jQuery(jQuery(self._template.animation).html());
+
+            row.find('[data-field="name"]').html(name).click(function () {
+                self._onAnimationClick(row, animBlock, name);
+            });
+
+            self._container.find('[data-field="animation-list-container"]').append(row);
         },
 
         _createRelatedAnim: function( modelName, animBlocks ){
@@ -168,12 +189,16 @@ MANHUNT.scene.AnimationView = function (level) {
             animBlocks.forEach(function (animBlock) {
 
                 let names = level._storage.ifp.getNamesByGroup(animBlock);
-                names.forEach(function (name) {
 
+                names = [...names].sort(function (a, b) {
+                    if(a < b) { return -1; }
+                    if(a > b) { return 1; }
+                    return 0;
                 });
 
-                // console.log("animBlock", animBlock, level._storage.ifp.getNamesByGroup(animBlock));
-
+                names.forEach(function (name) {
+                    self._createAnimationRow(animBlock, name);
+                });
             });
 
         },
