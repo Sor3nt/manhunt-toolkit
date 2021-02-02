@@ -142,7 +142,8 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
                 let headObj = headModel.get();
 
                 entity.object.skeleton.bones.forEach(function (bone) {
-                    if (bone.name === "Bip01_Head") bone.add(headObj);
+                    if (bone.name === "Bip01_Head") bone.add(headObj); //mh2
+                    if (bone.name === "Bip01 Head") bone.add(headObj); //mh1
                 });
 
                 self.relation.addModel(headModelName, headObj);
