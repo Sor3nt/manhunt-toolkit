@@ -22,7 +22,7 @@ MANHUNT.scene.ModelView = function (level) {
 
         _init: function(){
             self._container = jQuery(jQuery('#view-model').html());
-            MANHUNT.studio.getTabHandler().addContent(self._container);
+            level._tabHandler.addContent(self._container);
 
             self._template = document.querySelector('#model-list-entry');
             self._templatePos = document.querySelector('#model-list-info-position');
@@ -41,19 +41,13 @@ MANHUNT.scene.ModelView = function (level) {
 
         _onCreate: function (sceneInfo) {
 
-            MANHUNT.studio.getTabHandler().add(
+            level._tabHandler.add(
                 self._name,
                 self._container,
-                function () {
-                    //close
-                },
-                function () {
-                    MANHUNT.engine.changeScene(self._name);
-                    //focus
-                },
-                function () {
-                    //blur
-                },
+                function () { }, //close
+                function () { MANHUNT.engine.changeScene(self._name); }, //focus
+                function () { },  //blur
+                'Model'
             );
 
             MANHUNT.studio.getTabHandler().show(self._name);

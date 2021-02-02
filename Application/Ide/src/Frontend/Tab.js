@@ -13,7 +13,7 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
             self._template.tab = document.querySelector('#tab-list-entry');
         },
 
-        add: function (name, content, closeCallback, focusCallback, blurCallback) {
+        add: function (name, content, closeCallback, focusCallback, blurCallback, labelName) {
             if (typeof self._tab2Content[name] !== "undefined"){
                 console.log('[MANHUNT.frontend.tab] Unable to add tab', name, 'already added?!' );
                 return;
@@ -27,7 +27,7 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
                 .click(function () {
                     self.show(name);
                 })
-                .html(name);
+                .html(labelName || name);
 
             row.find('button').click(function () {
                 row.remove();

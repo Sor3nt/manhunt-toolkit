@@ -13,8 +13,27 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
         relation: new MANHUNT.Relation(),
         _animator: {},
 
-        _init: function(){
+        _container: {},
+        _tabHandler: {},
 
+        _init: function(){
+            self._container = jQuery(jQuery('#level').html());
+
+
+            MANHUNT.studio.getTabHandler().add(
+                self._name,
+                self._container,
+                function () { }, //close
+                function () {
+
+                    //TODO: reactivate current scene, the webgl is otherwise not there
+
+                }, //focus
+                function () { } //blur
+            );
+            MANHUNT.studio.getTabHandler().show(self._name);
+
+            self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="level-tab-list"]'), self._container.find('[data-id="level-tab-content"]'));
 
             self._animator = new MANHUNT.animator(self);
             self._views.world = new MANHUNT.scene.WorldView(self);

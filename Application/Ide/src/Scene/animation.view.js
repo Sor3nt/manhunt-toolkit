@@ -25,7 +25,7 @@ MANHUNT.scene.AnimationView = function (level) {
             self._template.animation = document.querySelector('#animation-list-entry');
 
             self._container = jQuery(jQuery('#view-animation').html());
-            MANHUNT.studio.getTabHandler().addContent(self._container);
+            level._tabHandler.addContent(self._container);
 
             self._filter = self._container.find('[data-field="model-filter"]');
             self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="animation-tab-list"]'), self._container.find('[data-id="animation-tab-content"]'));
@@ -43,15 +43,16 @@ MANHUNT.scene.AnimationView = function (level) {
         _onCreate: function (sceneInfo) {
 
             //Create Main Tab
-            MANHUNT.studio.getTabHandler().add(
+            level._tabHandler.add(
                 self._name,
                 self._container,
                 function () { }, //close
                 function () { MANHUNT.engine.changeScene(self._name); }, //focus
-                function () { }  //blur
+                function () { },  //blur
+                'Animation'
             );
 
-            MANHUNT.studio.getTabHandler().show(self._name);
+            level._tabHandler.show(self._name);
 
 
 

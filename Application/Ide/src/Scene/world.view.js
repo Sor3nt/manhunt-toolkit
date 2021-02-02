@@ -11,7 +11,7 @@ MANHUNT.scene.WorldView = function (level) {
 
         _init: function(){
             self._content = jQuery(jQuery('#view-world').html());
-            MANHUNT.studio.getTabHandler().addContent(self._content);
+            level._tabHandler.addContent(self._content);
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
                 self._content.find('[data-field="webgl"]'),
@@ -25,12 +25,13 @@ MANHUNT.scene.WorldView = function (level) {
 
         _onCreate: function (sceneInfo) {
 
-            MANHUNT.studio.getTabHandler().add(
+            level._tabHandler.add(
                 self._name,
                 self._content,
                 function () { }, //close
                 function () { MANHUNT.engine.changeScene(self._name);}, //focus
-                function () { } //blur
+                function () { }, //blur
+                'Map'
             );
 
             let spotLight = new THREE.SpotLight(0xffffff);
