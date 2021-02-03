@@ -111,25 +111,39 @@ MANHUNT.scene.AnimationView = function (level) {
             ;
         },
 
-        _onModelClick: function(row, modelName, animBlocks){
+        _cleanup: function(){
 
-            let sceneInfo = MANHUNT.engine.getSceneInfo();
+            if (self._lastModelRow !== false) self._lastModelRow.removeClass('active');
+
+            if (self._animation !== false) self._animation.stop();
+
+            self._container.find('[data-field="animation-list-container"]').html('');
 
             //remove old objects
             if (self._lastModels.length > 0) {
+                let sceneInfo = MANHUNT.engine.getSceneInfo();
+
                 self._lastModels.forEach(function (model) {
                     sceneInfo.scene.remove(model);
                 });
             }
+        },
+
+        _onModelClick: function(row, modelName, animBlocks){
+
+            self._cleanup();
+
+            let sceneInfo = MANHUNT.engine.getSceneInfo();
 
             //Generate Model Object
             let model = level._storage.mdl.find(modelName).get();
+
+            console.log("CLIK", model);
             self._animation = new MANHUNT.ObjectAnimation(level, model);
             self._createRelatedAnim(modelName, animBlocks);
 
             model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
             sceneInfo.scene.add(model);
-
 
             const helper = new THREE.SkeletonHelper( model );
             helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
@@ -141,7 +155,6 @@ MANHUNT.scene.AnimationView = function (level) {
             sceneInfo.control.enable(model);
 
             //Active / Highlighting row
-            if (self._lastModelRow !== false) self._lastModelRow.removeClass('active');
             row.addClass("active");
 
             self._lastModelRow = row;
@@ -172,7 +185,9 @@ MANHUNT.scene.AnimationView = function (level) {
             self._container.find('[data-field="animation-list-container"]').append(row);
         },
 
-        _createRelatedAnim: function( modelName, animBlocks ){
+        _createRelatedAnim: function(modelName, animBlocks ){
+
+
 
             let container = self._container.find('[data-id="relatedAnim"]');
 
@@ -185,6 +200,7 @@ MANHUNT.scene.AnimationView = function (level) {
                 function () { }, //focus
                 function () { }, //blur
             );
+            console.log("container", container);
 
             animBlocks.forEach(function (animBlock) {
 
@@ -207,13 +223,15 @@ MANHUNT.scene.AnimationView = function (level) {
         _createModelEntry: function( modelName ){
 
             let glgs = level.relation.getGlgByModel(modelName);
-            console.log("GLGs", glgs, modelName);
+
             if (glgs !== false){
 
                 //Detect animation blocks
                 let animBlocks = [];
                 glgs.forEach(function (rel) {
                     let animBlock = rel.glg.getValue('ANIMATION_BLOCK');
+                    if (animBlock === false) return;
+
                     if (animBlocks.indexOf(animBlock) === -1) animBlocks.push(animBlock);
                 });
 

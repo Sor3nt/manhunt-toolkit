@@ -8,8 +8,12 @@ MANHUNT.ObjectAnimation = function (level, model) {
 
             let clip = level._storage.ifp.find(animationBlock, animationName);
 
-            self._mixer.stopAllAction();
+            self.stop();
             self._mixer.clipAction( clip ).play();
+        },
+
+        stop: function(){
+            self._mixer.stopAllAction();
         },
 
         update: function (delta) {
@@ -20,6 +24,7 @@ MANHUNT.ObjectAnimation = function (level, model) {
 
     return {
         play: self.play,
+        stop: self.stop,
         update: self.update
     }
 };

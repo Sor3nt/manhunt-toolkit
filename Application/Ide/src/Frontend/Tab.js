@@ -53,7 +53,7 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
             if (typeof self._tab2Content[name] === "undefined") return;
 
             self._tab2Content[name].tab.remove();
-            self._tab2Content[name].content.remove();
+            self._tab2Content[name] = undefined;
         },
 
         show: function (name) {

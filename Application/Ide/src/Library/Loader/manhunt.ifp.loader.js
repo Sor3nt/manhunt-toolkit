@@ -415,6 +415,10 @@ MANHUNT.fileLoader.IFP = function () {
                                 if (groupName === group) groupIndex = index;
                             });
 
+                            if (groupIndex === -1){
+                                console.error('[MANHUNT.fileLoader.IFP] unable to find group ', group, 'available', IFPEntryArray);
+                            }
+
                             return IFPEntryIndexArray[groupIndex].anpkName;
                         },
 
