@@ -15,6 +15,7 @@
 MANHUNT.parser.dff = function (binary) {
 
     let allBones = [];
+    let allBonesMesh = [];
     let meshBone = {};
 
     const rpGEOMETRYPOSITIONS = 0x00000002;
@@ -489,48 +490,24 @@ MANHUNT.parser.dff = function (binary) {
 
         let SkinPLG = {boneids: [], weights: [], inverseMatrix: []};
         let Matrix_Array = [];
-        let tempBoneIDArray = [];
-        for (let i = 0; i < VertexCount; i++) {
 
-            tempBoneIDArray.push([
+        for (let i = 0; i < VertexCount; i++) {
+            SkinPLG.boneids.push([
                 binary.consume(1, 'uint8'),
                 binary.consume(1, 'uint8'),
                 binary.consume(1, 'uint8'),
                 binary.consume(1, 'uint8')
             ]);
         }
-        // connsole.log(SkinPLG);
 
         for (let i = 0; i < VertexCount; i++) {
-            var weights_Array = [];
-            var boneids_Array = [];
-            var weight1 = binary.consume(4, 'float32');
-            var weight2 = binary.consume(4, 'float32');
-            let weight3 = binary.consume(4, 'float32');
-            let weight4 = binary.consume(4, 'float32');
 
-            if (weight1 !== 0) {
-                weights_Array.push(weight1);
-                boneids_Array.push(tempBoneIDArray[i][0]);
-            }
-
-            if (weight2 !== 0) {
-                weights_Array.push(weight2);
-                boneids_Array.push(tempBoneIDArray[i][1]);
-            }
-
-            if (weight3 !== 0) {
-                weights_Array.push(weight3);
-                boneids_Array.push(tempBoneIDArray[i][2]);
-            }
-
-            if (weight4 !== 0) {
-                weights_Array.push(weight4);
-                boneids_Array.push(tempBoneIDArray[i][3]);
-            }
-
-            SkinPLG.boneids.push(boneids_Array);
-            SkinPLG.weights.push(weights_Array);
+            SkinPLG.weights.push([
+                binary.consume(4, 'float32'),
+                binary.consume(4, 'float32'),
+                binary.consume(4, 'float32'),
+                binary.consume(4, 'float32')
+            ]);
         }
 
         for (let i = 0; i < BoneCount; i++) {
@@ -752,6 +729,7 @@ MANHUNT.parser.dff = function (binary) {
 
     function ReadClump(offset) {
         allBones = [];
+        allBonesMesh = [];
 
         binary.setCurrent(offset);
 
@@ -842,7 +820,6 @@ MANHUNT.parser.dff = function (binary) {
 
         function generateBoneStructure(BoneArray){
 
-
             BoneArray.bones.forEach(function (bone) {
                 allBones.push(createBone(bone));
             });
@@ -856,6 +833,19 @@ MANHUNT.parser.dff = function (binary) {
                     }
                 });
             });
+
+            if (BoneArray.skinBones.length > 0){
+
+                BoneArray.bones.forEach(function (bone, indexInner) {
+                    var found = false;
+                    BoneArray.skinBones.forEach(function (boneInner, index) {
+                        if (boneInner === bone){
+                            allBonesMesh.push(allBones[indexInner]);
+                        }
+                    });
+
+                });
+            }
         }
 
         function createBone( data ){
@@ -966,145 +956,24 @@ MANHUNT.parser.dff = function (binary) {
 // console.log("givenIndice", parsedObject.skinPLG.boneids);
             parsedObject.vertices.forEach(function (vertexInfo, index) {
 
-
                 if (BoneArray.skinBones.length > 0 && typeof parsedObject.skinPLG.boneids !== "undefined") {
-                    var givenWeight = parsedObject.skinPLG.weights[index];
-
-                    var givenIndice = parsedObject.skinPLG.boneids[index];
-                    // var skinBoneIndiceIndex = false;
-
-
-                    var newIndice = [...givenIndice];
-                    givenIndice.forEach(function (searchedBoneIndex, indexIndice) {
-                        var isSkinBone = false;
-                        BoneArray.skinBones.forEach(function (skinBone, skinBoneIndex) {
-                           if (searchedBoneIndex  === skinBoneIndex){
-
-                               BoneArray.bones.forEach(function (bone, boneIndex) {
-                                   if (bone === skinBone){
-                                       isSkinBone = true;
-                                       newIndice[indexIndice] = boneIndex;
-                                   }
-                               });
-                           }
-                        });
-
-                        // if (isSkinBone === false){
-                        //
-                        // }
-                    });
-
-                    var newWeight = [...givenWeight];
-                    givenIndice.forEach(function (searchedBoneIndex, indexIndice) {
-                        BoneArray.skinBones.forEach(function (skinBone, skinBoneIndex) {
-                           if (searchedBoneIndex  === skinBoneIndex){
-
-                               BoneArray.bones.forEach(function (bone, boneIndex) {
-                                   if (bone === skinBone){
-
-                                       // newWeight[indexIndice] = parsedObject.skinPLG.weights[index][indexIndice];
-                                   }
-                               });
-                           }
-
-
-                        });
-
-                    });
-
-                    // var newWeight = parsedObject.skinPLG.weights[newWeightIndex];
-
-                    parsedObject.skinPLG.boneids[index] = newIndice;
-                    parsedObject.skinPLG.weights[index] = newWeight;
 
                     var indice = new THREE.Vector4(0,0,0,0);
-                    if (parsedObject.skinPLG.boneids[index].length === 4) {
-                        indice.x = parsedObject.skinPLG.boneids[index][0];
-                        indice.y = parsedObject.skinPLG.boneids[index][1];
-                        indice.z = parsedObject.skinPLG.boneids[index][2];
-                        indice.w = parsedObject.skinPLG.boneids[index][3];
-                    }else if (parsedObject.skinPLG.boneids[index].length === 3){
-                        indice.x = parsedObject.skinPLG.boneids[index][0];
-                        indice.y = parsedObject.skinPLG.boneids[index][1];
-                        indice.z = parsedObject.skinPLG.boneids[index][2];
-                    }else if (parsedObject.skinPLG.boneids[index].length === 2){
-                        indice.x = parsedObject.skinPLG.boneids[index][0];
-                        indice.y = parsedObject.skinPLG.boneids[index][1];
-                    }else if (parsedObject.skinPLG.boneids[index].length === 1){
-                        indice.x = parsedObject.skinPLG.boneids[index][0];
-                    }
-                    // console.log(indice);
-
+                    indice.fromArray(parsedObject.skinPLG.boneids[index]);
                     genericObject.skinIndices.push(indice);
 
                     var weight = new THREE.Vector4(0,0,0,0);
-                    if (parsedObject.skinPLG.weights[index].length === 4) {
-                        weight.x = parsedObject.skinPLG.weights[index][0];
-                        weight.y = parsedObject.skinPLG.weights[index][1];
-                        weight.z = parsedObject.skinPLG.weights[index][2];
-                        weight.w = parsedObject.skinPLG.weights[index][3];
-                    }else if (parsedObject.skinPLG.weights[index].length === 3){
-                        weight.x = parsedObject.skinPLG.weights[index][0];
-                        weight.y = parsedObject.skinPLG.weights[index][1];
-                        weight.z = parsedObject.skinPLG.weights[index][2];
-                    }else if (parsedObject.skinPLG.weights[index].length === 2){
-                        weight.x = parsedObject.skinPLG.weights[index][0];
-                        weight.y = parsedObject.skinPLG.weights[index][1];
-                    }else if (parsedObject.skinPLG.weights[index].length === 1){
-                        weight.x = parsedObject.skinPLG.weights[index][0];
-                    }
-
+                    weight.fromArray(parsedObject.skinPLG.weights[index]);
                     genericObject.skinWeights.push(weight);
 
-                    // console.log("parsedObject.skinPLG.boneids", parsedObject.skinPLG.boneids);
                 }
-
-                // skinBones
-                // if (typeof parsedObject.skinPLG.boneids !== "undefined"){
-                    // genericObject.skinIndices.push(parsedObject.skinPLG.boneids[index]);
-                    // BoneArray.skinBones
-                    //
-                    // BoneArray.skinBones.forEach(function (bone) {
-                    //     let boneIndex = bone.userProp.BoneIndex;
-                    //     if (boneIndex  + 1 === index){
-                    //         var indice = new THREE.Vector4(0,0,0,0);
-                    //         if (parsedObject.skinPLG.boneids[boneIndex].length === 4) {
-                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
-                    //             indice.y = parsedObject.skinPLG.boneids[boneIndex][1];
-                    //             indice.z = parsedObject.skinPLG.boneids[boneIndex][2];
-                    //             indice.w = parsedObject.skinPLG.boneids[boneIndex][3];
-                    //         }else if (parsedObject.skinPLG.boneids[boneIndex].length === 3){
-                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
-                    //             indice.y = parsedObject.skinPLG.boneids[boneIndex][1];
-                    //             indice.z = parsedObject.skinPLG.boneids[boneIndex][2];
-                    //         }else if (parsedObject.skinPLG.boneids[boneIndex].length === 2){
-                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
-                    //             indice.y = parsedObject.skinPLG.boneids[boneIndex][1];
-                    //         }else if (parsedObject.skinPLG.boneids[boneIndex].length === 1){
-                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
-                    //         }
-                    //         // console.log(indice);
-                    //
-                    //         genericObject.skinIndices.push(indice);
-                    //
-                    //     }
-                    // });
-
-
-                    //
-
-                    // genericObject.skinIndices.push(new THREE.Vector4().fromArray(parsedObject.skinPLG.boneids[index]));
-                    // genericObject.skinWeights.push(new THREE.Vector4().fromArray(parsedObject.skinPLG.weights[index]));
-
-                    // genericObject.skinWeights.push(parsedObject.skinPLG.weights[index]);
-                // }
 
                 genericObject.vertices.push(
                     new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )
                 );
 
             });
-console.log("w", parsedObject.skinPLG.weights);
+
             for(let x = 0; x < parsedObject.face.length; x++) {
 
                 let face = new THREE.Face3(parsedObject.face[x][0], parsedObject.face[x][1], parsedObject.face[x][2]);
@@ -1140,6 +1009,15 @@ console.log("w", parsedObject.skinPLG.weights);
 
             result.objects.push(genericObject);
         });
+
+        if (allBonesMesh.length > 0){
+            result.skeleton = new THREE.Skeleton( allBonesMesh );
+            // result.skeleton.bones.forEach(function(bone){
+            //     bone.updateWorldMatrix();
+            // });
+// console.log(BoneArray.skinBones);
+        }
+
 
         return result;
     }

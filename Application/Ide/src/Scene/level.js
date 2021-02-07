@@ -78,7 +78,6 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
             let sceneInfo = self._views.world.getSceneInfo();
 
             self._storage.inst.getData().forEach(function (instEntry) {
-
                 let entity;
                 self.relation.addInst(instEntry.name, instEntry);
 
@@ -90,7 +89,7 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
 
                     let modelName = glg.getValue("MODEL");
                     //searchable and trigger has no model
-                    if (modelName === false || modelName === "") return;
+                    if (modelName === false || modelName === "" || modelName === "collisionbox") return;
 
                     instEntry.model = false;
                     if (modelName === false) {
