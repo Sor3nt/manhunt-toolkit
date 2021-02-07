@@ -129,7 +129,7 @@ MANHUNT.fileLoader.IFP = function () {
         return [IFPEntryArray, IFPEntryIndexArray];
     }
 
-    function getANPKAnim(binary, anpkOffset, groupName, animName) {
+    function getANPKAnim(game, binary, anpkOffset, groupName, animName) {
 
         binary.setCurrent(anpkOffset);
 
@@ -242,11 +242,79 @@ MANHUNT.fileLoader.IFP = function () {
             resultBones.push(resultBone);
         }
 
-        return convertBonesToAnimation(resultBones, animName, times);
+        return convertBonesToAnimation(game, resultBones, animName, times);
     }
 
-    function getBoneNameByBoneId(boneId) {
-        var mapping = {
+    function getBoneNameByBoneId(game, boneId) {
+        let mappingManhunt = {
+            'Bip01': 1000,
+            'Bip01 Head': 1001,
+            'Bip01 L Calf': 1002,
+            'Bip01 L Clavicle': 1003,
+            'Bip01 L Finger0': 1004,
+            'Bip01 L Finger1': 1005,
+            'Bip01 L Finger01': 1006,
+            'Bip01 L Finger2': 1008,
+            'Bip01 L Finger3': 1009,
+            'Bip01 L Finger11': 1011,
+            'Bip01 L Finger21': 1013,
+            'Bip01 L Finger31': 1015,
+            'Bip01 L Foot': 1019,
+            'Bip01 L Forearm': 1020,
+            'Bip01 L Hand': 1021,
+            'Bip01 L Thigh': 1023,
+            'Bip01 L Toe0': 1024,
+            'Bip01 L UpperArm': 1039,
+            'Bip01 Neck': 1040,
+            'Bip01 Pelvis': 1045,
+            'Bip01 R Calf': 1056,
+            'Bip01 R Clavicle': 1057,
+            'Bip01 R Finger0': 1058,
+            'Bip01 R Finger1': 1059,
+            'Bip01 R Finger01': 1060,
+            'Bip01 R Finger2': 1062,
+            'Bip01 R Finger3': 1063,
+            'Bip01 R Finger11': 1065,
+            'Bip01 R Finger21': 1067,
+            'Bip01 R Finger31': 1069,
+            'Bip01 R Foot': 1073,
+            'Bip01 R Forearm': 1074,
+            'Bip01 R Hand': 1075,
+            'Bip01 R Thigh': 1077,
+            'Bip01 R Toe0': 1078,
+            'Bip01 R UpperArm': 1093,
+            'Bip01 Spine': 1094,
+            'Bip01 Spine1': 1095,
+            'Bip01 Spine2': 1096,
+            'Arm Comp Bone 1': 2003,
+            'Arm Comp Bone 2': 2222,
+            'Back Weapon Slot': 3333,
+            'Left Weapon Slot': 4444,
+            'Right Weapon Slot': 5555,
+            'Lure Slot': 6666,
+            'Strap Bone 1': 7777,
+            'Strap Bone 2': 8888,
+            'Neck Compensator': 9999,
+            'Player_Bod': 10000,
+            'Bip01 HeadNub': 10001,
+            'Neck Compensator Dummy': 10002,
+            'Bip01 L Finger0Nub': 10003,
+            'Bip01 L Finger1Nub': 10004,
+            'Bip01 L Finger2Nub': 10005,
+            'Bip01 L Finger3Nub': 10006,
+            'Arm Comp Bone 2 Dummy': 10007,
+            'Bip01 R Finger0Nub': 10008,
+            'Bip01 R Finger1Nub': 10009,
+            'Bip01 R Finger2Nub': 10010,
+            'Bip01 R Finger3Nub': 10011,
+            'Arm Comp Bone 1 Dummy': 10012,
+            'Strap Bone 1 Dummy': 10013,
+            'Strap Bone 2 Dummy': 10014,
+            'Bip01 L Toe0Nub': 10015,
+            'Bip01 R Toe0Nub': 10016
+        };
+
+        let mappingManhunt2 = {
             BONE_JAW: 0,
             BONE_LEFT_BROW: 1,
             BONE_LIP_CORNER_R: 2,
@@ -296,15 +364,24 @@ MANHUNT.fileLoader.IFP = function () {
             STRAP2: 8888
         };
 
-        for(var i in mapping){
-            if (!mapping.hasOwnProperty(i)) continue;
-            if (mapping[i] === boneId) return i;
+        if (game === "manhunt2"){
+            for(let i in mappingManhunt2){
+                if (!mappingManhunt2.hasOwnProperty(i)) continue;
+                if (mappingManhunt2[i] === boneId) return i;
+            }
+
+        }else{
+            for(let i in mappingManhunt){
+                if (!mappingManhunt.hasOwnProperty(i)) continue;
+                if (mappingManhunt[i] === boneId) return i;
+            }
+
         }
 
         return boneId;
     }
 
-    function convertBonesToAnimation( bones, animName, duration) {
+    function convertBonesToAnimation(game, bones, animName, duration) {
 
         var animation = {
             name: animName,
@@ -316,7 +393,7 @@ MANHUNT.fileLoader.IFP = function () {
             if (!bones.hasOwnProperty(i)) continue;
 
             var bone = bones[i];
-            var name = getBoneNameByBoneId(bone.boneId);
+            var name = getBoneNameByBoneId(game, bone.boneId);
 
             var trackPosition = {
                 name: name + '.position',
@@ -439,7 +516,7 @@ MANHUNT.fileLoader.IFP = function () {
                             var clip = false;
                             IFPEntryIndexArray[groupIndex].anpkName.forEach(function (animName, index) {
                                 if (animName === name){
-                                    clip = getANPKAnim(binary, IFPEntryIndexArray[groupIndex].anpkOffset[index], groupName, name);
+                                    clip = getANPKAnim(level._game, binary, IFPEntryIndexArray[groupIndex].anpkOffset[index], groupName, name);
                                 }
                             });
 
@@ -447,6 +524,8 @@ MANHUNT.fileLoader.IFP = function () {
                                 console.log('[MANHUNT.loader.ifp] Unable to locate animation clip ', name);
                                 return false;
                             }
+
+                            console.log("clip", clip);
 
                             return clip;
                         }

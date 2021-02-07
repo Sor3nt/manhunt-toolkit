@@ -35,6 +35,7 @@ MANHUNT.converter.generic2mesh = function (level, model) {
         let bufferGeometry = new THREE.BufferGeometry();
         bufferGeometry.fromGeometry( geometry );
 
+
         let mesh = entry.skinning === true ?
             new THREE.SkinnedMesh(bufferGeometry, entry.material) :
             new THREE.Mesh(bufferGeometry, entry.material)
@@ -42,7 +43,6 @@ MANHUNT.converter.generic2mesh = function (level, model) {
 
         //only the first LOD is visible (does not apply to player model)
         mesh.visible = index === 0;
-
         if (index === 0 && entry.skinning === true) {
             mesh.add(model.skeleton.bones[0]);
             mesh.bind(model.skeleton);

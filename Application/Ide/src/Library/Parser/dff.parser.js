@@ -491,20 +491,21 @@ MANHUNT.parser.dff = function (binary) {
         let Matrix_Array = [];
         let tempBoneIDArray = [];
         for (let i = 0; i < VertexCount; i++) {
-            let boneids_Array = [
+
+            tempBoneIDArray.push([
                 binary.consume(1, 'uint8'),
                 binary.consume(1, 'uint8'),
                 binary.consume(1, 'uint8'),
                 binary.consume(1, 'uint8')
-            ];
-            tempBoneIDArray.push(boneids_Array);
+            ]);
         }
+        // connsole.log(SkinPLG);
 
         for (let i = 0; i < VertexCount; i++) {
-            let weights_Array = [];
-            let boneids_Array = [];
-            let weight1 = binary.consume(4, 'float32');
-            let weight2 = binary.consume(4, 'float32');
+            var weights_Array = [];
+            var boneids_Array = [];
+            var weight1 = binary.consume(4, 'float32');
+            var weight2 = binary.consume(4, 'float32');
             let weight3 = binary.consume(4, 'float32');
             let weight4 = binary.consume(4, 'float32');
 
@@ -840,12 +841,13 @@ MANHUNT.parser.dff = function (binary) {
 
 
         function generateBoneStructure(BoneArray){
+
+
             BoneArray.bones.forEach(function (bone) {
                 allBones.push(createBone(bone));
             });
 
             BoneArray.bones.forEach(function (bone, index) {
-
                 BoneArray.bones.forEach(function (boneInner, indexInner) {
                     if (indexInner === 0) return;
 
@@ -900,6 +902,12 @@ MANHUNT.parser.dff = function (binary) {
                 skinWeights: [],
             };
 
+            //
+            // if (typeof parsedObject.skinPLG.weights !== "undefined"){
+            //     genericObject.skinIndices = parsedObject.skinPLG.boneids;
+            //     genericObject.skinWeights = parsedObject.skinPLG.weights;
+            // }
+
             parsedObject.material.forEach(function (parsedMaterial) {
 
                 //TODO diffuse color
@@ -907,19 +915,196 @@ MANHUNT.parser.dff = function (binary) {
 
                 let material = new THREE.MeshStandardMaterial();
                 material.name = parsedMaterial.TextureName;
-                material.skinning = result.skinning;
+                material.skinning = genericObject.skinning;
                 material.vertexColors = THREE.VertexColors;
 
                 genericObject.material.push(material);
             });
+// console.log(BoneArray.skinBones);
 
-            parsedObject.vertices.forEach(function (vertexInfo) {
+            // var boneOrded = [];
+            // BoneArray.bones.forEach(function (bone, boneIndex) {
+            //
+            //     var found = false;
+            //     BoneArray.skinBones.forEach(function (skinBone, skinBoneIndex) {
+            //         if (boneIndex === skinBone.userProp.BoneIndex){
+            //             found = skinBone;
+            //         }
+            //
+            //     });
+            //
+            //     if (found !== false){
+            //
+            //         boneOrded.push(found);
+            //         //
+            //         // let indice = parsedObject.skinPLG.boneids[found.userProp.BoneIndex - 1];
+            //         // var indiceVec = new THREE.Vector4();
+            //         //
+            //         // while(indice.length !== 4){
+            //         //     indice.push(0);
+            //         // }
+            //         //
+            //         // indiceVec.fromArray(indice);
+            //         // indiceOrdered.push(indiceVec);
+            //
+            //         // genericObject.skinIndices.push(indiceVec);
+            //
+            //
+            //         // console.log("found", parsedObject.skinPLG.boneids[found.userProp.BoneIndex]);
+            //         // console.log("found", parsedObject.skinPLG.boneids[found.userProp.BoneIndex - 1].length);
+            //         // consoasdle.log("found", parsedObject.skinPLG.boneids[found.userProp.BoneIndex]);
+            //     }else{
+            //         boneOrded.push(bone);
+            //
+            //     }
+            // });
+
+            // genericObject.skinIndices = indiceOrdered;
+
+// console.log(boneOrded, parsedObject.skinPLG.boneids);
+
+// console.log("givenIndice", parsedObject.skinPLG.boneids);
+            parsedObject.vertices.forEach(function (vertexInfo, index) {
+
+
+                if (BoneArray.skinBones.length > 0 && typeof parsedObject.skinPLG.boneids !== "undefined") {
+                    var givenWeight = parsedObject.skinPLG.weights[index];
+
+                    var givenIndice = parsedObject.skinPLG.boneids[index];
+                    // var skinBoneIndiceIndex = false;
+
+
+                    var newIndice = [...givenIndice];
+                    givenIndice.forEach(function (searchedBoneIndex, indexIndice) {
+                        var isSkinBone = false;
+                        BoneArray.skinBones.forEach(function (skinBone, skinBoneIndex) {
+                           if (searchedBoneIndex  === skinBoneIndex){
+
+                               BoneArray.bones.forEach(function (bone, boneIndex) {
+                                   if (bone === skinBone){
+                                       isSkinBone = true;
+                                       newIndice[indexIndice] = boneIndex;
+                                   }
+                               });
+                           }
+                        });
+
+                        // if (isSkinBone === false){
+                        //
+                        // }
+                    });
+
+                    var newWeight = [...givenWeight];
+                    givenIndice.forEach(function (searchedBoneIndex, indexIndice) {
+                        BoneArray.skinBones.forEach(function (skinBone, skinBoneIndex) {
+                           if (searchedBoneIndex  === skinBoneIndex){
+
+                               BoneArray.bones.forEach(function (bone, boneIndex) {
+                                   if (bone === skinBone){
+
+                                       // newWeight[indexIndice] = parsedObject.skinPLG.weights[index][indexIndice];
+                                   }
+                               });
+                           }
+
+
+                        });
+
+                    });
+
+                    // var newWeight = parsedObject.skinPLG.weights[newWeightIndex];
+
+                    parsedObject.skinPLG.boneids[index] = newIndice;
+                    parsedObject.skinPLG.weights[index] = newWeight;
+
+                    var indice = new THREE.Vector4(0,0,0,0);
+                    if (parsedObject.skinPLG.boneids[index].length === 4) {
+                        indice.x = parsedObject.skinPLG.boneids[index][0];
+                        indice.y = parsedObject.skinPLG.boneids[index][1];
+                        indice.z = parsedObject.skinPLG.boneids[index][2];
+                        indice.w = parsedObject.skinPLG.boneids[index][3];
+                    }else if (parsedObject.skinPLG.boneids[index].length === 3){
+                        indice.x = parsedObject.skinPLG.boneids[index][0];
+                        indice.y = parsedObject.skinPLG.boneids[index][1];
+                        indice.z = parsedObject.skinPLG.boneids[index][2];
+                    }else if (parsedObject.skinPLG.boneids[index].length === 2){
+                        indice.x = parsedObject.skinPLG.boneids[index][0];
+                        indice.y = parsedObject.skinPLG.boneids[index][1];
+                    }else if (parsedObject.skinPLG.boneids[index].length === 1){
+                        indice.x = parsedObject.skinPLG.boneids[index][0];
+                    }
+                    // console.log(indice);
+
+                    genericObject.skinIndices.push(indice);
+
+                    var weight = new THREE.Vector4(0,0,0,0);
+                    if (parsedObject.skinPLG.weights[index].length === 4) {
+                        weight.x = parsedObject.skinPLG.weights[index][0];
+                        weight.y = parsedObject.skinPLG.weights[index][1];
+                        weight.z = parsedObject.skinPLG.weights[index][2];
+                        weight.w = parsedObject.skinPLG.weights[index][3];
+                    }else if (parsedObject.skinPLG.weights[index].length === 3){
+                        weight.x = parsedObject.skinPLG.weights[index][0];
+                        weight.y = parsedObject.skinPLG.weights[index][1];
+                        weight.z = parsedObject.skinPLG.weights[index][2];
+                    }else if (parsedObject.skinPLG.weights[index].length === 2){
+                        weight.x = parsedObject.skinPLG.weights[index][0];
+                        weight.y = parsedObject.skinPLG.weights[index][1];
+                    }else if (parsedObject.skinPLG.weights[index].length === 1){
+                        weight.x = parsedObject.skinPLG.weights[index][0];
+                    }
+
+                    genericObject.skinWeights.push(weight);
+
+                    // console.log("parsedObject.skinPLG.boneids", parsedObject.skinPLG.boneids);
+                }
+
+                // skinBones
+                // if (typeof parsedObject.skinPLG.boneids !== "undefined"){
+                    // genericObject.skinIndices.push(parsedObject.skinPLG.boneids[index]);
+                    // BoneArray.skinBones
+                    //
+                    // BoneArray.skinBones.forEach(function (bone) {
+                    //     let boneIndex = bone.userProp.BoneIndex;
+                    //     if (boneIndex  + 1 === index){
+                    //         var indice = new THREE.Vector4(0,0,0,0);
+                    //         if (parsedObject.skinPLG.boneids[boneIndex].length === 4) {
+                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
+                    //             indice.y = parsedObject.skinPLG.boneids[boneIndex][1];
+                    //             indice.z = parsedObject.skinPLG.boneids[boneIndex][2];
+                    //             indice.w = parsedObject.skinPLG.boneids[boneIndex][3];
+                    //         }else if (parsedObject.skinPLG.boneids[boneIndex].length === 3){
+                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
+                    //             indice.y = parsedObject.skinPLG.boneids[boneIndex][1];
+                    //             indice.z = parsedObject.skinPLG.boneids[boneIndex][2];
+                    //         }else if (parsedObject.skinPLG.boneids[boneIndex].length === 2){
+                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
+                    //             indice.y = parsedObject.skinPLG.boneids[boneIndex][1];
+                    //         }else if (parsedObject.skinPLG.boneids[boneIndex].length === 1){
+                    //             indice.x = parsedObject.skinPLG.boneids[boneIndex][0];
+                    //         }
+                    //         // console.log(indice);
+                    //
+                    //         genericObject.skinIndices.push(indice);
+                    //
+                    //     }
+                    // });
+
+
+                    //
+
+                    // genericObject.skinIndices.push(new THREE.Vector4().fromArray(parsedObject.skinPLG.boneids[index]));
+                    // genericObject.skinWeights.push(new THREE.Vector4().fromArray(parsedObject.skinPLG.weights[index]));
+
+                    // genericObject.skinWeights.push(parsedObject.skinPLG.weights[index]);
+                // }
+
                 genericObject.vertices.push(
                     new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )
                 );
 
             });
-
+console.log("w", parsedObject.skinPLG.weights);
             for(let x = 0; x < parsedObject.face.length; x++) {
 
                 let face = new THREE.Face3(parsedObject.face[x][0], parsedObject.face[x][1], parsedObject.face[x][2]);

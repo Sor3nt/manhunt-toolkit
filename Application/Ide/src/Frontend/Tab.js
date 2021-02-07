@@ -50,7 +50,10 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
         },
 
         remove: function(name){
-            if (typeof self._tab2Content[name] === "undefined") return;
+            if (typeof self._tab2Content[name] === "undefined"){
+                console.error('[MANHUNT.frontend.tab] Unable to remove tab', name );
+                return;
+            }
 
             self._tab2Content[name].tab.remove();
             self._tab2Content[name] = undefined;
@@ -58,7 +61,7 @@ MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
 
         show: function (name) {
             if (typeof self._tab2Content[name] === "undefined"){
-                console.log('[MANHUNT.frontend.tab] Unable to find tab', name );
+                console.error('[MANHUNT.frontend.tab] Unable to find tab', name );
                 return;
             }
 

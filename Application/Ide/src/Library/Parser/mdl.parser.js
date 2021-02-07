@@ -696,7 +696,7 @@ MANHUNT.parser.mdl = function (inputData) {
                         vertexInfo.weight1,
                         vertexInfo.weight2,
                         vertexInfo.weight3,
-                        vertexInfo.weight4,
+                        vertexInfo.weight4
                     ));
                 }
             });
