@@ -36,10 +36,6 @@ MANHUNT.parser.dff = function (binary) {
 
     function ReadMatrix4x3() {
         return [
-            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
-            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
-            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'),
-            // binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32')
             binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
             binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
             binary.consume(4, 'float32'), binary.consume(4, 'float32'), binary.consume(4, 'float32'), 0,
@@ -92,8 +88,7 @@ MANHUNT.parser.dff = function (binary) {
     }
 
     function ReadrwString() {
-        let chunk = ReadChunk();
-        return ReadFrameName(chunk.size);
+        return ReadFrameName(ReadChunk().size);
     }
 
     function ReadHAnimPLG(BoneIDArray, HAnimBoneArray) {
@@ -198,30 +193,17 @@ MANHUNT.parser.dff = function (binary) {
         let i, j = 0;
 
         for (i = 0; i < FrameCount; i++) {
-            // let tfm = FrameDataListArray[i].matrix;
-            // bne = bonesys.createbone	\
-            //   tfm.row4	\
-            //   (tfm.row4 + 0.01 * (normalize tfm.row1)) \
-            //   (normalize tfm.row3)
-            bne = {userProp: {}};
-            bne.width = 0.03;
-            bne.height = 0.03;
-            bne.frame = FrameDataListArray[i];
+            bne = {
+                name: FrameNameArray[i],
+                userProp: {},
+                frame: FrameDataListArray[i]
+            };
 
             if (i > 0)
                 bne.userProp.BoneID = BoneIDArray[i-1]; // this boneid is anim boneid
 
-            bne.name = FrameNameArray[i];
             boneArray.push(bne);
         }
-
-        // for (i = 0; i < FrameCount; i++) {
-        //     let ParentID = FrameDataListArray[i].ParentFrameID;
-        //     if (ParentID !== -1) {
-        //         boneArray[i].parent = boneArray[ParentID + 1];
-        //         boneArray[i].transform *= boneArray[i].parent.transform
-        //     }
-        // }
 
         for (i = 0; i < FrameCount; i++) {
             bne = boneArray[i];
@@ -313,56 +295,6 @@ MANHUNT.parser.dff = function (binary) {
             EnvironmentTexturePtr: binary.consume(4, 'float32') // Environment Texture Ptr, always 0 (zero)
         };
     }
-    //
-    // function ReadrwMaterialEffectsPLG(mtl) {
-    //     let EffectType = binary.consume(4, 'int32');
-    //     let result = { type: EffectType };
-    //     switch (EffectType) {
-    //         case 1:
-    //             let rwMATFXEFFECTBUMPMAP = binary.consume(4, 'uint32');//0x01, rwMATFXEFFECTBUMPMAP
-    //             result.Intensity = binary.consume(4, 'float32'); // Intensity
-    //
-    //             result.ContainsBumpMap = binary.consume(4, 'int32'); //bool32 - Contains Bump Map
-    //             if (result.ContainsBumpMap === 1) {
-    //                 result.BumpMap = ReadTexture(); //Bump Map (Only if effect contains a bump map). In Manhunt game unused
-    //             }
-    //
-    //             result.ContainsHeightMap = binary.consume(4, 'int32'); //bool32 - Contains Height Map
-    //             if (result.ContainsHeightMap === 1) {
-    //                 result.Height_Map = ReadTexture(); //Height Map (Only if the effect contains a height map). In Manhunt game unused
-    //             }
-    //
-    //             binary.consume(4, 'int32'); //zero
-    //             break;
-    //         case 2:
-    //             let rwMATFXENVMAP = binary.consume(4, 'uint32'); // 0x02, rwMATFXENVMAP
-    //             result.ReflectionCoefficient = binary.consume(4, 'float32'); //Reflection Coefficient (default is 1.0)
-    //             result.UseFrameBufferAlhpa = binary.consume(4, 'int32'); // bool32 - Use Frame Buffer Alpha Channel
-    //
-    //             let ContainsEnvironmentMap = binary.consume(4, 'int32'); //Contains Environment Map
-    //             if (ContainsEnvironmentMap === 1) {
-    //                 let EnvMap = ReadTexture();
-    //                 mtl.TextureName = EnvMap.TextureName;
-    //             }
-    //             binary.consume(4, 'int32'); //zero
-    //             break;
-    //         case 4:
-    //             let rwMATFXEFFECTDUAL = binary.consume(4, 'uint32');// 0x04, rwMATFXEFFECTDUAL
-    //             result.srcBlendMode = binary.consume(4, 'int32');// src blend mode
-    //             result.destBlendMode = binary.consume(4, 'int32');// dest blend mode
-    //
-    //             let ContainsTexture = binary.consume(4, 'int32');// Contains Texture
-    //             if (ContainsTexture === 1) {
-    //                 let DualMap = ReadTexture();
-    //                 mtl.TextureName2 = DualMap.TextureName;
-    //             }
-    //             binary.consume(4, 'int32'); //zero
-    //             break;
-    //
-    //     }
-    //
-    //     return result;
-    // }
 
     function ReadMaterialExtension() {
         let mtlExtHeader = ReadChunk();
@@ -834,19 +766,6 @@ MANHUNT.parser.dff = function (binary) {
                 });
             });
 
-            // if (BoneArray.skinBones.length > 0){
-            //
-            //     BoneArray.bones.forEach(function (bone, indexInner) {
-            //         var found = false;
-            //         BoneArray.skinBones.forEach(function (boneInner, index) {
-            //             if (boneInner === bone){
-            //                 allBonesMesh.push(allBones[indexInner]);
-            //             }
-            //         });
-            //
-            //     });
-            // }
-
             if (BoneArray.skinBones.length > 0){
                 BoneArray.skinBones.forEach(function (boneInner, index) {
                     BoneArray.bones.forEach(function (bone, indexInner) {
@@ -877,8 +796,6 @@ MANHUNT.parser.dff = function (binary) {
             objects: []
         };
 
-
-        //Normalize model data
         generateBoneStructure(BoneArray);
 
         result.skeleton = new THREE.Skeleton( allBones );
@@ -902,11 +819,6 @@ MANHUNT.parser.dff = function (binary) {
                 skinWeights: [],
             };
 
-            //
-            // if (typeof parsedObject.skinPLG.weights !== "undefined"){
-            //     genericObject.skinIndices = parsedObject.skinPLG.boneids;
-            //     genericObject.skinWeights = parsedObject.skinPLG.weights;
-            // }
 
             parsedObject.material.forEach(function (parsedMaterial) {
 
@@ -920,50 +832,7 @@ MANHUNT.parser.dff = function (binary) {
 
                 genericObject.material.push(material);
             });
-// console.log(BoneArray.skinBones);
 
-            // var boneOrded = [];
-            // BoneArray.bones.forEach(function (bone, boneIndex) {
-            //
-            //     var found = false;
-            //     BoneArray.skinBones.forEach(function (skinBone, skinBoneIndex) {
-            //         if (boneIndex === skinBone.userProp.BoneIndex){
-            //             found = skinBone;
-            //         }
-            //
-            //     });
-            //
-            //     if (found !== false){
-            //
-            //         boneOrded.push(found);
-            //         //
-            //         // let indice = parsedObject.skinPLG.boneids[found.userProp.BoneIndex - 1];
-            //         // var indiceVec = new THREE.Vector4();
-            //         //
-            //         // while(indice.length !== 4){
-            //         //     indice.push(0);
-            //         // }
-            //         //
-            //         // indiceVec.fromArray(indice);
-            //         // indiceOrdered.push(indiceVec);
-            //
-            //         // genericObject.skinIndices.push(indiceVec);
-            //
-            //
-            //         // console.log("found", parsedObject.skinPLG.boneids[found.userProp.BoneIndex]);
-            //         // console.log("found", parsedObject.skinPLG.boneids[found.userProp.BoneIndex - 1].length);
-            //         // consoasdle.log("found", parsedObject.skinPLG.boneids[found.userProp.BoneIndex]);
-            //     }else{
-            //         boneOrded.push(bone);
-            //
-            //     }
-            // });
-
-            // genericObject.skinIndices = indiceOrdered;
-
-// console.log(boneOrded, parsedObject.skinPLG.boneids);
-
-// console.log("givenIndice", parsedObject.skinPLG.boneids);
             parsedObject.vertices.forEach(function (vertexInfo, index) {
 
                 if (BoneArray.skinBones.length > 0 && typeof parsedObject.skinPLG.boneids !== "undefined") {
@@ -1016,21 +885,16 @@ MANHUNT.parser.dff = function (binary) {
                 genericObject.faces.push(face);
             }
 
-
             result.objects.push(genericObject);
         });
 
         if (allBonesMesh.length > 0){
+            //we need to rebuild the skeleton based only on mesh bones otherwise the indices and weight orders are wrong
             result.skeleton = new THREE.Skeleton( allBonesMesh );
         }
-
 
         return result;
     }
 
-
-
-
     return ReadClumpList();
-
 };
