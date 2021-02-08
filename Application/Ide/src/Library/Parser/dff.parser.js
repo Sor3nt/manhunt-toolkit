@@ -208,8 +208,8 @@ MANHUNT.parser.dff = function (binary) {
             bne.height = 0.03;
             bne.frame = FrameDataListArray[i];
 
-            if (i > 1)
-                bne.userProp.BoneID = BoneIDArray[i]; // this boneid is anim boneid
+            if (i > 0)
+                bne.userProp.BoneID = BoneIDArray[i-1]; // this boneid is anim boneid
 
             bne.name = FrameNameArray[i];
             boneArray.push(bne);
@@ -834,16 +834,26 @@ MANHUNT.parser.dff = function (binary) {
                 });
             });
 
-            if (BoneArray.skinBones.length > 0){
+            // if (BoneArray.skinBones.length > 0){
+            //
+            //     BoneArray.bones.forEach(function (bone, indexInner) {
+            //         var found = false;
+            //         BoneArray.skinBones.forEach(function (boneInner, index) {
+            //             if (boneInner === bone){
+            //                 allBonesMesh.push(allBones[indexInner]);
+            //             }
+            //         });
+            //
+            //     });
+            // }
 
-                BoneArray.bones.forEach(function (bone, indexInner) {
-                    var found = false;
-                    BoneArray.skinBones.forEach(function (boneInner, index) {
-                        if (boneInner === bone){
+            if (BoneArray.skinBones.length > 0){
+                BoneArray.skinBones.forEach(function (boneInner, index) {
+                    BoneArray.bones.forEach(function (bone, indexInner) {
+                        if (bone.name === boneInner.name ){
                             allBonesMesh.push(allBones[indexInner]);
                         }
                     });
-
                 });
             }
         }
@@ -1012,10 +1022,6 @@ MANHUNT.parser.dff = function (binary) {
 
         if (allBonesMesh.length > 0){
             result.skeleton = new THREE.Skeleton( allBonesMesh );
-            // result.skeleton.bones.forEach(function(bone){
-            //     bone.updateWorldMatrix();
-            // });
-// console.log(BoneArray.skinBones);
         }
 
 

@@ -743,7 +743,7 @@ MANHUNT.parser.mdl = function (inputData) {
             result.objects.push(genericObject);
 
         });
-
+console.log(result);
         return result;
     }
 
