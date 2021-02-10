@@ -28,10 +28,12 @@ MANHUNT.studio = (function () {
 
             MANHUNT.engine.render();
 
+            //for level selection mini pic
             let storage = new MANHUNT.storage.Storage({ _game: 'manhunt2'});
             self._globalStorage.tex = storage.create('tex');
 
-            MANHUNT.frontend.modal.handler.show('levelSelection');
+            // MANHUNT.frontend.modal.handler.show('levelSelection');
+            new MANHUNT.scene.AnimationPortView();
         },
 
         loadLevel: function (game, levelName) {

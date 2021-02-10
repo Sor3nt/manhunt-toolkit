@@ -234,6 +234,7 @@
     <script src="src/ObjectAnimation.js"></script>
     <script src="src/Scene/level.js"></script>
     <script src="src/Scene/texture.view.js"></script>
+    <script src="src/Scene/animationPort.view.js"></script>
     <script src="src/Scene/animation.view.js"></script>
     <script src="src/Scene/world.view.js"></script>
     <script src="src/Frontend/Modal/Setup.js"></script>

@@ -129,7 +129,7 @@ MANHUNT.fileLoader.IFP = function () {
         return [IFPEntryArray, IFPEntryIndexArray];
     }
 
-    function getANPKAnim(game, binary, anpkOffset, groupName, animName) {
+    function getANPKAnim(convertNames, game, binary, anpkOffset, groupName, animName) {
 
         binary.setCurrent(anpkOffset);
 
@@ -242,7 +242,7 @@ MANHUNT.fileLoader.IFP = function () {
             resultBones.push(resultBone);
         }
 
-        return convertBonesToAnimation(game, resultBones, animName, times);
+        return convertBonesToAnimation(convertNames, game, resultBones, animName, times);
     }
 
     function getBoneNameByBoneId(game, boneId) {
@@ -378,10 +378,12 @@ MANHUNT.fileLoader.IFP = function () {
 
         }
 
+        console.warn("[MANHUNT.fileLoader.IFP] unable to map ", game, "boneId", boneId);
+
         return boneId;
     }
 
-    function convertBonesToAnimation(game, bones, animName, duration) {
+    function convertBonesToAnimation(convertNames, game, bones, animName, duration) {
 
         var animation = {
             name: animName,
@@ -393,7 +395,16 @@ MANHUNT.fileLoader.IFP = function () {
             if (!bones.hasOwnProperty(i)) continue;
 
             var bone = bones[i];
-            var name = getBoneNameByBoneId(game, bone.boneId);
+            var name;
+
+            if (convertNames){
+                name = getBoneNameByBoneId(game === "manhunt" ? "manhunt2" : "manhunt", bone.boneId);
+
+            }else{
+                name = getBoneNameByBoneId(game, bone.boneId);
+
+            }
+
 
             var trackPosition = {
                 name: name + '.position',
@@ -409,26 +420,59 @@ MANHUNT.fileLoader.IFP = function () {
                 type: "quaternion"
             };
 
-            bone.frames[0].frames.forEach(function (frame) {
+            bone.frames[0].frames.forEach(function (frame, i) {
+                // if (i > 0) return;
 
                 if (frame.quat.length > 0){
                     trackQuaternion.times.push(frame.time / 30);
-                    trackQuaternion.values.push(
+
+                    let vec4 = new THREE.Quaternion(
                         frame.quat[0] * -1,
                         frame.quat[1] * -1,
                         frame.quat[2] * -1,
                         frame.quat[3]
                     );
 
+                    if (convertNames){
+                        if (name === "Bip01_Spine"){
+                            vec4.multiply(new THREE.Quaternion(-0.500398, -0.500001, 0.4996, 0.500001));
+
+                            trackPosition.times.push(frame.time / 30);
+                            trackPosition.values.push(
+                               0,0,0
+                            );
+                        }
+
+                    }
+
+                    trackQuaternion.values.push(
+                        vec4.x, vec4.y, vec4.z, vec4.w
+                    );
                 }
+
                 if (frame.position.length > 0){
                     trackPosition.times.push(frame.time / 30);
-                    trackPosition.values.push(
+
+                    let vec3 = new THREE.Vector3(
                         frame.position[0],
                         frame.position[1],
                         frame.position[2]
                     );
+
+                    if (convertNames && name === "Bip01_L_Clavicle"){
+                        vec3.add(new THREE.Vector3(0.170165,-2.68221e-07,0.0150331));
+                    }
+
+                    if (convertNames && name === "Bip01_R_Clavicle"){
+                        vec3.add(new THREE.Vector3(0.170165,-2.75671e-07,0.0150331));
+                    }
+
+                    trackPosition.values.push(
+                        vec3.x, vec3.y, vec3.z
+                    );
                 }
+
+
             });
 
             if (trackPosition.values.length > 0){
@@ -499,14 +543,12 @@ MANHUNT.fileLoader.IFP = function () {
                             return IFPEntryIndexArray[groupIndex].anpkName;
                         },
 
-                        find: function (group, name) {
+                        find: function (group, name, convert) {
 
                             var groupIndex = -1;
                             IFPEntryArray.forEach(function (groupName, index) {
                                 if (groupName === group) groupIndex = index;
                             });
-
-
                             if (groupIndex === -1){
                                 console.log('[MANHUNT.loader.ifp] Unable to locate animation group ', group);
                                 return false;
@@ -516,7 +558,7 @@ MANHUNT.fileLoader.IFP = function () {
                             var clip = false;
                             IFPEntryIndexArray[groupIndex].anpkName.forEach(function (animName, index) {
                                 if (animName === name){
-                                    clip = getANPKAnim(level._game, binary, IFPEntryIndexArray[groupIndex].anpkOffset[index], groupName, name);
+                                    clip = getANPKAnim(convert, level._game, binary, IFPEntryIndexArray[groupIndex].anpkOffset[index], groupName, name);
                                 }
                             });
 
@@ -524,8 +566,6 @@ MANHUNT.fileLoader.IFP = function () {
                                 console.log('[MANHUNT.loader.ifp] Unable to locate animation clip ', name);
                                 return false;
                             }
-
-                            console.log("clip", clip);
 
                             return clip;
                         }

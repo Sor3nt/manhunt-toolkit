@@ -167,9 +167,7 @@ MANHUNT.scene.AnimationView = function (level) {
             if (self._lastAnimationRow !== false) self._lastAnimationRow.removeClass('active');
             row.addClass("active");
 
-
             self._animation.play(name, animBlock);
-
 
             self._lastAnimationRow = row;
 

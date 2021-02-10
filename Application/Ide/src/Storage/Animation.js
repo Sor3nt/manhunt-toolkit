@@ -7,6 +7,8 @@ MANHUNT.storage.Animation = function (level) {
 
         _loadedFiles: [],
 
+        _convert: false,
+
         load: function(file, callback){
             if (self._loadedFiles.indexOf(file) !== -1){
                 callback();
@@ -24,10 +26,10 @@ MANHUNT.storage.Animation = function (level) {
 
         find: function (group, name) {
 
-            var index = group + '_' + name;
+            var index = group + '_' + name + '_' + (self._convert ? "converted" : 'original');
 
             if (typeof self._data[index] === "undefined"){
-                self._data[index] = self._proxy.find(group, name);
+                self._data[index] = self._proxy.find(group, name, self._convert);
             }
 
             if (self._data[index] === false){
@@ -46,6 +48,9 @@ MANHUNT.storage.Animation = function (level) {
     };
 
     return {
+        setConvertNames: function(boo){
+            self._convert = boo;
+        },
         getNamesByGroup: self.getNamesByGroup,
         load: self.load,
         find: self.find
