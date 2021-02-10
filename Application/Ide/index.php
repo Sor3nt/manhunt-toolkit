@@ -40,7 +40,6 @@
             }
         };
 
-        MANHUNT.scale = 48; //World scale for models and position
         MANHUNT.fov = 57.29578; //Default MH2 FOV
 
     </script>

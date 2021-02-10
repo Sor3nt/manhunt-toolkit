@@ -5,7 +5,7 @@ MANHUNT.scene.AnimationView = function (level) {
 
         _name : 'animation '+ level._name,
 
-        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
+        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 1000),
         _control: MANHUNT.control.OrbitAndTransform,
         _container : {},
 
@@ -141,12 +141,9 @@ MANHUNT.scene.AnimationView = function (level) {
             console.log("CLIK", model);
             self._animation = new MANHUNT.ObjectAnimation(level, model);
             self._createRelatedAnim(modelName, animBlocks);
-
-            model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
             sceneInfo.scene.add(model);
 
             const helper = new THREE.SkeletonHelper( model );
-            helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
             sceneInfo.scene.add( helper );
 
             self._lastModels = [helper, model];

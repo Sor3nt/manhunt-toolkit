@@ -63,9 +63,9 @@ unk_bf4d0100: 25.000001907348633
         1, 1000, 25
     );
     light.position.set(
-        entity.position.x * MANHUNT.scale,
-        entity.position.y * MANHUNT.scale,
-        entity.position.z * MANHUNT.scale
+        entity.position.x,
+        entity.position.y,
+        entity.position.z
     );
     // light.target.position.copy(light.position);
     // MANHUNT.engine.getScene().add(light.target);

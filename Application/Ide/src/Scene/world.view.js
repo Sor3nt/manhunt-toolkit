@@ -3,7 +3,7 @@ MANHUNT.scene.WorldView = function (level) {
     let self = {
 
         _name : 'level_'+ level._name,
-        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
+        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 1000),
         _control: MANHUNT.control.ThirdPerson,
 
         _sceneInfo: {},

@@ -32,8 +32,8 @@ MANHUNT.studio = (function () {
             let storage = new MANHUNT.storage.Storage({ _game: 'manhunt2'});
             self._globalStorage.tex = storage.create('tex');
 
-            // MANHUNT.frontend.modal.handler.show('levelSelection');
-            new MANHUNT.scene.AnimationPortView();
+            MANHUNT.frontend.modal.handler.show('levelSelection');
+            // new MANHUNT.scene.AnimationPortView();
         },
 
         loadLevel: function (game, levelName) {

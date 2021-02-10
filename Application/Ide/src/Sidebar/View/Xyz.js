@@ -53,9 +53,9 @@ MANHUNT.sidebar.view.Xyz = function () {
             if (self._object === false) return false;
 
             //todo_ change to entity.getPosition().... it returns alread the wanted values
-            self._position.updateValue('x', self._object.position.x / MANHUNT.scale);
-            self._position.updateValue('y', self._object.position.y / MANHUNT.scale);
-            self._position.updateValue('z', self._object.position.z / MANHUNT.scale);
+            self._position.updateValue('x', self._object.position.x);
+            self._position.updateValue('y', self._object.position.y);
+            self._position.updateValue('z', self._object.position.z);
         },
 
     });

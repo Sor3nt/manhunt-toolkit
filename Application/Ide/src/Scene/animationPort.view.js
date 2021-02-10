@@ -5,7 +5,7 @@ MANHUNT.scene.AnimationPortView = function () {
 
         _name : 'Animation Porting',
 
-        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
+        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 1000),
         _control: MANHUNT.control.OrbitAndTransform,
         _container : {},
 
@@ -62,12 +62,10 @@ MANHUNT.scene.AnimationPortView = function () {
                 let model = storageMh1.mdl.find('Player_Bod').get();
                 self._animationMh1 = new MANHUNT.ObjectAnimation({ _storage: storageMh1}, model);
 
-                model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                 sceneInfo.scene.add(model);
                 // model.visible = false;
 
                 const helper = new THREE.SkeletonHelper( model );
-                helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                 sceneInfo.scene.add( helper );
 
                 console.log("mh model", model);
@@ -78,13 +76,11 @@ MANHUNT.scene.AnimationPortView = function () {
                     let model = storageMh2.mdl.find('danny_asylum_bloody').get();
                     self._animationMh2 = new MANHUNT.ObjectAnimation({ _storage: storageMh2}, model);
 
-                    model.scale.set(MANHUNT.scale + 7,MANHUNT.scale + 7,MANHUNT.scale + 7);
                     // model.position.x = 60;
                     sceneInfo.scene.add(model);
                     // model.visible = false;
 
                     const helper = new THREE.SkeletonHelper( model );
-                    helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     sceneInfo.scene.add( helper );
 
 

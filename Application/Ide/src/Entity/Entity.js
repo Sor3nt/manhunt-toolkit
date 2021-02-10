@@ -12,17 +12,17 @@ MANHUNT.entity.abstract = function ( instEntity, object, model ) {
 
         getPosition: function(){
             return new THREE.Vector3(
-                object.position.x / MANHUNT.scale,
-                object.position.y / MANHUNT.scale,
-                object.position.z / MANHUNT.scale
+                object.position.x,
+                object.position.y,
+                object.position.z
             )
         },
 
         setPosition: function (vec3) {
             object.position.set(
-                vec3.x * MANHUNT.scale,
-                vec3.y * MANHUNT.scale,
-                vec3.z * MANHUNT.scale
+                vec3.x,
+                vec3.y,
+                vec3.z
             )
         },
 
@@ -41,7 +41,6 @@ MANHUNT.entity.abstract = function ( instEntity, object, model ) {
     };
 
     object.name = instEntity.name;
-    object.scale.set(MANHUNT.scale, MANHUNT.scale, MANHUNT.scale);
     self.setPosition(instEntity.position);
     self.setRotation(instEntity.rotation);
 

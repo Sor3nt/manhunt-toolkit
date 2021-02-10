@@ -4,7 +4,7 @@ MANHUNT.scene.textureView = function (canvas) {
 
         _name : 'textureView',
 
-        _camera: new THREE.PerspectiveCamera( 35, 1, 1, 1000 ),
+        _camera: new THREE.PerspectiveCamera( 35, 1, 1, 100 ),
 
         _sceneInfo : {},
         _outputCube : {},

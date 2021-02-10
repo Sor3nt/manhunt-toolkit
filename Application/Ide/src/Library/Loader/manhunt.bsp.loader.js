@@ -49,9 +49,9 @@ MANHUNT.fileLoader.BSP = function () {
 
             var ObjectBoundBox = new THREE.Mesh(
                 new THREE.CubeGeometry(
-                    MeshSize.x * MANHUNT.scale,
-                    MeshSize.y * MANHUNT.scale,
-                    MeshSize.z * MANHUNT.scale,
+                    MeshSize.x,
+                    MeshSize.y,
+                    MeshSize.z,
                 ),
                 new THREE.MeshBasicMaterial({
                     wireframe	: true,
@@ -60,7 +60,6 @@ MANHUNT.fileLoader.BSP = function () {
             );
 
             ObjectBoundBox.position.copy(MeshPosition);
-            ObjectBoundBox.position.multiply(new THREE.Vector3(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale));
             ObjectBoundBox.name = "bbox";
 
             SceneRootBoundBox.children.push(ObjectBoundBox);
@@ -77,7 +76,6 @@ MANHUNT.fileLoader.BSP = function () {
 
                 for (i = 0; i < NumVerts; i++) {
                     var vec3 = binary.readVector3(4, 'float32', true);
-                    vec3.multiply(new THREE.Vector3(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale));
                     ColVerts.push(vec3);
                 }
 
@@ -165,8 +163,6 @@ MANHUNT.fileLoader.BSP = function () {
                 for (var v = 0; v < 4; v++) {
 
                     var vertex = binary.readVector3(4, 'float32', true, 2, 'int16');
-                    vertex.multiply(new THREE.Vector3(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale));
-                    // vertex.x *= -1;
                     PortalVerts.push(vertex);
                 }
 
@@ -385,7 +381,6 @@ MANHUNT.fileLoader.BSP = function () {
                 // geometry.computeVertexNormals();
 
                 var mesh = new THREE.Mesh(geometry, material);
-                mesh.scale.set(MANHUNT.scale, MANHUNT.scale, MANHUNT.scale);
                 mesh.alphaTest = 0.5;
                 mesh.colorsNeedUpdate = true;
 
@@ -602,12 +597,6 @@ MANHUNT.fileLoader.BSP = function () {
                     geometry.uvsNeedUpdate = true;
 
                     var section = new THREE.Mesh(geometry, materialList);
-
-                    // section.scale.set(5,5,5);
-                    section.scale.set(MANHUNT.scale, MANHUNT.scale, MANHUNT.scale);
-
-                    // section.rotation.y = 90 * (Math.PI / 180); // convert vertical fov to radians
-                    // section.rotation.x = 10 * (Math.PI / 180); // convert vertical fov to radians
 
                     rootMesh.children.push(section);
                 }

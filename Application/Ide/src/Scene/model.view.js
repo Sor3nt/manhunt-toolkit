@@ -5,7 +5,7 @@ MANHUNT.scene.ModelView = function (level) {
 
         _name : 'model '+ level._name,
 
-        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 10000),
+        _camera: new THREE.PerspectiveCamera(MANHUNT.fov, 1.33, 0.1, 1000),
         _control: MANHUNT.control.OrbitAndTransform,
         _container : {},
 
@@ -208,12 +208,10 @@ MANHUNT.scene.ModelView = function (level) {
 
                     //Generate Model Object
                     var model = level._storage.mdl.find(name).get();
-                    model.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     sceneInfo.scene.add(model);
 
 
                     const helper = new THREE.SkeletonHelper( model );
-                    helper.scale.set(MANHUNT.scale,MANHUNT.scale,MANHUNT.scale);
                     sceneInfo.scene.add( helper );
 
                     self._lastModels = [helper, model];
