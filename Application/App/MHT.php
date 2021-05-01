@@ -5,6 +5,7 @@ class MHT{
     const GAME_AUTO         = 'auto';
     const GAME_MANHUNT      = 'mh1';
     const GAME_MANHUNT_2    = 'mh2';
+    const GAME_BULLY    = 'bully';
 
     const PLATFORM_AUTO     = 'auto';
     const PLATFORM_PC       = 'pc';

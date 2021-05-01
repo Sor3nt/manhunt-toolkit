@@ -45,8 +45,8 @@ $keepOrder = true;
 //$onlyUnzip = false;
 
 if ($game !== MHT::GAME_AUTO){
-    if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2){
-        throw new \Exception('Invalid game, allowed is mh1 or mh2');
+    if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2 && $game != MHT::GAME_BULLY){
+        throw new \Exception('Invalid game, allowed is mh1, mh2 or bully');
     }
 }
 

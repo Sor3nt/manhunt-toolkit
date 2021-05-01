@@ -60,7 +60,7 @@ class TxdWii extends Archive {
         return $header;
     }
 
-    private function parseTexture( $startOffset, NBinary $binary ){
+    private function parseTexture( $startOffset, NBinary $binary, $game ){
 
         $binary->jumpTo($startOffset);
 
@@ -70,6 +70,7 @@ class TxdWii extends Archive {
         $texture['prevOffset'] = $binary->consume(4,  NBinary::INT_32);
 
         $binary->numericBigEndian = false;
+
 
         $texture = array_merge($texture,[
             'name'              => $binary->consume(96, NBinary::BINARY),
@@ -82,7 +83,6 @@ class TxdWii extends Archive {
             'unknown'             => $binary->consume(4,  NBinary::INT_32),
             'unknown2'             => $binary->consume(4,  NBinary::INT_32),
         ]);
-
         $texture['name'] = $binary->unpack($texture['name'], NBinary::STRING);
 
         if ($texture['name'] == ""){
@@ -139,13 +139,31 @@ class TxdWii extends Archive {
         $binary->numericBigEndian = true;
 
         $header = $this->parseHeader($binary);
-        $currentOffset = $header['firstOffset'];
+
+        if ($game === MHT::GAME_BULLY){
+
+            $binary->jumpTo($header['indexTableOffset']);
+            $offsets = [];
+            for($i = 0; $i < $header['numIndex'] / 3; $i++){
+                $offsets[] = [
+                    'pointerDataTexture' => $binary->consume(4,  NBinary::INT_32),
+                    'pointerPrevTexture' => $binary->consume(4,  NBinary::INT_32),
+                    'pointerNextTexture' => $binary->consume(4,  NBinary::INT_32),
+                ];
+            }
+
+            $binary->jumpTo($offsets[0]['pointerDataTexture']);
+            $binary->numericBigEndian = true;
+            $currentOffset = $binary->consume(4,  NBinary::INT_32);
+            $header['numTextures'] = count($offsets) - 1;
+        }else{
+            $currentOffset = $header['firstOffset'];
+        }
         $imageHandler = new Image();
 
         $textures = [];
         while($header['numTextures'] > 0 ) {
-
-            $texture = $this->parseTexture($currentOffset, $binary);
+            $texture = $this->parseTexture($currentOffset, $binary, $game);
             if ($texture == false) continue;
 
             $texture['data'] = $this->unswizzleWii($texture, $texture['data']);
