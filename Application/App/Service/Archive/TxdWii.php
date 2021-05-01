@@ -33,7 +33,7 @@ class TxdWii extends Archive {
         return false;
     }
 
-    private function parseHeader( NBinary &$binary ){
+    private function parseHeader( NBinary &$binary, $game ){
 
         $header =  [
             'magic'             => $binary->consume(4,  NBinary::STRING),
@@ -54,20 +54,34 @@ class TxdWii extends Archive {
             $header['numTextures'] = $binary->consume(4,  NBinary::INT_32);
         }
 
-        $header['firstOffset'] = $binary->consume(4,  NBinary::INT_32);
-        $header['lastTOffset'] = $binary->consume(4,  NBinary::INT_32);
+        if ($game == MHT::GAME_BULLY){
+            $header['unknown_bully'] = $binary->consume(4,  NBinary::INT_32);
+            $header['lastTOffset'] = $binary->consume(4,  NBinary::INT_32);
+            $header['firstOffset'] = $binary->consume(4,  NBinary::INT_32);
+
+        }else{
+            $header['firstOffset'] = $binary->consume(4,  NBinary::INT_32);
+            $header['lastTOffset'] = $binary->consume(4,  NBinary::INT_32);
+
+        }
 
         return $header;
     }
 
     private function parseTexture( $startOffset, NBinary $binary, $game ){
-
         $binary->jumpTo($startOffset);
 
         $texture = [];
         $binary->numericBigEndian = true;
-        $texture['nextOffset'] = $binary->consume(4,  NBinary::INT_32);
-        $texture['prevOffset'] = $binary->consume(4,  NBinary::INT_32);
+
+        if ($game == MHT::GAME_BULLY){
+            $texture['prevOffset'] = $binary->consume(4,  NBinary::INT_32);
+            $texture['nextOffset'] = $binary->consume(4,  NBinary::INT_32);
+        }else{
+            $texture['nextOffset'] = $binary->consume(4,  NBinary::INT_32);
+            $texture['prevOffset'] = $binary->consume(4,  NBinary::INT_32);
+
+        }
 
         $binary->numericBigEndian = false;
 
@@ -96,6 +110,8 @@ class TxdWii extends Archive {
         $texture['unknown3'] = $binary->consume(4,  NBinary::INT_32);
         $texture['dataSize'] = $binary->consume(4,  NBinary::INT_32);
         $texture['empty'] = $binary->consume(20,  NBinary::HEX);
+//        var_dump($texture);
+//        exit;
 
         $binary->jumpTo($texture['dataOffset']) ;
 
@@ -138,27 +154,8 @@ class TxdWii extends Archive {
 
         $binary->numericBigEndian = true;
 
-        $header = $this->parseHeader($binary);
-
-        if ($game === MHT::GAME_BULLY){
-
-            $binary->jumpTo($header['indexTableOffset']);
-            $offsets = [];
-            for($i = 0; $i < $header['numIndex'] / 3; $i++){
-                $offsets[] = [
-                    'pointerDataTexture' => $binary->consume(4,  NBinary::INT_32),
-                    'pointerPrevTexture' => $binary->consume(4,  NBinary::INT_32),
-                    'pointerNextTexture' => $binary->consume(4,  NBinary::INT_32),
-                ];
-            }
-
-            $binary->jumpTo($offsets[0]['pointerDataTexture']);
-            $binary->numericBigEndian = true;
-            $currentOffset = $binary->consume(4,  NBinary::INT_32);
-            $header['numTextures'] = count($offsets) - 1;
-        }else{
-            $currentOffset = $header['firstOffset'];
-        }
+        $header = $this->parseHeader($binary, $game);
+        $currentOffset = $header['firstOffset'];
         $imageHandler = new Image();
 
         $textures = [];
@@ -180,6 +177,7 @@ class TxdWii extends Archive {
             $textures[$texture['name'] . '.png'] = $image;
 
             $currentOffset = $texture['nextOffset'];
+            if ($game === MHT::GAME_BULLY && $currentOffset === 40) return $textures;
 
             $header['numTextures']--;
         }
