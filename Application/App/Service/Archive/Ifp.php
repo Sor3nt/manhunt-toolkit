@@ -191,12 +191,16 @@ class Ifp extends Archive
 
             $chunkSize = $binary->consume(4, NBinary::INT_32);
 
-            //MH2 PC (ps2 has the value short before the bones)
-            $frameTimeCount = $binary->consume(4, NBinary::FLOAT_32);
+            $frameTimeCount = 0;
+            if ($platform !== MHT::PLATFORM_PS2_064){
+                $frameTimeCount = $binary->consume(4, NBinary::FLOAT_32);
+
+            }
 
             $resultAnimation = [
                 'frameTimeCount' => $frameTimeCount * 30,
             ];
+
 
             /**
              * Sequences
@@ -332,6 +336,7 @@ class Ifp extends Archive
             $animations[] = $resultAnimation;
 
 
+
             if ($this->keepOrder){
                 $results[ $count . "#" . $animationName ] = $resultAnimation;
             }else{
@@ -366,7 +371,6 @@ class Ifp extends Archive
         }
 
         while ($numberOfBones > 0) {
-
 
             $sequenceLabel = $binary->consume(4, NBinary::STRING);
 
@@ -645,6 +649,25 @@ class Ifp extends Archive
 
     }
 
+    public function multiplyQuaternions($a, $b) {
+        // from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+        $qax = $a['x'];
+        $qay = $a['y'];
+        $qaz = $a['z'];
+        $qaw = $a['w'];
+        $qbx = $b['x'];
+        $qby = $b['y'];
+        $qbz = $b['z'];
+        $qbw = $b['w'];
+
+        return [
+            'x' => $qax * $qbw + $qaw * $qbx + $qay * $qbz - $qaz * $qby,
+            'y' => $qay * $qbw + $qaw * $qby + $qaz * $qbx - $qax * $qbz,
+            'z' => $qaz * $qbw + $qaw * $qbz + $qax * $qby - $qay * $qbx,
+            'w' => $qaw * $qbw - $qax * $qbx - $qay * $qby - $qaz * $qbz
+        ];
+    }
+
     /**
      * @param $animations
      * @param $game
@@ -758,14 +781,6 @@ class Ifp extends Archive
                         }
                     }
 
-//                    if ($bone['startTime'] == 0) {
-//
-//                        if ($index == 0 && $bone['frameType'] < 3) {
-//                        } else {
-//                            $singleChunkBinary->write( ($frame['time'] / 30) * 2048, NBinary::LITTLE_U_INT_16);
-//                        }
-//                    }
-
 
                     // we want MH2 but have no lastFrameTime that mean we port a MH1 animation to MH2
                     if (
@@ -785,24 +800,25 @@ class Ifp extends Archive
                     if ($bone['frameType'] < 3) {
 
                         if (
-                            $portAnimationToManhunt2 &&
+                            ($portAnimationToManhunt2 || $portAnimationToManhunt1) &&
                             $boneId == 1094
                         ) {
+                            $recalc = $this->multiplyQuaternions([
+                                'x' => $frame['quat'][0],
+                                'y' => $frame['quat'][1],
+                                'z' => $frame['quat'][2],
+                                'w' => $frame['quat'][3]
+                            ], [
+                                'x' => 0.500398,
+                                'y' => 0.500001,
+                                'z' => -0.4996,
+                                'w' => 0.500001
+                            ]);
                             //Spine(0) is in someway twisted, for now just use another mh2 spine values
-                            $singleChunkBinary->write(intval(0.99365234375 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval(0.8232421875 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval(-1.01513671875 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval(1.1416015625 * 2048), NBinary::INT_16);
-
-                        }else if (
-                            $portAnimationToManhunt1 &&
-                            $boneId == 1094
-                        ) {
-                            //Spine(0) is in someway twisted, for now just use another mh1 spine values
-                            $singleChunkBinary->write(intval(0.001953125 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval(0.09521484375 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval(0.04150390625 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval(1.9970703125 * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['x'] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['y'] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['z'] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['w'] * 2048), NBinary::INT_16);
 
                         }else{
                             $singleChunkBinary->write(intval($frame['quat'][0] * 2048), NBinary::INT_16);
@@ -816,29 +832,43 @@ class Ifp extends Archive
 
                     if ($bone['frameType'] > 1) {
 
-                        // we want MH2 but have no lastFrameTime that mean we port a MH1 animation to MH2
                         if (
-                            $portAnimationToManhunt2 &&
-                            ($boneId == 1057 || $boneId == 1003)
+                            //clavicle left
+                            $portAnimationToManhunt2 && $boneId == 1003
                         ) {
-                            //clavicle right and clavicle left, cash has a different calvicle position
-                            $singleChunkBinary->write(intval(0.1318359375 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
-                        }else if (
-                            $portAnimationToManhunt1 &&
-                            ($boneId == 1057 || $boneId == 1003)
-                        ){
-                            //clavicle right and clavicle left, daniel has a different calvicle position
-                            $singleChunkBinary->write(intval(-0.0283203125 * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                            $frame['position'][0] += 0.170165;
+                            $frame['position'][1] += -2.68221e-07;
+                            $frame['position'][2] += 0.0150331;
 
-                        }else{
-                            $singleChunkBinary->write(intval($frame['position'][0] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                        }else if (
+                            //clavicle right
+                            $portAnimationToManhunt2 && $boneId == 1057
+                        ) {
+                            $frame['position'][0] += 0.170165;
+                            $frame['position'][1] += -2.75671e-07;
+                            $frame['position'][2] += 0.0150331;
                         }
+
+                        if (
+                            //clavicle left
+                            $portAnimationToManhunt1 && $boneId == 1003
+                        ) {
+                            $frame['position'][0] += 0.152684;
+                            $frame['position'][1] += 0;
+                            $frame['position'][2] += 0.00713972;
+
+                        }else if (
+                            //clavicle right
+                            $portAnimationToManhunt1 && $boneId == 1057
+                        ) {
+                            $frame['position'][0] += 0.152684;
+                            $frame['position'][1] += 0;
+                            $frame['position'][2] += 0.00713982;
+                        }
+
+                        $singleChunkBinary->write(intval($frame['position'][0] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
 
 
                     }
@@ -850,14 +880,19 @@ class Ifp extends Archive
                 if ($game == MHT::GAME_MANHUNT_2) {
 
                     //when we pack a MH1 animation into MH2 , the lastFrameTime is missed
-                    //use frameTimeCount instead
                     if (!isset($bone['frames']['lastFrameTime'])){
 
+                        //port from v0.64
+                        if ($fixedFrameTimeCount === 0){
+                            echo sprintf("Autocorrect %s, set duration to %s (MH v0.64 port)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
+                            $fixedFrameTimeCount = $bone['frames']['lastFrameTime'];
+                        }
+
                         //todo: sollte das nicht die anzajl der frames durch 30 sein ?!
-                        $chunkBinary->write($animation['frameTimeCount'] / 30, NBinary::FLOAT_32);
+                        $chunkBinary->write($fixedFrameTimeCount / 30, NBinary::FLOAT_32);
                     }else{
 
-                        if ($bone['frames']['lastFrameTime'] > $fixedFrameTimeCount ){
+                        if ($bone['frames']['lastFrameTime'] > $fixedFrameTimeCount || $fixedFrameTimeCount === 0  ){
                             echo sprintf("Autocorrect %s, set duration to %s (instead of %s)\n", $animationName, $bone['frames']['lastFrameTime'], $animation['frameTimeCount']);
                             $fixedFrameTimeCount = $bone['frames']['lastFrameTime'];
                         }
