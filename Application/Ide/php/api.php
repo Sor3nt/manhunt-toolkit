@@ -1,5 +1,6 @@
 <?php
 
+use App\MHT;
 use App\Service\Api;
 
 ini_set('memory_limit','-1');
@@ -12,23 +13,28 @@ $json = \json_decode(file_get_contents("php://input"), true );
 
 switch ($json['action']){
 
-    case 'setConfig':
+    case 'addGame':
 
-        $api->config->config = $json['data'];
+        $folder = $json['data'];
 
-        foreach (['manhunt', 'manhunt2'] as $game) {
-            if ($api->config->config[$game . '_folder'] === false) continue;
+        $gamePlatform = $api->detectGameAndPlatformByFolder($folder);
+        if ($gamePlatform == false) $api->sendStatus(false);
 
-            $detectedGame = $api->detectGameByFolder(realpath($api->config->config[$game . '_folder']));
-            if ($detectedGame == false || $detectedGame !== $game ) $api->send(\json_encode([
-                'status' => false,
-                'field' => $game . '_folder'
-            ]));
-        }
+        $info = $gamePlatform;
+        $info['path'] = realpath($folder);
+
+        $info['id'] = $api->config->addGame(
+            $gamePlatform['game'],
+            $gamePlatform['platform'],
+            $info['path']
+        );
 
         $api->config->save();
 
-        $api->sendStatus(true);
+        $api->send([
+            'status' => true,
+            'data' => $info
+        ]);
         break;
 
     case 'getConfig':
@@ -39,7 +45,7 @@ switch ($json['action']){
         break;
 
     case 'getLevels':
-        $levels = $api->readAndSendLevelList();
+        $levels = $api->getLevelList($json['id']);
         if ($levels === false)
             $api->sendStatus(false);
 
@@ -48,6 +54,6 @@ switch ($json['action']){
         break;
 
     case 'read':
-        $api->readAndSendFile($json['game'], $json['file']);
+        $api->readAndSendFile($json['gameId'], $json['file']);
         break;
 }

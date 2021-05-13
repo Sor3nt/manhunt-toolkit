@@ -1,9 +1,9 @@
-MANHUNT.scene.Level = function (game, levelName, storage) {
+MANHUNT.scene.Level = function (gameId, levelName, storage) {
 
+    let gameInfo = MANHUNT.config.getGame(gameId);
 
     let self = {
 
-        _game: game,
         _name: levelName,
 
         _storage: storage,
@@ -43,7 +43,7 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
             self._views.animation = new MANHUNT.scene.AnimationView(self);
 
             let player;
-            if (self._game === "manhunt2"){
+            if (gameInfo.game === "mh2"){
                 player = self._storage.entity.find('player(player)');
             }else{
                 player = self._storage.entity.find('player');
@@ -62,7 +62,7 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
                 return 0;
             }).forEach(function (scene, index) {
 
-                if (self._game === "manhunt2" && index === 2){
+                if (gameInfo.game === "mh2" && index === 2){
                     //hide bbox and shadow light
                     scene.children.forEach(function (child) {
                         child.visible = false;
@@ -100,7 +100,7 @@ MANHUNT.scene.Level = function (game, levelName, storage) {
 
                         //TODO, hardcoded level 1 stuff
                         if (modelName === "fist_poly_hunter"){
-                            if (self._game === "manhunt2"){
+                            if (gameInfo.game === "mh2"){
                                 modelName = 'danny_asylum_bloody';
                             }else{
                                 modelName = 'Player_Bod';

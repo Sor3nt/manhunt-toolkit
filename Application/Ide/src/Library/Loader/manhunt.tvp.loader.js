@@ -31,7 +31,7 @@ MANHUNT.fileLoader.TVP = function () {
         load: function (level, file, callback) {
 
             MANHUNT.api.load(
-                level._game,
+                level._gameId,
                 file,
                 function ( data ) {
                     var results = {};

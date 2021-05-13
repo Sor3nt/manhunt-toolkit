@@ -128,7 +128,7 @@ MANHUNT.fileLoader.INST = function () {
         load: function (level, file, callback ) {
 
             MANHUNT.api.load(
-                level._game,
+                level._gameId,
                 file,
                 function ( data ) {
 
@@ -162,7 +162,7 @@ MANHUNT.fileLoader.INST = function () {
                             var field = 0;
                             while(binary.current() < entryEndOffset){
                                 var setting = {};
-                                if (level._game === "manhunt"){
+                                if (level._game === "mh"){
                                     settings['unk_' + field] = binary.consume(4, 'int32');
 
                                 }else{

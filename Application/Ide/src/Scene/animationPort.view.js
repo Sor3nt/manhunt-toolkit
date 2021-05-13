@@ -89,16 +89,7 @@ MANHUNT.scene.AnimationPortView = function () {
                     //
                     storageMh1.ifp.setConvertNames(true);
                     let clip2 = storageMh1.ifp.find("PlayerAnims", "Bag_Sneak_Attack4");
-                    // let clip2 = storageMh1.ifp.find("PlayerAnims", "Bag_Sneak_Attack4");
                     self._animationMh2.playClip(clip2);
-
-
-                    window.setTimeout(function () {
-                        // self._animationMh1.pause();
-                        // self._animationMh2.pause();
-                    }, 100);
-
-                    console.log("mh2 model", model);
 
                     //apply the model to the control
                     sceneInfo.control.enable(model);

@@ -14,17 +14,17 @@ MANHUNT.frontend.modal.Setup = function () {
         },
 
         refresh: function(){
-            ['manhunt_folder', 'manhunt2_folder'].forEach(function (game) {
-                if (MANHUNT.config.get(game) === false) return;
-
-
-                self._container.find('[data-game-folder="' + game + '"]')
-                    .removeClass('success error')
-                    .addClass('success')
-                    .val(MANHUNT.config.get(game))
-                ;
-
-            });
+            // ['manhunt_folder', 'manhunt2_folder'].forEach(function (game) {
+            //     if (MANHUNT.config.get(game) === false) return;
+            //
+            //
+            //     self._container.find('[data-game-folder="' + game + '"]')
+            //         .removeClass('success error')
+            //         .addClass('success')
+            //         .val(MANHUNT.config.get(game))
+            //     ;
+            //
+            // });
         },
 
         show: function(){
@@ -37,22 +37,14 @@ MANHUNT.frontend.modal.Setup = function () {
         },
 
         save: function(){
-            var config = MANHUNT.config.get();
-            ['manhunt_folder', 'manhunt2_folder'].forEach(function (game) {
-                var val = self._container.find('[data-game-folder="' + game + '"]' ).val();
-                if (val === "") return;
-                config[game] = val;
-            });
 
-            MANHUNT.config.set(config);
-
-            MANHUNT.config.save(function (response) {
+            MANHUNT.config.addGame(self._container.find('[data-game-folder]' ).val(), function (response) {
 
                 if (response.status === true){
                     return MANHUNT.frontend.modal.handler.hide();
                 }
 
-                self._container.find('[data-game-folder="' + response.field + '"]')
+                self._container.find('[data-game-folder]')
                     .removeClass('success error')
                     .addClass('error')
                 ;

@@ -15,7 +15,10 @@
         window.MANHUNT = {
 
             ObjectAnimation: {},
-            resources: {},
+            resources: {
+                Manhunt: {},
+                Manhunt2: {},
+            },
             studio: {},
             config: {},
             init: [],
@@ -102,6 +105,7 @@
     <script src="src/Library/Parser/dff.parser.js"></script>
     <script src="src/Library/Parser/txd.parser.js"></script>
     <script src="src/Library/Parser/tex.parser.js"></script>
+    <script src="src/Library/Parser/manhuntPs2Txd.parser.js"></script>
 
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>

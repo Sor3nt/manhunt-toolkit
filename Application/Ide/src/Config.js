@@ -8,22 +8,13 @@ MANHUNT.config = (function () {
 
         _init: function () {
             MANHUNT.api.getConfig(function (config) {
-                self.set(config.data);
+                console.log('[MANHUNT.config] Config received', config.data);
+                self._config = config.data;
+                if (self._onLoadCallback !== false){
+                    self._onLoadCallback();
+                    self._onLoadCallback = false;
+                }
             });
-        },
-
-        set: function (config) {
-            self._config = config;
-        },
-
-        update: function(field, value){
-            self._config[field] = value;
-        },
-
-        get: function ( attr ) {
-            if (typeof attr === "undefined") return self._config;
-
-            return self._config[ attr ];
         },
 
         onLoadCallback: function (callback) {
@@ -31,18 +22,32 @@ MANHUNT.config = (function () {
             self._onLoadCallback = callback;
         },
 
-        save: function (callback) {
-            MANHUNT.api.setConfig(self._config, callback);
+        addGame: function (folder, callback) {
+            console.log('[MANHUNT.config] Add folder ', folder);
+            MANHUNT.api.addGame(folder, function (result) {
+                if (result.status === false) return callback(result);
+
+                console.log('[MANHUNT.config] Add game ', result);
+                self._config.games.push(result);
+                callback(result);
+            });
+        },
+
+        getGame: function (id) {
+            return self._config.games[id];
+        },
+
+        getGames: function () {
+            return self._config.games;
         }
     };
 
     self._init();
 
     return {
-        save: self.save,
-        onLoadCallback: self.onLoadCallback,
-        set: self.set,
-        update: self.update,
-        get: self.get
+        getGame: self.getGame,
+        getGames: self.getGames,
+        addGame: self.addGame,
+        onLoadCallback: self.onLoadCallback
     }
 })();

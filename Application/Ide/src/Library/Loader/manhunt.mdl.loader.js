@@ -9,7 +9,7 @@ MANHUNT.fileLoader.MDL = function () {
             let modelList = [];
 
             MANHUNT.api.load(
-                level._game,
+                level._gameId,
                 file,
                 function (data) {
 

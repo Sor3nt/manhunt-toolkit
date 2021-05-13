@@ -3,10 +3,11 @@ MANHUNT.api = (function () {
 
         _loader : new THREE.FileLoader(),
 
-        load: function (game, file, callback) {
+        load: function (gameId, file, callback) {
+            console.log("DDAAAA", gameId, file);
             self._request( {
                 action: 'read',
-                game: game,
+                gameId: gameId,
                 file: file
             }, callback);
         },
@@ -24,10 +25,11 @@ MANHUNT.api = (function () {
             oReq.send(JSON.stringify(json) );
         },
 
-        getLevelList: function (callback) {
+        getLevelList: function (gameId, callback) {
 
             self.text( {
-                action: 'getLevels'
+                action: 'getLevels',
+                id: gameId
             }, callback);
         },
 
@@ -38,11 +40,11 @@ MANHUNT.api = (function () {
             }, callback);
         },
 
-        setConfig: function (config, callback) {
+        addGame: function (folder, callback) {
 
             self.text( {
-                action: 'setConfig',
-                data: config
+                action: 'addGame',
+                data: folder
             }, callback);
         },
 
@@ -57,7 +59,7 @@ MANHUNT.api = (function () {
     return {
         text: self.text,
         getLevelList: self.getLevelList,
-        setConfig: self.setConfig,
+        addGame: self.addGame,
         getConfig: self.getConfig,
         load: self.load
     }

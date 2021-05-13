@@ -14,43 +14,42 @@ MANHUNT.frontend.modal.levelSelection = function () {
             // self._createEvents();
         },
 
-        _createLevelList: function(result){
+        _createLevelList: function(gameId, result){
 
-            var levelFromGame = { manhunt: false, manhunt2: false};
+            let info = MANHUNT.config.getGame(gameId);
             result.data.forEach(function (levelInfo) {
 
                 var row = jQuery(self._entryTemplate.content).clone();
                 self._container.find('[data-field="level-list"]').append(row);
                 row = self._container.find('[data-field="level-list"]').find('a:last-child');
 
-                if (levelInfo.game === "manhunt") levelFromGame.manhunt = true;
-                else levelFromGame.manhunt2 = true;
 
                 row.find('[data-field="name"]').html(levelInfo.name);
                 row.find('[data-field="image"]').attr(
                     'src',
-                    levelInfo.game === "manhunt" ?
+                    info.game === "mh" ?
                         'data/mh1-icon.png' :
                         'data/mh2-icon.png'
                 );
 
                 row.hover(function () {
-                    self._onHover(levelInfo, row);
+                    // self._onHover(levelInfo, row);
                 }).click(function () {
 
-                    MANHUNT.studio.loadLevel(levelInfo.game, levelInfo.folderName);
+                    MANHUNT.studio.loadLevel(gameId, levelInfo.folderName);
                     MANHUNT.frontend.modal.handler.hide();
                 });
+
             });
 
-            if (levelFromGame.manhunt2 === true){
-                var storage = MANHUNT.studio.getStorage('tex');
-                storage.load('global/pictures/gui_pc.tex', function () {
-                    console.log("LOADED");
-                });
-            }
+            //
+            // if (info.game === "mh2" && info.platform === "pc"){
+            //     var storage = MANHUNT.studio.getStorage('tex');
+            //     storage.load('global/pictures/gui_pc.tex', function () {
+            //         console.log("gui_pc LOADED");
+            //     });
+            // }
 
-            // self._textureView = new MANHUNT.scene.textureView();
             self._textureView = MANHUNT.scene.views.load(self._picLoad, 'textureView');
             MANHUNT.engine.changeScene( 'textureView');
         },
@@ -64,10 +63,12 @@ MANHUNT.frontend.modal.levelSelection = function () {
             self._textureView.display(texture);
         },
 
-        show: function(){
+        show: function(options){
             if (self._loaded === false){
                 self._loaded = true;
-                MANHUNT.api.getLevelList(self._createLevelList);
+                MANHUNT.api.getLevelList(options.gameId, function (list) {
+                    self._createLevelList(options.gameId, list);
+                });
             }
 
             self._container.show();

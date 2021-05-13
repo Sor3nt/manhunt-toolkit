@@ -9,10 +9,10 @@ MANHUNT.frontend.modal.handler = (function () {
 
         _active: false,
 
-        show: function ( name ) {
+        show: function ( name, options ) {
             if (self._active !== false) self._active.hide();
             self._active = self._modals[name];
-            self._active.show();
+            self._active.show(options);
         },
 
         hide: function () {

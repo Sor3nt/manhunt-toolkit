@@ -15,29 +15,47 @@ class Api
         $this->config = new Config();
     }
 
-    public function detectGameByFolder($folder ){
+    public function detectGameAndPlatformByFolder($folder ){
 
         if ($folder === false) return false;
 
-        foreach (['manhunt' => 'manhunt.exe', 'manhunt2' => 'Manhunt2.exe', ] as $game => $exe) {
+        foreach ([MHT::GAME_MANHUNT => 'manhunt.exe', MHT::GAME_MANHUNT_2 => 'Manhunt2.exe', ] as $game => $exe) {
             if (file_exists($folder . '/' . $exe)){
-                return $game;
+                return [
+                    'game' => $game,
+                    'platform' => MHT::PLATFORM_PC
+                ];
             }
+        }
+
+        if (file_exists($folder . '/UMD_DATA.BIN')){
+
+            if (!file_exists($folder . '/MOVIES/A01_ES_I.PMF')){
+                return [
+                    'game' => MHT::GAME_MANHUNT_2,
+                    'platform' => MHT::PLATFORM_PSP_001
+                ];
+            }
+
+            return [
+                'game' => MHT::GAME_MANHUNT_2,
+                'platform' => MHT::PLATFORM_PSP
+            ];
         }
 
         return false;
     }
 
-    public function readAndSendLevelList( ){
-        $manhuntFolder = $this->config->get('manhunt_folder');
-        $manhunt2Folder = $this->config->get('manhunt2_folder');
-        if ($manhuntFolder === false && $manhunt2Folder === false) return false;
+    public function getLevelList( $id ){
 
         $levels = [];
-        if ($manhuntFolder !== false){
-            $data = file_get_contents($manhuntFolder . '/initscripts/LEVELS/levels.txt');
+
+        $game = $this->config->getGame($id);
+
+        if ($game['game'] == MHT::GAME_MANHUNT && $game['platform'] === MHT::PLATFORM_PC) {
+            $data = file_get_contents($game['path'] . '/initscripts/LEVELS/levels.txt');
             $data = explode("\n", $data);
-            foreach ($data as $line){
+            foreach ($data as $line) {
                 $line = trim($line);
                 $line = str_replace("\t", " ", $line);
 
@@ -46,23 +64,21 @@ class Api
                 $folderName = trim(substr($line, 6));
                 $folderName = explode(" ", $folderName)[0];
 
-                if (is_dir($manhuntFolder . '/levels/' . strtolower($folderName)))
+                if (is_dir($game['path'] . '/levels/' . strtolower($folderName)))
                     $levels[] = [
-                        'game' => 'manhunt',
                         'icon' => '',
                         'name' => $folderName,
                         'folderName' => $folderName,
                         'folder' => '/levels/' . strtolower($folderName)
                     ];
             }
-        }
 
-        if ($manhunt2Folder !== false){
-            $data = file_get_contents($manhunt2Folder . '/global/initscripts/resource23.glg');
+        }else if ($game['game'] == MHT::GAME_MANHUNT_2 && $game['platform'] === MHT::PLATFORM_PC){
+            $data = file_get_contents($game['path'] . '/global/initscripts/resource23.glg');
             $data = (new NBinary($data))->binary;
 
 
-            $translationData = file_get_contents($manhunt2Folder . '/global/game.gxt');
+            $translationData = file_get_contents($game['path'] . '/global/game.gxt');
             $gxt = new Gxt();
             $translation = $gxt->unpack(new NBinary($translationData), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
 
@@ -71,12 +87,11 @@ class Api
                 $line = trim($line);
                 if (substr($line, 0, 5) !== "LEVEL") continue;
 
-
                 $folderName = substr($line, 6);
                 $folderNumber = (int)substr($folderName, 1, 2);
                 $folderId = substr($folderName, 0, 3);
 
-                if (is_dir($manhunt2Folder . '/levels/' . $folderName)){
+                if (is_dir($game['path'] . '/levels/' . $folderName)){
 
                     $realName = false;
                     foreach ($translation as $pair) {
@@ -84,9 +99,7 @@ class Api
                         $realName = $pair['text'];
                     }
 
-
                     $levels[] = [
-                        'game' => 'manhunt2',
                         'folderName' => $folderName,
                         'icon' => strtolower($folderId),
                         'name' => $realName,
@@ -100,17 +113,20 @@ class Api
             }
         }
 
+
         return $levels;
     }
 
 
-    public function readAndSendFile($game, $file ){
+    public function readAndSendFile($gameId, $file ){
+
+                $game = $this->config->getGame($gameId);
 
         if (strpos($file, ".pak#") !== false){
             list($pakFile, $innerFile) = explode("#", $file);
             $pakHandler = new \App\Service\Archive\Pak();
             $pakFiles = $pakHandler->unpack(
-                new \App\Service\NBinary(file_get_contents($this->config->get($game . '_folder') . $pakFile)),
+                new \App\Service\NBinary(file_get_contents($game['path'] . "/"  . $pakFile)),
                 \App\MHT::GAME_MANHUNT,
                 \App\MHT::PLATFORM_PC
             );
@@ -120,14 +136,11 @@ class Api
                 if (strtolower($fileName) == strtolower($innerFile)){
                     $realFile = $data;
                     break;
-
-
                 }
             }
 
         }else{
-            $realFile = file_get_contents($this->config->get($game . '_folder') . $file);
-
+            $realFile = file_get_contents($game['path'] . "/" . $file);
         }
 
         $this->send($realFile);

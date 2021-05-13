@@ -17,7 +17,7 @@ MANHUNT.studio = (function () {
 
             self._tabHandler = new MANHUNT.frontend.Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
 
-            if (MANHUNT.config.get('manhunt_folder') === false && MANHUNT.config.get('manhunt2_folder') === false){
+            if (MANHUNT.config.getGames().length === 0){
                 return MANHUNT.frontend.modal.handler.show('setup', self._onGamePathsKnown);
             }
 
@@ -29,16 +29,16 @@ MANHUNT.studio = (function () {
             MANHUNT.engine.render();
 
             //for level selection mini pic
-            let storage = new MANHUNT.storage.Storage({ _game: 'manhunt2'});
-            self._globalStorage.tex = storage.create('tex');
+            // let storage = new MANHUNT.storage.Storage({ _game: 'mh2', _platform: 'pc'});
+            // self._globalStorage.tex = storage.create('tex');
 
-            MANHUNT.frontend.modal.handler.show('levelSelection');
+            MANHUNT.frontend.modal.handler.show('levelSelection', { gameId: 0 });
             // new MANHUNT.scene.AnimationPortView();
         },
 
-        loadLevel: function (game, levelName) {
-            MANHUNT.resources.handler.fromLevel(game, levelName, function(storage){
-                new MANHUNT.scene.Level(game, levelName, storage);
+        loadLevel: function (gameId, levelName) {
+            MANHUNT.resources.handler.fromLevel(gameId, levelName, function(storage){
+                new MANHUNT.scene.Level(gameId, levelName, storage);
 
             });
         }

@@ -364,7 +364,7 @@ MANHUNT.fileLoader.IFP = function () {
             STRAP2: 8888
         };
 
-        if (game === "manhunt2"){
+        if (game === "mh2"){
             for(let i in mappingManhunt2){
                 if (!mappingManhunt2.hasOwnProperty(i)) continue;
                 if (mappingManhunt2[i] === boneId) return i;
@@ -398,7 +398,7 @@ MANHUNT.fileLoader.IFP = function () {
             var name;
 
             if (convertNames){
-                name = getBoneNameByBoneId(game === "manhunt" ? "manhunt2" : "manhunt", bone.boneId);
+                name = getBoneNameByBoneId(game === "mh" ? "manhunt2" : "manhunt", bone.boneId);
 
             }else{
                 name = getBoneNameByBoneId(game, bone.boneId);
@@ -490,7 +490,7 @@ MANHUNT.fileLoader.IFP = function () {
         load: function (level, file, callback) {
 
             MANHUNT.api.load(
-                level._game,
+                level._gameId,
                 file,
                 function (data) {
 

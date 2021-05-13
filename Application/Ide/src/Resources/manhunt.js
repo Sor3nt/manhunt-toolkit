@@ -1,10 +1,11 @@
-MANHUNT.resources.Manhunt = function (levelName, doneCallback) {
-
+MANHUNT.resources.Manhunt.pc = function (gameId, levelName, doneCallback) {
     let base = new MANHUNT.resources.Abstract(levelName, doneCallback);
 
     let self = Object.assign(base, {
 
-        _game: 'manhunt',
+        _game: 'mh',
+        _platform: 'pc',
+        _gameId: gameId,
 
         _buildChain: function () {
 
