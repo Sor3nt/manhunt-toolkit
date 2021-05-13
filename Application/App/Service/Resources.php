@@ -25,6 +25,7 @@ use App\Service\Archive\Pak;
 use App\Service\Archive\Tag;
 use App\Service\Archive\Tex;
 use App\Service\Archive\TxdPlaystation;
+use App\Service\Archive\TxdPlaystation2Mh1;
 use App\Service\Archive\TxdWii;
 use App\Service\Archive\Vas;
 use App\Service\Archive\Wav;
@@ -40,7 +41,7 @@ class Resources
         Col::class,     Dds::class,     Fxb::class,     Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class,
-        Dff::class,     Vas::class,     Bin::class
+        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class
     ];
 
 

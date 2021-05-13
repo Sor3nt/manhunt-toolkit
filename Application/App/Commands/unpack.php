@@ -54,6 +54,7 @@ if ($platform !== MHT::PLATFORM_AUTO){
     if (
         $platform != MHT::PLATFORM_PC &&
         $platform != MHT::PLATFORM_PS2 &&
+        $platform != MHT::PLATFORM_PS2_064 &&
         $platform != MHT::PLATFORM_PSP &&
         $platform != MHT::PLATFORM_PSP_001 &&
         $platform != MHT::PLATFORM_XBOX &&

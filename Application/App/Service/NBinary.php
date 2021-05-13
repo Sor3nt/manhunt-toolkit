@@ -310,14 +310,14 @@ class NBinary{
         $this->writeCoordinates($xyz, $type);
     }
 
-    public function consume( $bytes, $type, $skip = 0){
+    public function consume( $bytes, $type, $skip = 0, $movePtr = true){
 
         $this->current += $skip;
 
         $result = hex2bin(substr($this->hex, $this->current * 2, $bytes * 2));
 //        $result = mb_substr($this->binary, $this->current, $bytes, '8bit');
 
-        $this->current += $bytes ;
+        if($movePtr) $this->current += $bytes ;
 
         return $this->unpack($result, $type);
     }
