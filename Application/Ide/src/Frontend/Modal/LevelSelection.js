@@ -36,7 +36,7 @@ MANHUNT.frontend.modal.levelSelection = function () {
                     // self._onHover(levelInfo, row);
                 }).click(function () {
 
-                    MANHUNT.studio.loadLevel(gameId, levelInfo.folderName);
+                    MANHUNT.studio.loadLevel(gameId, levelInfo);
                     MANHUNT.frontend.modal.handler.hide();
                 });
 

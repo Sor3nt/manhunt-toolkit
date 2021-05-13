@@ -1,10 +1,10 @@
-MANHUNT.scene.Level = function (gameId, levelName, storage) {
+MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
 
     let gameInfo = MANHUNT.config.getGame(gameId);
 
     let self = {
 
-        _name: levelName,
+        _name: levelInfo.name,
 
         _storage: storage,
 

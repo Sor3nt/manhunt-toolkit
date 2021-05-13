@@ -1,6 +1,7 @@
 MANHUNT.fileLoader.IFP = function () {
 
     function readANPKIndex(binary) {
+
         var anpk_magic = binary.consume(4, 'int32');
         var numANPK = binary.consume(4, 'int32');
         var ANPK = {
@@ -10,7 +11,7 @@ MANHUNT.fileLoader.IFP = function () {
         };
 
         for (var j = 0; j < numANPK; j++) {
-
+            console.log(j);
             var NAME_magic = binary.consume(4, 'int32');
             var AnimNameLen = binary.consume(4, 'int32');
             var AnimName = binary.consume(AnimNameLen - 1, 'string');
@@ -21,16 +22,38 @@ MANHUNT.fileLoader.IFP = function () {
 
             var numBones = binary.consume(4, 'int32');
             var chunkSize = binary.consume(4, 'int32');
-            var times = binary.consume(4, 'float32');
-            var ANPKType = binary.consume(4, 'string');
+
+
+
+            let testVersion = binary.consume(4, 'string');
+            binary.setCurrent( binary.current() - 4);
+
+            var times = 10;
+            var ANPKType;
+            var mh064Patch = false;
+            if (testVersion === "SEQT" || testVersion === "SEQU"){
+                ANPKType = testVersion;
+                mh064Patch = true;
+            }else{
+                times = binary.consume(4, 'float32');
+                ANPKType = binary.consume(4, 'string');
+            }
+
             ANPK.frameTimeCount.push(times);
 
             binary.setCurrent(binary.current() - 4);
 
+            let patchOffset = 0;
+            if (mh064Patch){
+                patchOffset = 4; //we have no frameTimeCount field
+            }
+
             if (ANPKType === "SEQT") {
-                binary.setCurrent(binary.current() + (chunkSize + numBones * 13));
+                binary.setCurrent(binary.current() + (chunkSize + numBones * 13) + patchOffset);
             } else if (ANPKType === "SEQU") {
-                binary.setCurrent(binary.current() + (chunkSize + numBones * 9));
+                binary.setCurrent(binary.current() + (chunkSize + numBones * 9) + patchOffset);
+            }else{
+                console.error("[MANHUNT.ifp.loader] Parsing error, assume SEQT or SEQU got ", ANPKType, binary.current());
             }
 
             var unk = binary.consume(4, 'int32');
@@ -38,6 +61,8 @@ MANHUNT.fileLoader.IFP = function () {
             var perEntrySize = binary.consume(4, 'int32');
             var numEntry = binary.consume(4, 'uint32');
             var pecSize = perEntrySize * numEntry;
+
+            console.log(AnimName,unk, pecTime, perEntrySize,numEntry);
 
             binary.setCurrent(binary.current() + pecSize);
         }
@@ -137,7 +162,18 @@ MANHUNT.fileLoader.IFP = function () {
 
         var numBones = binary.consume(4, 'int32');
         var chunkSize = binary.consume(4, 'int32');
-        var times = binary.consume(4, 'float32');
+
+
+
+
+        let testVersion = binary.consume(4, 'string');
+        binary.setCurrent( binary.current() - 4);
+console.log("tes", testVersion);
+        var times = 10;
+        if (testVersion === "SEQT" || testVersion === "SEQU"){
+        }else{
+            times = binary.consume(4, 'float32');
+        }
 
         for (var b = 0; b < numBones; b++) {
 
@@ -398,7 +434,7 @@ MANHUNT.fileLoader.IFP = function () {
             var name;
 
             if (convertNames){
-                name = getBoneNameByBoneId(game === "mh" ? "manhunt2" : "manhunt", bone.boneId);
+                name = getBoneNameByBoneId(game === "mh1" ? "mh2" : "mh1", bone.boneId);
 
             }else{
                 name = getBoneNameByBoneId(game, bone.boneId);

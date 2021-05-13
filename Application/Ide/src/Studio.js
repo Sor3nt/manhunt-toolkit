@@ -36,9 +36,9 @@ MANHUNT.studio = (function () {
             // new MANHUNT.scene.AnimationPortView();
         },
 
-        loadLevel: function (gameId, levelName) {
-            MANHUNT.resources.handler.fromLevel(gameId, levelName, function(storage){
-                new MANHUNT.scene.Level(gameId, levelName, storage);
+        loadLevel: function (gameId, levelInfo) {
+            MANHUNT.resources.handler.fromLevel(gameId, levelInfo, function(storage){
+                new MANHUNT.scene.Level(gameId, levelInfo, storage);
 
             });
         }

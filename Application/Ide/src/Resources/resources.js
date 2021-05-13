@@ -4,12 +4,12 @@ MANHUNT.resources.handler = (function () {
 
         // _level: {},
 
-        fromLevel: function(gameId, levelName, callback){
+        fromLevel: function(gameId, levelInfo, callback){
             let info = MANHUNT.config.getGame(gameId);
 
-            console.log('[MANHUNT.resources.handler] ', info.game, info.platform, levelName);
+            console.log('[MANHUNT.resources.handler] ', info.game, info.platform, levelInfo.name);
 
-            new MANHUNT.resources[(info.game === "mh" ? "Manhunt" : "Manhunt2")][info.platform](gameId, levelName, function (storage) {
+            new MANHUNT.resources[(info.game === "mh1" ? "Manhunt" : "Manhunt2")][info.platform](gameId, levelInfo.folderName, function (storage) {
                 callback(storage)
             });
         }

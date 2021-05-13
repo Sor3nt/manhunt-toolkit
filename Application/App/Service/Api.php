@@ -68,7 +68,7 @@ class Api
                     $levels[] = [
                         'icon' => '',
                         'name' => $folderName,
-                        'folderName' => $folderName,
+                        'folderName' => strtolower($folderName),
                         'folder' => '/levels/' . strtolower($folderName)
                     ];
             }

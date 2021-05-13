@@ -4,7 +4,6 @@ MANHUNT.api = (function () {
         _loader : new THREE.FileLoader(),
 
         load: function (gameId, file, callback) {
-            console.log("DDAAAA", gameId, file);
             self._request( {
                 action: 'read',
                 gameId: gameId,
