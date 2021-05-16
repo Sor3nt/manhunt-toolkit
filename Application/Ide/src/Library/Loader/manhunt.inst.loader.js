@@ -162,7 +162,7 @@ MANHUNT.fileLoader.INST = function () {
                             var field = 0;
                             while(binary.current() < entryEndOffset){
                                 var setting = {};
-                                if (level._game === "mh"){
+                                if (level._game === "mh1"){
                                     settings['unk_' + field] = binary.consume(4, 'int32');
 
                                 }else{

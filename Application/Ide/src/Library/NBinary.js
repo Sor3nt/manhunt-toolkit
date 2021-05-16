@@ -192,6 +192,18 @@ function NBinary( data){
             return faces;
         },
 
+        readFloats: function (count) {
+
+            let ret = [];
+            while(count--){
+                ret.push(self.consume(4, 'float32'));
+            }
+
+            return ret;
+
+        },
+
+
         readVector4: function (byte, type) {
             byte = byte || 4;
             type = type || 'float32';
@@ -287,6 +299,7 @@ function NBinary( data){
         readVector2: self.readVector2,
         readVector3: self.readVector3,
         readVector4: self.readVector4,
+        readFloats: self.readFloats,
         remain: self.remain,
         readXYZ: self.readXYZ,
         seek: self.seek,

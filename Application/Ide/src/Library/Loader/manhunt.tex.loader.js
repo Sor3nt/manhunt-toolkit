@@ -21,14 +21,17 @@ MANHUNT.fileLoader.TEX = function () {
                             isManhunt2
                         ));
 
-                    }else if (level._platform === "ps2"){
+                    }else if (level._platform === "ps2064"){
 
                         if (gameId !== 22){
                             console.log("TODO: Not a MH1 ps2 txd file!");
                             return callback([]);
                         }
 
-                        return callback(MANHUNT.parser.manhuntPs2Txd(binary));
+                        return callback(MANHUNT.converter.dds2texture(
+                            MANHUNT.parser.manhuntPs2Txd(binary),
+                            false
+                        ));
 
                     }
                 }

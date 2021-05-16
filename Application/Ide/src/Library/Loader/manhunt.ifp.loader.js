@@ -11,7 +11,6 @@ MANHUNT.fileLoader.IFP = function () {
         };
 
         for (var j = 0; j < numANPK; j++) {
-            console.log(j);
             var NAME_magic = binary.consume(4, 'int32');
             var AnimNameLen = binary.consume(4, 'int32');
             var AnimName = binary.consume(AnimNameLen - 1, 'string');
@@ -61,8 +60,6 @@ MANHUNT.fileLoader.IFP = function () {
             var perEntrySize = binary.consume(4, 'int32');
             var numEntry = binary.consume(4, 'uint32');
             var pecSize = perEntrySize * numEntry;
-
-            console.log(AnimName,unk, pecTime, perEntrySize,numEntry);
 
             binary.setCurrent(binary.current() + pecSize);
         }
@@ -168,7 +165,7 @@ MANHUNT.fileLoader.IFP = function () {
 
         let testVersion = binary.consume(4, 'string');
         binary.setCurrent( binary.current() - 4);
-console.log("tes", testVersion);
+
         var times = 10;
         if (testVersion === "SEQT" || testVersion === "SEQU"){
         }else{

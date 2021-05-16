@@ -12,7 +12,7 @@
 		Manhunt
 --------------------------------*/
 
-MANHUNT.parser.dff = function (binary) {
+MANHUNT.parser.dff = function (binary, level) {
 
     let allBones = [];
     let allBonesMesh = [];
@@ -176,6 +176,8 @@ MANHUNT.parser.dff = function (binary) {
 
         let FrameCount = binary.consume(4, 'uint32');
         let FrameDataListArray = ReadFrameDataList(FrameCount);
+
+
         let FrameNameArray = [];
         let HAnimBoneArray = [];
         let BoneIDArray = [];
@@ -217,6 +219,7 @@ MANHUNT.parser.dff = function (binary) {
                 }
             }
         }
+
 
         for (i = 0; i < FrameCount; i++) {
             for (j = 0; j < FrameCount; j++) {
@@ -266,6 +269,7 @@ MANHUNT.parser.dff = function (binary) {
         Tex.U_addressing = (UVaddressing & -4) === -4;
         Tex.V_addressing = UVaddressing & 0xf;
         //end ReadTextureStruct
+
 
         Tex.TextureName = ReadrwString();
         Tex.AlphaTextureName = ReadrwString();
@@ -505,6 +509,7 @@ MANHUNT.parser.dff = function (binary) {
         ReadChunk(); //GeometryHeader
         ReadChunk(); //GeometryStructHeader
 
+
         let FormatFlags = binary.consume(2, 'uint16');
         binary.consume(1, 'int8'); //NumTexCoorsCustom
         binary.consume(1, 'int8');  //GeometryNativeFlags
@@ -513,7 +518,6 @@ MANHUNT.parser.dff = function (binary) {
         let VertexCount = binary.consume(4, 'uint32');
 
         binary.consume(4, 'uint32'); //numMorphTargets
-
         let GeometryMeshes = (FormatFlags & rpGEOMETRYPOSITIONS) === rpGEOMETRYPOSITIONS;
         let GeometryTextured = (FormatFlags & rpGEOMETRYTEXTURED) === rpGEOMETRYTEXTURED;
         let GeometryPrelit = (FormatFlags & rpGEOMETRYPRELIT) === rpGEOMETRYPRELIT;
@@ -525,6 +529,8 @@ MANHUNT.parser.dff = function (binary) {
         if (GeometryPrelit === true) VColor_Array = ReadVertexColor(VertexCount);
         if (GeometryTextured === true || GeometryTextured_2 === true) UV1_array = ReadUV(VertexCount);
         if (GeometryTextured_2 === true) UV2_array = ReadUV(VertexCount);
+
+
 
         if (GeometryMeshes === true) {
             let FaceAndMatIDArray = ReadFace(FaceCount);
@@ -659,6 +665,20 @@ MANHUNT.parser.dff = function (binary) {
         return AtomicArray;
     }
 
+    function ReadClumpPs2(offset) {
+        binary.setCurrent(offset);
+
+        // console.log("GOTO OFFSEETE" , offset);
+        let rw = MANHUNT.parser.renderware(binary);
+        let converted = rw.convert(rw.processChunk(), 0);
+        //
+        // if (offset === 0){
+        //     console.log(converted.BoneArray, 0, converted.parsedObjects);
+        //     consolasde.log(converted.BoneArray, 0, converted.parsedObjects);
+        // }
+        return normalizeResult(converted.BoneArray, 0, converted.parsedObjects);
+    }
+
     function ReadClump(offset) {
         allBones = [];
         allBonesMesh = [];
@@ -667,15 +687,17 @@ MANHUNT.parser.dff = function (binary) {
 
         ReadChunk(); //clumpHeader
         ReadChunk(); //clumpStruct
+
         let numAtomics = binary.consume(4, 'int32');
         binary.consume(4, 'int32'); //numLights
         binary.consume(4, 'int32'); //numCameras
+        // console.log(numAtomics);
+        // consdsole.log(GeometryListHeader);
 
 
         let BoneArray = ReadFrameList();
         let GeometryListHeader = ReadChunk();
         let GeometryListOffset = binary.current();
-
         binary.seek(GeometryListHeader.size);
         let AtomicArray = ReadAtomic(numAtomics);
 
@@ -683,7 +705,11 @@ MANHUNT.parser.dff = function (binary) {
 
         let GeometryCount = ReadGeometryListSturct();
         let parsedObjects = ReadGeometryList(GeometryCount, AtomicArray);
-
+        //
+        // if (offset === 0){
+        //     console.log(BoneArray, GeometryCount, parsedObjects);
+        //     consolasde.log(converted.BoneArray, 0, converted.parsedObjects);
+        // }
         return normalizeResult(BoneArray, GeometryCount, parsedObjects);
 
     }
@@ -709,10 +735,31 @@ MANHUNT.parser.dff = function (binary) {
 
             ReadChunk(); // extheader
             let header = ReadChunk();
+            // conasdsole.log("header.id", header.id);
             if (header.id === 0x11F) {
                 DFFname = readUserDataPLG(1);
             } else if (header.id === 0x253F2FE) {
                 DFFname = ReadFrameName(header.size);
+            } else if (header.id === 286) {
+                ReadChunk();
+                let header = ReadChunk();
+                if (header.id === 39056126){
+                    DFFname = ReadFrameName(header.size);
+                } else if (header.id === 3) {
+                    let endOfs = binary.current() + header.size;
+                    while (binary.current() < endOfs) {
+                        let sHeader = ReadChunk();
+                        if (sHeader.id === 0x253F2FE) {
+                            DFFname = ReadFrameName(sHeader.size);
+                        } else if (sHeader.id === 0x11F) {
+                            DFFname = readUserDataPLG(1);
+                        } else {
+
+                            binary.seek(sHeader.size);
+                        }
+                    }
+                }
+
             } else if (header.id === 3) {
                 let endOfs = binary.current() + header.size;
                 while (binary.current() < endOfs) {
@@ -727,18 +774,34 @@ MANHUNT.parser.dff = function (binary) {
                     }
                 }
             }
+//
+            if (DFFname !== ""){
+// console.log("register", {
+//     name: DFFname,
+//     offset: offset
+// });
+                (function (offset, name) {
+                    entries.push({
+                        name: name,
+                        offset: offset,
+                        data: function(){
+                            if (level._platform === "pc"){
+                                // console.log("LOAD DFF", name);
+                                let mesh = ReadClumpPs2(offset);
+                                mesh.name = DFFname;
+                                return mesh;
 
-            (function (offset, name) {
-                entries.push({
-                    name: name,
-                    offset: offset,
-                    data: function(){
-                        let mesh = ReadClump(offset);
-                        mesh.name = DFFname;
-                        return mesh;
-                    }
-                });
-            })(offset, DFFname);
+                            }else{
+                                // console.log("LOAD DFF", name);
+                                let mesh = ReadClumpPs2(offset);
+                                mesh.name = DFFname;
+                                return mesh;
+
+                            }
+                        }
+                    });
+                })(offset, DFFname);
+            }
 
             binary.setCurrent(next);
             count += 1;

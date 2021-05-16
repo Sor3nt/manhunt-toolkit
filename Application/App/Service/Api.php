@@ -28,6 +28,13 @@ class Api
             }
         }
 
+        if (file_exists($folder . '/SLPS_123.45')){
+            return [
+                'game' => MHT::GAME_MANHUNT,
+                'platform' => MHT::PLATFORM_PS2_064
+            ];
+        }
+
         if (file_exists($folder . '/UMD_DATA.BIN')){
 
             if (!file_exists($folder . '/MOVIES/A01_ES_I.PMF')){
@@ -52,8 +59,13 @@ class Api
 
         $game = $this->config->getGame($id);
 
-        if ($game['game'] == MHT::GAME_MANHUNT && $game['platform'] === MHT::PLATFORM_PC) {
-            $data = file_get_contents($game['path'] . '/initscripts/LEVELS/levels.txt');
+        if ($game['game'] == MHT::GAME_MANHUNT) {
+            if ($game['platform'] === MHT::PLATFORM_PC){
+                $data = file_get_contents($game['path'] . '/initscripts/LEVELS/levels.txt');
+            }else if ($game['platform'] === MHT::PLATFORM_PS2_064){
+                $data = file_get_contents($game['path'] . '/GLOBAL/INITSCR/LEVELS.TXT');
+            }
+
             $data = explode("\n", $data);
             foreach ($data as $line) {
                 $line = trim($line);

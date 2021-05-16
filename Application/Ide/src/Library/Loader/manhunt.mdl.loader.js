@@ -19,7 +19,7 @@ MANHUNT.fileLoader.MDL = function () {
 
                     //Parse the file list
                     binary.setCurrent(0);
-                    modelList = MANHUNT.parser[isManhunt2 ? 'mdl' : 'dff'](binary);
+                    modelList = MANHUNT.parser[isManhunt2 ? 'mdl' : 'dff'](binary, level);
 
                     callback({
                         getModelNames: function () {

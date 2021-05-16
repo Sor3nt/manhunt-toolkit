@@ -16,8 +16,8 @@
 
             ObjectAnimation: {},
             resources: {
-                Manhunt: {},
-                Manhunt2: {},
+                mh1: {},
+                mh2: {},
             },
             studio: {},
             config: {},
@@ -106,6 +106,7 @@
     <script src="src/Library/Parser/txd.parser.js"></script>
     <script src="src/Library/Parser/tex.parser.js"></script>
     <script src="src/Library/Parser/manhuntPs2Txd.parser.js"></script>
+    <script src="src/Library/Parser/renderware.js"></script>
 
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
@@ -117,8 +118,9 @@
 
 
     <script src="src/Resources/abstract.js"></script>
-    <script src="src/Resources/manhunt.js"></script>
-    <script src="src/Resources/manhunt2.js"></script>
+    <script src="src/Resources/manhunt.pc.js"></script>
+    <script src="src/Resources/manhunt2.pc.js"></script>
+    <script src="src/Resources/manhunt.ps2.v064.js"></script>
     <script src="src/Resources/resources.js"></script>
     <script src="src/Scene/model.view.js"></script>
     <script src="src/Scene/views.js"></script>

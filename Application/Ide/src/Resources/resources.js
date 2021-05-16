@@ -9,7 +9,7 @@ MANHUNT.resources.handler = (function () {
 
             console.log('[MANHUNT.resources.handler] ', info.game, info.platform, levelInfo.name);
 
-            new MANHUNT.resources[(info.game === "mh1" ? "Manhunt" : "Manhunt2")][info.platform](gameId, levelInfo.folderName, function (storage) {
+            new MANHUNT.resources[info.game][info.platform](gameId, levelInfo.folderName, function (storage) {
                 callback(storage)
             });
         }

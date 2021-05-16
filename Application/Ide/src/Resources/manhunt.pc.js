@@ -1,10 +1,9 @@
-MANHUNT.resources.Manhunt2.pc = function (gameId, levelName, doneCallback) {
-
+MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
     let base = new MANHUNT.resources.Abstract(levelName, doneCallback);
 
     let self = Object.assign(base, {
 
-        _game: 'mh2',
+        _game: 'mh1',
         _platform: 'pc',
         _gameId: gameId,
 
@@ -14,30 +13,37 @@ MANHUNT.resources.Manhunt2.pc = function (gameId, levelName, doneCallback) {
                 {
                     order: [
                         {
-                            ifp: ['levels/' + levelName + '/allanims_pc.ifp']
+                            ifp: ['levels/' + levelName + '/allanims.ifp']
                         }
                     ],
 
                     callback: function () {}
+
                 },
                 {
                     order: [
                         {
                             tex: [
-                                'global/danny_asylum_bloody_pc.tex',
-                                'levels/' + levelName + '/modelspc.tex'
+                                'levels/GLOBAL/CHARPAK/cash_pc.txd',
+                                'levels/' + levelName + '/pak/modelspc.txd',
+                                'levels/' + levelName + '/picmap.txd',
+                                // 'levels/' + levelName + '/picmmap.txd'
                             ],
-                            glg: ['levels/' + levelName + '/resource3.glg'],
+
+                            glg: ['levels/GLOBAL/DATA/ManHunt.pak#./levels/' + levelName + '/entityTypeData.ini'],
 
                         },
                         {
                             mdl: [
-                                'global/danny_asylum_bloody_pc.mdl',
-                                'levels/' + levelName + '/modelspc.mdl'
+                                'levels/GLOBAL/CHARPAK/cash_pc.dff',
+                                'levels/' + levelName + '/pak/modelspc.dff'
                             ]
                         },
                         {
-                            inst: ['levels/' + levelName + '/entity_pc.inst']
+                            inst: [
+                                'levels/' + levelName + '/entity.inst',
+                                'levels/' + levelName + '/entity2.inst'
+                            ]
                         }
 
                     ],
@@ -48,13 +54,12 @@ MANHUNT.resources.Manhunt2.pc = function (gameId, levelName, doneCallback) {
                 {
                     order: [
                         {
-                            tex: ['levels/' + levelName + '/scene1_pc.tex'],
+                            tex: ['levels/' + levelName + '/pak/scene1pc.txd'],
                         },
                         {
                             bsp: [
-                                'levels/' + levelName + '/scene1_pc.bsp',
-                                'levels/' + levelName + '/scene2_pc.bsp',
-                                'levels/' + levelName + '/scene3_pc.bsp'
+                                'levels/' + levelName + '/scene1.bsp',
+                                // 'levels/' + levelName + '/scene2.bsp',
                             ]
                         }
 
@@ -65,9 +70,7 @@ MANHUNT.resources.Manhunt2.pc = function (gameId, levelName, doneCallback) {
             ];
 
             self._processChain(loadChain);
-
         }
-
     });
 
     self._init();
