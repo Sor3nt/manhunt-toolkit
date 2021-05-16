@@ -725,7 +725,7 @@ MANHUNT.parser.renderware = function (binary) {
         return found;
     }
 
-    function convert(rwData) {
+    function convertToModel(rwData) {
 
         let tree = cleanTree(rwData, 0);
         assert(tree.type, CHUNK_CLUMP, "convert: Container is not a CHUNK_CLUMP it is " + tree.typeName);
@@ -753,7 +753,10 @@ MANHUNT.parser.renderware = function (binary) {
             let name = "";
             if (_chunk.chunks.length > 0){
                 let _chunkFrame =  getChunk(_chunk, CHUNK_FRAME);
-                name = _chunkFrame.data.name;
+                if (_chunkFrame === false)
+                    name = "bone" + i;
+                else
+                    name = _chunkFrame.data.name;
             }else{
                 console.log(tree, i, frameCount, chunkFrameList.data.frameList);
                 if (i === 0)
@@ -915,7 +918,7 @@ MANHUNT.parser.renderware = function (binary) {
         data: {},
         chunks: [],
         binary: binary,
-        convert: convert,
+        convertToModel: convertToModel,
         processChunk: processChunk
     };
 };

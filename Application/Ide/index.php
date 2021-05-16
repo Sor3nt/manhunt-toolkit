@@ -112,6 +112,7 @@
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
     <script src="src/Library/Converter/generic.mesh.converter.js"></script>
     <script src="src/Library/Converter/dds.texture.converter.js"></script>
+    <script src="src/Library/Converter/ps2.texture.converter.js"></script>
 
     <!-- Camera -->
     <script src="src/Camera/TVP.js"></script>

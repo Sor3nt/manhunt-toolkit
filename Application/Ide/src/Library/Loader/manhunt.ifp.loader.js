@@ -166,7 +166,7 @@ MANHUNT.fileLoader.IFP = function () {
         let testVersion = binary.consume(4, 'string');
         binary.setCurrent( binary.current() - 4);
 
-        var times = 10;
+        var times = false;
         if (testVersion === "SEQT" || testVersion === "SEQU"){
         }else{
             times = binary.consume(4, 'float32');
@@ -260,6 +260,11 @@ MANHUNT.fileLoader.IFP = function () {
                 }
 
                 resultFrames.frames.push(resultFrame);
+            }
+
+            //fix for the ps2 0.64, they dont use a time value
+            if (times === false){
+                times = resultFrames.frames[resultFrames.frames.length - 1].time / 30;
             }
 
             //fix for three.js, we need the last frame

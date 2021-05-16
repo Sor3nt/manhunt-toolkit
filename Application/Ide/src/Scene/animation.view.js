@@ -124,6 +124,10 @@ MANHUNT.scene.AnimationView = function (level) {
                 let sceneInfo = MANHUNT.engine.getSceneInfo();
 
                 self._lastModels.forEach(function (model) {
+
+                    // if (model.children.length && typeof model.children[0].skeleton !== "undefined")
+                    //     model.children[0].meshes.dispose();
+                    // console.log("rem", model);
                     sceneInfo.scene.remove(model);
                 });
             }

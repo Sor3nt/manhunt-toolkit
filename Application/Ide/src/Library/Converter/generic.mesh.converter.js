@@ -19,9 +19,12 @@ MANHUNT.converter.generic2mesh = function (level, model) {
 
         if (typeof entry.meshBone !== "undefined"){
             entry.vertices.forEach(function (vertex) {
+                let vec = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
+                if (level._platform === "pc"){
+                    vec = vec.applyMatrix4(entry.meshBone.matrixWorld);
+                }
                 geometry.vertices.push(
-                    (new THREE.Vector3( vertex.x, vertex.y, vertex.z ))
-                        .applyMatrix4(entry.meshBone.matrixWorld)
+                    vec
                 );
             });
         }else{
@@ -43,9 +46,10 @@ MANHUNT.converter.generic2mesh = function (level, model) {
 
         //only the first LOD is visible (does not apply to player model)
         mesh.visible = index === 0;
-        if (index === 0 && entry.skinning === true) {
-            mesh.add(model.skeleton.bones[0]);
-            mesh.bind(model.skeleton);
+        if (index === 0 && entry.skinning === true){
+            let skeleton = model.skeleton.clone();
+            mesh.add(skeleton.bones[0]);
+            mesh.bind(skeleton);
         }
 
         group.add(mesh);

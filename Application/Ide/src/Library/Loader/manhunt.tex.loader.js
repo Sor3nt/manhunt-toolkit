@@ -28,9 +28,8 @@ MANHUNT.fileLoader.TEX = function () {
                             return callback([]);
                         }
 
-                        return callback(MANHUNT.converter.dds2texture(
-                            MANHUNT.parser.manhuntPs2Txd(binary),
-                            false
+                        return callback(MANHUNT.converter.ps22texture(
+                            MANHUNT.parser.manhuntPs2Txd(binary)
                         ));
 
                     }
