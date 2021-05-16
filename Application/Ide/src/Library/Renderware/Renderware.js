@@ -6,6 +6,11 @@ window.RW = {
 Renderware = (function () {
 
     var self = {
+        getMap: function(nBinary, level){
+            let tree = RW.parser(nBinary).parse();
+            return RW.convert.map(tree, level);
+        },
+
         getModel: function (nBinary, offset) {
             nBinary.setCurrent(offset);
 
@@ -16,6 +21,7 @@ Renderware = (function () {
     };
 
     return {
+        getMap: self.getMap,
         getModel: self.getModel
     }
 

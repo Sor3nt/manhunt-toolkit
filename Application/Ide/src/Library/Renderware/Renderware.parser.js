@@ -17,6 +17,133 @@ RW.parser = function (binary, rootChunk) {
         return rwData;
     };
 
+    rwChunks[298] = function (header, rwData) {
+        return rwData;
+    };
+
+    rwChunks[CHUNK_ATOMICSECT] = function (header, rwData) {
+
+        let struct = rwData.processChunk();
+        assert(struct.type, CHUNK_STRUCT);
+
+        let structChunk = struct;//.processChunk();
+
+        if (struct.header.size > 44){
+            structChunk.binary.seek(4);
+            var sectionFaceCount = structChunk.binary.consume(4, 'uint32');
+            var sectionVertexCount = structChunk.binary.consume(4, 'uint32');
+
+            rwData.data.vertex = [];
+            structChunk.binary.seek(32);
+            for(i = 0; i < sectionVertexCount; i++){
+                var vec = structChunk.binary.readVector3();
+                // var z = vec.z;
+                // vec.z = vec.y * -1;
+                // vec.y = z;
+                rwData.data.vertex.push(vec);
+            }
+
+            rwData.data.cpvArray = [];
+            structChunk.binary.setCurrent(structChunk.binary.current() + (4*sectionVertexCount));
+            for(i = 0; i < sectionVertexCount; i++){
+                rwData.data.cpvArray.push(structChunk.binary.readColorRGBA());
+            }
+
+            rwData.data.uvArray = [];
+            for(i = 0; i < sectionVertexCount; i++){
+                rwData.data.uvArray.push([
+                    structChunk.binary.consume(4, 'float32'),
+                    structChunk.binary.consume(4, 'float32')
+                ]);
+            }
+
+            rwData.data.faces = [];
+            rwData.data.uvForFaces = [];
+            for(i = 0; i < sectionFaceCount; i++){
+                var face;
+                if (header.version === 0x1803FFFF) {
+                    face = structChunk.binary.readFace3(2, 'uint16');
+                    face.materialIndex = structChunk.binary.consume(2, 'uint16');
+                    rwData.data.faces.push(face);
+                }else{
+                    var matId = structChunk.binary.consume(2, 'uint16');
+                    face = structChunk.binary.readFace3(2, 'uint16');
+                    face.materialIndex = matId;
+                    rwData.data.faces.push(face);
+                }
+
+                // face.vertexColors = [
+                //     cpvArray[face.a],
+                //     cpvArray[face.b],
+                //     cpvArray[face.c]
+                // ];
+
+                rwData.data.uvForFaces[i] = [
+                    new THREE.Vector2(
+                        rwData.data.uvArray[face.a][0],
+                        rwData.data.uvArray[face.a][1]
+                    ),
+                    new THREE.Vector2(
+                        rwData.data.uvArray[face.b][0],
+                        rwData.data.uvArray[face.b][1]
+                    ),
+                    new THREE.Vector2(
+                        rwData.data.uvArray[face.c][0],
+                        rwData.data.uvArray[face.c][1]
+                    )
+                ];
+            }
+
+
+        }
+
+
+//
+//         assert(struct.binary.remain(), 0, 'CHUNK_ATOMICSECT struct: Unable to parse fully the data! Remain ' + struct.binary.remain());
+//
+//         let extension = struct.processChunk();
+//         assert(extension.type, CHUNK_EXTENSION);
+// console.log(extension, "extension");
+
+        return rwData;
+    };
+
+    rwChunks[CHUNK_PLANESECT] = function (header, rwData) {
+
+        let struct = rwData.processChunk();
+        assert(struct.type, CHUNK_STRUCT);
+
+        while(rwData.binary.remain() > 0){
+            let chunk = rwData.processChunk();
+            rwData.chunks.push(chunk);
+        }
+        return rwData;
+    };
+
+    rwChunks[CHUNK_WORLD] = function (header, rwData) {
+
+        let struct = rwData.processChunk();
+        assert(struct.type, CHUNK_STRUCT);
+
+        struct.binary.seek(4 * 4);
+        rwData.data.faceCount = struct.binary.consume(4, 'uint32');
+        rwData.data.vertexCount = struct.binary.consume(4, 'uint32');
+        struct.binary.seek(4);
+        rwData.data.sectors = struct.binary.consume(4, 'uint32');
+
+        struct.binary.seek(32);
+
+        assert(struct.binary.remain(), 0, 'CHUNK_WORLD struct: Unable to parse fully the data! Remain ' + struct.binary.remain());
+
+        while(rwData.binary.remain() > 0){
+            rwData.chunks.push(rwData.processChunk());
+        }
+
+        assert(rwData.binary.remain(), 0, 'CHUNK_WORLD: Unable to parse fully the data!');
+
+        return rwData;
+    };
+
     rwChunks[CHUNK_EXTENSION] = function (header, rwData) {
 
         while(rwData.binary.remain() > 0){
@@ -395,6 +522,9 @@ RW.parser = function (binary, rootChunk) {
         rwData.data.boneID = boneID;
         rwData.data.boneCount = boneCount;
 
+        if (typeof rootChunk.data.BoneIDArray === "undefined")
+            rootChunk.data.BoneIDArray = [];
+
         rootChunk.data.BoneIDArray.push(boneID);
 
         rwData.data.bones = [];
@@ -402,6 +532,10 @@ RW.parser = function (binary, rootChunk) {
 
             rwData.binary.seek(4); //flags
             rwData.binary.seek(4); //keyFrameSize
+
+
+            if (typeof rootChunk.data.hAnimBoneArray === "undefined")
+                rootChunk.data.hAnimBoneArray = [];
 
             for (let i = 0; i < boneCount; i++) {
                 let animBone = {
@@ -494,29 +628,27 @@ RW.parser = function (binary, rootChunk) {
 
         if (JSON.stringify(rootChunk) === JSON.stringify({})){
             rootChunk.root = rw;
-            rootChunk.data = {
-                hasNativeGeometry: false,
-                vertexCount: false,
-                BoneIDArray: [],
-                hAnimBoneArray: [],
-            };
-
+            rootChunk.data = {};
         }
 
         return rwChunks[header.id](header, rw);
     }
 
 
-    function cleanTree(rwData) {
+    function cleanTree(rwData, status) {
         let chunks = [];
         rwData.chunks.forEach(function (chunk) {
-            let _chunk = cleanTree(chunk);
-            if (_chunk.type === CHUNK_STRUCT  && _chunk.chunks.length === 0)
-                return;
-            if (_chunk.type === CHUNK_NAOBJECT  && _chunk.chunks.length === 0)
-                return;
-            if (_chunk.type === CHUNK_RIGHTTORENDER  && _chunk.chunks.length === 0)
-                return;
+            let _chunk = cleanTree(chunk, status);
+
+            let doBreak = false;
+            [CHUNK_STRUCT, CHUNK_NAOBJECT, CHUNK_RIGHTTORENDER, CHUNK_ATOMICSECT, CHUNK_PLANESECT].forEach(function (type) {
+                if (_chunk.type === type  && _chunk.chunks.length === 0  && JSON.stringify(_chunk.data) === JSON.stringify({}) ){
+                    status.removed = 1;
+                    doBreak = true;
+                }
+            });
+
+            if (doBreak) return;
 
             // console.log("-".repeat(deep + 1), CHUNK_ID_NAME[_chunk.type], _chunk.data, "childs", _chunk.chunks.length);
 
@@ -538,7 +670,15 @@ RW.parser = function (binary, rootChunk) {
         rootChunk = {};
         let chunk = processChunk();
         chunk.data = rootChunk.data;
-        return cleanTree(chunk);
+
+        var status = { removed: 0};
+        do{
+            chunk = cleanTree(chunk, status);
+            _status = status.removed;
+            status.removed = 0;
+        }while(_status > 0);
+
+        return chunk;
     }
 
     return {

@@ -253,6 +253,7 @@
 
     <script src="src/Library/Renderware/Renderware.js"></script>
     <script src="src/Library/Renderware/Renderware.convert.model.js"></script>
+    <script src="src/Library/Renderware/Renderware.convert.map.js"></script>
     <script src="src/Library/Renderware/Renderware.parser.js"></script>
 
     <script src="src/Sidebar/Elements/AttributeValue.js"></script>

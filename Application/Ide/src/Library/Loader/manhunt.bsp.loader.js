@@ -399,11 +399,6 @@ MANHUNT.fileLoader.BSP = function () {
 
     function parseManhunt1(level, binary){
 
-        // binary.setCurrent(0);
-        // let tree = RW.parser(binary).parse();
-        // console.log("bsp", tree);
-        // exit;
-
         function readBlock(){
             return [
                 binary.consume(4, 'uint32'),
@@ -610,6 +605,15 @@ MANHUNT.fileLoader.BSP = function () {
             }
         }
 
+
+        binary.setCurrent(0);
+        // return Renderware.getMap(binary);
+
+        let map = Renderware.getMap(binary, level);
+        return map;
+        console.log("ok", rootMesh);
+        console.log("my", map);
+        exit;
 
         return rootMesh;
     }

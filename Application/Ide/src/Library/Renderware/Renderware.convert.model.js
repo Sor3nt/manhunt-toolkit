@@ -63,7 +63,7 @@ RW.convert.model = function (tree) {
             frame: chunkFrameList.data.frameList[i]
         };
 
-        if (i > 0){
+        if (i > 0 && typeof tree.data.BoneIDArray !== "undefined"){
             bone.userProp.BoneID = tree.data.BoneIDArray[i-1];
         }
 
