@@ -399,6 +399,11 @@ MANHUNT.fileLoader.BSP = function () {
 
     function parseManhunt1(level, binary){
 
+        // binary.setCurrent(0);
+        // let tree = RW.parser(binary).parse();
+        // console.log("bsp", tree);
+        // exit;
+
         function readBlock(){
             return [
                 binary.consume(4, 'uint32'),

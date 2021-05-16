@@ -54,8 +54,9 @@ MANHUNT.parser.dff = function (binary, level) {
     function ReadClump(offset) {
         binary.setCurrent(offset);
 
-        let rw = MANHUNT.parser.renderware(binary);
-        let converted = rw.convertToModel(rw.processChunk());
+        let converted = Renderware.getModel(binary, offset);
+        // let rw = MANHUNT.parser.renderware(binary);
+        // let converted = rw.convertToModel(rw.parse());
         //
         // if (offset === 0){
         //     console.log(converted.BoneArray, 0, converted.parsedObjects);

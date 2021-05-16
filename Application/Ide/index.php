@@ -54,6 +54,186 @@
     <link href="src/Library/select2.min.css" rel="stylesheet"/>
     <script src="src/Library/select2.min.js"></script>
 
+    <script>
+
+        const rpGEOMETRYPOSITIONS = 0x00000002;
+        /**<This geometry has positions */
+        const rpGEOMETRYTEXTURED = 0x00000004;
+        /**<This geometry has only one set of
+         texture coordinates. Texture
+         coordinates are specified on a per
+         vertex basis */
+        const rpGEOMETRYPRELIT = 0x00000008;
+        /**<This geometry has pre-light colors */
+        const rpGEOMETRYNORMALS = 0x00000010;
+        /**<This geometry has vertex normals */
+
+        const rpGEOMETRYTEXTURED2 = 0x00000080;
+        /**<This geometry has at least 2 sets of
+         texture coordinates. */
+
+        let CHUNK_ID_NAME = {
+
+            0x0: "CHUNK_NAOBJECT",
+            0x1: "CHUNK_STRUCT",
+            0x2: "CHUNK_STRING",
+            0x3: "CHUNK_EXTENSION",
+            0x5: "CHUNK_CAMERA",
+            0x6: "CHUNK_TEXTURE",
+            0x7: "CHUNK_MATERIAL",
+            0x8: "CHUNK_MATLIST",
+            0x9: "CHUNK_ATOMICSECT",
+            0xA: "CHUNK_PLANESECT",
+            0xB: "CHUNK_WORLD",
+            0xC: "CHUNK_SPLINE",
+            0xD: "CHUNK_MATRIX",
+            0xE: "CHUNK_FRAMELIST",
+            0xF: "CHUNK_GEOMETRY",
+            0x10: "CHUNK_CLUMP",
+            0x12: "CHUNK_LIGHT",
+            0x13: "CHUNK_UNICODESTRING",
+            0x14: "CHUNK_ATOMIC",
+            0x15: "CHUNK_TEXTURENATIVE",
+            0x16: "CHUNK_TEXDICTIONARY",
+            0x17: "CHUNK_ANIMDATABASE",
+            0x18: "CHUNK_IMAGE",
+            0x19: "CHUNK_SKINANIMATION",
+            0x1A: "CHUNK_GEOMETRYLIST",
+            0x1B: "CHUNK_HANIMANIMATION",
+            0x1C: "CHUNK_TEAM",
+            0x1D: "CHUNK_CROWD",
+            0x1F: "CHUNK_RIGHTTORENDER",
+            0x20: "CHUNK_MTEFFECTNATIVE",
+            0x21: "CHUNK_MTEFFECTDICT",
+            0x22: "CHUNK_TEAMDICTIONARY",
+            0x23: "CHUNK_PITEXDICTIONARY",
+            0x24: "CHUNK_TOC",
+            0x25: "CHUNK_PRTSTDGLOBALDATA",
+            0x26: "CHUNK_ALTPIPE",
+            0x27: "CHUNK_PIPEDS",
+            0x28: "CHUNK_PATCHMESH",
+            0x29: "CHUNK_CHUNKGROUPSTART",
+            0x2A: "CHUNK_CHUNKGROUPEND",
+            0x2B: "CHUNK_UVANIMDICT",
+            0x2C: "CHUNK_COLLTREE",
+            0x2D: "CHUNK_ENVIRONMENT",
+            0x2E: "CHUNK_COREPLUGINIDMAX",
+
+            0x105: "CHUNK_MORPH",
+            0x110: "CHUNK_SKYMIPMAP",
+            0x116: "CHUNK_SKIN",
+            0x118: "CHUNK_PARTICLES",
+            0x11E: "CHUNK_HANIM",
+            0x120: "CHUNK_MATERIALEFFECTS",
+            0x131: "CHUNK_PDSPLG",
+            0x134: "CHUNK_ADCPLG",
+            0x135: "CHUNK_UVANIMPLG",
+            0x50E: "CHUNK_BINMESH",
+            0x510: "CHUNK_VERTEXFORMAT",
+
+            0x253F2F3: "CHUNK_PIPELINESET",
+            0x253F2F6: "CHUNK_SPECULARMAT",
+            0x253F2F8: "CHUNK_2DFX",
+            0x253F2F9: "CHUNK_NIGHTVERTEXCOLOR",
+            0x253F2FA: "CHUNK_COLLISIONMODEL",
+            0x253F2FC: "CHUNK_REFLECTIONMAT",
+            0x253F2FD: "CHUNK_MESHEXTENSION",
+            0x253F2FE: "CHUNK_FRAME",
+
+        };
+
+        const PLATFORM_OGL = 2;
+        const PLATFORM_PS2    = 4;
+        const PLATFORM_XBOX   = 5;
+        const PLATFORM_D3D8   = 8;
+        const PLATFORM_D3D9   = 9;
+        const PLATFORM_PS2FOURCC = 0x00325350; /* "PS2\0" */
+
+        const CHUNK_NAOBJECT        = 0x0;
+        const CHUNK_STRUCT          = 0x1;
+        const CHUNK_STRING          = 0x2;
+        const CHUNK_EXTENSION       = 0x3;
+        const CHUNK_CAMERA          = 0x5;
+        const CHUNK_TEXTURE         = 0x6;
+        const CHUNK_MATERIAL        = 0x7;
+        const CHUNK_MATLIST         = 0x8;
+        const CHUNK_ATOMICSECT      = 0x9;
+        const CHUNK_PLANESECT       = 0xA;
+        const CHUNK_WORLD           = 0xB;
+        const CHUNK_SPLINE          = 0xC;
+        const CHUNK_MATRIX          = 0xD;
+        const CHUNK_FRAMELIST       = 0xE;
+        const CHUNK_GEOMETRY        = 0xF;
+        const CHUNK_CLUMP           = 0x10;
+        const CHUNK_LIGHT           = 0x12;
+        const CHUNK_UNICODESTRING   = 0x13;
+        const CHUNK_ATOMIC          = 0x14;
+        const CHUNK_TEXTURENATIVE   = 0x15;
+        const CHUNK_TEXDICTIONARY   = 0x16;
+        const CHUNK_ANIMDATABASE    = 0x17;
+        const CHUNK_IMAGE           = 0x18;
+        const CHUNK_SKINANIMATION   = 0x19;
+        const CHUNK_GEOMETRYLIST    = 0x1A;
+        const CHUNK_ANIMANIMATION   = 0x1B;
+        const CHUNK_HANIMANIMATION  = 0x1B;
+        const CHUNK_TEAM            = 0x1C;
+        const CHUNK_CROWD           = 0x1D;
+        const CHUNK_RIGHTTORENDER   = 0x1F;
+        const CHUNK_MTEFFECTNATIVE  = 0x20;
+        const CHUNK_MTEFFECTDICT    = 0x21;
+        const CHUNK_TEAMDICTIONARY  = 0x22;
+        const CHUNK_PITEXDICTIONARY = 0x23;
+        const CHUNK_TOC             = 0x24;
+        const CHUNK_PRTSTDGLOBALDATA = 0x25;
+        const CHUNK_ALTPIPE         = 0x26;
+        const CHUNK_PIPEDS          = 0x27;
+        const CHUNK_PATCHMESH       = 0x28;
+        const CHUNK_CHUNKGROUPSTART = 0x29;
+        const CHUNK_CHUNKGROUPEND   = 0x2A;
+        const CHUNK_UVANIMDICT      = 0x2B;
+        const CHUNK_COLLTREE        = 0x2C;
+        const CHUNK_ENVIRONMENT     = 0x2D;
+        const CHUNK_COREPLUGINIDMAX = 0x2E;
+
+        const CHUNK_MORPH           = 0x105;
+        const CHUNK_SKYMIPMAP       = 0x110;
+        const CHUNK_SKIN            = 0x116;
+        const CHUNK_PARTICLES       = 0x118;
+        const CHUNK_HANIM           = 0x11E;
+        const CHUNK_MATERIALEFFECTS = 0x120;
+        const CHUNK_PDSPLG          = 0x131;
+        const CHUNK_ADCPLG          = 0x134;
+        const CHUNK_UVANIMPLG       = 0x135;
+        const CHUNK_BINMESH         = 0x50E;
+        const CHUNK_NATIVEDATA      = 0x510;
+        const CHUNK_VERTEXFORMAT    = 0x510;
+
+        const CHUNK_PIPELINESET      = 0x253F2F3;
+        const CHUNK_SPECULARMAT      = 0x253F2F6;
+        const CHUNK_2DFX             = 0x253F2F8;
+        const CHUNK_NIGHTVERTEXCOLOR = 0x253F2F9;
+        const CHUNK_COLLISIONMODEL   = 0x253F2FA;
+        const CHUNK_REFLECTIONMAT    = 0x253F2FC;
+        const CHUNK_MESHEXTENSION    = 0x253F2FD;
+        const CHUNK_FRAME            = 0x253F2FE;
+
+        const FLAGS_TRISTRIP   = 0x01;
+        const FLAGS_POSITIONS  = 0x02;
+        const FLAGS_TEXTURED   = 0x04;
+        const FLAGS_PRELIT     = 0x08;
+        const FLAGS_NORMALS    = 0x10;
+        const FLAGS_LIGHT      = 0x20;
+        const FLAGS_MODULATEMATERIALCOLOR  = 0x40;
+        const FLAGS_TEXTURED2  = 0x80;
+
+
+        function assert(a, b, msg){
+            if (a !== b){
+                console.error((msg || ('Expect ' + CHUNK_ID_NAME[b] + ' got ' + CHUNK_ID_NAME[a])) );
+                die;
+            }
+        }
+    </script>
 
     <script type="module">
         import {TransformControls} from './src/Library/TransformControls.js';
@@ -65,8 +245,15 @@
         window.FlyControls = FlyControls;
         window.OrbitControls = OrbitControls;
         window.TransformControls = TransformControls;
+
+
+
     </script>
 
+
+    <script src="src/Library/Renderware/Renderware.js"></script>
+    <script src="src/Library/Renderware/Renderware.convert.model.js"></script>
+    <script src="src/Library/Renderware/Renderware.parser.js"></script>
 
     <script src="src/Sidebar/Elements/AttributeValue.js"></script>
     <script src="src/Sidebar/Elements/InputGroup.js"></script>
@@ -106,7 +293,6 @@
     <script src="src/Library/Parser/txd.parser.js"></script>
     <script src="src/Library/Parser/tex.parser.js"></script>
     <script src="src/Library/Parser/manhuntPs2Txd.parser.js"></script>
-    <script src="src/Library/Parser/renderware.js"></script>
 
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
