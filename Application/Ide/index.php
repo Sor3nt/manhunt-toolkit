@@ -149,6 +149,9 @@
         const PLATFORM_D3D9   = 9;
         const PLATFORM_PS2FOURCC = 0x00325350; /* "PS2\0" */
 
+        const CHUNK_AUDIOCONTAINER  = 0x0000080d;
+        const CHUNK_AUDIOHEADER     = 0x0000080e;
+        const CHUNK_AUDIODATA       = 0x0000080f;
         const CHUNK_NAOBJECT        = 0x0;
         const CHUNK_STRUCT          = 0x1;
         const CHUNK_STRING          = 0x2;
@@ -252,6 +255,7 @@
 
 
     <script src="src/Library/Renderware/Renderware.js"></script>
+    <script src="src/Library/Renderware/Renderware.convert.animation.js"></script>
     <script src="src/Library/Renderware/Renderware.convert.model.js"></script>
     <script src="src/Library/Renderware/Renderware.convert.map.js"></script>
     <script src="src/Library/Renderware/Renderware.parser.js"></script>

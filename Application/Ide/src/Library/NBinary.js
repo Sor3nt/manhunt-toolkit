@@ -32,18 +32,20 @@ function NBinary( data){
             return enc.decode(data);
         },
 
-        consume: function (bytes, type) {
+        consume: function (bytes, type, little) {
+            little = little || true
             var view = new DataView(data,current);
 
             current += bytes;
 
-            if (type === 'int16') return view.getInt16(0, true);
-            if (type === 'int32') return view.getInt32(0, true);
-            if (type === 'uint32') return view.getUint32(0, true);
-            if (type === 'float32') return view.getFloat32(0, true);
-            if (type === 'uint16') return view.getUint16(0, true);
-            if (type === 'int8') return view.getInt8(0, true);
-            if (type === 'uint8') return view.getUint8(0, true);
+
+            if (type === 'int16') return view.getInt16(0, little);
+            if (type === 'int32') return view.getInt32(0, little);
+            if (type === 'uint32') return view.getUint32(0, little);
+            if (type === 'float32') return view.getFloat32(0, little);
+            if (type === 'uint16') return view.getUint16(0, little);
+            if (type === 'int8') return view.getInt8(0, little);
+            if (type === 'uint8') return view.getUint8(0, little);
             if (type === 'arraybuffer'){
 
                 var buffer = new ArrayBuffer(bytes);

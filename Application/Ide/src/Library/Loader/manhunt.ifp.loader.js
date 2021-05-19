@@ -537,10 +537,18 @@ MANHUNT.fileLoader.IFP = function () {
 
                     var binary = new NBinary(data);
 
-                    var Idstring = binary.consume(4, 'int32');
+                    var fourCC = binary.consume(4, 'int32');
 
-                    //ifp
-                    if (Idstring === 0x54434e41) {
+
+                    if (fourCC === CHUNK_ANIMANIMATION){
+                        let animRaw = Renderware.parse(binary);
+                        let animation = RW.convert.animation(animRaw);
+
+                        console.log(animation);
+                        consdsole.log(animation);
+
+
+                    }else if (fourCC === 0x54434e41) {
                         var numBlock = binary.consume(4, 'int32');
 
                         for (var i = 0; i < numBlock; i++) {
@@ -551,13 +559,13 @@ MANHUNT.fileLoader.IFP = function () {
                             var pad = binary.consume(1, 'int8');
                             IFPEntryArray.push(blockName);
 
-                            var ANPK = readANPKIndex(binary);
+                            let ANPK = readANPKIndex(binary);
                             IFPEntryIndexArray.push(ANPK);
                         }
 
 
                         //strmanim_pc.bin
-                    } else if (Idstring === 1) {
+                    } else if (fourCC === 1) {
 
                         var result = readStrmAnimBinIndex(binary);
                         IFPEntryArray = result[0];

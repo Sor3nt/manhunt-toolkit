@@ -1,5 +1,4 @@
 RW.convert.map = function (tree, level) {
-    console.log(tree);
     assert(tree.type, CHUNK_WORLD, "convert: Container is not a CHUNK_WORLD it is " + tree.typeName);
 
     function getChunk(rwData, type) {
