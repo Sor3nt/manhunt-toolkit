@@ -35,15 +35,14 @@ class Api
             ];
         }
 
-        if (file_exists($folder . '/UMD_DATA.BIN')){
+        if (file_exists($folder . '/LEVELS/A01_I/A01_I.MLS')){
+            return [
+                'game' => MHT::GAME_MANHUNT_2,
+                'platform' => MHT::PLATFORM_PSP_001
+            ];
+        }
 
-            if (!file_exists($folder . '/MOVIES/A01_ES_I.PMF')){
-                return [
-                    'game' => MHT::GAME_MANHUNT_2,
-                    'platform' => MHT::PLATFORM_PSP_001
-                ];
-            }
-
+        if (file_exists($folder . '/LEVELS/A01_ES/A01_ES.MLS')){
             return [
                 'game' => MHT::GAME_MANHUNT_2,
                 'platform' => MHT::PLATFORM_PSP
@@ -85,14 +84,20 @@ class Api
                     ];
             }
 
-        }else if ($game['game'] == MHT::GAME_MANHUNT_2 && $game['platform'] === MHT::PLATFORM_PC){
-            $data = file_get_contents($game['path'] . '/global/initscripts/resource23.glg');
-            $data = (new NBinary($data))->binary;
-
-
-            $translationData = file_get_contents($game['path'] . '/global/game.gxt');
+        }else if ($game['game'] == MHT::GAME_MANHUNT_2){
             $gxt = new Gxt();
-            $translation = $gxt->unpack(new NBinary($translationData), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
+
+            if ($game['platform'] === MHT::PLATFORM_PC){
+                $data = file_get_contents($game['path'] . '/global/initscripts/resource23.glg');
+                $translationData = file_get_contents($game['path'] . '/global/game.gxt');
+                $translation = $gxt->unpack(new NBinary($translationData), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
+            }else if($game['platform'] === MHT::PLATFORM_PSP_001){
+                $data = file_get_contents($game['path'] . '/GLOBAL/INITSCR/LEVELS.TXT');
+                $translationData = file_get_contents($game['path'] . '/GLOBAL/GAME.GXT');
+                $translation = $gxt->unpack(new NBinary($translationData), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PSP_001);
+            }
+
+            $data = (new NBinary($data))->binary;
 
             $index = 0;
             foreach (explode("\n", $data) as $line){
@@ -153,6 +158,10 @@ class Api
 
         }else{
             $realFile = file_get_contents($game['path'] . "/" . $file);
+
+            //just to take sure zlib was applied
+            $realFile = new NBinary($realFile);
+            $realFile = $realFile->binary;
         }
 
         $this->send($realFile);

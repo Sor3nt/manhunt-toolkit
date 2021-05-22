@@ -190,10 +190,10 @@ MANHUNT.fileLoader.BSP = function () {
 
     }
 
-    function parseManhunt2(level, binary, isScene3){
+    function parseManhunt2PcBsp(level, binary, isScene3){
 
 
-        binary.setCurrent(48);
+        binary.setCurrent(48); //skip header
 
         var sceneBBox = [
             binary.readVector3(4, 'float32', true), //MIN
@@ -202,7 +202,6 @@ MANHUNT.fileLoader.BSP = function () {
 
         var materialsOffset = binary.consume(4, 'int32');
         var materialCount = binary.consume(4, 'int32');
-
         var SectorListOffset = false;
 
         if (isScene3) {
@@ -412,8 +411,18 @@ MANHUNT.fileLoader.BSP = function () {
                     var meshRoot;
 
                     if (gameId === 1465011268){ //DLRW => Manhunt 2
-                        meshRoot = parseManhunt2(level, binary, isScene3);
-                    }else if (gameId === CHUNK_WORLD) { //CHUNK_WORLD => Renderware
+                        if (level._platform === "pc"){
+                            meshRoot = parseManhunt2PcBsp(level, binary, isScene3);
+                        }else if (level._platform === "psp" || level._platform === "psp001"){
+                            binary.setCurrent(0);
+                            let parsed = MANHUNT.parser.manhun2PspBsp(binary, level);
+
+                            console.log("parsed", parsed);
+                            MANHUNT.converter.pspBsp2mesh(level, parsed);
+                            die;
+                        }
+
+                        }else if (gameId === CHUNK_WORLD) { //CHUNK_WORLD => Renderware MH1
                         meshRoot = Renderware.getMap(binary, level);
 
                     }else{

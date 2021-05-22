@@ -17,9 +17,15 @@ MANHUNT.fileLoader.TEX = function () {
                         binary.setCurrent(0);
 
                         callback(MANHUNT.converter.dds2texture(
-                            MANHUNT.parser[isManhunt2 ? 'tex' : 'txd' ](binary),
+                            MANHUNT.parser[isManhunt2 ? 'tex' : 'txd' ](binary, level._platform),
                             isManhunt2
                         ));
+
+                    }else if (level._platform === "psp001"){
+                        return callback(MANHUNT.converter.ps22texture(
+                            MANHUNT.parser.tex(binary, level._platform)
+                        ));
+
 
                     }else if (level._platform === "ps2064"){
 

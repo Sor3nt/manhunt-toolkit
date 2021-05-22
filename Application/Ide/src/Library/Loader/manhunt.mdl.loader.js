@@ -15,11 +15,28 @@ MANHUNT.fileLoader.MDL = function () {
 
                     let binary = new NBinary(data);
                     let gameId = binary.consume(4, 'uint32');
-                    let isManhunt2 = gameId === 1129074000;
 
-                    //Parse the file list
-                    binary.setCurrent(0);
-                    modelList = MANHUNT.parser[isManhunt2 ? 'mdl' : 'dff'](binary, level);
+                    //mh2 pc
+                    if (gameId === 1129074000) {// PMLC
+                        //Parse the file list
+                        binary.setCurrent(0);
+                        modelList = MANHUNT.parser.mdl(binary, level);
+
+                    //mh2 psp
+                    }else if (gameId === 1413697089){
+                            //Parse the file list
+                        binary.setCurrent(0);
+                        modelList = MANHUNT.parser.mdl(binary, level);
+
+
+                    }else{
+
+                        //TODO : still in usee ?!!?
+                        //Parse the file list
+                        binary.setCurrent(0);
+                        modelList = MANHUNT.parser.dff(binary, level);
+
+                    }
 
                     callback({
                         getModelNames: function () {

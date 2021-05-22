@@ -297,11 +297,13 @@
     <script src="src/Library/Parser/dff.parser.js"></script>
     <script src="src/Library/Parser/txd.parser.js"></script>
     <script src="src/Library/Parser/tex.parser.js"></script>
-    <script src="src/Library/Parser/manhuntPs2Txd.parser.js"></script>
+    <script src="src/Library/Parser/manhunt2.psp.bsp.parser.js"></script>
+    <script src="src/Library/Parser/manhunt.ps2.txd.parser.js"></script>
 
     <!-- Content Converter  -->
     <script src="src/Library/Converter/dxt.rgb.converter.js"></script>
     <script src="src/Library/Converter/generic.mesh.converter.js"></script>
+    <script src="src/Library/Converter/psp.bsp.mesh.converter.js"></script>
     <script src="src/Library/Converter/dds.texture.converter.js"></script>
     <script src="src/Library/Converter/ps2.texture.converter.js"></script>
 
@@ -313,6 +315,7 @@
     <script src="src/Resources/manhunt.pc.js"></script>
     <script src="src/Resources/manhunt2.pc.js"></script>
     <script src="src/Resources/manhunt.ps2.v064.js"></script>
+    <script src="src/Resources/manhunt2.psp.v001.js"></script>
     <script src="src/Resources/resources.js"></script>
     <script src="src/Scene/model.view.js"></script>
     <script src="src/Scene/views.js"></script>

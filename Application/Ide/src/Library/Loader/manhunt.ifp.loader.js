@@ -538,8 +538,6 @@ MANHUNT.fileLoader.IFP = function () {
                     var binary = new NBinary(data);
 
                     var fourCC = binary.consume(4, 'int32');
-
-
                     if (fourCC === CHUNK_ANIMANIMATION){
                         let animRaw = Renderware.parse(binary);
                         let animation = RW.convert.animation(animRaw);
@@ -562,7 +560,6 @@ MANHUNT.fileLoader.IFP = function () {
                             let ANPK = readANPKIndex(binary);
                             IFPEntryIndexArray.push(ANPK);
                         }
-
 
                         //strmanim_pc.bin
                     } else if (fourCC === 1) {

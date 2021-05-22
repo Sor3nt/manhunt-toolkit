@@ -32,8 +32,16 @@ function NBinary( data){
             return enc.decode(data);
         },
 
+        consumeMulti: function(amount, bytes, type, little){
+            let result = [];
+            for(let i = 0; i < amount; i++){
+                result.push(self.consume(bytes, type, little));
+            }
+            return result;
+        },
+
         consume: function (bytes, type, little) {
-            little = little || true
+            little = little || true;
             var view = new DataView(data,current);
 
             current += bytes;
@@ -92,6 +100,7 @@ function NBinary( data){
 
             return view;
         },
+
 
         getString: function (delimiter, doPadding) {
             var view = new DataView(data,current);
@@ -291,6 +300,7 @@ function NBinary( data){
         current : function(){
             return current;
         },
+
         toString: self.toString,
         length: self.length,
         readColorRGB: self.readColorRGB,
@@ -308,6 +318,7 @@ function NBinary( data){
         readXYZW: self.readXYZW,
         readMatrix4: self.readMatrix4,
         consume: self.consume,
+        consumeMulti: self.consumeMulti,
         getString: self.getString
     }
 }
