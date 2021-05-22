@@ -906,22 +906,23 @@ RW.parser = function (binary, rootChunk) {
 
     function parse() {
         let chunks = [];
-        // while(binary.remain() > 0){
-            rootChunk = {};
-            let chunk = processChunk();
 
-            if (rootChunk.root !== chunk)
-                chunk.data = rootChunk.data;
+        rootChunk = {};
+        let chunk = processChunk();
 
-            var status = { removed: 0};
-            do{
-                chunk = cleanTree(chunk, status);
-                _status = status.removed;
-                status.removed = 0;
-            }while(_status > 0);
+        for(var i in rootChunk.data){
+            if (!rootChunk.data.hasOwnProperty(i)) continue;
+            chunk.data[i] = rootChunk.data[i];
+        }
 
-            chunks.push(chunk);
-        // }
+        var status = { removed: 0};
+        do{
+            chunk = cleanTree(chunk, status);
+            _status = status.removed;
+            status.removed = 0;
+        }while(_status > 0);
+
+        chunks.push(chunk);
 
         if (chunks.length === 1) return chunks[0];
         return chunks;
