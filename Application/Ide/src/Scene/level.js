@@ -10,7 +10,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
 
         _views: {},
 
-        relation: new MANHUNT.Relation(),
+        relation: new Relation(),
 
         _container: {},
         _tabHandler: {},

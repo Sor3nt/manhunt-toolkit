@@ -246,7 +246,9 @@
 
         import  Renderware from './src/module/Renderware/Renderware.js'
         import  NormalizeMap from './src/module/Renderware/Three/map.js'
+        import  NormalizeModel from './src/module/Renderware/Three/model.js'
         import  generateMesh from './src/module/Three/generateMesh.js'
+        import  Relation from './src/Relation.js'
 
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
@@ -258,6 +260,8 @@
         window.generateMesh = generateMesh;
         window.RenderwareNew = Renderware;
         window.NormalizeMap = NormalizeMap;
+        window.NormalizeModel = NormalizeModel;
+        window.Relation = Relation;
 
 
 
@@ -344,7 +348,6 @@
 
     <script src="src/LevelScript/Functions.js"></script>
 
-    <script src="src/Relation.js"></script>
     <script src="src/Camera.js"></script>
     <script src="src/Control/ThirdPerson.js"></script>
     <script src="src/Control/OrbitAndTransform.js"></script>

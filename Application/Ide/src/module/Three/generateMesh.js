@@ -18,32 +18,47 @@
  */
 export default function generateMesh(storageTexture, generic){
 
+    function generateMaterial(material, skinning){
+        if (typeof material === "undefined" || material.length === 0) return [];
+
+        let result = [];
+
+        material.forEach(function (name) {
+
+            if (typeof name === "undefined" || name === null){
+                result.push(new THREE.MeshBasicMaterial({
+                    transparent: false, //todo
+                    vertexColors: THREE.VertexColors
+                }));
+                return;
+            }
+
+            result.push(new THREE.MeshBasicMaterial({
+                // shading: THREE.SmoothShading,
+                map: storageTexture.find(name),
+                skinning: skinning,
+                transparent: false, //todo
+                vertexColors: THREE.VertexColors
+            }));
+        });
+
+        return result;
+    }
+
     let group = new THREE.Group();
     group.userData.LODIndex = 0;
     group.name = generic.name;
 
     let material = [];
-
-    generic.material.forEach(function (name) {
-
-        if (typeof name === "undefined" || name === null){
-            material.push(new THREE.MeshBasicMaterial({
-                transparent: false, //todo
-                vertexColors: THREE.VertexColors
-            }));
-            return;
-        }
-
-        material.push(new THREE.MeshBasicMaterial({
-            // shading: THREE.SmoothShading,
-            map: storageTexture.find(name),
-            transparent: false, //todo
-            vertexColors: THREE.VertexColors
-        }));
-    });
-
+    if (typeof generic.objects[0].material === "undefined")
+        material = generateMaterial(generic.material, generic.skinning || false);
 
     generic.objects.forEach(function (entry, index) {
+
+        if (typeof entry.material !== "undefined")
+            material = generateMaterial(entry.material, entry.skinning || false);
+
+
         let geometry = new THREE.Geometry();
 
         geometry.faceVertexUvs = entry.faceVertexUvs;

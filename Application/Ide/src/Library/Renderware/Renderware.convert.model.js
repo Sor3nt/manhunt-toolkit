@@ -1,5 +1,4 @@
 RW.convert.model = function (tree) {
-    console.log(tree);
     assert(tree.type, CHUNK_CLUMP, "convert: Container is not a CHUNK_CLUMP it is " + tree.typeName);
 
     function getChunk(rwData, type) {

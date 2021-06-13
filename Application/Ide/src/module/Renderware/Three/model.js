@@ -1,11 +1,10 @@
 
 import Renderware from "./../Renderware.js";
-import Helper from './../../../Helper.js'
-import {MeshStandardMaterial, Bone, Skeleton, Vector4, Face3, Vector2, Vector3, VertexColors, Matrix4} from "three";
+import Helper from './../../../Helper.js';
 const assert = Helper.assert;
 
 
-class NormalizeModel{
+export default class NormalizeModel{
 
     constructor( tree ){
         assert(tree.type, Renderware.CHUNK_CLUMP, "convert: Container is not a Renderware.CHUNK_WORLD it is " + tree.type);
@@ -23,7 +22,7 @@ class NormalizeModel{
         let bones = [];
         for(let i = 0; i < this.frameCount; i++){
             let extension = this.chunkFrameList.result.chunks[i];
-            assert.strictEqual(extension.type, Renderware.CHUNK_EXTENSION);
+            assert(extension.type, Renderware.CHUNK_EXTENSION);
 
             let name = "bone" + i;
             if (extension.result.chunks.length > 0){
@@ -150,9 +149,9 @@ class NormalizeModel{
     }
 
     createBone( data ){
-        let bone = new Bone();
+        let bone = new THREE.Bone();
         bone.name = data.name;
-        bone.applyMatrix4((new Matrix4()).fromArray(data.frame.matrix));
+        bone.applyMatrix4((new THREE.Matrix4()).fromArray(data.frame.matrix));
         return bone;
     }
 
@@ -198,7 +197,7 @@ class NormalizeModel{
             objects: []
         };
 
-        result.skeleton = new Skeleton( this.allBones );
+        result.skeleton = new THREE.Skeleton( this.allBones );
         result.skeleton.bones.forEach(function(bone){
             bone.updateWorldMatrix();
         });
@@ -223,40 +222,40 @@ class NormalizeModel{
 
             mesh.material.forEach(function (parsedMaterial) {
 
-                //TODO diffuse color
-                if (typeof parsedMaterial.TextureName === "undefined") return;
+                // //TODO diffuse color
+                // if (typeof parsedMaterial.TextureName === "undefined") return;
+                //
+                // let material = new MeshStandardMaterial();
+                // material.name = parsedMaterial.textureName;
+                // material.skinning = genericObject.skinning;
+                // material.vertexColors = VertexColors;
 
-                let material = new MeshStandardMaterial();
-                material.name = parsedMaterial.textureName;
-                material.skinning = genericObject.skinning;
-                material.vertexColors = VertexColors;
-
-                genericObject.material.push(material);
+                genericObject.material.push(parsedMaterial.textureName);
             });
 
             mesh.vertices.forEach(function (vertexInfo, index) {
 
                 if (skinBones.length > 0 && typeof mesh.skinPLG.boneids !== "undefined") {
 
-                    let indice = new Vector4(0,0,0,0);
+                    let indice = new THREE.Vector4(0,0,0,0);
                     indice.fromArray(mesh.skinPLG.boneids[index]);
                     genericObject.skinIndices.push(indice);
 
-                    let weight = new Vector4(0,0,0,0);
+                    let weight = new THREE.Vector4(0,0,0,0);
                     weight.fromArray(mesh.skinPLG.weights[index]);
                     genericObject.skinWeights.push(weight);
 
                 }
 
                 genericObject.vertices.push(
-                    new Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )
+                    new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )
                 );
 
             });
 
             for(let x = 0; x < mesh.face.length; x++) {
 
-                let face = new Face3(mesh.face[x][0], mesh.face[x][1], mesh.face[x][2]);
+                let face = new THREE.Face3(mesh.face[x][0], mesh.face[x][1], mesh.face[x][2]);
 
                 face.materialIndex = mesh.materialPerFace[x];
 
@@ -268,15 +267,15 @@ class NormalizeModel{
 
                 if(mesh.uv1.length > 0){
                     genericObject.faceVertexUvs[0].push([
-                        new Vector2(
+                        new THREE.Vector2(
                             mesh.uv1[face.a][0],
                             mesh.uv1[face.a][1]
                         ),
-                        new Vector2(
+                        new THREE.Vector2(
                             mesh.uv1[face.b][0],
                             mesh.uv1[face.b][1]
                         ),
-                        new Vector2(
+                        new THREE.Vector2(
                             mesh.uv1[face.c][0],
                             mesh.uv1[face.c][1]
                         ),
@@ -291,7 +290,7 @@ class NormalizeModel{
 
         if (this.allBonesMesh.length > 0){
             //we need to rebuild the skeleton based only on mesh bones otherwise the indices and weight orders are wrong
-            result.skeleton = new Skeleton( this.allBonesMesh );
+            result.skeleton = new THREE.Skeleton( this.allBonesMesh );
         }
 
         return result;
