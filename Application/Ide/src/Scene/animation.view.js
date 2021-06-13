@@ -31,7 +31,7 @@ MANHUNT.scene.AnimationView = function (level) {
             level._tabHandler.addContent(self._container);
 
             self._filter = self._container.find('[data-field="model-filter"]');
-            self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="animation-tab-list"]'), self._container.find('[data-id="animation-tab-content"]'));
+            self._tabHandler = new Tab(self._container.find('[data-id="animation-tab-list"]'), self._container.find('[data-id="animation-tab-content"]'));
 
             self._sceneInfo = MANHUNT.engine.createSceneInfo(
                 self._container.find('[data-field="webgl"]'),
@@ -143,7 +143,7 @@ MANHUNT.scene.AnimationView = function (level) {
             let model = level._storage.mdl.find(modelName).get();
 
             console.log("CLIK", model);
-            self._animation = new MANHUNT.ObjectAnimation(level, model);
+            self._animation = new ObjectAnimation(level, model);
             self._createRelatedAnim(modelName, animBlocks);
             sceneInfo.scene.add(model);
 

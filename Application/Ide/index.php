@@ -249,11 +249,16 @@
         import  NormalizeModel from './src/module/Renderware/Three/model.js'
         import  generateMesh from './src/module/Three/generateMesh.js'
         import  Relation from './src/Relation.js'
+        import  ObjectAnimation from './src/ObjectAnimation.js'
+        import  Tab from './src/Frontend/Tab.js'
 
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
         window.OrbitControls = OrbitControls;
         window.TransformControls = TransformControls;
+        window.ObjectAnimation = ObjectAnimation;
+        window.Tab = Tab;
+        console.log("loaded");
 
 
 
@@ -343,7 +348,6 @@
     <script src="src/Entity/Light.js"></script>
 
 
-    <script src="src/Frontend/Tab.js"></script>
 
 
     <script src="src/LevelScript/Functions.js"></script>
@@ -443,7 +447,6 @@
     </div>
 
 
-    <script src="src/ObjectAnimation.js"></script>
     <script src="src/Scene/level.js"></script>
     <script src="src/Scene/texture.view.js"></script>
     <script src="src/Scene/animationPort.view.js"></script>

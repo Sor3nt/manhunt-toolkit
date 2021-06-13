@@ -32,7 +32,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
             );
             MANHUNT.studio.getTabHandler().show(self._name);
 
-            self._tabHandler = new MANHUNT.frontend.Tab(self._container.find('[data-id="level-tab-list"]'), self._container.find('[data-id="level-tab-content"]'));
+            self._tabHandler = new Tab(self._container.find('[data-id="level-tab-list"]'), self._container.find('[data-id="level-tab-content"]'));
 
             self._views.world = new MANHUNT.scene.WorldView(self);
             self._views.model = new MANHUNT.scene.ModelView(self);

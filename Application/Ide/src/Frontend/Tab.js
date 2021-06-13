@@ -1,96 +1,86 @@
-MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
+// MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
 
-    let self = {
+export default class Tab{
 
-        _element: {},
-        _template: {},
-        _tab2Content: {},
-        _activeTab: false,
+    constructor(tabListContainer, tabContentContainer) {
+        this.element = {};
+        this.template = {};
+        this.tab2Content = {};
+        this.activeTab = false;
 
-        _init: function () {
-            self._element.tab = tabListContainer;
-            self._element.content = tabContentContainer;
-            self._template.tab = document.querySelector('#tab-list-entry');
-        },
+        this.element.tab = tabListContainer;
+        this.element.content = tabContentContainer;
+        this.template.tab = document.querySelector('#tab-list-entry');
+    }
 
-        add: function (name, content, closeCallback, focusCallback, blurCallback, labelName) {
-            if (typeof self._tab2Content[name] !== "undefined"){
-                console.log('[MANHUNT.frontend.tab] Unable to add tab', name, 'already added?!' );
-                return;
-            }
-
-            let row = jQuery(self._template.tab.content).clone();
-            self._element.tab.append(row);
-            row = self._element.tab.find('>li:last-child');
-
-            row.find('[data-field="name"]')
-                .click(function () {
-                    self.show(name);
-                })
-                .html(labelName || name);
-
-            row.find('button').click(function () {
-                row.remove();
-                closeCallback();
-            });
-
-            self._tab2Content[name] = {
-                content: content,
-                tab: row,
-                focusCallback: focusCallback,
-                blurCallback: blurCallback
-            };
-
-            self._element.content.append(content);
-        },
-
-        addContent: function(element){
-            self._element.content.append(element);
-            return element;
-        },
-
-        remove: function(name){
-            if (typeof self._tab2Content[name] === "undefined"){
-                console.error('[MANHUNT.frontend.tab] Unable to remove tab', name );
-                return;
-            }
-
-            self._tab2Content[name].tab.remove();
-            self._tab2Content[name] = undefined;
-        },
-
-        show: function (name) {
-            if (typeof self._tab2Content[name] === "undefined"){
-                console.error('[MANHUNT.frontend.tab] Unable to find tab', name );
-                return;
-            }
-
-            if (self._activeTab !== false){
-                self._activeTab.content.hide();
-                self._activeTab.tab.find("a").removeClass('active');
-                self._activeTab.blurCallback();
-            }
-
-            self._activeTab = self._tab2Content[name];
-            self._activeTab.content.show();
-            self._activeTab.tab.find("a").addClass('active');
-            self._activeTab.focusCallback();
-        },
-
-        get: function (name) {
-            return self._tab2Content[name];
+    add(name, content, closeCallback, focusCallback, blurCallback, labelName) {
+        if (typeof this.tab2Content[name] !== "undefined"){
+            console.log('[MANHUNT.frontend.tab] Unable to add tab', name, 'already added?!' );
+            return;
         }
 
-    };
+        let row = jQuery(this.template.tab.content).clone();
+        this.element.tab.append(row);
+        row = this.element.tab.find('>li:last-child');
 
-    self._init();
+        let _this = this;
+        row.find('[data-field="name"]')
+            .click(function () {
+                _this.show(name);
+            })
+            .html(labelName || name);
 
+        row.find('button').click(function () {
+            row.remove();
+            closeCallback();
+        });
 
-    return {
-        addContent: self.addContent,
-        get: self.get,
-        show: self.show,
-        remove: self.remove,
-        add: self.add
+        this.tab2Content[name] = {
+            content: content,
+            tab: row,
+            focusCallback: focusCallback,
+            blurCallback: blurCallback
+        };
+
+        this.element.content.append(content);
     }
-};
+
+    addContent(element){
+        this.element.content.append(element);
+        return element;
+    }
+
+    remove(name){
+        if (typeof this.tab2Content[name] === "undefined"){
+            console.error('[MANHUNT.frontend.tab] Unable to remove tab', name );
+            return;
+        }
+
+        this.tab2Content[name].tab.remove();
+        this.tab2Content[name] = undefined;
+    }
+
+    show(name) {
+        if (typeof this.tab2Content[name] === "undefined"){
+            console.error('[MANHUNT.frontend.tab] Unable to find tab', name );
+            return;
+        }
+
+        if (this.activeTab !== false){
+            this.activeTab.content.hide();
+            this.activeTab.tab.find("a").removeClass('active');
+            this.activeTab.blurCallback();
+        }
+
+        this.activeTab = this.tab2Content[name];
+        this.activeTab.content.show();
+        this.activeTab.tab.find("a").addClass('active');
+        this.activeTab.focusCallback();
+    }
+
+    get(name) {
+        return this.tab2Content[name];
+    }
+
+
+}

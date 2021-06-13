@@ -14,8 +14,8 @@ MANHUNT.studio = (function () {
 
         _onConfigReceived: function () {
             MANHUNT.engine.init();
-
-            self._tabHandler = new MANHUNT.frontend.Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
+console.log(Tab);
+            self._tabHandler = new Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
 
             if (MANHUNT.config.getGames().length === 0){
                 return MANHUNT.frontend.modal.handler.show('setup', self._onGamePathsKnown);
@@ -46,7 +46,12 @@ MANHUNT.studio = (function () {
 
     };
 
-    self._init();
+
+    //TODO TMP: remove , braucchen wir wegen dem modul lloader... alles etwas asyncron hier
+    window.setTimeout(function () {
+        self._init();
+
+    }, 500);
 
     return {
         loadLevel: self.loadLevel,
