@@ -14,7 +14,7 @@
  *
  * @param storageTexture {Default}
  * @param generic
- * @returns {Group}
+ * @returns {THREE.Group}
  */
 export default function generateMesh(storageTexture, generic){
 
@@ -22,21 +22,33 @@ export default function generateMesh(storageTexture, generic){
     group.userData.LODIndex = 0;
     group.name = generic.name;
 
-    generic.objects.forEach(function (entry, index) {
+    let material = [];
 
-        let geometry = new THREE.Geometry();
-        let material = [];
+    generic.material.forEach(function (name) {
 
-        geometry.faceVertexUvs = entry.faceVertexUvs;
-
-        entry.material.forEach(function (name) {
+        if (typeof name === "undefined" || name === null){
             material.push(new THREE.MeshBasicMaterial({
-                // shading: THREE.SmoothShading,
-                map: storageTexture.find(name),
                 transparent: false, //todo
                 vertexColors: THREE.VertexColors
             }));
-         });
+            return;
+        }
+
+        material.push(new THREE.MeshBasicMaterial({
+            // shading: THREE.SmoothShading,
+            map: storageTexture.find(name),
+            transparent: false, //todo
+            vertexColors: THREE.VertexColors
+        }));
+    });
+
+
+    generic.objects.forEach(function (entry, index) {
+        let geometry = new THREE.Geometry();
+
+        geometry.faceVertexUvs = entry.faceVertexUvs;
+        geometry.faces = entry.faces;
+
 
         if (typeof entry.meshBone !== "undefined"){
             entry.vertices.forEach(function (vertex) {
@@ -52,7 +64,6 @@ export default function generateMesh(storageTexture, generic){
             geometry.vertices = entry.vertices;
         }
 
-        geometry.faces = entry.faces;
         if (typeof entry.skinIndices === "object")
             geometry.skinIndices = entry.skinIndices;
 
@@ -67,7 +78,7 @@ export default function generateMesh(storageTexture, generic){
             new THREE.Mesh(bufferGeometry, material)
         ;
 
-        //only the first LOD is visible (does not apply to player generic)
+        //only the first LOD is visible (does not apply to player or map)
         mesh.visible = index === 0;
 
         if (index === 0 && entry.skinning === true && typeof generic.skeleton !== "undefined"){

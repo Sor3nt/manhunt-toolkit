@@ -11,7 +11,7 @@ export default class NormalizeMap{
         this.tree = tree;
     }
 
-    getMaterialList( level ) {
+    getMaterialList( ) {
         let chunkMaterialList = Renderware.findChunk(this.tree, Renderware.CHUNK_MATLIST);
         let chunksMaterial = Renderware.findChunks(chunkMaterialList, Renderware.CHUNK_MATERIAL);
 
@@ -35,22 +35,7 @@ export default class NormalizeMap{
             }
 
 
-
-            if (typeof _material.textureName === "undefined" || _material.textureName == null){
-                materials.push(new THREE.MeshBasicMaterial({
-                    transparent: false, //todo
-                    vertexColors: THREE.VertexColors
-                }));
-
-            }else{
-                materials.push(new THREE.MeshBasicMaterial({
-                    // shading: THREE.SmoothShading,
-                    map: level._storage.tex.find(_material.textureName),
-                    transparent: false, //todo
-                    vertexColors: THREE.VertexColors
-                }));
-
-            }
+            materials.push(_material.textureName);
 
         });
 
@@ -77,29 +62,25 @@ export default class NormalizeMap{
         return result;
     }
 
-    normalize(level){
-        let rootMesh = new THREE.Mesh();
-        let materialList = this.getMaterialList(level);
+    normalize(){
+        let meshes = [];
+        let materialList = this.getMaterialList();
         let geometryValues = this.getGeometryValues(this.tree);
 
         geometryValues.forEach(function (geometryValue) {
 
+            meshes.push({
+                faces: geometryValue.faces,
+                vertices: geometryValue.vertex,
+                faceVertexUvs: [geometryValue.uvForFaces],
+            });
 
-            let geometry = new THREE.Geometry();
-            geometry.faces = geometryValue.faces;
-            geometry.vertices = geometryValue.vertex;
-            geometry.faceVertexUvs = [geometryValue.uvForFaces];
-            geometry.uvsNeedUpdate = true;
-            // let bufferGeo = new THREE.BufferGeometry();
-            // bufferGeo.fromGeometry(geometry);
-            // die;
-            // bufferGeo.setAttribute( 'position', new THREE.Float32BufferAttribute( geometryValue.vertex, 3 ) );
-
-
-            rootMesh.children.push(new THREE.Mesh(geometry, materialList));
         });
 
-        return rootMesh;
+        return {
+            material: materialList,
+            objects: meshes,
+        };
     }
 
 }

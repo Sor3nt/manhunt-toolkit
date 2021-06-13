@@ -14,14 +14,17 @@ Renderware = (function () {
 
         getMap: function(nBinary, level){
             nBinary.setCurrent(0);
-            //
-            // let tree = RenderwareNew.parse(nBinary);
-            // let map = (new NormalizeMap(tree)).normalize2(level);
-            // return map;
-            //
+
             let tree = RenderwareNew.parse(nBinary);
-            let map = (new NormalizeMap(tree)).normalize(level);
-            return map;
+            let normalizedMesh = (new NormalizeMap(tree)).normalize();
+            normalizedMesh.name = "TODO";
+
+            let mesh = generateMesh(level._storage.tex, normalizedMesh);
+            mesh.children.forEach(function (subMesh) {
+                subMesh.visible = true;
+            });
+
+            return mesh;
         },
 
         getAnimation: function(nBinary, level){
