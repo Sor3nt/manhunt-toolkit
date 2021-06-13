@@ -14,9 +14,14 @@ Renderware = (function () {
 
         getMap: function(nBinary, level){
             nBinary.setCurrent(0);
-
-            let tree = RW.parser(nBinary).parse();
-            return RW.convert.map(tree, level);
+            //
+            // let tree = RenderwareNew.parse(nBinary);
+            // let map = (new NormalizeMap(tree)).normalize2(level);
+            // return map;
+            //
+            let tree = RenderwareNew.parse(nBinary);
+            let map = (new NormalizeMap(tree)).normalize(level);
+            return map;
         },
 
         getAnimation: function(nBinary, level){

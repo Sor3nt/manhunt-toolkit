@@ -244,10 +244,20 @@
         import {DDSLoader} from './src/Library/Loader/three.dds.loader.js';
         import {FlyControls} from './src/Library/FlyControls.js';
 
+        import  Renderware from './src/module/Renderware/Renderware.js'
+        import  NormalizeMap from './src/module/Renderware/Three/map.js'
+        import  generateMesh from './src/module/Three/generateMesh.js'
+
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
         window.OrbitControls = OrbitControls;
         window.TransformControls = TransformControls;
+
+
+
+        window.generateMesh = generateMesh;
+        window.RenderwareNew = Renderware;
+        window.NormalizeMap = NormalizeMap;
 
 
 
@@ -257,7 +267,6 @@
     <script src="src/Library/Renderware/Renderware.js"></script>
     <script src="src/Library/Renderware/Renderware.convert.animation.js"></script>
     <script src="src/Library/Renderware/Renderware.convert.model.js"></script>
-    <script src="src/Library/Renderware/Renderware.convert.map.js"></script>
     <script src="src/Library/Renderware/Renderware.parser.js"></script>
 
     <script src="src/Sidebar/Elements/AttributeValue.js"></script>

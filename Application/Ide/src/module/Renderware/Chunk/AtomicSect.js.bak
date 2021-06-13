@@ -1,0 +1,108 @@
+
+
+import Helper from './../../../Helper.js'
+import Chunk from "./Chunk.js";
+import Renderware from "./../Renderware.js";
+const assert = Helper.assert;
+
+export default class AtomicSect extends Chunk{
+
+    result = {
+        vertex: [],
+        cpvArray: [],
+        uvArray: [],
+        faces: [],
+        uvForFaces: [],
+
+        chunks: []
+    };
+
+    parse(){
+        let struct = this.processChunk(this.binary);
+        assert(struct.type, Renderware.CHUNK_STRUCT);
+
+        if (struct.header.size > 44){
+            struct.binary.seek(4);
+            let sectionFaceCount = struct.binary.consume(4, 'uint32');
+            let sectionVertexCount = struct.binary.consume(4, 'uint32');
+
+            struct.binary.seek(32);
+            this.result.vertex = struct.binary.consumeMulti(sectionVertexCount * 3, 4, 'float32');
+            // for(let i = 0; i < sectionVertexCount; i++){
+            //     let vec = struct.binary.readVector3();
+            //     // let z = vec.z;
+            //     // vec.z = vec.y * -1;
+            //     // vec.y = z;
+            //     this.result.vertex.push(vec);
+            // }
+
+            struct.binary.setCurrent(struct.binary.current() + (4*sectionVertexCount));
+            for(let i = 0; i < sectionVertexCount; i++){
+                this.result.cpvArray.push(struct.binary.readColorRGBA());
+            }
+
+            for(let i = 0; i < sectionVertexCount; i++){
+                this.result.uvArray.push([
+                    struct.binary.consume(4, 'float32'),
+                    struct.binary.consume(4, 'float32')
+                ]);
+            }
+
+
+            for(let i = 0; i < sectionFaceCount; i++){
+                let face;
+                if (this.header.version === 0x1803FFFF) {
+                    face = struct.binary.consumeMulti(3, 2, 'uint16');
+
+
+                    // face = struct.binary.readFace3(2, 'uint16');
+                    face.materialIndex = struct.binary.consume(2, 'uint16');
+                    // this.result.faces.push(face);
+                }else{
+                    let matId = struct.binary.consume(2, 'uint16');
+                    // face = struct.binary.readFace3(2, 'uint16');
+                    // face.materialIndex = matId;
+                    // this.result.faces.push(face);
+                    face = struct.binary.consumeMulti(3, 2, 'uint16');
+                }
+
+                let _this = this;
+                face.forEach(function (single) {
+                    _this.result.faces.push(single);
+                });
+
+
+                // face.vertexColors = [
+                //     cpvArray[face.a],
+                //     cpvArray[face.b],
+                //     cpvArray[face.c]
+                // ];
+
+                //TODO: remove THREEE dependency
+                this.result.uvForFaces.push(
+                    this.result.uvArray[face[0]][0],
+                    this.result.uvArray[face[0]][1],
+                    this.result.uvArray[face[1]][0],
+                    this.result.uvArray[face[1]][1],
+                    this.result.uvArray[face[2]][0],
+                    this.result.uvArray[face[2]][1]
+                );
+
+            }
+
+            this.validateParsing(struct);
+
+        }
+
+        //extension
+        if (this.binary.remain() > 0){
+            while(this.binary.remain() > 0){
+                this.result.chunks.push(this.processChunk(this.binary));
+            }
+
+        }
+
+        this.validateParsing(this);
+    }
+
+}
