@@ -94,7 +94,6 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
                     if (modelName === false) {
                         entity = MANHUNT.entity.construct.byInstEntry(instEntry);
                         if (entity === false) return;
-
                         sceneInfo.scene.add(entity.object);
                     }else{
 
@@ -124,6 +123,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
             self.relation.model2Inst(modelName, instEntry.name);
 
             let entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
+
             if (entity === false) return;
 
 
@@ -150,6 +150,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
                 self.relation.model2Glg(headModelName, headRecordName);
             }
 
+            console.log("ADD", entity.object);
             sceneInfo.scene.add(entity.object);
 
             self._storage.entity.add(entity);

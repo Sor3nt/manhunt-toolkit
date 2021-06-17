@@ -36,9 +36,13 @@ Renderware = (function () {
 
         getModel: function (nBinary, offset) {
             nBinary.setCurrent(offset);
+            let oldTree = RW.parser(nBinary).parse();
+            return RW.convert.model(oldTree);
 
-            let tree = RW.parser(nBinary).parse();
-            return RW.convert.model(tree);
+            let tree = RenderwareNew.parse(nBinary);
+            let normalizedMesh = (new NormalizeModel(tree)).normalize();
+            return normalizedMesh;
+
         }
     };
 

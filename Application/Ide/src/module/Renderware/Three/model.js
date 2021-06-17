@@ -11,6 +11,7 @@ export default class NormalizeModel{
         this.tree = tree;
 
         this.chunkFrameList = Renderware.findChunk(this.tree, Renderware.CHUNK_FRAMELIST);
+        this.chunkGeometryList = Renderware.findChunk(this.tree, Renderware.CHUNK_GEOMETRYLIST);
         this.frameCount = this.chunkFrameList.result.frameList.length;
 
         this.allBones = [];
@@ -40,8 +41,8 @@ export default class NormalizeModel{
                 frame: this.chunkFrameList.result.frameList[i]
             };
 
-            if (i > 0 && typeof this.tree.result.boneIdArray !== "undefined"){
-                bone.userProp.boneId = this.tree.result.boneIdArray[i-1];
+            if (i > 0 && typeof this.tree.rootData.boneIdArray !== "undefined"){
+                bone.userProp.boneId = this.tree.rootData.boneIdArray[i-1];
             }
 
             bones.push(bone);
@@ -53,7 +54,7 @@ export default class NormalizeModel{
             let boneId = bne.userProp.boneId;
 
             if (typeof boneId !== "undefined") {
-                let hAnimBoneArray = this.tree.result.hAnimBoneArray;
+                let hAnimBoneArray = this.tree.rootData.hAnimBoneArray;
                 for (let j = 0; j < hAnimBoneArray.length; j++) {
                     if (hAnimBoneArray[j].boneId === boneId) {
                         bne.userProp.boneIndex = hAnimBoneArray[j].boneIndex;
@@ -166,7 +167,7 @@ export default class NormalizeModel{
             frameBones.forEach(function (boneInner, indexInner) {
                 if (indexInner === 0) return;
 
-                if (index === boneInner.frame.ParentFrameID - 1){
+                if (index === boneInner.frame.parentFrameID - 1){
                     _this.allBones[index].add(_this.allBones[indexInner]);
                 }
             });
@@ -181,13 +182,14 @@ export default class NormalizeModel{
                 });
             });
         }
+
+        console.log("bones", _this.allBones);
     }
 
     normalize(){
         let meshes = this.getMeshes();
         let frameBones = this.getFrameBones();
         let skinBones = this.getSkinBones(frameBones);
-
         this.generateSkeletonBones(frameBones, skinBones);
 
         let result = {
@@ -234,7 +236,6 @@ export default class NormalizeModel{
             });
 
             mesh.vertices.forEach(function (vertexInfo, index) {
-
                 if (skinBones.length > 0 && typeof mesh.skinPLG.boneids !== "undefined") {
 
                     let indice = new THREE.Vector4(0,0,0,0);
@@ -244,11 +245,10 @@ export default class NormalizeModel{
                     let weight = new THREE.Vector4(0,0,0,0);
                     weight.fromArray(mesh.skinPLG.weights[index]);
                     genericObject.skinWeights.push(weight);
-
                 }
 
                 genericObject.vertices.push(
-                    new THREE.Vector3( vertexInfo.x, vertexInfo.y, vertexInfo.z )
+                    new THREE.Vector3( vertexInfo[0], vertexInfo[1], vertexInfo[2] )
                 );
 
             });

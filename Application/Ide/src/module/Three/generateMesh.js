@@ -94,7 +94,7 @@ export default function generateMesh(storageTexture, generic){
         ;
 
         //only the first LOD is visible (does not apply to player or map)
-        mesh.visible = index === 0;
+        // mesh.visible = index === 0;
 
         if (index === 0 && entry.skinning === true && typeof generic.skeleton !== "undefined"){
             let skeleton = generic.skeleton.clone();

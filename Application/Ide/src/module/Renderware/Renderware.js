@@ -41,12 +41,20 @@ import World from "./Chunk/World.js";
 import CollisPlugin from "./Chunk/CollisPlugin.js";
 import MaterialEffects from "./Chunk/MaterialEffects.js";
 import RightToRender from "./Chunk/RightToRender.js";
+import VertexFormat from "./Chunk/VertexFormat.js";
 import Chunk from "./Chunk/Chunk.js";
 
 import Helper from './../../Helper.js'
 const assert = Helper.assert;
 
 export default class Renderware{
+
+    static NORMALSCALE = (1.0/128.0);
+    static VERTSCALE1 = (1.0/128.0);
+    static VERTSCALE2 = (1.0/1024.0);
+    static UVSCALE = (1.0/4096.0);
+    static FACETYPE_STRIP = 0x1;
+    static FACETYPE_LIST = 0x0;
 
     static PLATFORM_OGL = 2;
     static PLATFORM_PS2    = 4;
@@ -102,7 +110,7 @@ export default class Renderware{
     // static CHUNK_SKINANIMATION = 0x19;
     static CHUNK_GEOMETRYLIST = 0x1A;
     // static CHUNK_ANIMANIMATION = 0x1B;
-    static CHUNK_HANIM = 0x1B;
+    static CHUNK_ANIMANIMATION = 0x1B;
     // static CHUNK_HANIMANIMATION = 0x1B;
     // static CHUNK_TEAM = 0x1C;
     // static CHUNK_CROWD = 0x1D;
@@ -137,7 +145,7 @@ export default class Renderware{
     // static CHUNK_PNGIMAGEPLUGIN = 0x10d;
     // static CHUNK_BONEPLUGIN = 0x10e;
     // static CHUNK_VRMLANIMPLUGIN = 0x10f;
-    // static CHUNK_SKYMIPMAP = 0x110;
+    static CHUNK_SKYMIPMAP = 0x110;
     // static CHUNK_MRMPLUGIN = 0x111;
     // static CHUNK_LODATMPLUGIN = 0x112;
     // static CHUNK_MEPLUGIN = 0x113;
@@ -151,8 +159,8 @@ export default class Renderware{
     // static CHUNK_STQPPPLUGIN = 0X11b;
     // static CHUNK_PARTPPPLUGIN = 0X11c;
     static CHUNK_COLLISPLUGIN = 0X11d;
-    static CHUNK_HANIMPLUGIN = 0X11e;
-    // static CHUNK_USERDATAPLUGIN = 0X11f;
+    static CHUNK_HANIM = 0X11e;
+    static CHUNK_USERDATAPLUGIN = 0X11f;
     static CHUNK_MATERIALEFFECTS = 0x120;
     // static CHUNK_PARTICLESYSTEMPLUGIN = 0X121;
     // static CHUNK_DMORPHPLUGIN = 0x122;
@@ -230,7 +238,7 @@ export default class Renderware{
     // static CHUNK_UVANIMPARAM = 0x1c1;
     static CHUNK_BINMESH = 0x50E;
     // static CHUNK_NATIVEDATA = 0x510;
-    // static CHUNK_VERTEXFORMAT = 0x510;
+    static CHUNK_VERTEXFORMAT = 0x510;
     // static CHUNK_SCRIPT = 0x704;
     // static CHUNK_ASSET = 0x716;
     // static CHUNK_CONTAINER = 0x71C;
@@ -287,7 +295,7 @@ export default class Renderware{
         [Renderware.CHUNK_FRAME]           : Frame,
         [Renderware.CHUNK_TOC]             : Toc,
         [Renderware.CHUNK_HANIM]           : HAnim,
-        [Renderware.CHUNK_HANIMPLUGIN]     : HAnimPlugin,
+        // [Renderware.CHUNK_HANIMPLUGIN]     : HAnimPlugin,
         [Renderware.CHUNK_GEOMETRY]        : Geometry,
         [Renderware.CHUNK_MATLIST]         : MatList,
         [Renderware.CHUNK_MATERIAL]        : Material,
@@ -299,7 +307,13 @@ export default class Renderware{
         [Renderware.CHUNK_GEOMETRYLIST]    : GeometryList,
         [Renderware.CHUNK_EXTENSION]       : Extension,
         [Renderware.CHUNK_REFLECTIONMAT]   : ReflectionMat,
-        [Renderware.CHUNK_WORLD]           : World
+        [Renderware.CHUNK_WORLD]           : World,
+
+
+        [Renderware.CHUNK_VERTEXFORMAT]           : VertexFormat,
+        [Renderware.CHUNK_USERDATAPLUGIN]           : Dummy,
+        [Renderware.CHUNK_SKYMIPMAP]           : Dummy,
+        2561           : Dummy
     };
 
 
@@ -364,7 +378,7 @@ export default class Renderware{
         };
 
         assert(typeof Renderware.handler[header.id], "function", "Chunk function not found for ID " + header.id);
-
+// console.log(Renderware.handler[header.id].name, header.size);
         let data = binary.consume(header.size, 'nbinary');
 
         return new Renderware.handler[header.id](data, header, rootData);

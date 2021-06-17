@@ -10,6 +10,7 @@ export default class HAnim extends Chunk{
     };
 
     parse(){
+
         this.binary.seek(4); // hAnimVersion (in all GTAs - 1.0 (0x100))
         this.result.boneId = this.binary.consume(4, 'int32');
         this.result.boneCount = this.binary.consume(4, 'uint32');

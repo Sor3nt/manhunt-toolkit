@@ -11,6 +11,7 @@ export default class Geometry extends Chunk{
         uv2: [],
         vert: [],
         normal: [],
+        numMorphTargets: null,
         boundingSphere: {
             position: null,
             radius: null
@@ -18,6 +19,11 @@ export default class Geometry extends Chunk{
         faceMat: {
             face: [],
             matId: [],
+        },
+        light:{
+            ambient: null,
+            specular: null,
+            diffuse: null
         },
 
         chunks: []
@@ -29,25 +35,22 @@ export default class Geometry extends Chunk{
         assert(struct.type, Renderware.CHUNK_STRUCT);
 
         let formatFlags = struct.binary.consume(2, 'uint16'); // flags
+        this.rootData.formatFlag = formatFlags;
+
         struct.binary.seek(1); //NumTexCoorsCustom  / numUVs
         this.rootData.hasNativeGeometry = struct.binary.consume(1, 'int8') !== 0; //GeometryNativeFlags
 
         let faceCount = struct.binary.consume(4, 'uint32');
         this.rootData.vertexCount = struct.binary.consume(4, 'uint32');
+        this.result.numMorphTargets = struct.binary.consume(4, 'uint32'); //numMorphTargets
 
-        struct.binary.consume(4, 'uint32'); //numMorphTargets
 
-        /*
-        // skip light info
-           LibraryVersion libVer = header.getVersion();
-
-            if (libVer.rwLibMinor <= 3)
-            {
-                rw.seekg(12, std::ios::cur);
-            }
-
-         */
-
+        //light info
+        if (this.header.version < 0x34000) {
+            this.result.light.ambient = struct.binary.consume(4, 'float32');
+            this.result.light.specular = struct.binary.consume(4, 'float32');
+            this.result.light.diffuse = struct.binary.consume(4, 'float32');
+        }
 
         if (!this.rootData.hasNativeGeometry){
 

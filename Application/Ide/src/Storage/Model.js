@@ -51,6 +51,8 @@ MANHUNT.storage.Model = function (level) {
                 return false;
             }
 
+
+
             return  {
                     get: function () {
                         return found;

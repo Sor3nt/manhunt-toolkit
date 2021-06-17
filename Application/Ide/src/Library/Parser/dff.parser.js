@@ -55,6 +55,13 @@ MANHUNT.parser.dff = function (binary, level) {
         binary.setCurrent(offset);
 
         let converted = Renderware.getModel(binary, offset);
+        //
+        let normalizeOld = normalizeResult(converted.BoneArray, 0, converted.parsedObjects);
+        return normalizeOld;
+
+
+        console.log("normalize new", converted);
+        return converted;
         // let rw = MANHUNT.parser.renderware(binary);
         // let converted = rw.convertToModel(rw.parse());
         //
@@ -62,7 +69,8 @@ MANHUNT.parser.dff = function (binary, level) {
         //     console.log(converted.BoneArray, 0, converted.parsedObjects);
         //     consolasde.log(converted.BoneArray, 0, converted.parsedObjects);
         // }
-        return normalizeResult(converted.BoneArray, 0, converted.parsedObjects);
+
+
     }
 
 

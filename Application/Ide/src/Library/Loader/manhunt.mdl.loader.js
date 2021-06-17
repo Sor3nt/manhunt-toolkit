@@ -60,7 +60,17 @@ MANHUNT.fileLoader.MDL = function () {
                                 let model = modelList[i];
                                 if (model.name.toLowerCase() === name) {
 
-                                    return MANHUNT.converter.generic2mesh(level, model.data());
+                                    let old = MANHUNT.converter.generic2mesh(level, model.data());
+                                    // console.log("old mesh", old);
+                                    return old;
+
+
+                                    let gen = generateMesh(level._storage.tex, model.data());
+                                    console.log("new mesh", gen);
+
+                                    return gen;
+
+                                    // return
                                 }
                             }
 
