@@ -56,8 +56,8 @@ MANHUNT.parser.dff = function (binary, level) {
 
         let converted = Renderware.getModel(binary, offset);
         //
-        let normalizeOld = normalizeResult(converted.BoneArray, 0, converted.parsedObjects);
-        return normalizeOld;
+        // let normalizeOld = normalizeResult(converted.BoneArray, 0, converted.parsedObjects);
+        // return normalizeOld;
 
 
         console.log("normalize new", converted);
