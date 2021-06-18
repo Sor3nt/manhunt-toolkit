@@ -24,7 +24,7 @@ MANHUNT.storage.Model = function (level) {
 
         getModelNames: function(){
 
-            var names = [];
+            let names = [];
 
             self._proxy.forEach(function (proxy) {
                 proxy.getModelNames().forEach(function (name) {
@@ -38,11 +38,9 @@ MANHUNT.storage.Model = function (level) {
 
         find: function (name) {
 
-            var found = false;
-
+            let found = false;
             self._proxy.forEach(function (proxy) {
                 if (found !== false) return;
-
                 found = proxy.find(name);
             });
 
@@ -50,8 +48,6 @@ MANHUNT.storage.Model = function (level) {
                 console.log('[MANHUNT.Storage.Model','] Unable to find model', name);
                 return false;
             }
-
-
 
             return  {
                     get: function () {

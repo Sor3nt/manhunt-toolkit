@@ -1,11 +1,5 @@
-MANHUNT.entity.Hunter = function ( instEntity, model ) {
+import EntityAbstract from "./Entity.js";
 
-    var base = new MANHUNT.entity.abstract(instEntity, model.getLOD(0), model);
+export default class Hunter extends EntityAbstract{
 
-
-
-    return Object.assign(base, {
-
-
-    });
-};
+}

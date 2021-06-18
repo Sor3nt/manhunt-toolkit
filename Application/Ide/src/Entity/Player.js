@@ -1,8 +1,13 @@
-MANHUNT.entity.Player = function ( entity, model ) {
+import EntityAbstract from "./Entity.js";
 
-        var base = new MANHUNT.entity.abstract(entity, model.getLOD(0), model);
+export default class Player extends EntityAbstract{
 
-        return Object.assign(base, {
-
-        });
-};
+}
+// MANHUNT.entity.Player = function ( entity, model ) {
+//
+//         var base = new MANHUNT.entity.abstract(entity, model.getLOD(0), model);
+//
+//         return Object.assign(base, {
+//
+//         });
+// };

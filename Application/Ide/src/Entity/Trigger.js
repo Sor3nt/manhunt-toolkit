@@ -1,27 +1,29 @@
-MANHUNT.entity.Trigger = function ( entity, callback ) {
+import EntityAbstract from "./Entity.js";
 
-    var radius = 0.5;
+export default class Trigger extends EntityAbstract{
 
-    entity.settings.forEach(function (setting) {
-        if (setting.hash === 3065307){
-            radius = setting.value;
-        }
-    });
+    constructor(instEntity){
 
-    var object = new THREE.Mesh(
-        new THREE.SphereGeometry(radius, 32, 32),
-        new THREE.MeshBasicMaterial({
-            color: 0xffff00,
-            opacity: 0.12,
-            transparent: true
-        })
-    );
+        let radius = 0.5;
 
-    object.name = entity.internalName;
-    var base = new MANHUNT.entity.abstract(object);
-    var self = Object.assign(base, {
+        instEntity.settings.forEach(function (setting) {
+            if (setting.hash === 3065307){
+                radius = setting.value;
+            }
+        });
 
-    });
+        let object = new THREE.Mesh(
+            new THREE.SphereGeometry(radius, 32, 32),
+            new THREE.MeshBasicMaterial({
+                color: 0xffff00,
+                opacity: 0.12,
+                transparent: true
+            })
+        );
 
-    callback(self);
-};
+        object.name = instEntity.internalName;
+
+        super(instEntity, object, object);
+    }
+
+}

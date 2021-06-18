@@ -252,6 +252,11 @@
         import  ObjectAnimation from './src/ObjectAnimation.js'
         import  Tab from './src/Frontend/Tab.js'
         import  Studio from './src/Studio.js'
+        import  Player from './src/Entity/Player.js'
+        import  Light from './src/Entity/Light.js'
+        import  Hunter from './src/Entity/Hunter.js'
+        import  Regular from './src/Entity/Regular.js'
+        import  Trigger from './src/Entity/Trigger.js'
 
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
@@ -260,6 +265,12 @@
         window.ObjectAnimation = ObjectAnimation;
         window.Tab = Tab;
         window.Studio = Studio;
+        window.Player = Player;
+        window.Light = Light;
+        window.Hunter = Hunter;
+        window.Regular = Regular;
+        window.Trigger = Trigger;
+
 
 
 
@@ -336,13 +347,13 @@
     <script src="src/Scene/views.js"></script>
 
     <!-- Entity (inst) handler -->
-    <script src="src/Entity/Construct.js"></script>
-    <script src="src/Entity/Entity.js"></script>
-    <script src="src/Entity/Default.js"></script>
-    <script src="src/Entity/Player.js"></script>
-    <script src="src/Entity/Hunter.js"></script>
-    <script src="src/Entity/Trigger.js"></script>
-    <script src="src/Entity/Light.js"></script>
+<!--    <script src="src/Entity/Construct.js"></script>-->
+<!--    <script src="src/Entity/Entity.js"></script>-->
+<!--    <script src="src/Entity/Default.js"></script>-->
+<!--    <script src="src/Entity/Player.js"></script>-->
+<!--    <script src="src/Entity/Hunter.js"></script>-->
+<!--    <script src="src/Entity/Trigger.js"></script>-->
+<!--    <script src="src/Entity/Light.js"></script>-->
 
 
 

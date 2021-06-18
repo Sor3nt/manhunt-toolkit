@@ -73,6 +73,31 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
             });
         },
 
+        _createEntity: function (entry, model) {
+            if (typeof model === "undefined"){
+
+                return false;
+                // const geometry = new THREE.BoxGeometry( 1 / 48, 1 / 48, 1 / 48 );
+                // const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+                // model = new THREE.Mesh( geometry, material );
+            }
+
+            switch (entry.entityClass) {
+
+                case 'Trigger_Inst':
+                    return new Trigger(entry);
+                case 'Player_Inst':
+                    return new Player(entry, model.getLOD(0), model);
+                case 'Hunter_Inst':
+                    return new Hunter(entry, model.getLOD(0), model);
+                case 'Light_Inst':
+                    return new Light(entry);
+                default:
+                    return new Regular(entry, model.getLOD(0), model);
+            }
+
+        },
+
         _createModels: function(){
             let sceneInfo = self._views.world.getSceneInfo();
 
@@ -92,8 +117,9 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
 
                     instEntry.model = false;
                     if (modelName === false) {
-                        entity = MANHUNT.entity.construct.byInstEntry(instEntry);
+                        entity = self._createEntity(instEntry);
                         if (entity === false) return;
+
                         sceneInfo.scene.add(entity.object);
                     }else{
 
@@ -122,7 +148,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
             self.relation.model2Glg(modelName, instEntry.glgRecord);
             self.relation.model2Inst(modelName, instEntry.name);
 
-            let entity = MANHUNT.entity.construct.byInstEntry(instEntry, model);
+            let entity = self._createEntity(instEntry, model);
 
             if (entity === false) return;
 
