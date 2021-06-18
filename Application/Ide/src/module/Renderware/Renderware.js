@@ -474,7 +474,7 @@ export default class Renderware{
                         name: name,
                         offset: offset,
                         data: function(){
-                            let mesh = window.Renderware.getModel(binary, offset);
+                            let mesh = Renderware.getModel(binary, offset);
                             mesh.name = name;
                             return mesh;
                         }

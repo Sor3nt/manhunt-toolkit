@@ -19,7 +19,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
             self._container = jQuery(jQuery('#level').html());
 
 
-            MANHUNT.studio.getTabHandler().add(
+            Studio.tabHandler.add(
                 self._name,
                 self._container,
                 function () { }, //close
@@ -30,7 +30,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
                 }, //focus
                 function () { } //blur
             );
-            MANHUNT.studio.getTabHandler().show(self._name);
+            Studio.tabHandler.show(self._name);
 
             self._tabHandler = new Tab(self._container.find('[data-id="level-tab-list"]'), self._container.find('[data-id="level-tab-content"]'));
 

@@ -251,6 +251,7 @@
         import  Relation from './src/Relation.js'
         import  ObjectAnimation from './src/ObjectAnimation.js'
         import  Tab from './src/Frontend/Tab.js'
+        import  Studio from './src/Studio.js'
 
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
@@ -258,7 +259,7 @@
         window.TransformControls = TransformControls;
         window.ObjectAnimation = ObjectAnimation;
         window.Tab = Tab;
-        console.log("loaded");
+        window.Studio = Studio;
 
 
 
@@ -452,7 +453,14 @@
     <script src="src/Frontend/Modal/LevelSelection.js"></script>
 
     <script src="src/Frontend/Modal/Handler.js"></script>
-    <script src="src/Studio.js"></script>
+<!--    <script src="src/Studio.js"></script>-->
+
+
+<script>
+    window.setTimeout(function () {
+        MANHUNT.config.onLoadCallback( Studio.onConfigReceived );
+    }, 1000);
+</script>
 
 </body>
 </html>

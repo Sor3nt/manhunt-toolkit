@@ -50,7 +50,7 @@ MANHUNT.scene.ModelView = function (level) {
                 'Model'
             );
 
-            MANHUNT.studio.getTabHandler().show(self._name);
+            Studio.tabHandler.show(self._name);
 
             sceneInfo.camera.position.set(-140.83501492578623, 119.29015658522931, -73.34957947924103);
 
