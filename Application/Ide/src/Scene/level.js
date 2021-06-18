@@ -1,6 +1,6 @@
 MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
 
-    let gameInfo = MANHUNT.config.getGame(gameId);
+    let gameInfo = Studio.config.getGame(gameId);
 
     let self = {
 

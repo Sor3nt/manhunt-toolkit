@@ -16,7 +16,7 @@ MANHUNT.frontend.modal.levelSelection = function () {
 
         _createLevelList: function(gameId, result){
 
-            let info = MANHUNT.config.getGame(gameId);
+            let info = Studio.config.getGame(gameId);
             result.data.forEach(function (levelInfo) {
 
                 var row = jQuery(self._entryTemplate.content).clone();
@@ -66,7 +66,7 @@ MANHUNT.frontend.modal.levelSelection = function () {
         show: function(options){
             if (self._loaded === false){
                 self._loaded = true;
-                MANHUNT.api.getLevelList(options.gameId, function (list) {
+                Api.getLevelList(options.gameId, function (list) {
                     self._createLevelList(options.gameId, list);
                 });
             }

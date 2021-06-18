@@ -257,6 +257,8 @@
         import  Hunter from './src/Entity/Hunter.js'
         import  Regular from './src/Entity/Regular.js'
         import  Trigger from './src/Entity/Trigger.js'
+        import  Api from './src/Api.js'
+        import  Config from './src/Config.js'
 
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
@@ -279,6 +281,8 @@
         window.NormalizeMap = NormalizeMap;
         window.NormalizeModel = NormalizeModel;
         window.Relation = Relation;
+        window.Api = Api;
+        window.Config = Config;
 
 
 
@@ -304,7 +308,7 @@
     <script src="src/Library/three.min.js"></script>
     <script src="src/Library/NBinary.js"></script>
 
-    <script src="src/Api.js"></script>
+<!--    <script src="src/Api.js"></script>-->
 
     <!-- File loader  -->
     <script src="src/Library/Loader/manhunt.ifp.loader.js"></script>
@@ -370,7 +374,7 @@
     <script src="src/Storage/Animation.js"></script>
     <script src="src/Storage/Model.js"></script>
 
-    <script src="src/Config.js"></script>
+<!--    <script src="src/Config.js"></script>-->
 
     <!-- Engine -->
     <script src="src/Engine.js"></script>
@@ -469,7 +473,9 @@
 
 <script>
     window.setTimeout(function () {
-        MANHUNT.config.onLoadCallback( Studio.onConfigReceived );
+        Studio.boot();
+
+        // MANHUNT.config.onLoadCallback( Studio.onConfigReceived );
     }, 1000);
 </script>
 

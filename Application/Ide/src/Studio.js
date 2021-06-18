@@ -1,12 +1,17 @@
 export default class Studio{
 
-    tabHandler = null;
+    static tabHandler = null;
+    static config = null;
+
+    static boot() {
+        Studio.config = new Config(Studio.onConfigReceived);
+    }
 
     static onConfigReceived() {
         MANHUNT.engine.init();
         Studio.tabHandler = new Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
 
-        if (MANHUNT.config.getGames().length === 0){
+        if (Studio.config.getGames().length === 0){
             return MANHUNT.frontend.modal.handler.show('setup', self._onGamePathsKnown);
         }
 

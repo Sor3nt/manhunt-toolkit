@@ -5,7 +5,7 @@ MANHUNT.resources.handler = (function () {
         // _level: {},
 
         fromLevel: function(gameId, levelInfo, callback){
-            let info = MANHUNT.config.getGame(gameId);
+            let info = Studio.config.getGame(gameId);
 
             console.log('[MANHUNT.resources.handler] ', info.game, info.platform, levelInfo.name);
 

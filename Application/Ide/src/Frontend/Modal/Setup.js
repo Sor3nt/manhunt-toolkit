@@ -38,7 +38,7 @@ MANHUNT.frontend.modal.Setup = function () {
 
         save: function(){
 
-            MANHUNT.config.addGame(self._container.find('[data-game-folder]' ).val(), function (response) {
+            Studio.config.addGame(self._container.find('[data-game-folder]' ).val(), function (response) {
 
                 if (response.status === true){
                     return MANHUNT.frontend.modal.handler.hide();

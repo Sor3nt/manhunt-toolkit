@@ -127,7 +127,7 @@ MANHUNT.fileLoader.INST = function () {
     return {
         load: function (level, file, callback ) {
 
-            MANHUNT.api.load(
+            Api.load(
                 level._gameId,
                 file,
                 function ( data ) {
