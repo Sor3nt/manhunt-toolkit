@@ -14,7 +14,6 @@ MANHUNT.studio = (function () {
 
         _onConfigReceived: function () {
             MANHUNT.engine.init();
-console.log(Tab);
             self._tabHandler = new Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
 
             if (MANHUNT.config.getGames().length === 0){

@@ -263,7 +263,7 @@
 
 
         window.generateMesh = generateMesh;
-        window.RenderwareNew = Renderware;
+        window.Renderware = Renderware;
         window.NormalizeMap = NormalizeMap;
         window.NormalizeModel = NormalizeModel;
         window.Relation = Relation;
@@ -273,7 +273,7 @@
     </script>
 
 
-    <script src="src/Library/Renderware/Renderware.js"></script>
+<!--    <script src="src/Library/Renderware/Renderware.js"></script>-->
 
     <script src="src/Sidebar/Elements/AttributeValue.js"></script>
     <script src="src/Sidebar/Elements/InputGroup.js"></script>

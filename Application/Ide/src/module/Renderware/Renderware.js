@@ -491,4 +491,34 @@ export default class Renderware{
         return entries;
     }
 
+
+    static getMap(nBinary, level){
+        nBinary.setCurrent(0);
+
+        let tree = Renderware.parse(nBinary);
+        let normalizedMesh = (new NormalizeMap(tree)).normalize();
+        normalizedMesh.name = "TODO";
+
+        let mesh = generateMesh(level._storage.tex, normalizedMesh);
+        mesh.children.forEach(function (subMesh) {
+            subMesh.visible = true;
+        });
+
+        return mesh;
+    }
+
+    static getAnimation(nBinary, level){
+        nBinary.setCurrent(0);
+
+        let tree = RW.parser(nBinary).parse();
+        return RW.convert.animation(tree, level);
+    }
+
+    static getModel(nBinary, offset) {
+        nBinary.setCurrent(offset);
+
+        let tree = Renderware.parse(nBinary);
+        return (new NormalizeModel(tree)).normalize();
+    }
+
 }
