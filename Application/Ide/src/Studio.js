@@ -1,22 +1,30 @@
 export default class Studio{
 
-    static tabHandler = null;
-    static config = null;
+    /**
+     * @type {Tab}
+     */
+    static tabHandler;
+
+    /**
+     * @type {Config}
+     */
+    static config;
 
     static boot() {
-        Studio.config = new Config(Studio.onConfigReceived);
+
+        Studio.config = new Config(function () {
+            MANHUNT.engine.init();
+            Studio.tabHandler = new Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
+
+            if (Studio.config.getGames().length === 0){
+                return MANHUNT.frontend.modal.handler.show('setup', Studio.onGamePathsKnown);
+            }
+
+            Studio.onGamePathsKnown();
+
+        });
     }
 
-    static onConfigReceived() {
-        MANHUNT.engine.init();
-        Studio.tabHandler = new Tab(jQuery('#studio-tab-list'), jQuery('#studio-tab-content'));
-
-        if (Studio.config.getGames().length === 0){
-            return MANHUNT.frontend.modal.handler.show('setup', self._onGamePathsKnown);
-        }
-
-        Studio.onGamePathsKnown();
-    }
 
     static onGamePathsKnown () {
 

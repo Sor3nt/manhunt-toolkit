@@ -28,12 +28,88 @@ export default class TextureNative extends Chunk{
         swizzleWidth: [],
         swizzleHeight: [],
 
+        //Versionn 784
+        addrModeU: null,
+        addrModeV: null,
+
         chunks: []
     };
 
     parse(){
         let struct = this.processChunk(this.binary);
         assert(struct.type, Renderware.CHUNK_STRUCT);
+
+        if (struct.header.version === 784){
+
+            this.result.platform = "pc";
+            this.result.filterFlagsUnnk = struct.binary.consume(1, 'uint8');
+            this.result.addrModeU = struct.binary.consume(1, 'uint8');
+            this.result.addrModeV = struct.binary.consume(1, 'uint8');
+            struct.binary.seek(1); //padding
+
+            this.result.filterFlags = struct.binary.consume(4, 'uint32');
+            this.result.name = struct.binary.consume(128, 'nbinary').getString(0);
+            this.result.alphaName = struct.binary.consume(128, 'nbinary').getString(0);
+
+            this.result.rasterFormat = struct.binary.consume(4, 'uint32');
+            this.result.hasAlpha = struct.binary.consume(4, 'uint32');
+            this.result.width = [struct.binary.consume(2, 'uint16')];
+            this.result.height = [struct.binary.consume(2, 'uint16')];
+            this.result.depth = struct.binary.consume(1, 'uint8');
+            let mipmapCount = struct.binary.consume(1, 'uint8');
+            this.result.rasterType = struct.binary.consume(1, 'uint8');
+            assert(this.result.rasterType, 4, "RasterType should be always 4 but it is " + this.result.rasterType);
+            this.result.dxtCompression = struct.binary.consume(1, 'uint8');
+            //
+            // console.log(this.result);
+            // die;
+            let size = struct.binary.consume(4, 'uint32');
+            // let bufferSize = struct.binary.consume(size, 'nbinary');
+
+
+            let paletteSize =
+                (
+                    this.result.rasterFormat & Renderware.RASTER_PAL8) ?
+                    0x100 : (
+                        this.result.rasterFormat & Renderware.RASTER_PAL4 ?
+                            0x20 :
+                            0
+                    )
+            ;
+
+            this.result.palette = false;
+            if (paletteSize > 0){
+                this.result.palette = struct.binary.consume(paletteSize, 'nbinary');
+            }
+
+            this.result.mipmap = [];
+            for (let i = 0; i < mipmapCount; i++) {
+                if (i !== 0) {
+                    this.result.width.push(this.result.width[i-1]/2);
+                    this.result.height.push(this.result.height[i-1]/2);
+                }
+
+                let dataSizes = this.result.width[i] * this.result.height[i];
+                if (this.result.dxtCompression === 0)
+                    dataSizes *= (this.result.depth/8);
+                else if (this.result.dxtCompression === 0xC)
+                    dataSizes /= 2;
+
+                this.result.mipmap.push(struct.binary.consume(dataSizes, 'dataview'));
+
+            }
+
+            this.validateParsing(struct);
+
+            let extension = this.processChunk(this.binary);
+            assert(extension.type, Renderware.CHUNK_EXTENSION);
+            assert(extension.header.size, 0);
+
+            this.validateParsing(this);
+
+            return;
+        }
+
 
         this.result.platform = struct.binary.consume(4, 'uint32');
 

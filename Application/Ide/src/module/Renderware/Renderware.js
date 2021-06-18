@@ -2,6 +2,7 @@
     Thx to MAJEST1C_R3, Allen, Ermaccer and any other guys out there
 
     Chunk source: https://github.com/DanielSant0s/RWParser/tree/0ceb6752ed86cbf0299eac092b2480819039dda4
+    Thanks for older stuff: https://github.com/kabbi/zanzarah-tools/blob/c1862c483dfa84783761273a87a0b334ba2ea705/bsp-parser.coffee
 
     Maybe helpful
         XBOX renderware stuff: https://github.com/aap/rwtools/blob/master/src/xboxnative.cpp
@@ -9,6 +10,8 @@
 
         Anim Animation: https://gtamods.com/wiki/Anim_Animation_(RW_Section)
         Material effect: https://gtamods.com/wiki/Material_Effects_PLG_(RW_Section)
+
+        https://github.com/leeao/Noesis-Plugins/blob/6a0447bb9369efdbca95111b38155f1263ec5fb2/Model/fmt_RenderWare_PS2_PC.py
 
  */
 
@@ -48,6 +51,20 @@ import Helper from './../../Helper.js'
 const assert = Helper.assert;
 
 export default class Renderware{
+
+    static WORLDFLAGS = {
+        rpWORLDTRISTRIP:				0x00000001, // This world's meshes can be rendered as tri strips
+        rpWORLDPOSITIONS:				0x00000002, // This world has positions
+        rpWORLDTEXTURED:				0x00000004, // This world has only one set of texture coordinates
+        rpWORLDPRELIT:					0x00000008, // This world has luminance values
+        rpWORLDNORMALS:					0x00000010, // This world has normals
+        rpWORLDLIGHT:					0x00000020, // This world will be lit
+        rpWORLDMODULATEMATERIALCOLOR:	0x00000040, // Modulate material color with vertex colors (pre-lit + lit)
+        rpWORLDTEXTURED2:				0x00000080, // This world has 2 or more sets of texture coordinates
+        rpWORLDNATIVE:					0x01000000,
+        rpWORLDNATIVEINSTANCE:			0x02000000,
+        rpWORLDSECTORSOVERLAP:			0x40000000, // Whether to store both vals, or only one
+    };
 
     static NORMALSCALE = (1.0/128.0);
     static VERTSCALE1 = (1.0/128.0);
@@ -519,6 +536,12 @@ export default class Renderware{
 
         let tree = Renderware.parse(nBinary);
         return (new NormalizeModel(tree)).normalize();
+    }
+
+    static getTextures(nBinary) {
+
+        let tree = Renderware.parse(nBinary);
+        return (new NormalizeTexture(tree)).normalize();
     }
 
 }

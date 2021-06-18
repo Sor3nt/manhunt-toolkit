@@ -1,5 +1,3 @@
-// MANHUNT.frontend.Tab = function (tabListContainer, tabContentContainer) {
-
 export default class Tab{
 
     constructor(tabListContainer, tabContentContainer) {
@@ -62,7 +60,6 @@ export default class Tab{
 
     show(name) {
         if (typeof this.tab2Content[name] === "undefined"){
-            console.error('[MANHUNT.frontend.tab] Unable to find tab', name );
             return;
         }
 

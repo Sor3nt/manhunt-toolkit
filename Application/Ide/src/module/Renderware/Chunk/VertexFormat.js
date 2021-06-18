@@ -21,10 +21,10 @@ export default class VertexFormat extends Chunk{
 
                 case Renderware.PLATFORM_PS2:
                 case Renderware.PLATFORM_PS2FOURCC:
-                    console.log("not implemented / buggy");
-                    debugger;
+                    // console.log("not implemented / buggy");
+                    // debugger;
 
-                    // this.parsePs2(struct.binary);
+                    this.parsePs2(struct.binary);
                     break;
 
                 default:
@@ -40,8 +40,18 @@ export default class VertexFormat extends Chunk{
     }
 
     parsePs2( binary ){
-        let splitSize = binary.consume(4, 'uint32');
-        binary.seek(36);
+        let size = binary.consume(4, 'uint32');
+        let noPointers = binary.consume(4, 'uint32');
+
+        console.log(this);
+        die;
+        if (noPointers === 0){
+            console.log("pointers active... todo");
+            debugger;
+            return;
+        }
+
+        let data = binary.consume(size, 'nbinary');
 
         for(let i = 0; i < this.rootData.binMesh.splitCount; i++) {
             let numIndices = this.rootData.binMesh.splitFaceCount[i];

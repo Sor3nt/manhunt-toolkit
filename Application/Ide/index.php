@@ -247,6 +247,7 @@
         import  Renderware from './src/module/Renderware/Renderware.js'
         import  NormalizeMap from './src/module/Renderware/Three/map.js'
         import  NormalizeModel from './src/module/Renderware/Three/model.js'
+        import  NormalizeTexture from './src/module/Renderware/Three/texture.js'
         import  generateMesh from './src/module/Three/generateMesh.js'
         import  Relation from './src/Relation.js'
         import  ObjectAnimation from './src/ObjectAnimation.js'
@@ -280,6 +281,7 @@
         window.Renderware = Renderware;
         window.NormalizeMap = NormalizeMap;
         window.NormalizeModel = NormalizeModel;
+        window.NormalizeTexture = NormalizeTexture;
         window.Relation = Relation;
         window.Api = Api;
         window.Config = Config;

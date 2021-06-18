@@ -25,7 +25,7 @@ MANHUNT.control.ThirdPerson = function (sceneInfo) {
             if (self._active === false) return;
 
             var lookAt = self._active;
-            var moveDistance = 8 * delta;
+            var moveDistance = 80 * delta;
 
             // move forwards / backwards
             if ( self._controls.moveBackward )

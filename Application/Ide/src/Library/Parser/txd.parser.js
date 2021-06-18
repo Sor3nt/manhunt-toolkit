@@ -1,5 +1,9 @@
 MANHUNT.parser.txd = function (binary) {
 
+    // let textures2 = Renderware.getTextures(binary);
+    //
+    // return textures2;
+
 
     function ReadChunk() {
         return {
@@ -15,7 +19,7 @@ MANHUNT.parser.txd = function (binary) {
     while(binary.remain() > 0){
         let header = ReadChunk();
 
-        if (header.version === 268828671) {
+        if (header.version === 268828671 ) {
 
             if (header.id === 22){
                 let txd_info_t = ReadChunk();
@@ -56,7 +60,7 @@ MANHUNT.parser.txd = function (binary) {
             }else{
                 console.error('[MANHUNT.parser.txd] unknown chunkId ', header.id);
             }
-        }else if (header.version === 201523199){
+        }else if (header.version === 201523199 ){
 
             if (header.id === 22){
                 let txd_info_t = ReadChunk();
@@ -98,7 +102,7 @@ MANHUNT.parser.txd = function (binary) {
             }else{
                 console.error('[MANHUNT.parser.txd] unknown chunkId ', header.id);
             }
-        }else if (header.version === 402915327){
+        }else if (header.version === 402915327 ){
 
             if (header.id === 22){
                 let txd_info_t = ReadChunk();
@@ -152,6 +156,13 @@ MANHUNT.parser.txd = function (binary) {
                 console.error('[MANHUNT.parser.txd] unknown chunkId ', header.id);
             }
         }else{
+
+
+            binary.seek(-12);
+            let parsed = Renderware.parse(binary);
+            console.log(parsed);
+            die;
+
             console.error('[MANHUNT.parser.txd] unknown version ', header.version);
         }
     }
@@ -186,6 +197,7 @@ MANHUNT.parser.txd = function (binary) {
 
             default:
                 console.error("decode not dxt", texture.rasterFormat & 0xf00);
+                debugger;
                 break;
         }
 

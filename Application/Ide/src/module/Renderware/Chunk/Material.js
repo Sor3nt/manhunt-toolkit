@@ -38,6 +38,9 @@ export default class Material extends Chunk{
             let texture = this.processChunk(this.binary);
             assert(texture.type, Renderware.CHUNK_TEXTURE);
             this.result.chunks.push(texture);
+
+            if (typeof this.rootData.material === "undefined") this.rootData.material = [];
+            this.rootData.material.push(texture.result.chunks[0].result.name);
         }
 
         let extension = this.processChunk(this.binary);
@@ -45,6 +48,7 @@ export default class Material extends Chunk{
         this.result.chunks.push(extension);
 
         this.validateParsing(this);
+
 
     }
 
