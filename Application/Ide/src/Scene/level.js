@@ -150,7 +150,6 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
                 self.relation.model2Glg(headModelName, headRecordName);
             }
 
-            console.log("ADD", entity.object);
             sceneInfo.scene.add(entity.object);
 
             self._storage.entity.add(entity);

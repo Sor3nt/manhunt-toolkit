@@ -274,9 +274,6 @@
 
 
     <script src="src/Library/Renderware/Renderware.js"></script>
-    <script src="src/Library/Renderware/Renderware.convert.animation.js"></script>
-    <script src="src/Library/Renderware/Renderware.convert.model.js"></script>
-    <script src="src/Library/Renderware/Renderware.parser.js"></script>
 
     <script src="src/Sidebar/Elements/AttributeValue.js"></script>
     <script src="src/Sidebar/Elements/InputGroup.js"></script>
@@ -312,7 +309,6 @@
     <!-- Content Parser  -->
     <script src="src/Library/Parser/manhunt.parser.srce.trigger.js"></script>
     <script src="src/Library/Parser/mdl.parser.js"></script>
-    <script src="src/Library/Parser/dff.parser.js"></script>
     <script src="src/Library/Parser/txd.parser.js"></script>
     <script src="src/Library/Parser/tex.parser.js"></script>
     <script src="src/Library/Parser/manhunt2.psp.bsp.parser.js"></script>

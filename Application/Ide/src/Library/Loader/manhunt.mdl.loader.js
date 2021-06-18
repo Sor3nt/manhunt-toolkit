@@ -16,25 +16,19 @@ MANHUNT.fileLoader.MDL = function () {
                     let binary = new NBinary(data);
                     let gameId = binary.consume(4, 'uint32');
 
+                    //Parse the file list
                     //mh2 pc
                     if (gameId === 1129074000) {// PMLC
-                        //Parse the file list
                         binary.setCurrent(0);
                         modelList = MANHUNT.parser.mdl(binary, level);
 
                     //mh2 psp
                     }else if (gameId === 1413697089){
-                            //Parse the file list
                         binary.setCurrent(0);
                         modelList = MANHUNT.parser.mdl(binary, level);
-
-
                     }else{
-
-                        //TODO : still in usee ?!!?
-                        //Parse the file list
                         binary.setCurrent(0);
-                        modelList = MANHUNT.parser.dff(binary, level);
+                        modelList = RenderwareNew.readClumpList(binary);
 
                     }
 
@@ -59,18 +53,7 @@ MANHUNT.fileLoader.MDL = function () {
 
                                 let model = modelList[i];
                                 if (model.name.toLowerCase() === name) {
-
-                                    // let old = MANHUNT.converter.generic2mesh(level, model.data());
-                                    // console.log("old mesh", old);
-                                    // return old;
-
-
-                                    let gen = generateMesh(level._storage.tex, model.data());
-                                    console.log("new mesh", gen);
-
-                                    return gen;
-
-                                    // return
+                                    return generateMesh(level._storage.tex, model.data());
                                 }
                             }
 

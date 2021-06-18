@@ -182,8 +182,6 @@ export default class NormalizeModel{
                 });
             });
         }
-
-        console.log("bones", _this.allBones);
     }
 
     normalize(){

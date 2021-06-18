@@ -9,7 +9,6 @@ export default class NormalizeMap{
     constructor( tree ){
         assert(tree.type, Renderware.CHUNK_WORLD, "convert: Container is not a Renderware.CHUNK_WORLD it is " + tree.type);
         this.tree = tree;
-        console.log("TTREE", tree);
     }
 
     getMaterialList( ) {

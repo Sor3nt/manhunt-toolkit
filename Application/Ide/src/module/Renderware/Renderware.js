@@ -321,7 +321,7 @@ export default class Renderware{
      *
      * @param chunk {Chunk}
      * @param type
-     * @returns {Chunk}|boolean
+     * @returns {boolean}|{Chunk}
      */
     static findChunk(chunk, type) {
         let found = Renderware.findChunks(chunk, type);
@@ -337,7 +337,7 @@ export default class Renderware{
 
     /**
      *
-     * @param chunk {{Chunk}|boolean}
+     * @param chunk {Chunk}
      * @param type
      * @returns {[]}
      */
@@ -362,6 +362,15 @@ export default class Renderware{
         return chunk;
     }
 
+    
+    static parseHeader(binary){
+        return {
+            id: binary.consume(4, 'int32'),
+            size: binary.consume(4, 'uint32'),
+            version: binary.consume(4, 'uint32')
+        };
+    }
+
     /**
      *
      * @param binary {NBinary}
@@ -371,11 +380,7 @@ export default class Renderware{
     static processChunk( binary, rootData) {
         rootData = rootData || {};
 
-        let header = {
-            id: binary.consume(4, 'int32'),
-            size: binary.consume(4, 'uint32'),
-            version: binary.consume(4, 'uint32')
-        };
+        let header = Renderware.parseHeader(binary);
 
         assert(typeof Renderware.handler[header.id], "function", "Chunk function not found for ID " + header.id);
 // console.log(Renderware.handler[header.id].name, header.size);
@@ -383,4 +388,107 @@ export default class Renderware{
 
         return new Renderware.handler[header.id](data, header, rootData);
     }
+
+    /**
+     * 
+     * @param binary {NBinary}
+     * @returns {[]}
+     */
+    static readClumpList(binary) {
+
+        function readUserDataPLG(index) {
+            let numSet = binary.consume(4, 'int32');
+            let boneName = "bone" + index;
+
+            for (let i = 0; i < numSet; i++) {
+                let typeNameLen = binary.consume(4, 'int32');
+                binary.seek(typeNameLen);
+                binary.seek(8); //u2 + u3
+
+                let nameLen = binary.consume(4, 'int32');
+                if (nameLen > 0)
+                    boneName = binary.consume(nameLen, 'nbinary').getString(0);
+            }
+
+            return boneName;
+        }
+
+        function readExtension(header){
+            let name = null;
+            let endOfs = binary.current() + header.size;
+            while (binary.current() < endOfs) {
+                let sHeader = Renderware.parseHeader(binary);
+                if (sHeader.id === Renderware.CHUNK_FRAME) {
+                    name = binary.consume(sHeader.size, 'nbinary').getString(0);
+                } else if (sHeader.id === Renderware.CHUNK_USERDATAPLUGIN) {
+                    name = readUserDataPLG(1);
+                } else {
+
+                    binary.seek(sHeader.size);
+                }
+            }
+
+            return name;
+        }
+
+        function findName(){
+            let header = Renderware.parseHeader(binary);
+            switch (header.id) {
+                case Renderware.CHUNK_FRAME:
+                    return binary.consume(header.size, 'nbinary').getString(0);
+                case Renderware.CHUNK_USERDATAPLUGIN:
+                    return readUserDataPLG(1);
+                case Renderware.CHUNK_HANIM:
+                    binary.seek(12);
+                    return findName();
+                case Renderware.CHUNK_EXTENSION:
+                    return readExtension(header);
+            }
+
+            return "";
+        }
+
+        let entries = [];
+
+        let count = 1;
+        while (binary.current() < binary.length()) {
+            let offset = binary.current();
+
+            //CHUNK_CLUMP
+            let clumpChunk = Renderware.parseHeader(binary);
+            let next = binary.current() + clumpChunk.size;
+
+            //CHUNK_STRUCT
+            let clumpStruct = Renderware.parseHeader(binary);
+            binary.seek(clumpStruct.size);
+            binary.seek(12);
+
+            let frameListStructHeader = Renderware.parseHeader(binary);
+            binary.seek(frameListStructHeader.size);
+            binary.seek(12); // extheader
+
+            let name = findName();
+            if (name !== ""){
+                (function (offset, name) {
+                    entries.push({
+                        name: name,
+                        offset: offset,
+                        data: function(){
+                            let mesh = window.Renderware.getModel(binary, offset);
+                            mesh.name = name;
+                            return mesh;
+                        }
+                    });
+                })(offset, name);
+            }else{
+                console.warn("this model has no name! offset: ", offset);
+            }
+
+            binary.setCurrent(next);
+            count++;
+        }
+
+        return entries;
+    }
+
 }
