@@ -180,7 +180,7 @@ export default class Renderware{
     static CHUNK_USERDATAPLUGIN = 0X11f;
     static CHUNK_MATERIALEFFECTS = 0x120;
     // static CHUNK_PARTICLESYSTEMPLUGIN = 0X121;
-    // static CHUNK_DMORPHPLUGIN = 0x122;
+    static CHUNK_DMORPHPLUGIN = 0x122;
     // static CHUNK_PATCHPLUGIN = 0x123;
     // static CHUNK_TEAMPLUGIN = 0x124;
     // static CHUNK_CROWDPPPLUGIN = 0x125;
@@ -330,6 +330,7 @@ export default class Renderware{
         [Renderware.CHUNK_VERTEXFORMAT]           : VertexFormat,
         [Renderware.CHUNK_USERDATAPLUGIN]           : Dummy,
         [Renderware.CHUNK_SKYMIPMAP]           : Dummy,
+        [Renderware.CHUNK_DMORPHPLUGIN]           : Dummy,
         2561           : Dummy
     };
 
@@ -400,7 +401,18 @@ export default class Renderware{
         let header = Renderware.parseHeader(binary);
 
         assert(typeof Renderware.handler[header.id], "function", "Chunk function not found for ID " + header.id);
-// console.log(Renderware.handler[header.id].name, header.size);
+// console.log('CHUNK', Renderware.handler[header.id].name, header.size, "remain", binary.remain());
+
+
+        /**
+         * Happens in Tony Hawks 3 PC Demo
+         * Renderware Version (int32): 784
+         */
+        if (header.size > binary.remain())
+            header.size = binary.remain();
+
+        //
+        // console.log("Consume", header.size, " left ", binary.remain());
         let data = binary.consume(header.size, 'nbinary');
 
         return new Renderware.handler[header.id](data, header, rootData);
@@ -474,17 +486,40 @@ export default class Renderware{
             //CHUNK_CLUMP
             let clumpChunk = Renderware.parseHeader(binary);
             let next = binary.current() + clumpChunk.size;
+            let name = "Unk_" + offset;
 
-            //CHUNK_STRUCT
-            let clumpStruct = Renderware.parseHeader(binary);
-            binary.seek(clumpStruct.size);
-            binary.seek(12);
+            if (clumpChunk.version === 784){
+                next += 3*4; //BAAD HACK TODO
 
-            let frameListStructHeader = Renderware.parseHeader(binary);
-            binary.seek(frameListStructHeader.size);
-            binary.seek(12); // extheader
+                //CHUNK_STRUCT
+                // let clumpStruct = Renderware.parseHeader(binary);
+                // binary.seek(clumpStruct.size);
+                //
+                // let frameListStruct = Renderware.parseHeader(binary);
+                // binary.seek(frameListStruct.size);
+                //
+                // let frameListDataStruct = Renderware.parseHeader(binary);
+                // binary.seek(frameListStruct.size);
+                //
+                // binary.seek(12); // extheader
+                //
+                // let name = findName();
 
-            let name = findName();
+            }else{
+
+                //CHUNK_STRUCT
+                let clumpStruct = Renderware.parseHeader(binary);
+                binary.seek(clumpStruct.size);
+
+                binary.seek(12);
+
+                let frameListStructHeader = Renderware.parseHeader(binary);
+                binary.seek(frameListStructHeader.size);
+                binary.seek(12); // extheader
+
+                name = findName();
+            }
+
             if (name !== ""){
                 (function (offset, name) {
                     entries.push({
@@ -534,7 +569,6 @@ export default class Renderware{
 
     static getModel(nBinary, offset) {
         nBinary.setCurrent(offset);
-
         let tree = Renderware.parse(nBinary);
         return (new NormalizeModel(tree)).normalize();
     }

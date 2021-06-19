@@ -10,6 +10,17 @@ MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
         _buildChain: function () {
 
             let loadChain = [
+                // {
+                //     order: [
+                //         {
+                //             tex: ['levels/' + levelName + '/kaeptn_blaubaer_01.dds'],
+                //             mdl: ['levels/' + levelName + '/actor.dff']
+                //         }
+                //     ],
+                //
+                //     callback: function () {}
+                //
+                // },
                 {
                     order: [
                         {

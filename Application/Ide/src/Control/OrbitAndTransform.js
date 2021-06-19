@@ -16,7 +16,7 @@ MANHUNT.control.OrbitAndTransform = function (sceneInfo) {
             self._control.orbit.dampingFactor = 0.05;
             self._control.orbit.screenSpacePanning = false;
             self._control.orbit.minDistance = 0.5 ;
-            self._control.orbit.maxDistance = 4.0 ;
+            // self._control.orbit.maxDistance = 40.0 ;
             self._control.orbit.maxPolarAngle = Math.PI / 2;
             self._control.orbit.enabled = false;
 
