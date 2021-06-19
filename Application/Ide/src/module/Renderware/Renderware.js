@@ -117,7 +117,7 @@ export default class Renderware{
     static CHUNK_FRAMELIST = 0xE;
     static CHUNK_GEOMETRY = 0xF;
     static CHUNK_CLUMP = 0x10;
-    // static CHUNK_LIGHT = 0x12;
+    static CHUNK_LIGHT = 0x12;
     // static CHUNK_UNICODESTRING = 0x13;
     static CHUNK_ATOMIC = 0x14;
     static CHUNK_TEXTURENATIVE = 0x15;
@@ -198,7 +198,7 @@ export default class Renderware{
     // static CHUNK_PRTADVPLUGIN = 0x132;
     // static CHUNK_NORMMAPPLUGIN = 0x133;
     // static CHUNK_ADCPLUGIN = 0x134;
-    // static CHUNK_UVANIMPLUGIN = 0x135;
+    static CHUNK_UVANIMPLUGIN = 0x135;
     // static CHUNK_CHARSEPLUGIN = 0x180;
     // static CHUNK_NOHSWORLDPLUGIN = 0x181;
     // static CHUNK_IMPUTILPLUGIN = 0x182;
@@ -331,6 +331,8 @@ export default class Renderware{
         [Renderware.CHUNK_USERDATAPLUGIN]           : Dummy,
         [Renderware.CHUNK_SKYMIPMAP]           : Dummy,
         [Renderware.CHUNK_DMORPHPLUGIN]           : Dummy,
+        [Renderware.CHUNK_UVANIMPLUGIN]           : Dummy,
+        [Renderware.CHUNK_LIGHT]           : Dummy,
         2561           : Dummy
     };
 

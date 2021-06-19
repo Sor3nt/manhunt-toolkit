@@ -422,8 +422,13 @@ MANHUNT.fileLoader.BSP = function () {
                             die;
                         }
 
-                        }else if (gameId === CHUNK_WORLD) { //CHUNK_WORLD => Renderware MH1
+                    }else if (gameId === CHUNK_WORLD) { //CHUNK_WORLD => Renderware MH1
                         meshRoot = Renderware.getMap(binary, level);
+
+                    }else if (gameId === CHUNK_CLUMP) { //CHUNK_CLUMP => Renderware MH1
+
+                        let normalize = Renderware.getModel(binary, 0);
+                        meshRoot = generateMesh(level._storage.tex, normalize)
 
                     }else{
                         console.log("[MANHUNT.fileLoader.BSP] Unsupported Map?! ", file, gameId);
