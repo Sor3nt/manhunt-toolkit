@@ -39,91 +39,33 @@ export default class TextureNative extends Chunk{
         let struct = this.processChunk(this.binary);
         assert(struct.type, Renderware.CHUNK_STRUCT);
 
-        if (struct.header.version === 784){
+        if (struct.header.version === 268828671){
+            this.result.platform = struct.binary.consume(4, 'uint32');
+            this.result.filterFlags = struct.binary.consume(4, 'uint32');
+            this.validateParsing(struct);
+        }
 
-            this.result.platform = "pc";
+        else if (struct.header.version === 784){
+
+            this.result.platform = Renderware.PLATFORM_D3D9;
             this.result.filterFlagsUnnk = struct.binary.consume(1, 'uint8');
             this.result.addrModeU = struct.binary.consume(1, 'uint8');
             this.result.addrModeV = struct.binary.consume(1, 'uint8');
             struct.binary.seek(1); //padding
 
-            this.result.filterFlags = struct.binary.consume(4, 'uint32');
-            this.result.name = struct.binary.consume(128, 'nbinary').getString(0);
-            this.result.alphaName = struct.binary.consume(128, 'nbinary').getString(0);
+        }else{
 
-            this.result.rasterFormat = struct.binary.consume(4, 'uint32');
-            this.result.hasAlpha = struct.binary.consume(4, 'uint32');
-            this.result.width = [struct.binary.consume(2, 'uint16')];
-            this.result.height = [struct.binary.consume(2, 'uint16')];
-            this.result.depth = struct.binary.consume(1, 'uint8');
-            let mipmapCount = struct.binary.consume(1, 'uint8');
-            this.result.rasterType = struct.binary.consume(1, 'uint8');
-            assert(this.result.rasterType, 4, "RasterType should be always 4 but it is " + this.result.rasterType);
-            this.result.dxtCompression = struct.binary.consume(1, 'uint8');
-            //
-            // console.log(this.result);
-            // die;
-            let size = struct.binary.consume(4, 'uint32');
-            // let bufferSize = struct.binary.consume(size, 'nbinary');
+            this.result.platform = struct.binary.consume(4, 'uint32');
 
-
-            let paletteSize =
-                (
-                    this.result.rasterFormat & Renderware.RASTER_PAL8) ?
-                    0x100 : (
-                        this.result.rasterFormat & Renderware.RASTER_PAL4 ?
-                            0x20 :
-                            0
-                    )
-            ;
-
-            this.result.palette = false;
-            if (paletteSize > 0){
-                this.result.palette = struct.binary.consume(paletteSize, 'nbinary');
-            }
-
-            this.result.mipmap = [];
-            for (let i = 0; i < mipmapCount; i++) {
-                if (i !== 0) {
-                    this.result.width.push(this.result.width[i-1]/2);
-                    this.result.height.push(this.result.height[i-1]/2);
-                }
-
-                let dataSizes = this.result.width[i] * this.result.height[i];
-                if (this.result.dxtCompression === 0)
-                    dataSizes *= (this.result.depth/8);
-                else if (this.result.dxtCompression === 0xC)
-                    dataSizes /= 2;
-
-                this.result.mipmap.push(struct.binary.consume(dataSizes, 'dataview'));
-
-            }
-
-            this.validateParsing(struct);
-
-            let extension = this.processChunk(this.binary);
-            assert(extension.type, Renderware.CHUNK_EXTENSION);
-            assert(extension.header.size, 0);
-
-            this.validateParsing(this);
-
-            return;
         }
 
 
-        this.result.platform = struct.binary.consume(4, 'uint32');
-
         switch (this.result.platform) {
-            case Renderware.PLATFORM_OGL:
-
-                console.log("OGL");
-                die;
-                break;
-
             case Renderware.PLATFORM_PS2:
             case Renderware.PLATFORM_PS2FOURCC:
                 this.parsePs2();
                 break;
+
             case Renderware.PLATFORM_XBOX:
                 this.parseXbox(struct);
                 break;
@@ -131,7 +73,6 @@ export default class TextureNative extends Chunk{
             case Renderware.PLATFORM_D3D8:
             case Renderware.PLATFORM_D3D9:
                 this.parsePc(struct);
-
                 break;
 
             default:
@@ -141,14 +82,23 @@ export default class TextureNative extends Chunk{
         }
 
 
+        while(this.binary.remain() > 0){
+            this.result.chunks.push(this.processChunk(this.binary));
+        }
+
         this.validateParsing(this);
     }
 
     parsePc(struct){
 
+        let nameLen = 32;
+        if (struct.header.version === 784){
+            nameLen = 128;
+        }
+
         this.result.filterFlags = struct.binary.consume(4, 'uint32');
-        this.result.name = struct.binary.consume(32, 'nbinary').getString(0);
-        this.result.alphaName = struct.binary.consume(32, 'nbinary').getString(0);
+        this.result.name = struct.binary.consume(nameLen, 'nbinary').getString(0);
+        this.result.alphaName = struct.binary.consume(nameLen, 'nbinary').getString(0);
         this.result.rasterFormat = struct.binary.consume(4, 'uint32');
         this.result.d3dTextureFormat = struct.binary.consume(4, 'uint32');
         this.result.width = [struct.binary.consume(2, 'uint16')];
@@ -165,25 +115,34 @@ export default class TextureNative extends Chunk{
         }
 
         let bufferSize = struct.binary.consume(4, 'uint32');
+
+
         assert(bufferSize, struct.binary.remain(), "remained data does not match!");
 
         this.result.mipmap = [];
-        for (let i = 0; i < mipmapCount; i++) {
-            if (i !== 0) {
-                this.result.width.push(this.result.width[i-1]/2);
-                this.result.height.push(this.result.height[i-1]/2);
-            }
+        this.result.mipmap.push(struct.binary.consume(bufferSize, 'dataview'));
 
-            let dataSize = (this.result.height[i]*this.result.height[i]) / 2;
-            this.result.mipmap.push(struct.binary.consume(dataSize, 'dataview'));
+        // console.log(this.result.rasterType);
 
-        }
+        // this.result.mipmap = [];
+        // for (let i = 0; i < mipmapCount; i++) {
+        //     if (i !== 0) {
+        //         this.result.width.push(this.result.width[i-1]/2);
+        //         this.result.height.push(this.result.height[i-1]/2);
+        //     }
+        //
+        //     let dataSize = (this.result.height[i]*this.result.height[i]) / 2;
+        //     this.result.mipmap.push(struct.binary.consume(dataSize, 'dataview'));
+        //
+        // }
+
+        this.validateParsing(struct);
 
         while(this.binary.remain() > 0){
             this.result.chunks.push(this.processChunk(this.binary));
         }
 
-        this.validateParsing(struct);
+        this.validateParsing(this);
 
     }
 
@@ -262,11 +221,11 @@ export default class TextureNative extends Chunk{
     parsePs2(){
         let name = this.processChunk(this.binary);
         assert(name.type, Renderware.CHUNK_STRING);
-        this.result.name = name.data.name;
+        this.result.name = name.result.name;
 
         let alphaName = this.processChunk(this.binary);
         assert(alphaName.type, Renderware.CHUNK_STRING);
-        this.result.alphaName = alphaName.data.name;
+        this.result.alphaName = alphaName.result.name;
 
 
         let struct = this.processChunk(this.binary);
@@ -274,7 +233,7 @@ export default class TextureNative extends Chunk{
 
         let dataSize;
         {
-            let structHeader = this.processChunk(struct);
+            let structHeader = this.processChunk(struct.binary);
             assert(structHeader.type, Renderware.CHUNK_STRUCT);
 
             this.result.width.push(structHeader.binary.consume(4, 'uint32'));
@@ -293,7 +252,7 @@ export default class TextureNative extends Chunk{
 
         {
 
-            let structBody = this.processChunk(struct);
+            let structBody = this.processChunk(struct.binary);
             assert(structBody.type, Renderware.CHUNK_STRUCT);
 
             let blockEnd = structBody.binary.current() + dataSize;

@@ -260,6 +260,7 @@
         import  Trigger from './src/Entity/Trigger.js'
         import  Api from './src/Api.js'
         import  Config from './src/Config.js'
+        import  Playstation from './src/Library/Texture/Playstation.js'
 
         window.DDSLoader = DDSLoader;
         window.FlyControls = FlyControls;
@@ -285,6 +286,7 @@
         window.Relation = Relation;
         window.Api = Api;
         window.Config = Config;
+        window.Playstation = Playstation;
 
 
 

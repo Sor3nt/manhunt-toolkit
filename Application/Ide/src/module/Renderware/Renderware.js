@@ -80,17 +80,17 @@ export default class Renderware{
     static PLATFORM_D3D9   = 9;
     static PLATFORM_PS2FOURCC = 0x00325350; /* "PS2\0" */
 
-    // static RASTER_DEFAULT = 0x0000;
-    // static RASTER_1555 = 0x0100;
-    // static RASTER_565 = 0x0200;
-    // static RASTER_4444 = 0x0300;
-    // static RASTER_LUM8 = 0x0400;
-    // static RASTER_8888 = 0x0500;
-    // static RASTER_888 = 0x0600;
-    // static RASTER_16 = 0x0700;
-    // static RASTER_24 = 0x0800;
-    // static RASTER_32 = 0x0900;
-    // static RASTER_555 = 0x0a00;
+    static RASTER_DEFAULT = 0x0000;
+    static RASTER_1555 = 0x0100;
+    static RASTER_565 = 0x0200;
+    static RASTER_4444 = 0x0300;
+    static RASTER_LUM8 = 0x0400;
+    static RASTER_8888 = 0x0500;
+    static RASTER_888 = 0x0600;
+    static RASTER_16 = 0x0700;
+    static RASTER_24 = 0x0800;
+    static RASTER_32 = 0x0900;
+    static RASTER_555 = 0x0a00;
 
     // static RASTER_AUTOMIPMAP = 0x1000;
     static RASTER_PAL8 = 0x2000;
@@ -520,6 +520,7 @@ export default class Renderware{
         mesh.children.forEach(function (subMesh) {
             subMesh.visible = true;
         });
+
 
         return mesh;
     }

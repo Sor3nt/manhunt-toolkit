@@ -69,6 +69,7 @@ MANHUNT.scene.Level = function (gameId, levelInfo, storage) {
                     });
                 }
 
+                scene.scale.set(0.1,0.1,0.1);
                 self._views.world.getSceneInfo().scene.add(scene);
             });
         },

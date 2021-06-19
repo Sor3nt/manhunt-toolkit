@@ -34,7 +34,7 @@ export default function generateMesh(storageTexture, generic){
             }
 
             result.push(new THREE.MeshBasicMaterial({
-                // shading: THREE.SmoothShading,
+                // wireframe: true,
                 map: storageTexture.find(name),
                 skinning: skinning,
                 transparent: false, //todo
@@ -104,6 +104,7 @@ export default function generateMesh(storageTexture, generic){
 
         group.add(mesh);
     });
+    console.log(group);
 
     return group;
 }

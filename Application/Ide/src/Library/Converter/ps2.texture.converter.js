@@ -12,7 +12,6 @@ MANHUNT.converter.ps22texture = function (textures) {
         realTexture.wrapT =  THREE.RepeatWrapping;
         realTexture.needsUpdate = true;
         realTexture.name = texture.name;
-
         result.push(realTexture);
 
     });

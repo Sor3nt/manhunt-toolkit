@@ -8,7 +8,10 @@ export default class Api{
             action: 'read',
             gameId: gameId,
             file: file
-        }, callback);
+        }, function (data) {
+            console.log(file);
+            callback(data);
+        });
     }
 
     static  request( json, callback){

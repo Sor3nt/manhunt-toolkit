@@ -26,7 +26,7 @@ MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
                             tex: [
                                 'levels/GLOBAL/CHARPAK/cash_pc.txd',
                                 'levels/' + levelName + '/pak/modelspc.txd',
-                                'levels/' + levelName + '/picmap.txd',
+                                // 'levels/' + levelName + '/picmap.txd',
                                 // 'levels/' + levelName + '/picmmap.txd'
                             ],
 

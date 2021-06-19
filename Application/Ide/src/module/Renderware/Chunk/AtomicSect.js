@@ -78,7 +78,6 @@ export default class AtomicSect extends Chunk{
 
             //
             let face;
-            let facesMat = [];
             for(let i = 0; i < triangleCount; i++) {
 
                 let matId = struct.binary.consume(2, 'uint16');
