@@ -98,174 +98,172 @@ export default class Renderware{
     // static RASTER_MIPMAP = 0x8000;
     // static RASTER_MASK = 0x0F00;
 
-    // static CHUNK_AUDIOCONTAINER  = 0x0000080d;
-    // static CHUNK_AUDIOHEADER     = 0x0000080e;
-    // static CHUNK_AUDIODATA       = 0x0000080f;
+    static CHUNK_AUDIOCONTAINER  = 0x0000080d;
+    static CHUNK_AUDIOHEADER     = 0x0000080e;
+    static CHUNK_AUDIODATA       = 0x0000080f;
     static CHUNK_NAOBJECT = 0x0;
     static CHUNK_STRUCT = 0x1;
     static CHUNK_STRING = 0x2;
     static CHUNK_EXTENSION = 0x3;
-    // static CHUNK_CAMERA = 0x5;
+    static CHUNK_CAMERA = 0x5;
     static CHUNK_TEXTURE = 0x6;
     static CHUNK_MATERIAL = 0x7;
     static CHUNK_MATLIST = 0x8;
     static CHUNK_ATOMICSECT = 0x9;
     static CHUNK_PLANESECT = 0xA;
     static CHUNK_WORLD = 0xB;
-    // static CHUNK_SPLINE = 0xC;
-    // static CHUNK_MATRIX = 0xD;
+    static CHUNK_SPLINE = 0xC;
+    static CHUNK_MATRIX = 0xD;
     static CHUNK_FRAMELIST = 0xE;
     static CHUNK_GEOMETRY = 0xF;
     static CHUNK_CLUMP = 0x10;
     static CHUNK_LIGHT = 0x12;
-    // static CHUNK_UNICODESTRING = 0x13;
+    static CHUNK_UNICODESTRING = 0x13;
     static CHUNK_ATOMIC = 0x14;
     static CHUNK_TEXTURENATIVE = 0x15;
     static CHUNK_TEXDICTIONARY = 0x16;
-    // static CHUNK_ANIMDATABASE = 0x17;
-    // static CHUNK_IMAGE = 0x18;
-    // static CHUNK_SKINANIMATION = 0x19;
+    static CHUNK_ANIMDATABASE = 0x17;
+    static CHUNK_IMAGE = 0x18;
+    static CHUNK_SKINANIMATION = 0x19;
     static CHUNK_GEOMETRYLIST = 0x1A;
-    // static CHUNK_ANIMANIMATION = 0x1B;
     static CHUNK_ANIMANIMATION = 0x1B;
-    // static CHUNK_HANIMANIMATION = 0x1B;
-    // static CHUNK_TEAM = 0x1C;
-    // static CHUNK_CROWD = 0x1D;
+    static CHUNK_TEAM = 0x1C;
+    static CHUNK_CROWD = 0x1D;
     static CHUNK_RIGHTTORENDER = 0x1F;
-    // static CHUNK_MTEFFECTNATIVE = 0x20;
-    // static CHUNK_MTEFFECTDICT = 0x21;
-    // static CHUNK_TEAMDICTIONARY = 0x22;
-    // static CHUNK_PITEXDICTIONARY = 0x23;
+    static CHUNK_MTEFFECTNATIVE = 0x20;
+    static CHUNK_MTEFFECTDICT = 0x21;
+    static CHUNK_TEAMDICTIONARY = 0x22;
+    static CHUNK_PITEXDICTIONARY = 0x23;
     static CHUNK_TOC = 0x24;
-    // static CHUNK_PRTSTDGLOBALDATA = 0x25;
-    // static CHUNK_ALTPIPE = 0x26;
-    // static CHUNK_PIPEDS = 0x27;
-    // static CHUNK_PATCHMESH = 0x28;
-    // static CHUNK_CHUNKGROUPSTART = 0x29;
-    // static CHUNK_CHUNKGROUPEND = 0x2A;
-    // static CHUNK_UVANIMDICT = 0x2B;
-    // static CHUNK_COLLTREE = 0x2C;
-    // static CHUNK_ENVIRONMENT = 0x2D;
-    // static CHUNK_COREPLUGINIDMAX = 0x2E;
-    // static CHUNK_METRICSPLUGIN = 0x101;
-    // static CHUNK_SPLINEPLUGIN = 0x102;
-    // static CHUNK_STEREOPLUGIN = 0x103;
-    // static CHUNK_VRMLPLG = 0x104;
-    // static CHUNK_MORPH = 0x105;
-    // static CHUNK_PVSPLUGIN = 0x106;
-    // static CHUNK_MEMLEAKPLUGIN = 0x107;
-    // static CHUNK_ANIMPLUGIN = 0x108;
-    // static CHUNK_GLOSSPLUGIN = 0x109;
-    // static CHUNK_LOGOPLUGIN = 0x10a;
-    // static CHUNK_MEMINFOPLUGIN = 0x10b;
-    // static CHUNK_RANDOMPLUGIN = 0x10c;
-    // static CHUNK_PNGIMAGEPLUGIN = 0x10d;
-    // static CHUNK_BONEPLUGIN = 0x10e;
-    // static CHUNK_VRMLANIMPLUGIN = 0x10f;
+    static CHUNK_PRTSTDGLOBALDATA = 0x25;
+    static CHUNK_ALTPIPE = 0x26;
+    static CHUNK_PIPEDS = 0x27;
+    static CHUNK_PATCHMESH = 0x28;
+    static CHUNK_CHUNKGROUPSTART = 0x29;
+    static CHUNK_CHUNKGROUPEND = 0x2A;
+    static CHUNK_UVANIMDICT = 0x2B;
+    static CHUNK_COLLTREE = 0x2C;
+    static CHUNK_ENVIRONMENT = 0x2D;
+    static CHUNK_COREPLUGINIDMAX = 0x2E;
+    static CHUNK_METRICSPLUGIN = 0x101;
+    static CHUNK_SPLINEPLUGIN = 0x102;
+    static CHUNK_STEREOPLUGIN = 0x103;
+    static CHUNK_VRMLPLG = 0x104;
+    static CHUNK_MORPH = 0x105;
+    static CHUNK_PVSPLUGIN = 0x106;
+    static CHUNK_MEMLEAKPLUGIN = 0x107;
+    static CHUNK_ANIMPLUGIN = 0x108;
+    static CHUNK_GLOSSPLUGIN = 0x109;
+    static CHUNK_LOGOPLUGIN = 0x10a;
+    static CHUNK_MEMINFOPLUGIN = 0x10b;
+    static CHUNK_RANDOMPLUGIN = 0x10c;
+    static CHUNK_PNGIMAGEPLUGIN = 0x10d;
+    static CHUNK_BONEPLUGIN = 0x10e;
+    static CHUNK_VRMLANIMPLUGIN = 0x10f;
     static CHUNK_SKYMIPMAP = 0x110;
-    // static CHUNK_MRMPLUGIN = 0x111;
-    // static CHUNK_LODATMPLUGIN = 0x112;
-    // static CHUNK_MEPLUGIN = 0x113;
-    // static CHUNK_LTMAPPLUGIN = 0x114;
-    // static CHUNK_REFINEPLUGIN = 0x115;
+    static CHUNK_MRMPLUGIN = 0x111;
+    static CHUNK_LODATMPLUGIN = 0x112;
+    static CHUNK_MEPLUGIN = 0x113;
+    static CHUNK_LTMAPPLUGIN = 0x114;
+    static CHUNK_REFINEPLUGIN = 0x115;
     static CHUNK_SKIN = 0x116;
-    // static CHUNK_LABELPLUGIN = 0x117;
-    // static CHUNK_PARTICLES = 0x118;
-    // static CHUNK_GEOMTXPLUGIN = 0X119;
-    // static CHUNK_SYNTHCOREPLUGIN = 0X11a;
-    // static CHUNK_STQPPPLUGIN = 0X11b;
-    // static CHUNK_PARTPPPLUGIN = 0X11c;
+    static CHUNK_LABELPLUGIN = 0x117;
+    static CHUNK_PARTICLES = 0x118;
+    static CHUNK_GEOMTXPLUGIN = 0X119;
+    static CHUNK_SYNTHCOREPLUGIN = 0X11a;
+    static CHUNK_STQPPPLUGIN = 0X11b;
+    static CHUNK_PARTPPPLUGIN = 0X11c;
     static CHUNK_COLLISPLUGIN = 0X11d;
     static CHUNK_HANIM = 0X11e;
     static CHUNK_USERDATAPLUGIN = 0X11f;
     static CHUNK_MATERIALEFFECTS = 0x120;
-    // static CHUNK_PARTICLESYSTEMPLUGIN = 0X121;
+    static CHUNK_PARTICLESYSTEMPLUGIN = 0X121;
     static CHUNK_DMORPHPLUGIN = 0x122;
-    // static CHUNK_PATCHPLUGIN = 0x123;
-    // static CHUNK_TEAMPLUGIN = 0x124;
-    // static CHUNK_CROWDPPPLUGIN = 0x125;
-    // static CHUNK_MIPSPLITPLUGIN = 0x126;
-    // static CHUNK_ANISOTPLUGIN = 0x127;
-    // static CHUNK_GCNMATPLUGIN = 0x129;
+    static CHUNK_PATCHPLUGIN = 0x123;
+    static CHUNK_TEAMPLUGIN = 0x124;
+    static CHUNK_CROWDPPPLUGIN = 0x125;
+    static CHUNK_MIPSPLITPLUGIN = 0x126;
+    static CHUNK_ANISOTPLUGIN = 0x127;
+    static CHUNK_GCNMATPLUGIN = 0x129;
     static CHUNK_GPVSPLUGIN = 0x12a;
-    // static CHUNK_XBOXMATPLUGIN = 0x12b;
-    // static CHUNK_MULTITEXPLUGIN = 0x12c;
-    // static CHUNK_CHAINPLUGIN = 0x12d;
-    // static CHUNK_TOONPLUGIN = 0x12e;
-    // static CHUNK_PTANKPLUGIN = 0x12f;
-    // static CHUNK_PRTSTDPLUGIN = 0x130;
-    // static CHUNK_PDSPLUGIN = 0x131;
-    // static CHUNK_PRTADVPLUGIN = 0x132;
-    // static CHUNK_NORMMAPPLUGIN = 0x133;
-    // static CHUNK_ADCPLUGIN = 0x134;
+    static CHUNK_XBOXMATPLUGIN = 0x12b;
+    static CHUNK_MULTITEXPLUGIN = 0x12c;
+    static CHUNK_CHAINPLUGIN = 0x12d;
+    static CHUNK_TOONPLUGIN = 0x12e;
+    static CHUNK_PTANKPLUGIN = 0x12f;
+    static CHUNK_PRTSTDPLUGIN = 0x130;
+    static CHUNK_PDSPLUGIN = 0x131;
+    static CHUNK_PRTADVPLUGIN = 0x132;
+    static CHUNK_NORMMAPPLUGIN = 0x133;
+    static CHUNK_ADCPLUGIN = 0x134;
     static CHUNK_UVANIMPLUGIN = 0x135;
-    // static CHUNK_CHARSEPLUGIN = 0x180;
-    // static CHUNK_NOHSWORLDPLUGIN = 0x181;
-    // static CHUNK_IMPUTILPLUGIN = 0x182;
-    // static CHUNK_SLERPPLUGIN = 0x183;
-    // static CHUNK_OPTIMPLUGIN = 0x184;
-    // static CHUNK_TLWORLDPLUGIN = 0x185;
-    // static CHUNK_DATABASEPLUGIN = 0x186;
-    // static CHUNK_RAYTRACEPLUGIN = 0x187;
-    // static CHUNK_RAYPLUGIN = 0x188;
-    // static CHUNK_LIBRARYPLUGIN = 0x189;
-    // static CHUNK__2DPLUGIN = 0x190;
-    // static CHUNK_TILERENDPLUGIN = 0x191;
-    // static CHUNK_JPEGIMAGEPLUGIN = 0x192;
-    // static CHUNK_TGAIMAGEPLUGIN = 0x193;
-    // static CHUNK_GIFIMAGEPLUGIN = 0x194;
-    // static CHUNK_QUATPLUGIN = 0x195;
-    // static CHUNK_SPLINEPVSPLUGIN = 0x196;
-    // static CHUNK_MIPMAPPLUGIN = 0x197;
-    // static CHUNK_MIPMAPKPLUGIN = 0x198;
-    // static CHUNK__2DFONT = 0x199;
-    // static CHUNK_INTSECPLUGIN = 0x19a;
-    // static CHUNK_TIFFIMAGEPLUGIN = 0x19b;
-    // static CHUNK_PICKPLUGIN = 0x19c;
-    // static CHUNK_BMPIMAGEPLUGIN = 0x19d;
-    // static CHUNK_RASIMAGEPLUGIN = 0x19e;
-    // static CHUNK_SKINFXPLUGIN = 0x19f;
-    // static CHUNK_VCATPLUGIN = 0x1a0;
-    // static CHUNK__2DPATH = 0x1a1;
-    // static CHUNK__2DBRUSH = 0x1a2;
-    // static CHUNK__2DOBJECT = 0x1a3;
-    // static CHUNK__2DSHAPE = 0x1a4;
-    // static CHUNK__2DSCENE = 0x1a5;
-    // static CHUNK__2DPICKREGION = 0x1a6;
-    // static CHUNK__2DOBJECTSTRING = 0x1a7;
-    // static CHUNK__2DANIMPLUGIN = 0x1a8;
-    // static CHUNK__2DANIM = 0x1a9;
-    // static CHUNK__2DKEYFRAME = 0x1b0;
-    // static CHUNK__2DMAESTRO = 0x1b1;
-    // static CHUNK_BARYCENTRIC = 0x1b2;
-    // static CHUNK_PITEXDICTIONARYTK = 0x1b3;
-    // static CHUNK_TOCTOOLKIT = 0x1b4;
-    // static CHUNK_TPLTOOLKIT = 0x1b5;
-    // static CHUNK_ALTPIPETOOLKIT = 0x1b6;
-    // static CHUNK_ANIMTOOLKIT = 0x1b7;
-    // static CHUNK_SKINSPLITTOOKIT = 0x1b8;
-    // static CHUNK_CMPKEYTOOLKIT = 0x1b9;
-    // static CHUNK_GEOMCONDPLUGIN = 0x1ba;
-    // static CHUNK_WINGPLUGIN = 0x1bb;
-    // static CHUNK_GENCPIPETOOLKIT = 0x1bc;
-    // static CHUNK_LTMAPCNVTOOLKIT = 0x1bd;
-    // static CHUNK_FILESYSTEMPLUGIN = 0x1be;
-    // static CHUNK_DICTTOOLKIT = 0x1bf;
-    // static CHUNK_UVANIMLINEAR = 0x1c0;
-    // static CHUNK_UVANIMPARAM = 0x1c1;
+    static CHUNK_CHARSEPLUGIN = 0x180;
+    static CHUNK_NOHSWORLDPLUGIN = 0x181;
+    static CHUNK_IMPUTILPLUGIN = 0x182;
+    static CHUNK_SLERPPLUGIN = 0x183;
+    static CHUNK_OPTIMPLUGIN = 0x184;
+    static CHUNK_TLWORLDPLUGIN = 0x185;
+    static CHUNK_DATABASEPLUGIN = 0x186;
+    static CHUNK_RAYTRACEPLUGIN = 0x187;
+    static CHUNK_RAYPLUGIN = 0x188;
+    static CHUNK_LIBRARYPLUGIN = 0x189;
+    static CHUNK__2DPLUGIN = 0x190;
+    static CHUNK_TILERENDPLUGIN = 0x191;
+    static CHUNK_JPEGIMAGEPLUGIN = 0x192;
+    static CHUNK_TGAIMAGEPLUGIN = 0x193;
+    static CHUNK_GIFIMAGEPLUGIN = 0x194;
+    static CHUNK_QUATPLUGIN = 0x195;
+    static CHUNK_SPLINEPVSPLUGIN = 0x196;
+    static CHUNK_MIPMAPPLUGIN = 0x197;
+    static CHUNK_MIPMAPKPLUGIN = 0x198;
+    static CHUNK__2DFONT = 0x199;
+    static CHUNK_INTSECPLUGIN = 0x19a;
+    static CHUNK_TIFFIMAGEPLUGIN = 0x19b;
+    static CHUNK_PICKPLUGIN = 0x19c;
+    static CHUNK_BMPIMAGEPLUGIN = 0x19d;
+    static CHUNK_RASIMAGEPLUGIN = 0x19e;
+    static CHUNK_SKINFXPLUGIN = 0x19f;
+    static CHUNK_VCATPLUGIN = 0x1a0;
+    static CHUNK__2DPATH = 0x1a1;
+    static CHUNK__2DBRUSH = 0x1a2;
+    static CHUNK__2DOBJECT = 0x1a3;
+    static CHUNK__2DSHAPE = 0x1a4;
+    static CHUNK__2DSCENE = 0x1a5;
+    static CHUNK__2DPICKREGION = 0x1a6;
+    static CHUNK__2DOBJECTSTRING = 0x1a7;
+    static CHUNK__2DANIMPLUGIN = 0x1a8;
+    static CHUNK__2DANIM = 0x1a9;
+    static CHUNK__2DKEYFRAME = 0x1b0;
+    static CHUNK__2DMAESTRO = 0x1b1;
+    static CHUNK_BARYCENTRIC = 0x1b2;
+    static CHUNK_PITEXDICTIONARYTK = 0x1b3;
+    static CHUNK_TOCTOOLKIT = 0x1b4;
+    static CHUNK_TPLTOOLKIT = 0x1b5;
+    static CHUNK_ALTPIPETOOLKIT = 0x1b6;
+    static CHUNK_ANIMTOOLKIT = 0x1b7;
+    static CHUNK_SKINSPLITTOOKIT = 0x1b8;
+    static CHUNK_CMPKEYTOOLKIT = 0x1b9;
+    static CHUNK_GEOMCONDPLUGIN = 0x1ba;
+    static CHUNK_WINGPLUGIN = 0x1bb;
+    static CHUNK_GENCPIPETOOLKIT = 0x1bc;
+    static CHUNK_LTMAPCNVTOOLKIT = 0x1bd;
+    static CHUNK_FILESYSTEMPLUGIN = 0x1be;
+    static CHUNK_DICTTOOLKIT = 0x1bf;
+    static CHUNK_UVANIMLINEAR = 0x1c0;
+    static CHUNK_UVANIMPARAM = 0x1c1;
     static CHUNK_BINMESH = 0x50E;
     // static CHUNK_NATIVEDATA = 0x510;
     static CHUNK_VERTEXFORMAT = 0x510;
-    // static CHUNK_SCRIPT = 0x704;
-    // static CHUNK_ASSET = 0x716;
-    // static CHUNK_CONTAINER = 0x71C;
-    // static CHUNK_PIPELINESET = 0x253F2F3;
-    // static CHUNK_SPECULARMAT = 0x253F2F6;
-    // static CHUNK_2DFX = 0x253F2F8;
-    // static CHUNK_NIGHTVERTEXCOLOR = 0x253F2F9;
-    // static CHUNK_COLLISIONMODEL = 0x253F2FA;
+    static CHUNK_SCRIPT = 0x704;
+    static CHUNK_ASSET = 0x716;
+    static CHUNK_CONTAINER = 0x71C;
+    static CHUNK_PIPELINESET = 0x253F2F3;
+    static CHUNK_SPECULARMAT = 0x253F2F6;
+    static CHUNK_2DFX = 0x253F2F8;
+    static CHUNK_NIGHTVERTEXCOLOR = 0x253F2F9;
+    static CHUNK_COLLISIONMODEL = 0x253F2FA;
     static CHUNK_REFLECTIONMAT = 0x253F2FC;
-    // static CHUNK_MESHEXTENSION = 0x253F2FD;
+    static CHUNK_MESHEXTENSION = 0x253F2FD;
     static CHUNK_FRAME = 0x253F2FE;
 
     // static FLAGS_TRISTRIP   = 0x01;
@@ -336,6 +334,19 @@ export default class Renderware{
         2561           : Dummy
     };
 
+    static getChunkNameById(chunkId){
+
+        for(let i in Renderware){
+            if (i.indexOf('CHUNK_') !== 0) continue;
+
+            if (Renderware[i] === chunkId)
+                return i;
+
+        }
+
+        return false;
+
+    }
 
     /**
      *
@@ -405,6 +416,7 @@ export default class Renderware{
         assert(typeof Renderware.handler[header.id], "function", "Chunk function not found for ID " + header.id);
 // console.log('CHUNK', Renderware.handler[header.id].name, header.size, "remain", binary.remain());
 
+        header.typeName = Renderware.handler[header.id].name;
 
         /**
          * Happens in Tony Hawks 3 PC Demo
@@ -418,6 +430,21 @@ export default class Renderware{
         let data = binary.consume(header.size, 'nbinary');
 
         return new Renderware.handler[header.id](data, header, rootData);
+    }
+
+
+    static getVersion( version ) {
+        let decoded = Renderware.unpackVersion(version);
+        return parseInt(decoded.toString(16).split('').filter(function(val, index){
+            if (index<2) return val;
+        }).join(''));
+    }
+
+
+    static unpackVersion( version ) {
+        if(version & 0xFFFF0000)
+            return (version >> 14 & 0x3FF00) + 0x30000 | (version >> 16 & 0x3F);
+        return version<<8;
     }
 
     /**

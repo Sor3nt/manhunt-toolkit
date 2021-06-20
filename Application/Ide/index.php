@@ -248,6 +248,7 @@
         import  NormalizeMap from './src/module/Renderware/Three/map.js'
         import  NormalizeModel from './src/module/Renderware/Three/model.js'
         import  NormalizeTexture from './src/module/Renderware/Three/texture.js'
+        import  Scan from './src/module/Renderware/Utils/Scan.js'
         import  generateMesh from './src/module/Three/generateMesh.js'
         import  Relation from './src/Relation.js'
         import  ObjectAnimation from './src/ObjectAnimation.js'
@@ -274,6 +275,7 @@
         window.Hunter = Hunter;
         window.Regular = Regular;
         window.Trigger = Trigger;
+        window.Scan = Scan;
 
 
 
@@ -477,9 +479,19 @@
 
 <script>
     window.setTimeout(function () {
-        Studio.boot();
 
-        // MANHUNT.config.onLoadCallback( Studio.onConfigReceived );
+        Api.load(0, 'test/dummy.rw', function (data) {
+            let binary = new NBinary(data);
+
+            let rwScanner = new Scan(binary);
+            let result = rwScanner.scan();
+            console.log(result, rwScanner.log);
+        });
+
+
+
+        // Studio.boot();
+
     }, 1000);
 </script>
 
