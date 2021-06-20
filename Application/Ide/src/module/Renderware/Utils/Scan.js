@@ -30,8 +30,8 @@ export default class Scan{
         if (size + 4 > binary.remain()){ //+ version
 
             let version = binary.consume(4, 'uint32');
-
-            //this chunck block could be smaller as the given size...
+            binary.seek(-4);
+            // this chunck block could be smaller as the given size...
             if (!(version === 469893134 && id === Renderware.CHUNK_CLUMP)){
                 binary.setCurrent(chunkStartOffset);
                 return false;
@@ -45,8 +45,6 @@ export default class Scan{
         let version = binary.consume(4, 'uint32');
         let versionRw = Renderware.getVersion(version);
         //we know only versions between 3.0.0.0 and 3.8.0.0
-
-
         if (versionRw < 30 || versionRw > 38 || version < 10000){
             binary.setCurrent(chunkStartOffset);
             return false;
@@ -89,7 +87,6 @@ export default class Scan{
 
             let offset = false;
             if (binary.remain() > 11) offset = this.validateHeader(binary);
-
             if (offset === false){
                 binary.seek(4);
                 skippedBytes += 4;
@@ -102,9 +99,10 @@ export default class Scan{
 
             //this chunck block could be smaller as the given size...
             if (
-                header.version === 469893134 && header.id === Renderware.CHUNK_CLUMP &&
+                // header.version === 469893134 && header.id === Renderware.CHUNK_CLUMP &&
                 header.size > binary.remain()
             ){
+                console.log("auto correect");
                 header.size = binary.remain();
             }
 
