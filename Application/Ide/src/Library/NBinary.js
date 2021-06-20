@@ -1,7 +1,9 @@
-function NBinary( data){
+function NBinary( data, options){
 
+    options = options || { parent: null, parentOffset : 0 };
 
     var current = 0;
+
 
     var self = {
 
@@ -17,6 +19,14 @@ function NBinary( data){
             }
 
             current = 0;
+        },
+
+        getAbsoluteOffset: function(){
+
+            if (options.parentOffset !== null)
+                return options.parentOffset + current;
+
+            return current;
         },
 
         remain: function(){
@@ -74,6 +84,8 @@ function NBinary( data){
             }
             if (type === 'nbinary'){
 
+                let ssize = bytes;
+
                 var buffer = new ArrayBuffer(bytes);
                 var storeView = new DataView(buffer);
 
@@ -83,7 +95,7 @@ function NBinary( data){
                     index++;
                 }
 
-                return new NBinary(buffer);
+                return new NBinary(buffer, { parent: self, parentOffset: current - ssize });
             }
             if (type === 'string'){
 
@@ -301,6 +313,7 @@ function NBinary( data){
             return current;
         },
 
+        getAbsoluteOffset: self.getAbsoluteOffset,
         toString: self.toString,
         length: self.length,
         readColorRGB: self.readColorRGB,

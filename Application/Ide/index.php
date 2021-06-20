@@ -480,12 +480,12 @@
 <script>
     window.setTimeout(function () {
 
-        Api.load(0, 'test/dummy.rw', function (data) {
+        Api.load(0, 'test/mapmode1_curseur_select_1.dff', function (data) {
             let binary = new NBinary(data);
 
             let rwScanner = new Scan(binary);
             let result = rwScanner.scan();
-            console.log(result, rwScanner.log);
+            console.log(result);
         });
 
 

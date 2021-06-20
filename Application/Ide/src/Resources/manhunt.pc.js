@@ -13,8 +13,11 @@ MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
                 // {
                 //     order: [
                 //         {
-                //             tex: ['levels/' + levelName + '/kaeptn_blaubaer_01.dds'],
-                //             mdl: ['levels/' + levelName + '/actor.dff']
+                //             mdl: [
+                //
+                //                 'levels/' + levelName + '/boss00_clean.dff',
+                //
+                //             ],
                 //         }
                 //     ],
                 //
