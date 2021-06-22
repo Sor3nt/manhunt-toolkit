@@ -22,9 +22,9 @@ function NBinary( data, options){
         },
 
         getAbsoluteOffset: function(){
-
-            if (options.parentOffset !== null)
+            if (options.parentOffset !== null){
                 return options.parentOffset + current;
+            }
 
             return current;
         },
@@ -294,6 +294,10 @@ function NBinary( data, options){
             return new THREE.Color(
                 bgra[2], bgra[1], bgra[0]
             );
+        },
+
+        getCurrent: function(){
+            return current;
         },
 
         seek: function (bytes) {

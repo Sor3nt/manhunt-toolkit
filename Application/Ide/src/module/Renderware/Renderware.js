@@ -414,7 +414,6 @@ export default class Renderware{
         let header = Renderware.parseHeader(binary);
 
         assert(typeof Renderware.handler[header.id], "function", "Chunk function not found for ID " + header.id);
-// console.log('CHUNK', Renderware.handler[header.id].name, header.size, "remain", binary.remain());
 
         header.typeName = Renderware.handler[header.id].name;
 
@@ -425,8 +424,6 @@ export default class Renderware{
         if (header.size > binary.remain())
             header.size = binary.remain();
 
-        //
-        // console.log("Consume", header.size, " left ", binary.remain());
         let data = binary.consume(header.size, 'nbinary');
 
         return new Renderware.handler[header.id](data, header, rootData);
@@ -434,17 +431,7 @@ export default class Renderware{
 
 
     static getVersion( version ) {
-        let decoded = Renderware.unpackVersion(version);
-        return parseInt(decoded.toString(16).split('').filter(function(val, index){
-            if (index<2) return val;
-        }).join(''));
-    }
-
-
-    static unpackVersion( version ) {
-        if(version & 0xFFFF0000)
-            return (version >> 14 & 0x3FF00) + 0x30000 | (version >> 16 & 0x3F);
-        return version<<8;
+        return ((version & 4294901760) !== 0 ? ((((version >>> 14) & 261888) + 196608) | ((version >>> 16) & 63)) : (version << 8));
     }
 
     /**
