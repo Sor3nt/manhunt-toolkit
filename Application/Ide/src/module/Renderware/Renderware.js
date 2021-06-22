@@ -441,7 +441,7 @@ export default class Renderware{
      */
     static readClumpList(binary) {
 
-        function readUserDataPLG(index) {
+        function readUserDataPLG(binary, index) {
             let numSet = binary.consume(4, 'int32');
             let boneName = "bone" + index;
 
@@ -466,7 +466,7 @@ export default class Renderware{
                 if (sHeader.id === Renderware.CHUNK_FRAME) {
                     name = binary.consume(sHeader.size, 'nbinary').getString(0);
                 } else if (sHeader.id === Renderware.CHUNK_USERDATAPLUGIN) {
-                    name = readUserDataPLG(1);
+                    name = readUserDataPLG(binary, 1);
                 } else {
 
                     binary.seek(sHeader.size);
@@ -482,7 +482,7 @@ export default class Renderware{
                 case Renderware.CHUNK_FRAME:
                     return binary.consume(header.size, 'nbinary').getString(0);
                 case Renderware.CHUNK_USERDATAPLUGIN:
-                    return readUserDataPLG(1);
+                    return readUserDataPLG(binary,1);
                 case Renderware.CHUNK_HANIM:
                     binary.seek(12);
                     return findName();
@@ -494,6 +494,8 @@ export default class Renderware{
         }
 
         let entries = [];
+
+
 
         let count = 1;
         while (binary.current() < binary.length()) {
@@ -522,7 +524,6 @@ export default class Renderware{
                 // let name = findName();
 
             }else{
-
                 //CHUNK_STRUCT
                 let clumpStruct = Renderware.parseHeader(binary);
                 binary.seek(clumpStruct.size);

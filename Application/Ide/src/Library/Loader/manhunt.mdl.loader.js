@@ -29,7 +29,6 @@ MANHUNT.fileLoader.MDL = function () {
                     }else{
                         binary.setCurrent(0);
                         modelList = Renderware.readClumpList(binary);
-
                     }
 
                     callback({

@@ -104,7 +104,6 @@ export default function generateMesh(storageTexture, generic){
 
         group.add(mesh);
     });
-    console.log(group);
 
     return group;
 }

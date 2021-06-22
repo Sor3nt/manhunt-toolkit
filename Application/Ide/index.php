@@ -387,7 +387,7 @@
 
     <script src="src/Editor/EntityInteractive.js"></script>
 </head>
-<body class="c-app">
+<body class="c-app" id="dropZone">
 
 
     <div id="webgl"></div>
@@ -478,19 +478,47 @@
 
 
 <script>
-    window.setTimeout(function () {
+    let dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    dropZone.addEventListener('drop', function (e) {
+        console.log('File(s) in drop zone');
 
-        Api.load(0, 'test/mapmode1_curseur_select_1.dff', function (data) {
-            let binary = new NBinary(data);
+        var files = e.dataTransfer.files; // Array of all files
+        var reader = new FileReader();
+
+        reader.onload = function(event) {
+            let binary = new NBinary(event.target.result);
 
             let rwScanner = new Scan(binary);
             let result = rwScanner.scan();
             console.log(result);
-        });
+        };
+
+        reader.readAsArrayBuffer(files[0]); // start reading the file data.
+
+
+        // Prevent default behavior (Prevent file from being opened)
+        e.preventDefault();
+    });
 
 
 
-        // Studio.boot();
+    window.setTimeout(function () {
+        //
+        // Api.load(0, 'test/cage.dff', function (data) {
+        //     let binary = new NBinary(data);
+        //     let rwScanner = new Scan(binary);
+        //     let result = rwScanner.scan();
+        //     console.log(result);
+        // });
+
+
+
+        Studio.boot();
 
     }, 1000);
 </script>

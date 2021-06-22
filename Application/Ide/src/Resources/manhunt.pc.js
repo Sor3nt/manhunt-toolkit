@@ -14,8 +14,8 @@ MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
                 //     order: [
                 //         {
                 //             mdl: [
-                //
-                //                 'levels/' + levelName + '/boss00_clean.dff',
+                //                 // 'levels/GLOBAL/CHARPAK/cash_pc.dff',
+                //                 'test/cage.dff',
                 //
                 //             ],
                 //         }
