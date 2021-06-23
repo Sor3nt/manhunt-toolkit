@@ -6,7 +6,7 @@ export default class Skin extends Chunk{
     result = {
         hasSkin: null,
         skinPLG: {
-            boneids: [],
+            indices: [],
             weights: [],
             inverseMatrix: []
         },
@@ -38,7 +38,7 @@ export default class Skin extends Chunk{
             this.binary.seek(usedIdCount);
 
             for (let i = 0; i < this.rootData.vertexCount; i++) {
-                this.result.skinPLG.boneids.push([
+                this.result.skinPLG.indices.push([
                     this.binary.consume(1, 'uint8'),
                     this.binary.consume(1, 'uint8'),
                     this.binary.consume(1, 'uint8'),
@@ -58,7 +58,7 @@ export default class Skin extends Chunk{
                 this.result.chunks.push(this.processChunk(this.binary));
             }
         }
-
+console.log(this.result);
         this.validateParsing(this);
         this.rootData.skins.push(this.result);
     }

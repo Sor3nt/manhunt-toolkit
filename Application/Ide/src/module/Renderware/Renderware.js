@@ -586,7 +586,11 @@ export default class Renderware{
             let next = binary.current() + clumpChunk.size;
             let name = "Unk_" + offset;
 
-            if (clumpChunk.version === 784){
+            if (clumpChunk.version === 469893130) {
+
+
+
+            }else if (clumpChunk.version === 784){
                 next += 3*4; //BAAD HACK TODO
 
                 //CHUNK_STRUCT

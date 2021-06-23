@@ -22,10 +22,13 @@ export default class NormalizeModel{
         for(let i = 0; i < this.frameCount; i++){
 
             let name = "bone" + i;
-            if (this.data.frames.length === this.data.frameNames.length){
-                name = this.data.frames[i];
-            }else{
-                name = i === 0 ? "RootDummy" : this.data.frames[i - 1];
+
+            if (this.data.frameNames.length > 0){
+                if (this.data.frames.length === this.data.frameNames.length){
+                    name = this.data.frames[i];
+                }else{
+                    name = i === 0 ? "RootDummy" : this.data.frames[i - 1];
+                }
             }
 
             let bone = {
@@ -176,12 +179,13 @@ export default class NormalizeModel{
         });
 
         let meshBone;
-        meshes.forEach(function (mesh) {
+        meshes.forEach(function (mesh, index) {
             meshBone = result.skeleton.bones[mesh.parentFrameID];
 
             let genericObject = {
                 material: [],
-                skinning: mesh.skinned,
+                //Note: Models from 7Sin has per mesh a skin ?
+                skinning: index === 0 ? mesh.skinned : false,
                 meshBone: meshBone,
 
                 faces: [],
@@ -191,7 +195,6 @@ export default class NormalizeModel{
                 skinIndices: [],
                 skinWeights: [],
             };
-
 
             mesh.material.forEach(function (parsedMaterial) {
 
@@ -207,10 +210,10 @@ export default class NormalizeModel{
             });
 
             mesh.vertices.forEach(function (vertexInfo, index) {
-                if (skinBones.length > 0 && typeof mesh.skinPLG.boneids !== "undefined") {
+                if (skinBones.length > 0 && typeof mesh.skinPLG.indices !== "undefined") {
 
                     let indice = new THREE.Vector4(0,0,0,0);
-                    indice.fromArray(mesh.skinPLG.boneids[index]);
+                    indice.fromArray(mesh.skinPLG.indices[index]);
                     genericObject.skinIndices.push(indice);
 
                     let weight = new THREE.Vector4(0,0,0,0);
@@ -263,7 +266,7 @@ export default class NormalizeModel{
             //we need to rebuild the skeleton based only on mesh bones otherwise the indices and weight orders are wrong
             result.skeleton = new THREE.Skeleton( this.allBonesMesh );
         }
-        // die;
+
         return result;
     }
 }
