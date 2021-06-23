@@ -5,6 +5,8 @@
     Thanks for older stuff: https://github.com/kabbi/zanzarah-tools/blob/c1862c483dfa84783761273a87a0b334ba2ea705/bsp-parser.coffee
 
     Maybe helpful
+        https://github.com/sigmaco/rwsrc-v37-pc/tree/master/core/src
+
         XBOX renderware stuff: https://github.com/aap/rwtools/blob/master/src/xboxnative.cpp
         GTA Wiki: https://gtamods.com/wiki/List_of_RW_section_IDs
 
@@ -48,6 +50,11 @@ import VertexFormat from "./Chunk/VertexFormat.js";
 import Chunk from "./Chunk/Chunk.js";
 
 import Helper from './../../Helper.js'
+import PiTexDictionary from "./Chunk/PiTexDictionary.js";
+import ChunkGroupStart from "./Chunk/ChunkGroupStart.js";
+import ChunkGroupEnd from "./Chunk/ChunkGroupEnd.js";
+import PrtStdPlugin from "./Chunk/PrtStdPlugin.js";
+import Image from "./Chunk/Image.js";
 const assert = Helper.assert;
 
 export default class Renderware{
@@ -266,6 +273,14 @@ export default class Renderware{
     static CHUNK_MESHEXTENSION = 0x253F2FD;
     static CHUNK_FRAME = 0x253F2FE;
 
+    static CHUNK_UNK809 = 0x809;
+    static CHUNK_UNKA01 = 0xA01;
+    static CHUNK_UNK80A = 0x80A; //Audio Settings ?
+    static CHUNK_UNK80C = 0x80C; //Audio List
+    static CHUNK_UNK802 = 0x802; //Audio Entry
+    static CHUNK_UNK803 = 0x803; //Audio Entry Settings
+    static CHUNK_UNK804 = 0x804; //Audio Data
+
     // static FLAGS_TRISTRIP   = 0x01;
     // static FLAGS_POSITIONS  = 0x02;
     // static FLAGS_TEXTURED   = 0x04;
@@ -325,13 +340,24 @@ export default class Renderware{
         [Renderware.CHUNK_WORLD]           : World,
 
 
+        [Renderware.CHUNK_IMAGE]           : Image,
+        [Renderware.CHUNK_PRTSTDPLUGIN]           : PrtStdPlugin,
+        [Renderware.CHUNK_CHUNKGROUPSTART]           : ChunkGroupStart,
+        [Renderware.CHUNK_CHUNKGROUPEND]           : ChunkGroupEnd,
+        [Renderware.CHUNK_PITEXDICTIONARY]           : PiTexDictionary,
         [Renderware.CHUNK_VERTEXFORMAT]           : VertexFormat,
         [Renderware.CHUNK_USERDATAPLUGIN]           : Dummy,
         [Renderware.CHUNK_SKYMIPMAP]           : Dummy,
         [Renderware.CHUNK_DMORPHPLUGIN]           : Dummy,
         [Renderware.CHUNK_UVANIMPLUGIN]           : Dummy,
         [Renderware.CHUNK_LIGHT]           : Dummy,
-        2561           : Dummy
+        [Renderware.CHUNK_UNK809]           : Dummy,
+        [Renderware.CHUNK_UNKA01]           : Dummy,
+        [Renderware.CHUNK_UNK80A]           : Dummy,
+        [Renderware.CHUNK_UNK80C]           : Dummy,
+        [Renderware.CHUNK_UNK802]           : Dummy,
+        [Renderware.CHUNK_UNK803]           : Dummy,
+        [Renderware.CHUNK_UNK804]           : Dummy,
     };
 
     static getChunkNameById(chunkId){
@@ -393,13 +419,58 @@ export default class Renderware{
         return chunk;
     }
 
+    static fixChunkHeaderSize(header, binary){
+
+        /**
+         * Fix Chunk sizes
+         */
+        {
+            // a chunk block could be smaller as the given size...
+            if (header.size > binary.remain())
+                header.size = binary.remain();
+
+            //some chunks sizes are too long... we need to validate it
+            if (header.size > 0){
+                let currentStart = binary.current();
+                binary.setCurrent(binary.current() + header.size);
+
+                //we have space left - at least enough for bytes for the next header
+                let lookupDeep = 4;
+                if (binary.remain() >= lookupDeep * 4){
+
+                    while(lookupDeep--){
+
+                        if (header.version !== binary.consume(4, 'uint32'))
+                            continue;
+
+                        if (binary.current() - 12 - currentStart !== header.size){
+                            header.oriSize = header.size;
+                            console.log("adjust ",header.id, header.size, "to", binary.current() - 12 - currentStart );
+                            // debugger;
+                        }
+
+                        header.size = binary.current() - 12 - currentStart;
+                        break;
+                    }
+                }
+
+                binary.setCurrent(currentStart);
+            }
+        }
+
+
+    }
     
     static parseHeader(binary){
-        return {
+        let header = {
             id: binary.consume(4, 'int32'),
             size: binary.consume(4, 'uint32'),
             version: binary.consume(4, 'uint32')
         };
+
+        Renderware.fixChunkHeaderSize(header, binary);
+
+        return header;
     }
 
     /**
@@ -564,17 +635,25 @@ export default class Renderware{
     static getMap(nBinary, level){
         nBinary.setCurrent(0);
 
-        let tree = Renderware.parse(nBinary);
-        let normalizedMesh = (new NormalizeMap(tree)).normalize();
-        normalizedMesh.name = "TODO";
-
-        let mesh = generateMesh(level._storage.tex, normalizedMesh);
-        mesh.children.forEach(function (subMesh) {
-            subMesh.visible = true;
-        });
+        while(nBinary.remain() > 0){
+            let tree = Renderware.parse(nBinary);
+            if (tree.type !== Renderware.CHUNK_WORLD)
+                continue;
 
 
-        return mesh;
+            let normalizedMesh = (new NormalizeMap(tree)).normalize();
+            normalizedMesh.name = "TODO";
+
+            let mesh = generateMesh(level._storage.tex, normalizedMesh);
+            mesh.children.forEach(function (subMesh) {
+                subMesh.visible = true;
+            });
+
+
+            return mesh;
+        }
+
+        return false;
     }
 
     static getAnimation(nBinary, level){
@@ -585,8 +664,10 @@ export default class Renderware{
     }
 
     static getModel(nBinary, offset) {
+        console.log("moodel at", offset);
         nBinary.setCurrent(offset);
         let tree = Renderware.parse(nBinary);
+        // console.log("Model Tree", tree);
         return (new NormalizeModel(tree)).normalize();
     }
 

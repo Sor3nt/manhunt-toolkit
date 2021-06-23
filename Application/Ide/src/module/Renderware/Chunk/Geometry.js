@@ -31,6 +31,85 @@ export default class Geometry extends Chunk{
 
     parse(){
 
+        switch(Renderware.getVersion(this.header.version)){
+            case 225282:
+                this.parseVersion225282();
+                break;
+            default:
+                this.parseVersionRegular();
+                break;
+        }
+
+    }
+
+    parseVersion225282(){
+
+        let struct = this.processChunk(this.binary);
+        assert(struct.type, Renderware.CHUNK_STRUCT);
+
+        let unk1 = struct.binary.consume(2, 'uint16');  //0x37 - 55 (fixed)
+        let unk2 = struct.binary.consume(2, 'uint16');  //0x01 - 01 (fixed)
+
+        let faceCount = struct.binary.consume(4, 'uint32');
+        this.rootData.vertexCount = struct.binary.consume(4, 'uint32');
+
+        //1
+        let flag = struct.binary.consume(4, 'uint32');
+
+        for(let i = 0; i < this.rootData.vertexCount; i++){
+            this.result.uv1.push([
+                struct.binary.consume(4, 'float32'),
+                struct.binary.consume(4, 'float32')
+            ]);
+        }
+
+        for (let i = 0; i < faceCount; i++) {
+
+            let f2 = struct.binary.consume(2, 'uint16');
+            let f1 = struct.binary.consume(2, 'uint16');
+            let matId = struct.binary.consume(2, 'uint16');
+            let f3 = struct.binary.consume(2, 'uint16');
+
+            this.result.faceMat.face.push([f1, f2, f3]);
+            this.result.faceMat.matId.push(matId);
+        }
+
+
+        let unk3 = struct.binary.consume(2, 'uint16');  //0
+        let unk4 = struct.binary.consume(2, 'uint16');  //14160 or 0
+
+        this.result.boundingSphere.position = struct.binary.consumeMulti(3, 4, 'float32');
+
+        let unk5 = struct.binary.consume(4, 'uint32');  //1
+        let unk6 = struct.binary.consume(4, 'uint32');  //1
+
+        for (let i = 0; i < this.rootData.vertexCount; i++) {
+            this.result.vert.push(struct.binary.consumeMulti(3, 4, 'float32'));
+        }
+
+        for (let i = 0; i < this.rootData.vertexCount; i++) {
+            this.result.normal.push(struct.binary.consumeMulti(3, 4, 'float32'));
+        }
+
+        this.validateParsing(struct);
+
+
+        let matList = this.processChunk(this.binary);
+        assert(matList.type, Renderware.CHUNK_MATLIST);
+
+        let extension = this.processChunk(this.binary);
+        assert(extension.type, Renderware.CHUNK_EXTENSION);
+
+        while(extension.binary.remain() > 0){
+            extension.result.chunks.push( this.processChunk(extension.binary) );
+        }
+
+        this.validateParsing(this);
+    }
+
+
+    parseVersionRegular(){
+
         let struct = this.processChunk(this.binary);
         assert(struct.type, Renderware.CHUNK_STRUCT);
 

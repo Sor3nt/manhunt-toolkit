@@ -7,9 +7,12 @@ export default class Scan{
     constructor( binary, options ){
         this.binary = binary;
         this.options = options || {
-            scanForNewChunks: false,      //search byte per byte for chunk headers (slow)
+            scanForNewChunks: true,      //search byte per byte for chunk headers (slow)
             forcedFirstVersion: true,    //the first "valid" version will be used for future validation
-            forcedVersion: null
+            forcedVersion: null,
+            searchChunks: [],
+            onChunkCallback: function () {}
+
         };
 
         this.pos = 0;
@@ -34,12 +37,13 @@ export default class Scan{
          * Actual we can not validate this, in some (rare) cases the size is wrong
          * it could be larger or smaller
          */
-        binary.seek(4);
+        let size = binary.consume(4, 'uint32');
 
         /**
          * Validate the Chunk Version
          */
         let version = binary.consume(4, 'uint32');
+
 
         if (this.options.forcedVersion !== null){
 
@@ -50,12 +54,14 @@ export default class Scan{
         }else{
 
             let versionRw = Renderware.getVersion(version);
-
             if (versionRw < 210000 || versionRw > 230000){
                 binary.setCurrent(chunkStartOffset);
                 return false;
             }
+
         }
+
+        // console.log("OK", id, size, version, "offset", this.pos);
 
         binary.setCurrent(chunkStartOffset);
         return chunkStartOffset;
@@ -66,6 +72,15 @@ export default class Scan{
         let skippedBytes = 0;
 
         function add(header, chunkBinary, absoluteStartOffset) {
+
+
+            if (_this.options.searchChunks.length > 0 && _this.options.searchChunks.indexOf(header.id) !== -1){
+                _this.options.onChunkCallback(header.id, chunkBinary, absoluteStartOffset);
+            }else if (_this.options.searchChunks.length === 0){
+                _this.options.onChunkCallback(header.id, chunkBinary, absoluteStartOffset);
+            }
+            chunkBinary.setCurrent(0);
+
             let chunkName = Renderware.getChunkNameById(header.id);
 
             let result = {
@@ -125,37 +140,11 @@ export default class Scan{
             if (this.options.forcedFirstVersion === true && this.options.forcedVersion === null)
                 this.options.forcedVersion = header.version;
 
-            /**
-             * Fix Chunk sizes
-             */
-            {
-                // a chunk block could be smaller as the given size...
-                if (header.size > binary.remain())
-                    header.size = binary.remain();
-
-                //some chunks sizes are too long... we need to validate it
-                if (header.size > 0){
-                    let currentStart = binary.current();
-                    binary.setCurrent(binary.current() + header.size);
-
-                    //we have space left - at least enough for bytes for the next header
-                    let lookupDeep = 4;
-                    if (binary.remain() >= lookupDeep){
-
-                        while(lookupDeep--){
-                            if (header.version !== binary.consume(4, 'uint32'))
-                                continue;
-
-                            header.size = binary.current() - 12 - currentStart;
-                            break;
-                        }
-                    }
-
-                    binary.setCurrent(currentStart);
-                }
-            }
+            Renderware.fixChunkHeaderSize(header, binary);
 
             let chunkBinary = binary.consume(header.size, 'nbinary');
+
+
 
             //Do we have also after the start block a valid chunk ?
             let nextOffset = binary.remain() > 11 ? this.validateHeader(binary) : false;
@@ -211,6 +200,7 @@ export default class Scan{
 
                 //Name is unknown which mean this could be a new chunk type
                 if (chunkName === false){
+                    console.log("new chunk id found", id);
                     Renderware['CHUNK_UNKNOWN_' + id] = id;
                 }
             }
@@ -221,7 +211,68 @@ export default class Scan{
         binary.setCurrent(0);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     scan(){
+//         let binary = this.binary;
+//         let data = new Uint8Array(binary.data);
+//         let pos = 0;
+//         let chunkOffsets = [];
+//
+//         let version = [255, 255, 3, 24];
+//
+//         binary.setCurrent(0);
+//         let chunkStart = null;
+//         let chunkStartId = null;
+//         while(pos < data.byteLength){
+//             if (
+//                 data[pos] === version[0] &&
+//                 data[pos + 1] === version[1] &&
+//                 data[pos + 2] === version[2] &&
+//                 data[pos + 3] === version[3]
+//             ){
+//                 //Go back to chunk start
+//                 binary.setCurrent(pos - 8);
+//                 let id = binary.consume(4, 'uint32');
+//                 binary.seek(-4);
+//
+//                 if (chunkStart !== null){
+//                     let chunkSize = binary.current() - chunkStart;
+//                     let chunk = {
+//                         id: chunkStartId,
+//                         offset: chunkStart,
+//                         size: chunkSize
+//                     };
+//                     chunkOffsets.push(chunk);
+//                 }
+//
+//                 chunkStart = binary.current();
+//                 chunkStartId = id;
+//
+//
+//             }
+//
+//             pos++;
+//         }
+//
+//
+// console.log(chunkOffsets);
+//         exit;
+
+
+
+
 
         if (this.options.scanForNewChunks === true)
             this.findCustomChunks();

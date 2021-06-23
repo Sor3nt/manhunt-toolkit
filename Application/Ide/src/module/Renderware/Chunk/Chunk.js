@@ -47,9 +47,10 @@ export default class Chunk {
     validateParsing(chunk){
 
         if (chunk.binary.remain() > 0){
-            let remain = chunk.binary.consume(chunk.binary.remain(), 'arraybuffer');
+            let size = chunk.binary.remain();
+            let remain = chunk.binary.consume(size, 'arraybuffer');
 
-            // console.log("Buffer", remain);
+                console.log("Buffer",size, remain);
             assert(
                 false,
                 chunk.type + ': Unable to parse fully the data!'

@@ -422,7 +422,7 @@ MANHUNT.fileLoader.BSP = function () {
                             die;
                         }
 
-                    }else if (gameId === CHUNK_WORLD) { //CHUNK_WORLD => Renderware MH1
+                    }else if (gameId === CHUNK_WORLD || gameId === CHUNK_TOC) { //CHUNK_WORLD => Renderware MH1
                         meshRoot = Renderware.getMap(binary, level);
 
                     }else if (gameId === CHUNK_CLUMP) { //CHUNK_CLUMP => Renderware MH1

@@ -31,6 +31,11 @@ export default class Texture extends Chunk{
         let extension = this.processChunk(this.binary);
         assert(extension.type, Renderware.CHUNK_EXTENSION);
 
+        //sometimes is this block not correct padded
+        //size was corrected while parsing
+        if (this.binary.remain() === 4)
+            this.binary.seek(4);
+
         this.validateParsing(this);
     }
 }
