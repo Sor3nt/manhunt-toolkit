@@ -60,6 +60,7 @@ export default class Skin extends Chunk{
         }
 
         this.validateParsing(this);
+        this.rootData.skins.push(this.result);
     }
 
 }

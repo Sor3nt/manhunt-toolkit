@@ -514,16 +514,16 @@
         Api.load(0, 'test/waitress00_clean.dff', function (data) {
         // Api.load(0, 'test/boss00_clean.dff', function (data) {
             let binary = new NBinary(data);
-            let rwScanner = new Scan(binary/*,{
+            let rwScanner = new Scan(binary,{
                 scanForNewChunks: true,      //search byte per byte for chunk headers (slow)
                 forcedFirstVersion: true,    //the first "valid" version will be used for future validation
                 forcedVersion: null,
-                searchChunks: [Renderware.CHUNK_STRING],
+                searchChunks: [Renderware.CHUNK_FRAME],
                 onChunkCallback: function (id, chunkBinary, absoluteStartOffset) {
-                    console.log("STRING", chunkBinary.getString(0));
+                    console.log("STRING", chunkBinary, absoluteStartOffset);
                 }
 
-            }*/);
+            });
             let result = rwScanner.scan();
             console.log("scan", result);
 

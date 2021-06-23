@@ -37,5 +37,8 @@ export default class Texture extends Chunk{
             this.binary.seek(4);
 
         this.validateParsing(this);
+
+        this.rootData.textures.push(this.result);
+
     }
 }

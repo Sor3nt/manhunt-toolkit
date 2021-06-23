@@ -40,6 +40,10 @@ export default class Geometry extends Chunk{
                 break;
         }
 
+
+        this.rootData.geometries.push(this.result);
+
+
     }
 
     parseVersion225282(){

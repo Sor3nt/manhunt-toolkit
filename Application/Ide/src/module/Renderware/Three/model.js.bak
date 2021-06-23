@@ -108,7 +108,11 @@ export default class NormalizeModel{
                 cpv: chunksGeometry[i].vColor,
             };
 
+            if(this.data.materials.length !== _this.data.material.length){
+                console.log("ehhh", this.data);
+            }
             this.data.materials.forEach(function (material, index) {
+
                 mesh.material.push({
                     diffuse: material.rgba,
                     textureName: _this.data.material[index],

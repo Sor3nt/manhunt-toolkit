@@ -16,6 +16,7 @@ export default class FrameList extends Chunk{
 
             switch (chunk.header.id) {
 
+                //Contains FRAME
                 case Renderware.CHUNK_EXTENSION:
                     this.result.chunks.push(chunk);
                     break;
@@ -51,6 +52,8 @@ export default class FrameList extends Chunk{
         this.result.frameList = frameList;
 
         this.validateParsing(this);
+
+        this.rootData.frames = this.result;
     }
 
 }

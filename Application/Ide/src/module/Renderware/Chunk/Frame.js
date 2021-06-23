@@ -10,6 +10,8 @@ export default class Frame extends Chunk{
     parse(){
         this.result.name = this.binary.getString(0);
         this.validateParsing(this);
+
+        this.rootData.frameNames.push(this.result.name);
     }
 
 }

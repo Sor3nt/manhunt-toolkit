@@ -10,20 +10,20 @@ MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
         _buildChain: function () {
 
             let loadChain = [
-                {
-                    order: [
-                        {
-                            mdl: [
-                                // 'levels/GLOBAL/CHARPAK/cash_pc.dff',
-                                'test/waitress00_clean.dff',
-
-                            ],
-                        }
-                    ],
-
-                    callback: function () {}
-
-                },
+                // {
+                //     order: [
+                //         {
+                //             mdl: [
+                //                 // 'levels/GLOBAL/CHARPAK/cash_pc.dff',
+                //                 'test/waitress00_clean.dff',
+                //
+                //             ],
+                //         }
+                //     ],
+                //
+                //     callback: function () {}
+                //
+                // },
                 {
                     order: [
                         {

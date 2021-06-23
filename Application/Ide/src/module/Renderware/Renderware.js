@@ -55,6 +55,7 @@ import ChunkGroupStart from "./Chunk/ChunkGroupStart.js";
 import ChunkGroupEnd from "./Chunk/ChunkGroupEnd.js";
 import PrtStdPlugin from "./Chunk/PrtStdPlugin.js";
 import Image from "./Chunk/Image.js";
+import UserDataPlugin from "./Chunk/UserDataPlugin.js";
 const assert = Helper.assert;
 
 export default class Renderware{
@@ -346,7 +347,7 @@ export default class Renderware{
         [Renderware.CHUNK_CHUNKGROUPEND]           : ChunkGroupEnd,
         [Renderware.CHUNK_PITEXDICTIONARY]           : PiTexDictionary,
         [Renderware.CHUNK_VERTEXFORMAT]           : VertexFormat,
-        [Renderware.CHUNK_USERDATAPLUGIN]           : Dummy,
+        [Renderware.CHUNK_USERDATAPLUGIN]           : UserDataPlugin,
         [Renderware.CHUNK_SKYMIPMAP]           : Dummy,
         [Renderware.CHUNK_DMORPHPLUGIN]           : Dummy,
         [Renderware.CHUNK_UVANIMPLUGIN]           : Dummy,
@@ -480,7 +481,15 @@ export default class Renderware{
      * @returns {Chunk}
      */
     static processChunk( binary, rootData) {
-        rootData = rootData || {};
+        rootData = rootData || {
+            materials: [],
+            textures: [],
+            skins: [],
+            frames: [],
+            frameNames: [],
+            geometries: [],
+            atomics: []
+        };
 
         let header = Renderware.parseHeader(binary);
 

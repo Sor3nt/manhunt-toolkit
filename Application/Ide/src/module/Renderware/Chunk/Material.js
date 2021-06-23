@@ -50,6 +50,7 @@ export default class Material extends Chunk{
         this.validateParsing(this);
 
 
+        this.rootData.materials.push(this.result);
     }
 
 }

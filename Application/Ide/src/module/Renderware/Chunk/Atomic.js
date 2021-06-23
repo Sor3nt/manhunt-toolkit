@@ -32,6 +32,8 @@ export default class Atomic extends Chunk{
         this.result.chunks.push(extention);
 
         this.validateParsing(this);
+
+        this.rootData.atomics.push(this.result);
     }
 
 }
