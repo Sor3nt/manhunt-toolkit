@@ -13,9 +13,21 @@ MANHUNT.resources.mh1.pc = function (gameId, levelName, doneCallback) {
                 // {
                 //     order: [
                 //         {
+                //
+                //             tex: [
+                //                 // 'levels/GLOBAL/CHARPAK/cash_pc.dff',
+                //                 'test/w1_h_waitress00_hairs.png',
+                //                 'test/ga_fe_nu.png',
+                //                 'test/w1_t_waitress00_2.png',
+                //                 'test/w1_b_waitress00_2.png',
+                //                 'test/w1_h_waitress00.png',
+                //
+                //             ],
+                //         },{
+                //
                 //             mdl: [
                 //                 // 'levels/GLOBAL/CHARPAK/cash_pc.dff',
-                //                 'test/waitress00_clean.dff',
+                //                 'test/clump-0.dff',
                 //
                 //             ],
                 //         }

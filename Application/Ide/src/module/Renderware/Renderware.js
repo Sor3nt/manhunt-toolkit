@@ -3,6 +3,7 @@
 
     Chunk source: https://github.com/DanielSant0s/RWParser/tree/0ceb6752ed86cbf0299eac092b2480819039dda4
     Thanks for older stuff: https://github.com/kabbi/zanzarah-tools/blob/c1862c483dfa84783761273a87a0b334ba2ea705/bsp-parser.coffee
+https://github.com/leeao/Noesis-Plugins/blob/6a0447bb9369efdbca95111b38155f1263ec5fb2/Model/fmt_RenderWare_PS2_PC.py
 
     Maybe helpful
         https://github.com/sigmaco/rwsrc-v37-pc/tree/master/core/src
@@ -15,6 +16,7 @@
 
         https://github.com/leeao/Noesis-Plugins/blob/6a0447bb9369efdbca95111b38155f1263ec5fb2/Model/fmt_RenderWare_PS2_PC.py
 
+        https://github.com/leeao/SilentHillOriginsPS2/blob/main/fmt_SilentHillOrigins_PS2.py
  */
 
 
@@ -56,6 +58,7 @@ import ChunkGroupEnd from "./Chunk/ChunkGroupEnd.js";
 import PrtStdPlugin from "./Chunk/PrtStdPlugin.js";
 import Image from "./Chunk/Image.js";
 import UserDataPlugin from "./Chunk/UserDataPlugin.js";
+import Animation from "./Chunk/Animation.js";
 const assert = Helper.assert;
 
 export default class Renderware{
@@ -274,6 +277,8 @@ export default class Renderware{
     static CHUNK_MESHEXTENSION = 0x253F2FD;
     static CHUNK_FRAME = 0x253F2FE;
 
+    static CHUNK_UNK895302 = 0x895302;
+    static CHUNK_UNK895303 = 0x895303;
     static CHUNK_UNK809 = 0x809;
     static CHUNK_UNKA01 = 0xA01;
     static CHUNK_UNK80A = 0x80A; //Audio Settings ?
@@ -341,6 +346,7 @@ export default class Renderware{
         [Renderware.CHUNK_WORLD]           : World,
 
 
+        [Renderware.CHUNK_ANIMANIMATION]           : Animation,
         [Renderware.CHUNK_IMAGE]           : Image,
         [Renderware.CHUNK_PRTSTDPLUGIN]           : PrtStdPlugin,
         [Renderware.CHUNK_CHUNKGROUPSTART]           : ChunkGroupStart,
@@ -359,6 +365,8 @@ export default class Renderware{
         [Renderware.CHUNK_UNK802]           : Dummy,
         [Renderware.CHUNK_UNK803]           : Dummy,
         [Renderware.CHUNK_UNK804]           : Dummy,
+        [Renderware.CHUNK_UNK895303]           : Dummy,
+        [Renderware.CHUNK_UNK895302]           : Dummy,
     };
 
     static getChunkNameById(chunkId){
@@ -677,15 +685,12 @@ export default class Renderware{
     }
 
     static getModel(nBinary, offset) {
-        console.log("moodel at", offset);
         nBinary.setCurrent(offset);
         let tree = Renderware.parse(nBinary);
-        // console.log("Model Tree", tree);
         return (new NormalizeModel(tree)).normalize();
     }
 
     static getTextures(nBinary) {
-
         let tree = Renderware.parse(nBinary);
         return (new NormalizeTexture(tree)).normalize();
     }

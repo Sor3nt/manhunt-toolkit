@@ -3,6 +3,12 @@ import Chunk from "./Chunk.js";
 const assert = Helper.assert;
 import Renderware from "./../Renderware.js";
 
+/*
+Allen (leeao):
+For triangle strips the last two vertices of the last triangle are used as the first two of the next one.
+Similarly for line strips the last vertex of the last line segment is used as the first vertex for the next one.
+In triangle and line lists every vertex is only used once.
+ */
 export default class Geometry extends Chunk{
 
     result = {
@@ -35,6 +41,9 @@ export default class Geometry extends Chunk{
             case 225282:
                 this.parseVersion225282();
                 break;
+            // case 221187:
+            //     this.parseVersion221187();
+            //     break;
             default:
                 this.parseVersionRegular();
                 break;
@@ -45,6 +54,89 @@ export default class Geometry extends Chunk{
 
 
     }
+//
+//     parseVersion221187(){
+//
+//         let struct = this.processChunk(this.binary);
+//         assert(struct.type, Renderware.CHUNK_STRUCT);
+//
+//         let FormatFlags = struct.binary.consume(2, 'uint16');
+//         let numUV = struct.binary.consume(1, 'uint8');
+//         let nativeFlags = struct.binary.consume(1, 'uint8');
+//         let numFace = struct.binary.consume(4, 'uint32');
+//         let numVert = struct.binary.consume(4, 'uint32');
+//         let numMorphTargets = struct.binary.consume(4, 'uint32');
+//
+//         if (nativeFlags === 0){
+//             console.log("not implemented");
+//             debugger;
+//             return;
+//         }
+//         let unk1 = struct.binary.consume(4, 'uint32');
+//
+//         this.result.boundingSphere.position = struct.binary.consumeMulti(3, 4, 'float32');
+//         this.result.boundingSphere.radius = struct.binary.consume(4, 'float32');
+//         let unk = struct.binary.consume(4, 'uint32');
+//         //
+//         // let unk2 = struct.binary.consume(1, 'uint32');
+//
+//
+//         let matList = this.processChunk(struct.binary);
+//         assert(matList.type, Renderware.CHUNK_MATLIST);
+//
+//         let extension = Renderware.processChunk(struct.binary);
+//         assert(extension.type, Renderware.CHUNK_EXTENSION);
+//
+//         let haveNavtiveMesh = 0;
+//
+//         while(extension.binary.remain() > 0){
+//             let chunk = Renderware.processChunk(extension.binary);
+//
+//             switch (chunk.type) {
+//                 case Renderware.CHUNK_BINMESH:
+//                 case Renderware.CHUNK_SKIN:
+//                 case Renderware.CHUNK_VERTEXFORMAT: //todo rename to CHUNK_NATIVEDATA
+//                     chunk.parse();
+//                     break;
+//                 default:
+//                     console.log("unexpected chunk", chunk);
+//                     debugger;
+//                     break;
+//
+//             }
+//
+//             console.log(chunk);
+//
+//         }
+//
+//         let dataSize = struct.binary.consume(4, 'uint32');
+//         let meshType = struct.binary.consume(4, 'uint32');
+//
+//         if (meshType === 0){
+//             console.log("todo...");
+//             debugger;
+//         }
+//
+//         let vifData = struct.consume(dataSize, 'nbinary');
+//
+//         console.log("LASA", dataSize);
+//         die;
+//
+// //
+// //         let unk2 = struct.binary.consumeMulti(2, 4, 'uint32');
+// //         console.log(unk2);
+// // die;
+//
+//         this.validateParsing(struct);
+//
+//         let numVertex = struct.binary.consume(4, 'uint32');
+//         let flag = struct.binary.consume(4, 'uint32');
+//
+//         let unk44 = struct.binary.consumeMulti(44, 1, 'uint8');
+//
+//
+//         die;
+//     }
 
     parseVersion225282(){
 

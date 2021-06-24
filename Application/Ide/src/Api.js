@@ -9,7 +9,7 @@ export default class Api{
             gameId: gameId,
             file: file
         }, function (data) {
-            console.log(file);
+            // console.log(file);
             callback(data);
         });
     }

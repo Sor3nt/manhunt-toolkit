@@ -67,6 +67,14 @@ export default class Scan{
         return chunkStartOffset;
     }
 
+    extractChunk(binary, offset){
+        binary.setCurrent(offset);
+        binary.seek(4); //id
+        let size = binary.consume(4, 'uint32');
+        binary.seek(4); //version
+        return binary.consume(size, 'nbinary');
+    }
+
     scanChunk(binary, parentResult){
         let _this = this;
         let skippedBytes = 0;
@@ -200,7 +208,7 @@ export default class Scan{
 
                 //Name is unknown which mean this could be a new chunk type
                 if (chunkName === false){
-                    console.log("new chunk id found", id);
+                    console.log("new chunk id found", id, "at", pos - 8);
                     Renderware['CHUNK_UNKNOWN_' + id] = id;
                 }
             }

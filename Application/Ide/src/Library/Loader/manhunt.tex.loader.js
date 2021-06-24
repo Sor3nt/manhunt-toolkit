@@ -4,6 +4,15 @@ MANHUNT.fileLoader.TEX = function () {
     return {
         load: function (level, file, callback ) {
 
+            if (file.indexOf(".png") !== -1) { //PNG
+
+
+                const texture = new THREE.TextureLoader().load( file );
+                texture.name = file.replace(/^.*[\\\/]/, '').split(".")[0];
+
+                return callback([texture]);
+            }
+
             Api.load(
                 level._gameId,
                 file,
@@ -12,7 +21,24 @@ MANHUNT.fileLoader.TEX = function () {
                     var binary = new NBinary(data);
                     var gameId = binary.consume(4, 'uint32');
 
-                    if (gameId === 542327876){ //DDS
+                    if (gameId === 1196314761) { //PNG
+
+                        binary.seek(-4);
+                        let texture = (new THREE.ImageLoader()).parse(binary.data);
+                        // console.log()
+                        texture.name = file.replace(/^.*[\\\/]/, '').split(".")[0];
+                        //
+                        // let realTexture = new THREE.CompressedTexture(texture.mipmaps, texture.width, texture.height);
+                        // realTexture.name = file.replace(/^.*[\\\/]/, '').split(".")[0];
+                        // realTexture.wrapS =  THREE.RepeatWrapping;
+                        // realTexture.wrapT =  THREE.RepeatWrapping;
+                        // realTexture.format = texture.format;
+                        // realTexture.needsUpdate = true;
+
+                        return callback([texture]);
+
+
+                    }else if (gameId === 542327876){ //DDS
 
                         binary.seek(-4);
                         let texture = (new DDSLoader()).parse(binary.data);

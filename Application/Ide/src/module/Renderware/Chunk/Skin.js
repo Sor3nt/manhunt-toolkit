@@ -58,7 +58,7 @@ export default class Skin extends Chunk{
                 this.result.chunks.push(this.processChunk(this.binary));
             }
         }
-console.log(this.result);
+
         this.validateParsing(this);
         this.rootData.skins.push(this.result);
     }

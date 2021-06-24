@@ -511,54 +511,30 @@
 
 
         //
-        Api.load(0, 'test/cash_pc.dff', function (data) {
-            // Api.load(0, 'test/boss00_clean.dff', function (data) {
-            let binary = new NBinary(data);
-            let rwScanner = new Scan(binary,{
-                scanForNewChunks: true,      //search byte per byte for chunk headers (slow)
-                forcedFirstVersion: true,    //the first "valid" version will be used for future validation
-                forcedVersion: null,
-                searchChunks: [Renderware.CHUNK_FRAME],
-                onChunkCallback: function (id, chunkBinary, absoluteStartOffset) {
-                }
-
-            });
-            let result = rwScanner.scan();
-            console.log("cash", result);
-
-
-            binary.setCurrent(0);
-            while(binary.remain() > 0){
-
-                console.log(Renderware.parse(binary));
-            }
-        });
-
-
+        // //
+        // Api.load(0, 'test/clump-0.dff', function (data) {
+        // // Api.load(0, 'test/boss00_clean.dff', function (data) {
+        //     let binary = new NBinary(data);
+        //     let rwScanner = new Scan(binary,{
+        //         scanForNewChunks: true,      //search byte per byte for chunk headers (slow)
+        //         forcedFirstVersion: true,    //the first "valid" version will be used for future validation
+        //         forcedVersion: null,
+        //         searchChunks: [Renderware.CHUNK_FRAME],
+        //         onChunkCallback: function (id, chunkBinary, absoluteStartOffset) {
+        //         }
         //
-        Api.load(0, 'test/waitress00_clean.dff', function (data) {
-        // Api.load(0, 'test/boss00_clean.dff', function (data) {
-            let binary = new NBinary(data);
-            let rwScanner = new Scan(binary,{
-                scanForNewChunks: true,      //search byte per byte for chunk headers (slow)
-                forcedFirstVersion: true,    //the first "valid" version will be used for future validation
-                forcedVersion: null,
-                searchChunks: [Renderware.CHUNK_FRAME],
-                onChunkCallback: function (id, chunkBinary, absoluteStartOffset) {
-                }
-
-            });
-            let result = rwScanner.scan();
-            console.log("debug", result);
-
-
-            binary.setCurrent(0);
-            while(binary.remain() > 0){
-
-                console.log(Renderware.parse(binary));
-            }
-        });
-
+        //     });
+        //     let result = rwScanner.scan();
+        //     console.log("debug", result);
+        //
+        //
+        //     binary.setCurrent(0);
+        //     while(binary.remain() > 0){
+        //
+        //         console.log(Renderware.parse(binary));
+        //     }
+        // });
+        //
 
 
         Studio.boot();

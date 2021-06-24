@@ -8,8 +8,9 @@ import Renderware from "../Renderware.js";
 export default class VertexFormat extends Chunk{
 
     parse(){
+        console.log("JO");
+        die;
         //OR CHUNK_NATIVEDATA (depends on rw version i guess)
-
         if (this.header.version === 469893221){
             let struct = this.processChunk(this.binary);
             assert(struct.type, Renderware.CHUNK_STRUCT);
