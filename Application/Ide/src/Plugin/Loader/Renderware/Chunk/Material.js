@@ -1,6 +1,6 @@
 import Renderware from "./../Renderware.js";
 import Chunk from "./Chunk.js";
-import Helper from './../../../Helper.js'
+import Helper from './../../../../Helper.js'
 const assert = Helper.assert;
 
 export default class Material extends Chunk{

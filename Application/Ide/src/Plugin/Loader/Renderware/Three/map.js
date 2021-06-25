@@ -1,6 +1,6 @@
 
 import Renderware from "./../Renderware.js";
-import Helper from './../../../Helper.js'
+import Helper from './../../../../Helper.js'
 const assert = Helper.assert;
 
 

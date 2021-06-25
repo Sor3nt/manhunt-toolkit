@@ -295,5 +295,41 @@ export default class Scan{
         result.usedVersions = this.usedVersions;
         return result;
     }
+
+
+    static findFloatBlock(binary, count){
+        if(binary.remain() === 0) return;
+
+        let current = binary.current();
+
+        let floats = [];
+        let valid = false;
+        while(binary.remain() > 4){
+            let test = binary.consume(4, 'float32');
+
+            if (
+                isNaN(test) ||
+                test < -500.0 ||
+                test > 500.0 ||
+                (test < 0.000000001 && test > 0)
+            ){
+                if (floats.length === count){
+                    return floats;
+                }else if (floats.length > count){
+                    console.log("We have to much values! Count " + floats.length);
+                    debugger;
+                }
+                valid = false;
+                floats = [];
+                continue;
+            }
+
+            valid = true;
+            floats.push(test);
+
+        }
+
+        binary.setCurrent(current);
+    }
 }
 

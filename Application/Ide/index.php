@@ -244,11 +244,11 @@
         import {DDSLoader} from './src/Library/Loader/three.dds.loader.js';
         import {FlyControls} from './src/Library/FlyControls.js';
 
-        import  Renderware from './src/module/Renderware/Renderware.js'
-        import  NormalizeMap from './src/module/Renderware/Three/map.js'
-        import  NormalizeModel from './src/module/Renderware/Three/model.js'
-        import  NormalizeTexture from './src/module/Renderware/Three/texture.js'
-        import  Scan from './src/module/Renderware/Utils/Scan.js'
+        import  Renderware from './src/Plugin/Loader/Renderware/Renderware.js'
+        import  NormalizeMap from './src/Plugin/Loader/Renderware/Three/map.js'
+        import  NormalizeModel from './src/Plugin/Loader/Renderware/Three/model.js'
+        import  NormalizeTexture from './src/Plugin/Loader/Renderware/Three/texture.js'
+        import  Scan from './src/Plugin/Loader/Renderware/Utils/Scan.js'
         import  generateMesh from './src/module/Three/generateMesh.js'
         import  Relation from './src/Relation.js'
         import  ObjectAnimation from './src/ObjectAnimation.js'
@@ -261,6 +261,8 @@
         import  Trigger from './src/Entity/Trigger.js'
         import  Api from './src/Api.js'
         import  Config from './src/Config.js'
+        import  Loader from './src/Plugin/Loader.js'
+        import  RenderwareLoader from './src/Plugin/Loader/Renderware.js'
         import  Playstation from './src/Library/Texture/Playstation.js'
 
         window.DDSLoader = DDSLoader;
@@ -276,6 +278,7 @@
         window.Regular = Regular;
         window.Trigger = Trigger;
         window.Scan = Scan;
+        window.Loader = Loader;
 
 
 
@@ -290,6 +293,8 @@
         window.Config = Config;
         window.Playstation = Playstation;
 
+
+        Loader.registerPlugin(RenderwareLoader)
 
 
     </script>

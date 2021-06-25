@@ -1,6 +1,6 @@
 
 
-import Helper from './../../../Helper.js'
+import Helper from './../../../../Helper.js'
 import Chunk from "./Chunk.js";
 import Renderware from "./../Renderware.js";
 const assert = Helper.assert;

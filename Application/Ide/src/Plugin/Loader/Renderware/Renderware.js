@@ -51,7 +51,7 @@ import RightToRender from "./Chunk/RightToRender.js";
 import VertexFormat from "./Chunk/VertexFormat.js";
 import Chunk from "./Chunk/Chunk.js";
 
-import Helper from './../../Helper.js'
+import Helper from './../../../Helper.js'
 import PiTexDictionary from "./Chunk/PiTexDictionary.js";
 import ChunkGroupStart from "./Chunk/ChunkGroupStart.js";
 import ChunkGroupEnd from "./Chunk/ChunkGroupEnd.js";
@@ -634,11 +634,11 @@ export default class Renderware{
                     entries.push({
                         name: name,
                         offset: offset,
-                        data: function(){
-                            let mesh = Renderware.getModel(binary, offset);
-                            mesh.name = name;
-                            return mesh;
-                        }
+                        // data: function(){
+                        //     let mesh = Renderware.getModel(binary, offset);
+                        //     mesh.name = name;
+                        //     return mesh;
+                        // }
                     });
                 })(offset, name);
             }else{
