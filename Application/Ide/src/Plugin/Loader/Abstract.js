@@ -8,7 +8,7 @@ export default class AbstractLoader{
         return false;
     }
 
-    static list(binary){
+    static list(binary, options){
         return [];
     }
 

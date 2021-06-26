@@ -7,7 +7,9 @@ export default class Loader{
         Loader.plugins.push(plugin);
     }
 
-    static parse(binary){
+
+    static parse(binary, options){
+        options = options || {};
 
         for (let i in Loader.plugins){
             if (!Loader.plugins.hasOwnProperty(i))
@@ -19,7 +21,7 @@ export default class Loader{
 
             console.info("Using Loader: ", plugin.name);
 
-            return plugin.list(binary);
+            return plugin.list(binary, options);
         }
 
     }

@@ -404,46 +404,62 @@ MANHUNT.fileLoader.BSP = function () {
                 file,
                 function (data) {
 
-                    var isScene3 = file.indexOf('scene3') !== -1;
+                    // var isScene3 = file.indexOf('scene3') !== -1;
+                    //
+                    // var binary = new NBinary(data);
+                    // var gameId = binary.consume(4, 'uint32');
+                    // var meshRoot;
+                    //
+                    // if (gameId === 1465011268){ //DLRW => Manhunt 2
+                    //     if (level._platform === "pc"){
+                    //         meshRoot = parseManhunt2PcBsp(level, binary, isScene3);
+                    //     }else if (level._platform === "psp" || level._platform === "psp001"){
+                    //         binary.setCurrent(0);
+                    //         let parsed = MANHUNT.parser.manhun2PspBsp(binary, level);
+                    //
+                    //         console.log("parsed", parsed);
+                    //         MANHUNT.converter.pspBsp2mesh(level, parsed);
+                    //         die;
+                    //     }
+                    //
+                    // }else if (gameId === CHUNK_WORLD || gameId === CHUNK_TOC) { //CHUNK_WORLD => Renderware MH1
+                    //     // meshRoot = Renderware.getMap(binary, level);
+                    //
+                    //     binary.setCurrent(0);
+                    //     let normalizedMesh = Loader.parse(binary);
+                    //     normalizedMesh = normalizedMesh[0].data();
+                    //
+                    //     meshRoot = generateMesh(level._storage.tex, normalizedMesh);
+                    //     meshRoot.children.forEach(function (subMesh) {
+                    //         subMesh.visible = true;
+                    //     });
+                    //
+                    // }else if (gameId === CHUNK_CLUMP) { //CHUNK_CLUMP => Renderware MH1
+                    //
+                    //     let normalize = Renderware.getModel(binary, 0);
+                    //     meshRoot = generateMesh(level._storage.tex, normalize)
+                    //
+                    // }else{
+                    //     console.log("[MANHUNT.fileLoader.BSP] Unsupported Map?! ", file, gameId);
+                    //     callback([]);
+                    //     return;
+                    // }
+
 
                     var binary = new NBinary(data);
-                    var gameId = binary.consume(4, 'uint32');
-                    var meshRoot;
+                    var isScene3 = file.indexOf('scene3') !== -1;
 
-                    if (gameId === 1465011268){ //DLRW => Manhunt 2
-                        if (level._platform === "pc"){
-                            meshRoot = parseManhunt2PcBsp(level, binary, isScene3);
-                        }else if (level._platform === "psp" || level._platform === "psp001"){
-                            binary.setCurrent(0);
-                            let parsed = MANHUNT.parser.manhun2PspBsp(binary, level);
+                    binary.setCurrent(0);
+                    let list = Loader.parse(binary, {
+                        isScene3: isScene3
+                    });
 
-                            console.log("parsed", parsed);
-                            MANHUNT.converter.pspBsp2mesh(level, parsed);
-                            die;
-                        }
+                    let normalizedMesh = list[0].data();
 
-                    }else if (gameId === CHUNK_WORLD || gameId === CHUNK_TOC) { //CHUNK_WORLD => Renderware MH1
-                        // meshRoot = Renderware.getMap(binary, level);
-
-                        binary.setCurrent(0);
-                        let normalizedMesh = Loader.parse(binary);
-                        normalizedMesh = normalizedMesh[0].data();
-
-                        meshRoot = generateMesh(level._storage.tex, normalizedMesh);
-                        meshRoot.children.forEach(function (subMesh) {
-                            subMesh.visible = true;
-                        });
-
-                    }else if (gameId === CHUNK_CLUMP) { //CHUNK_CLUMP => Renderware MH1
-
-                        let normalize = Renderware.getModel(binary, 0);
-                        meshRoot = generateMesh(level._storage.tex, normalize)
-
-                    }else{
-                        console.log("[MANHUNT.fileLoader.BSP] Unsupported Map?! ", file, gameId);
-                        callback([]);
-                        return;
-                    }
+                    let meshRoot = generateMesh(level._storage.tex, normalizedMesh);
+                    meshRoot.children.forEach(function (subMesh) {
+                        subMesh.visible = true;
+                    });
 
                     meshRoot.name = isScene3 ? 'scene3' : (file.indexOf('scene1') !== -1 ? 'scene1' : 'scene2');
                     callback([meshRoot]);

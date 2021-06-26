@@ -12,6 +12,7 @@ export default class RenderwareLoader extends AbstractLoader{
         binary.setCurrent(current);
 
         switch (header.id) {
+            case Renderware.CHUNK_TOC:
             case Renderware.CHUNK_WORLD:
             case Renderware.CHUNK_CLUMP:
                 return true;
@@ -20,7 +21,7 @@ export default class RenderwareLoader extends AbstractLoader{
         return false;
     }
 
-    static list(binary){
+    static list(binary, options){
 
         let results = [];
 
@@ -40,13 +41,6 @@ export default class RenderwareLoader extends AbstractLoader{
                                 binary.setCurrent(offset);
                                 let tree = Renderware.parse(binary);
                                 return (new NormalizeMap(tree)).normalize();
-
-                                //
-                                // let mesh = generateMesh(level._storage.tex, normalizedMesh);
-                                // mesh.children.forEach(function (subMesh) {
-                                //     subMesh.visible = true;
-                                // });
-                                // return mesh;
                             }
                         });
                     })(current);
@@ -65,10 +59,6 @@ export default class RenderwareLoader extends AbstractLoader{
                                 binary.setCurrent(info.offset);
                                 let tree = Renderware.parse(binary);
                                 return (new NormalizeModel(tree)).normalize();
-                                //
-                                // let mesh = Renderware.getModel(binary, info.offset);
-                                // mesh.name = name;
-                                // return mesh;
                             }
                         });
                     });

@@ -3,6 +3,7 @@ export default class Studio{
 
     static MAP = 1;
     static MODEL = 2;
+    static GLG = 3;
 
     /**
      * @type {Tab}
