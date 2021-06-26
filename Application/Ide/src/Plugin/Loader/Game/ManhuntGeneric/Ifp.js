@@ -1,35 +1,118 @@
-MANHUNT.fileLoader.IFP = function () {
+import AbstractLoader from "./../../Abstract.js";
 
-    function readANPKIndex(binary) {
+export default class Ifp extends AbstractLoader{
+    static name = "Animations";
 
-        var anpk_magic = binary.consume(4, 'int32');
-        var numANPK = binary.consume(4, 'int32');
-        var ANPK = {
+    static FOURCC_ANPK = 1263554113;
+    static FOURCC_ANCT = 1413697089;
+
+    static canHandle(binary){
+        if (binary.remain() < 4) return false;
+        let fourCC = Ifp.getFourCC(binary);
+
+        //ANPK | ANCT
+        return (fourCC === Ifp.FOURCC_ANPK || fourCC === Ifp.FOURCC_ANCT);
+    }
+
+    static list(binary, options){
+
+        let results = [];
+        let fourCC = Ifp.getFourCC(binary);
+        binary.seek(4); //skip fourCC
+
+        var IFPEntryArray = [];
+        var IFPEntryIndexArray = [];
+        switch (fourCC) {
+
+            case Ifp.FOURCC_ANCT:
+                var numBlock = binary.consume(4, 'int32');
+
+                for (var i = 0; i < numBlock; i++) {
+                    binary.seek(4);
+                    var bNameLen = binary.consume(4, 'int32');
+                    var blockName = binary.consume(bNameLen, 'nbinary').getString(0);
+                    let ANPK = Ifp.readANPKIndex(binary);
+
+                    (function (ANPK, groupName) {
+
+                        ANPK.anpkName.forEach(function (name, index) {
+                            results.push({
+                                type: Studio.ANIMATION,
+                                name: name,
+                                group: groupName,
+                                offset: ANPK.anpkOffset[index],
+                                data: function(){
+                                    binary.setCurrent(ANPK.anpkOffset[index]);
+
+                                    let clip = Ifp.getANPKAnim(options.convert || false, options.game, binary);
+                                    clip.name = name;
+                                    return clip;
+                                }
+                            });
+                        });
+                    })(ANPK, blockName);
+
+                }
+                break;
+
+            case Ifp.FOURCC_ANPK:
+                var result = Ifp.readStrmAnimBinIndex(binary);
+                IFPEntryArray = result[0];
+                IFPEntryIndexArray = result[1];
+                console.log("not implemented yet");
+                debugger;
+
+                break;
+
+        }
+
+        return results;
+    }
+
+    static getFourCC(binary){
+        let current = binary.current();
+        let fourCC = binary.consume(4, 'uint32');
+
+        //strmanim_pc.bin
+        if (fourCC === 1 && binary.remain() > 2048){
+            binary.seek(2044);
+            fourCC = binary.consume(4, 'uint32');
+        }
+
+        binary.setCurrent(current);
+        return fourCC;
+    }
+
+    static readANPKIndex(binary) {
+
+        let anpk_magic = binary.consume(4, 'int32');
+        let numANPK = binary.consume(4, 'int32');
+        let ANPK = {
             anpkName: [],
             anpkOffset: [],
             frameTimeCount: [],
         };
 
-        for (var j = 0; j < numANPK; j++) {
-            var NAME_magic = binary.consume(4, 'int32');
-            var AnimNameLen = binary.consume(4, 'int32');
-            var AnimName = binary.consume(AnimNameLen - 1, 'string');
-            var pad = binary.consume(1, 'int8');
+        for (let j = 0; j < numANPK; j++) {
+            let NAME_magic = binary.consume(4, 'int32');
+            let AnimNameLen = binary.consume(4, 'int32');
+            let AnimName = binary.consume(AnimNameLen - 1, 'string');
+            let pad = binary.consume(1, 'int8');
 
             ANPK.anpkOffset.push(binary.current());
             ANPK.anpkName.push(AnimName);
 
-            var numBones = binary.consume(4, 'int32');
-            var chunkSize = binary.consume(4, 'int32');
+            let numBones = binary.consume(4, 'int32');
+            let chunkSize = binary.consume(4, 'int32');
 
 
 
             let testVersion = binary.consume(4, 'string');
             binary.setCurrent( binary.current() - 4);
 
-            var times = 10;
-            var ANPKType;
-            var mh064Patch = false;
+            let times = 10;
+            let ANPKType;
+            let mh064Patch = false;
             if (testVersion === "SEQT" || testVersion === "SEQU"){
                 ANPKType = testVersion;
                 mh064Patch = true;
@@ -55,11 +138,11 @@ MANHUNT.fileLoader.IFP = function () {
                 console.error("[MANHUNT.ifp.loader] Parsing error, assume SEQT or SEQU got ", ANPKType, binary.current());
             }
 
-            var unk = binary.consume(4, 'int32');
-            var pecTime = binary.consume(4, 'float32');
-            var perEntrySize = binary.consume(4, 'int32');
-            var numEntry = binary.consume(4, 'uint32');
-            var pecSize = perEntrySize * numEntry;
+            let unk = binary.consume(4, 'int32');
+            let pecTime = binary.consume(4, 'float32');
+            let perEntrySize = binary.consume(4, 'int32');
+            let numEntry = binary.consume(4, 'uint32');
+            let pecSize = perEntrySize * numEntry;
 
             binary.setCurrent(binary.current() + pecSize);
         }
@@ -67,57 +150,57 @@ MANHUNT.fileLoader.IFP = function () {
         return ANPK
     }
 
-    function readStrmAnimBinIndex(binary) {
-        var IFPEntryArray = [];
-        var IFPEntryIndexArray = [];
-        var i, ANPK, nextoffset;
+    static readStrmAnimBinIndex(binary) {
+        let IFPEntryArray = [];
+        let IFPEntryIndexArray = [];
+        let i, ANPK, nextoffset;
 
-        var numExec = binary.consume(4, 'uint32');
-        var numEnvExec = binary.consume(4, 'uint32');
+        let numExec = binary.consume(4, 'uint32');
+        let numEnvExec = binary.consume(4, 'uint32');
         for (i = 0; i < numExec; i++) {
             ANPK = {
                 anpkName: [],
                 anpkOffset: []
             };
 
-            var tempAnpk = [];
+            let tempAnpk = [];
 
             IFPEntryArray.push(
                 "Execution" + binary.consume(4, 'uint32')
             );
 
-            var JumpExectuionOffset = binary.consume(4, 'uint32');
-            var JumpExectuionSize = binary.consume(4, 'uint32');
-            var WhileLevelExecOffset = binary.consume(4, 'uint32');
-            var WhileLevelExecSize = binary.consume(4, 'uint32');
-            var YellowLevelExecOffset = binary.consume(4, 'uint32');
-            var YellowLevelExecSize = binary.consume(4, 'uint32');
-            var RedLevelExecOffset = binary.consume(4, 'uint32');
-            var RedLevelExecSize = binary.consume(4, 'uint32');
+            let JumpExectuionOffset = binary.consume(4, 'uint32');
+            let JumpExectuionSize = binary.consume(4, 'uint32');
+            let WhileLevelExecOffset = binary.consume(4, 'uint32');
+            let WhileLevelExecSize = binary.consume(4, 'uint32');
+            let YellowLevelExecOffset = binary.consume(4, 'uint32');
+            let YellowLevelExecSize = binary.consume(4, 'uint32');
+            let RedLevelExecOffset = binary.consume(4, 'uint32');
+            let RedLevelExecSize = binary.consume(4, 'uint32');
             nextoffset = binary.current();
 
             if (JumpExectuionOffset > 0) {
                 binary.setCurrent(JumpExectuionOffset);
-                tempAnpk.push(readANPKIndex(binary));
+                tempAnpk.push(Ifp.readANPKIndex(binary));
             }
 
             if (WhileLevelExecOffset > 0) {
                 binary.setCurrent(WhileLevelExecOffset);
-                tempAnpk.push(readANPKIndex(binary));
+                tempAnpk.push(Ifp.readANPKIndex(binary));
             }
 
             if (YellowLevelExecOffset > 0) {
                 binary.setCurrent(YellowLevelExecOffset);
-                tempAnpk.push(readANPKIndex(binary));
+                tempAnpk.push(Ifp.readANPKIndex(binary));
             }
 
             if (RedLevelExecOffset > 0) {
                 binary.setCurrent(RedLevelExecOffset);
-                tempAnpk.push(readANPKIndex(binary));
+                tempAnpk.push(Ifp.readANPKIndex(binary));
             }
 
-            for (var j = 0; j < tempAnpk.length; j++) {
-                for (var jj = 0; jj < tempAnpk[j].AnpkName.length; jj++) {
+            for (let j = 0; j < tempAnpk.length; j++) {
+                for (let jj = 0; jj < tempAnpk[j].AnpkName.length; jj++) {
                     ANPK.anpkName.push(tempAnpk[j].AnpkName[jj]);
                     ANPK.anpkOffset.push(tempAnpk[j].AnpkOffset[jj]);
                 }
@@ -130,9 +213,9 @@ MANHUNT.fileLoader.IFP = function () {
 
         for (i = 0; i < numEnvExec; i++) {
 
-            var ExecutionID = binary.consume(4, 'uint32');
-            var EnvExecOffset = binary.consume(4, 'uint32');
-            var EnvExecSize = binary.consume(4, 'uint32');
+            let ExecutionID = binary.consume(4, 'uint32');
+            let EnvExecOffset = binary.consume(4, 'uint32');
+            let EnvExecSize = binary.consume(4, 'uint32');
             nextoffset = binary.current();
             IFPEntryArray.push(
                 "Environmental Exec" + ExecutionID
@@ -140,7 +223,7 @@ MANHUNT.fileLoader.IFP = function () {
 
             if (EnvExecOffset > 0) {
                 binary.setCurrent(EnvExecOffset);
-                ANPK = readANPKIndex(binary);
+                ANPK = Ifp.readANPKIndex(binary);
                 IFPEntryIndexArray.push(ANPK);
 
                 binary.setCurrent(nextoffset);
@@ -151,14 +234,13 @@ MANHUNT.fileLoader.IFP = function () {
         return [IFPEntryArray, IFPEntryIndexArray];
     }
 
-    function getANPKAnim(convertNames, game, binary, anpkOffset, groupName, animName) {
+    static getANPKAnim(convertNames, game, binary) {
 
-        binary.setCurrent(anpkOffset);
 
-        var resultBones = [];
+        let resultBones = [];
 
-        var numBones = binary.consume(4, 'int32');
-        var chunkSize = binary.consume(4, 'int32');
+        let numBones = binary.consume(4, 'int32');
+        let chunkSize = binary.consume(4, 'int32');
 
 
 
@@ -166,25 +248,25 @@ MANHUNT.fileLoader.IFP = function () {
         let testVersion = binary.consume(4, 'string');
         binary.setCurrent( binary.current() - 4);
 
-        var times = false;
+        let times = false;
         if (testVersion === "SEQT" || testVersion === "SEQU"){
         }else{
             times = binary.consume(4, 'float32');
         }
 
-        for (var b = 0; b < numBones; b++) {
+        for (let b = 0; b < numBones; b++) {
 
-            var ANPKType = binary.consume(4, 'string');
+            let ANPKType = binary.consume(4, 'string');
 
-            var boneId = binary.consume(2, 'int16');
-            var frameType = binary.consume(1, 'int8');
-            var frames = binary.consume(2, 'uint16');
+            let boneId = binary.consume(2, 'int16');
+            let frameType = binary.consume(1, 'int8');
+            let frames = binary.consume(2, 'uint16');
 
-            var frameTime = 0.0;
-            var startTime = (binary.consume(2, 'int16')) / 2048.0 * 30.0;
+            let frameTime = 0.0;
+            let startTime = (binary.consume(2, 'int16')) / 2048.0 * 30.0;
 
 
-            var resultBone = {
+            let resultBone = {
                 'boneId' : boneId,
                 'frameType' : frameType,
                 'startTime' : startTime,
@@ -207,16 +289,16 @@ MANHUNT.fileLoader.IFP = function () {
                 binary.setCurrent(binary.current() - 2);
             }
 
-            var resultFrames = { frames: [] };
-            var resultFrame;
-            for (var i = 0; i < frames; i++) {
+            let resultFrames = { frames: [] };
+            let resultFrame;
+            for (let i = 0; i < frames; i++) {
                 resultFrame = {
                     time: 0,
                     quat: [],
                     position: [],
                 };
 
-                var curtime;
+                let curtime;
 
                 if (startTime === 0) {
 
@@ -280,10 +362,10 @@ MANHUNT.fileLoader.IFP = function () {
             resultBones.push(resultBone);
         }
 
-        return convertBonesToAnimation(convertNames, game, resultBones, animName, times);
+        return Ifp.convertBonesToAnimation(convertNames, game, resultBones, times);
     }
 
-    function getBoneNameByBoneId(game, boneId) {
+    static getBoneNameByBoneId(game, boneId) {
         let mappingManhunt = {
             'Bip01': 1000,
             'Bip01 Head': 1001,
@@ -421,37 +503,37 @@ MANHUNT.fileLoader.IFP = function () {
         return boneId;
     }
 
-    function convertBonesToAnimation(convertNames, game, bones, animName, duration) {
+    static convertBonesToAnimation(convertNames, game, bones, duration) {
 
-        var animation = {
-            name: animName,
+        let animation = {
+            name: "noname",
             duration: duration,
             tracks: []
         };
 
-        for(var i in bones){
+        for(let i in bones){
             if (!bones.hasOwnProperty(i)) continue;
 
-            var bone = bones[i];
-            var name;
+            let bone = bones[i];
+            let name;
 
             if (convertNames){
-                name = getBoneNameByBoneId(game === "mh1" ? "mh2" : "mh1", bone.boneId);
+                name = Ifp.getBoneNameByBoneId(game === "mh1" ? "mh2" : "mh1", bone.boneId);
 
             }else{
-                name = getBoneNameByBoneId(game, bone.boneId);
+                name = Ifp.getBoneNameByBoneId(game, bone.boneId);
 
             }
 
 
-            var trackPosition = {
+            let trackPosition = {
                 name: name + '.position',
                 times: [],
                 values: [],
                 type: "vector"
             };
 
-            var trackQuaternion = {
+            let trackQuaternion = {
                 name: name + '.quaternion',
                 times: [],
                 values: [],
@@ -477,7 +559,7 @@ MANHUNT.fileLoader.IFP = function () {
 
                             trackPosition.times.push(frame.time / 30);
                             trackPosition.values.push(
-                               0,0,0
+                                0,0,0
                             );
                         }
 
@@ -509,8 +591,6 @@ MANHUNT.fileLoader.IFP = function () {
                         vec3.x, vec3.y, vec3.z
                     );
                 }
-
-
             });
 
             if (trackPosition.values.length > 0){
@@ -521,107 +601,8 @@ MANHUNT.fileLoader.IFP = function () {
                 animation.tracks.push(trackQuaternion);
 
         }
+
         return THREE.AnimationClip.parse( animation );
     }
 
-    return {
-        load: function (level, file, callback) {
-
-            Api.load(
-                level._gameId,
-                file,
-                function (data) {
-
-                    let list = Loader.parse(new NBinary(data));
-console.log(list);
-                    callback(list);
-                    return;
-
-                    var IFPEntryArray = [];
-                    var IFPEntryIndexArray = [];
-
-                    var binary = new NBinary(data);
-
-                    var fourCC = binary.consume(4, 'int32');
-                    if (fourCC === CHUNK_ANIMANIMATION){
-                        let animRaw = Renderware.parse(binary);
-                        let animation = RW.convert.animation(animRaw);
-
-                        console.log(animation);
-                        consdsole.log(animation);
-
-
-                    }else if (fourCC === 0x54434e41) {
-                        var numBlock = binary.consume(4, 'int32');
-
-                        for (var i = 0; i < numBlock; i++) {
-                            var BLOC = binary.consume(4, 'int32');
-                            var bNameLen = binary.consume(4, 'int32');
-
-                            var blockName = binary.consume(bNameLen - 1, 'string');
-                            var pad = binary.consume(1, 'int8');
-                            IFPEntryArray.push(blockName);
-
-                            let ANPK = readANPKIndex(binary);
-                            IFPEntryIndexArray.push(ANPK);
-                        }
-
-                        //strmanim_pc.bin
-                    } else if (fourCC === 1) {
-
-                        var result = readStrmAnimBinIndex(binary);
-                        IFPEntryArray = result[0];
-                        IFPEntryIndexArray = result[1];
-                    }
-
-                    callback({
-                        groupName: IFPEntryArray,
-                        groupEntries: IFPEntryIndexArray,
-
-                        getNamesByGroup: function ( group ) {
-                            var groupIndex = -1;
-                            IFPEntryArray.forEach(function (groupName, index) {
-                                if (groupName === group) groupIndex = index;
-                            });
-
-                            if (groupIndex === -1){
-                                console.error('[MANHUNT.fileLoader.IFP] unable to find group ', group, 'available', IFPEntryArray);
-                            }
-
-                            return IFPEntryIndexArray[groupIndex].anpkName;
-                        },
-
-                        find: function (group, name, convert) {
-
-                            var groupIndex = -1;
-                            IFPEntryArray.forEach(function (groupName, index) {
-                                if (groupName === group) groupIndex = index;
-                            });
-                            if (groupIndex === -1){
-                                console.log('[MANHUNT.loader.ifp] Unable to locate animation group ', group);
-                                return false;
-                            }
-                            var groupName = IFPEntryArray[groupIndex];
-
-                            var clip = false;
-                            IFPEntryIndexArray[groupIndex].anpkName.forEach(function (animName, index) {
-                                if (animName === name){
-                                    clip = getANPKAnim(convert, level._game, binary, IFPEntryIndexArray[groupIndex].anpkOffset[index], groupName, name);
-                                }
-                            });
-
-                            if (clip === false){
-                                console.log('[MANHUNT.loader.ifp] Unable to locate animation clip ', name);
-                                return false;
-                            }
-
-                            return clip;
-                        }
-                    });
-                }
-            );
-
-        }
-    };
-
-};
+}

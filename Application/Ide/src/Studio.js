@@ -4,6 +4,7 @@ export default class Studio{
     static MAP = 1;
     static MODEL = 2;
     static GLG = 3;
+    static ANIMATION = 4;
 
     /**
      * @type {Tab}
