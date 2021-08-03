@@ -64,16 +64,21 @@ class Gxt extends Archive {
 
         $entrySize = 20; //mh2 default;
 
-        if($game == MHT::GAME_MANHUNT_2 && ($platform == MHT::PLATFORM_PS2 || $platform == MHT::PLATFORM_PSP || $platform == MHT::PLATFORM_PSP_001)) {
+        if($game == MHT::GAME_MANHUNT_2 && ($platform == MHT::PLATFORM_PS2 || $platform == MHT::PLATFORM_PSP_001)) {
+            $entrySize = 16;
+        }else if($game == MHT::GAME_MANHUNT_2 && $platform == MHT::PLATFORM_PSP) {
             $entrySize = 16;
         }else if($game == MHT::GAME_MANHUNT){
             $entrySize = 12;
         }
 
-        for( $i = 0; $i < $indexHeader['blockSize'] / $entrySize; $i++ ){
+        $count = $indexHeader['blockSize'] / $entrySize;
+
+
+        for( $i = 0; $i < $count; $i++ ){
 
             $keySizes = $game == MHT::GAME_MANHUNT ? 8 : 12;
-            if($game == MHT::GAME_MANHUNT_2 && ($platform == MHT::PLATFORM_PS2 || $platform == MHT::PLATFORM_PSP_001)) {
+            if($game == MHT::GAME_MANHUNT_2 && ($platform == MHT::PLATFORM_PS2 || $platform == MHT::PLATFORM_PSP || $platform == MHT::PLATFORM_PSP_001)) {
                 $keySizes = 8;
             }
 
@@ -84,6 +89,8 @@ class Gxt extends Archive {
             if ($game == MHT::GAME_MANHUNT_2 && $platform !== MHT::PLATFORM_PSP_001){
                 $entry['id'] = $binary->consume(4,  NBinary::INT_32);
             }
+
+
             $indexBlock[] = $entry;
         }
 
