@@ -323,6 +323,11 @@ if (is_array($results)){
                     echo "Convert " . $relativeFilename . " to PCM ...";
                     $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
                     echo "OK\n";
+                }else if (substr($relativeFilename, -3) === "vas") {
+                    echo "Convert " . $relativeFilename . " to PCM ...";
+                    $data = $wavHandler->unpack(new \App\Service\NBinary($data), MHT::GAME_AUTO, MHT::PLATFORM_AUTO);
+                    $relativeFilename = substr($relativeFilename, 0, -3) . 'wav';
+                    echo "OK\n";
                 }else if (substr($relativeFilename, -4) === "genh"){
                     echo "Convert " . $relativeFilename . " to PCM (using ffmpeg)...";
                     file_put_contents('tmp.genh', $data);
