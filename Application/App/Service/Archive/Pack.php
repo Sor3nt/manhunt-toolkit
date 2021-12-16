@@ -38,6 +38,7 @@ class Pack extends Archive {
             $fileOffset = $binary->consume(4, NBinary::INT_32);
             $fileSize = $binary->consume(4, NBinary::INT_32);
 
+            $fileName = str_replace("\\", "/", $fileName);
             $files[] = [$fileName, $fileOffset, $fileSize];
         }
 

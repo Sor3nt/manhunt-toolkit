@@ -55,6 +55,19 @@ class Extract {
         $position = $binary->readXYZ();
         $rotation = $binary->readXYZW();
 
+        $position = [
+            'x' => $position[0],
+            'y' => $position[1],
+            'z' => $position[2]
+        ];
+
+        $rotation = [
+            'x' => $rotation[0],
+            'y' => $rotation[1],
+            'z' => $rotation[2],
+            'w' => $rotation[3]
+        ];
+
         $entityClass = $binary->getString();
 
         $params = [];

@@ -29,52 +29,23 @@ class Extract {
 
         $this->game = $game;
 
-        $positions = $this->parsePositions();
+        $areaPositions = $this->parseAreaPositions();
 
-        $table1 = $this->parseTabel1();
-        $table2Names = $this->parseTabel2Names();
+        $waypoints = $this->parseWaypoints();
+        $areaNames = $this->parseAreaNames();
 
         $results = [];
-        foreach ($table1 as $entry) {
-
-//            foreach ($entry['entries'] as &$entry) {
-//                var_dump($entry);exit;
-//                foreach ($positions as $position) {
-//                    if ($position['linkId'] == $entry['linkId']){
-//                        $entry = $position['position'];
-//                        break;
-//                    }
-//                }
-//                $positionIndex = $positions[$positionIndex]['position'];
-//            }
-
+        foreach ($waypoints as $entry) {
             $results[ 'path_' . $entry['name'] . '.json' ] = $entry;
         }
 
         $positionsByIndex = [];
 
-        //resolve linkIds
-//        foreach ($positions as &$position) {
-//
-//            foreach ($position['entries'] as &$entry) {
-//                foreach ($positions as $_position) {
-//                    if ($_position['linkId'] == $entry['linkId']){
-//                        $entry['link'] = $_position['position'];
-//                        break;
-//                    }
-//                }
-//
-//            }
-//
-//
-//        }
-
-
-        foreach ($positions as $position) {
+        foreach ($areaPositions as $position) {
             $positionsByIndex[$position['groupIndex']][] = $position;
         }
 
-        foreach ($table2Names as $index => $name) {
+        foreach ($areaNames as $index => $name) {
             $results[ $index . '#area_' . $name . '.json' ] = $positionsByIndex[$index];
         }
 
@@ -82,7 +53,7 @@ class Extract {
     }
 
     
-    private function parseTabel2Names(){
+    private function parseAreaNames(){
         $count = $this->binary->consume(4, NBinary::INT_32);
 
         $results = [];
@@ -93,7 +64,7 @@ class Extract {
         return $results;
     }
 
-    private function parseTabel1(){
+    private function parseWaypoints(){
 
         $count = $this->binary->consume(4, NBinary::INT_32);
 
@@ -112,7 +83,7 @@ class Extract {
     }
 
 
-    private function parsePositions(){
+    private function parseAreaPositions(){
 
         $entryCount = $this->binary->consume(4, NBinary::INT_32);
         $entries = [];

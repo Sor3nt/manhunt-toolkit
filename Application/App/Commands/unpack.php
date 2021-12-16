@@ -107,6 +107,12 @@ if (isset($handler->keepOrder)){
     }
 }
 
+if (isset($handler->keepOrder)){
+    if (in_array('cutscene', $options) !== false){
+        $handler->isCutscene = true;
+    }
+}
+
 if ($handler instanceof App\Service\Archive\Fsb3 ||
     $handler instanceof App\Service\Archive\Fsb4){
 

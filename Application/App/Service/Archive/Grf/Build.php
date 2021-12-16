@@ -25,14 +25,14 @@ class Build {
         }
 
 
-        $this->generateAreaBlock($files, $result);
-        $this->generatePathBlock($files, $result);
-        $this->generateNameBlock($files, $result);
+        $this->generateAreaPositionBlock($files, $result);
+        $this->generateWaypointBlock($files, $result);
+        $this->generateAreaNameBlock($files, $result);
 
         return $result->binary;
     }
 
-    public function generateNameBlock(Finder $files, NBinary $result){
+    public function generateAreaNameBlock(Finder $files, NBinary $result){
         $entries = [];
 
         $files->sortByName();
@@ -56,7 +56,7 @@ class Build {
     }
 
 
-    public function generatePathBlock(Finder $files, NBinary $output){
+    public function generateWaypointBlock(Finder $files, NBinary $output){
         $pathEntries = [];
 
         foreach ($files as $file) {
@@ -82,7 +82,7 @@ class Build {
         }
     }
 
-    public function generateAreaBlock(Finder $files, NBinary $result){
+    public function generateAreaPositionBlock(Finder $files, NBinary $result){
 
         $areaEntries = [];
         foreach ($files as $file) {

@@ -12,6 +12,7 @@ class Ifp extends Archive
     public static $supported = 'ifp';
 
     public $keepOrder = false;
+    public $isCutscene = false;
 
     /**
      * @param $pathFilename
@@ -479,55 +480,29 @@ class Ifp extends Archive
 
                 $frameTime += $curTime;
             }else{
-
-
-                //todo ....
                 if ($startTime < 1) $startTime = 1;
 
                 $frameTime = ($index/2048*30)+$startTime-1;
             }
 
-            if (isset($resultFrame['time'])){
-
-//                var_dump($frameTime, $resultFrame['time'], "\n");
-            }
-
-
-
-//
-//            var_dump($frameTime / 30);
-
-
-
-//            if ($startTime == 0) {
-//
-//                // first frame == starTime
-//                if ($index == 0 && $frameType < 3) {
-//                    $time = $startTime;
-//                } else {
-//                    $time = $binary->consume(2, NBinary::LITTLE_U_INT_16);
-//                }
-//
-//                $resultFrame['time'] = ($time / 2048) * 30;
-//            }
-
             if ($frameType < 3) {
+                $factor = 4096;
 
                 if ($platform == MHT::PLATFORM_WII){
                     $resultFrame['quat'] = [
-                        $binary->readSwitchedInt16() / 2048,
-                        $binary->readSwitchedInt16() / 2048,
-                        $binary->readSwitchedInt16() / 2048,
-                        $binary->readSwitchedInt16() / 2048
+                        $binary->readSwitchedInt16() / $factor,
+                        $binary->readSwitchedInt16() / $factor,
+                        $binary->readSwitchedInt16() / $factor,
+                        $binary->readSwitchedInt16() / $factor
                     ];
 
                 }else{
 
                     $resultFrame['quat'] = [
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048,
+                        $binary->consume(2, NBinary::INT_16) / $factor,
+                        $binary->consume(2, NBinary::INT_16) / $factor,
+                        $binary->consume(2, NBinary::INT_16) / $factor,
+                        $binary->consume(2, NBinary::INT_16) / $factor,
                     ];
                 }
 
@@ -536,19 +511,22 @@ class Ifp extends Archive
 
             if ($frameType > 1) {
 
+                $factor = 2048;
+                if ($this->isCutscene) $factor = 1024;
+
                 if ($platform == MHT::PLATFORM_WII){
                     $resultFrame['position'] = [
-                        $binary->readSwitchedInt16() / 2048,
-                        $binary->readSwitchedInt16() / 2048,
-                        $binary->readSwitchedInt16() / 2048
+                        $binary->readSwitchedInt16() / $factor,
+                        $binary->readSwitchedInt16() / $factor,
+                        $binary->readSwitchedInt16() / $factor
                     ];
 
                 }else{
 
                     $resultFrame['position'] = [
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048,
-                        $binary->consume(2, NBinary::INT_16) / 2048
+                        $binary->consume(2, NBinary::INT_16) / $factor,
+                        $binary->consume(2, NBinary::INT_16) / $factor,
+                        $binary->consume(2, NBinary::INT_16) / $factor
                     ];
 
                 }
@@ -815,16 +793,16 @@ class Ifp extends Archive
                                 'w' => 0.500001
                             ]);
                             //Spine(0) is in someway twisted, for now just use another mh2 spine values
-                            $singleChunkBinary->write(intval($recalc['x'] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($recalc['y'] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($recalc['z'] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($recalc['w'] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['x'] * 4096), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['y'] * 4096), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['z'] * 4096), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($recalc['w'] * 4096), NBinary::INT_16);
 
                         }else{
-                            $singleChunkBinary->write(intval($frame['quat'][0] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['quat'][1] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['quat'][2] * 2048), NBinary::INT_16);
-                            $singleChunkBinary->write(intval($frame['quat'][3] * 2048), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][0] * 4096), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][1] * 4096), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][2] * 4096), NBinary::INT_16);
+                            $singleChunkBinary->write(intval($frame['quat'][3] * 4096), NBinary::INT_16);
 
                         }
 
@@ -866,9 +844,12 @@ class Ifp extends Archive
                             $frame['position'][2] += 0.00713982;
                         }
 
-                        $singleChunkBinary->write(intval($frame['position'][0] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['position'][1] * 2048), NBinary::INT_16);
-                        $singleChunkBinary->write(intval($frame['position'][2] * 2048), NBinary::INT_16);
+                        $factor = 2048;
+                        if ($this->isCutscene) $factor = 1024;
+
+                        $singleChunkBinary->write(intval($frame['position'][0] * $factor), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['position'][1] * $factor), NBinary::INT_16);
+                        $singleChunkBinary->write(intval($frame['position'][2] * $factor), NBinary::INT_16);
 
 
                     }
