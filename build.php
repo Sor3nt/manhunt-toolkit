@@ -16,13 +16,16 @@ if (file_exists($pharFile . '.gz'))
 // create phar
 $phar = new Phar($pharFile);
 
+echo "startBuffering\n";
 // start buffering. Mandatory to modify stub to add shebang
 $phar->startBuffering();
 
+echo "createDefaultStub\n";
 // Create the default stub from main.php entrypoint
 $defaultStub = $phar->createDefaultStub('mht.php');
 
 // Add the rest of the apps files
+echo "buildFromDirectory\n";
 $phar->buildFromDirectory(__DIR__ . '/Application');
 
 // Customize the stub to add the shebang
@@ -33,6 +36,7 @@ $phar->setStub($stub);
 
 $phar->stopBuffering();
 
+echo "compressFiles\n";
 // plus - compressing it into gzip
 $phar->compressFiles(Phar::GZ);
 

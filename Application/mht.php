@@ -30,11 +30,6 @@ if (isset($argv[1])){
 
     switch (strtolower($argv[1])){
 
-        case 'editor':
-        case 'viewer':
-            echo "Starting Web Editor... please open in your browser http://localhost:8080/\n";
-            system(PHP_BINARY . ' -S localhost:8080 -t Application/Ide');
-            break;
         case 'patch':
             echo "Legend: U=unpack B=build S=skip R=replace A=append\n";
             echo "\n";
