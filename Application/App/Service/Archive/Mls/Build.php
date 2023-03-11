@@ -18,7 +18,8 @@ class Build {
             "MHLS" .
             "\x03\x00\x09\x00"        // MHLS Version (3.9)
         ;
-        ksort($scripts);
+
+        //ksort($scripts);
 
         $levelScriptRecords = false;
 

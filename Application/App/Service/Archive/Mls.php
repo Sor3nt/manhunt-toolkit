@@ -62,7 +62,11 @@ class Mls extends Archive {
 
         $scripts = [];
 
-        $finder->sortByName();
+        $finder->sort(function($file, $fileB) {
+            list($index, $filename) = explode("#", $file->getFilename());
+            list($indexB, $filename) = explode("#", $fileB->getFilename());
+            return $index > $indexB;
+        });
 
         foreach ($finder as $file) {
 

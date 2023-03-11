@@ -149,7 +149,7 @@ class Rfa extends Archive {
                 $unknown3 = $binary->consume(2, NBinary::INT_16);
 
 
-                var_dump($unknown3, "\n");
+//                var_dump($unknown3, "\n");
 
 
                 if ($version == 3){

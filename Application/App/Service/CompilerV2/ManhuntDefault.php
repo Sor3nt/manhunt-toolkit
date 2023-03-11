@@ -109,6 +109,8 @@ class ManhuntDefault
     ];
 
     public $functionEventDefinition = [
+        'onlitbyflashlight' => '62000000',
+        'onqtmstart' => '65000000',
         'oncreate' => '00000000',
         'ondestroy' => '01000000',
         'ondamage' => '02000000',

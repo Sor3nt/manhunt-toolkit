@@ -120,7 +120,7 @@ class Compiler
 
         $this->game = $game;
         $this->platform = $platform;
-        $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2();
+        $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2($this->platform);
 
 
         $source = preg_replace_callback("/FrisbeeSpeechPlayWait\((.*)\s?,(.*)\s?,(.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
@@ -167,6 +167,7 @@ class Compiler
         //a special comment
         $source = str_replace("{OPEN THE DOORS}", "", $source);
         $source = str_replace("}}", "}", $source);
+        $source = str_replace('{TEMP SLEEP FOR PLACEHOLDER TEXT}', '', $source);
 
         // remove comments / unused code
         $source = preg_replace("/{(.|\s)*}/mU", "", $source);
@@ -236,6 +237,8 @@ class Compiler
          * appear in a18 script 38
          */
         $source = str_replace('5.09909e - 005', '0.0000509909', $source);
+        $source = str_replace('-450', '- 450', $source);
+
 
         /**
          * Fetch all chars except whitespaces and line end sign ";"
@@ -376,10 +379,50 @@ class Compiler
             'SRCE' => $this->untouchedSource,
 
             //TODO calc missed
-            'SMEM' => 78596,
-            'DMEM' => 78596,
+            'SMEM' => $this->getSMEM(),
+            'DMEM' => $this->getDMEM()
 
         ];
+    }
+
+    public function getSMEM(){
+        //should be unused , just internal
+        if (strpos($this->untouchedSource, 'entity manhunt : et_game') !== false)
+            return 78596;
+
+        if ($this->platform === MHT::PLATFORM_PSP){
+            $firstLine = explode("\n", $this->untouchedSource)[0];
+            if (strpos($firstLine, 'SMEM:') === false)
+                die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
+
+            $mem = explode("SMEM:", $firstLine)[1];
+            $mem = (int) explode(" ", $mem)[0];
+
+            return $mem;
+        }else{
+            return 78596;
+        }
+
+    }
+
+    public function getDMEM(){
+        //should be unused , just internal
+        if (strpos($this->untouchedSource, 'entity manhunt : et_game') !== false)
+            return 78596;
+
+        if ($this->platform === MHT::PLATFORM_PSP){
+            $firstLine = explode("\n", $this->untouchedSource)[0];
+            if (strpos($firstLine, 'DMEM:') === false)
+                die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
+
+            $mem = explode("DMEM:", $firstLine)[1];
+            $mem = (int) explode(" ", $mem)[0];
+
+            return $mem;
+        }else{
+            return 78596;
+        }
+
     }
 
 

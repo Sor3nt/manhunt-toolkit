@@ -28,7 +28,9 @@ class Extract {
         $version = $this->binary->substr(4, 4, $remain);
 
 
-        $this->platform = $version == "00090003" ? MHT::PLATFORM_WII : MHT::PLATFORM_PC;
+        if ($version == "00090003"){
+            $this->platform = MHT::PLATFORM_WII;
+        }
 
 
         $nextSection = $remain->substr(0, 4)->toString();
@@ -107,6 +109,11 @@ class Extract {
             }
 
         }while($remain->length() > 0);
+
+        //memory workaround
+        if($this->platform === MHT::PLATFORM_PSP){
+            $results['SRCE'] = sprintf("{#MHT SMEM:%s | DMEM:%s}\n", $results['SMEM'],$results['DMEM']) . $results['SRCE'];
+        }
 
         return $results;
     }
@@ -439,7 +446,7 @@ class Extract {
 
 
                     default:
-var_dump($valueType);
+//var_dump($valueType);
                         $objectType = $valueType;
 
                         //                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));

@@ -27,8 +27,9 @@ class Archive extends TestCase
 
     public function call( $cmd, $file, $contains, $game, $platform  ){
 
+
         $output = shell_exec(sprintf(
-            'php %s.php %s %s %s', $cmd, $file, $game, $platform
+            'php Application/App/Commands/%s.php %s %s %s', $cmd, $file, $game, $platform
         ) );
 
         $this->assertContains($contains, strtolower($output));

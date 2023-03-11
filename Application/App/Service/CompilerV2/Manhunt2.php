@@ -9,6 +9,22 @@ class Manhunt2 extends ManhuntDefault
 
     public $constants = [
 
+        'map_color_pickup' => [
+            'offset' => '15000000'
+        ],
+
+        'pad_up' => [
+            'offset' => '00100000'
+        ],
+
+        'col_basic' => [
+            'offset' => '01000000'
+        ],
+
+        'ec_basic' => [
+            'offset' => '01000000'
+        ],
+
         'col_responder' => [
             'offset' => '00400000'
         ],
@@ -645,10 +661,11 @@ class Manhunt2 extends ManhuntDefault
 
     ];
     public $functions = [
-//        'this' => [
-//            'name' => 'this',
-//            'offset' => "49000000"
-//        ],
+
+        'allowgrapplingatall' => [
+            'name' => 'AllowGrapplingAtAll',
+            'offset' => "89030000"
+        ],
 
         'sleep' => [
             'name' => 'Sleep',
@@ -3740,7 +3757,7 @@ end.
 //        return self::calcHash($name);
     }
 
-    public function __construct()
+    public function __construct( $platform )
     {
         $this->functionEventDefinition = array_merge($this->functionEventDefinition, [
             '__default__' => '68000000'

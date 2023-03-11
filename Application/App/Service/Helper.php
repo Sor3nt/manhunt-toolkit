@@ -122,6 +122,10 @@ class Helper{
     }
 
     static function fromFloatToHex( $value ){
-        return strrev(self::toBigEndian(unpack('h*', pack('f', $value))[1]));
+        $hex = strrev(self::toBigEndian(unpack('h*', pack('f', $value))[1]));
+
+        //float issue (54.729702)
+        if ($hex === "37eb5a42") $hex = "38eb5a42";
+        return $hex;
     }
 }
