@@ -257,6 +257,12 @@ class Extract {
 
                 if (is_float($number)){
 
+                    if (0.07999999821186066 === $number)
+                        $number = 0.08;
+
+                    if (0.07000000029802322 === $number)
+                        $number = 0.07;
+
                     if (Helper::fromFloatToHex($number) == "cdcc4c3d"){
                         $number = 0.05;
                     }

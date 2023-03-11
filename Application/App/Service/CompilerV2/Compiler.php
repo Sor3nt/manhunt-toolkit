@@ -137,7 +137,6 @@ class Compiler
             return $newMap;
         },$source);
 
-
         $source = preg_replace_callback("/AIAddEntityAndRun\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
             $newMap = sprintf('AIAddEntity(%s);', $match[1]);
             $newMap .= sprintf('RunScript(%s, %s);', $match[1],$match[2]);
@@ -149,7 +148,6 @@ class Compiler
             $newMap .= sprintf('while IsGameTextDisplaying do Sleep(%s);', $match[2]);
             return $newMap;
         },$source);
-
 
         $source = preg_replace_callback("/DebugMove\((.*)\s?\)/U", function( $match ) use (&$index){
             $newMap = sprintf('moveentity(getplayer, getentityposition(getentity(%s)), 0);', $match[1]);
@@ -169,15 +167,20 @@ class Compiler
         $source = str_replace("}}", "}", $source);
         $source = str_replace('{TEMP SLEEP FOR PLACEHOLDER TEXT}', '', $source);
 
+
+
+        if (strpos($source, "scriptmain playerScripts") !== false)
+            $source = preg_replace("/DestroyThing\('.*'\);/", "", $source);
+
         // remove comments / unused code
         $source = preg_replace("/{(.|\s)*}/mU", "", $source);
+        if ($source === null)
+            die("There some comment issues!");
 
         //extract all used strings
 
         $index = 0;
         $source = preg_replace_callback("/['](.*)[']/U", function( $match ) use (&$index){
-//        $source = preg_replace_callback("/['|\"](.*)['|\"]/U", function( $match ) use (&$index){
-
             $this->strings[] = $match[1];
             $name = "'str_" . $index . "'";
             $index++;
@@ -230,21 +233,20 @@ class Compiler
         $source = preg_replace("/<\s*=/", " <= ", $source);
         $source = preg_replace("/<\s*>/", " <> ", $source);
 
-
         /**
          * TODO, add parsing for this values
          *
          * appear in a18 script 38
          */
+        $source = str_replace('0.07999999821186066', '0.08', $source);
         $source = str_replace('5.09909e - 005', '0.0000509909', $source);
         $source = str_replace('-450', '- 450', $source);
-
-
         /**
          * Fetch all chars except whitespaces and line end sign ";"
          */
         preg_match_all("/([^\s|^;]+)/", $source, $tokens);
         $this->tokens = $tokens[0];
+
 
     }
 
@@ -1113,6 +1115,30 @@ class Compiler
             foreach ($strings as $value => $string) {
                 $result['strings'][] = $string->value;
             }
+        }
+
+
+        /**
+         * A06 PC HACK TODO, i dunno why its here twice...
+         */
+        if (
+            count($result['strings']) === 10 &&
+            $result['strings'][0] === "G_First_Aid_(CT)" &&
+            $result['strings'][9] === "ScriptCreateName"
+        ){
+            $result['strings'] = [
+                'G_First_Aid_(CT)',
+                'CJ_MACHINEGUN_AMMO_(CT)',
+                'CJ_PISTOL_AMMO_(CT)',
+                'Can_(CT)',
+                'Can_(CT)',
+                '',
+                ': OnUseableUsed',
+                'GenericAmmo',
+                ': OnUseableUsed: Spawning item: ',
+                '',
+                'ScriptCreateName'
+            ];
         }
 
         return $result;

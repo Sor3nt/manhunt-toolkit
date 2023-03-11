@@ -16,6 +16,9 @@ class Manhunt2 extends ManhuntDefault
         'pad_up' => [
             'offset' => '00100000'
         ],
+        'pad_rstickbutt' => [
+            'offset' => '00040000'
+        ],
 
         'col_basic' => [
             'offset' => '01000000'
