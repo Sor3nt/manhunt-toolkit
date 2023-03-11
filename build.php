@@ -13,6 +13,8 @@ if (file_exists($pharFile . '.gz'))
     unlink($pharFile . '.gz');
 }
 
+rename('Application/App/Tests', 'Tests');
+
 // create phar
 $phar = new Phar($pharFile);
 
@@ -42,5 +44,7 @@ $phar->compressFiles(Phar::GZ);
 
 # Make the file executable
 chmod(__DIR__ . '/' . $pharFile, 0770);
+
+rename('Tests', 'Application/App/Tests');
 
 echo "$pharFile successfully created" . PHP_EOL;
