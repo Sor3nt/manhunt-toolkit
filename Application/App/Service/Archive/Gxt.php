@@ -107,15 +107,19 @@ class Gxt extends Archive {
                 continue;
             }else{
                 $binary->jumpTo($offset);
-
+//var_dump($offset);
                 $result = [
                     'key' => $entry['key'],
                     'text' => $binary->getString("\x00\x00\x00", false)
                 ];
 
-                $result['text'] .= "\x00\x00\x00";
+                if ($platform === MHT::PLATFORM_WII){
+                    $result['text'] = iconv('UTF-16', 'UTF-8', $result['text']);
+                }else{
+                    $result['text'] .= "\x00\x00\x00";
+                    $result['text'] = iconv('UTF-16LE', 'UTF-8', $result['text']);
+                }
 
-                $result['text'] = iconv('UTF-16LE', 'UTF-8', $result['text']);
                 $result['text'] = trim($result['text']);
 
                 //MH2 only
