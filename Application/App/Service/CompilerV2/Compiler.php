@@ -168,7 +168,6 @@ class Compiler
         $source = str_replace('{TEMP SLEEP FOR PLACEHOLDER TEXT}', '', $source);
 
 
-
         if (strpos($source, "scriptmain playerScripts") !== false)
             $source = preg_replace("/DestroyThing\('.*'\);/", "", $source);
 

@@ -665,6 +665,11 @@ class Manhunt2 extends ManhuntDefault
     ];
     public $functions = [
 
+        'fmvgrabscenestart' => [
+            'name' => 'FMVGrabSceneStart',
+            'offset' => "c8030000"
+        ],
+
         'allowgrapplingatall' => [
             'name' => 'AllowGrapplingAtAll',
             'offset' => "89030000"

@@ -1577,7 +1577,6 @@ class Evaluate{
      */
     public function doMath( $associations ){
 
-
         $this->compiler->evalVar->msg = sprintf("Math Operation ");
 
         $varType = $this->compiler->detectVarType($associations[0]);
@@ -1656,7 +1655,6 @@ class Evaluate{
                 if ($varType == "float" ){
 
                     if ($association->type == Tokens::T_INT) {
-                        var_dump("convert! 1");
                         $this->add('4d000000', 'integer to float3');
                         $this->compiler->evalVar->ret("3");
 
@@ -1670,7 +1668,6 @@ class Evaluate{
 
                         $this->add('4d000000', 'integer to float1');
                         $this->compiler->evalVar->ret("3");
-
                     }
 
                 }

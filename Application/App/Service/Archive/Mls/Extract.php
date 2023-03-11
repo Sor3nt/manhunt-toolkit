@@ -260,6 +260,9 @@ class Extract {
                     if (0.07999999821186066 === $number)
                         $number = 0.08;
 
+                    if (1.2999999523162842 === $number)
+                        $number = 1.3;
+
                     if (0.07000000029802322 === $number)
                         $number = 0.07;
 

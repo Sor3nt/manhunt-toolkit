@@ -562,9 +562,11 @@ class EvaluateVariable{
 
         $msg = "Read array";
 
+        //this block should not be called when we inside a IF statement
         $this->add('34000000', $msg);
         $this->add('01000000', $msg);
         $this->add('01000000', $msg);
+
 
         $this->add('12000000', $msg);
         $this->add('04000000', $msg);
