@@ -109,8 +109,16 @@ class ManhuntDefault
     ];
 
     public $functionEventDefinition = [
+//        'showcutscene' => '65000000', //psp 0.01
+//        'onlevelstateswitch' => '65000000', //psp 0.01
+//        'gunchaselasthunters' => '65000000', //psp 0.01
+//        'levelintro' => '65000000', //psp 0.01
+//        'init' => '65000000', //psp 0.01
+//        'talk' => '65000000', //psp 0.01
+//        'skipflashback' => '65000000', //psp 0.01
+        'onqtmstart' => '65000000', //psp 0.01
+
         'onlitbyflashlight' => '62000000',
-        'onqtmstart' => '65000000',
         'oncreate' => '00000000',
         'ondestroy' => '01000000',
         'ondamage' => '02000000',

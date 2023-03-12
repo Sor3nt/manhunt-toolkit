@@ -237,7 +237,10 @@ class Compiler
          *
          * appear in a18 script 38
          */
+        $source = str_replace('0.20000000298023224', '0.2', $source);
         $source = str_replace('0.07999999821186066', '0.08', $source);
+        $source = str_replace('2.38419e - 007', '0.000000238419', $source);
+
         $source = str_replace('5.09909e - 005', '0.0000509909', $source);
         $source = str_replace('-450', '- 450', $source);
         /**

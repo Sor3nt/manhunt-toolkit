@@ -1612,6 +1612,38 @@ class Manhunt2 extends ManhuntDefault
             'return' => 'vec3d',
         ],
 
+        'airemoveareafromsubpack' => [
+            'name' => 'AIRemoveAreaFromSubpack',
+            'offset' => '79010000'
+        ],
+
+        'airemoveleaderenemy' => [
+            'name' => 'AIRemoveLeaderEnemy',
+            'offset' => '55010000'
+        ],
+
+        'lefttrigger' => [
+            'name' => 'LeftTrigger',
+            'offset' => 'a6000000'
+        ],
+
+        'getplayernoiselevel' => [
+            'name' => 'GetPlayerNoiseLevel',
+            'offset' => 'a6030000',
+            'return' => 'real'
+        ],
+
+        'setexecutionlimits' => [
+            'name' => 'SetExecutionLimits',
+            'offset' => '86020000'
+        ],
+
+        'getgametime' => [
+            'name' => 'GetGameTime',
+            'offset' => '92000000',
+            'return' => 'integer'
+        ],
+
         'setcolourramp' => [
             'name' => 'SetColourRamp',
             'offset' => 'ab030000'
