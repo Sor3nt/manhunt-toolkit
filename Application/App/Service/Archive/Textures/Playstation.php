@@ -114,49 +114,49 @@ class Playstation extends Image {
 
     public function getPaletteSize( $format, $bpp ){
 
-
-        if ($format == "00010000" && $bpp == 8) return 1024;
-        if ($format == "10000000" && $bpp == 8) return 1024;
-        if ($format == "20000000" && $bpp == 8) return 1024;
-        if ($format == "40000000" && $bpp == 8) return 1024;
-        if ($format == "80000000" && $bpp == 32) return 1024;
-        if ($format == "80000000" && $bpp == 8) return 1024;
-        if ($format == "80000000" && $bpp == 4) return 1024;
-        if ($format == "00010000" && $bpp == 32) return 1024;
-
-
-        if ($format == "08000000" && $bpp == 4) return 64;
-        if ($format == "10000000" && $bpp == 4) return 64;
-        if ($format == "20000000" && $bpp == 4) return 64;
-        if ($format == "40000000" && $bpp == 4) return 64;
+        if ($format == "00010000" && ($bpp == 32 || $bpp == 8)) return 1024;
         if ($format == "00010000" && $bpp == 4) return 64;
+
         if ($format == "00020000" && $bpp == 8) return 1024;
 
+        if ($format == "08000000" && $bpp == 4) return 64;
+
+        if ($format == "10000000" && $bpp == 8) return 1024;
+        if ($format == "10000000" && $bpp == 4) return 64;
+
+        if ($format == "20000000" && $bpp == 8) return 1024;
+        if ($format == "20000000" && $bpp == 4) return 64;
+
+        if ($format == "40000000" && $bpp == 8) return 1024;
+        if ($format == "40000000" && $bpp == 4) return 64;
+
+        if ($format == "80000000" && ($bpp == 32 || $bpp == 8 || $bpp == 4) ) return 1024;
+
         throw new \Exception(sprintf("Unknown palette format %s bpp: %s", $format, $bpp));
-
-
     }
 
     public function getRasterSize( $format, $width, $height, $bpp ){
 
-        if ($format == "80000000" && $bpp == 32) return $width * $height;
-        if ($format == "80000000" && $bpp == 8) return $width * $height;
+        if ($format == "00010000" && ($bpp == 4)) return ($width * $height) / 2;
+        if ($format == "00010000" && ( $bpp == 8 || $bpp == 32)) return $width * $height;
+        if ($format == "00020000" && $bpp == 8) return $width * $height;
+
         if ($format == "08000000" && $bpp == 4) return ($width * $height) / 2;
+
         if ($format == "10000000" && $bpp == 4) return ($width * $height) / 2;
-        if ($format == "80000000" && $bpp == 4) return ($width * $height) / 2;
-        if ($format == "00010000" && $bpp == 8) return $width * $height;
-        if ($format == "20000000" && $bpp == 4) return ($width * $height) / 2;
-        if ($format == "00010000" && $bpp == 4) return $width * $height;
+        if ($format == "10000000" && $bpp == 8) return $width * $height;
+
         if ($format == "40000000" && $bpp == 4) return ($width * $height) / 2;
         if ($format == "40000000" && $bpp == 8) return $width * $height;
+
+        if ($format == "80000000" && ($bpp == 32 || $bpp == 8)) return $width * $height;
+        if ($format == "80000000" && $bpp == 4) return ($width * $height) / 2;
+
+        if ($format == "20000000" && $bpp == 4) return ($width * $height) / 2;
         if ($format == "20000000" && $bpp == 8) return $width * $height;
-        if ($format == "10000000" && $bpp == 8) return $width * $height;
-        if ($format == "00010000" && $bpp == 32) return $width * $height;
-        if ($format == "00020000" && $bpp == 8) return $width * $height;
 
         throw new \Exception(sprintf("Unknown raster format %s bpp: %s", $format, $bpp));
     }
-
 
     public function convertToRgba($texture, $platform ){
 
@@ -323,7 +323,7 @@ class Playstation extends Image {
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //g
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //b
             $alpha = $colors->consume(1, NBinary::U_INT_8); //a
-//
+
             $dst[] = $alpha > 0x80 ? 255 : $this->alphaDecodingTable[$alpha];
 
             $result[] = $dst;

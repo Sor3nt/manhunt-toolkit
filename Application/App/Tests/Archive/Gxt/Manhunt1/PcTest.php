@@ -11,7 +11,7 @@ class PcTest extends Archive
     {
 
 
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Gxt/Manhunt1/PC";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Gxt/Manhunt1/PC";
         $outputFolder = $testFolder . "/export";
 
         echo "\n* GXT: Testing Manhunt 1 PC (unpack/pack) ==> ";

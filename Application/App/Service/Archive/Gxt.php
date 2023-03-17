@@ -28,8 +28,52 @@ class Gxt extends Archive {
         return false;
     }
 
-    public function unpack(NBinary $binary, $game, $platform){
+    public function getEntrySize($game, $platform) {
 
+        switch ($game){
+            case MHT::GAME_MANHUNT_2:
+
+                switch ($platform) {
+                    case MHT::PLATFORM_PSP_001:
+                        return 12;
+                    case MHT::PLATFORM_PSP:
+                    case MHT::PLATFORM_PS2:
+                        return 16;
+
+                    default:
+                        return 20;
+                }
+
+            case MHT::GAME_MANHUNT:
+            default:
+                return 12;
+
+        }
+    }
+
+    public function getKeySize($game, $platform) {
+
+        switch ($game){
+            case MHT::GAME_MANHUNT_2:
+
+                switch ($platform) {
+                    case MHT::PLATFORM_PSP_001:
+                    case MHT::PLATFORM_PSP:
+                    case MHT::PLATFORM_PS2:
+                        return 8;
+
+                    default:
+                        return 12;
+                }
+
+            case MHT::GAME_MANHUNT:
+            default:
+                return 8;
+
+        }
+    }
+
+    public function unpack(NBinary $binary, $game, $platform){
 
         // a empty translation file
         if ($binary->length() <= 8) return [];
@@ -48,48 +92,23 @@ class Gxt extends Archive {
         ];
 
         $indexBlock = [];
-//
-//
-//        $test = $binary->consume(4, NBinary::INT_32, 16);
-//
-//        if ($game == MHT::GAME_AUTO){
-//            if ($test > 100000){
-//                $game = MHT::GAME_MANHUNT;
-//            }else{
-//                $game = MHT::GAME_MANHUNT_2;
-//            }
-//        }
-//
-//        $binary->jumpTo(8);
 
-        $entrySize = 20; //mh2 default;
-
-        if($game == MHT::GAME_MANHUNT_2 && ($platform == MHT::PLATFORM_PS2 || $platform == MHT::PLATFORM_PSP_001)) {
-            $entrySize = 16;
-        }else if($game == MHT::GAME_MANHUNT_2 && $platform == MHT::PLATFORM_PSP) {
-            $entrySize = 16;
-        }else if($game == MHT::GAME_MANHUNT){
-            $entrySize = 12;
-        }
-
-        $count = $indexHeader['blockSize'] / $entrySize;
-
+        $count = $indexHeader['blockSize'] / $this->getEntrySize($game, $platform);
 
         for( $i = 0; $i < $count; $i++ ){
 
-            $keySizes = $game == MHT::GAME_MANHUNT ? 8 : 12;
-            if($game == MHT::GAME_MANHUNT_2 && ($platform == MHT::PLATFORM_PS2 || $platform == MHT::PLATFORM_PSP || $platform == MHT::PLATFORM_PSP_001)) {
-                $keySizes = 8;
-            }
 
             $entry = [
                 'offset' => $binary->consume(4,  NBinary::INT_32),
-                'key'    => $binary->consume($keySizes, NBinary::STRING)
+                'key'    => $binary->consume($this->getKeySize($game, $platform), NBinary::STRING)
             ];
-            if ($game == MHT::GAME_MANHUNT_2 && $platform !== MHT::PLATFORM_PSP_001){
-                $entry['id'] = $binary->consume(4,  NBinary::INT_32);
-            }
 
+            if (
+                $game == MHT::GAME_MANHUNT_2 &&
+                $platform !== MHT::PLATFORM_PSP_001
+            ){
+                $entry['duration'] = $binary->consume(4,  NBinary::INT_32);
+            }
 
             $indexBlock[] = $entry;
         }
@@ -99,7 +118,7 @@ class Gxt extends Archive {
 
         $results = [];
 
-        foreach ($indexBlock as $entry) {
+        foreach ($indexBlock as $index => $entry) {
             $offset = $indexHeader['blockSize'] + $entry['offset'] + 16;
 
             if ($offset > $binary->length()){
@@ -107,24 +126,23 @@ class Gxt extends Archive {
                 continue;
             }else{
                 $binary->jumpTo($offset);
-//var_dump($offset);
+
                 $result = [
                     'key' => $entry['key'],
                     'text' => $binary->getString("\x00\x00\x00", false)
                 ];
 
-                if ($platform === MHT::PLATFORM_WII){
-                    $result['text'] = iconv('UTF-16', 'UTF-8', $result['text']);
-                }else{
-                    $result['text'] .= "\x00\x00\x00";
-                    $result['text'] = iconv('UTF-16LE', 'UTF-8', $result['text']);
-                }
+                $result['text'] .= "\x00";
 
-                $result['text'] = trim($result['text']);
+                $result['text'] = iconv(
+                    $platform === MHT::PLATFORM_WII ? 'UTF-16' : 'UTF-16LE',
+                    'UTF-8',
+                    $result['text']
+                );
 
                 //MH2 only
-                if (isset($entry['id'])){
-                    $result['id'] = $entry['id'];
+                if (isset($entry['duration'])){
+                    $result['duration'] = $entry['duration'];
                 }
 
                 $results[] = $result;
@@ -147,7 +165,7 @@ class Gxt extends Archive {
         $records = \json_decode($records->binary, true);
 
         if ($game == MHT::GAME_AUTO){
-            $game = isset($records[0]['id']) ? MHT::GAME_MANHUNT_2 : MHT::GAME_MANHUNT;
+            $game = isset($records[0]['duration']) ? MHT::GAME_MANHUNT_2 : MHT::GAME_MANHUNT;
         }
 
         $binary = new NBinary();
@@ -157,21 +175,28 @@ class Gxt extends Archive {
         }
 
         $binary->write('TKEY', NBinary::STRING);
-        $binary->write(count($records) * ($game == MHT::GAME_MANHUNT ? 12 : 20), NBinary::INT_32);
+        $binary->write(count($records) * $this->getEntrySize($game, $platform), NBinary::INT_32);
 
         $data = new NBinary();
         $offsets = [];
+        $textSizes = [];
         $offset = 0;
 
-        foreach ($records as $index => $record) {
+        foreach ($records as $record) {
             $offsets[] = $offset;
 
-            $utf16Text = mb_convert_encoding($record['text'], "utf-16");
+            $utf16Text = iconv(
+                'UTF-8',
+                $platform === MHT::PLATFORM_WII ? "utf-16" : "utf-16le",
+                $record['text']
+            );
+
+            $utf16Text .= "\x00\x00";
             $utf16Text = bin2hex($utf16Text);
-            $utf16Text = substr($utf16Text, 2);
-            $utf16Text .= '000000';
 
             $data->write($utf16Text, NBinary::HEX);
+
+            $textSizes[] = strlen($utf16Text) / 2;
 
             $offset += strlen($utf16Text) / 2;
         }
@@ -179,21 +204,21 @@ class Gxt extends Archive {
         foreach ($records as $index => $record) {
             $binary->write($offsets[$index], NBinary::INT_32);
             $binary->write($record['key'], NBinary::STRING);
-            $binary->write($binary->getPadding("\x00", $game == MHT::GAME_MANHUNT ? 8 : 12, $record['key']), NBinary::BINARY);
+            $binary->write($binary->getPadding("\x00", $this->getKeySize($game, $platform), $record['key']), NBinary::BINARY);
 
-            if (isset($record['id'])){
-                $binary->write($record['id'], NBinary::INT_32);
+            if (isset($record['duration'])){
+                $binary->write($record['duration'], NBinary::INT_32);
+            } else if ($game === MHT::GAME_MANHUNT_2 && $platform !== MHT::PLATFORM_PSP_001) {
+                $binary->write($textSizes[$index] << 6, NBinary::INT_32);
+
             }
         }
 
         $binary->write('TDAT', NBinary::STRING);
         $binary->write($data->length(), NBinary::INT_32);
 
-
         $binary->concat($data);
 
         return $binary->binary;
     }
-
-
 }

@@ -40,6 +40,7 @@ class File{
             case $this->binary->getFromPos(0, 4, NBinary::BINARY) == "scri": return "hash_name_list"; break;
 
             default:
+                var_dump("positon of unknown: " . $this->binary->hex);
                 return "unk";
         }
 

@@ -99,6 +99,14 @@ echo sprintf('Identify file as %s', $handler->name) . "\n";
 echo sprintf('Processing %s ', $file);
 
 
+if (isset($handler->asRaw)){
+    if (in_array('raw', $options) !== false){
+        $handler->asRaw = true;
+    }else{
+        $handler->asRaw = false;
+    }
+}
+
 if (isset($handler->keepOrder)){
     if (in_array('ignore-order', $options) !== false){
         $handler->keepOrder = false;
@@ -403,7 +411,11 @@ if (is_array($results)){
 
             $pathInfo = pathinfo($relativeFilename);
 
-            $outputDir = $outputTo . '/' . $pathInfo['dirname'];
+            if ($relativeFilename === "")
+                $outputDir = $outputTo;
+            else
+                $outputDir = $outputTo . '/' . $pathInfo['dirname'];
+
             @mkdir($outputDir, 0777, true);
 
             if (isset($pathInfo['extension'])) {
