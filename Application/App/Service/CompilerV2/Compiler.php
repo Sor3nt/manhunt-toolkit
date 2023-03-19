@@ -120,7 +120,12 @@ class Compiler
 
         $this->game = $game;
         $this->platform = $platform;
-        $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2($this->platform);
+
+        $isCutsceneLevel = false;
+        if (strpos($source, '_i: et_level') || strpos($source, '_o: et_level'))
+            $isCutsceneLevel = true;
+
+        $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2($isCutsceneLevel);
 
 
         $source = preg_replace_callback("/FrisbeeSpeechPlayWait\((.*)\s?,(.*)\s?,(.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){

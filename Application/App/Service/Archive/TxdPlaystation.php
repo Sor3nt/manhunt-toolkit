@@ -21,6 +21,7 @@ class TxdPlaystation extends Archive {
     }
 
     public $asRaw = false;
+    public $onlyMemDump = false;
 
 
     /**
@@ -114,9 +115,6 @@ class TxdPlaystation extends Archive {
         return $texture;
     }
 
-    public function packRaw() {
-
-    }
 
     public function unpackRaw(NBinary $binary, $game, $platform) {
         $header = $this->parseHeader($binary);
@@ -164,8 +162,33 @@ class TxdPlaystation extends Archive {
         return $results;
     }
 
+    public function memDump(NBinary $binary, $game, $platform){
+        $header = $this->parseHeader($binary);
+
+        $currentOffset = $header['firstOffset'];
+        $results = [];
+
+        while($header['numTextures'] > 0) {
+
+            $binary->jumpTo($currentOffset);
+
+            $texture = $this->parseTextureHeader($binary);
+            $dump = mb_substr($texture['name'], mb_strpos($texture['name'], "\x00"));
+            $dump = preg_replace('/[\x00-\x1F\x7F]/u', '', $dump);
+            if (!empty($dump))
+                $results[] = $dump;
+
+            $currentOffset = $texture['nextOffset'];
+            $header['numTextures']--;
+        }
+
+        return $results;
+    }
+
     public function unpack(NBinary $binary, $game, $platform){
 
+        if ($this->onlyMemDump)
+            return $this->memDump($binary, $game, $platform);
 
         if ($this->asRaw)
             return $this->unpackRaw($binary, $game, $platform);

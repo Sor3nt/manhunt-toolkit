@@ -25,13 +25,13 @@ foreach ($argv as $index => $argument) {
 
 switch (count($argv)){
     case 3:
-        list($script, ,$file) = $argv;
+        list($script, $cmd ,$file) = $argv;
         break;
     case 4:
-        list($script, ,$file, $game) = $argv;
+        list($script, $cmd,$file, $game) = $argv;
         break;
     case 5:
-        list($script, , $file, $game, $platform) = $argv;
+        list($script, $cmd, $file, $game, $platform) = $argv;
         break;
     default:
         printHelp();
@@ -104,6 +104,14 @@ if (isset($handler->asRaw)){
         $handler->asRaw = true;
     }else{
         $handler->asRaw = false;
+    }
+}
+
+if (isset($handler->onlyMemDump)){
+    if ($cmd === "memdump"){
+        $handler->onlyMemDump = true;
+    }else{
+        $handler->onlyMemDump = false;
     }
 }
 

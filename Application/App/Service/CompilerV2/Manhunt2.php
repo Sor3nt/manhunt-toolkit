@@ -3797,10 +3797,10 @@ end.
 //        return self::calcHash($name);
     }
 
-    public function __construct( $platform )
+    public function __construct( $isCutsceneLevel )
     {
         $this->functionEventDefinition = array_merge($this->functionEventDefinition, [
-            '__default__' => '68000000'
+            '__default__' => $isCutsceneLevel ? '65000000' : '68000000'
         ]);
 
         $this->functionForceFloat = array_merge($this->functionForceFloat, [
