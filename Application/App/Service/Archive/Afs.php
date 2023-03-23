@@ -43,10 +43,16 @@ class Afs extends Archive
         $hashNames = [];
         $files = [];
 
+        $currentFoler = "unknown";
+
+        $map = [];
+        $fileIndex = 0;
+        $lastBankId = 0;
+        $bankIndec = 0;
         foreach ($entries as $index => $entry) {
             $content = $entry->getContent();
-
             $name = false;
+
             if ($entry->identify() === "aix") {
 
                 $baseName = str_replace('\\', '/', $hashNames[$index - 1]);
@@ -66,10 +72,35 @@ class Afs extends Archive
             }else if ($entry->identify() === "vas" && count($hashNames)) {
                 $name = str_replace('\\', '/', $hashNames[$index - 1]);
                 $name = str_replace('/stream.vas', '', $name);
-//                var_dump($name . '.' . (new File($content))->identify());exit;
-            }else if ($entry->identify() === "context_map") {
-                $name = $content->getString();
-                $files[$name . '/context_map.bin'] = $content->binary;
+            }else if ($entry->identify() === "bank_map") {
+                $content->current = 0;
+                $name = new NBinary($content->consume(32, NBinary::BINARY));
+                $name = $name->getString("\x00", false);
+              //  $files[$name . '/bank_map.bin'] = $content->binary;
+
+                $values = [];
+                $map = [];
+                do {
+                    $lastValue = $content->consume(4, NBinary::INT_32);
+                    $values[] = $lastValue;
+                }while($content->remain() > 0);
+
+                $values = array_values(array_unique($values));
+                foreach ($values as $vIndex => $value) {
+                    if ($vIndex === count($values) - 1)
+                        continue;
+                    else {
+
+                        for($a = $value; $a < $values[$vIndex + 1]; $a++){
+                            $map[$a] = $value;
+                        }
+
+                    }
+                }
+
+                $fileIndex = 0;
+                $currentFoler = $name;
+
                 continue;
             }else if ($entry->identify() === "hash_name_list") {
                 $hashNames = explode("\x0D\x0A", $entry->getContent()->binary);
@@ -83,13 +114,22 @@ class Afs extends Archive
             if (count($hashNames) && $name === false) {
                 $name = str_replace('\\', '/', $hashNames[$index - 1]);
             } elseif ($name === false) {
-                $name = $index;
+                if ($map[$fileIndex] !== $lastBankId){
+                    $lastBankId = $map[$fileIndex];
+                    $bankIndec = 0;
+                }else{
+                    $bankIndec++;
+                }
+
+                if (isset($map[$fileIndex]))
+                    $name = $entry->name . "/" . $bankIndec . "_" . $index;
+                else
+                    die("jmmmm");
             }
 
-            $files[$name . '.' . (new File($content))->identify()] = $content->binary;
-
+            $files[$currentFoler . '/'. $name . '.' . (new File($content))->identify()] = $content->binary;
+            $fileIndex++;
         }
-
 
         return $files;
 

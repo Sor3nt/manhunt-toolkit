@@ -8,6 +8,8 @@ class File{
 
     private $fourCC;
 
+    public $name = "";
+
     public function __construct(NBinary $binary)
     {
         $this->binary = $binary;
@@ -33,8 +35,8 @@ class File{
 
                 return "unk";
 
-            //Audio context_map.bin
-            case $this->binary->length() == 264: return "context_map"; break;
+            //Audio Bank
+            case $this->binary->length() == 264: return "bank_map"; break;
 
             //hash audio name list (from the afs container)
             case $this->binary->getFromPos(0, 4, NBinary::BINARY) == "scri": return "hash_name_list"; break;

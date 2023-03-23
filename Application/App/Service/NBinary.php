@@ -217,7 +217,7 @@ class NBinary{
 
         $partOnly = mb_substr($this->binary, $this->current, null, '8bit');
 
-        $delimiterPos = mb_strpos($partOnly, $delimiter, null, '8bit');
+        $delimiterPos = mb_strpos($partOnly, $delimiter, 0, '8bit');
         if ($delimiterPos === -1) return '';
         $result = mb_substr($partOnly, 0, $delimiterPos, '8bit');
 

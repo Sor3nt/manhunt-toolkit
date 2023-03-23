@@ -42,6 +42,17 @@ if (isset($argv[1])){
 
             break;
 
+        case 'mass':
+            echo "\n";
+            include __DIR__ . '/App/Commands/mass.php';
+
+            break;
+
+        case 'memdump':
+
+            echo "\n";
+            include __DIR__ . '/App/Commands/unpack.php';
+            break;
         case 'install':
             echo "\n";
 

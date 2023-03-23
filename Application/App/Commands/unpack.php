@@ -72,26 +72,29 @@ $originalExtension = $path['extension'];
 $outputTo = $path['dirname'] . '/export/' . $path['filename'] . '#' . $originalExtension;
 @mkdir($outputTo, 0777, true);
 
-//load the resource
-$resources = new Resources();
-$resource = $resources->load($file, $game, $platform);
-//
 if(
     in_array('unzip-only', $options) !== false ||
     in_array('only-unzip', $options) !== false ||
     in_array('unzip', $options) !== false
 ){
+    $input = new NBinary( file_get_contents($file) );
 
     $outputTo = str_replace("#", '.', $outputTo);
 
     file_put_contents(
         $outputTo,
-        $resource->getInput()->binary
+        $input->binary
     );
 
     echo sprintf("Saved to %s.",  $outputTo);
     return;
 }
+
+//load the resource
+$resources = new Resources();
+$resource = $resources->load($file, $game, $platform);
+//
+
 
 $handler = $resource->getHandler();
 
