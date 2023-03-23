@@ -61,7 +61,17 @@ class AixArchive
                     }
 
                     $head = $this->binary->consume(3, NBinary::BINARY);
-                    if ($head !== "AIX") throw new Exception("Invalid Block start");
+
+
+                    if ($head !== "AIX") {
+
+                        //A02 MH2 Ps2 leak
+                        if($this->binary->length() === 51634176){
+                            echo "Invalid Block start (A02)\n";
+                            return [ new File( new NBinary($data) )];
+                        }
+                        throw new Exception("Invalid Block start");
+                    }
 
                     $action = $this->binary->consume(1, NBinary::BINARY);
 
