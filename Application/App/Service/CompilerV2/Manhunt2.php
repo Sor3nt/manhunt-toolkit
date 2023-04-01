@@ -2036,7 +2036,9 @@ class Manhunt2 extends ManhuntDefault
 
         'aientitygohomeifidle' => [
             'name' => 'AIEntityGoHomeIfIdle',
-            'offset' => '18020000'
+            'offset' => '18020000',
+            'return' => 'integer'
+
         ],
 
 
