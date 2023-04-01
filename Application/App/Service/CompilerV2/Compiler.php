@@ -496,10 +496,18 @@ class Compiler
         }
 
 
+
         if ($this->game == MHT::GAME_MANHUNT){
             $this->strings4Script[$currentScriptName][$string] = $newString;
         }else{
-            $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
+
+            if ($currentScriptName === "" && isset($this->strings4Script[$currentScriptName][strtolower($string)])){
+                var_dump("yessss", $string);
+                $this->strings4Script[$currentScriptName][strtolower($string)] = [$newString, $newString];
+            }else{
+                $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
+            }
+
         }
 
 
@@ -1120,7 +1128,12 @@ class Compiler
 
         foreach ($this->strings4Script as $strings) {
             foreach ($strings as $value => $string) {
-                $result['strings'][] = $string->value;
+                if (is_array($string))
+                    foreach ($string as $item) {
+                        $result['strings'][] = $item->value;
+                    }
+                else
+                    $result['strings'][] = $string->value;
             }
         }
 

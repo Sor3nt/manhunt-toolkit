@@ -386,6 +386,8 @@ class Associations
             }else{
                 $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($this->value)];
             }
+            if (is_array($string)) $string = $string[0];
+
             $this->scriptName = $string->scriptName;
             $this->size = $string->size;
             $this->offset = $string->offset;

@@ -817,6 +817,15 @@ class Evaluate{
                     ){
                         new Evaluate($this->compiler, $param);
 
+
+                        /**
+                         * The issue here is, float comparison against a int return value
+                         *
+                         * if(GetDamage(...) > 0.0)
+                         *
+                         * GetDamage returns a int but we need to compare with a float
+                         *
+                         */
                         if ($index === 1 && count($association->childs) === 3){
 
                             if (
@@ -1249,13 +1258,12 @@ class Evaluate{
                         if (strlen($param->value) !== 1){
                             if ($compiler->game == MHT::GAME_MANHUNT){
                                 $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][$param->value];
-                                $this->compiler->evalVar->readSize( $string->size );
-
                             }else{
                                 $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($param->value)];
-                                $this->compiler->evalVar->readSize( $string->size );
-
                             }
+                            if (is_array($string)) $string = $string[0];
+                            $this->compiler->evalVar->readSize( $string->size );
+
                         }
                     }
 
