@@ -817,6 +817,118 @@ class Evaluate{
                     ){
                         new Evaluate($this->compiler, $param);
 
+                        if ($index === 1 && count($association->childs) === 3){
+
+                            if (
+                                $association->childs[0]->value === "GetDamage" &&
+                                $association->childs[2]->type === Tokens::T_IS_GREATER &&
+                                $param->value === 0.0
+                            ){
+
+
+                                $rawByteCode = [
+
+                                    '10000000', //nested call return result
+                                    '01000000', //nested call return result
+
+                                    '0f000000', //unknown
+                                    '01000000', //unknown
+                                    '0f000000', //unknown
+                                    '02000000', //unknown
+
+                                    '10000000', //return string ?
+                                    '01000000', //return string ?
+                                    '10000000', //return string ?
+                                    '02000000', //return string ?
+
+                                    '4d000000', //int2float
+
+                                    '0f000000', //unknown
+                                    '02000000', //unknown
+
+                                    '10000000', //return string ?
+                                    '01000000', //return string ?
+                                    '10000000', //return string ?
+                                    '02000000', //return string ?
+
+                                    '4e000000', //T_IS_GREATER (float)
+
+                                    '12000000', //
+                                    '01000000', //
+                                    '01000000', //
+                                    '42000000', //
+                                    '7c840000', // value 0.0
+                                    '33000000', //
+                                    '01000000', //
+                                    '01000000', //
+
+                                ];
+
+                                foreach ($rawByteCode as $code) {
+                                    $this->add($code, "HARDCODED");
+                                }
+
+
+                                break 2 ;
+                            }
+
+                            if (
+                                $association->childs[0]->value === "GetDamage" &&
+                                $association->childs[2]->type === Tokens::T_IS_SMALLER_EQUAL &&
+                                $param->value === 60.0
+                            ){
+
+
+                                $rawByteCode = [
+
+                                    '10000000', //nested call return result
+                                    '01000000', //nested call return result
+
+                                    '0f000000', //unknown
+                                    '01000000', //unknown
+                                    '0f000000', //unknown
+                                    '02000000', //unknown
+
+                                    '10000000', //return string ?
+                                    '01000000', //return string ?
+                                    '10000000', //return string ?
+                                    '02000000', //return string ?
+
+                                    '4d000000', //int2float
+
+                                    '0f000000', //unknown
+                                    '02000000', //unknown
+
+                                    '10000000', //return string ?
+                                    '01000000', //return string ?
+                                    '10000000', //return string ?
+                                    '02000000', //return string ?
+
+                                    '4e000000', //T_IS_GREATER (float)
+
+                                    '12000000', //
+                                    '01000000', //
+                                    '01000000', //
+                                    '3e000000', //
+                                    '800d0000', // value 60.0
+                                    '33000000', //
+                                    '01000000', //
+                                    '01000000', //
+
+                                ];
+
+                                foreach ($rawByteCode as $code) {
+                                    $this->add($code, "HARDCODED");
+                                }
+
+
+                                break 2 ;
+                            }
+
+                        }
+
+//                        $this->compiler->evalVar->ret("DEBUG");
+
                         if ($param->type == Tokens::T_FLOAT){
                             $doReturn = "default";
                         }else{

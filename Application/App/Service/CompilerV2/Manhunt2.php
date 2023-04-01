@@ -2047,6 +2047,12 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '4f020000'
         ],
 
+        'getexecutiontype' => [
+            'name' => 'GetExecutionType',
+            'offset' => 'f2020000',
+            'return' => 'integer'
+        ],
+
         'removeentity' => [
             'name' => 'RemoveEntity',
             'offset' => '81000000'
