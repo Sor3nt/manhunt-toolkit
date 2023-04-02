@@ -24,6 +24,10 @@ class Manhunt2 extends ManhuntDefault
             'offset' => '01000000'
         ],
 
+        'col_leader' => [
+            'offset' => '20000000'
+        ],
+
         'ec_basic' => [
             'offset' => '01000000'
         ],
@@ -1560,6 +1564,13 @@ class Manhunt2 extends ManhuntDefault
             'return' => 'entityptr'
         ],
 
+        'getplayervisibility' => [
+            'name' => 'GetPlayerVisibility',
+            'offset' => 'cb000000',
+            'return' => 'float'
+        ],
+
+
         'setmoverspeed' => [
             'name' => 'SetMoverSpeed',
             'offset' => '40010000',
@@ -2051,6 +2062,11 @@ class Manhunt2 extends ManhuntDefault
             'name' => 'GetExecutionType',
             'offset' => 'f2020000',
             'return' => 'integer'
+        ],
+
+        'setweaponammo' => [
+            'name' => 'SetWeaponAmmo',
+            'offset' => '6c020000'
         ],
 
         'removeentity' => [

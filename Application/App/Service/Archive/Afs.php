@@ -65,7 +65,6 @@ class Afs extends Archive
                     $files[$baseName . '_' . $name  . '.' . $data->identify()] = $data->getContent()->binary;
                 }
 
-
                 unset($entries[$index]);
                 continue;
 
@@ -76,7 +75,7 @@ class Afs extends Archive
                 $content->current = 0;
                 $name = new NBinary($content->consume(32, NBinary::BINARY));
                 $name = $name->getString("\x00", false);
-              //  $files[$name . '/bank_map.bin'] = $content->binary;
+                $files[$name . '/context_map.bin'] = $content->binary;
 
                 $values = [];
                 $map = [];

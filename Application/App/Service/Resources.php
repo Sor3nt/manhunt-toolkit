@@ -7,6 +7,7 @@ use App\Service\Archive\Archive;
 use App\Service\Archive\Bin;
 use App\Service\Archive\Bsp;
 use App\Service\Archive\Col;
+use App\Service\Archive\ContextMapBin;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
 use App\Service\Archive\Dir;
@@ -43,7 +44,7 @@ class Resources
         Col::class,     Dds::class,     Fxb::class,     Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class,
-        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class
+        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class, ContextMapBin::class
     ];
 
 

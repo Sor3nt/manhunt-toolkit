@@ -1,106 +1,63 @@
 <?php
-
 namespace App\Service\Archive;
 
-use App\Service\File;
 use App\Service\NBinary;
-use Exception;
 
-/**
- * Class AfsArchive
- * @package App\Service\Archive
- */
-class AfsArchive
-{
+class ContextMapBin extends Archive {
 
-    /** @var NBinary */
-    private $binary;
+    public $name = 'Manhunt Audio Context Map';
 
-    private $entryCount = 0;
-    private $metadataOffset = null;
+    public static $supported = ['context_map.bin'];
 
     /**
-     * AfsArchive constructor.
-     * @param NBinary $binary
-     * @throws Exception
+     * @param $pathFilename
+     * @param $input
+     * @param $game
+     * @param $platform
+     * @return bool
      */
-    public function __construct(NBinary $binary)
-    {
-        if ($binary->get(3) !== "AFS") throw new Exception('File is not a AFS Container');
-        $this->binary = $binary;
-
-        $this->entryCount = $binary->consume(4, NBinary::INT_32, 4);
+    public static function canPack( $pathFilename, $input, $game, $platform ){
+        return false;
     }
 
+    public function unpack(NBinary $binary, $game, $platform){
 
-    /**
-     * @param NBinary $binary
-     * @return NBinary
-     */
-    private function getBlock(NBinary $binary)
-    {
-        $offset = $binary->consume(4, NBinary::INT_32);
-        $size = $binary->consume(4, NBinary::INT_32);
+        $bankName = $binary->consume(32, NBinary::STRING);
 
-        $current = $binary->current;
-        $binary->current = $offset;
-        $data = $binary->consume($size, NBinary::BINARY);
-        $binary->current = $current;
+        $result = [];
+        $lastAudioCount = 0;
+        for($bankIndex = 0; $bankIndex < 58; $bankIndex++){
+            $count = $binary->consume(4, NBinary::INT_32);
+            if ($count === $lastAudioCount)
+                continue;
 
-        return new NBinary($data);
-    }
+//            $amountOfAudiosInBank = $count - $lastAudioCount;
 
-    /**
-     * @return File[]
-     * @throws Exception
-     */
-    public function extract()
-    {
+            $eventName = $this->getNameByBankIndex($bankIndex);
 
-        $count = $this->entryCount;
-
-        $entries = [];
-        $i = 1;
-        while ($this->entryCount--) {
-
-
-            $entry = new File($this->getBlock($this->binary, ));
-
-            if ($entry->identify() == "afs") {
-                $subAfs = new AfsArchive($entry->getContent());
-                $subEntries = $subAfs->extract();
-
-                foreach ($subEntries as $index => $subEntry) {
-                    $subEntry->name = $subAfs->getName($index);
-                    $entries[] = $subEntry;
-                }
-
-            } else {
-                $entries[] = $entry;
-
+            for($x = $lastAudioCount; $x < $count; $x++){
+                $result[] = [
+                    'index' => $x,
+                    'name' => $eventName,
+                ];
             }
-            $i++;
+
+            $lastAudioCount = $count;
+
         }
 
-        $this->metadataOffset = $this->binary->consume(4, NBinary::INT_32);
-        return $entries;
+        return ['name' => $bankName, 'result' => $result];
     }
 
-    public function getName($index) {
-        $this->binary->current = $this->metadataOffset + ($index * 48);
-        $name =  $this->binary->consume(32, NBinary::STRING);
-        if(empty($name)) $name = "__generic__";
+    private function getNameByBankIndex(int $index): string {
 
-        if (strlen($name) <= 3)
-            return $name;
-
-        $number = (int) substr($name, 0, 2);
-
-        switch ($number){
+        switch ($index){
             case 1:
                 return 'negative_search';
             case 2:
                 return 'definite_sighting';
+
+
             case 5:
                 return 'run_to_investigate';
             case 6:
@@ -111,6 +68,12 @@ class AfsArchive
                 return 'curiosity_no_result';
             case 9:
                 return 'taunt_search';
+            case 10:
+                return 'positive_taunt_search';
+            case 11:
+                return 'negative_taunt_search';
+
+
             case 13:
                 return 'taunt_chase';
             case 14:
@@ -135,14 +98,26 @@ class AfsArchive
                 return 'surprise';
             case 24:
                 return 'greetings';
+            case 25:
+                return 'player_';
+
+
             case 26:
                 return 'claim_territory';
+            case 27:
+                return 'generic_ind';
+            case 28:
+                return 'whistli';
+
+
             case 29:
                 return 'chat_statements';
             case 30:
                 return 'chat_search';
             case 31:
                 return 'chat_investigate';
+
+
             case 33:
                 return 'shout_for_assistance';
             case 34:
@@ -155,6 +130,8 @@ class AfsArchive
                 return 'pain_long';
             case 38:
                 return 'death_generic';
+
+
             case 40:
                 return 'death_execution';
             case 41:
@@ -165,6 +142,15 @@ class AfsArchive
                 return 'begging_pleading';
             case 44:
                 return 'dead_body_seen';
+
+
+
+            case 47:
+                return 'failed_search';
+            case 48:
+                return 'crawlspace_';
+            case 49:
+                return 'jump_reaction';
             case 50:
                 return 'crawl_reaction';
             case 51:
@@ -175,11 +161,16 @@ class AfsArchive
                 return 'chat_negative';
             case 54:
                 return 'flare_death';
+            case 55:
+                return 'gascan_death';
         }
 
 
-        return $name;
+        return 'unknown_' . $index;
     }
 
-
+    public function pack($data, $game, $platform)
+    {
+        // TODO: Implement pack() method.
+    }
 }

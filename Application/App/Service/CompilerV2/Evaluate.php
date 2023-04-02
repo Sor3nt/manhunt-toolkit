@@ -225,7 +225,11 @@ class Evaluate{
                         new Evaluate($this->compiler, $argument['fallback'], $this->compiler->evalVar->msg);
 
                         if ($argument['fallback']->size == null){
-                            throw new \Exception('Fallback size is null ?');
+
+                            if ($argument['fallback']->type === "T_FLOAT")
+                                $argument['fallback']->size = 4;
+                            else
+                                throw new \Exception('Fallback size is null ?');
                         }
 
                         $this->compiler->evalVar->readSize($argument['fallback']->size);

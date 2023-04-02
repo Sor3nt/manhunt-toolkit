@@ -193,15 +193,49 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
     $dirFile = str_replace('.fsb', '.dir', $file);
 
-    if (file_exists($dirFile)){
+    $levelSpeechFolder = str_replace('.fsb', '', $file);
+    $levelSpeechFolder = explode(DIRECTORY_SEPARATOR, $levelSpeechFolder);
+    $levelName = $levelSpeechFolder[count($levelSpeechFolder) - 1];
+    unset($levelSpeechFolder[count($levelSpeechFolder) - 1]);
+    $levelSpeechFolder = implode(DIRECTORY_SEPARATOR, $levelSpeechFolder);
+    $levelSpeechFolder = $levelSpeechFolder . '/../../../levels/' . $levelName;
+    $levelSpeechFile = $levelSpeechFolder . '/speech.lst';
+
+    $newResults = [];
+    $known = 0;
+    $unknown = 0;
+
+
+    if (file_exists($levelSpeechFile)){
+        $contextList = explode("\r\n", file_get_contents($levelSpeechFile));
+        $mapFull = [];
+
+        $indexWav = 0;
+        foreach ($contextList as $contextName) {
+            if (empty($contextName)) continue;
+
+            $contextMapResource = $resources->load($contextName . '/context_map.bin', $game, $platform);
+            $contextMaphandler = $contextMapResource->getHandler();
+            $contextMap = $contextMaphandler->unpack($contextMapResource->getInput(), $game, $platform);
+
+
+            foreach ($contextMap['result'] as $mapIndex => $map) {
+                $newResults[$contextMap['name'] . '/' . $map['name'] . '/' . $mapIndex . '.wav'] = $results[$map['index'] + $indexWav . '.wav'];
+            }
+
+            $indexWav += count($contextMap['result']);
+
+
+        }
+        $results = $newResults;
+
+
+    }else if (file_exists($dirFile)){
 
         $dirResource = $resources->load(str_replace('.fsb', '.dir', $file), $game, $platform);
         $dirHandler = $dirResource->getHandler();
         $dirResult = $dirHandler->unpack( $dirResource->getInput(), $game, $platform );
 
-        $newResults = [];
-        $known = 0;
-        $unknown = 0;
 
         $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
         $results['fsb3.json']['orders'] = [];
