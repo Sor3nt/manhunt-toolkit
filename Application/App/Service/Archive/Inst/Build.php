@@ -8,16 +8,15 @@ use App\Service\Helper;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use function json_decode;
 
 class Build {
 
-    public function build(  $pathFilename, $platform ){
+    public function build( $pathFilename, string $platform ){
 
-        // append record count
         $binary = new NBinary();
 
-        if ($platform == MHT::PLATFORM_WII) $binary->numericBigEndian = true;
+        if ($platform == MHT::PLATFORM_WII)
+            $binary->numericBigEndian = true;
 
         if ($pathFilename instanceof Finder){
             $binary->write($pathFilename->count(), NBinary::INT_32);
@@ -30,33 +29,26 @@ class Build {
             $binary->write(count($pathFilename), NBinary::INT_32);
         }
 
-
         $recordBin = [];
         foreach ($pathFilename as $file) {
 
-            if ($pathFilename instanceof Finder){
+            $record = $file;
+
+            if ($pathFilename instanceof Finder)
                 $record = json_decode($file->getContents(), true);
-
-            }else{
-                $record = $file;
-
-            }
 
             /*
              * Append GlgRecord name
              */
             $entry = new NBinary($record['record']);
             $entry->numericBigEndian = $binary->numericBigEndian;
-
-            $entry->write("\x00", NBinary::BINARY);
-            $entry->write($entry->getPadding( "\x70"), NBinary::BINARY);
+            $this->applyPadding($entry);
 
             /*
              * Append Internal name
              */
             $entry->write($record['internalName'], NBinary::BINARY);
-            $entry->write("\x00", NBinary::BINARY);
-            $entry->write($entry->getPadding("\x70"), NBinary::BINARY);
+            $this->applyPadding($entry);
 
             $entry->writeCoordinates($record['position']);
             $entry->writeCoordinates($record['rotation']);
@@ -66,16 +58,13 @@ class Build {
              */
             if ($record['entityClass']){
                 $entry->write($record['entityClass'], NBinary::BINARY);
-                $entry->write("\x00", NBinary::BINARY);
-                $entry->write($entry->getPadding("\x70"), NBinary::BINARY);
+                $this->applyPadding($entry);
             }
-
 
             /*
              * Append parameters
              */
             foreach ($record['parameters'] as $parameter) {
-
 
                 if (!isset($record['game']) && isset($parameter['parameterId'])){
                     $record['game'] = MHT::GAME_MANHUNT_2;
@@ -83,51 +72,41 @@ class Build {
                     $record['game'] = MHT::GAME_MANHUNT;
                 }
 
-                if ($record['game'] == MHT::GAME_MANHUNT_2 ){
-
-                    $parameterName = $parameter['parameterId'];
-                    $parameter['parameterId'] = Manhunt2::getHashByName($parameter['parameterId']);
-
-                    if ($binary->numericBigEndian) $parameter['parameterId'] = Helper::toBigEndian($parameter['parameterId']);
-
-                    $entry->write($parameter['parameterId'], NBinary::HEX);
-
-                    $entry->write($parameter['type'], NBinary::BINARY);
-                    $entry->write("\x00", NBinary::BINARY);
-                    $entry->write($entry->getPadding("\x70"), NBinary::BINARY);
-
-                    switch ($parameter['type']) {
-                        case 'flo':
-                            $entry->write($parameter['value'], NBinary::FLOAT_32);
-                            break;
-
-                        case 'boo':
-                        case 'int':
-                            if($parameterName == "WEAPON") {
-                                $parameter['value'] = Inst::$weapon[strtolower($parameter['value'])];
-                            }else if($parameterName == "WEAPON2"){
-                                $parameter['value'] = Inst::$weapon2[strtolower($parameter['value'])];
-                            }
-
-                            $entry->write($parameter['value'], NBinary::INT_32);
-                            break;
-
-                        case 'str':
-                            $entry->write($parameter['value'], NBinary::BINARY);
-                            $entry->write("\x00", NBinary::BINARY);
-                            $entry->write($entry->getPadding("\x70"), NBinary::BINARY);
-                            break;
-                    }
-
-                }else{
-
+                if ($record['game'] == MHT::GAME_MANHUNT ) {
                     $entry->write($parameter['value'], NBinary::INT_32);
-                    //
-//                    $type = Inst::$mh1Map[$record['entityClass']][$parameter['parameterId']];
-//
-//                    $entry->write($parameter['value'], $type);
+                    continue;
                 }
 
+                $parameter['parameterId'] = Manhunt2::getHashByName($parameter['parameterId']);
+                if ($binary->numericBigEndian)
+                    $parameter['parameterId'] = Helper::toBigEndian($parameter['parameterId']);
+
+                $entry->write($parameter['parameterId'], NBinary::HEX);
+                $entry->write($parameter['type'], NBinary::BINARY);
+                $this->applyPadding($entry);
+
+                $parameterName = $parameter['parameterId'];
+                switch ($parameter['type']) {
+                    case 'flo':
+                        $entry->write($parameter['value'], NBinary::FLOAT_32);
+                        break;
+
+                    case 'boo':
+                    case 'int':
+                        if($parameterName == "WEAPON") {
+                            $parameter['value'] = Inst::$weapon[strtolower($parameter['value'])];
+                        } else if($parameterName == "WEAPON2"){
+                            $parameter['value'] = Inst::$weapon2[strtolower($parameter['value'])];
+                        }
+
+                        $entry->write($parameter['value'], NBinary::INT_32);
+                        break;
+
+                    case 'str':
+                        $entry->write($parameter['value'], NBinary::BINARY);
+                        $this->applyPadding($entry);
+                        break;
+                }
             }
 
             $recordBin[] = $entry;
@@ -144,5 +123,10 @@ class Build {
         }
 
         return $binary->binary;
+    }
+
+    private function applyPadding(NBinary $binary) {
+        $binary->write("\x00", NBinary::BINARY);
+        $binary->write($binary->getPadding( "\x70"), NBinary::BINARY);
     }
 }

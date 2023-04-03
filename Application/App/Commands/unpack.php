@@ -198,8 +198,8 @@ if ($handler instanceof App\Service\Archive\Fsb3){
     $levelName = $levelSpeechFolder[count($levelSpeechFolder) - 1];
     unset($levelSpeechFolder[count($levelSpeechFolder) - 1]);
     $levelSpeechFolder = implode(DIRECTORY_SEPARATOR, $levelSpeechFolder);
-    $levelSpeechFolder = $levelSpeechFolder . '/../../../levels/' . $levelName;
-    $levelSpeechFile = $levelSpeechFolder . '/speech.lst';
+    $levelFolder = $levelSpeechFolder . '/../../../levels/' . $levelName;
+    $levelSpeechFile = $levelFolder . '/speech.lst';
 
     $newResults = [];
     $known = 0;
@@ -214,7 +214,7 @@ if ($handler instanceof App\Service\Archive\Fsb3){
         foreach ($contextList as $contextName) {
             if (empty($contextName)) continue;
 
-            $contextMapResource = $resources->load($contextName . '/context_map.bin', $game, $platform);
+            $contextMapResource = $resources->load($levelSpeechFolder . '/' . $contextName . '/context_map.bin', $game, $platform);
             $contextMaphandler = $contextMapResource->getHandler();
             $contextMap = $contextMaphandler->unpack($contextMapResource->getInput(), $game, $platform);
 
@@ -300,7 +300,9 @@ if ($handler instanceof App\Service\Archive\Fsb3){
     foreach ($results as $filepathName => $result) {
         if ($filepathName == "fsb3.json") continue;
         if (substr($filepathName, 0, 7) == "unknown") continue;
-        $knownMd5[md5($result)] = explode("/", $filepathName)[0];
+
+        if(!empty($result))
+            $knownMd5[md5($result)] = explode("/", $filepathName)[0];
     }
 
     foreach ($results as $filepathName => $result) {

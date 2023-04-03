@@ -259,6 +259,21 @@ class NBinary{
         return $data;
     }
 
+    public function readXYZ_( $len = 4, $type = NBinary::FLOAT_32){
+        $data = [];
+        foreach (['x', 'y', 'z'] as $axis) {
+            $value = $this->consume($len, NBinary::BINARY);
+
+            if ($value === "\x00\x00\x00\x80" || $value === "\x80\x00\x00\x00"){
+                $data[$axis] = "-0";
+            }else{
+                $data[$axis] = $this->unpack($value, $type);
+            }
+        }
+
+        return $data;
+    }
+
     public function readXYZW( $len = 4, $type = NBinary::FLOAT_32){
 
         $data = [];
@@ -266,9 +281,9 @@ class NBinary{
             $value = $this->consume($len, NBinary::BINARY);
 
             if ($value === "\x00\x00\x00\x80" || $value === "\x80\x00\x00\x00"){
-                $data[] = "-0";
+                $data[$axis] = "-0";
             }else{
-                $data[] = $this->unpack($value, $type);
+                $data[$axis] = $this->unpack($value, $type);
             }
         }
 

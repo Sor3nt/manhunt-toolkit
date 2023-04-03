@@ -206,7 +206,7 @@ class Ifp extends Archive
             /**
              * Sequences
              */
-            list($bones, $ps2FrameTimeCount) = $this->extractBones($numberOfBones, $binary, $chunkSize, $game, $platform, $animationName);
+            list($bones, $ps2FrameTimeCount) = $this->extractBones($numberOfBones, $binary, $chunkSize, $game, $platform);
 
             //ps2 correction
             if ($ps2FrameTimeCount !== false){
@@ -351,7 +351,7 @@ class Ifp extends Archive
         return $results;
     }
 
-    private function extractBones($numberOfBones, NBinary $binary, $chunkSize = null, $game, $platform, $animationName)
+    private function extractBones($numberOfBones, NBinary $binary, $chunkSize, $game, $platform)
     {
 
         $frameTimeCount = false;

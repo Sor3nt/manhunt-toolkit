@@ -1,7 +1,7 @@
 <?php
-ini_set('memory_limit','-1');
-
-require_once __DIR__ . '/../../vendor/autoload.php';
+//ini_set('memory_limit','-1');
+//
+//require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\MHT;
 use App\Service\Archive\Mls;
@@ -26,7 +26,7 @@ $platform = MHT::PLATFORM_PC;
 
 $options = [];
 foreach ($argv as $index => $argument) {
-    if (substr($argument, 0, 2) == "--"){
+    if (substr($argument, 0, 2) == "-"){
         $options[] = substr($argument, 2);
         unset($argv[$index]);
     }
@@ -34,13 +34,13 @@ foreach ($argv as $index => $argument) {
 
 switch (count($argv)){
     case 3:
-        list($script, $folder, $type) = $argv;
+        list($file, $script, $folder, $type) = $argv;
         break;
     case 4:
-        list($script, $folder, $type, $game) = $argv;
+        list($file, $script, $folder, $type, $game) = $argv;
         break;
     case 5:
-        list($script, $folder, $type, $game, $platform) = $argv;
+        list($file, $script, $folder, $type, $game, $platform) = $argv;
         break;
     default:
         printHelp();
@@ -334,7 +334,7 @@ echo "\nDone.\n";
 
 function printHelp(){
 
-    echo "Usage: php mass.php <folder> <extension> [game] [platform]\n";
-    echo "Example: php mass.php . mls mh2 pc\n";
+    echo "Usage: php mht.phar mass <folder> <extension> [game] [platform]\n";
+    echo "Example: php mht.phar mass . mls mh2 pc\n";
 
 }
