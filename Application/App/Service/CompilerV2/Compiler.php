@@ -8,21 +8,38 @@ use Exception;
 class Compiler
 {
 
-    public $untouchedSource;
+    public string $untouchedSource;
+    public string $game;
+    public string $platform;
 
-    public $game;
-    public $platform;
-    public $debug = false;
+    public bool $isGameSccSrc;
+    public bool $debug = false;
 
-    /** @var null|Compiler  */
-    public $gameScript = null;
+    public int $current = 0;
+    public int $offsetGlobalVariable = 0;
+    public int $offsetScriptVariable = 0;
+    public int $offsetProcedureVariable = 0;
+    public int $offsetProcedureScripts = 0;
+    public int $offsetConstants = 0;
 
-    /** @var null|Compiler  */
-    public $levelScript = null;
+    public int $logPad = 0;
+    public int $lastScriptEnd = 0;
 
-    public $tokens = [];
+    public ?Compiler $gameScript = null;
+    public ?Compiler $levelScript = null;
+    public ManhuntDefault $gameClass;
+    public ?EvaluateVariable $evalVar;
 
-    public $records = [
+    public array $tokens = [];
+    public array $variables = [];
+    public array $gameVarOccurrences = [];
+    public array $levelVarOccurrences = [];
+    public array $strings = [];
+    public array $strings4Script = [];
+    public array $codes = [];
+    public array $scriptBlockSizes = [];
+    public array $storedProcedureCallOffsets = [];
+    public array $records = [
 
         'rgbaint' => [
             'red' => [
@@ -42,7 +59,7 @@ class Compiler
                 'offset' => 3
             ],
         ],
-    
+
         'vec3d' => [
             'x' => [
                 'type' => 'float',
@@ -56,68 +73,25 @@ class Compiler
 
             'z' => [
                 'type' => 'float',
-                 'offset' => 8
-           ],
+                'offset' => 8
+            ],
         ]
 
     ];
 
-//    public $records = [];
-    public $current = 0;
+    public string $currentSection = "header";
+    public string $currentScriptName = "";
+    public string $currentBlockType = "";
 
-    /** @var ManhuntDefault */
-    public $gameClass;
+    public string $mlsScriptMain = "levelscript";
+    public string $mlsEntityName = "demo_level";
+    public string $mlsEntityType = "et_level";
 
-    public $variables = [];
-    public $gameVarOccurrences = [];
-    public $levelVarOccurrences = [];
-
-    public $strings = [];
-
-    public $strings4Script = [];
-    public $codes = [];
-
-    public $currentSection = "header";
-    public $currentScriptName = "";
-    public $currentBlockType = "";
-
-    public $mlsScriptMain = "levelscript";
-    public $mlsEntityName = "demo_level";
-    public $mlsEntityType = "et_level";
-
-    /*
-     * Offset holder
-     */
-    public $offsetGlobalVariable = 0;
-    public $offsetScriptVariable = 0;
-    public $offsetProcedureVariable = 0;
-    public $offsetProcedureScripts = 0;
-    public $offsetConstants = 0;
-
-    public $scriptBlockSizes = [];
-    public $lastScriptEnd = 0;
-
-
-    public $evalVar;
-
-    public $storedProcedureCallOffsets = [];
-
-    public $isGameSccSrc;
-
-    public function debug($stuff, $exit = true){
-        if ($this->debug){
-            var_dump($stuff);
-            if ($exit) exit;
-        }
-    }
-
-    public function __construct($source, $game, $platform, $isGameSccSrc = false)
+    public function __construct(string $source, string $game, string $platform, bool $isGameSccSrc = false)
     {
-
-        $this->isGameSccSrc = $isGameSccSrc;
-
         $this->evalVar = new EvaluateVariable($this);
 
+        $this->isGameSccSrc = $isGameSccSrc;
         $this->game = $game;
         $this->platform = $platform;
 
@@ -127,42 +101,41 @@ class Compiler
 
         $this->gameClass = $this->game == MHT::GAME_MANHUNT ? new Manhunt() : new Manhunt2($isCutsceneLevel);
 
-
+        /*
+         * Apply custom MLS functions
+         */
         $source = preg_replace_callback("/FrisbeeSpeechPlayWait\((.*)\s?,(.*)\s?,(.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
             $newMap = sprintf('FrisbeeSpeechPlay(%s,%s,%s);', $match[1],$match[2],$match[3]);
             $newMap .= sprintf('while NOT FrisbeeSpeechIsFinished(%s) do sleep(%s);', $match[1],$match[4]);
             return $newMap;
-        },$source);
-
+        }, $source);
 
         $source = preg_replace_callback("/AIAddSubPackForLeaderCombatGoal\((.*)\s?,(.*)\s?,(.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
             $newMap = sprintf('AIAddSubPackForLeader(%s,%s);', $match[1],$match[2]);
             $newMap .= sprintf('AISetSubpackCombatType(%s,%s,%s);', $match[1],$match[2],$match[3]);
             $newMap .= sprintf('AIAddGoalForSubpack(%s,%s,%s);', $match[1],$match[2],$match[4]);
             return $newMap;
-        },$source);
+        }, $source);
 
         $source = preg_replace_callback("/AIAddEntityAndRun\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
             $newMap = sprintf('AIAddEntity(%s);', $match[1]);
             $newMap .= sprintf('RunScript(%s, %s);', $match[1],$match[2]);
             return $newMap;
-        },$source);
+        }, $source);
 
         $source = preg_replace_callback("/DisplayGameTextWait\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
             $newMap = sprintf('DisplayGameText(%s);', $match[1]);
             $newMap .= sprintf('while IsGameTextDisplaying do Sleep(%s);', $match[2]);
             return $newMap;
-        },$source);
+        }, $source);
 
         $source = preg_replace_callback("/DebugMove\((.*)\s?\)/U", function( $match ) use (&$index){
-            $newMap = sprintf('moveentity(getplayer, getentityposition(getentity(%s)), 0);', $match[1]);
-            return $newMap;
-        },$source);
+            return sprintf('moveentity(getplayer, getentityposition(getentity(%s)), 0);', $match[1]);
+        }, $source);
 
         $source = preg_replace_callback("/WaitForFrisbeeSpeechIsFinished\((.*)\s?,(.*)\s?\)/U", function( $match ) use (&$index){
-            $newMap = sprintf('while NOT FrisbeeSpeechIsFinished(%s) do sleep(%s);', $match[1], $match[2]);
-            return $newMap;
-        },$source);
+            return sprintf('while NOT FrisbeeSpeechIsFinished(%s) do sleep(%s);', $match[1], $match[2]);
+        }, $source);
 
 
         $this->untouchedSource = $source;
@@ -171,7 +144,6 @@ class Compiler
         $source = str_replace("{OPEN THE DOORS}", "", $source);
         $source = str_replace("}}", "}", $source);
         $source = str_replace('{TEMP SLEEP FOR PLACEHOLDER TEXT}', '', $source);
-
 
         if (strpos($source, "scriptmain playerScripts") !== false)
             $source = preg_replace("/DestroyThing\('.*'\);/", "", $source);
@@ -182,16 +154,13 @@ class Compiler
             die("There some comment issues!");
 
         //extract all used strings
-
         $index = 0;
-        $source = preg_replace_callback("/['](.*)[']/U", function( $match ) use (&$index){
+        $source = preg_replace_callback("/'(.*)'/U", function( $match ) use (&$index){
             $this->strings[] = $match[1];
             $name = "'str_" . $index . "'";
             $index++;
             return $name;
         },$source);
-
-
 
         /**
          * Avoid wrong associations
@@ -202,7 +171,7 @@ class Compiler
         //todo...
         $source = str_replace("9-i", "9 - i", $source);
 
-        //split the parts a little bit more
+        //split the parts
         $source = preg_replace("/\//", " / ", $source);
         $source = preg_replace("/\(/", " ( ", $source);
         $source = preg_replace("/\)/", " ) ", $source);
@@ -291,10 +260,11 @@ class Compiler
      * @return array
      * @throws Exception
      */
-    public function compile(){
+    public function compile(): array
+    {
 
 
-        if ($this->isGameSccSrc == false){
+        if ($this->isGameSccSrc === false){
             $gameScriptCompiler = new Compiler($this->gameClass->gameSccSrc, $this->game, $this->platform, true);
             $gameScriptCompiler->compile();
             $this->gameScript = $gameScriptCompiler;
@@ -405,9 +375,7 @@ class Compiler
                 die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
 
             $mem = explode("SMEM:", $firstLine)[1];
-            $mem = (int) explode(" ", $mem)[0];
-
-            return $mem;
+            return (int) explode(" ", $mem)[0];
         }else{
             return 78596;
         }
@@ -425,9 +393,7 @@ class Compiler
                 die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
 
             $mem = explode("DMEM:", $firstLine)[1];
-            $mem = (int) explode(" ", $mem)[0];
-
-            return $mem;
+            return (int) explode(" ", $mem)[0];
         }else{
             return 78596;
         }
@@ -482,27 +448,18 @@ class Compiler
         $newString->offset = $this->offsetGlobalVariable;
         $newString->scriptName = $currentScriptName;
 
-        if ($this->game == MHT::GAME_MANHUNT){
-
-//            echo " Offset: " . $newString->offset . " Len Ori: " . $len;
-
+        if ($this->game === MHT::GAME_MANHUNT){
             if (4 - $len % 4 != 0) $len +=  4 - $len % 4;
-//            echo " Len Calc: " . $len . " " . $string . "\n";
-
-            $newString->size = $len;
         }else{
             $len += 1;
-            $newString->size = $len;
         }
-
-
+        $newString->size = $len;
 
         if ($this->game == MHT::GAME_MANHUNT){
             $this->strings4Script[$currentScriptName][$string] = $newString;
         }else{
 
             if ($currentScriptName === "" && isset($this->strings4Script[$currentScriptName][strtolower($string)])){
-                var_dump("yessss", $string);
                 $this->strings4Script[$currentScriptName][strtolower($string)] = [$newString, $newString];
             }else{
                 $this->strings4Script[$currentScriptName][strtolower($string)] = $newString;
@@ -595,7 +552,7 @@ class Compiler
         $this->addVariable($data);
     }
 
-    public function addVariable( $data ){
+    public function addVariable( $data ) : array{
 
         if ($data['type'] == 'real') $data['type'] = "float";
 
@@ -661,12 +618,12 @@ class Compiler
         /**
          * Overwrite the calculated offset with the game_var / level_var offset
          */
-        if (isset($data['isGameVar']) && $data['isGameVar'] == true && $this->gameScript !== null){
+        if (isset($data['isGameVar']) && $data['isGameVar'] && $this->gameScript !== null){
             $gameVar = $this->gameScript->getVariable($data['name']);
             if ($gameVar) $offset = $gameVar['offset'];
         }
 
-        if (isset($data['isLevelVar']) && $data['isLevelVar'] == true && $this->levelScript !== null){
+        if (isset($data['isLevelVar']) && $data['isLevelVar'] && $this->levelScript !== null){
             $levelVar = $this->levelScript->getVariable($data['name']);
             if ($levelVar){
                 $offset = $levelVar['offset'];
@@ -705,7 +662,7 @@ class Compiler
 
     }
 
-    public function getVariablesByScriptName($scriptName){
+    public function getVariablesByScriptName(string $scriptName) : array{
 
         $found = [];
         foreach ($this->variables as $variable) {
@@ -714,7 +671,7 @@ class Compiler
 
         return $found;
     }
-    public function getProcedureArgumentsByScriptName($scriptName){
+    public function getProcedureArgumentsByScriptName(string $scriptName) : array{
 
         $found = [];
         foreach ($this->variables as $variable) {
@@ -730,21 +687,20 @@ class Compiler
         return $found;
     }
 
-    public function getScriptArgumentsByScriptName($scriptName){
+    public function getScriptArgumentsByScriptName(string $scriptName) : array{
 
         $found = [];
         foreach ($this->variables as $variable) {
             if (
                 $variable['scriptName'] == $scriptName &&
-                $variable['isArgument'] == true
-//                $variable['scriptName'] == $variable['section']
+                $variable['isArgument']
             ) $found[] = $variable;
         }
 
         return $found;
     }
 
-    public function getScriptSize($scriptName){
+    public function getScriptSize(string $scriptName) : int {
         $size = 0;
         $variables = $this->getVariablesByScriptName($scriptName);
 
@@ -760,10 +716,8 @@ class Compiler
                 if ($variable['size'] % 4 != 0){
                     $size += $variable['size'] % 4;
                 }else{
-                    if ($this->game == MHT::GAME_MANHUNT_2){
+                    if ($this->game == MHT::GAME_MANHUNT_2)
                         $size += 4;
-
-                    }
                 }
             }
         }
@@ -803,7 +757,7 @@ class Compiler
         return false;
     }
 
-    public function consumeIfTrue( $val ){
+    public function consumeIfTrue( string $val ) : bool {
         if ($this->getToken() == $val){
             $this->current++;
             return true;
@@ -827,7 +781,7 @@ class Compiler
         return $toLower ? strtolower($token) : $token;
     }
 
-    public function buildDebugString($current = null){
+    public function buildDebugString(?int $current) : string {
 
         $debug = "\n\n... ";
 
@@ -856,10 +810,10 @@ class Compiler
      * @param int $shift
      * @throws Exception
      */
-    public function raiseException($msg = "", $shift = 1){
+    public function raiseException(string $msg = "", int $shift = 1){
         throw new Exception(
             sprintf(
-                "%s. Could not convert Value %s. Arround here %s",
+                "%s. Could not convert value '%s'. Around here %s",
                 $msg,
                 $this->tokens[$this->current - $shift],
                 $this->buildDebugString($this->current - $shift)
@@ -867,31 +821,31 @@ class Compiler
         );
     }
 
-    public function calcSize( $type ){
+    public function calcSize( string $type ) : int
+    {
 
         if (isset($this->records[$type])){
             $records = $this->records[$type];
 
             $size = 0;
-            foreach ($records as $item) {
+            foreach ($records as $item)
                 $size += $this->calcSize($item['type']);
-            }
 
+            return $size;
         }else {
-            $size = 4;
             switch ($type) {
                 case 'short-integer':
-                    $size = 1;
-                    break;
+                    return 1;
                 case 'vec3d':
-                    $size = 12;
-                    break;
+                    return 12;
+                default:
+                    return 4;
             }
         }
-        return $size;
     }
 
-    public function getCODE(){
+    public function getCODE() : array
+    {
         $result = [];
         foreach ($this->codes as $code) {
             $result[] = $code['code'];
@@ -900,13 +854,14 @@ class Compiler
         return $result;
     }
 
-    public function validateCode($compareCode){
+    public function validateCode(array $compareCode) : bool
+    {
         foreach ($this->codes as $index => $code) {
             if ($code['code'] != $compareCode[$index]){
 
 
                 /**
-                 * The r* did a mistake, he think a string is special large, thats not correct
+                 * The r* made a mistake, he think a string is special large, that`s not correct
                  * we ignore the mismatch, our result is correct ;)
                  *
                  * Appears in A18 script 26
@@ -939,24 +894,23 @@ class Compiler
      */
     public function detectVarType( Associations $association ){
 
-        $varType = null;
         switch ($association->type){
             case Tokens::T_ASSIGN:
             case Tokens::T_CONSTANT:
             case Tokens::T_VARIABLE:
                 $varType = $association->varType;
 
-                if ($varType == "object" && $association->attribute !== null){
+                if ($varType == "object" && $association->attribute !== null)
                     return $association->attribute->varType;
-                }
-                if ($varType == "array"){
+
+                if ($varType == "array")
                     return $association->typeOf;
-                }
+
                 break;
             case Tokens::T_FUNCTION:
-                if ($association->return == null){
+                if ($association->return == null)
                     throw new Exception("Unable to detect varType, RETURN missed for function " . $association->value);
-                }
+
                 $varType = $association->return;
                 break;
             case Tokens::T_STATE:
@@ -973,13 +927,13 @@ class Compiler
                 break;
             default:
                 throw new Exception("Unable to detect compareType for type " . $association->type);
-                break;
         }
 
         return $varType;
     }
 
-    public function isTypeMathOperator($type){
+    public function isTypeMathOperator(string $type) : bool
+    {
 
         switch ($type){
             case Tokens::T_ADDITION:
@@ -993,7 +947,8 @@ class Compiler
         return false;
     }
 
-    public function isTypeConditionOperatorOrOperation($type){
+    public function isTypeConditionOperatorOrOperation(string $type) : bool
+    {
         switch ($type){
             case Tokens::T_OR:
             case Tokens::T_AND:
@@ -1009,7 +964,8 @@ class Compiler
         return false;
     }
 
-    public function isTypeConditionOperation($type){
+    public function isTypeConditionOperation(string $type) : bool
+    {
         switch ($type){
             case Tokens::T_IS_GREATER_EQUAL:
             case Tokens::T_IS_GREATER:
@@ -1027,8 +983,8 @@ class Compiler
      * @return Associations
      * @throws Exception
      */
-    public function getPossibleMathChilds(){
-        /** @var Associations[] $mathChilds */
+    public function getPossibleMathChilds() {
+
         $mathChilds = [
             new Associations($this)
         ];
@@ -1064,7 +1020,8 @@ class Compiler
 
     }
 
-    public function createVariableAssociation( array $data, Associations $variable = null ){
+    public function createVariableAssociation( array $data, Associations $variable = null ) : Associations
+    {
 
         if ($variable == null) $variable = new Associations();
 
@@ -1073,21 +1030,18 @@ class Compiler
 
             if ($index == "name") $index = "value";
 
-            if (property_exists(Associations::class, $index)){
+            if (property_exists(Associations::class, $index))
                 $variable->$index = $value;
-            }
         }
 
-        if ($variable->varType == null && $variable->type !== null){
+        if ($variable->varType == null && $variable->type !== null)
             $variable->varType = $variable->type;
-        }
 
         $variable->type = Tokens::T_VARIABLE;
 
         return $variable;
     }
 
-    public $logPad = 0;
     public function log($msg){
 //        echo "|>" . str_repeat('-', $this->logPad) . " " .$msg . "\n";
     }
@@ -1097,7 +1051,7 @@ class Compiler
      * @return array
      * @throws Exception
      */
-    private function generateDATA()
+    private function generateDATA() : array
     {
         $result = [
             'const' => [],
@@ -1118,16 +1072,14 @@ class Compiler
                         break;
 
                     default:
-                        var_dump($variable);
                         throw new Exception("Unknown constant type " . $variable['type']);
-                        break;
 
                 }
             }
         }
 
         foreach ($this->strings4Script as $strings) {
-            foreach ($strings as $value => $string) {
+            foreach ($strings as $string) {
                 if (is_array($string))
                     foreach ($string as $item) {
                         $result['strings'][] = $item->value;
@@ -1165,7 +1117,8 @@ class Compiler
     }
 
 
-    private function generateSTAB(){
+    private function generateSTAB() : array
+    {
 
         $results = [];
 
@@ -1194,8 +1147,6 @@ class Compiler
              * anything is a boolean ? mkay
              */
             if ($this->game == MHT::GAME_MANHUNT){
-
-
                 if (isset($this->records[$variable['type']])){
                     $objectType = "vec3d";
                 }else{
@@ -1293,7 +1244,8 @@ class Compiler
     }
 
 
-    private function generateEntity(){
+    private function generateEntity() : array
+    {
         return [
             'name' => $this->mlsEntityName,
             'type' => $this->mlsEntityType == "et_level" ? "levelscript" : "other"
@@ -1302,7 +1254,8 @@ class Compiler
     }
 
 
-    private function generateSCPT(){
+    private function generateSCPT() : array
+    {
         $results = [];
 
         $scriptSize = 0;
@@ -1325,15 +1278,14 @@ class Compiler
         return $results;
     }
 
-    public function generateLine(){
-
+    public function generateLine() : array
+    {
         if ($this->game == MHT::GAME_MANHUNT_2) return [];
 
         $result = [];
-
-        foreach ($this->codes as $item) {
+        array_walk($this->codes, function() use (&$result){
             $result[] = '00000000';
-        }
+        });
 
         return $result;
     }

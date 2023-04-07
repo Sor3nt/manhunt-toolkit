@@ -9,7 +9,7 @@ use Exception;
 class Associations
 {
 
-    public $type = Tokens::T_UNKNOWN;
+    public string $type = Tokens::T_UNKNOWN;
 
     /*
      * Regular Parts
@@ -18,22 +18,20 @@ class Associations
     public $value = null;
 
     /** @var Associations[] */
-    public $childs = [];
+    public array $childs = [];
 
-    /** @var Associations */
-    public $usedinFunction = null;
-    public $size = null;
+    public ?Associations $usedinFunction = null;
+    public ?int $size = null;
     public $offset = null;
     public $fallback = null;
     public $records = [];
 
-    public $levelVarSize = null;
-    public $isLevelVar = null;
-    public $isGameVar = null;
-    public $isCustomFunction = null;
+    public ?int $levelVarSize;
+    public ?bool $isLevelVar;
+    public ?bool $isGameVar;
+    public ?bool $isCustomFunction = null;
     public $isProcedure = null;
     public $isLastWriteDebugParam = null;
-    public $isArgument = null;
 
     public $section = null;
 
@@ -63,7 +61,7 @@ class Associations
     /*
      * Conditions
      */
-    public $cases = [];
+    public array $cases = [];
 
     public $operator = null;
     public $condition = null;
@@ -74,39 +72,32 @@ class Associations
 
 
     /** @var Associations[] */
-    public $extraArguments = [];
+    public array $extraArguments = [];
 
     public $assign = null;
     public $onlyPointer = null;
 
-    /** @var Associations */
-    public $math = null;
+    public ?Associations $math = null;
+    public ?Associations $attribute = null;
 
-    /** @var null|Associations */
-    public $attribute = null;
-
-    public $firstAttribute = null;
-
-    public $fromState = null;
-    public $parent = null;
-    public $index = null;
+    public bool $firstAttribute = true;
+    public bool $fromState = false;
+    public int $index;
 
     /** @var array|null  */
     public $forceFloat = null;
     public $varType = null;
 
-    public $return = null;
+    public ?string $return = null;
 
-    public $negate = null;
-    public $scriptName = "";
+    public bool $negate = false;
+    public string $scriptName = "";
 
     public function __debugInfo()
     {
 
         $debug = [];
-
         foreach ($this as $key => $value) {
-
             if ($value !== null && $value !== ""){
                 if (is_array($value) && count($value) == 0) continue;
                 $debug[$key] = $value;
@@ -126,7 +117,6 @@ class Associations
         if (is_null($compiler)) return;
 
         $value = strtolower($compiler->consume());
-
         $isVariableOrFunction = false;
 
         /**
@@ -143,37 +133,26 @@ class Associations
                 $compiler->current++; // Skip "]"
             }
 
-
             //we access a object attribute
             if ($compiler->consumeIfTrue(".")){
                 $attribute = $compiler->createVariableAssociation($variable);
                 $attribute->value = $compiler->consume();
 
-                if ($variable['type'] == "array"){
-                    $records = $compiler->records[$variable['typeOf']];
-
-                }else{
-                    $records = $compiler->records[$variable['type']];
-                }
-
+                $records = $compiler->records[$variable[$variable['type'] == "array" ? 'typeOf' : 'type']];
                 $attribute->firstAttribute = array_keys($records)[0] == $attribute->value;
 
                 foreach ($records as $index => $record) {
-
                     if ($index == $attribute->value){
                         $attribute->varType = $record['type'];
                         $attribute->offset = $record['offset'];
                     }
                 }
 
-
                 $variable['attribute'] = $attribute;
-
             }
 
-            if (isset($compiler->records[$variable['type']])){
+            if (isset($compiler->records[$variable['type']]))
                 $variable['type'] = 'object';
-            }
 
             $compiler->createVariableAssociation($variable, $this);
         }
@@ -202,7 +181,6 @@ class Associations
             if ($compiler->getToken() == "(") {
 
                 $params = new Associations($compiler);
-//                var_dump($params);exit;
                 $current = 0;
                 while($current < count($params->childs)){
                     $param = $params->childs[$current];
@@ -210,8 +188,6 @@ class Associations
                     /**
                      * Right after a function parameter is a math operation
                      */
-
-//                    var_dump($params->childs[$current + 1]->type);
                     if (
                         $param->type == Tokens::T_CONDITION ||
                         (
@@ -219,8 +195,6 @@ class Associations
                             $compiler->isTypeMathOperator($params->childs[$current + 1]->type)
                         )
                     ){
-//                        var_dump($param);
-
                         $math = new Associations();
                         $math->type = Tokens::T_MATH;
                         $math->usedinFunction = $compiler->createVariableAssociation( $function);
@@ -236,27 +210,19 @@ class Associations
                                 $params->childs[$current + 1], // operator
                                 $params->childs[$current + 2], // value b
                             ]);
-//                            var_dump($this->childs);exit;
-
                         }
 
                         $current = $current + 2;
 
-                        if (count($math->childs) == 1){
-                            $this->childs[] = $math->childs[0];
-                        }else{
-                            $this->childs[] = $math;
-
-                        }
-
+                        $this->childs[] = count($math->childs) == 1 ? $math->childs[0] : $math;
                     }else{
                         $this->childs[] = $param;
                     }
 
                     $current++;
                 }
-
             }
+
             /**
              * Callscript calls can have arguments
              */
@@ -332,7 +298,7 @@ class Associations
             $this->section = "header";
 
             $this->offset = Helper::fromHexToInt($constant['offset']);
-            $this->varType = isset($constant['varType']) ? $constant['varType'] : 'integer';
+            $this->varType = $constant['varType'] ?? 'integer';
             return;
         }
 
@@ -345,6 +311,7 @@ class Associations
             if (Helper::fromFloatToHex($value) === "00000080"){
                 $isNegateZero = true;
             }
+
             //convert the string into a float/int
             $number = strpos($value, '.') !== false ?
                 (float)$value :
@@ -353,11 +320,8 @@ class Associations
             $this->type = is_float($number) ? Tokens::T_FLOAT : Tokens::T_INT;
             $this->value = $number;
 
-            if (
-                isset($compiler->gameClass->floatAllowedDeviation[(string)$this->value])
-            ){
+            if (isset($compiler->gameClass->floatAllowedDeviation[(string)$this->value]))
                 $this->value = $compiler->gameClass->floatAllowedDeviation[(string)$this->value];
-            }
 
             if ($number < 0 || $isNegateZero){
                 $this->negate = true;
@@ -381,11 +345,11 @@ class Associations
             $this->value = $compiler->strings[$stringIndex];
 
             /** @var Associations $string */
-            if ($compiler->game == MHT::GAME_MANHUNT){
-                $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][$this->value];
-            }else{
-                $string = $compiler->strings4Script[strtolower($compiler->currentScriptName)][strtolower($this->value)];
-            }
+            $string = $compiler->strings4Script
+                [strtolower($compiler->currentScriptName)]
+                [$compiler->game == MHT::GAME_MANHUNT ? $this->value : strtolower($this->value)]
+            ;
+
             if (is_array($string)) $string = $string[0];
 
             $this->scriptName = $string->scriptName;
@@ -472,14 +436,12 @@ class Associations
                         $compiler->consumeIfTrue(')'); //Skip ")"
                     }else{
                         $parameterCount = 0;
-                        foreach ($parameters as $parameter) {
+                        foreach ($parameters as $parameter)
                             $parameterCount += count($parameter['names']);
-                        }
 
                         $compiler->offsetProcedureVariable = -12;
 
                         $this->applyVariables($compiler, $parameters, true);
-
                     }
 
                 }
@@ -495,14 +457,11 @@ class Associations
                 } else {
                     $this->type = $value == "function" ? Tokens::T_CUSTOM_FUNCTION : Tokens::T_PROCEDURE;
 
-                    if (isset($compiler->gameClass->functions[strtolower($this->value)])){
+                    if (isset($compiler->gameClass->functions[strtolower($this->value)]))
                         $this->return = $compiler->gameClass->functions[strtolower($this->value)]['return'];
-                    }
-
                 }
 
                 $compiler->consumeIfTrue("begin");      //skip "begin"
-
 
                 $compiler->addCustomFunction(
                     $this->value,
@@ -510,9 +469,8 @@ class Associations
                     $this->return
                 );
 
-                if ($this->type !== Tokens::T_FORWARD){
+                if ($this->type !== Tokens::T_FORWARD)
                     $this->childs = $this->associateUntil($compiler, Tokens::T_END);
-                }
 
                 /**
                  * Add the custom function also to the force float map
@@ -660,26 +618,21 @@ class Associations
                 if ($compiler->consumeIfTrue("else")) {
 
                     if ($compiler->consumeIfTrue("begin")) {
-
                         $case->onFalse = $this->associateUntil($compiler, Tokens::T_END);
                     } else if ($compiler->getToken() == "if") {
-                        foreach ((new Associations($compiler))->cases as $_case) {
+                        foreach ((new Associations($compiler))->cases as $_case)
                             $this->cases[] = $_case;
-                        }
 
                     } else {
                         $case->onFalse = [new Associations($compiler)];
                     }
-
                 }
 
                 break;
 
             case '(':
                 $this->type = Tokens::T_CONDITION;
-
                 $this->childs = $this->associateUntil($compiler, Tokens::T_BRACKET_CLOSE);
-
                 break;
 
             /**
@@ -732,25 +685,17 @@ class Associations
 
             default:
                 $compiler->raiseException();
-                break;
         }
     }
 
-    /**
-     * @param Compiler $compiler
-     * @param $tokenType
-     * @return array
-     * @throws Exception
-     */
-    public function associateUntil(Compiler $compiler, $tokenType)
-    {
 
+    public function associateUntil(Compiler $compiler, string $tokenType) : array
+    {
         $result = [];
         $endFound = false;
         while ($endFound == false) {
             $associated = new Associations($compiler);
             if ($associated->type == Tokens::T_NOP) continue;
-
             if ($associated->type != $tokenType) $result[] = $associated;
 
             $endFound = $associated->type == $tokenType;
@@ -760,14 +705,7 @@ class Associations
     }
 
 
-    /**
-     * @param Compiler $compiler
-     * @param string $section
-     * @param bool $isArgument
-     * @return array
-     * @throws Exception
-     */
-    private function consumeParameters(Compiler $compiler, $section = "header", $isArgument = false)
+    private function consumeParameters(Compiler $compiler, string $section = "header", bool $isArgument = false) : array
     {
 
         /**
@@ -871,15 +809,13 @@ class Associations
                 break;
             }
 
-            if ($isArgument == false) $compiler->consumeIfTrue('var');
-
+            if ($isArgument === false) $compiler->consumeIfTrue('var');
         }
-
 
         return $toAdd;
     }
 
-    public function applyVariables(Compiler $compiler, &$toAdd, $reverse = false){
+    public function applyVariables(Compiler $compiler, array &$toAdd, bool $reverse = false){
         /**
          * Procedure arguments offset calculation are reversed
          *

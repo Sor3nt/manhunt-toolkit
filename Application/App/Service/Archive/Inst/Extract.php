@@ -42,7 +42,6 @@ class Extract {
         {
             $msg = "Missed IDs " . count($this->missedParametersIds) . " (usage " . $this->missedParameters . ")\n";
             echo $msg;
-            file_put_contents('de', $msg, FILE_APPEND);
         }
 
         return $records;
@@ -88,14 +87,6 @@ class Extract {
 
             $parameterName = Manhunt2::getNameByHash($parameter);
 
-            if ($parameterName === null){
-                $parameterName = $parameter;
-
-                $this->missedParameters++;
-                if (!isset($this->missedParametersIds[$parameter]))
-                    $this->missedParametersIds[$parameter] = $record['record'] . '_' . $record['internalName'];
-            }
-
             $type = $binary->consume(4, NBinary::STRING);
 
             // float, boolean, integer are always 4-byte long
@@ -122,6 +113,19 @@ class Extract {
                 default:
                     die('Unknown INST Datatype found');
             }
+
+
+            if ($parameterName === null){
+                $parameterName = $parameter;
+
+                $this->missedParameters++;
+                if (!isset($this->missedParametersIds[$parameter])) {
+                    file_put_contents('de', $parameter . '    ' . $record['record'] . '   ' . $record['internalName'] . ' ' . $record['entityClass'].  "\n", FILE_APPEND);
+
+                    $this->missedParametersIds[$parameter] = $record['record'] . '_' . $record['internalName'];
+                }
+            }
+
 
             $params[] = [
                 'parameterId' => $parameterName,

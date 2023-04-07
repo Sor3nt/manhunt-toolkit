@@ -8,26 +8,21 @@ use Exception;
 
 class Evaluate{
 
-    public $msg = "";
+    public string $msg = "";
 
-    /** @var Compiler */
-    private $compiler;
+    private Compiler $compiler;
 
     /**
-     * Evaluate constructor.
      * @param Compiler $compiler
      * @param Associations $association
+     * @param string|null $restoreMessage
      * @throws Exception
      */
-    public function __construct( Compiler $compiler, Associations $association, $restoreMessage = null )
+    public function __construct( Compiler $compiler, Associations $association, ?string $restoreMessage = null )
     {
         $compiler->logPad++;
 
-        $compiler->log(sprintf("Call Evaluate"));
-
-
-
-
+        $compiler->log("Call Evaluate");
         $this->compiler = $compiler;
 
         switch ($association->type) {
@@ -51,13 +46,13 @@ class Evaluate{
                  * time := Round(time * timefactor);
                  *
                  * timefactor is a float
-                 * time is a integer
+                 * time is an integer
                  * Round accept (int and float ?!)
                  * Written to integer
                  *
                  *
                  * The required code did not match with any other int/float math logic...
-                 * currently no idea so i clone this special part
+                 * currently no idea so clone this special part
                  */
 
                 if (
@@ -169,7 +164,6 @@ class Evaluate{
                     }
                 }else{
                     $this->doMath($association->childs);
-
                 }
 
                 break;
@@ -186,19 +180,17 @@ class Evaluate{
                 }
 
                 $this->compiler->currentScriptName = $association->value;
-
                 $this->compiler->evalVar->scriptStart($association->value);
 
-                if ($association->type == Tokens::T_CUSTOM_FUNCTION){
+                if ($association->type == Tokens::T_CUSTOM_FUNCTION)
                     $compiler->evalVar->reserveMemory($compiler->calcSize($association->return));
-                }
 
-                $compiler->evalVar->reserveMemory(
-                    $compiler->getScriptSize($association->value)
-                );
+                $compiler->evalVar->reserveMemory($compiler->getScriptSize($association->value));
 
                 /** @var Associations[] $arguments */
                 $arguments = $compiler->getScriptArgumentsByScriptName($association->value);
+
+                $endOffset = 0;
 
                 if (count($arguments)){
                     $compiler->evalVar->msg = sprintf("Process %s Arguments ", count($arguments));
@@ -229,15 +221,13 @@ class Evaluate{
                             if ($argument['fallback']->type === "T_FLOAT")
                                 $argument['fallback']->size = 4;
                             else
-                                throw new \Exception('Fallback size is null ?');
+                                throw new Exception('Fallback size is null ?');
                         }
 
                         $this->compiler->evalVar->readSize($argument['fallback']->size);
-
                         $this->compiler->evalVar->retString();
 
                         $this->add('0c030000', 'a argument command, for first param');
-
 
                         $this->add('22000000', 'write to ?');
                         $this->add('04000000', 'write to ?');
@@ -299,7 +289,6 @@ class Evaluate{
                     $this->compiler->evalVar->scriptEnd($association->value);
                 }
 
-
                 /**
                  * Calculate the end of each SCRIPT block
                  * Any PROCEDURE or FUNCTION will just count up the size
@@ -336,7 +325,7 @@ class Evaluate{
                 $compiler->log(sprintf("We assign something to %s", $association->value));
 
                 if ($association->varType == "object" && $association->attribute == null) {
-                    $compiler->log(sprintf("Assign to Object"));
+                    $compiler->log("Assign to Object");
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 
@@ -345,7 +334,7 @@ class Evaluate{
                 }
 
                 else if ($association->isCustomFunction){
-                    $compiler->log(sprintf("Assignment is actual a Function return"));
+                    $compiler->log("Assignment is actual a Function return");
                     $this->add('10000000', 'to custom function return');
                     $this->add('02000000', 'to custom function return');
 
@@ -377,30 +366,21 @@ class Evaluate{
 //                    $association->varType == "object" &&
                     $association->forIndex !== null
                 ) {
-                    $compiler->log(sprintf("Assign to Array Index"));
+                    $compiler->log("Assign to Array Index");
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
 //                    var_dump($association);exit;
 
-                //we access a object attribute
+                //we access an object attribute
                 } else if (
                     $association->attribute != null
                 ) {
-                    $compiler->log(sprintf("Assign to Object Attribute"));
+                    $compiler->log("Assign to Object Attribute");
                     $association->type = Tokens::T_VARIABLE;
                     new Evaluate($this->compiler, $association);
-
-//                    if ($association->attribute->firstAttribute === false) {
-//                        $this->compiler->evalVar->moveAttributePointer($association->attribute, "T_ASSIGN");
-//                        $this->compiler->evalVar->ret();
-//                    }
-
-
                 }
 
-
-
-                $compiler->log(sprintf("Evaluate right side"));
+                $compiler->log("Evaluate right side");
 
                /**
                  * Handle right hand (value to assign)
@@ -512,16 +492,16 @@ class Evaluate{
                         new Evaluate($compiler, $association->forIndex);
 
                         //todo calc size of array
-                        $compiler->evalVar->readArray(4);
+                        $compiler->evalVar->readArray();
 
                     }else if ($association->varType == "string"){
-                        $this->compiler->log(sprintf("Read String"));
+                        $this->compiler->log("Read String");
 
                         $compiler->evalVar->levelVarPointerString($association);
                         $compiler->evalVar->readSize($association->size);
 
                     }else{
-                        $this->compiler->log(sprintf("Read regular level var"));
+                        $this->compiler->log("Read regular level var");
                         $compiler->evalVar->levelVarPointer($association);
                     }
                 }
@@ -566,7 +546,7 @@ class Evaluate{
                 }
 
                 /**
-                 * We read a object Attribute
+                 * We read an object Attribute
                  *
                  * WriteDebug(pos.x);
                  * pos is our $association and x is stored inside $association->attribute
@@ -630,7 +610,7 @@ class Evaluate{
 
                 new Evaluate($this->compiler, $association->start);
 
-                $compiler->evalVar->msg = sprintf("For statement");
+                $compiler->evalVar->msg = "For statement";
 
                 if (
                     $compiler->game == MHT::GAME_MANHUNT &&
@@ -660,7 +640,7 @@ class Evaluate{
 
 
 
-                $compiler->evalVar->msg = sprintf("For statement");
+                $compiler->evalVar->msg = "For statement";
 
 
                 if (
@@ -700,7 +680,7 @@ class Evaluate{
                     new Evaluate($this->compiler, $item);
                 }
 
-                $compiler->evalVar->msg = sprintf("For statement");
+                $compiler->evalVar->msg = "For statement";
                 if (
                     $compiler->game == MHT::GAME_MANHUNT &&
                     ($association->end->type == Tokens::T_INT || $association->end->type == Tokens::T_VARIABLE)
@@ -750,7 +730,7 @@ class Evaluate{
 
             case Tokens::T_CONDITION:
 
-                $compiler->evalVar->msg = sprintf("Condition");
+                $compiler->evalVar->msg = "Condition";
 
                 foreach ($association->childs as $index => $param) {
 
@@ -784,7 +764,7 @@ class Evaluate{
 
                             new Evaluate($this->compiler, $param);
 
-                            $compiler->evalVar->msg = sprintf("Condition");
+                            $compiler->evalVar->msg = "Condition";
 
                             if (
                                 $param->fromArray === true ||
@@ -801,16 +781,8 @@ class Evaluate{
                                 $this->compiler->evalVar->not();
                             }
 
-                            if ($param->varType == "float"){
+                            if ($param->varType == "float" || !$lastInCurrentChain)
                                 $doReturn = "default";
-
-                            }else{
-                                if ($lastInCurrentChain){
-                                    $doReturn = null;
-                                }else{
-                                    $doReturn = "default";
-                                }
-                            }
                         }
 
                     }else if (
@@ -823,11 +795,11 @@ class Evaluate{
 
 
                         /**
-                         * The issue here is, float comparison against a int return value
+                         * The issue here is, float comparison against an int return value
                          *
                          * if(GetDamage(...) > 0.0)
                          *
-                         * GetDamage returns a int but we need to compare with a float
+                         * GetDamage returns an int, but we need to compare with a float
                          *
                          */
                         if ($index === 1 && count($association->childs) === 3){
@@ -934,24 +906,14 @@ class Evaluate{
                                     $this->add($code, "HARDCODED");
                                 }
 
-
                                 break 2 ;
                             }
-
                         }
 
-//                        $this->compiler->evalVar->ret("DEBUG");
 
-                        if ($param->type == Tokens::T_FLOAT){
+                        if ($param->type == Tokens::T_FLOAT || !$lastInCurrentChain)
                             $doReturn = "default";
-                        }else{
-                            if ($lastInCurrentChain){
-                                $doReturn = null;
-                            }else{
-                                $doReturn = "default";
-                            }
 
-                        }
                     }else if ( $param->type == Tokens::T_STRING ){
                         new Evaluate($this->compiler, $param);
                         $this->compiler->evalVar->readSize($param->size);
@@ -970,14 +932,8 @@ class Evaluate{
                             $this->compiler->evalVar->not();
                         }
 
-
-                        if ($param->return != "string"){
-                            if ($lastInCurrentChain ){
-                                $doReturn = null;
-                            }else{
-                                $doReturn = "default";
-                            }
-                        }
+                        if ($param->return != "string" && !$lastInCurrentChain)
+                            $doReturn = "default";
 
                     }else if ($param->type == Tokens::T_NOT){
                         $this->compiler->evalVar->not();
@@ -987,7 +943,7 @@ class Evaluate{
                          * Do nothing
                          */
                     }else if ($param->type == Tokens::T_OR || $param->type == Tokens::T_AND){
-                        $compiler->evalVar->msg = sprintf("Condition");
+                        $compiler->evalVar->msg = "Condition";
 
                         $compiler->evalVar->conditionOperator($param);
 
@@ -997,7 +953,7 @@ class Evaluate{
 
                     }else{
 
-                        $compiler->evalVar->msg = sprintf("Condition exec");
+                        $compiler->evalVar->msg = "Condition exec";
 
                         $compiler->evalVar->conditionOperation($param);
 
@@ -1051,7 +1007,7 @@ class Evaluate{
             case Tokens::T_DO:
             case Tokens::T_IF:
 
-                $compiler->evalVar->msg = sprintf("IF Statement ");
+                $compiler->evalVar->msg = "IF Statement ";
 
                 $startOffset = count($compiler->codes);
 
@@ -1159,7 +1115,7 @@ class Evaluate{
                         $association->forceFloat &&
                         !isset($association->forceFloat[$index])
                     ){
-                        throw new \Exception(sprintf("Function %s float mapping is invalid looking for index %s " , $association->value, $index));
+                        throw new Exception(sprintf("Function %s float mapping is invalid looking for index %s " , $association->value, $index));
 
                     }
 
@@ -1173,7 +1129,6 @@ class Evaluate{
                                 $param->forIndex->varType == "array"
                             ) &&
                             $param->attribute->firstAttribute === true){
-//                            var_dump($param);exit;
 
                         }else {
 
@@ -1181,29 +1136,13 @@ class Evaluate{
 
 
                             }else{
-                                $this->compiler->evalVar->readAttribute($param, "jaja");
+                                $this->compiler->evalVar->readAttribute($param);
 
                             }
 
                         }
 
                     }
-//
-//                    if(
-//                        $param->varType == "object" &&
-//                        $param->attribute !== null
-//                    ){
-//                        $this->compiler->evalVar->readAttribute($param);
-//                    }
-//
-//                    if(
-//                        $param->varType == "array" &&
-//                        $param->attribute !== null
-//                    ){
-//                        if ($param->attribute->firstAttribute == false){
-//                            $this->compiler->evalVar->readAttribute($param);
-//                        }
-//                    }
 
                     /**
                      * Check if we need to convert the given int into a float
@@ -1211,16 +1150,13 @@ class Evaluate{
                     if (
                         $association->forceFloat &&
                         $association->forceFloat[$index] === true &&
-
                         $param->type !== Tokens::T_FLOAT &&
-
                         $param->varType !== "float"
                     ){
 
                         if ($param->type == Tokens::T_MATH){
                             if ($compiler->detectVarType($param->childs[0]) != "float"){
                                 $this->compiler->evalVar->int2float("T_FUNCTION 1");
-
                             }
                         }
 
@@ -1247,7 +1183,7 @@ class Evaluate{
                     }
 
                     /**
-                     * i guess the procedure need only the pointer and not the actual value
+                     * guess the procedure need only the pointer and not the actual value
                      */
                     if (
                         $association->isProcedure === true ||
@@ -1267,7 +1203,6 @@ class Evaluate{
                             }
                             if (is_array($string)) $string = $string[0];
                             $this->compiler->evalVar->readSize( $string->size );
-
                         }
                     }
 
@@ -1305,7 +1240,6 @@ class Evaluate{
                             (
                                 $param->type == Tokens::T_VARIABLE &&
                                 (
-//                                    ($param->varType == "object" && $param->fromArray == null) ||
                                     $param->varType == "eaicombattype" ||
                                     $param->varType == "ecollectabletype" ||
                                     $param->varType == "effectptr" ||
@@ -1340,7 +1274,7 @@ class Evaluate{
                         }else if (
                             (
                                 $param->type == Tokens::T_VARIABLE &&
-                                $param->fromArray == true &&
+                                $param->fromArray &&
                                 $param->forIndex !== null &&
                                 $param->forIndex->forIndex == null &&
                                 $param->attribute !== null &&
@@ -1366,7 +1300,6 @@ class Evaluate{
                             $param->type == Tokens::T_STRING
                         ) {
                             $this->compiler->evalVar->retString();
-
                         }
 
                     }
@@ -1391,7 +1324,6 @@ class Evaluate{
                     $this->add('10000000', $msg);
                     $this->add('02000000', $msg);
                     $this->add('39000000', $msg);
-
 
                     /**
                      * Custom functions can return a value and the space need to be defined here.
@@ -1420,6 +1352,7 @@ class Evaluate{
                         }else{
                             $writeDebugFunction = $compiler->gameClass->getFunction('writedebugstring');
                         }
+
                     }else if ($param->varType == "integer") {
                         $writeDebugFunction = $compiler->gameClass->getFunction('writedebuginteger');
                     }else if ($param->varType == "float") {
@@ -1453,8 +1386,6 @@ class Evaluate{
                                 break;
                             default:
                                 throw new Exception("Unknown WriteDebug function return " . $param->value);
-
-
                         }
                     }else{
                         var_dump($param);
@@ -1466,10 +1397,8 @@ class Evaluate{
                     if ($association->isLastWriteDebugParam === null || $association->isLastWriteDebugParam === true){
                         if ($compiler->game == MHT::GAME_MANHUNT){
                             $this->add('73000000');
-
                         }else{
                             $this->add('74000000');
-
                         }
                     }
                 }else{
@@ -1488,13 +1417,11 @@ class Evaluate{
                         foreach ($association->extraArguments as $index => $extraArgument) {
 
                             $compiler->evalVar->valuePointer($index);
-
                             $compiler->evalVar->ret();
 
                             new Evaluate($this->compiler, $extraArgument);
 
                             if (
-//                                $extraArgument->type == Tokens::T_VARIABLE &&
                                 $extraArgument->varType == "array" ||
                                 $extraArgument->varType == "object"
                             ) {
@@ -1548,7 +1475,6 @@ class Evaluate{
 
                 $cases = array_reverse($association->cases);
                 foreach ($cases as $index => $case) {
-//                    var_dump($case->value);
                     if (
                         !$case->value instanceof Associations ||
                         $case->value->type != Tokens::T_ELSE
@@ -1557,13 +1483,11 @@ class Evaluate{
                 }
 
                 foreach ($cases as $index => $case) {
-//                    if ($case->value->type == Tokens::T_ELSE) continue;
 
                     if (
                         $case->value instanceof Associations &&
                         $case->value->type == Tokens::T_ELSE
                     ) continue;
-
 
                     $realIndex =  $index ;
 
@@ -1578,24 +1502,18 @@ class Evaluate{
 
                     $this->add('3f000000', "Jo");
 
-                    //we dont know yet the correct offset, we store the position and
+                    //we don`t know yet the correct offset, we store the position and
                     //fix it in the next loop
                     $caseStartOffsets[$index] = count($compiler->codes);
                     $this->add('CASE OFFSET', 'Case Offset start');
                 }
-//
-//
 
                 $elseCase = false;
-                foreach ($cases as $index => $case) {
-
-
+                foreach ($cases as $case) {
                     if (
                         !$case->value instanceof Associations ||
                         $case->value->type != Tokens::T_ELSE
                     ) continue;
-
-//                    if ($case->value->type != Tokens::T_ELSE) continue;
 
                     $this->add('3c000000', 'Jump to ELSE');
 
@@ -1603,31 +1521,25 @@ class Evaluate{
                     $this->add('ELSE OFFSET', 'ELSE Case Offset');
                 }
 
-
-
                 foreach ($cases as $index => $case) {
-
-//                    if ($case->value->type == Tokens::T_ELSE) continue;
 
                     $this->add('3c000000', 'Jump to Case ' . $index);
 
-                    //we dont know yet the correct offset, we store the position and
+                    //we don`t know yet the correct offset, we store the position and
                     //fix it in the next loop
                     $caseEndOffsets[] = count($compiler->codes);
                     $this->add('END OFFSET', 'Last Case Offset');
 
                     //fix the missed start offsets
-
                     if  (
                         $case->value instanceof Associations &&
                         $case->value->type == Tokens::T_ELSE
                     ){
                         $compiler->codes[ $elseCase ]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
-
                     }else{
-
                         $compiler->codes[ $caseStartOffsets[$index] ]['code'] = Helper::fromIntToHex(count($compiler->codes) * 4);
                     }
+
                     new Evaluate($this->compiler, $case);
                 }
 
@@ -1648,8 +1560,6 @@ class Evaluate{
             case Tokens::T_BOOLEAN:
             case Tokens::T_INT:
                 $compiler->evalVar->msg = sprintf("Read simple value %s", $association->value);
-
-
                 $this->compiler->evalVar->readData($association);
                 break;
 
@@ -1675,13 +1585,11 @@ class Evaluate{
                 throw new Exception(sprintf("Unable to evaluate %s ", $association->type));
         }
 
-
         if ($restoreMessage !== null){
             $compiler->evalVar->msg = $restoreMessage;
         }
 
         $compiler->logPad--;
-
     }
 
     private function add($code, $appendix = null ){
@@ -1699,9 +1607,9 @@ class Evaluate{
      * @param Associations[] $associations
      * @throws Exception
      */
-    public function doMath( $associations ){
+    public function doMath( array $associations ){
 
-        $this->compiler->evalVar->msg = sprintf("Math Operation ");
+        $this->compiler->evalVar->msg = "Math Operation ";
 
         $varType = $this->compiler->detectVarType($associations[0]);
 
@@ -1712,7 +1620,7 @@ class Evaluate{
 
                 $this->compiler->evalVar->math($association->type, $varType);
 
-                if ($isLast == false) $this->compiler->evalVar->ret();
+                if (!$isLast) $this->compiler->evalVar->ret();
 
                 /**
                  * Looks like a hack but the extra return appears only in
@@ -1720,7 +1628,7 @@ class Evaluate{
                  */
                 if (
                     $varType != "float" &&
-                    $isLast == true &&
+                    $isLast &&
                     $association->type == Tokens::T_MULTIPLY
                 ){
                     $this->compiler->evalVar->ret();
@@ -1728,15 +1636,12 @@ class Evaluate{
 
             }else {
 
-                //we reached the last token followed by a operator
+                //we reached the last token followed by an operator
                 $isLast = count($associations) == $index + 2;
 
-//
                 $beforeOperator = false;
-                if (isset($associations[$index + 1])){
+                if (isset($associations[$index + 1]))
                     $beforeOperator = $this->compiler->isTypeMathOperator($associations[$index + 1]->type);
-//                    var_dump($beforeOperator);
-                }
 
                 new Evaluate($this->compiler, $association);
 
@@ -1752,28 +1657,15 @@ class Evaluate{
                 if (
                     $association->attribute !== null ||
                     $association->fromArray
-
                 ) {
                     $this->compiler->evalVar->readAttribute($association);
-
-//                    $this->compiler->evalVar->readFromAttribute($association);
                 }
 
-                if ($varType == "float" || ($varType == "integer" && $isLast == false && $beforeOperator == false)
+                if (
+                    $varType == "float" ||
+                    ($varType == "integer" && $isLast === false && $beforeOperator === false)
                 ){
-//                    if ($beforeOperator){
-//                        var_dump($associations);
-//                    }
-
                     $this->compiler->evalVar->ret($varType);
-                }else if($isLast == false){
-//
-//                    if ($varType == 'string'){
-//                        var_dump($associations);
-//                        exit;
-//                    }
-//                    echo $association->toCsv() . "\n";
-
                 }
 
                 if ($varType == "float" ){
@@ -1793,20 +1685,15 @@ class Evaluate{
                         $this->add('4d000000', 'integer to float1');
                         $this->compiler->evalVar->ret("3");
                     }
-
                 }
 
-
-
-                if ($beforeOperator == false){
+                if (!$beforeOperator){
                     $varType = $this->compiler->detectVarType($association);
 
                     if ($varType == null){
                         throw new Exception("Unable to detect varType");
                     }
-
                 }
-
             }
         }
     }
