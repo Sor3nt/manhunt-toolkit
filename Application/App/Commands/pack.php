@@ -67,7 +67,17 @@ echo sprintf('Identify %s as %s ', $file, $handler->name);
 
 $result = $handler->pack( $resource->getInput(), $game, $platform );
 
-file_put_contents($outputTo, $result);
+if (is_array($result)){
+    $pathInfo = pathinfo($outputTo);
+
+    foreach ($result as $filename => $content) {
+        file_put_contents($pathInfo['dirname'] . DIRECTORY_SEPARATOR . $filename, $content);
+
+    }
+}else{
+    file_put_contents($outputTo, $result);
+
+}
 
 echo sprintf("\nPacked to %s",  $outputTo) . "\n";
 

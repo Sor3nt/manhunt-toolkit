@@ -12,6 +12,7 @@ use App\Service\Archive\Dds;
 use App\Service\Archive\Dff;
 use App\Service\Archive\Dir;
 use App\Service\Archive\Fev;
+use App\Service\Archive\Font;
 use App\Service\Archive\Fsb3;
 use App\Service\Archive\Fsb4;
 use App\Service\Archive\Fxb;
@@ -44,7 +45,7 @@ class Resources
         Col::class,     Dds::class,     Fxb::class,     Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class,
-        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class, ContextMapBin::class
+        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class, ContextMapBin::class, Font::class
     ];
 
 

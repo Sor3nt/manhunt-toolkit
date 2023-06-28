@@ -340,6 +340,79 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
 }
 
+if ($handler instanceof App\Service\Archive\Font){
+
+
+    $textureFolder = str_replace('FONT.DAT', '', $file) . '../pictures/global_pc.tex';
+    if (!file_exists($textureFolder)){
+        die("Unable to find global_pc.tex");
+    }
+
+    $resourcesFont = new Resources();
+    $resourceFont = $resourcesFont->load($textureFolder, $game, $platform);
+    $fontImageHandler = $resourceFont->getHandler();
+
+    $textureResults = $fontImageHandler->unpack( $resourceFont->getInput(), $game, $platform );
+
+    $ddsHandler = new Dds();
+    $imageHandler = new Image();
+
+    $resultsNew = [];
+    foreach ($results as $fontIndex => $font) {
+
+        if ($fontIndex === 0) $textureName = "t16plus.dds";
+        if ($fontIndex === 1) $textureName = "font2.dds";
+        if ($fontIndex === 2) $textureName = "font1.dds";
+
+        foreach ($textureResults as $name => $textureResult) {
+            if ($textureName == $name){
+
+                $ddsResult = $ddsHandler->unpack( new NBinary($textureResult), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
+                $imageBinary = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
+
+                file_put_contents('tmp.png', $imageBinary);
+
+                $image = imagecreatefrompng('tmp.png');
+                imageAlphaBlending($image, true);
+                imageSaveAlpha($image, true);
+                $size = getimagesize('tmp.png');
+
+                foreach ($font['charInfoTable'] as $item) {
+
+                    $height = ($item['position']['y2'] *  $size[1]) - ($item['position']['y1']) * $size[1];
+                    if ($height === 0.0){
+                        $height = $font['fontHeight'] * 2 * $size[1];
+                    }
+                    // Ausschnitt erstellen
+                    $croppedImage = imagecrop($image, [
+                        'x' => $item['position']['x1'] * $size[0],
+                        'y' => $item['position']['y1'] * $size[1],
+                        'width' => ($item['position']['x2'] * $size[0] ) - ($item['position']['x1']) * $size[0],
+                        'height' => $height
+                    ]);
+
+                    imageAlphaBlending($croppedImage, true);
+                    imageSaveAlpha($croppedImage, true);
+                    imagepng($croppedImage, 'tmp2.png', 0);
+
+                    imagedestroy($croppedImage);
+                    $resultsNew['font' . $fontIndex . '/' . $item['code'] . '.png'] = file_get_contents('tmp2.png');
+                    unlink('tmp2.png');
+                }
+
+                // Speicher freigeben
+                imagedestroy($image);
+                unlink('tmp.png');
+            }
+        }
+
+
+        $results = $resultsNew;
+
+    }
+}
+
+
 if ($handler instanceof App\Service\Archive\Tex){
     if (in_array('to-png', $options) !== false ){
         $ddsHandler = new Dds();
