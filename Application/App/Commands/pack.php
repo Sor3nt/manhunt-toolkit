@@ -1,6 +1,7 @@
 <?php
 
 use App\MHT;
+use App\Service\MyFinder;
 use App\Service\Resources;
 
 
@@ -34,7 +35,6 @@ switch (count($argv)){
 
 $file = realpath($file);
 
-
 if ($game !== MHT::GAME_AUTO){
     if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2){
         throw new \Exception('Invalid game, allowed is mh1 or mh2');
@@ -66,6 +66,21 @@ $handler = $resource->getHandler();
 echo sprintf('Identify %s as %s ', $file, $handler->name);
 
 $result = $handler->pack( $resource->getInput(), $game, $platform );
+
+
+if ($handler instanceof App\Service\Archive\Font){
+//    $myFinder = new MyFinder($file);
+
+    echo "Do you want to update the texture file?  Type 'yes' to continue: ";
+    $handle = fopen ("php://stdin","r");
+    $line = fgets($handle);
+    fclose($handle);
+    if(trim($line) === 'yes'){
+
+    }
+
+}
+
 
 if (is_array($result)){
     $pathInfo = pathinfo($outputTo);

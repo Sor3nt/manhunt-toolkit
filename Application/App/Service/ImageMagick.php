@@ -5,10 +5,15 @@ namespace App\Service;
 class ImageMagick
 {
     public string $binary = "convert";
+    public ?bool $available = null;
 
     public function isAvailable(){
+        if ($this->available !== null)
+            return $this->available;
+
         $where = exec(sprintf('%s --help', $this->binary));
-        return strpos($where, "for standard input or output") !== false;
+        $this->available =  strpos($where, "for standard input or output") !== false;
+        return $this->available;
     }
 
 

@@ -41,11 +41,11 @@ class Resources
 
     /** @var Archive[]  */
     private $archives = [
-        Pack::class,
+        Pack::class, Font::class,
         Col::class,     Dds::class,     Fxb::class,     Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class,
-        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class, ContextMapBin::class, Font::class
+        Dff::class,     Vas::class,     Bin::class,     TxdPlaystation2Mh1::class, ContextMapBin::class
     ];
 
 

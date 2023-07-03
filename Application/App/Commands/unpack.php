@@ -45,9 +45,7 @@ $file = realpath($file);
 
 $myFinder = new MyFinder($file);
 
-
 $keepOrder = true;
-//$onlyUnzip = false;
 
 if ($myFinder->game !== null && $myFinder->platform !== null){
     $game = $myFinder->game;
@@ -392,18 +390,19 @@ if ($handler instanceof App\Service\Archive\Font){
 
         foreach ($textureResults as $name => $textureResult) {
             if ($textureName == $name){
-                file_put_contents('tmp.png', $textureResult);
-                $image = imagecreatefrompng('tmp.png');
-                imageAlphaBlending($image, true);
-                imageSaveAlpha($image, true);
+
 
                 if ($game === MHT::GAME_MANHUNT_2 && $platform === MHT::PLATFORM_PC) {
                     $ddsResult = $ddsHandler->unpack(new NBinary($textureResult), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
                     $imageBinary = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
-                    file_put_contents('tmp.png', $imageBinary);
                 }else{
                     $imageBinary = $textureResult;
                 }
+
+                file_put_contents('tmp.png', $imageBinary);
+                $image = imagecreatefrompng('tmp.png');
+                imageAlphaBlending($image, true);
+                imageSaveAlpha($image, true);
 
 
                 $size = getimagesize('tmp.png');

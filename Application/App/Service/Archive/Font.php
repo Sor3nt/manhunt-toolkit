@@ -24,23 +24,17 @@ class Font extends Archive
      * @param $platform
      * @return bool
      */
-    public static function canPack($pathFilename, $input, $game, $platform)
+    public static function canPack($pathFilename, $input, $game, $platform) : bool
     {
-
         if (!$input instanceof Finder) return false;
 
         foreach ($input as $file) {
-
             if (strpos($file->getPathname(), "FONT#DAT") !== false)
                 return true;
-
-
         }
 
         return false;
     }
-
-
 
     /**
      * @param NBinary $binary
@@ -55,51 +49,47 @@ class Font extends Archive
             $binary->current += 6; //skip <FONT>
 
             $charCount = $binary->consume(4, NBinary::INT_32);
-            if ($charCount > 1000){
-                $binary->numericBigEndian = true;
 
+            //Wii detection
+            if ($charCount > 1000){
+                $platform = MHT::PLATFORM_WII;
+                $binary->numericBigEndian = true;
                 $charCount = $binary->consume(4, NBinary::INT_32, -4);
             }
 
-            $matrixCount = $binary->consume(4, NBinary::INT_32, 8); //skip zero and font index
+            $binary->current += 4; //seek zero
+            $binary->current += 4; //seek fontID
+
+            $matrixCount = $binary->consume(4, NBinary::INT_32);
+
+            $binary->current += 4; //seek unk integer
+            $binary->current += 4; //seek vertical center (height)
+
             $font = [
-                'unkInt' => $binary->consume(4, NBinary::INT_32),
-                //center...
-                'fontHeight' => $binary->consume(4, NBinary::FLOAT_32),
                 'charInfoTable' => [],
             ];
 
-            //a table of keycodes; if -1 its not mapped...
-            $charTable = [];
-            for ($i = 0; $i <= $charCount; $i++) {
-                $char = $binary->consume(4, NBinary::INT_32);
-                if ($char === 4294967295) $char = -1; //todo we hit some max signed int  issues here -.-
+            //Seek usage matrix
+            $binary->current += ($charCount + 1) * 4;
 
-                $charTable[] = $char;
-            }
 
             for ($i = 0; $i < $matrixCount; $i++) {
 
-                //todo change this to get utf-16 support as well...
                 if ($platform === MHT::PLATFORM_WII){
                     $binary->current += 3;
                     $codeHex = $binary->consume(1, NBinary::HEX);
                 }else{
                     $codeHex = $binary->consume(1, NBinary::HEX);
                     $binary->current += 3;
-
                 }
 
+                //seek horizontal center (width)
+                $binary->current += 4;
+
                 $info = [
-//                    'index' => $charTable[$code],
-//                    'info' => $code > 31 && $code < 126 ? hex2bin($codeHex) : 'np', //np = not printable char
                     'code' => "0x" . $codeHex,
 
-                    //note width is calculated by "(x2 - x1) / 2)"
-                    //its not width... its center
-                    'width' => $binary->consume(4, NBinary::FLOAT_32),
                     'position' => [
-                        //skip "width" value
                         'x1' => $binary->consume(4, NBinary::FLOAT_32),
                         'y1' => $binary->consume(4, NBinary::FLOAT_32),
                         'x2' => $binary->consume(4, NBinary::FLOAT_32),
@@ -173,7 +163,6 @@ class Font extends Archive
         //Write header
         {
             $font->write('<FONT>', NBinary::STRING);
-//            $font->write(count($chars), NBinary::INT_32);
             $font->write($asDec, NBinary::INT_32);
             $font->write(0, NBinary::INT_32);
             $font->write($fontId, NBinary::INT_32);
@@ -188,12 +177,11 @@ class Font extends Archive
 
         //Write usage matrix
         {
-
             $usedIndex = 0;
             for($keyCode = 0; $keyCode <= $asDec; $keyCode++){
                 $hexKeyCode = sprintf('%02x', $keyCode);
 
-                //has the currenct keycode a image ?
+                //has the current keycode a image ?
                 if (isset($chars['0x' . $hexKeyCode])){
                     $font->write($usedIndex, NBinary::INT_32);
                     $usedIndex++;
@@ -227,10 +215,12 @@ class Font extends Archive
         imageAlphaBlending($resource, true);
         imageSaveAlpha($resource, true);
 
-        imagefill( $resource,
+        imagefill(
+            $resource,
             0,
             0,
-            imagecolorallocatealpha( $resource, 0, 0, 0, 127 ));
+            imagecolorallocatealpha( $resource, 0, 0, 0, 127 )
+        );
     }
 
     private function getTexture(array $chars, int $maxWidth = 256): string
@@ -282,12 +272,10 @@ class Font extends Archive
         return max(array_column($chars, 'height'));
     }
 
-
     private function loopCharsRespectWidth( array $chars, int $width, callable $callback)
     {
         $x = 1;
         $y = 1;
-        $maxCharHeight = $this->getMaxCharHeight($chars);
 
         foreach ($chars as $settings) {
             if ($x + $settings['width'] >= $width){
