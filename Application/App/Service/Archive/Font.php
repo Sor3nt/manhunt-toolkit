@@ -55,6 +55,12 @@ class Font extends Archive
             $binary->current += 6; //skip <FONT>
 
             $charCount = $binary->consume(4, NBinary::INT_32);
+            if ($charCount > 1000){
+                $binary->numericBigEndian = true;
+
+                $charCount = $binary->consume(4, NBinary::INT_32, -4);
+            }
+
             $matrixCount = $binary->consume(4, NBinary::INT_32, 8); //skip zero and font index
             $font = [
                 'unkInt' => $binary->consume(4, NBinary::INT_32),
@@ -75,8 +81,14 @@ class Font extends Archive
             for ($i = 0; $i < $matrixCount; $i++) {
 
                 //todo change this to get utf-16 support as well...
-                $codeHex = $binary->consume(1, NBinary::HEX);
-                $binary->current += 3;
+                if ($platform === MHT::PLATFORM_WII){
+                    $binary->current += 3;
+                    $codeHex = $binary->consume(1, NBinary::HEX);
+                }else{
+                    $codeHex = $binary->consume(1, NBinary::HEX);
+                    $binary->current += 3;
+
+                }
 
                 $info = [
 //                    'index' => $charTable[$code],

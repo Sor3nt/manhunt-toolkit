@@ -3,6 +3,7 @@ namespace App\Service\Archive;
 
 use App\MHT;
 use App\Service\Archive\Textures\Image;
+use App\Service\ImageMagick;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 
@@ -26,14 +27,24 @@ class Tex extends Archive {
      * @return bool
      */
     public static function canPack( $pathFilename, $input, $game, $platform ){
+        $imageMagick = new ImageMagick();
+        if ($imageMagick->isAvailable() === false) {
+            echo "No ImageMagick found, please install for best results.\n";
+        }
 
         if (!$input instanceof Finder) return false;
-        if($input->files()->count() == 0) return false;
+        if ($input->files()->count() == 0) return false;
 
         foreach ($input as $file) {
             $extension = strtolower($file->getExtension());
 
-            if ($extension !== "dds") return false;
+            if ($imageMagick->isAvailable()) {
+                if ($extension !== "dds" && $extension !== "png" && $extension !== "jpg") return false;
+
+            }else{
+                if ($extension !== "dds") return false;
+
+            }
         }
 
         return true;
@@ -105,6 +116,12 @@ class Tex extends Archive {
             $texture = $this->parseTexture($currentOffset, $binary);
 
             if ($texture['width'] <= 2 && $texture['height'] <= 2){
+                echo sprintf(
+                    "Warning: Skip Texture '%s' because the dimensions '%s' is not supported.\n",
+                    $texture['name'],
+                    $texture['width'] . 'x' . $texture['height']
+                );
+
                 $currentOffset = $texture['nextOffset'];
 
                 $header['numTextures']--;
@@ -191,8 +208,19 @@ class Tex extends Archive {
 
         $files = [];
         if ($finder instanceof Finder){
+
+            $imageMagick = new ImageMagick();
+            if ($imageMagick->isAvailable() === false) {
+                echo "No ImageMagick found, please install for best results.\n";
+            }
+
             foreach ($finder as $file) {
-                $files[$file->getFilenameWithoutExtension()] = $file->getContents();
+                if ($imageMagick->isAvailable() === false || $file->getExtension() === "dds") {
+                    $files[$file->getFilenameWithoutExtension()] = $file->getContents();
+                }else{
+                    $dxtFormat = $file->getExtension() === "jpg" ? "DXT1" : "DXT5";
+                    $files[$file->getFilenameWithoutExtension()] = $imageMagick->convertToDXT($file->getContents(), $dxtFormat);
+                }
             }
 
         }else{

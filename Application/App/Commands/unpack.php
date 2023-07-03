@@ -7,6 +7,8 @@ use App\MHT;
 use App\Service\Archive\Dds;
 use App\Service\Archive\Mls;
 use App\Service\Archive\Textures\Image;
+use App\Service\ImageMagick;
+use App\Service\MyFinder;
 use App\Service\NBinary;
 use App\Service\Resources;
 
@@ -41,8 +43,18 @@ switch (count($argv)){
 
 $file = realpath($file);
 
+$myFinder = new MyFinder($file);
+
+
 $keepOrder = true;
 //$onlyUnzip = false;
+
+if ($myFinder->game !== null && $myFinder->platform !== null){
+    $game = $myFinder->game;
+    $platform = $myFinder->platform;
+}
+
+echo sprintf("Game: %s | Platform: %s\n", $game, $platform);
 
 if ($game !== MHT::GAME_AUTO){
     if ($game != MHT::GAME_MANHUNT && $game != MHT::GAME_MANHUNT_2 && $game != MHT::GAME_BULLY){
@@ -342,11 +354,19 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
 if ($handler instanceof App\Service\Archive\Font){
 
-
-    $textureFolder = str_replace('FONT.DAT', '', $file) . '../pictures/global_pc.tex';
-    if (!file_exists($textureFolder)){
-        die("Unable to find global_pc.tex");
+    $textureFolder = false;
+    if ($game === MHT::GAME_MANHUNT_2){
+        if ($platform === MHT::PLATFORM_PC){
+            $textureFolder = $myFinder->findFile('global_pc.tex');
+        }else if ($platform === MHT::PLATFORM_PS2 || $platform === MHT::PLATFORM_PSP){
+            $textureFolder = $myFinder->findFile('GLOBAL.TXD');
+        }else if ($platform === MHT::PLATFORM_WII){
+            $textureFolder = $myFinder->findFile('global_wii.txd');
+        }
     }
+
+    if ($textureFolder === false)
+        die("Unable to find texture file");
 
     $resourcesFont = new Resources();
     $resourceFont = $resourcesFont->load($textureFolder, $game, $platform);
@@ -360,21 +380,32 @@ if ($handler instanceof App\Service\Archive\Font){
     $resultsNew = [];
     foreach ($results as $fontIndex => $font) {
 
-        if ($fontIndex === 0) $textureName = "t16plus.dds";
-        if ($fontIndex === 1) $textureName = "font2.dds";
-        if ($fontIndex === 2) $textureName = "font1.dds";
+        if ($platform === MHT::PLATFORM_PC) {
+            if ($fontIndex === 0) $textureName = "t16plus.dds";
+            if ($fontIndex === 1) $textureName = "font2.dds";
+            if ($fontIndex === 2) $textureName = "font1.dds";
+        }else if ($platform === MHT::PLATFORM_PS2 || $platform === MHT::PLATFORM_PSP || $platform === MHT::PLATFORM_WII) {
+            if ($fontIndex === 0) $textureName = "t16plus.png";
+            if ($fontIndex === 1) $textureName = "font2.png";
+            if ($fontIndex === 2) $textureName = "font1.png";
+        }
 
         foreach ($textureResults as $name => $textureResult) {
             if ($textureName == $name){
-
-                $ddsResult = $ddsHandler->unpack( new NBinary($textureResult), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
-                $imageBinary = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
-
-                file_put_contents('tmp.png', $imageBinary);
-
+                file_put_contents('tmp.png', $textureResult);
                 $image = imagecreatefrompng('tmp.png');
                 imageAlphaBlending($image, true);
                 imageSaveAlpha($image, true);
+
+                if ($game === MHT::GAME_MANHUNT_2 && $platform === MHT::PLATFORM_PC) {
+                    $ddsResult = $ddsHandler->unpack(new NBinary($textureResult), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC);
+                    $imageBinary = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
+                    file_put_contents('tmp.png', $imageBinary);
+                }else{
+                    $imageBinary = $textureResult;
+                }
+
+
                 $size = getimagesize('tmp.png');
 
                 foreach ($font['charInfoTable'] as $item) {
@@ -414,17 +445,63 @@ if ($handler instanceof App\Service\Archive\Font){
 
 
 if ($handler instanceof App\Service\Archive\Tex){
-    if (in_array('to-png', $options) !== false ){
+
+    $imageMagick = new ImageMagick();
+    if ($imageMagick->isAvailable() === false){
+        if (in_array('to-png', $options) !== false ){
+            echo "No ImageMagick found, please install for best results.\n";
+            $ddsHandler = new Dds();
+            $imageHandler = new Image();
+            foreach ($results as $filename => $result) {
+                $ddsResult = $ddsHandler->unpack( new NBinary($result), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
+
+                unset($results[$filename]);
+                $filename = substr($filename,0, -3) . 'png';
+                $results[$filename] = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
+            }
+        }
+    }else{
         $ddsHandler = new Dds();
         $imageHandler = new Image();
-        foreach ($results as $filename => $result) {
-            $ddsResult = $ddsHandler->unpack( new NBinary($result), MHT::GAME_MANHUNT_2, MHT::PLATFORM_PC );
 
-            unset($results[$filename]);
-            $filename = substr($filename,0, -3) . 'png';
-            $results[$filename] = $imageHandler->rgbaToImage($ddsResult['rgba'], $ddsResult['width'], $ddsResult['height']);
+        $newResults = [];
+        foreach ($results as $filename => $content) {
+
+
+            $header = $ddsHandler->readHeader(new NBinary($content));
+            if($header['format'] == "DXT1") {
+                $format = "jpg";
+
+            }else if($header['format'] == "DXT5") {
+                $format = "png";
+            }else{
+                //Ramps are strange DDS files, has a DDS container but holds only RGB values
+                //dunno how to pack something like this with imagemagick
+
+                $newResults[$filename] = $content;
+                continue;
+//
+//                $data = new NBinary($content);
+//                $rgba = [];
+//                while($data->remain()){
+//                    $rgba[] = $data->consume(1, NBinary::U_INT_8);
+//                }
+//
+//                $content = $imageHandler->rgbaToImage($rgba, $header['width'], $header['height']);
+//                $format = "bmp";
+            }
+
+            $filename = str_replace('.dds', '.' . $format, $filename);
+            $newResults[$filename] = $imageMagick->convertTo($content, $format);
         }
+
+        $results = $newResults;
     }
+//
+//
+//
+
+//    }
 }
 
 
