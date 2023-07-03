@@ -67,21 +67,6 @@ echo sprintf('Identify %s as %s ', $file, $handler->name);
 
 $result = $handler->pack( $resource->getInput(), $game, $platform );
 
-
-if ($handler instanceof App\Service\Archive\Font){
-//    $myFinder = new MyFinder($file);
-
-    echo "Do you want to update the texture file?  Type 'yes' to continue: ";
-    $handle = fopen ("php://stdin","r");
-    $line = fgets($handle);
-    fclose($handle);
-    if(trim($line) === 'yes'){
-
-    }
-
-}
-
-
 if (is_array($result)){
     $pathInfo = pathinfo($outputTo);
 
