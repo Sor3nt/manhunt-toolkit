@@ -376,16 +376,12 @@ if ($handler instanceof App\Service\Archive\Font){
     $imageHandler = new Image();
 
     $resultsNew = [];
-    foreach ($results as $fontIndex => $font) {
+    foreach ($results as $fontName => $font) {
 
         if ($platform === MHT::PLATFORM_PC) {
-            if ($fontIndex === 0) $textureName = "t16plus.dds";
-            if ($fontIndex === 1) $textureName = "font2.dds";
-            if ($fontIndex === 2) $textureName = "font1.dds";
+            $textureName = $fontName . '.dds';
         }else if ($platform === MHT::PLATFORM_PS2 || $platform === MHT::PLATFORM_PSP || $platform === MHT::PLATFORM_WII) {
-            if ($fontIndex === 0) $textureName = "t16plus.png";
-            if ($fontIndex === 1) $textureName = "font2.png";
-            if ($fontIndex === 2) $textureName = "font1.png";
+            $textureName = $fontName . '.png';
         }
 
         foreach ($textureResults as $name => $textureResult) {
@@ -426,7 +422,7 @@ if ($handler instanceof App\Service\Archive\Font){
                     imagepng($croppedImage, 'tmp2.png', 0);
 
                     imagedestroy($croppedImage);
-                    $resultsNew['font' . $fontIndex . '/' . $item['code'] . '.png'] = file_get_contents('tmp2.png');
+                    $resultsNew[$fontName . '/' . $item['code'] . '.png'] = file_get_contents('tmp2.png');
                     unlink('tmp2.png');
                 }
 
