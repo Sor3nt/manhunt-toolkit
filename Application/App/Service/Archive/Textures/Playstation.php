@@ -149,7 +149,8 @@ class Playstation extends Image {
         if ($format == "40000000" && $bpp == 4) return ($width * $height) / 2;
         if ($format == "40000000" && $bpp == 8) return $width * $height;
 
-        if ($format == "80000000" && ($bpp == 32 || $bpp == 8)) return $width * $height;
+        if ($format == "80000000" && ($bpp == 32)) return ($width * $height) * 4;
+        if ($format == "80000000" && ($bpp == 8)) return $width * $height;
         if ($format == "80000000" && $bpp == 4) return ($width * $height) / 2;
 
         if ($format == "20000000" && $bpp == 4) return ($width * $height) / 2;
@@ -208,7 +209,12 @@ class Playstation extends Image {
         if ($platform == MHT::PLATFORM_PS2 && $texture['swizzleMask'] & 0x1 != 0) {
             $bmpRgba = $this->unswizzlePs2($texture, $bmpRgba);
         }else if ($platform == MHT::PLATFORM_PSP || $platform == MHT::PLATFORM_PSP_001){
-            $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+
+            if ($texture['width'] === $texture['height'] && $texture['width'] === $texture['bitPerPixel'] ){
+
+            }else{
+                $bmpRgba = $this->unswizzlePsp($texture, $bmpRgba, $is4Bit);
+            }
         }
 
         //flat the rgba array
@@ -324,7 +330,7 @@ class Playstation extends Image {
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //b
             $alpha = $colors->consume(1, NBinary::U_INT_8); //a
 
-            $dst[] = $alpha > 0x80 ? 255 : $this->alphaDecodingTable[$alpha];
+            $dst[] = $alpha > 0x80 ? 127 : $this->alphaDecodingTable[$alpha];
 
             $result[] = $dst;
         }

@@ -204,7 +204,8 @@ class TxdPlaystation extends Archive {
                 $bmpRgba = $this->playstation->convertToRgba($texture, $platform);
 
                 if ($texture['pixelFormat'] === 65541){
-                    $image = $this->playstation->rampsToImage($bmpRgba, $texture['width'],$texture['height']);
+
+                    $image = $this->playstation->rgbaToImage($bmpRgba, $texture['width'],$texture['height']);
                 }else{
                     $image = $this->playstation->rgbaToImage($bmpRgba, $texture['width'],$texture['height']);
                 }

@@ -45,6 +45,7 @@ class Font extends Archive
     public function unpack(NBinary $binary, $game, $platform)
     {
         $fonts = [];
+
         do {
             $binary->current += 6; //skip <FONT>
 
@@ -58,7 +59,7 @@ class Font extends Archive
             }
 
             $binary->current += 4; //seek zero
-            $binary->current += 4; //seek fontID
+            $fontId = $binary->consume(4, NBinary::INT_32);
 
             $matrixCount = $binary->consume(4, NBinary::INT_32);
 
@@ -100,7 +101,8 @@ class Font extends Archive
                 $font['charInfoTable'][] = $info;
             }
 
-            $fonts[] = $font;
+            $fileNames = [0 => "t16plus", 1 => "font2", 2 => "font1"];
+            $fonts[$fileNames[$fontId]] = $font;
         }while($binary->remain());
 
         return $fonts;
@@ -122,7 +124,10 @@ class Font extends Archive
 
             $fontIndex = explode("FONT#DAT" . DIRECTORY_SEPARATOR, $file->getPathname())[1];
             $fontIndex = explode(DIRECTORY_SEPARATOR, $fontIndex)[0];
-            $fontIndex = (int)str_replace('font', '', $fontIndex);
+
+            if ($fontIndex === "t16plus") $fontIndex = 0;
+            if ($fontIndex === "font2") $fontIndex = 1;
+            if ($fontIndex === "font1") $fontIndex = 2;
 
             $code = explode(".", $file->getFilename())[0];
             $size = getimagesize($file->getPathname());

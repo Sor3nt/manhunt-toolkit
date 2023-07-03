@@ -15,6 +15,8 @@ class Image {
      */
     public function rgbaToImage( $rgba, $width, $height){
         $img = imagecreatetruecolor($width, $height);
+        imageAlphaBlending($img, true);
+        imageSaveAlpha($img, true);
 
         //fill the image with transparent otherwise its black...
         $transparent = imagecolorallocatealpha( $img, 0, 0, 0, 127 );
@@ -72,8 +74,8 @@ class Image {
 
                 $color =  imagecolorallocate(
                     $img,
-                    $rgba[$i],
-                    $rgba[$i],
+                    0,
+                    0,
                     $rgba[$i]
 
                 );
