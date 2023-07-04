@@ -330,7 +330,7 @@ class Playstation extends Image {
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //b
             $alpha = $colors->consume(1, NBinary::U_INT_8); //a
 
-            $dst[] = $alpha > 0x80 ? $alpha : $this->alphaDecodingTable[$alpha];
+            $dst[] = $alpha;
 
             $result[] = $dst;
         }
