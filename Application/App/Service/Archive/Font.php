@@ -29,7 +29,7 @@ class Font extends Archive
         if (!$input instanceof Finder) return false;
 
         foreach ($input as $file) {
-            if (strpos($file->getPathname(), "FONT#DAT") !== false)
+            if (strpos(strtolower($file->getPathname()), "font#dat") !== false)
                 return true;
         }
 
@@ -64,9 +64,9 @@ class Font extends Archive
             $matrixCount = $binary->consume(4, NBinary::INT_32);
 
             $binary->current += 4; //seek unk integer
-            $binary->current += 4; //seek vertical center (height)
 
             $font = [
+                'fontHeight' => $binary->consume(4, NBinary::FLOAT_32),
                 'charInfoTable' => [],
             ];
 
@@ -122,7 +122,12 @@ class Font extends Archive
         $font = [];
         foreach ($pathFilename as $file) {
 
-            $fontIndex = explode("FONT#DAT" . DIRECTORY_SEPARATOR, $file->getPathname())[1];
+            if (strpos($file->getPathname(), "FONT#DAT") !== false){
+                $fontIndex = explode("FONT#DAT" . DIRECTORY_SEPARATOR, $file->getPathname())[1];
+            }else{
+                $fontIndex = explode("font#dat" . DIRECTORY_SEPARATOR, $file->getPathname())[1];
+            }
+
             $fontIndex = explode(DIRECTORY_SEPARATOR, $fontIndex)[0];
 
             if ($fontIndex === "t16plus") $fontIndex = 0;

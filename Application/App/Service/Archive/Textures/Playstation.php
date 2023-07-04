@@ -163,7 +163,7 @@ class Playstation extends Image {
 
         $palette = false;
         if ($texture['palette']){
-            $palette = $this->decode32ColorsToRGBA( new NBinary($texture['palette']));
+            $palette = $this->decode32ColorsToRGBA( new NBinary($texture['palette']), $platform);
         }
 
         $is4Bit = $texture['bitPerPixel'] == 4;
@@ -199,7 +199,7 @@ class Playstation extends Image {
 
         }else if ($texture['bitPerPixel'] == 32){
 
-            $bmpRgba = $this->decode32ColorsToRGBA( new NBinary($texture['data']));
+            $bmpRgba = $this->decode32ColorsToRGBA( new NBinary($texture['data']), $platform);
 
 
         }else{
@@ -318,7 +318,7 @@ class Playstation extends Image {
     }
 
 
-    private function decode32ColorsToRGBA( NBinary $colors){
+    private function decode32ColorsToRGBA( NBinary $colors, string $platform){
 
         $result = [];
 
@@ -330,7 +330,11 @@ class Playstation extends Image {
             $dst[] = $colors->consume(1, NBinary::U_INT_8); //b
             $alpha = $colors->consume(1, NBinary::U_INT_8); //a
 
-            $dst[] = $alpha;
+            if ($platform === MHT::PLATFORM_PS2)
+                $dst[] = $alpha > 0x80 ? 127 : $this->alphaDecodingTable[$alpha];
+            else
+                $dst[] = $alpha;
+
 
             $result[] = $dst;
         }
