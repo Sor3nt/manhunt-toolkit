@@ -1,9 +1,10 @@
 <?php
-
+/**
+ * thx to @santiago046 for his help to create the feature
+ */
 namespace App\Service\Archive;
 
 use App\MHT;
-use App\Service\Helper;
 use App\Service\NBinary;
 use Symfony\Component\Finder\Finder;
 
@@ -63,7 +64,7 @@ class Font extends Archive
 
             $matrixCount = $binary->consume(4, NBinary::INT_32);
 
-            $binary->current += 4; //seek unk integer
+            $binary->current += 4; //seek "char max height" as integer
 
             $font = [
                 'fontHeight' => $binary->consume(4, NBinary::FLOAT_32),
@@ -72,8 +73,7 @@ class Font extends Archive
 
             //Seek usage matrix
             $binary->current += ($charCount + 1) * 4;
-
-
+            
             for ($i = 0; $i < $matrixCount; $i++) {
 
                 if ($platform === MHT::PLATFORM_WII){
@@ -155,6 +155,7 @@ class Font extends Archive
 
             $texture = $this->getTexture($fontChars, $maxWidth);
 
+            //thx @santiago046 for the mapping
             $fileNames = [0 => "t16plus.png", 1 => "font2.png", 2 => "font1.png"];
             $return[$fileNames[$fontIndex]] = $texture;
         }
@@ -179,10 +180,13 @@ class Font extends Archive
 
             $font->write(count($chars), NBinary::INT_32);
 
-            //todo: what is this ?!
-            $unknownFontCode = [0 => 26, 1 => 30, 2 => 31];
-            $font->write($unknownFontCode[$fontId], NBinary::INT_32);
-            $font->write($this->getMaxCharHeight($chars) / 2 / $maxHeight, NBinary::FLOAT_32);
+            $maxCharHeight = $this->getMaxCharHeight($chars);
+
+            //thx @santiago046, this is the height as int, scale factor already applied
+            //note: the regular MH2 exe does not use this int
+            $font->write($maxCharHeight, NBinary::INT_32);
+
+            $font->write($maxCharHeight / 2 / $maxHeight, NBinary::FLOAT_32);
         }
 
         //Write usage matrix
