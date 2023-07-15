@@ -329,7 +329,7 @@ class NBinary{
 
         $this->current += $skip;
 
-        $result = hex2bin(substr($this->hex, (int)($this->current * 2), $bytes * 2));
+        $result = hex2bin(substr($this->hex, intval($this->current * 2), intval($bytes * 2)));
 //        $result = mb_substr($this->binary, $this->current, $bytes, '8bit');
 
         if($movePtr) $this->current += $bytes ;
