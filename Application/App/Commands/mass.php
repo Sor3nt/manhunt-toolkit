@@ -33,13 +33,13 @@ foreach ($argv as $index => $argument) {
 }
 
 switch (count($argv)){
-    case 3:
+    case 4:
         list($file, $script, $folder, $type) = $argv;
         break;
-    case 4:
+    case 5:
         list($file, $script, $folder, $type, $game) = $argv;
         break;
-    case 5:
+    case 6:
         list($file, $script, $folder, $type, $game, $platform) = $argv;
         break;
     default:

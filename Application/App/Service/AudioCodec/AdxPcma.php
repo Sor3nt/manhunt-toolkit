@@ -62,7 +62,8 @@ class AdxPcma
 
         $id = $src->consume(2, NBinary::HEX);
         $copyrightOffset = $src->consume(2, NBinary::BIG_U_INT_16);
-        $encodingType = $src->consume(1, NBinary::HEX);
+        $encodingType = $src->consume(1, NBinary::HEX); //11 ahx
+//https://github.com/Isaac-Lozano/radx/blob/master/src/encoder/ahx_encoder.rs
         $blockSize = $src->consume(1, NBinary::INT_8);
 
         $sampleBitDepth = $src->consume(1, NBinary::INT_8);

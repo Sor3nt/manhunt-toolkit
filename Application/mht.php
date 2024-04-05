@@ -3,6 +3,26 @@ ini_set('memory_limit','-1');
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+//$a = new \App\Service\CompilerV2\Manhunt();
+//
+//foreach ($a->constants as $name => $item) {
+//        echo $name . "\n";
+//}
+//exit;
+//
+//$tmp = new \App\Service\NBinary();
+//for($i = 60; $i > 0; $i = $i - 2){
+//    $tmp->write($i, \App\Service\NBinary::FLOAT_32 );
+//}
+//
+//$tmp->current = 0;
+//for($i = 60; $i > 0; $i = $i - 2){
+//    $intVal = $tmp->consume(4, \App\Service\NBinary::INT_32);
+//    echo 'WriteMemory(8074056,4,' . $intVal . ');' . " sleep(150);\n";
+//
+//}
+//exit;
+
 $options = [];
 foreach ($argv as $index => $argument) {
     if (substr($argument, 0, 2) == "--"){

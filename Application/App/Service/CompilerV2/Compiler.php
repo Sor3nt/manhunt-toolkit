@@ -1089,30 +1089,6 @@ class Compiler
             }
         }
 
-
-        /**
-         * A06 PC HACK TODO, i dunno why its here twice...
-         */
-        if (
-            count($result['strings']) === 10 &&
-            $result['strings'][0] === "G_First_Aid_(CT)" &&
-            $result['strings'][9] === "ScriptCreateName"
-        ){
-            $result['strings'] = [
-                'G_First_Aid_(CT)',
-                'CJ_MACHINEGUN_AMMO_(CT)',
-                'CJ_PISTOL_AMMO_(CT)',
-                'Can_(CT)',
-                'Can_(CT)',
-                '',
-                ': OnUseableUsed',
-                'GenericAmmo',
-                ': OnUseableUsed: Spawning item: ',
-                '',
-                'ScriptCreateName'
-            ];
-        }
-
         return $result;
     }
 
@@ -1162,23 +1138,17 @@ class Compiler
 
                     if ($definitionCount >= 1 ){
                         $offset = Helper::fromIntToHex($_variable['offset'] - $_variable['size']);
-
                     }
 
                     $definitionCount++;
                 }
             }
 
-
             if ($definitionCount > 1){
                 $hierarchieType = Helper::fromIntToHex(2);
             }else{
                 $hierarchieType = Helper::fromIntToHex(1);
-
             }
-
-
-
 
             if ($variable['isLevelVar'] === true) {
 
@@ -1190,26 +1160,21 @@ class Compiler
                 $offset = "ffffffff";
                 $size = "ffffffff";
 
-                if ($this->game == MHT::GAME_MANHUNT){
+                if ($this->game == MHT::GAME_MANHUNT)
                     $objectType = "ffffffff";
-                }
-
             }
 
             else if ($variable['isGameVar'] === true){
 
-                if (isset($this->gameVarOccurrences[$variable['name']])) {
+                if (isset($this->gameVarOccurrences[$variable['name']]))
                     $occurrences = $this->gameVarOccurrences[$variable['name']];
-                }
 
                 $hierarchieType = "feffffff";
                 $offset = "ffffffff";
                 $size = "ffffffff";
 
-                if ($this->game == MHT::GAME_MANHUNT){
+                if ($this->game == MHT::GAME_MANHUNT)
                     $objectType = "feffffff";
-                }
-
             }
 
             /**
@@ -1219,7 +1184,6 @@ class Compiler
             if ($objectType == "entityptr") $objectType = "integer";
             if ($objectType == "array") $objectType = "integer";
             if ($objectType == "float") $objectType = "real";
-
 
             $result = [
                 'name' => strtolower($variable['name']),
@@ -1250,7 +1214,6 @@ class Compiler
             'name' => $this->mlsEntityName,
             'type' => $this->mlsEntityType == "et_level" ? "levelscript" : "other"
         ];
-
     }
 
 
@@ -1289,7 +1252,4 @@ class Compiler
 
         return $result;
     }
-
 }
-
-

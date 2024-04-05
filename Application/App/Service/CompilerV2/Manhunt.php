@@ -2857,7 +2857,17 @@ class Manhunt extends ManhuntDefault
             'offset' => 'ec030000',
 			'return' => 'integer'
         ],
-	 
+
+		'playaudio' => [
+            'name' => 'playAudio',
+            'offset' => 'f0030000'
+        ],
+
+		'playanim' => [
+            'name' => 'playAnim',
+            'offset' => 'ef030000'
+        ],
+
 		'aiisentityguard' => [
             'name' => 'AIIsEntityGuard',
             'offset' => '6c020000'
