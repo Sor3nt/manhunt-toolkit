@@ -1,6 +1,21 @@
 #Changelog
-**2020-xx-xx**: **v0.9.6** Release:
-* PS2/PSP and PC Texture Alpha Channel fix
+**2024-04-05**: **v0.9.9** Release:
+* Add new param „-ignore-order“
+* Add new param „-memdump“ (only for TXD)
+* Add VAS Audio support
+* Add PSP MLS build support
+* Add PSP/PS2 TXT build support
+* Add AFS audio names
+* Add MH1 PS2 TXD support
+* Add GENH Support
+* Some AFS Audio fixes
+* Fixed rebuild FSB3 issues
+* Fixed AIX for PS2 a02
+* Fixed WII GXT issues
+* Fixed some alpha channel issues(PC, WII)
+* Fixed small ps2 textures issues
+* Fixed a lot of GRF issues
+* Fixed Windows user related issues
 
 **2020-04-17**: **v0.9.5** Release:
 * Add Audio Support (fsb, afs) for PC, WII and PS2
