@@ -14,6 +14,7 @@ class Rib extends \App\Service\Archive\Archive
 {
 
     public $mono = false;
+    public $chunk400 = false;
     public $name = 'RIB Audio (Manhunt 1)';
 
     public static $supported = 'rib';
@@ -98,6 +99,9 @@ class Rib extends \App\Service\Archive\Archive
             $this->nb_channels = 1;
         }
 
+        if ($this->chunk400)
+            $this->chunkSize = 0x400;
+
         $this->recalc();
 
         $input_size = $binary->length();
@@ -169,6 +173,9 @@ class Rib extends \App\Service\Archive\Archive
 
         if ($channels === 1) $this->chunkSize = 0x200;
 
+        if ($this->chunk400)
+            $this->chunkSize = 0x400;
+
         for($t = 0; $t < $channels; $t++){
             $outputs[] = new NBinary();
             $inputs[] = new NBinary();
@@ -218,7 +225,7 @@ class Rib extends \App\Service\Archive\Archive
                 }
             }
         }
-        return $result;
+        return $result->binary;
     }
 
     private function adpcm_clip_int16($a)

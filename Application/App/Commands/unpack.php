@@ -133,6 +133,13 @@ if (isset($handler->mono)){
         $handler->mono = false;
     }
 }
+if (isset($handler->chunk400)){
+    if (in_array('chunk400', $options) !== false){
+        $handler->chunk400 = true;
+    }else{
+        $handler->chunk400 = false;
+    }
+}
 
 if (isset($handler->onlyMemDump)){
     if ($cmd === "memdump"){

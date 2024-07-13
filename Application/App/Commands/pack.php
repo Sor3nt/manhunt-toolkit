@@ -63,6 +63,15 @@ $resource = $resources->load($file, $game, $platform);
 
 $handler = $resource->getHandler();
 
+if (isset($handler->chunk400)){
+    if (in_array('chunk400', $options) !== false){
+        $handler->chunk400 = true;
+    }else{
+        $handler->chunk400 = false;
+    }
+}
+
+
 echo sprintf('Identify %s as %s ', $file, $handler->name);
 
 $result = $handler->pack( $resource->getInput(), $game, $platform );
