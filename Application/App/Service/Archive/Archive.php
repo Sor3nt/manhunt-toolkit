@@ -32,7 +32,7 @@ abstract class Archive {
         $pathInfo = pathinfo($fileNameOrFolder);
 
         // every json file is from MHT and mean we want to pack it
-        if ($pathInfo['extension'] == "json"){
+        if ($pathInfo['extension'] == "json" || strpos($pathInfo['basename'], '#RIB.wav') !== false){
             return static::canPack($fileNameOrFolder, $input, $game, $platform);
         }
 

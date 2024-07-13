@@ -49,7 +49,12 @@ $keepOrder = true;
 
 if ($myFinder->game !== null && $myFinder->platform !== null){
     $game = $myFinder->game;
-    $platform = $myFinder->platform;
+    $_platform = $myFinder->platform;
+
+    if ($platform === "psp001" && $_platform === "psp")
+        $platform = "psp001";
+    else
+        $platform = $_platform;
 }
 
 echo sprintf("Game: %s | Platform: %s\n", $game, $platform);
@@ -117,6 +122,15 @@ if (isset($handler->asRaw)){
         $handler->asRaw = true;
     }else{
         $handler->asRaw = false;
+    }
+}
+
+
+if (isset($handler->mono)){
+    if (in_array('mono', $options) !== false){
+        $handler->mono = true;
+    }else{
+        $handler->mono = false;
     }
 }
 
@@ -228,8 +242,8 @@ if ($handler instanceof App\Service\Archive\Fsb3){
             $contextMaphandler = $contextMapResource->getHandler();
             $contextMap = $contextMaphandler->unpack($contextMapResource->getInput(), $game, $platform);
 
-
             foreach ($contextMap['result'] as $mapIndex => $map) {
+                var_dump($contextMap['name']);
                 $newResults[$contextMap['name'] . '/' . $map['name'] . '/' . $mapIndex . '.wav'] = $results[$map['index'] + $indexWav . '.wav'];
             }
 
@@ -303,7 +317,9 @@ if ($handler instanceof App\Service\Archive\Fsb3){
     $uniq = in_array('no-duplicates', $options) !== false ||
             in_array('uniq', $options) !== false;
 
-    $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
+    if (isset($results['fsb3.json'])) {
+        $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
+    }
 
     $knownMd5 = [];
     $duplicateCount = 0;
@@ -629,7 +645,13 @@ if (is_array($results)){
 
 }else{
     rmdir($outputTo);
-    $outputTo = str_replace("#", '.', $outputTo);
+
+
+    if (get_class($handler) === "App\Service\Archive\Rib"){
+        $outputTo .= ".wav";
+    }else{
+        $outputTo = str_replace("#", '.', $outputTo);
+    }
 
     file_put_contents(
         $outputTo,

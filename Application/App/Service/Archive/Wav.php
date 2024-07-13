@@ -238,7 +238,7 @@ class Wav extends Archive {
 
 
 
-    public function generatePCM(NBinary $data, $numChannels, $defFreq)
+    static function generatePCM(NBinary $data, $numChannels, $defFreq, $bytespersecond = null, $blockalign = 2)
     {
 
         $wav = new NBinary();
@@ -251,8 +251,8 @@ class Wav extends Archive {
         $wav->write(1, NBinary::INT_16); // waveformat
         $wav->write($numChannels, NBinary::INT_16);
         $wav->write($defFreq, NBinary::INT_32); // samplespersecond
-        $wav->write($defFreq * 2, NBinary::INT_32); // bytespersecond
-        $wav->write(2, NBinary::INT_16); // blockalign
+        $wav->write(is_null($bytespersecond) ? $defFreq * 2 : $bytespersecond, NBinary::INT_32); // bytespersecond
+        $wav->write($blockalign, NBinary::INT_16); // blockalign
         $wav->write(16, NBinary::INT_16); // bitspersample
 
         $wav->write('data', NBinary::STRING); // dataheader

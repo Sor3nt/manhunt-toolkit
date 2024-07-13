@@ -24,6 +24,7 @@ use App\Service\Archive\Inst;
 use App\Service\Archive\Mdl;
 use App\Service\Archive\Mls;
 use App\Service\Archive\Pak;
+use App\Service\Archive\Rib;
 use App\Service\Archive\Tag;
 use App\Service\Archive\Tex;
 use App\Service\Archive\Pack;
@@ -41,7 +42,7 @@ class Resources
 
     /** @var Archive[]  */
     private $archives = [
-        Pack::class, Font::class,
+        Pack::class, Font::class, Rib::class,
         Col::class,     Dds::class,     Fxb::class,     Grf::class, Fev::class, Dir::class, Tag::class,
         Gxt::class,     Ifp::class,     Inst::class,    Mls::class,     Tex::class, Fsb4::class, Fsb3::class, Wav::class,
         Pak::class,     Glg::class,     Mdl::class,     Bsp::class,     TxdPlaystation::class, TxdWii::class , Afs::class,

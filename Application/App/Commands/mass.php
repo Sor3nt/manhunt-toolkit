@@ -108,7 +108,7 @@ foreach ($finder as $file) {
     $mht = __DIR__ . '/../../mht.php';
 
     $output = shell_exec(sprintf(
-        'php %s %s %s %s %s --no-header', $mht, 'unpack', $file, $game, $platform
+        'php %s %s %s %s %s --no-header -ignore-order', $mht, 'unpack', $file, $game, $platform
     ) );
 }
 

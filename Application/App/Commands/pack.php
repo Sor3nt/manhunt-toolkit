@@ -75,6 +75,10 @@ if (is_array($result)){
 
     }
 }else{
+    if (get_class($handler) === "App\Service\Archive\Rib"){
+        $outputTo = str_replace('.wav', '', $outputTo);
+    }
+
     file_put_contents($outputTo, $result);
 
 }

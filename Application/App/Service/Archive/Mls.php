@@ -239,7 +239,8 @@ class Mls extends Archive {
                 $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.error' ] = $e->getMessage();
                 $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.name' ] = $mhsc['NAME'];
                 $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.code' ] = $mhsc['CODE'];
-                $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.mht_code' ] = $subMls['CODE'];
+                if (isset($subMls['CODE']))
+                    $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.mht_code' ] = $subMls['CODE'];
                 $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.srce' ] = $mhsc['SRCE'];
                 $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.line' ] = $mhsc['LINE'];
                 $results[ 'not-supported/' . $mhscIndex . "#" . $scriptName . '.trce' ] = $mhsc['TRCE'];
