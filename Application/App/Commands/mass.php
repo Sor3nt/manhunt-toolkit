@@ -65,7 +65,8 @@ if ($noDuplicates && $flat == false){
 $path = pathinfo($folder);
 //prepare output folder
 $outputTo = $path['dirname'] . "/" . $path['basename'] . '/export';
-@mkdir($outputTo, 0777, true);
+if (!is_dir($outputTo))
+    @mkdir($outputTo, 0777, true);
 $outputFolder = realpath($outputTo);
 
 

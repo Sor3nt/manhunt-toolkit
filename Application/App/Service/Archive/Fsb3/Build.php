@@ -39,9 +39,9 @@ class Build {
         }
 
         //sort by the given index
-//        usort($samples, function ($a, $b) use ($globalSampleHeader){
-//            return array_search($a[2], $globalSampleHeader['orders']) > array_search($b[2], $globalSampleHeader['orders']);
-//        });
+        usort($samples, function ($a, $b) use ($globalSampleHeader){
+            return array_search($a[2], $globalSampleHeader['orders']) > array_search($b[2], $globalSampleHeader['orders']);
+        });
 
 //        var_dump($samples[0][2], $globalSampleHeader['orders'][0]);exit;
 

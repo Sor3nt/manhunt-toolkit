@@ -25,6 +25,8 @@ foreach ($argv as $index => $argument) {
     }
 }
 
+$argv = array_values($argv);
+
 switch (count($argv)){
     case 3:
         list($script, $cmd ,$file) = $argv;
@@ -85,7 +87,8 @@ $originalExtension = $path['extension'];
 
 //prepare output folder
 $outputTo = $path['dirname'] . '/export/' . $path['filename'] . '#' . $originalExtension;
-@mkdir($outputTo, 0777, true);
+if (is_dir($outputTo) === false)
+    @mkdir($outputTo, 0777, true);
 
 if(
     in_array('unzip-only', $options) !== false ||
@@ -222,6 +225,7 @@ if ($handler instanceof App\Service\Archive\Fsb4){
 }
 if ($handler instanceof App\Service\Archive\Fsb3){
 
+
     $dirFile = str_replace('.fsb', '.dir', $file);
 
     $levelSpeechFolder = str_replace('.fsb', '', $file);
@@ -239,6 +243,7 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
     if (file_exists($levelSpeechFile)){
         $contextList = explode("\r\n", file_get_contents($levelSpeechFile));
+
         $mapFull = [];
 
         $indexWav = 0;
@@ -250,16 +255,19 @@ if ($handler instanceof App\Service\Archive\Fsb3){
             $contextMap = $contextMaphandler->unpack($contextMapResource->getInput(), $game, $platform);
 
             foreach ($contextMap['result'] as $mapIndex => $map) {
-                var_dump($contextMap['name']);
-                $newResults[$contextMap['name'] . '/' . $map['name'] . '/' . $mapIndex . '.wav'] = $results[$map['index'] + $indexWav . '.wav'];
+
+                //hmm hab den array index verändert, ka nomma prüfen ^
+                $newResults[$contextMap['name'] . '/' . $map['name'] . '/' . $mapIndex . '.wav'] = $results[array_keys($results)[$map['index']]];
             }
 
             $indexWav += count($contextMap['result']);
 
 
         }
-        $results = $newResults;
 
+        $newResults['fsb3.json'] = $results['fsb3.json'];
+        $results = $newResults;
+var_dump(count($results));
 
     }else if (file_exists($dirFile)){
 
@@ -306,70 +314,73 @@ if ($handler instanceof App\Service\Archive\Fsb3){
                 $unknown++;
             }
 
+            $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
+            echo sprintf("\nTranslation: %s٪\n", number_format($known / ($unknown + $known) * 100, 2));
+            $results = $newResults;
+
+
+            //Duplicate handling
+            $resultCount = count($results) - 1;
+            $uniq = in_array('no-duplicates', $options) !== false ||
+                in_array('uniq', $options) !== false;
+
+            if (isset($results['fsb3.json'])) {
+                $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
+            }
+
+            $knownMd5 = [];
+            $duplicateCount = 0;
+            foreach ($results as $filepathName => $result) {
+                if ($filepathName == "fsb3.json") continue;
+                if (substr($filepathName, 0, 7) == "unknown") continue;
+
+                if(!empty($result))
+                    $knownMd5[md5($result)] = explode("/", $filepathName)[0];
+            }
+
+            foreach ($results as $filepathName => $result) {
+                if ($filepathName == "fsb3.json") continue;
+                if (substr($filepathName, 0, 7) != "unknown") continue;
+
+                if (isset($knownMd5[md5($result)])){
+                    $duplicateCount++;
+
+                    if ($uniq){
+                        unset($results[$filepathName]);
+                        $results['fsb3.json']['orders'] = removeOrderName($results['fsb3.json']['orders'], $filepathName);
+
+                    }else{
+                        //move the duplicate into his related folder
+                        $newPath = $knownMd5[md5($result)] . '/duplicate/' . explode("/", $filepathName)[1];
+                        $results[ $newPath ] = $result;
+                        unset($results[$filepathName]);
+
+                        $results['fsb3.json']['orders'] = replaceOrderName($results['fsb3.json']['orders'], $filepathName, $newPath);
+
+                    }
+                }
+            }
+
+            $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
+
+            if ($duplicateCount > 0 && $resultCount > 0)
+                echo sprintf("Duplicates: %s٪. ", number_format($duplicateCount / $resultCount * 100, 2));
+
+            if ($uniq){
+                echo sprintf("%s duplicate audios removed.\n", $duplicateCount);
+            }else{
+                echo "\n";
+            }
         }
 
-        $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
 
-        echo sprintf("\nTranslation: %s٪\n", number_format($known / ($unknown + $known) * 100, 2));
 
-        $results = $newResults;
     }else{
         echo "\nWARNING: unable to locate " . $dirFile . "! Store as nonamed WAV!\n";
     }
 
 
 
-    //Duplicate handling
-    $resultCount = count($results) - 1;
-    $uniq = in_array('no-duplicates', $options) !== false ||
-            in_array('uniq', $options) !== false;
-
-    if (isset($results['fsb3.json'])) {
-        $results['fsb3.json'] = \json_decode($results['fsb3.json'], true);
-    }
-
-    $knownMd5 = [];
-    $duplicateCount = 0;
-    foreach ($results as $filepathName => $result) {
-        if ($filepathName == "fsb3.json") continue;
-        if (substr($filepathName, 0, 7) == "unknown") continue;
-
-        if(!empty($result))
-            $knownMd5[md5($result)] = explode("/", $filepathName)[0];
-    }
-
-    foreach ($results as $filepathName => $result) {
-        if ($filepathName == "fsb3.json") continue;
-        if (substr($filepathName, 0, 7) != "unknown") continue;
-
-        if (isset($knownMd5[md5($result)])){
-            $duplicateCount++;
-
-            if ($uniq){
-                unset($results[$filepathName]);
-                $results['fsb3.json']['orders'] = removeOrderName($results['fsb3.json']['orders'], $filepathName);
-
-            }else{
-                //move the duplicate into his related folder
-                $newPath = $knownMd5[md5($result)] . '/duplicate/' . explode("/", $filepathName)[1];
-                $results[ $newPath ] = $result;
-                unset($results[$filepathName]);
-
-                $results['fsb3.json']['orders'] = replaceOrderName($results['fsb3.json']['orders'], $filepathName, $newPath);
-
-            }
-        }
-    }
-
-    $newResults['fsb3.json'] = \json_encode($results['fsb3.json'], JSON_PRETTY_PRINT);
-
-    echo sprintf("Duplicates: %s٪. ", number_format($duplicateCount / $resultCount * 100, 2));
-
-    if ($uniq){
-        echo sprintf("%s duplicate audios removed.\n", $duplicateCount);
-    }else{
-        echo "\n";
-    }
 
 }
 
@@ -546,7 +557,6 @@ if (is_array($results)){
             )
 
         ){
-
             if ($handler instanceof App\Service\Archive\Fsb3 || $handler instanceof App\Service\Archive\Fsb4){
                 if (substr($relativeFilename, -3) === "wav") {
                     echo "Convert " . $relativeFilename . " to PCM ...";
@@ -631,7 +641,8 @@ if (is_array($results)){
             else
                 $outputDir = $outputTo . '/' . $pathInfo['dirname'];
 
-            @mkdir($outputDir, 0777, true);
+            if (!is_dir($outputDir))
+                @mkdir($outputDir, 0777, true);
 
             if (isset($pathInfo['extension'])) {
                 $extension = ''; // we keep the extension from the given filename
