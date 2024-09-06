@@ -35,16 +35,13 @@ class Ifp extends Archive
             }
 
             switch (strtolower($category)){
-
                 case 'bookends':
                 case 'legion':
                 case 'playeranims':
                 case 'openables':
+                case 'cutscene':
                 case 'genhunteranims':
-
                     return true;
-
-                    break;
 
                 default:
             }
@@ -779,7 +776,7 @@ class Ifp extends Archive
 
                         if (
                             ($portAnimationToManhunt2 || $portAnimationToManhunt1) &&
-                            $boneId == 1094
+                            $boneId == 1094 //Spine(0)
                         ) {
                             $recalc = $this->multiplyQuaternions([
                                 'x' => $frame['quat'][0],
@@ -792,7 +789,7 @@ class Ifp extends Archive
                                 'z' => -0.4996,
                                 'w' => 0.500001
                             ]);
-                            //Spine(0) is in someway twisted, for now just use another mh2 spine values
+
                             $singleChunkBinary->write(intval($recalc['x'] * 4096), NBinary::INT_16);
                             $singleChunkBinary->write(intval($recalc['y'] * 4096), NBinary::INT_16);
                             $singleChunkBinary->write(intval($recalc['z'] * 4096), NBinary::INT_16);
@@ -995,6 +992,10 @@ class Ifp extends Archive
 
                     foreach ($entry['particlePosition'] as $pPos) {
                         $binary->write($pPos, NBinary::FLOAT_32);
+                    }
+
+                    if ($platform === MHT::PLATFORM_PC && strlen($entry['unknown5']) != 40){
+                        $entry['unknown5'] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
                     }
 
                     $binary->write($entry['unknown5'], NBinary::HEX);
