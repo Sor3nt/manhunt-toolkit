@@ -292,6 +292,8 @@ class Build {
 
                 switch ($record['objectType']){
 
+                    case 'matrixptr':
+                    case 'effectptr':
                     case 'integer':
                         $stabCode .= "\x00\x00\x00\x00";
                         break;
@@ -316,19 +318,9 @@ class Build {
                     case 'game_var integer':
                         $stabCode .= "\x07\x00\x00\x00";
                         break;
-    //                case 'level_var tlevelstate':
                     case 'state':
                         $stabCode .= "\x08\x00\x00\x00";
                         break;
-    //                case 'unknown 0a':
-    //                    $stabCode .= "\x0a\x00\x00\x00";
-    //                    break;
-    //                case 'unknown fe':
-    //                    $stabCode .= "\xfe\xff\xff\xff";
-    //                    break;
-    //                case 'unknown ff':
-    //                    $stabCode .= "\xff\xff\xff\xff";
-    //                    break;
                     default:
                         $stabCode .= hex2bin($record['objectType']);
     //                    throw new \Exception(sprintf('Unknown object type requested: %s', ($record['objectType']) ));

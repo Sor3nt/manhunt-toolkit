@@ -42,7 +42,12 @@ class Build {
 
         //sort by the given index
         usort($samples, function ($a, $b) use ($headerIni){
-            return array_search($a[2]['name'], $headerIni['orders']) > array_search($b[2]['name'], $headerIni['orders']);
+            $_a = array_search($a[2], $headerIni['orders']);
+            $_b = array_search($b[2], $headerIni['orders']);
+            if ($_a == $_b)
+                return 0;
+
+            return $_a > $_b ? -1 : 1;
         });
 
         return $this->createFSB($samples, $headerIni);

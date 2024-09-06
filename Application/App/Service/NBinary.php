@@ -144,6 +144,9 @@ class NBinary{
             if ($type == self::FLOAT_32) $type = self::BIG_FLOAT_32;
         }
 
+        if (is_bool($data))
+            throw new \Exception("NBinary: Input data invalid");
+
 
         switch ($type){
             case self::INT_8:

@@ -40,7 +40,12 @@ class Build {
 
         //sort by the given index
         usort($samples, function ($a, $b) use ($globalSampleHeader){
-            return array_search($a[2], $globalSampleHeader['orders']) > array_search($b[2], $globalSampleHeader['orders']);
+            $_a = array_search($a[2], $globalSampleHeader['orders']);
+            $_b = array_search($b[2], $globalSampleHeader['orders']);
+            if ($_a == $_b)
+                return 0;
+
+            return $_a > $_b ? -1 : 1;
         });
 
 //        var_dump($samples[0][2], $globalSampleHeader['orders'][0]);exit;

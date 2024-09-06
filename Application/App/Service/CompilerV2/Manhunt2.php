@@ -2704,6 +2704,11 @@ class Manhunt2 extends ManhuntDefault
             'offset' => 'd7010000'
         ],
 
+        'aidefinegoalgotoentitystayonpath' => [
+            'name' => 'AIDefineGoalGotoEntityStayOnPath',
+            'offset' => 'f6010000'
+        ],
+
         'aiisenemyinsight' => [
             'name' => 'AIIsEnemyInSight',
             'offset' => 'AIIsEnemyInSight'

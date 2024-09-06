@@ -279,6 +279,7 @@ class PhpFsbExt {
 
                     }else{
                         if ($fsbHeader['version'] == FSOUND_FSB_VERSION_3_1){
+
                             $fs = $this->FSOUND_FSB_SAMPLE_HEADER_3_1($binary);
 
                             $name = $fs['name'];

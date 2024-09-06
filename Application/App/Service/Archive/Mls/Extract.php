@@ -432,38 +432,13 @@ class Extract {
                         $objectType = "state";
                         break;
 
-//                case "0a000000";
-//                    $objectType = "unknown 0a";
-//                    break;
-
-//
-//                case "feffffff";
-//                    $objectType = "unknown fe";
-//                    break;
-//
-//                case "ffffffff";
-//                    $objectType = "unknown ff";
-//                    break;
-//
-//                case "50bf2b02";
-//                    $objectType = "unknown 50bf2b02";
-//                    break;
-//
-//                case "20536372";
-//                    $objectType = "unknown 20536372";
-//                    break;
-
-
                     default:
-//var_dump($valueType);
                         $objectType = $valueType;
 
                         //                    throw new \Exception(sprintf('Unknown object type sequence: %s', $valueType ));
-//                    break;
 
                 }
             }
-
 
             $entry['objectType'] = $objectType;
             $entry['occurrences'] = [];

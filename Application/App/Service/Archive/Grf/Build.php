@@ -67,7 +67,10 @@ class Build {
 
         if ($this->keepOrder){
             usort($pathEntries, function( $a, $b){
-                return $a['order'] > $b['order'];
+                if ($a['order'] == $b['order'])
+                    return 0;
+
+                return $a['order'] > $b['order'] ? -1 : 1;
             });
         }
 
@@ -97,7 +100,9 @@ class Build {
         }
 
         usort($areaEntries, function( $a, $b){
-            return $a['linkId'] > $b['linkId'];
+            if ($a['linkId'] == $b['linkId'])
+                return 0;
+            return $a['linkId'] > $b['linkId'] ? -1 : 1;
         });
 
         $result->write(count($areaEntries), NBinary::INT_32);

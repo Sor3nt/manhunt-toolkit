@@ -1201,7 +1201,10 @@ class Compiler
         }
 
         usort($results, function ($a, $b) {
-            return $a['name'] > $b['name'];
+            if ($a['name'] == $b['name'])
+                return 0;
+
+            return $a['name'] > $b['name'] ? -1 : 0;
         });
 
         return $results;
