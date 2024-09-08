@@ -47,7 +47,7 @@ class Build {
             if ($_a == $_b)
                 return 0;
 
-            return $_a > $_b ? -1 : 1;
+            return $_a > $_b ? 1 : -1;
         });
 
         return $this->createFSB($samples, $headerIni);

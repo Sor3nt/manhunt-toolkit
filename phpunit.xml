@@ -2,8 +2,20 @@
 
 <phpunit bootstrap="Application/vendor/autoload.php" colors="true">
     <testsuites>
-        <testsuite name="ProjectRoot Test Suite">
-            <directory>./Tests</directory>
+        <testsuite name="Archives">
+            <directory>./Application/App/Tests/Archive/Bin</directory>
+            <directory>./Application/App/Tests/Archive/Dff</directory>
+            <directory>./Application/App/Tests/Archive/Glg</directory>
+            <directory>./Application/App/Tests/Archive/Gxt</directory>
+            <directory>./Application/App/Tests/Archive/Ifp</directory>
+            <directory>./Application/App/Tests/Archive/Inst</directory>
+            <directory>./Application/App/Tests/Archive/Mdl</directory>
+            <directory>./Application/App/Tests/Archive/Pak</directory>
+            <directory>./Application/App/Tests/Archive/Wav</directory>
+        </testsuite>
+        <testsuite name="MLS Compiler">
+            <directory>./Application/App/Tests/CompilerV2</directory>
+            <directory>./Application/App/Tests/CompilerV2Level</directory>
         </testsuite>
     </testsuites>
 </phpunit>

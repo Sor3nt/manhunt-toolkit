@@ -369,34 +369,34 @@ class Compiler
         if (strpos($this->untouchedSource, 'entity manhunt : et_game') !== false)
             return 78596;
 
-        if ($this->platform === MHT::PLATFORM_PSP){
-            $firstLine = explode("\n", $this->untouchedSource)[0];
-            if (strpos($firstLine, 'SMEM:') === false)
-                die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
 
-            $mem = explode("SMEM:", $firstLine)[1];
-            return (int) explode(" ", $mem)[0];
-        }else{
+        $firstLine = explode("\n", $this->untouchedSource)[0];
+        if (strpos($firstLine, 'SMEM:') === false){
+            if ($this->platform === MHT::PLATFORM_PSP)
+                die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
             return 78596;
         }
 
+        $mem = explode("SMEM:", $firstLine)[1];
+        return (int) explode(" ", $mem)[0];
     }
+
 
     public function getDMEM(){
         //should be unused , just internal
         if (strpos($this->untouchedSource, 'entity manhunt : et_game') !== false)
             return 78596;
 
-        if ($this->platform === MHT::PLATFORM_PSP){
-            $firstLine = explode("\n", $this->untouchedSource)[0];
-            if (strpos($firstLine, 'DMEM:') === false)
-                die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
 
-            $mem = explode("DMEM:", $firstLine)[1];
-            return (int) explode(" ", $mem)[0];
-        }else{
+        $firstLine = explode("\n", $this->untouchedSource)[0];
+        if (strpos($firstLine, 'SMEM:') === false){
+            if ($this->platform === MHT::PLATFORM_PSP)
+                die("MHT header missed!, every srce need this => {#MHT SMEM:69076 | DMEM:190756}");
             return 78596;
         }
+
+        $mem = explode("DMEM:", $firstLine)[1];
+        return (int) explode(" ", $mem)[0];
 
     }
 

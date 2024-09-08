@@ -9,7 +9,7 @@ class PcTest extends Archive
 
     public function test()
     {
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Dff/Manhunt1/PC";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Dff/Manhunt1/PC";
         $outputFolder = $testFolder . "/export";
 
         /*

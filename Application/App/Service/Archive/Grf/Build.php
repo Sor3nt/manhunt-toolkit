@@ -70,7 +70,7 @@ class Build {
                 if ($a['order'] == $b['order'])
                     return 0;
 
-                return $a['order'] > $b['order'] ? -1 : 1;
+                return $a['order'] > $b['order'] ? 1 : -1;
             });
         }
 
@@ -102,7 +102,7 @@ class Build {
         usort($areaEntries, function( $a, $b){
             if ($a['linkId'] == $b['linkId'])
                 return 0;
-            return $a['linkId'] > $b['linkId'] ? -1 : 1;
+            return $a['linkId'] > $b['linkId'] ? 1 : -1;
         });
 
         $result->write(count($areaEntries), NBinary::INT_32);

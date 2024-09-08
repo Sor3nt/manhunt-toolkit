@@ -107,8 +107,10 @@ class Dxt5
         $height = count($array);
         $heightm1 = $height - 1;
         $width = 16;
-        $rowS = (($shift / $width) | 0);
-        $rowE = ((($shift + $length - 1) / $width) | 0);
+        $rowS = intval(($shift / $width));
+        $rowE = intval((($shift + $length - 1) / $width));
+//        $rowS = (($shift / $width) | 0);
+//        $rowE = ((($shift + $length - 1) / $width) | 0);
 
         if ($rowS === $rowE) {
             // all the requested bits are contained in a single uint16

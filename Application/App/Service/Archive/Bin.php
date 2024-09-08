@@ -110,7 +110,11 @@ class Bin extends Archive {
                 if (strpos($fileName, "#") !== false){
                     $this->keepOrder = true;
                     uksort($executionSections[$usedSection][ $pathSplit[1] ][ $pathSplit[2] ], function($a, $b){
-                        return explode("#", $a)[0] > explode("#", $b)[0];
+                        $_a = explode("#", $a)[0];
+                        $_b = explode("#", $b)[0];
+                        if ($_a == $_b) return 0;
+
+                        return $_a > $_b ? 1 : -1;
                     });
                 }
 
@@ -123,7 +127,11 @@ class Bin extends Archive {
                 if (strpos($fileName, "#") !== false) {
                     $this->keepOrder = true;
                     uksort($executionSections[$usedSection][$pathSplit[1]], function ($a, $b) {
-                        return explode("#", $a)[0] > explode("#", $b)[0];
+                        $_a = explode("#", $a)[0];
+                        $_b = explode("#", $b)[0];
+                        if ($_a == $_b) return 0;
+
+                        return $_a > $_b ? 1 : -1;
                     });
                 }
             }
@@ -133,11 +141,17 @@ class Bin extends Archive {
 
         if ($this->keepOrder){
             uksort($executionSections['executions'], function($a, $b){
-                return explode("#", $a)[0] > explode("#", $b)[0];
+                $_a = explode("#", $a)[0];
+                $_b = explode("#", $b)[0];
+                if ($_a == $_b) return 0;
+                return $_a > $_b ? 1 : -1;
             });
 
             uksort($executionSections['envExecutions'], function($a, $b){
-                return explode("#", $a)[0] > explode("#", $b)[0];
+                $_a = explode("#", $a)[0];
+                $_b = explode("#", $b)[0];
+                if ($_a == $_b) return 0;
+                return $_a > $_b ? 1 : -1;
             });
 
         }

@@ -22,7 +22,10 @@ class Build {
             $binary->write($pathFilename->count(), NBinary::INT_32);
 
             $pathFilename->sort(function(SplFileInfo $a, SplFileInfo $b){
-                return (int)$a->getFilename() > (int)$b->getFilename();
+                if ((int)$a->getFilename() == (int)$b->getFilename())
+                    return 0;
+
+                return (int)$a->getFilename() > (int)$b->getFilename() ? 1 : -1;
             });
 
         }else{
@@ -35,7 +38,7 @@ class Build {
             $record = $file;
 
             if ($pathFilename instanceof Finder)
-                $record = json_decode($file->getContents(), true);
+                $record = \json_decode($file->getContents(), true);
 
             /*
              * Append GlgRecord name

@@ -117,7 +117,10 @@ class Glg extends Archive {
 
         if ($records instanceof Finder){
             $records->sort(function(\SplFileInfo $a, \SplFileInfo $b){
-                return explode("#", $a->getFilename())[0] > explode("#", $b->getFilename())[0];
+                $_a = explode("#", $a->getFilename())[0];
+                $_b = explode("#", $b->getFilename())[0];
+                if ($_a == $_b) return 0;
+                return $_a > $_b ? 1 : -1;
             });
 
             foreach ($records as $record) {

@@ -9,7 +9,7 @@ class PspTest extends Archive
 
     public function test()
     {
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Inst/Manhunt2/PSP";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Inst/Manhunt2/PSP";
         $outputFolder = $testFolder . "/export";
 
         echo "\n* INST: Testing Manhunt 2 PSP (unpack/pack) ==> ";

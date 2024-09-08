@@ -566,12 +566,18 @@ class Ifp extends Archive
         if (strpos($lastFolder, "#") !== false){
 
             uksort($ifp, function($a, $b){
-                return explode("#", $a)[0] > explode("#", $b)[0];
+                $_a = explode("#", $a)[0];
+                $_b = explode("#", $b)[0];
+                if ($_a == $_b) return 0;
+                return $_a > $_b ? 1 : -1;
             });
 
             foreach ($ifp as &$item) {
                 uksort($item, function($a, $b){
-                    return explode("#", $a)[0] > explode("#", $b)[0];
+                    $_a = explode("#", $a)[0];
+                    $_b = explode("#", $b)[0];
+                    if ($_a == $_b) return 0;
+                    return $_a > $_b ? 1 : -1;
                 });
             }
 
@@ -643,6 +649,18 @@ class Ifp extends Archive
         ];
     }
 
+    public function findMaxStartTime($animation){
+        $max = 0;
+        foreach ($animation['bones'] as $bone) {
+            if ($max < $bone['startTime']){
+                $max = $bone['startTime'];
+            }
+        }
+
+        return ceil($max);
+
+    }
+
     /**
      * @param $animations
      * @param $game
@@ -698,6 +716,9 @@ class Ifp extends Archive
 
             $chunkSize = 0;
 
+            if ($animation['frameTimeCount'] === 0){
+                $animation['frameTimeCount'] = $this->findMaxStartTime($animation);
+            }
             $fixedFrameTimeCount = $animation['frameTimeCount'];
 
             foreach ($animation['bones'] as $bone) {
@@ -855,7 +876,9 @@ class Ifp extends Archive
                 $chunkSize += $singleChunkBinary->length() * 2;
                 $chunkBinary->concat($singleChunkBinary);
 
-                if ($game == MHT::GAME_MANHUNT_2) {
+                if ($game == MHT::GAME_MANHUNT) {
+
+                }else if ($game == MHT::GAME_MANHUNT_2) {
 
                     //when we pack a MH1 animation into MH2 , the lastFrameTime is missed
                     if (!isset($bone['frames']['lastFrameTime'])){
@@ -994,9 +1017,10 @@ class Ifp extends Archive
                         $binary->write($pPos, NBinary::FLOAT_32);
                     }
 
-                    if ($platform === MHT::PLATFORM_PC && strlen($entry['unknown5']) != 40){
-                        $entry['unknown5'] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
-                    }
+                    //TODD Cutscene write issue...
+//                    if ($platform === MHT::PLATFORM_PC && strlen($entry['unknown5']) != 40){
+//                        $entry['unknown5'] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
+//                    }
 
                     $binary->write($entry['unknown5'], NBinary::HEX);
                 }

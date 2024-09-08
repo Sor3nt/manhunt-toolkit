@@ -9,7 +9,7 @@ class Ps2Test extends Archive
 
     public function test()
     {
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Dff/Manhunt1/PS2";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Dff/Manhunt1/PS2";
         $outputFolder = $testFolder . "/export";
 
         /*

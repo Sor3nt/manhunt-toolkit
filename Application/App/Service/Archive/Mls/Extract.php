@@ -111,9 +111,8 @@ class Extract {
         }while($remain->length() > 0);
 
         //memory workaround
-        if($this->platform === MHT::PLATFORM_PSP){
+        if (strpos($results['SRCE'], "{#MHT") === false)
             $results['SRCE'] = sprintf("{#MHT SMEM:%s | DMEM:%s}\n", $results['SMEM'],$results['DMEM']) . $results['SRCE'];
-        }
 
         return $results;
     }

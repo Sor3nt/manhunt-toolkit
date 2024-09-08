@@ -312,9 +312,12 @@ class Rib extends \App\Service\Archive\Archive
 
         for ($pos = 0; $pos < $this->chunkSize - 4; $pos++) {
             $byte = $in_stream->consume(1, NBinary::U_INT_8);
+            var_dump("nnib", $this->adpcm_ima_qt_expand_nibble($ADPCMChannelStatus, $byte & 0x0f));
+            exit;
             $out_stream[] = $this->adpcm_ima_qt_expand_nibble($ADPCMChannelStatus, $byte & 0x0f);
             $out_stream[] = $this->adpcm_ima_qt_expand_nibble($ADPCMChannelStatus, $byte >> 4);
         }
+
     }
 
     private function adpcm_rib_encode_frame(array &$ADPCMChannelStatus, NBinary $input, NBinary $output) {

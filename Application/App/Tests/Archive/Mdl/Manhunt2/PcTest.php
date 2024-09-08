@@ -11,12 +11,17 @@ class PcTest extends Archive
     public function test()
     {
 
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Mdl/Manhunt2/PC";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Mdl/Manhunt2/PC";
         $outputFolder = $testFolder . "/export";
 
         echo "\n* Mdl: Testing Manhunt 2 PC (unpack/pack) ==> ";
 
 
+        /*
+         * Why the double unpack/pack?
+         *
+         * The Manhunt MDL BoneName has some memory leaked data
+         */
         $this->unPackPack(
             $testFolder . "/modelspc.mdl",
             $outputFolder . "/modelspc#mdl",
@@ -25,14 +30,22 @@ class PcTest extends Archive
             MHT::PLATFORM_PC
         );
 
-        $binary = new NBinary(file_get_contents($testFolder . "/modelspc.mdl"));
+        $this->unPackPack(
+            $outputFolder . "/modelspc.mdl",
+            $outputFolder . "/export/modelspc#mdl",
+            'model file',
+            MHT::GAME_MANHUNT_2,
+            MHT::PLATFORM_PC
+        );
+
 
         $this->assertEquals(
-            md5($binary->binary),
-            md5(file_get_contents($outputFolder . "/modelspc.mdl"))
+            md5(file_get_contents($outputFolder . "/modelspc.mdl")),
+            md5(file_get_contents($outputFolder . "/export/modelspc.mdl"))
         );
 
         $this->rrmdir($outputFolder);
+
 
 
     }

@@ -12,7 +12,7 @@ class PcTest extends TestCase
 
         echo "\n* GLG: Testing Manhunt 2 PC (unpack/pack) ==> ";
 
-        $file = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Glg/Manhunt2/PC/resource1.glg";
+        $file = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Glg/Manhunt2/PC/resource1.glg";
 
         $content = file_get_contents($file);
 

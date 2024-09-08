@@ -11,7 +11,7 @@ class PcTest extends Archive
     {
 
 
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Fsb4";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Fsb4";
         $outputFolder = $testFolder . "/export";
 
         echo "\n* FSB4: Testing Manhunt 2 PC (unpack/pack) ==> ";

@@ -27,13 +27,17 @@ class Archive extends TestCase
 
     public function call( $cmd, $file, $contains, $game, $platform  ){
 
-        $mht = __DIR__ . '/../../../mht.php';
+        if (!file_exists($file)){
+            echo "Requested file is not available! " . $file;
+            die;
+        }
 
+        $mht = __DIR__ . '/../../../mht.php';
         $output = shell_exec(sprintf(
-            'php %s %s %s %s %s', $mht, $cmd, $file, $game, $platform
+            '/usr/local/Cellar/php@8.2/8.2.21/bin/php %s %s %s %s %s', $mht, $cmd, $file, $game, $platform
         ) );
 
-        $this->assertContains($contains, strtolower($output));
+        $this->assertTrue(str_contains(strtolower($output), $contains));
     }
 
 

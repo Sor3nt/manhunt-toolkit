@@ -54,7 +54,10 @@ class Resources
 
         $absoluteFile = $this->workDirectory . $relativeFile;
 
-        if (!file_exists( $absoluteFile ) && !is_dir($absoluteFile)) throw new \Exception(sprintf('File/Folder not found: %s', $absoluteFile));
+        if (!file_exists( $absoluteFile ) && !is_dir($absoluteFile)){
+            echo sprintf('File/Folder not found: %s', $absoluteFile);
+            exit;
+        }
 
         $handler = false;
 
@@ -73,7 +76,10 @@ class Resources
             }
         }
 
-        if ($handler == false) throw new \Exception(sprintf('No handler available for file %s', $absoluteFile));
+        if ($handler == false){
+            echo sprintf('No handler available for file %s', $absoluteFile);
+            exit;
+        }
 
         return new Resource(
             $handler,

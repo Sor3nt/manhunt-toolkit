@@ -65,7 +65,10 @@ class Mls extends Archive {
         $finder->sort(function($file, $fileB) {
             list($index, $filename) = explode("#", $file->getFilename());
             list($indexB, $filename) = explode("#", $fileB->getFilename());
-            return $index > $indexB;
+            if ($index == $indexB)
+                return 0;
+
+            return $index > $indexB ? 1 : -1;
         });
 
         foreach ($finder as $file) {

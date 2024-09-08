@@ -13,7 +13,7 @@ class Dxt5Test extends TestCase
 
         echo "\n* DXT5: Testing DXT5 Texture ==> ";
 
-        $file = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Dxt/dxt.dxt5";
+        $file = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Dxt/dxt.dxt5";
 
         $content = file_get_contents($file);
 

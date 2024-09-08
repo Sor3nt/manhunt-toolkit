@@ -247,17 +247,25 @@ if ($handler instanceof App\Service\Archive\Fsb3){
         $mapFull = [];
 
         $indexWav = 0;
+        $contextNames = [];
         foreach ($contextList as $contextName) {
             if (empty($contextName)) continue;
 
             $contextMapResource = $resources->load($levelSpeechFolder . '/' . $contextName . '/context_map.bin', $game, $platform);
             $contextMaphandler = $contextMapResource->getHandler();
             $contextMap = $contextMaphandler->unpack($contextMapResource->getInput(), $game, $platform);
+//
+//            foreach ($contextMap['result'] as $map) {
+//                $contextNames[] = $map['name'];
+//            }
 
+
+            reset($results);
             foreach ($contextMap['result'] as $mapIndex => $map) {
 
+//var_dump($map['index']);
                 //hmm hab den array index verändert, ka nomma prüfen ^
-                $newResults[$contextMap['name'] . '/' . $map['name'] . '/' . $mapIndex . '.wav'] = $results[array_keys($results)[$map['index']]];
+                $newResults[$contextMap['name'] . '/' . $map['name'] . '/' . $mapIndex . '.wav'] = next($results);
             }
 
             $indexWav += count($contextMap['result']);
@@ -267,7 +275,7 @@ if ($handler instanceof App\Service\Archive\Fsb3){
 
         $newResults['fsb3.json'] = $results['fsb3.json'];
         $results = $newResults;
-var_dump(count($results));
+
 
     }else if (file_exists($dirFile)){
 

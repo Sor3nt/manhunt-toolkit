@@ -9,7 +9,7 @@ class PcTest extends Archive
 
     public function test()
     {
-        $testFolder = explode("/tests/", __DIR__)[0] . "/tests/Resources/Archive/Inst/Manhunt1/PC";
+        $testFolder = explode("/Tests/", __DIR__)[0] . "/Tests/Resources/Archive/Inst/Manhunt1/PC";
         $outputFolder = $testFolder . "/export";
 
         echo "\n* INST: Testing Manhunt 1 PC (unpack/pack) ==> ";

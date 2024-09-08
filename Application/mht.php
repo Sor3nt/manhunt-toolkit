@@ -5,6 +5,11 @@ function exception_error_handler($errno, $errstr, $errfile, $errline ) {
 }
 set_error_handler("exception_error_handler");
 
+$version = phpversion();
+if (substr($version, 0, 1) !== "8"){
+    die("Please use PHP 8.x.");
+}
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 //$a = new \App\Service\CompilerV2\Manhunt();
@@ -42,7 +47,7 @@ if (in_array('no-header', $options) === false){
     echo "██╔████╔██║███████║   ██║       ██║   ██║  ██║██╔██║  ╚██████║\n";
     echo "██║╚██╔╝██║██╔══██║   ██║       ╚██╗ ██╔╝  ████╔╝██║   ╚═══██║\n";
     echo "██║ ╚═╝ ██║██║  ██║   ██║        ╚████╔╝██╗╚██████╔╝██╗█████╔╝\n";
-    echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ 2024\n";
+    echo "╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝         ╚═══╝ ╚═╝ ╚═════╝ ╚═╝╚════╝ 2024-09\n";
     echo "\t\t\tCoded by Sor3nt | dixmor-hospital.com\n";
     echo "A free and open source toolkit to quickly modify Rockstar`s game Manhunt. \n";
 

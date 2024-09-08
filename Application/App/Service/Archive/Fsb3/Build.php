@@ -29,7 +29,11 @@ class Build {
             $pathA = explode("#fsb/", $pathA)[1];
             $pathB = explode("#fsb/", $pathB)[1];
 
-            return array_search($pathA, $globalSampleHeader['orders']) > array_search($pathB, $globalSampleHeader['orders']);
+            $_a = array_search($pathA, $globalSampleHeader['orders']);
+            $_b = array_search($pathB, $globalSampleHeader['orders']);
+            if ($_a == $_b) return 0;
+
+            return $_a > $_b ? 1 : -1;
 
         });
 
@@ -45,7 +49,7 @@ class Build {
             if ($_a == $_b)
                 return 0;
 
-            return $_a > $_b ? -1 : 1;
+            return $_a > $_b ? 1 : -1;
         });
 
 //        var_dump($samples[0][2], $globalSampleHeader['orders'][0]);exit;
