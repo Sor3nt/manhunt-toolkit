@@ -129,10 +129,13 @@ class Gxt extends Archive {
 
                 $result = [
                     'key' => $entry['key'],
-                    'text' => $binary->getString("\x00\x00\x00", false)
+                    'text' => $binary->getString($platform === MHT::PLATFORM_WII ? "\x00\x00" : "\x00\x00\x00", false)
                 ];
 
-                $result['text'] .= "\x00";
+
+                if ($platform !== MHT::PLATFORM_WII){
+                    $result['text'] .= "\x00";
+                }
 
                 $result['text'] = iconv(
                     $platform === MHT::PLATFORM_WII ? 'UTF-16' : 'UTF-16LE',
